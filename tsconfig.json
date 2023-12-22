@@ -8,7 +8,8 @@
       "baseUrl": ".",
       "resolveJsonModule": true,
       "importHelpers": true,
-      "noImplicitAny": false
+      "noImplicitAny": false,
+      "useUnknownInCatchVariables": false
   },
   "include": [
       "src/**/*.ts",

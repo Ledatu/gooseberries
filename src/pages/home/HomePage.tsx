@@ -13,6 +13,12 @@ import {
 import '../../App.scss';
 import Userfront from '@userfront/toolkit';
 
+import {doc, updateDoc} from 'firebase/firestore';
+import {db} from '../../utilities/firebase-config';
+import {ListOfApiKeys} from 'src/components/ListOfApiKeys';
+import {Editable} from 'src/components/Editable';
+// import { Editable } from 'src/components/Editable';
+
 const b = block('app');
 
 enum Theme {
@@ -23,6 +29,8 @@ enum Theme {
 export const HomePage = () => {
     // const [theme, setTheme] = React.useState(Theme.Light);
     // const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [campaignName, setCampaignName] = React.useState('');
+    const [apiKey, setApiKey] = React.useState('');
 
     return (
         <ThemeProvider theme={Theme.Light}>
@@ -53,52 +61,72 @@ export const HomePage = () => {
                         </Col>
                     </Row>
                     {/* <Row space={10}></Row> */}
-                    <Row space={10} style={{marginTop: '20px'}}>
-                        <Col s="4">
-                            <Text variant="subheader-1">Название</Text>
-                            <Container style={{height: '10px'}}></Container>
-                            <TextInput placeholder="Название" />
-                            <Container style={{height: '10px'}}></Container>
-                            <Button
-                                className={b('button')}
-                                // size="l"
-                                style={{marginLeft: '0px'}}
-                                // view=
-                                // href="https://preview.gravity-ui.com/uikit/"
-                                target="_blank"
-                                // onClick={() => {
-                                //     // Userfront.logout();
-                                // }}
-                            >
-                                {/* <Icon data={iconStorybook} /> */}
-                                Добавить
-                            </Button>
-                        </Col>
-                        <Col s="4">
-                            <Text variant="subheader-1">Ключ Апи</Text>
-                            <Container style={{height: '10px'}}></Container>
-                            <TextInput placeholder="Ключ Апи" />
-                        </Col>
-                        <Col s="4">
-                            <Text style={{marginRight: '400px'}} variant="subheader-1">
-                                Обновить
-                            </Text>
-                            <Container style={{height: '10px'}}></Container>
-                            <Button
-                                className={b('button')}
-                                size="m"
-                                view="outlined"
-                                // href="https://preview.gravity-ui.com/uikit/"
-                                target="_blank"
-                                // onClick={() => {
-                                //     // Userfront.logout();
-                                // }}
-                            >
-                                {/* <Icon data={iconStorybook} /> */}
-                                Обновить
-                            </Button>
-                        </Col>
-                    </Row>
+                    <div style={{marginTop: '20px', justifyContent: 'space-between'}}>
+                        <Text variant="subheader-1">Название</Text>
+                        <Container style={{height: '10px'}}></Container>
+                        <TextInput
+                            placeholder="Название"
+                            onChange={(val) => setCampaignName(val.target.value)}
+                        />
+                        <Container style={{height: '10px'}}></Container>
+                        <Button
+                            className={b('button')}
+                            // size="l"
+                            style={{marginLeft: '0px'}}
+                            // view=
+                            // href="https://preview.gravity-ui.com/uikit/"
+                            target="_blank"
+                            // onClick={() => {
+                            //     // Userfront.logout();
+                            // }}
+                        >
+                            {/* <Icon data={iconStorybook} /> */}
+                            Добавить
+                        </Button>
+
+                        <Text variant="subheader-1">Ключ Апи</Text>
+                        <Container style={{height: '10px'}}></Container>
+                        <TextInput
+                            placeholder="Ключ Апи"
+                            onChange={(val) => setApiKey(val.target.value)}
+                        />
+
+                        <Text style={{marginRight: '400px'}} variant="subheader-1">
+                            Обновить
+                        </Text>
+                        <Container style={{height: '10px'}}></Container>
+                        <Button
+                            className={b('button')}
+                            size="m"
+                            view="outlined"
+                            // href="https://preview.gravity-ui.com/uikit/"
+                            target="_blank"
+                            onClick={async () => {
+                                console.log(Userfront.user.userUuid);
+                                interface ICampaign {
+                                    campaignName: string;
+                                    'api-key': string;
+                                }
+                                const campaigns: Array<ICampaign> = [];
+                                campaigns.push({
+                                    campaignName: campaignName,
+                                    'api-key': apiKey,
+                                });
+                                // payload[campaignName] = ;
+                                try {
+                                    await updateDoc(
+                                        doc(db, 'customers', Userfront.user.userUuid ?? ''),
+                                        {campaigns},
+                                    );
+                                } catch (e) {
+                                    console.error('Error adding document: ', e);
+                                }
+                            }}
+                        >
+                            {/* <Icon data={iconStorybook} /> */}
+                            Обновить
+                        </Button>
+                    </div>
                 </Container>
                 {/* <img src={logo} className={b('logo')} alt="logo" /> */}
                 {/* <div className={b('buttons-block')}>
@@ -125,6 +153,8 @@ export const HomePage = () => {
                         Dark theme
                     </Button>
                 </div> */}
+                <ListOfApiKeys></ListOfApiKeys>
+                <Editable />
                 <div className={b('content')}>
                     {/* <div className={b('content-item')}> */}
 
