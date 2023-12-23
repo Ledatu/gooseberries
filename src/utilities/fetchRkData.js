@@ -15,6 +15,23 @@ const getAdverts = (authToken, params) => {
         .catch((error) => console.error(error));
 };
 
+const getStatsByDay = () => {
+    const token =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+    axios
+        .post(
+            'http://185.164.172.100:24456/api/getStatsByDay',
+            {campaign: 'mayusha'},
+            {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            },
+        )
+        .then((response) => response.data)
+        .catch((error) => console.error(error));
+};
+
 const writeAdvertsToDB = async (data, campaignName) => {
     console.log(data);
     const jsonData = {};
@@ -129,6 +146,17 @@ const fetchAdvertStatsAndWriteToDB = async (campaignData) => {
             await new Promise((resolve) => setTimeout(resolve, 8000));
         }
     }
+};
+
+const fetchAdvertStatsByDayAndWriteToDB = async (campaignData) => {
+    const apiKey = campaignData['api-key'];
+    const campaignName = campaignData['campaignName'];
+    if (apiKey || campaignName) {
+    }
+    await getStatsByDay().then((pr) => {
+        if (!pr) return;
+        return pr;
+    });
 };
 
 const fetchAdvertInfosAndWriteToDB = async (campaignData) => {
@@ -284,4 +312,20 @@ export const autoFetchAdvertStats = async () => {
             console.log(result, result.campaigns, result.campaigns[i]);
             fetchAdvertStatsAndWriteToDB(result.campaigns[i]);
         }
+};
+
+export const autoGetAdvertStatsByDay = async () => {
+    const result = (await getDoc(doc(db, 'customers', Userfront.user.userUuid ?? ''))).data();
+    if (result) {
+        const jsonData = {};
+        for (let i = 0; i < result.campaigns.length; i++) {
+            console.log(result, result.campaigns, result.campaigns[i]);
+            jsonData[result.campaigns[i]['campaignName']] = await fetchAdvertStatsByDayAndWriteToDB(
+                result.campaigns[i],
+            );
+        }
+        console.log(jsonData);
+        return jsonData;
+    }
+    return {};
 };

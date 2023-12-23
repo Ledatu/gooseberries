@@ -77,16 +77,21 @@ export const Dashboard = () => {
                         options={optionsTheme}
                         onUpdate={async (val) => {
                             // console.log(val);
-                            setTheme(val == 'light' ? Theme.Light : Theme.Dark);
+                            setTheme(val === 'light' ? Theme.Light : Theme.Dark);
                         }}
                     />
                 </div>
                 <div
                     style={{
-                        marginTop: 16,
+                        marginTop: 8,
+                        // marginLeft: 48,
+                        // marginRight: 48,
                         justifyContent: 'center',
-                        width: '100%',
+
                         // position: 'absolute',
+                        width: '90vw',
+                        position: 'relative',
+                        // left: 'calc(-50vw + 50%)',
                     }}
                 >
                     <PageElem page={page} />
