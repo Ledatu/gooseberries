@@ -59,7 +59,7 @@
 
     &__selectCampaign {
         margin-bottom: 8px;
-        
+
     }
 
     &__summary-text {
@@ -70,6 +70,11 @@
 
     &__tableApi {
         width: 100%;
+    }
+
+    &__tableStats {
+        height: 50vh;
+        // background-color: #1868d7;
     }
 
     &__content {

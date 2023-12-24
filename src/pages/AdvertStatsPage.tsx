@@ -1,32 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {
     Spin,
-    Table,
-    TableDataItem,
-    withTableSelection,
-    // withTableActions,
-    withTableSorting,
-    // withTableSettings,
-    // TableActionConfig,
-    // TableSettingsData,
     DropdownMenu,
     Button,
     Text,
     Card,
-    TableColumnConfig,
     Select,
     SelectOption,
+    // TextInput,
 } from '@gravity-ui/uikit';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../App.scss';
 
-const MyTable = withTableSorting(withTableSelection(Table));
-
 import block from 'bem-cn-lite';
 
 import axios from 'axios';
 import Userfront from '@userfront/toolkit';
+import DataTable from '@gravity-ui/react-data-table';
+import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
 const getUserDoc = () => {
@@ -53,29 +45,30 @@ const getUserDoc = () => {
 export const AdvertStatsPage = () => {
     const columns = [
         {
-            id: 'advertId',
-            name: 'Айди РК',
-            meta: {sort: true},
-            // sticky: 'left',
-        } as TableColumnConfig<TableDataItem>,
-        {id: 'name', name: 'Имя РК', meta: {sort: true}},
-        {id: 'type', name: 'Тип', meta: {sort: true}},
-        {id: 'status', name: 'Сатус', meta: {sort: true}},
-        {id: 'sum', name: 'Расход', meta: {sort: true}},
-        {id: 'drr', name: 'Дрр', meta: {sort: true}},
-        {id: 'orders', name: 'Заказы', meta: {sort: true}},
-        {id: 'sum_orders', name: 'Сумма заказов', meta: {sort: true}},
-        {id: 'views', name: 'Показы', meta: {sort: true}},
-        {id: 'srm', name: 'CRM', meta: {sort: true}},
-        {id: 'ctr', name: 'CTR', meta: {sort: true}},
-        {id: 'clicks', name: 'Клики', meta: {sort: true}},
-        {id: 'budget_current', name: 'Баланс', meta: {sort: true}},
-        {id: 'budget_hold', name: 'Удерживать баланс', meta: {sort: true}},
-        {id: 'budget_day', name: 'Дневной бюджет', meta: {sort: true}},
-        {id: 'bid', name: 'Текущая ставка', meta: {sort: true}},
+            name: 'advertId',
+            header: 'Айди РК',
+        },
+        {
+            name: 'name',
+            header: 'Имя РК',
+        },
+        {name: 'type', header: 'Тип'},
+        {name: 'status', header: 'Сатус'},
+        {name: 'sum', header: 'Расход'},
+        {name: 'drr', header: 'Дрр'},
+        {name: 'orders', header: 'Заказы'},
+        {name: 'sum_orders', header: 'Сумма заказов'},
+        {name: 'views', header: 'Показы'},
+        {name: 'srm', header: 'CRM'},
+        {name: 'ctr', header: 'CTR'},
+        {name: 'clicks', header: 'Клики'},
+        {name: 'budget_current', header: 'Баланс'},
+        {name: 'budget_hold', header: 'Удерживать баланс'},
+        {name: 'budget_day', header: 'Дневной бюджет'},
+        {name: 'bname', header: 'Текущая ставка'},
     ];
 
-    const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
+    // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [document, setUserDoc] = React.useState(getUserDoc());
     const document = getUserDoc();
@@ -93,7 +86,7 @@ export const AdvertStatsPage = () => {
 
     // console.log(document);
 
-    const [data, setTableData] = useState<TableDataItem[]>([]);
+    const [data, setTableData] = useState<any[]>([]);
     const [summary, setSummary] = useState({
         views: 0,
         clicks: 0,
@@ -116,7 +109,7 @@ export const AdvertStatsPage = () => {
             sum_orders: 0,
         };
 
-        const temp: TableDataItem[] = [];
+        const temp: any[] = [];
         for (const [advertId, advertData] of Object.entries(
             document[selected == '' ? selectValue[0] : selected],
         )) {
@@ -404,49 +397,25 @@ export const AdvertStatsPage = () => {
                     }}
                 />
             </div>
-            <MyTable
-                // defaultSortState={sort}
-                // sortState={sort}
-                // onSortStateChange={(state) => setSort(state)}
-                className={b('tableStats')}
-                data={data}
-                columns={columns}
-                onSelectionChange={(val) => {
-                    console.log(val, selectedIds);
-                    setSelectedIds(val);
+            <div
+                style={{
+                    // display: 'flex',
+                    width: '100%',
+                    height: '50vh',
+                    display: 'block',
                 }}
-                selectedIds={selectedIds}
-                // getRowActions={function (
-                //     item: TableDataItem,
-                //     index: number,
-                // ): TableActionConfig<TableDataItem>[] {
-                //     // console.log(item, index);
-                //     if (item || index) {
-                //     }
-
-                //     return [
-                //         {
-                //             text: 'Изменить',
-                //             handler: (item, index, event) => {
-                //                 if (item || index || event) {
-                //                 }
-
-                //                 // console.log(event, index, item);
-                //             },
-                //             // icon?: MenuItemProps['iconStart'];
-                //         },
-                //     ];
-                // }}
-                // settings={[]}
-                // updateSettings={function (data: TableSettingsData): void {
-                //     if (data) {
-                //         console.log(data);
-                //     }
-                //     // filterColumns(columns, data);
-
-                //     // throw new Error('Function// not implemented.');
-                // }}
-            />
+            >
+                <DataTable
+                    settings={{stickyHead: MOVING}}
+                    theme="yandex-cloud"
+                    // defaultSortState={sort}
+                    // sortState={sort}
+                    // onSortStateChange={(state) => setSort(state)}
+                    // className={b('tableStats')}
+                    data={data}
+                    columns={columns}
+                />
+            </div>
         </div>
     );
 };
