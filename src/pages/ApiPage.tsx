@@ -36,6 +36,7 @@ import {
     autoFetchAdvertStats,
     autoFetchAdverts,
 } from 'src/utilities/fetchRkData';
+import axios from 'axios';
 const b = block('app');
 
 export const ApiPage = () => {
@@ -94,7 +95,24 @@ export const ApiPage = () => {
                                     {campaigns},
                                 );
                                 // setEnteredCampaign('');
-                                window.location.reload();
+
+                                const token =
+                                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                axios
+                                    .post(
+                                        'http://185.164.172.100:24456/api/craftNecessaryFoldersAndFilesIfNeeded',
+                                        {uid: Userfront.user.userUuid ?? '', campaigns: campaigns},
+                                        {
+                                            headers: {
+                                                Authorization: 'Bearer ' + token,
+                                            },
+                                        },
+                                    )
+                                    .then(() => {
+                                        window.location.reload();
+                                    })
+                                    .catch((error) => console.error(error));
+
                                 // setEnteredApiKey('');
                                 // document = getUserDoc();
                             }

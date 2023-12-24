@@ -9,86 +9,24 @@ import {
     // withTableSettings,
     // TableActionConfig,
     // TableSettingsData,
+    DropdownMenu,
     Button,
     Text,
     Card,
     TableColumnConfig,
+    Select,
+    SelectOption,
 } from '@gravity-ui/uikit';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-// import {DatePicker} from '@gravity-ui/date-components';
-// import {DocumentData, doc, getDoc} from 'firebase/firestore';
-// import Userfront from '@userfront/toolkit';
-// import {db} from 'src/utilities/firebase-config';
+import '../App.scss';
 
 const MyTable = withTableSorting(withTableSelection(Table));
 
-// const getUserDoc = () => {
-//     const [document, setDocument] = useState<DocumentData>();
-
-//     useEffect(() => {
-//         const dataFetch = async () => {
-//             const document = (
-//                 await getDoc(doc(db, 'customers', Userfront.user.userUuid ?? ''))
-//             ).data() ?? {campaigns: []};
-//             const adverts = {};
-//             for (let i = 0; i < document.campaigns.length; i++) {
-//                 const campaignName = document.campaigns[i].campaignName;
-//                 if (!(campaignName in adverts)) adverts[campaignName] = {adverts: {}, stats: {}};
-//                 try {
-//                     const campaignAdverts = (
-//                         await getDoc(
-//                             doc(
-//                                 db,
-//                                 'customers',
-//                                 Userfront.user.userUuid ?? '',
-//                                 campaignName,
-//                                 'adverts',
-//                             ),
-//                         )
-//                     ).data();
-//                     adverts[campaignName].adverts = campaignAdverts;
-//                     console.log(adverts[campaignName].adverts);
-
-//                     for (const [advertId, _] of Object.entries(adverts[campaignName].adverts)) {
-//                         if (_ || advertId) {
-//                         }
-//                         if (!(advertId in adverts[campaignName].stats))
-//                             adverts[campaignName].stats[advertId] = {};
-//                         const advertStats = (
-//                             await getDoc(
-//                                 doc(
-//                                     db,
-//                                     'customers',
-//                                     Userfront.user.userUuid ?? '',
-//                                     campaignName,
-//                                     'adverts',
-//                                     advertId,
-//                                     'fullstat',
-//                                 ),
-//                             )
-//                         ).data();
-//                         adverts[campaignName].stats[advertId] = advertStats;
-//                     }
-//                     setDocument(adverts);
-//                 } catch (e) {
-//                     console.log(e);
-//                 }
-//             }
-//         };
-
-//         dataFetch();
-//     }, []);
-
-//     return document;
-// };
-// import axios from 'axios';
-
 import block from 'bem-cn-lite';
-// import {doc, getDoc} from 'firebase/firestore';
-// import {db} from 'src/utilities/firebase-config';
 
 import axios from 'axios';
+import Userfront from '@userfront/toolkit';
 const b = block('app');
 
 const getUserDoc = () => {
@@ -99,7 +37,7 @@ const getUserDoc = () => {
         axios
             .post(
                 'http://185.164.172.100:24456/api/getStatsByDay',
-                {campaign: 'mayusha'},
+                {uid: Userfront.user.userUuid ?? ''},
                 {
                     headers: {
                         Authorization: 'Bearer ' + token,
@@ -165,7 +103,7 @@ export const AdvertStatsPage = () => {
         sum_orders: 0,
     });
 
-    const recalc = (daterng) => {
+    const recalc = (daterng, selected = '') => {
         const [startDate, endDate] = daterng;
 
         const summ = {
@@ -179,7 +117,9 @@ export const AdvertStatsPage = () => {
         };
 
         const temp: TableDataItem[] = [];
-        for (const [advertId, advertData] of Object.entries(document)) {
+        for (const [advertId, advertData] of Object.entries(
+            document[selected == '' ? selectValue[0] : selected],
+        )) {
             if (!advertId || !advertData || !advertData['days']) continue;
 
             const advertStatTemp = {
@@ -201,7 +141,7 @@ export const AdvertStatsPage = () => {
                 if (!day) continue;
                 const date = new Date(strDate);
                 date.setHours(0);
-                // if (strDate == '2023-12-22')
+                // if (strDate == '2023-12- 22')
                 //     console.log(lbd, strDate, date.getTime(), startDate.getTime(), date, startDate);
 
                 if (date < startDate || date > endDate) continue;
@@ -252,8 +192,23 @@ export const AdvertStatsPage = () => {
         setTableData(temp);
     };
 
-    // useEffect(() => recalc(dateRange), []);
+    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+
+    const [firstRecalc, setFirstRecalc] = useState(false);
     if (!document) return <Spin />;
+    if (!firstRecalc) {
+        const campaignsNames: object[] = [];
+        for (const [campaignName, _] of Object.entries(document)) {
+            campaignsNames.push({value: campaignName, content: campaignName});
+        }
+        setSelectOptions(campaignsNames as SelectOption<any>[]);
+        const selected = campaignsNames[0]['value'];
+        setSelectValue([selected]);
+
+        recalc(dateRange, selected);
+        setFirstRecalc(true);
+    }
 
     const cardStyle = {
         width: '100%',
@@ -296,6 +251,7 @@ export const AdvertStatsPage = () => {
                 <Card style={cardStyle} theme="info" view="raised">
                     <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                         <Text
+                            className={b('summary-text')}
                             style={{
                                 fontWeight: 'bold',
                                 fontSize: '18pt',
@@ -382,24 +338,61 @@ export const AdvertStatsPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <Button style={{marginRight: '8px', marginBottom: '8px'}}>Пауза</Button>
-                    <Button style={{marginRight: '8px', marginBottom: '8px'}}>Завершиить</Button>
-                    <Button style={{marginRight: '8px', marginBottom: '8px'}}>
-                        Пополнить баланс
-                    </Button>
-                    <Button style={{marginRight: '8px', marginBottom: '8px'}}>
-                        Задать бюджет для удержания
-                    </Button>
-                    <Button style={{marginRight: '8px', marginBottom: '8px'}}>Задать ставку</Button>
+                    <DropdownMenu
+                        renderSwitcher={(props) => (
+                            <Button
+                                {...props}
+                                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                                view="outlined"
+                            >
+                                Управление
+                            </Button>
+                        )}
+                        items={[
+                            [
+                                {
+                                    action: () => console.log('Call'),
+                                    text: 'Пополнить баланс',
+                                },
+                                {
+                                    action: () => console.log('Send email'),
+                                    text: 'Задать бюджет для удержания',
+                                },
+                                {
+                                    action: () => console.log('Send email'),
+                                    text: 'Задать ставку',
+                                },
+                            ],
+                            {
+                                action: () => console.log('Rename'),
+                                text: 'Пауза',
+                            },
+                            {
+                                action: () => console.log('Delete'),
+                                text: 'Завершиить',
+                                theme: 'danger',
+                            },
+                        ]}
+                    />
+                    <Select
+                        className={b('selectCampaign')}
+                        value={selectValue}
+                        placeholder="Values"
+                        options={selectOptions}
+                        onUpdate={(nextValue) => {
+                            setSelectValue(nextValue);
+                            recalc(dateRange, nextValue[0]);
+                        }}
+                    />
                 </div>
-                <Button
+                {/* <Button
                     style={{marginRight: '8px', marginBottom: '8px'}}
                     onClick={() => {
                         recalc(dateRange);
                     }}
                 >
                     Обновить
-                </Button>
+                </Button> */}
                 <DatePicker
                     style={{marginRight: '8px', marginBottom: '8px'}}
                     selectsRange={true}

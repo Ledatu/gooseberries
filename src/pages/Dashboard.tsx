@@ -33,7 +33,7 @@ export const Dashboard = () => {
     ];
     const optionsPages: RadioButtonOption[] = [
         {value: 'api', content: 'Управление магазинами'},
-        {value: 'create_rk', content: 'Создание РК'},
+        // {value: 'create_rk', content: 'Создание РК'},
         {value: 'stats_rk', content: 'Статистика РК'},
     ];
     const [page, setPage] = React.useState('api');
