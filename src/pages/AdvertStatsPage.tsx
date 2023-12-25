@@ -399,14 +399,13 @@ export const AdvertStatsPage = () => {
             </div>
             <div
                 style={{
-                    // display: 'flex',
                     width: '100%',
                     height: '50vh',
-                    display: 'block',
+                    overflow: 'auto',
                 }}
             >
                 <DataTable
-                    settings={{stickyHead: MOVING}}
+                    settings={{stickyHead: MOVING, stickyFooter: MOVING}}
                     theme="yandex-cloud"
                     // defaultSortState={sort}
                     // sortState={sort}
@@ -414,6 +413,7 @@ export const AdvertStatsPage = () => {
                     // className={b('tableStats')}
                     data={data}
                     columns={columns}
+                    footerData={[data[0]]}
                 />
             </div>
         </div>
