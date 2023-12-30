@@ -26,7 +26,7 @@ enum Theme {
 }
 
 export const Dashboard = () => {
-    const [theme, setTheme] = React.useState(Theme.Light);
+    const [theme, setTheme] = React.useState(Theme.Dark);
     const optionsTheme: RadioButtonOption[] = [
         {value: 'light', content: 'Светлая'},
         {value: 'dark', content: 'Темная'},
@@ -36,7 +36,7 @@ export const Dashboard = () => {
         // {value: 'create_rk', content: 'Создание РК'},
         {value: 'stats_rk', content: 'Статистика РК'},
     ];
-    const [page, setPage] = React.useState('api');
+    const [page, setPage] = React.useState('stats_rk');
     return (
         <ThemeProvider theme={theme}>
             <div className={b()}>

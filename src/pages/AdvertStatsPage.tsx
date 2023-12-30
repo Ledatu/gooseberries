@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Spin,
     DropdownMenu,
@@ -7,11 +7,15 @@ import {
     Card,
     Select,
     SelectOption,
+    // Popover,
+    Popup,
+    TextInput,
+
     // TextInput,
 } from '@gravity-ui/uikit';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import {RangeCalendar} from '@gravity-ui/date-components';
 import '../App.scss';
+import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
 import block from 'bem-cn-lite';
 
@@ -46,27 +50,390 @@ export const AdvertStatsPage = () => {
     const columns = [
         {
             name: 'advertId',
-            header: 'Айди РК',
+            header: (
+                <div
+                    style={{width: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['advertId'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Айди РК"
+                    />
+                </div>
+            ),
         },
         {
             name: 'name',
-            header: 'Имя РК',
+            // header: 'Имя РК',
+            header: (
+                <div
+                    style={{minWidth: '100px', width: '100%'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['name'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Имя РК"
+                    />
+                </div>
+            ),
         },
-        {name: 'type', header: 'Тип'},
-        {name: 'status', header: 'Сатус'},
-        {name: 'sum', header: 'Расход'},
-        {name: 'drr', header: 'Дрр'},
-        {name: 'orders', header: 'Заказы'},
-        {name: 'sum_orders', header: 'Сумма заказов'},
-        {name: 'views', header: 'Показы'},
-        {name: 'srm', header: 'CRM'},
-        {name: 'ctr', header: 'CTR'},
-        {name: 'clicks', header: 'Клики'},
-        {name: 'budget_current', header: 'Баланс'},
-        {name: 'budget_hold', header: 'Удерживать баланс'},
-        {name: 'budget_day', header: 'Дневной бюджет'},
-        {name: 'bname', header: 'Текущая ставка'},
+        {
+            name: 'type',
+            header: (
+                <div
+                    style={{minWidth: '80px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['type'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Тип"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'status',
+            header: (
+                <div
+                    style={{minWidth: '80px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['status'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Статус"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'sum',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['sum'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Расход, ₽"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'drr',
+            header: (
+                <div
+                    style={{minWidth: '70px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput hasClear placeholder="Дрр, %" />
+                </div>
+            ),
+        },
+        {
+            name: 'orders',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['orders'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Заказов, шт."
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'sum_orders',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['sum_orders'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Заказов, ₽"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'views',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['views'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Показов, шт."
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'crm',
+            header: (
+                <div
+                    style={{minWidth: '80px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['crm'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="CRM, %"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'ctr',
+            header: (
+                <div
+                    style={{minWidth: '80px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['ctr'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="CTR, %"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'clicks',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['clicks'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Клики, шт."
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'budget_current',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['budget_current'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Баланс, ₽"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'budget_hold',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['budget_hold'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Удерживать баланс, ₽"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'budget_day',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['budget_day'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Дневной бюджет, ₽"
+                    />
+                </div>
+            ),
+        },
+        {
+            name: 'current_bid',
+            header: (
+                <div
+                    style={{minWidth: '100px'}}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                >
+                    <TextInput
+                        onChange={(val) => {
+                            setFilters(() => {
+                                filters['budget_day'] = val.target.value;
+                                console.log(filters);
+                                recalc(dateRange, '', filters);
+                                return filters;
+                            });
+                        }}
+                        hasClear
+                        placeholder="Текущая ставка, ₽"
+                    />
+                </div>
+            ),
+        },
     ];
+
+    const [filters, setFilters] = useState({undef: false});
+    const [filteredSummary, setFilteredSummary] = useState({
+        views: 0,
+        clicks: 0,
+        sum: 0,
+        ctr: 0,
+        drr: 0,
+        orders: 0,
+        sum_orders: 0,
+    });
 
     // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
@@ -83,8 +450,12 @@ export const AdvertStatsPage = () => {
     monthAgo.setDate(monthAgo.getDate() - 30);
     const [dateRange, setDateRange] = useState([monthAgo, today]);
     const [startDate, endDate] = dateRange;
-
+    const fieldRef = useRef(null);
+    const [datePickerOpen, setDatePickerOpen] = useState(false);
     // console.log(document);
+    // const lbdDate: DateTime =;
+    // lbdDate.subtract(90, 'day');
+    // setLbd(new Date());
 
     const [data, setTableData] = useState<any[]>([]);
     const [summary, setSummary] = useState({
@@ -96,8 +467,14 @@ export const AdvertStatsPage = () => {
         sum_orders: 0,
     });
 
-    const recalc = (daterng, selected = '') => {
+    const recalc = (daterng, selected = '', withfFilters = {}) => {
         const [startDate, endDate] = daterng;
+        startDate.setHours(0);
+        startDate.setMinutes(0);
+        startDate.setSeconds(0);
+        endDate.setHours(0);
+        endDate.setMinutes(0);
+        endDate.setSeconds(0);
 
         const summ = {
             views: 0,
@@ -114,12 +491,29 @@ export const AdvertStatsPage = () => {
             document[selected == '' ? selectValue[0] : selected],
         )) {
             if (!advertId || !advertData || !advertData['days']) continue;
-
+            const paramMap = {
+                status: {
+                    '-1': 'В процессе удаления',
+                    4: 'Готова к запуску',
+                    7: 'Завершена',
+                    8: 'Отказался',
+                    9: 'Идут показы',
+                    11: 'Пауза',
+                },
+                type: {
+                    4: 'Каталог',
+                    5: 'Карточка товара',
+                    6: 'Поиск',
+                    7: 'Главная страница',
+                    8: 'Авто',
+                    9: 'Поиск + Каталог',
+                },
+            };
             const advertStatTemp = {
                 advertId: advertId,
                 name: advertData['name'],
-                status: advertData['status'],
-                type: advertData['type'],
+                status: paramMap['status'][advertData['status']],
+                type: paramMap['type'][advertData['type']],
                 views: 0,
                 clicks: 0,
                 sum: 0,
@@ -134,8 +528,19 @@ export const AdvertStatsPage = () => {
                 if (!day) continue;
                 const date = new Date(strDate);
                 date.setHours(0);
-                // if (strDate == '2023-12- 22')
-                //     console.log(lbd, strDate, date.getTime(), startDate.getTime(), date, startDate);
+                date.setMinutes(0);
+                date.setSeconds(0);
+                // if (strDate == '2023-12-28')
+                //     console.log(
+                //         strDate,
+                //         date.getTime(),
+                //         startDate.getTime(),
+                //         startDate,
+                //         date,
+                //         endDate,
+                //         date < startDate,
+                //         date > endDate,
+                //     );
 
                 if (date < startDate || date > endDate) continue;
                 advertStatTemp['views'] += day['views'];
@@ -163,12 +568,25 @@ export const AdvertStatsPage = () => {
             for (const [key, val] of Object.entries(advertStatTemp)) {
                 if (typeof val === 'number') {
                     if (key === 'drr') advertStatTemp[key] = Math.round(val * 100) / 100;
-                    if (key === 'ctr') advertStatTemp[key] = Math.round(val * 100) / 100;
+                    else if (key === 'ctr') advertStatTemp[key] = Math.round(val * 100) / 100;
                     else advertStatTemp[key] = Math.round(val);
                 }
             }
 
-            temp.push(advertStatTemp);
+            let addFlag = true;
+            const useFilters = withfFilters['undef'] ? withfFilters : filters;
+            for (const [filterArg, val] of Object.entries(useFilters)) {
+                if (filterArg == 'undef') continue;
+                if (
+                    !String(advertStatTemp[filterArg])
+                        .toLocaleLowerCase()
+                        .includes(String(val).toLocaleLowerCase())
+                ) {
+                    addFlag = false;
+                    break;
+                }
+            }
+            if (addFlag) temp.push(advertStatTemp);
 
             // data.push(advertStats);
         }
@@ -182,6 +600,36 @@ export const AdvertStatsPage = () => {
         setSummary(summ);
 
         // console.log(temp);
+        const filteredSummaryTemp = {
+            views: 0,
+            clicks: 0,
+            sum: 0,
+            ctr: 0,
+            drr: 0,
+            orders: 0,
+            sum_orders: 0,
+        };
+        for (let i = 0; i < temp.length; i++) {
+            const row = temp[i];
+            for (const key of Object.keys(filteredSummaryTemp)) {
+                filteredSummaryTemp[key] += row[key];
+                filteredSummaryTemp['drr'] = filteredSummaryTemp['sum_orders']
+                    ? (filteredSummaryTemp['sum'] / filteredSummaryTemp['sum_orders']) * 100
+                    : 100;
+                filteredSummaryTemp['ctr'] = filteredSummaryTemp['views']
+                    ? (filteredSummaryTemp['clicks'] / filteredSummaryTemp['views']) * 100
+                    : 0;
+            }
+        }
+        for (const [key, val] of Object.entries(filteredSummaryTemp)) {
+            if (typeof val === 'number') {
+                if (key === 'drr') filteredSummaryTemp[key] = Math.round(val * 100) / 100;
+                else if (key === 'ctr') filteredSummaryTemp[key] = Math.round(val * 100) / 100;
+                else filteredSummaryTemp[key] = Math.round(val);
+            }
+        }
+        setFilteredSummary(filteredSummaryTemp);
+        // if (!temp.length) temp.push({});
         setTableData(temp);
     };
 
@@ -378,42 +826,151 @@ export const AdvertStatsPage = () => {
                         }}
                     />
                 </div>
-                {/* <Button
-                    style={{marginRight: '8px', marginBottom: '8px'}}
-                    onClick={() => {
-                        recalc(dateRange);
-                    }}
+
+                <div ref={fieldRef}>
+                    <Button
+                        style={{cursor: 'pointer', marginBottom: '8px'}}
+                        view="outlined"
+                        onClick={() => {
+                            setDatePickerOpen((curVal) => !curVal);
+                        }}
+                    >
+                        {`${startDate.toLocaleDateString('ru-RU')} - ${endDate.toLocaleDateString(
+                            'ru-RU',
+                        )}`}
+                    </Button>
+                </div>
+                <Popup
+                    open={datePickerOpen}
+                    anchorRef={fieldRef}
+                    onClose={() => recalc(dateRange)}
+                    placement="bottom-end"
                 >
-                    Обновить
-                </Button> */}
-                <DatePicker
-                    style={{marginRight: '8px', marginBottom: '8px'}}
-                    selectsRange={true}
-                    startDate={startDate}
-                    endDate={endDate}
-                    onChange={(update) => {
-                        setDateRange(update);
-                        recalc(update);
-                    }}
-                />
+                    <div style={{display: 'flex', flexDirection: 'row', marginLeft: 10}}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Button
+                                width="max"
+                                className={b('datePickerRangeButton')}
+                                view="flat"
+                                onClick={() => {
+                                    const range = [today, today];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                Сегодня
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const yesterday = new Date(today);
+                                    yesterday.setDate(yesterday.getDate() - 1);
+                                    const range = [yesterday, yesterday];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                Вчера
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const yesterday = new Date(today);
+                                    yesterday.setDate(yesterday.getDate() - 1);
+                                    const eightDaysAgo = new Date(today);
+                                    eightDaysAgo.setDate(eightDaysAgo.getDate() - 7);
+                                    const range = [eightDaysAgo, yesterday];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                7 дней
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const yesterday = new Date(today);
+                                    yesterday.setDate(yesterday.getDate() - 1);
+                                    const thirtyOneDaysAgo = new Date(today);
+                                    thirtyOneDaysAgo.setDate(thirtyOneDaysAgo.getDate() - 30);
+                                    const range = [thirtyOneDaysAgo, yesterday];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                30 дней
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const yesterday = new Date(today);
+                                    yesterday.setDate(yesterday.getDate() - 1);
+                                    const ninetyOneDaysAgo = new Date(today);
+                                    ninetyOneDaysAgo.setDate(ninetyOneDaysAgo.getDate() - 90);
+                                    const range = [ninetyOneDaysAgo, yesterday];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                90 дней
+                            </Button>
+                        </div>
+                        <RangeCalendar
+                            timeZone="Europe/Moscow"
+                            onUpdate={(val) => {
+                                const range = [val.start.toDate(), val.end.toDate()];
+                                setDateRange(range);
+                                setDatePickerOpen(false);
+                                recalc(range);
+                            }}
+                        />
+                    </div>
+                </Popup>
             </div>
             <div
                 style={{
                     width: '100%',
-                    height: '50vh',
+                    maxHeight: '50vh',
                     overflow: 'auto',
                 }}
             >
                 <DataTable
+                    onSort={() => {
+                        recalc(dateRange);
+                    }}
                     settings={{stickyHead: MOVING, stickyFooter: MOVING}}
                     theme="yandex-cloud"
+                    onRowClick={(row, index, event) => {
+                        console.log(row, index, event);
+                    }}
+                    rowClassName={(_row, index) => b('tableRow_' + index)}
                     // defaultSortState={sort}
                     // sortState={sort}
                     // onSortStateChange={(state) => setSort(state)}
                     // className={b('tableStats')}
                     data={data}
                     columns={columns}
-                    footerData={[data[0]]}
+                    footerData={[filteredSummary]}
                 />
             </div>
         </div>
