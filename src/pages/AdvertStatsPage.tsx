@@ -71,6 +71,9 @@ export const AdvertStatsPage = () => {
                     />
                 </div>
             ),
+            sortAccessor: (row) => {
+                return Number(row.advertId);
+            },
         },
         {
             name: 'name',
@@ -630,6 +633,7 @@ export const AdvertStatsPage = () => {
         }
         setFilteredSummary(filteredSummaryTemp);
         // if (!temp.length) temp.push({});
+        temp.sort((a, b) => b.advertId - a.advertId);
         setTableData(temp);
     };
 
