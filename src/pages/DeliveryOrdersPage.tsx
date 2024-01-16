@@ -558,7 +558,15 @@ export const DeliveryOrdersPage = () => {
                         placement="bottom-end"
                     >
                         <div style={{display: 'flex', flexDirection: 'row', padding: 8}}>
-                            <List sortable filterable items={warehouseNames} itemsHeight={200} />
+                            <List
+                                sortable
+                                filterable
+                                items={warehouseNames}
+                                onSortEnd={() => {
+                                    calcColumns();
+                                }}
+                                itemsHeight={200}
+                            />
                         </div>
                     </Popup>
                     <div ref={fieldRef}>
