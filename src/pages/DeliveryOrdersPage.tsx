@@ -562,10 +562,15 @@ export const DeliveryOrdersPage = () => {
                                 sortable
                                 filterable
                                 items={warehouseNames}
-                                onSortEnd={() => {
+                                onSortEnd={({oldIndex, newIndex}) => {
+                                    const element = warehouseNames[oldIndex];
+                                    warehouseNames.splice(oldIndex, 1);
+                                    warehouseNames.splice(newIndex, 0, element);
+                                    setWarehouseNames(warehouseNames);
                                     calcColumns();
                                 }}
                                 itemsHeight={200}
+                                itemHeight={40}
                             />
                         </div>
                     </Popup>
