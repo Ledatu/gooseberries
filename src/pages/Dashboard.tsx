@@ -13,6 +13,7 @@ import '../App.scss';
 import Userfront from '@userfront/toolkit';
 import {ApiPage} from './ApiPage';
 import {AdvertStatsPage} from './AdvertStatsPage';
+import {DeliveryOrdersPage} from './DeliveryOrdersPage';
 // import {db} from '../utilities/firebase-config';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
@@ -35,6 +36,7 @@ export const Dashboard = () => {
         {value: 'api', content: 'Управление магазинами'},
         // {value: 'create_rk', content: 'Создание РК'},
         {value: 'stats_rk', content: 'Статистика РК'},
+        {value: 'deliveryOrders', content: 'Заказы на поставку'},
     ];
     const [page, setPage] = React.useState('stats_rk');
     return (
@@ -105,6 +107,7 @@ function PageElem({page}) {
     const pages = {
         api: <ApiPage />,
         stats_rk: <AdvertStatsPage />,
+        deliveryOrders: <DeliveryOrdersPage />,
     };
     return pages[page] ?? <div></div>;
 }
