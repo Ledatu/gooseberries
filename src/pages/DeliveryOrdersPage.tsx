@@ -79,6 +79,7 @@ export const DeliveryOrdersPage = () => {
     const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [warehouseNames, setWarehouseNames] = useState<string[]>([]);
     const warehouseListRef = useRef(null);
+    const [warehouseList, setWarehouseList] = useState<any[]>([]);
     const [warehouseListOpen, setWarehouseListOpen] = useState(false);
 
     const document = getUserDoc({
@@ -98,7 +99,7 @@ export const DeliveryOrdersPage = () => {
 
     const [data, setTableData] = useState<any[]>([]);
 
-    const calcColumns = (selected = '') => {
+    const calcColumns = (selected = '', sortedWarehouseNames: any[] = []) => {
         const columnsTemp = [
             {
                 name: 'art',
@@ -310,8 +311,8 @@ export const DeliveryOrdersPage = () => {
         createNewWarehouseColumn('Все склады');
 
         const warehouseNamesTemp =
-            warehouseNames && warehouseNames.length
-                ? warehouseNames
+            sortedWarehouseNames && sortedWarehouseNames.length
+                ? sortedWarehouseNames
                 : document[selected == '' ? selectValue[0] : selected]['warehouseNames'];
         if (warehouseNamesTemp) {
             for (let i = 0; i < warehouseNamesTemp.length; i++) {
@@ -319,6 +320,7 @@ export const DeliveryOrdersPage = () => {
             }
         }
         setWarehouseNames(warehouseNamesTemp);
+        setWarehouseList(warehouseNamesTemp);
         console.log(warehouseNamesTemp);
 
         setColumns(columnsTemp);
@@ -557,21 +559,34 @@ export const DeliveryOrdersPage = () => {
                         onClose={() => recalc(dateRange)}
                         placement="bottom-end"
                     >
-                        <div style={{display: 'flex', flexDirection: 'row', padding: 8}}>
+                        <div style={{display: 'flex', flexDirection: 'column', padding: 8}}>
                             <List
                                 sortable
                                 filterable
-                                items={warehouseNames}
+                                items={warehouseList}
                                 onSortEnd={({oldIndex, newIndex}) => {
+                                    console.log(oldIndex, newIndex);
+                                    console.log(warehouseNames);
+
                                     const element = warehouseNames[oldIndex];
                                     warehouseNames.splice(oldIndex, 1);
                                     warehouseNames.splice(newIndex, 0, element);
-                                    setWarehouseNames(warehouseNames);
-                                    calcColumns();
+                                    console.log(warehouseNames);
+                                    // setWarehouseNames(warehouseNames);
                                 }}
                                 itemsHeight={200}
                                 itemHeight={40}
                             />
+                            <Button
+                                style={{marginTop: 8}}
+                                view="action"
+                                onClick={() => {
+                                    calcColumns('', warehouseNames);
+                                    setWarehouseListOpen((curVal) => !curVal);
+                                }}
+                            >
+                                Обновить
+                            </Button>
                         </div>
                     </Popup>
                     <div ref={fieldRef}>

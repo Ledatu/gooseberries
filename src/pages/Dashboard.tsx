@@ -14,6 +14,7 @@ import Userfront from '@userfront/toolkit';
 import {ApiPage} from './ApiPage';
 import {AdvertStatsPage} from './AdvertStatsPage';
 import {DeliveryOrdersPage} from './DeliveryOrdersPage';
+import {MassAdvertPage} from './MassAdvertPage';
 // import {db} from '../utilities/firebase-config';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
@@ -33,9 +34,10 @@ export const Dashboard = () => {
         {value: 'dark', content: 'Темная'},
     ];
     const optionsPages: RadioButtonOption[] = [
-        {value: 'api', content: 'Управление магазинами'},
+        // {value: 'api', content: 'Управление магазинами'},
         // {value: 'create_rk', content: 'Создание РК'},
         {value: 'stats_rk', content: 'Статистика РК'},
+        {value: 'massAdvert', content: 'Запуск РК'},
         {value: 'deliveryOrders', content: 'Заказы на поставку'},
     ];
     const [page, setPage] = React.useState('stats_rk');
@@ -108,6 +110,7 @@ function PageElem({page}) {
         api: <ApiPage />,
         stats_rk: <AdvertStatsPage />,
         deliveryOrders: <DeliveryOrdersPage />,
+        massAdvert: <MassAdvertPage />,
     };
     return pages[page] ?? <div></div>;
 }

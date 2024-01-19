@@ -10,7 +10,14 @@ import {
     // Popover,
     Popup,
     TextInput,
+    Link,
     Icon,
+    Popover,
+    Label,
+    PopoverBehavior,
+    // Checkbox,
+    // RadioButton,
+    // Icon,
     // TextInput,
 } from '@gravity-ui/uikit';
 import {RangeCalendar} from '@gravity-ui/date-components';
@@ -34,8 +41,8 @@ const getUserDoc = () => {
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
         axios
             .post(
-                'http://185.164.172.100:24456/api/getStatsByDay',
-                {uid: Userfront.user.userUuid ?? ''},
+                'http://185.164.172.100:24456/api/getMassAdverts',
+                {uid: Userfront.user.userUuid ?? '', dateRange: {from: '2023', to: '2024'}},
                 {
                     headers: {
                         Authorization: 'Bearer ' + token,
@@ -48,10 +55,33 @@ const getUserDoc = () => {
     return document;
 };
 
-export const AdvertStatsPage = () => {
+export const MassAdvertPage = () => {
     const [filters, setFilters] = useState({undef: false});
+    // const [selectAllDisplayed, setSelectAllDisplayed] = useState(false);
+
     const generateColumns = (columnsInfo) => {
-        const columns: Column<any>[] = [];
+        const columns: Column<any>[] = [
+            // {
+            //     sortable: false,
+            //     name: 'selected',
+            //     header: (
+            //         // <Checkbox
+            //         //     style={{marginTop: 5}}
+            //         //     value={Number(selectAllDisplayed)}
+            //         //     onUpdate={(checked) => {
+            //         //         setSelectAllDisplayed(checked);
+            //         //     }}
+            //         //     size="l"
+            //         // />
+            //     ),
+            //     render: ({value}) => {
+            //         if (!value) return;
+            //         const {val, disabled} = value as {val: boolean; disabled: boolean};
+            //         if (disabled) return;
+            //         return <Checkbox>{val}</Checkbox>;
+            //     },
+            // },
+        ];
         if (!columnsInfo && !columnsInfo.length) return columns;
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
@@ -223,26 +253,92 @@ export const AdvertStatsPage = () => {
 
         return columns;
     };
+
+    const paramMap = {
+        status: {
+            '-1': 'В процессе удаления',
+            4: 'Готова к запуску',
+            7: 'Завершена',
+            8: 'Отказался',
+            // 9: 'Идут показы',
+            9: 'Активна',
+            11: 'Пауза',
+        },
+        type: {
+            4: 'Каталог',
+            5: 'Карточка товара',
+            6: 'Поиск',
+            7: 'Главная страница',
+            8: 'Авто',
+            9: 'Поиск + Каталог',
+        },
+    };
     const columnData = [
         {
-            name: 'advertId',
-            placeholder: 'Айди РК',
+            name: 'art',
+            placeholder: 'Артикул',
+            width: 200,
+            render: ({value, row}) => {
+                return (
+                    <Link
+                        href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
+                        target="_blank"
+                    >
+                        {value}
+                    </Link>
+                );
+            },
         },
-        {name: 'name', placeholder: 'Имя РК'},
-        {name: 'type', placeholder: 'Тип'},
-        {name: 'status', placeholder: 'Статус'},
-        {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'drr', placeholder: 'Дрр, %'},
-        {name: 'orders', placeholder: 'Заказов, шт.'},
-        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
+        {name: 'brand', placeholder: 'Бренд'},
+        {name: 'object', placeholder: 'Предмет'},
+        {name: 'stocks', placeholder: 'Остаток'},
+        {
+            name: 'adverts',
+            placeholder: 'Реклама',
+            render: ({value}) => {
+                if (value === null) return;
+                console.log(value);
+                const generateHtml = () => {
+                    let string = `<div style={display: 'flex'}>`;
+                    if (value) {
+                        for (const [advertId, advertData] of Object.entries(value)) {
+                            if (!advertId || !advertData) continue;
+                            string += `<div style="display: flex; flex-direction: row; justify-content: space-between; font-size: 8pt;">`;
+                            string +=
+                                `<div style="margin: 0 4px;">ID: ${advertId}</div>` +
+                                `<div style="margin: 0 4px;">Тип: ${
+                                    paramMap.type[advertData['type']]
+                                }</div>` +
+                                `<div style="margin: 0 4px;">Статус: ${
+                                    paramMap.status[advertData['status']]
+                                }</div>`;
+                            string += '</div>';
+                        }
+                    }
+                    string += '</div>';
+                    return string;
+                };
+                return (
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                        <Popover
+                            behavior={'delayed' as PopoverBehavior}
+                            disabled={value === undefined}
+                            htmlContent={generateHtml()}
+                        >
+                            <Label theme={value === undefined ? 'warning' : 'success'}>
+                                {value === undefined ? 'Кампаний нет' : 'Кампании есть'}
+                            </Label>
+                        </Popover>
+                    </div>
+                );
+            },
+        },
         {name: 'views', placeholder: 'Показов, шт.'},
-        {name: 'cpm', placeholder: 'CPM, %'},
-        {name: 'ctr', placeholder: 'CTR, %'},
         {name: 'clicks', placeholder: 'Кликов, шт.'},
-        {name: 'budget_current', placeholder: 'Баланс, ₽'},
-        {name: 'budget_hold', placeholder: 'Удерживать баланс, ₽'},
-        {name: 'budget_day', placeholder: 'Дневной бюджет, ₽'},
-        {name: 'current_bid', placeholder: 'Текущая ставка, ₽'},
+        {name: 'ctr', placeholder: 'CTR, %'},
+        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
+        {name: 'drr', placeholder: 'Дрр, %'},
+        {name: 'cpm', placeholder: 'CPM, %'},
     ];
     const columns = generateColumns(columnData);
 
@@ -254,6 +350,7 @@ export const AdvertStatsPage = () => {
         drr: 0,
         orders: 0,
         sum_orders: 0,
+        adverts: null,
     });
 
     // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
@@ -308,91 +405,26 @@ export const AdvertStatsPage = () => {
         };
 
         const temp: any[] = [];
-        for (const [advertId, advertData] of Object.entries(
+        for (const [art, artData] of Object.entries(
             document[selected == '' ? selectValue[0] : selected],
         )) {
-            if (!advertId || !advertData || !advertData['days']) continue;
-            const paramMap = {
-                status: {
-                    '-1': 'В процессе удаления',
-                    4: 'Готова к запуску',
-                    7: 'Завершена',
-                    8: 'Отказался',
-                    9: 'Идут показы',
-                    11: 'Пауза',
-                },
-                type: {
-                    4: 'Каталог',
-                    5: 'Карточка товара',
-                    6: 'Поиск',
-                    7: 'Главная страница',
-                    8: 'Авто',
-                    9: 'Поиск + Каталог',
-                },
+            if (!art || !artData) continue;
+            const artInfo = {
+                art: '',
+                object: '',
+                nmId: 0,
+                title: '',
+                stocks: 0,
+                adverts: 0,
+                brand: '',
             };
-            const advertStatTemp = {
-                advertId: advertId,
-                name: advertData['name'],
-                status: paramMap['status'][advertData['status']],
-                type: paramMap['type'][advertData['type']],
-                views: 0,
-                clicks: 0,
-                sum: 0,
-                budget: 0,
-                drr: 0,
-                ctr: 0,
-                orders: 0,
-                sum_orders: 0,
-            };
-
-            for (const [strDate, day] of Object.entries(advertData['days'])) {
-                if (!day) continue;
-                const date = new Date(strDate);
-                date.setHours(0);
-                date.setMinutes(0);
-                date.setSeconds(0);
-                // if (strDate == '2023-12-28')
-                //     console.log(
-                //         strDate,
-                //         date.getTime(),
-                //         startDate.getTime(),
-                //         startDate,
-                //         date,
-                //         endDate,
-                //         date < startDate,
-                //         date > endDate,
-                //     );
-
-                if (date < startDate || date > endDate) continue;
-                advertStatTemp['views'] += day['views'];
-                advertStatTemp['clicks'] += day['clicks'];
-                advertStatTemp['sum'] += day['sum'];
-                advertStatTemp['orders'] += day['orders'];
-                advertStatTemp['sum_orders'] += day['sum_orders'];
-                advertStatTemp['drr'] = advertStatTemp['sum_orders']
-                    ? (advertStatTemp['sum'] / advertStatTemp['sum_orders']) * 100
-                    : 100;
-
-                advertStatTemp['ctr'] = advertStatTemp['views']
-                    ? (advertStatTemp['clicks'] / advertStatTemp['views']) * 100
-                    : 0;
-
-                summ['views'] += day['views'];
-                summ['clicks'] += day['clicks'];
-                summ['sum'] += day['sum'];
-                summ['orders'] += day['orders'];
-                summ['sum_orders'] += day['sum_orders'];
-                summ['drr'] = summ['sum_orders'] ? (summ['sum'] / summ['sum_orders']) * 100 : 100;
-                summ['ctr'] = summ['views'] ? (summ['clicks'] / summ['views']) * 100 : 0;
-            }
-
-            for (const [key, val] of Object.entries(advertStatTemp)) {
-                if (typeof val === 'number') {
-                    if (key === 'drr') advertStatTemp[key] = Math.round(val * 100) / 100;
-                    else if (key === 'ctr') advertStatTemp[key] = Math.round(val * 100) / 100;
-                    else advertStatTemp[key] = Math.round(val);
-                }
-            }
+            artInfo.art = artData['art'];
+            artInfo.object = artData['object'];
+            artInfo.nmId = artData['nmId'];
+            artInfo.title = artData['title'];
+            artInfo.brand = artData['brand'];
+            artInfo.stocks = artData['stocks'];
+            artInfo.adverts = artData['adverts'];
 
             const compare = (a, filterData) => {
                 const {val, compMode} = filterData;
@@ -416,12 +448,12 @@ export const AdvertStatsPage = () => {
             for (const [filterArg, filterData] of Object.entries(useFilters)) {
                 if (filterArg == 'undef' || !filterData) continue;
                 if (filterData['val'] == '') continue;
-                if (!compare(advertStatTemp[filterArg], filterData)) {
+                if (!compare(artInfo[filterArg], filterData)) {
                     addFlag = false;
                     break;
                 }
             }
-            if (addFlag) temp.push(advertStatTemp);
+            if (addFlag) temp.push(artInfo);
 
             // data.push(advertStats);
         }
@@ -443,10 +475,12 @@ export const AdvertStatsPage = () => {
             drr: 0,
             orders: 0,
             sum_orders: 0,
+            adverts: null,
         };
         for (let i = 0; i < temp.length; i++) {
             const row = temp[i];
             for (const key of Object.keys(filteredSummaryTemp)) {
+                if (key == 'adverts') continue;
                 filteredSummaryTemp[key] += row[key];
                 filteredSummaryTemp['drr'] = filteredSummaryTemp['sum_orders']
                     ? (filteredSummaryTemp['sum'] / filteredSummaryTemp['sum_orders']) * 100
@@ -786,7 +820,7 @@ export const AdvertStatsPage = () => {
             <div
                 style={{
                     width: '100%',
-                    maxHeight: '50vh',
+                    maxHeight: '60vh',
                     overflow: 'auto',
                 }}
             >
@@ -794,7 +828,7 @@ export const AdvertStatsPage = () => {
                     onSort={() => {
                         recalc(dateRange);
                     }}
-                    settings={{stickyHead: MOVING, stickyFooter: MOVING}}
+                    settings={{stickyHead: MOVING, stickyFooter: MOVING, displayIndices: true}}
                     theme="yandex-cloud"
                     onRowClick={(row, index, event) => {
                         console.log(row, index, event);
