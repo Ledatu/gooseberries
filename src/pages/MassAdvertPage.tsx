@@ -15,6 +15,7 @@ import {
     Popover,
     Label,
     PopoverBehavior,
+    Modal,
     // Checkbox,
     // RadioButton,
     // Icon,
@@ -57,7 +58,9 @@ const getUserDoc = () => {
 
 export const MassAdvertPage = () => {
     const [filters, setFilters] = useState({undef: false});
-    // const [selectAllDisplayed, setSelectAllDisplayed] = useState(false);
+    const [modalFormOpen, setModalFormOpen] = useState(false);
+    const [budgetInputValue, setBudgetInputValue] = useState(500);
+    const [bidInputValue, setBidInputValue] = useState(125);
 
     const generateColumns = (columnsInfo) => {
         const columns: Column<any>[] = [
@@ -297,27 +300,63 @@ export const MassAdvertPage = () => {
             placeholder: 'Реклама',
             render: ({value}) => {
                 if (value === null) return;
-                console.log(value);
+                if (value === undefined)
+                    return (
+                        <div style={{display: 'flex', justifyContent: 'center'}}>
+                            <Label theme="unknown">Кампаний нет</Label>
+                        </div>
+                    );
+                // console.log(value);
                 const generateHtml = () => {
                     let string = `<div style={display: 'flex'}>`;
                     if (value) {
-                        for (const [advertId, advertData] of Object.entries(value)) {
-                            if (!advertId || !advertData) continue;
-                            string += `<div style="display: flex; flex-direction: row; justify-content: space-between; font-size: 8pt;">`;
-                            string +=
-                                `<div style="margin: 0 4px;">ID: ${advertId}</div>` +
-                                `<div style="margin: 0 4px;">Тип: ${
-                                    paramMap.type[advertData['type']]
-                                }</div>` +
-                                `<div style="margin: 0 4px;">Статус: ${
-                                    paramMap.status[advertData['status']]
-                                }</div>`;
-                            string += '</div>';
+                        for (const [advertType, advertsOfType] of Object.entries(value)) {
+                            if (!advertType || !advertsOfType) continue;
+
+                            for (const [advertId, advertData] of Object.entries(advertsOfType)) {
+                                if (!advertId || !advertData) continue;
+
+                                string += `<div style="display: flex; flex-direction: row; justify-content: space-between; font-size: 8pt;">`;
+                                string +=
+                                    `<div style="margin: 0 4px;">ID: ${advertId}</div>` +
+                                    `<div style="margin: 0 4px;">Тип: ${
+                                        paramMap.type[advertData['type']]
+                                    }</div>` +
+                                    `<div style="margin: 0 4px;">Статус: ${
+                                        paramMap.status[advertData['status']]
+                                    }</div>`;
+                                string += '</div>';
+                            }
                         }
                     }
                     string += '</div>';
                     return string;
                 };
+                const tags: any[] = [];
+                const themeToUse = {};
+                for (const [advertType, advertsOfType] of Object.entries(value)) {
+                    if (!advertType || !advertsOfType) continue;
+                    themeToUse[advertType] = {theme: 'unknown', numberOfAdverts: 0};
+                    for (const [advertId, advertData] of Object.entries(advertsOfType)) {
+                        if (!advertId || !advertData) continue;
+                        themeToUse[advertType].numberOfAdverts++;
+                        themeToUse[advertType].theme =
+                            advertData['status'] == 9 ? 'success' : 'danger';
+
+                        if (themeToUse[advertType].numberOfAdverts > 1) {
+                            themeToUse[advertType].theme = 'warning';
+                            break;
+                        }
+                    }
+                    tags.push(
+                        <div style={{margin: '0 2px'}}>
+                            <Label theme={themeToUse[advertType].theme}>
+                                {paramMap.type[advertType]}
+                            </Label>
+                        </div>,
+                    );
+                }
+
                 return (
                     <div style={{display: 'flex', justifyContent: 'center'}}>
                         <Popover
@@ -325,9 +364,7 @@ export const MassAdvertPage = () => {
                             disabled={value === undefined}
                             htmlContent={generateHtml()}
                         >
-                            <Label theme={value === undefined ? 'warning' : 'success'}>
-                                {value === undefined ? 'Кампаний нет' : 'Кампании есть'}
-                            </Label>
+                            <div style={{display: 'flex'}}>{tags}</div>
                         </Popover>
                     </div>
                 );
@@ -660,31 +697,119 @@ export const MassAdvertPage = () => {
                             </Button>
                         )}
                         items={[
-                            [
-                                {
-                                    action: () => console.log('Call'),
-                                    text: 'Пополнить баланс',
-                                },
-                                {
-                                    action: () => console.log('Send email'),
-                                    text: 'Задать бюджет для удержания',
-                                },
-                                {
-                                    action: () => console.log('Send email'),
-                                    text: 'Задать ставку',
-                                },
-                            ],
                             {
-                                action: () => console.log('Rename'),
-                                text: 'Пауза',
-                            },
-                            {
-                                action: () => console.log('Delete'),
-                                text: 'Завершиить',
-                                theme: 'danger',
+                                action: () => setModalFormOpen(true),
+                                text: 'Создать рекламные кампании',
                             },
                         ]}
                     />
+                    <Modal open={modalFormOpen} onClose={() => setModalFormOpen(false)}>
+                        <Card
+                            // theme="raissed"
+                            view="raised"
+                            style={{
+                                width: 300,
+                                // maxWidth: '15vw',
+                                height: 300,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    height: '50%',
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    marginTop: '5%',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    Параметры
+                                </Text>
+                                <TextInput
+                                    style={{
+                                        maxWidth: '70%',
+                                        margin: '8px 0',
+                                    }}
+                                    type="number"
+                                    value={String(budgetInputValue)}
+                                    onChange={(val) => {
+                                        setBudgetInputValue(Number(val.target.value));
+                                    }}
+                                    label="Бюджет"
+                                />
+                                <TextInput
+                                    style={{
+                                        maxWidth: '70%',
+                                        margin: '8px 0',
+                                    }}
+                                    type="number"
+                                    value={String(bidInputValue)}
+                                    onChange={(val) => {
+                                        setBidInputValue(Number(val.target.value));
+                                    }}
+                                    label="Ставка"
+                                />
+                            </div>
+                            <Button
+                                style={{
+                                    margin: '48px 0px',
+                                    maxWidth: '60%',
+                                }}
+                                pin="circle-circle"
+                                size="l"
+                                width="max"
+                                view="action"
+                                // view="outlined-success"
+                                // selected
+                                onClick={() => {
+                                    const params = {
+                                        uid: Userfront.user.userUuid,
+                                        campaignName: selectValue[0],
+                                        arts: {},
+                                    };
+                                    for (let i = 0; i < data.length; i++) {
+                                        const art = data[i].art;
+                                        params.arts[art] = {
+                                            budget: budgetInputValue,
+                                            bid: bidInputValue,
+                                        };
+                                    }
+                                    // console.log(jsonData);
+
+                                    //////////////////////////////////
+                                    const token =
+                                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                    axios
+                                        .post(
+                                            'http://185.164.172.100:24456/api/startMassAdverts',
+                                            params,
+                                            {
+                                                headers: {
+                                                    Authorization: 'Bearer ' + token,
+                                                },
+                                            },
+                                        )
+                                        .then((response) => console.log(response.data))
+                                        .catch((error) => console.error(error));
+                                    //////////////////////////////////
+
+                                    setModalFormOpen(false);
+                                }}
+                            >
+                                Запуск
+                            </Button>
+                        </Card>
+                    </Modal>
                     <Select
                         className={b('selectCampaign')}
                         value={selectValue}
