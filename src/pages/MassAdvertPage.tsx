@@ -16,6 +16,8 @@ import {
     Label,
     PopoverBehavior,
     Modal,
+    Checkbox,
+    RadioButton,
     // Checkbox,
     // RadioButton,
     // Icon,
@@ -61,6 +63,15 @@ export const MassAdvertPage = () => {
     const [modalFormOpen, setModalFormOpen] = useState(false);
     const [budgetInputValue, setBudgetInputValue] = useState(500);
     const [bidInputValue, setBidInputValue] = useState(125);
+    const [placementsRecomInputValue, setPlacementsRecomInputValue] = useState(false);
+    const [placementsBoosterInputValue, setPlacementsBoosterInputValue] = useState(false);
+    const [placementsCarouselInputValue, setPlacementsCarouselInputValue] = useState(true);
+
+    const advertTypeSwitchValues: any[] = [
+        {value: 'Авто', content: 'Авто'},
+        {value: 'Поиск', content: 'Поиск'},
+    ];
+    const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState('Авто');
 
     const generateColumns = (columnsInfo) => {
         const columns: Column<any>[] = [
@@ -710,7 +721,7 @@ export const MassAdvertPage = () => {
                             style={{
                                 width: 300,
                                 // maxWidth: '15vw',
-                                height: 300,
+                                // height: 300,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
@@ -735,10 +746,18 @@ export const MassAdvertPage = () => {
                                 >
                                     Параметры
                                 </Text>
+                                <RadioButton
+                                    style={{marginBottom: '4px'}}
+                                    defaultValue={advertTypeSwitchValue}
+                                    options={advertTypeSwitchValues}
+                                    onUpdate={(val) => {
+                                        setAdvertTypeSwitchValue(val);
+                                    }}
+                                />
                                 <TextInput
                                     style={{
                                         maxWidth: '70%',
-                                        margin: '8px 0',
+                                        margin: '4px 0',
                                     }}
                                     type="number"
                                     value={String(budgetInputValue)}
@@ -750,7 +769,7 @@ export const MassAdvertPage = () => {
                                 <TextInput
                                     style={{
                                         maxWidth: '70%',
-                                        margin: '8px 0',
+                                        margin: '4px 0',
                                     }}
                                     type="number"
                                     value={String(bidInputValue)}
@@ -759,55 +778,89 @@ export const MassAdvertPage = () => {
                                     }}
                                     label="Ставка"
                                 />
-                            </div>
-                            <Button
-                                style={{
-                                    margin: '48px 0px',
-                                    maxWidth: '60%',
-                                }}
-                                pin="circle-circle"
-                                size="l"
-                                width="max"
-                                view="action"
-                                // view="outlined-success"
-                                // selected
-                                onClick={() => {
-                                    const params = {
-                                        uid: Userfront.user.userUuid,
-                                        campaignName: selectValue[0],
-                                        arts: {},
-                                    };
-                                    for (let i = 0; i < data.length; i++) {
-                                        const art = data[i].art;
-                                        params.arts[art] = {
-                                            budget: budgetInputValue,
-                                            bid: bidInputValue,
+                                <Checkbox
+                                    style={{margin: '4px 0 2px 0'}}
+                                    checked={placementsCarouselInputValue}
+                                    onUpdate={(checked) => {
+                                        setPlacementsCarouselInputValue(checked);
+                                    }}
+                                    title="Карточка товара"
+                                    content="Карточка товара"
+                                />
+                                <Checkbox
+                                    style={{margin: '2px 0'}}
+                                    checked={placementsRecomInputValue}
+                                    onUpdate={(checked) => {
+                                        setPlacementsRecomInputValue(checked);
+                                    }}
+                                    title="Рекомендации на главной"
+                                    content="Рекомендации на главной"
+                                />
+                                <Checkbox
+                                    style={{margin: '2px 0'}}
+                                    checked={placementsBoosterInputValue}
+                                    onUpdate={(checked) => {
+                                        setPlacementsBoosterInputValue(checked);
+                                    }}
+                                    title="Поиск/Каталог"
+                                    content="Поиск/Каталог"
+                                />
+                                <Button
+                                    style={{
+                                        margin: '16px 0px',
+                                        maxWidth: '60%',
+                                    }}
+                                    pin="circle-circle"
+                                    size="l"
+                                    width="max"
+                                    view="action"
+                                    // view="outlined-success"
+                                    // selected
+                                    onClick={() => {
+                                        const params = {
+                                            uid: Userfront.user.userUuid,
+                                            campaignName: selectValue[0],
+                                            arts: {},
                                         };
-                                    }
-                                    // console.log(jsonData);
-
-                                    //////////////////////////////////
-                                    const token =
-                                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                    axios
-                                        .post(
-                                            'http://185.164.172.100:24456/api/startMassAdverts',
-                                            params,
-                                            {
-                                                headers: {
-                                                    Authorization: 'Bearer ' + token,
+                                        for (let i = 0; i < data.length; i++) {
+                                            const art = data[i].art;
+                                            params.arts[art] = {
+                                                type: advertTypeSwitchValue,
+                                                budget: budgetInputValue,
+                                                bid: bidInputValue,
+                                                nmId: data[i].nmId,
+                                                placements: {
+                                                    recom: placementsRecomInputValue,
+                                                    booster: placementsBoosterInputValue,
+                                                    carousel: placementsCarouselInputValue,
                                                 },
-                                            },
-                                        )
-                                        .then((response) => console.log(response.data))
-                                        .catch((error) => console.error(error));
-                                    //////////////////////////////////
+                                            };
+                                        }
+                                        console.log(params);
 
-                                    setModalFormOpen(false);
-                                }}
-                            >
-                                Запуск
-                            </Button>
+                                        //////////////////////////////////
+                                        const token =
+                                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                        axios
+                                            .post(
+                                                'http://185.164.172.100:24456/api/createMassAdverts',
+                                                params,
+                                                {
+                                                    headers: {
+                                                        Authorization: 'Bearer ' + token,
+                                                    },
+                                                },
+                                            )
+                                            .then((response) => console.log(response.data))
+                                            .catch((error) => console.error(error));
+                                        //////////////////////////////////
+
+                                        setModalFormOpen(false);
+                                    }}
+                                >
+                                    Запуск
+                                </Button>
+                            </div>
                         </Card>
                     </Modal>
                     <Select
