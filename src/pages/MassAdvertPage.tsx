@@ -344,28 +344,18 @@ export const MassAdvertPage = () => {
                     return string;
                 };
                 const tags: any[] = [];
-                const themeToUse = {};
                 for (const [advertType, advertsOfType] of Object.entries(value)) {
                     if (!advertType || !advertsOfType) continue;
-                    themeToUse[advertType] = {theme: 'unknown', numberOfAdverts: 0};
                     for (const [advertId, advertData] of Object.entries(advertsOfType)) {
                         if (!advertId || !advertData) continue;
-                        themeToUse[advertType].numberOfAdverts++;
-                        themeToUse[advertType].theme =
-                            advertData['status'] == 9 ? 'success' : 'danger';
+                        const themeToUse = advertData['status'] == 9 ? 'success' : 'danger';
 
-                        if (themeToUse[advertType].numberOfAdverts > 1) {
-                            themeToUse[advertType].theme = 'warning';
-                            break;
-                        }
+                        tags.push(
+                            <div style={{margin: '0 2px'}}>
+                                <Label theme={themeToUse}>{paramMap.type[advertType]}</Label>
+                            </div>,
+                        );
                     }
-                    tags.push(
-                        <div style={{margin: '0 2px'}}>
-                            <Label theme={themeToUse[advertType].theme}>
-                                {paramMap.type[advertType]}
-                            </Label>
-                        </div>,
-                    );
                 }
 
                 return (
