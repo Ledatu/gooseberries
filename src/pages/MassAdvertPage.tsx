@@ -292,8 +292,10 @@ export const MassAdvertPage = () => {
             name: 'art',
             placeholder: 'Артикул',
             width: 200,
-            render: ({value, row}) => {
-                return (
+            render: ({value, row, footer}) => {
+                return footer ? (
+                    value
+                ) : (
                     <Link
                         href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
                         target="_blank"
@@ -371,16 +373,22 @@ export const MassAdvertPage = () => {
                 );
             },
         },
+        {name: 'orders', placeholder: 'Заказов, шт.'},
+        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
+        {name: 'sum', placeholder: 'Расход, ₽'},
+        {name: 'drr', placeholder: 'ДРР, %'},
         {name: 'views', placeholder: 'Показов, шт.'},
         {name: 'clicks', placeholder: 'Кликов, шт.'},
         {name: 'ctr', placeholder: 'CTR, %'},
-        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
-        {name: 'drr', placeholder: 'Дрр, %'},
-        {name: 'cpm', placeholder: 'CPM, %'},
+        {name: 'cpc', placeholder: 'CPC, ₽'},
+        {name: 'cpm', placeholder: 'CPM, ₽'},
+        {name: 'cr', placeholder: 'CR, %'},
+        {name: 'cpo', placeholder: 'CPO, ₽'},
     ];
     const columns = generateColumns(columnData);
 
     const [filteredSummary, setFilteredSummary] = useState({
+        art: '',
         views: 0,
         clicks: 0,
         sum: 0,
@@ -424,6 +432,16 @@ export const MassAdvertPage = () => {
     });
 
     const recalc = (daterng, selected = '', withfFilters = {}) => {
+        const getRoundValue = (a, b, isPercentage = false, def = 0) => {
+            let result = b ? a / b : def;
+            if (isPercentage) {
+                result = Math.round(result * 100 * 100) / 100;
+            } else {
+                result = Math.round(result);
+            }
+            return result;
+        };
+
         const [startDate, endDate] = daterng;
         startDate.setHours(0);
         startDate.setMinutes(0);
@@ -455,6 +473,17 @@ export const MassAdvertPage = () => {
                 stocks: 0,
                 adverts: 0,
                 brand: '',
+                orders: 0,
+                sum_orders: 0,
+                sum: 0,
+                views: 0,
+                clicks: 0,
+                drr: 0,
+                ctr: 0,
+                cpc: 0,
+                cpm: 0,
+                cr: 0,
+                cpo: 0,
             };
             artInfo.art = artData['art'];
             artInfo.object = artData['object'];
@@ -463,6 +492,35 @@ export const MassAdvertPage = () => {
             artInfo.brand = artData['brand'];
             artInfo.stocks = artData['stocks'];
             artInfo.adverts = artData['adverts'];
+
+            if (artData['advertsStats']) {
+                for (const [strDate, day] of Object.entries(artData['advertsStats'])) {
+                    if (!day) continue;
+                    const date = new Date(strDate);
+                    date.setHours(0);
+                    date.setMinutes(0);
+                    date.setSeconds(0);
+                    if (date < startDate || date > endDate) continue;
+
+                    artInfo.sum_orders += day['sum_orders'];
+                    artInfo.orders += day['orders'];
+                    artInfo.sum += day['sum'];
+                    artInfo.views += day['views'];
+                    artInfo.clicks += day['clicks'];
+                }
+                artInfo.sum_orders = Math.round(artInfo.sum_orders);
+                artInfo.orders = Math.round(artInfo.orders);
+                artInfo.sum = Math.round(artInfo.sum);
+                artInfo.views = Math.round(artInfo.views);
+                artInfo.clicks = Math.round(artInfo.clicks);
+
+                artInfo.drr = getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1);
+                artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
+                artInfo.cpc = getRoundValue(artInfo.sum, artInfo.clicks);
+                artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
+                artInfo.cr = getRoundValue(artInfo.orders, artInfo.views, true);
+                artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders);
+            }
 
             const compare = (a, filterData) => {
                 const {val, compMode} = filterData;
@@ -506,35 +564,62 @@ export const MassAdvertPage = () => {
 
         // console.log(temp);
         const filteredSummaryTemp = {
-            views: 0,
-            clicks: 0,
-            sum: 0,
-            ctr: 0,
-            drr: 0,
+            art: `Показано артикулов: ${temp.length}`,
             orders: 0,
             sum_orders: 0,
+            sum: 0,
+            views: 0,
+            clicks: 0,
+            drr: 0,
+            ctr: 0,
+            cpc: 0,
+            cpm: 0,
+            cr: 0,
+            cpo: 0,
             adverts: null,
         };
         for (let i = 0; i < temp.length; i++) {
             const row = temp[i];
-            for (const key of Object.keys(filteredSummaryTemp)) {
-                if (key == 'adverts') continue;
-                filteredSummaryTemp[key] += row[key];
-                filteredSummaryTemp['drr'] = filteredSummaryTemp['sum_orders']
-                    ? (filteredSummaryTemp['sum'] / filteredSummaryTemp['sum_orders']) * 100
-                    : 100;
-                filteredSummaryTemp['ctr'] = filteredSummaryTemp['views']
-                    ? (filteredSummaryTemp['clicks'] / filteredSummaryTemp['views']) * 100
-                    : 0;
-            }
+            filteredSummaryTemp.sum_orders += row['sum_orders'];
+            filteredSummaryTemp.orders += row['orders'];
+            filteredSummaryTemp.sum += row['sum'];
+            filteredSummaryTemp.views += row['views'];
+            filteredSummaryTemp.clicks += row['clicks'];
         }
-        for (const [key, val] of Object.entries(filteredSummaryTemp)) {
-            if (typeof val === 'number') {
-                if (key === 'drr') filteredSummaryTemp[key] = Math.round(val * 100) / 100;
-                else if (key === 'ctr') filteredSummaryTemp[key] = Math.round(val * 100) / 100;
-                else filteredSummaryTemp[key] = Math.round(val);
-            }
-        }
+        filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
+        filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
+        filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
+        filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
+        filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
+
+        filteredSummaryTemp.drr = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.sum_orders,
+            true,
+            1,
+        );
+        filteredSummaryTemp.ctr = getRoundValue(
+            filteredSummaryTemp.clicks,
+            filteredSummaryTemp.views,
+            true,
+        );
+        filteredSummaryTemp.cpc = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.clicks,
+        );
+        filteredSummaryTemp.cpm = getRoundValue(
+            filteredSummaryTemp.sum * 1000,
+            filteredSummaryTemp.views,
+        );
+        filteredSummaryTemp.cr = getRoundValue(
+            filteredSummaryTemp.orders,
+            filteredSummaryTemp.views,
+            true,
+        );
+        filteredSummaryTemp.cpo = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.orders,
+        );
         setFilteredSummary(filteredSummaryTemp);
         // if (!temp.length) temp.push({});
         temp.sort((a, b) => b.advertId - a.advertId);
@@ -554,6 +639,7 @@ export const MassAdvertPage = () => {
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected = campaignsNames[0]['value'];
         setSelectValue([selected]);
+        console.log(document);
 
         recalc(dateRange, selected);
         setFirstRecalc(true);
@@ -996,7 +1082,13 @@ export const MassAdvertPage = () => {
                     onSort={() => {
                         recalc(dateRange);
                     }}
-                    settings={{stickyHead: MOVING, stickyFooter: MOVING, displayIndices: true}}
+                    startIndex={1}
+                    settings={{
+                        stickyHead: MOVING,
+                        stickyFooter: MOVING,
+                        displayIndices: true,
+                        highlightRows: true,
+                    }}
                     theme="yandex-cloud"
                     onRowClick={(row, index, event) => {
                         console.log(row, index, event);
