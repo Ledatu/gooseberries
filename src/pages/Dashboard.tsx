@@ -40,7 +40,7 @@ export const Dashboard = () => {
         {value: 'massAdvert', content: 'Запуск РК'},
         {value: 'deliveryOrders', content: 'Заказы на поставку'},
     ];
-    const [page, setPage] = React.useState('stats_rk');
+    const [page, setPage] = React.useState('massAdvert');
     return (
         <ThemeProvider theme={theme}>
             <div className={b()}>

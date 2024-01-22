@@ -24,8 +24,8 @@ import {
     // TextInput,
 } from '@gravity-ui/uikit';
 import {RangeCalendar} from '@gravity-ui/date-components';
-import '../App.scss';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
+import '../App.scss';
 
 import block from 'bem-cn-lite';
 
@@ -100,9 +100,10 @@ export const MassAdvertPage = () => {
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
             if (!column) continue;
-            const {name, placeholder, width, render} = column;
+            const {name, placeholder, width, render, className} = column;
             columns.push({
                 name: name,
+                className: b(className ?? (i == 0 ? 'td_fixed' : 'td_body')),
                 header: (
                     <div
                         style={{minWidth: width ?? 100, display: 'flex'}}
@@ -261,7 +262,13 @@ export const MassAdvertPage = () => {
                         />
                     </div>
                 ),
-                render: render ? (args) => render(args) : undefined,
+                render: render
+                    ? (args) => render(args)
+                    : ({value}) => {
+                          return typeof value === 'number'
+                              ? new Intl.NumberFormat('ru-RU').format(value)
+                              : value;
+                      },
             });
         }
 
@@ -373,6 +380,19 @@ export const MassAdvertPage = () => {
                 );
             },
         },
+        // {
+        //     name: 'budget',
+        //     placeholder: 'Бюджет, ₽',
+        //     className: 'td_budget',
+        //     render: ({value}) => {
+        //         if (value === null) return;
+        //         return (
+        //             <div style={{justifyContent: 'center'}}>
+        //                 <TextInput size="s" view="clear" />
+        //             </div>
+        //         );
+        //     },
+        // },
         {name: 'orders', placeholder: 'Заказов, шт.'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {name: 'sum', placeholder: 'Расход, ₽'},
@@ -773,23 +793,13 @@ export const MassAdvertPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <DropdownMenu
-                        renderSwitcher={(props) => (
-                            <Button
-                                {...props}
-                                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                                view="outlined"
-                            >
-                                Управление
-                            </Button>
-                        )}
-                        items={[
-                            {
-                                action: () => setModalFormOpen(true),
-                                text: 'Создать рекламные кампании',
-                            },
-                        ]}
-                    />
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        view="outlined"
+                        onClick={() => setModalFormOpen(true)}
+                    >
+                        Создать РК
+                    </Button>
                     <Modal open={modalFormOpen} onClose={() => setModalFormOpen(false)}>
                         <Card
                             // theme="raissed"
@@ -1071,6 +1081,7 @@ export const MassAdvertPage = () => {
                     </div>
                 </Popup>
             </div>
+
             <div
                 style={{
                     width: '100%',
@@ -1079,9 +1090,6 @@ export const MassAdvertPage = () => {
                 }}
             >
                 <DataTable
-                    onSort={() => {
-                        recalc(dateRange);
-                    }}
                     startIndex={1}
                     settings={{
                         stickyHead: MOVING,

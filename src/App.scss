@@ -62,6 +62,33 @@
 
     }
 
+    // td {
+    //     z-index: 1;
+    // }
+
+    &__td_budget {
+        padding: 0;
+    }
+
+    // &__td_fixed 
+    // {
+    //     left: 0;
+    //     top: 0;
+    //     z-index: 0;
+    //     position: sticky;
+    //     background: var(--g-color-base-background);
+
+    // }
+    
+    // &__data-table__index {
+    //     left: 0;
+    //     top: 0;
+    //     z-index: 0;
+    //     position: sticky;
+    //     background: var(--g-color-base-background);
+
+    // }
+
     &__summary-text {
         font-weight: bold;
         font-size: 18pt;
