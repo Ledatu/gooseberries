@@ -35,7 +35,15 @@ import DataTable, {Column} from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
-import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
+import {
+    CircleMinusFill,
+    CircleMinus,
+    CirclePlusFill,
+    CirclePlus,
+    Funnel,
+    DiamondExclamation,
+    CloudCheck,
+} from '@gravity-ui/icons';
 
 const getUserDoc = () => {
     const [document, setDocument] = useState<any>();
@@ -64,8 +72,8 @@ export const MassAdvertPage = () => {
     const [budgetInputValue, setBudgetInputValue] = useState(500);
     const [bidInputValue, setBidInputValue] = useState(125);
     const [placementsRecomInputValue, setPlacementsRecomInputValue] = useState(false);
-    const [placementsBoosterInputValue, setPlacementsBoosterInputValue] = useState(false);
-    const [placementsCarouselInputValue, setPlacementsCarouselInputValue] = useState(true);
+    const [placementsBoosterInputValue, setPlacementsBoosterInputValue] = useState(true);
+    const [placementsCarouselInputValue, setPlacementsCarouselInputValue] = useState(false);
 
     const advertTypeSwitchValues: any[] = [
         {value: 'Авто', content: 'Авто'},
@@ -320,13 +328,7 @@ export const MassAdvertPage = () => {
             placeholder: 'Реклама',
             render: ({value}) => {
                 if (value === null) return;
-                if (value === undefined)
-                    return (
-                        <div style={{display: 'flex', justifyContent: 'center'}}>
-                            <Label theme="unknown">Кампаний нет</Label>
-                        </div>
-                    );
-                // console.log(value);
+                const tags: any[] = [];
                 const generateHtml = () => {
                     let string = `<div style={display: 'flex'}>`;
                     if (value) {
@@ -335,6 +337,8 @@ export const MassAdvertPage = () => {
 
                             for (const [advertId, advertData] of Object.entries(advertsOfType)) {
                                 if (!advertId || !advertData) continue;
+                                const status = advertData['status'];
+                                if (![4, 9, 11].includes(status)) continue;
 
                                 string += `<div style="display: flex; flex-direction: row; justify-content: space-between; font-size: 8pt;">`;
                                 string +=
@@ -342,8 +346,9 @@ export const MassAdvertPage = () => {
                                     `<div style="margin: 0 4px;">Тип: ${
                                         paramMap.type[advertData['type']]
                                     }</div>` +
-                                    `<div style="margin: 0 4px;">Статус: ${
-                                        paramMap.status[advertData['status']]
+                                    `<div style="margin: 0 4px;">Обновлена: ${
+                                        // paramMap.status[advertData['status']]
+                                        advertData['updateTime']
                                     }</div>`;
                                 string += '</div>';
                             }
@@ -352,21 +357,46 @@ export const MassAdvertPage = () => {
                     string += '</div>';
                     return string;
                 };
-                const tags: any[] = [];
-                for (const [advertType, advertsOfType] of Object.entries(value)) {
-                    if (!advertType || !advertsOfType) continue;
-                    for (const [advertId, advertData] of Object.entries(advertsOfType)) {
-                        if (!advertId || !advertData) continue;
-                        const themeToUse = advertData['status'] == 9 ? 'success' : 'danger';
+                if (value !== undefined) {
+                    for (const [advertType, advertsOfType] of Object.entries(value)) {
+                        if (!advertType || !advertsOfType) continue;
+                        for (const [advertId, advertData] of Object.entries(advertsOfType)) {
+                            if (!advertId || !advertData) continue;
+                            const status = advertData['status'];
+                            if (![4, 9, 11].includes(status)) continue;
 
-                        tags.push(
-                            <div style={{margin: '0 2px'}}>
-                                <Label theme={themeToUse}>{paramMap.type[advertType]}</Label>
-                            </div>,
-                        );
+                            const themeToUse = status == 9 ? 'success' : 'danger';
+
+                            tags.push(
+                                <div style={{margin: '0 2px'}}>
+                                    <Label
+                                        icon={
+                                            advertData['updateTime'] === 'Ошибка.' ? (
+                                                <Icon
+                                                    data={
+                                                        advertData['updateTime'] === 'Ошибка.'
+                                                            ? DiamondExclamation
+                                                            : CloudCheck
+                                                    }
+                                                />
+                                            ) : undefined
+                                        }
+                                        theme={themeToUse}
+                                    >
+                                        {paramMap.type[advertType]}
+                                    </Label>
+                                </div>,
+                            );
+                        }
                     }
                 }
-
+                if (tags.length == 0) {
+                    return (
+                        <div style={{display: 'flex', justifyContent: 'center'}}>
+                            <Label theme="unknown">Кампаний нет</Label>
+                        </div>
+                    );
+                }
                 return (
                     <div style={{display: 'flex', justifyContent: 'center'}}>
                         <Popover
@@ -515,6 +545,7 @@ export const MassAdvertPage = () => {
 
             if (artData['advertsStats']) {
                 for (const [strDate, day] of Object.entries(artData['advertsStats'])) {
+                    if (strDate == 'updateTime') continue;
                     if (!day) continue;
                     const date = new Date(strDate);
                     date.setHours(0);
@@ -865,13 +896,13 @@ export const MassAdvertPage = () => {
                                     label="Ставка"
                                 />
                                 <Checkbox
-                                    style={{margin: '4px 0 2px 0'}}
-                                    checked={placementsCarouselInputValue}
+                                    style={{margin: '2px 0'}}
+                                    checked={placementsBoosterInputValue}
                                     onUpdate={(checked) => {
-                                        setPlacementsCarouselInputValue(checked);
+                                        setPlacementsBoosterInputValue(checked);
                                     }}
-                                    title="Карточка товара"
-                                    content="Карточка товара"
+                                    title="Поиск/Каталог"
+                                    content="Поиск/Каталог"
                                 />
                                 <Checkbox
                                     style={{margin: '2px 0'}}
@@ -883,13 +914,13 @@ export const MassAdvertPage = () => {
                                     content="Рекомендации на главной"
                                 />
                                 <Checkbox
-                                    style={{margin: '2px 0'}}
-                                    checked={placementsBoosterInputValue}
+                                    style={{margin: '4px 0 2px 0'}}
+                                    checked={placementsCarouselInputValue}
                                     onUpdate={(checked) => {
-                                        setPlacementsBoosterInputValue(checked);
+                                        setPlacementsCarouselInputValue(checked);
                                     }}
-                                    title="Поиск/Каталог"
-                                    content="Поиск/Каталог"
+                                    title="Карточка товара"
+                                    content="Карточка товара"
                                 />
                                 <Button
                                     style={{
