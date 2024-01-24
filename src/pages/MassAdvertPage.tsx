@@ -70,16 +70,27 @@ export const MassAdvertPage = () => {
     const [filters, setFilters] = useState({undef: false});
     const [modalFormOpen, setModalFormOpen] = useState(false);
     const [budgetInputValue, setBudgetInputValue] = useState(500);
+    const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
     const [bidInputValue, setBidInputValue] = useState(125);
+    const [bidInputValidationValue, setBidInputValidationValue] = useState(true);
     const [placementsRecomInputValue, setPlacementsRecomInputValue] = useState(false);
     const [placementsBoosterInputValue, setPlacementsBoosterInputValue] = useState(true);
     const [placementsCarouselInputValue, setPlacementsCarouselInputValue] = useState(false);
-
     const advertTypeSwitchValues: any[] = [
         {value: 'Авто', content: 'Авто'},
         {value: 'Поиск', content: 'Поиск'},
     ];
     const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState('Авто');
+
+    const [budgetModalFormOpen, setBudgetModalFormOpen] = useState(false);
+    const [budgetModalBudgetInputValue, setBudgetModalBudgetInputValue] = useState(500);
+    const [budgetModalBudgetInputValidationValue, setBudgetModalBudgetInputValidationValue] =
+        useState(true);
+    const budgetModalSwitchValues: any[] = [
+        {value: 'Пополнить', content: 'Пополнить'},
+        {value: 'Установить лимит', content: 'Установить лимит'},
+    ];
+    const [budgetModalSwitchValue, setBudgetModalSwitchValue] = React.useState('Пополнить');
 
     const generateColumns = (columnsInfo) => {
         const columns: Column<any>[] = [
@@ -500,7 +511,7 @@ export const MassAdvertPage = () => {
         endDate.setMinutes(0);
         endDate.setSeconds(0);
 
-        const summ = {
+        const summaryTemp = {
             views: 0,
             clicks: 0,
             sum: 0,
@@ -571,6 +582,13 @@ export const MassAdvertPage = () => {
                 artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
                 artInfo.cr = getRoundValue(artInfo.orders, artInfo.views, true);
                 artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders);
+
+                summaryTemp.sum_orders += artInfo.sum_orders;
+                summaryTemp.orders += artInfo.orders;
+                summaryTemp.sum += artInfo.sum;
+                summaryTemp.views += artInfo.views;
+                summaryTemp.clicks += artInfo.clicks;
+                summaryTemp.drr = getRoundValue(summaryTemp.sum, summaryTemp.sum_orders, true, 1);
             }
 
             const compare = (a, filterData) => {
@@ -605,13 +623,7 @@ export const MassAdvertPage = () => {
             // data.push(advertStats);
         }
 
-        for (const [key, val] of Object.entries(summ)) {
-            if (typeof val === 'number') {
-                if (key === 'drr') summ[key] = Math.round(val * 100) / 100;
-                else summ[key] = Math.round(val);
-            }
-        }
-        setSummary(summ);
+        setSummary(summaryTemp);
 
         // console.log(temp);
         const filteredSummaryTemp = {
@@ -729,7 +741,7 @@ export const MassAdvertPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['sum']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['sum'])}
                         </Text>
                         <Text>Расход, ₽</Text>
                     </div>
@@ -744,7 +756,7 @@ export const MassAdvertPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['drr']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['drr'])}
                         </Text>
                         <Text> Дрр, %</Text>
                     </div>
@@ -758,7 +770,7 @@ export const MassAdvertPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['orders']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['orders'])}
                         </Text>
                         <Text>Заказов, шт.</Text>
                     </div>
@@ -772,7 +784,7 @@ export const MassAdvertPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['sum_orders']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['sum_orders'])}
                         </Text>
                         <Text> Заказов, ₽</Text>
                     </div>
@@ -786,7 +798,7 @@ export const MassAdvertPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['views']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['views'])}
                         </Text>
                         <Text>Показов, шт.</Text>
                     </div>
@@ -800,7 +812,7 @@ export const MassAdvertPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['clicks']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['clicks'])}
                         </Text>
                         <Text>Кликов, шт.</Text>
                     </div>
@@ -831,7 +843,20 @@ export const MassAdvertPage = () => {
                     >
                         Создать РК
                     </Button>
-                    <Modal open={modalFormOpen} onClose={() => setModalFormOpen(false)}>
+                    <Modal
+                        open={modalFormOpen}
+                        onClose={() => {
+                            setAdvertTypeSwitchValue('Авто');
+                            setBudgetInputValue(500);
+                            setBudgetInputValidationValue(true);
+                            setBidInputValue(125);
+                            setBidInputValidationValue(true);
+                            setModalFormOpen(false);
+                            setPlacementsBoosterInputValue(true);
+                            setPlacementsRecomInputValue(false);
+                            setPlacementsCarouselInputValue(false);
+                        }}
+                    >
                         <Card
                             // theme="raissed"
                             view="raised"
@@ -852,7 +877,7 @@ export const MassAdvertPage = () => {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    marginTop: '5%',
+                                    margin: '16px 0',
                                 }}
                             >
                                 <Text
@@ -879,10 +904,17 @@ export const MassAdvertPage = () => {
                                     type="number"
                                     value={String(budgetInputValue)}
                                     onChange={(val) => {
-                                        setBudgetInputValue(Number(val.target.value));
+                                        const budget = Number(val.target.value);
+                                        if (budget < 500) setBudgetInputValidationValue(false);
+                                        else setBudgetInputValidationValue(true);
+                                        setBudgetInputValue(budget);
                                     }}
+                                    errorMessage={'Введите не менее 500'}
+                                    validationState={
+                                        budgetInputValidationValue ? undefined : 'invalid'
+                                    }
                                     label="Бюджет"
-                                />
+                                />{' '}
                                 <TextInput
                                     style={{
                                         maxWidth: '70%',
@@ -891,8 +923,15 @@ export const MassAdvertPage = () => {
                                     type="number"
                                     value={String(bidInputValue)}
                                     onChange={(val) => {
-                                        setBidInputValue(Number(val.target.value));
+                                        const bid = Number(val.target.value);
+                                        if (bid < 500) setBidInputValidationValue(false);
+                                        else setBidInputValidationValue(true);
+                                        setBidInputValue(bid);
                                     }}
+                                    errorMessage={'Введите не менее 125'}
+                                    validationState={
+                                        bidInputValidationValue ? undefined : 'invalid'
+                                    }
                                     label="Ставка"
                                 />
                                 <Checkbox
@@ -924,13 +963,16 @@ export const MassAdvertPage = () => {
                                 />
                                 <Button
                                     style={{
-                                        margin: '16px 0px',
+                                        margin: '8px 0px',
                                         maxWidth: '60%',
                                     }}
                                     pin="circle-circle"
                                     size="l"
                                     width="max"
                                     view="action"
+                                    disabled={
+                                        !(budgetInputValidationValue && bidInputValidationValue)
+                                    }
                                     // view="outlined-success"
                                     // selected
                                     onClick={() => {
@@ -976,6 +1018,150 @@ export const MassAdvertPage = () => {
                                     }}
                                 >
                                     Запуск
+                                </Button>
+                            </div>
+                        </Card>
+                    </Modal>
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        view="outlined"
+                        onClick={() => {
+                            setBudgetModalBudgetInputValue(500);
+                            setBudgetModalSwitchValue('Пополнить');
+                            setBudgetModalBudgetInputValidationValue(true);
+                            setBudgetModalFormOpen(true);
+                        }}
+                    >
+                        Бюджет
+                    </Button>
+                    <Modal open={budgetModalFormOpen} onClose={() => setBudgetModalFormOpen(false)}>
+                        <Card
+                            // theme="raissed"
+                            view="raised"
+                            style={{
+                                width: 300,
+                                // maxWidth: '15vw',
+                                // height: 300,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    height: '50%',
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    margin: '16px 0',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    Бюджет
+                                </Text>
+                                <RadioButton
+                                    style={{margin: '4px 0'}}
+                                    defaultValue={budgetModalSwitchValue}
+                                    options={budgetModalSwitchValues}
+                                    onUpdate={(val) => {
+                                        setBudgetModalSwitchValue(val);
+                                    }}
+                                />
+                                <TextInput
+                                    style={{
+                                        maxWidth: '70%',
+                                        margin: '4px 0',
+                                    }}
+                                    type="number"
+                                    value={String(budgetModalBudgetInputValue)}
+                                    onChange={(val) => {
+                                        const budget = Number(val.target.value);
+                                        if (budget < 500)
+                                            setBudgetModalBudgetInputValidationValue(false);
+                                        else setBudgetModalBudgetInputValidationValue(true);
+                                        setBudgetModalBudgetInputValue(budget);
+                                    }}
+                                    errorMessage={'Введите не менее 500'}
+                                    validationState={
+                                        budgetModalBudgetInputValidationValue
+                                            ? undefined
+                                            : 'invalid'
+                                    }
+                                    label="Бюджет"
+                                />
+                                <Button
+                                    style={{
+                                        margin: '8px 0px',
+                                        maxWidth: '60%',
+                                    }}
+                                    pin="circle-circle"
+                                    size="l"
+                                    width="max"
+                                    view="action"
+                                    disabled={!budgetModalBudgetInputValidationValue}
+                                    // view="outlined-success"
+                                    // selected
+                                    onClick={() => {
+                                        const params = {
+                                            uid: Userfront.user.userUuid,
+                                            campaignName: selectValue[0],
+                                            advertsIds: {},
+                                        };
+                                        for (let i = 0; i < data.length; i++) {
+                                            const adverts = data[i].adverts;
+                                            if (adverts) {
+                                                for (const [
+                                                    advertType,
+                                                    advertsOfType,
+                                                ] of Object.entries(adverts)) {
+                                                    if (!advertType || !advertsOfType) continue;
+
+                                                    for (const [
+                                                        advertId,
+                                                        advertData,
+                                                    ] of Object.entries(advertsOfType)) {
+                                                        if (!advertId || !advertData) continue;
+                                                        const status = advertData['status'];
+                                                        if (![4, 9, 11].includes(status)) continue;
+                                                        params.advertsIds[advertId] = {
+                                                            mode: budgetModalSwitchValue,
+                                                            budget: budgetModalBudgetInputValue,
+                                                            advertId: advertId,
+                                                        };
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        console.log(params);
+
+                                        //////////////////////////////////
+                                        // const token =
+                                        //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                        // axios
+                                        //     .post(
+                                        //         'http://185.164.172.100:24456/api/createMassAdverts',
+                                        //         params,
+                                        //         {
+                                        //             headers: {
+                                        //                 Authorization: 'Bearer ' + token,
+                                        //             },
+                                        //         },
+                                        //     )
+                                        //     .then((response) => console.log(response.data))
+                                        //     .catch((error) => console.error(error));
+                                        //////////////////////////////////
+
+                                        setBudgetModalFormOpen(false);
+                                    }}
+                                >
+                                    Отправить
                                 </Button>
                             </div>
                         </Card>

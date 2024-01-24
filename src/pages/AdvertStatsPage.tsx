@@ -520,7 +520,7 @@ export const AdvertStatsPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['sum']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['sum'])}
                         </Text>
                         <Text>Расход, ₽</Text>
                     </div>
@@ -535,7 +535,7 @@ export const AdvertStatsPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['drr']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['drr'])}
                         </Text>
                         <Text> Дрр, %</Text>
                     </div>
@@ -549,7 +549,7 @@ export const AdvertStatsPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['orders']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['orders'])}
                         </Text>
                         <Text>Заказов, шт.</Text>
                     </div>
@@ -563,7 +563,7 @@ export const AdvertStatsPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['sum_orders']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['sum_orders'])}
                         </Text>
                         <Text> Заказов, ₽</Text>
                     </div>
@@ -577,7 +577,7 @@ export const AdvertStatsPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['views']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['views'])}
                         </Text>
                         <Text>Показов, шт.</Text>
                     </div>
@@ -591,7 +591,7 @@ export const AdvertStatsPage = () => {
                                 marginTop: '10px',
                             }}
                         >
-                            {summary['clicks']}
+                            {new Intl.NumberFormat('ru-RU').format(summary['clicks'])}
                         </Text>
                         <Text>Кликов, шт.</Text>
                     </div>
