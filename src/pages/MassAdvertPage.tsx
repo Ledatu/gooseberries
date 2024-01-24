@@ -522,8 +522,8 @@ export const MassAdvertPage = () => {
                 title: '',
                 stocks: 0,
                 adverts: 0,
-                budget: 0,
-                budgetToKeep: 0,
+                budget: undefined,
+                budgetToKeep: undefined,
                 brand: '',
                 orders: 0,
                 sum_orders: 0,
@@ -656,8 +656,8 @@ export const MassAdvertPage = () => {
             filteredSummaryTemp.sum += row['sum'];
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
-            filteredSummaryTemp.budget += row['budget'];
-            filteredSummaryTemp.budgetToKeep += row['budgetToKeep'];
+            filteredSummaryTemp.budget += row['budget'] ?? 0;
+            filteredSummaryTemp.budgetToKeep += row['budgetToKeep'] ?? 0;
         }
         filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
         filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
