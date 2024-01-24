@@ -119,7 +119,7 @@ export const MassAdvertPage = () => {
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
             if (!column) continue;
-            const {name, placeholder, width, render, className} = column;
+            const {name, placeholder, width, render, className, valueType} = column;
             columns.push({
                 name: name,
                 className: b(className ?? (i == 0 ? 'td_fixed' : 'td_body')),
@@ -275,6 +275,65 @@ export const MassAdvertPage = () => {
                                                 theme: 'danger',
                                             },
                                         ],
+                                        valueType != 'text'
+                                            ? [
+                                                  {
+                                                      iconStart: (
+                                                          <Icon
+                                                              data={
+                                                                  filters[name]
+                                                                      ? filters[name].compMode ==
+                                                                        'bigger'
+                                                                          ? CirclePlusFill
+                                                                          : CirclePlus
+                                                                      : CirclePlus
+                                                              }
+                                                          />
+                                                      ),
+                                                      action: () => {
+                                                          setFilters(() => {
+                                                              if (!(name in filters))
+                                                                  filters[name] = {
+                                                                      compMode: 'bigger',
+                                                                      val: '',
+                                                                  };
+                                                              filters[name].compMode = 'bigger';
+                                                              recalc(dateRange, '', filters);
+                                                              return filters;
+                                                          });
+                                                      },
+                                                      text: 'Больше',
+                                                  },
+                                                  {
+                                                      iconStart: (
+                                                          <Icon
+                                                              data={
+                                                                  filters[name]
+                                                                      ? filters[name].compMode ==
+                                                                        'not bigger'
+                                                                          ? CircleMinusFill
+                                                                          : CircleMinus
+                                                                      : CircleMinus
+                                                              }
+                                                          />
+                                                      ),
+                                                      action: () => {
+                                                          setFilters(() => {
+                                                              if (!(name in filters))
+                                                                  filters[name] = {
+                                                                      compMode: 'not bigger',
+                                                                      val: '',
+                                                                  };
+                                                              filters[name].compMode = 'not bigger';
+                                                              recalc(dateRange, '', filters);
+                                                              return filters;
+                                                          });
+                                                      },
+                                                      text: 'Меньше',
+                                                      theme: 'danger',
+                                                  },
+                                              ]
+                                            : [],
                                     ]}
                                 />
                             }
@@ -330,13 +389,15 @@ export const MassAdvertPage = () => {
                     </Link>
                 );
             },
+            valueType: 'text',
         },
-        {name: 'brand', placeholder: 'Бренд'},
-        {name: 'object', placeholder: 'Предмет'},
+        {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
+        {name: 'object', placeholder: 'Предмет', valueType: 'text'},
         {name: 'stocks', placeholder: 'Остаток'},
         {
             name: 'adverts',
             placeholder: 'Реклама',
+            valueType: 'text',
             render: ({value}) => {
                 if (value === null) return;
                 const tags: any[] = [];
@@ -610,6 +671,12 @@ export const MassAdvertPage = () => {
                 }
                 if (compMode == 'not equal') {
                     return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
+                }
+                if (compMode == 'bigger') {
+                    return Number(a) > Number(val);
+                }
+                if (compMode == 'not bigger') {
+                    return Number(a) < Number(val);
                 }
                 return false;
             };
