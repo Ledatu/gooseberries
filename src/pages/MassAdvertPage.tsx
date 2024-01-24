@@ -421,19 +421,8 @@ export const MassAdvertPage = () => {
                 );
             },
         },
-        // {
-        //     name: 'budget',
-        //     placeholder: 'Бюджет, ₽',
-        //     className: 'td_budget',
-        //     render: ({value}) => {
-        //         if (value === null) return;
-        //         return (
-        //             <div style={{justifyContent: 'center'}}>
-        //                 <TextInput size="s" view="clear" />
-        //             </div>
-        //         );
-        //     },
-        // },
+        {name: 'budget', placeholder: 'Баланс, ₽'},
+        {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
         {name: 'orders', placeholder: 'Заказов, шт.'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {name: 'sum', placeholder: 'Расход, ₽'},
@@ -533,6 +522,8 @@ export const MassAdvertPage = () => {
                 title: '',
                 stocks: 0,
                 adverts: 0,
+                budget: 0,
+                budgetToKeep: 0,
                 brand: '',
                 orders: 0,
                 sum_orders: 0,
@@ -554,6 +545,21 @@ export const MassAdvertPage = () => {
             artInfo.stocks = artData['stocks'];
             artInfo.adverts = artData['adverts'];
 
+            if (artInfo.adverts) {
+                for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
+                    if (!advertType || !advertsOfType) continue;
+
+                    for (const [advertId, advertData] of Object.entries(advertsOfType)) {
+                        if (!advertId || !advertData) continue;
+                        const status = advertData['status'];
+                        if (![4, 9, 11].includes(status)) continue;
+                        const budget = advertData['budget'];
+                        const budgetToKeep = advertData['budgetToKeep'];
+                        artInfo.budget = budget;
+                        artInfo.budgetToKeep = budgetToKeep;
+                    }
+                }
+            }
             if (artData['advertsStats']) {
                 for (const [strDate, day] of Object.entries(artData['advertsStats'])) {
                     if (strDate == 'updateTime') continue;
@@ -640,6 +646,8 @@ export const MassAdvertPage = () => {
             cr: 0,
             cpo: 0,
             adverts: null,
+            budget: 0,
+            budgetToKeep: 0,
         };
         for (let i = 0; i < temp.length; i++) {
             const row = temp[i];
@@ -648,12 +656,16 @@ export const MassAdvertPage = () => {
             filteredSummaryTemp.sum += row['sum'];
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
+            filteredSummaryTemp.budget += row['budget'];
+            filteredSummaryTemp.budgetToKeep += row['budgetToKeep'];
         }
         filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
         filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
         filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
         filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
         filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
+        filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
+        filteredSummaryTemp.budgetToKeep = Math.round(filteredSummaryTemp.budgetToKeep);
 
         filteredSummaryTemp.drr = getRoundValue(
             filteredSummaryTemp.sum,
@@ -1142,20 +1154,20 @@ export const MassAdvertPage = () => {
                                         console.log(params);
 
                                         //////////////////////////////////
-                                        // const token =
-                                        //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                        // axios
-                                        //     .post(
-                                        //         'http://185.164.172.100:24456/api/createMassAdverts',
-                                        //         params,
-                                        //         {
-                                        //             headers: {
-                                        //                 Authorization: 'Bearer ' + token,
-                                        //             },
-                                        //         },
-                                        //     )
-                                        //     .then((response) => console.log(response.data))
-                                        //     .catch((error) => console.error(error));
+                                        const token =
+                                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                        axios
+                                            .post(
+                                                'http://185.164.172.100:24456/api/depositAdvertsBudgets',
+                                                params,
+                                                {
+                                                    headers: {
+                                                        Authorization: 'Bearer ' + token,
+                                                    },
+                                                },
+                                            )
+                                            .then((response) => console.log(response.data))
+                                            .catch((error) => console.error(error));
                                         //////////////////////////////////
 
                                         setBudgetModalFormOpen(false);
