@@ -1309,7 +1309,7 @@ export const MassAdvertPage = () => {
                     open={datePickerOpen}
                     anchorRef={fieldRef}
                     onClose={() => recalc(dateRange)}
-                    placement="bottom-end"
+                    // placement="bottom-end"
                 >
                     <div style={{display: 'flex', flexDirection: 'row', marginLeft: 10}}>
                         <div
