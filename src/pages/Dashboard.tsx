@@ -53,7 +53,7 @@ export const Dashboard = () => {
                     style={{
                         display: 'flex',
                         width: '100%',
-                        justifyContent: 'space-around',
+                        justifyContent: 'space-between',
                         flexWrap: 'wrap',
                     }}
                 >
@@ -66,7 +66,7 @@ export const Dashboard = () => {
                             setPage(val);
                         }}
                     />
-
+                    {/* <div style={{display: 'flex', flexDirection: 'row'}}> */}
                     <Persona
                         style={{marginBottom: '8px', marginRight: '8px'}}
                         onClose={() => {
@@ -77,7 +77,7 @@ export const Dashboard = () => {
                     />
 
                     <RadioButton
-                        style={{marginBottom: '8px', marginRight: '8px'}}
+                        style={{marginBottom: '8px'}}
                         name="themeRadioButton"
                         defaultValue={theme}
                         options={optionsTheme}
@@ -86,6 +86,7 @@ export const Dashboard = () => {
                             setTheme(val === 'light' ? Theme.Light : Theme.Dark);
                         }}
                     />
+                    {/* </div> */}
                 </div>
                 <div
                     style={{

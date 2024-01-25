@@ -43,6 +43,7 @@ import {
     Funnel,
     DiamondExclamation,
     CloudCheck,
+    Calendar,
 } from '@gravity-ui/icons';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 
@@ -96,11 +97,87 @@ export const MassAdvertPage = () => {
     const [bidModalFormOpen, setBidModalFormOpen] = useState(false);
     const [bidModalBidInputValue, setBidModalBidInputValue] = useState(125);
     const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
+    const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
+    const [bidModalBidStepInputValidationValue, setBidModalBidStepInputValidationValue] =
+        useState(true);
+    const [bidModalCPOInputValue, setBidModalCPOInputValue] = useState(50);
+    const [bidModalCPOInputValidationValue, setBidModalCPOInputValidationValue] = useState(true);
+
     const bidModalSwitchValues: any[] = [
         {value: 'Установить', content: 'Установить'},
-        {value: 'Задать правила', content: 'Задать правила', disabled: true},
+        {value: 'Автоставки', content: 'Автоставки'},
     ];
     const [bidModalSwitchValue, setBidModalSwitchValue] = React.useState('Установить');
+    const bidModalAnalyticsSwitchValues: any[] = [
+        {
+            value: '1 day',
+            content: (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    1<div style={{width: 2}} />
+                    <Icon size={12} data={Calendar}></Icon>
+                </div>
+            ),
+        },
+        {
+            value: '7 days',
+            content: (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    7<div style={{width: 2}} />
+                    <Icon size={12} data={Calendar}></Icon>
+                </div>
+            ),
+        },
+        {
+            value: '14 days',
+            content: (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    14
+                    <div style={{width: 2}} />
+                    <Icon size={12} data={Calendar}></Icon>
+                </div>
+            ),
+        },
+        {
+            value: '30 days',
+            content: (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    30
+                    <div style={{width: 2}} />
+                    <Icon size={12} data={Calendar}></Icon>
+                </div>
+            ),
+        },
+    ];
+    const [bidModalAnalyticsSwitchValue, setBidModalAnalyticsSwitchValue] =
+        React.useState('14 days');
 
     const [data, setTableData] = useState<any[]>([]);
     const generateColumns = (columnsInfo) => {
@@ -810,7 +887,7 @@ export const MassAdvertPage = () => {
         );
         setFilteredSummary(filteredSummaryTemp);
         // if (!temp.length) temp.push({});
-        temp.sort((a, b) => b.advertId - a.advertId);
+        temp.sort((a, b) => a.art.localeCompare(b.art));
         setTableData(temp);
     };
 
@@ -1312,8 +1389,13 @@ export const MassAdvertPage = () => {
                         onClick={() => {
                             setBidModalBidInputValue(125);
                             setBidModalSwitchValue('Установить');
+                            setBidModalAnalyticsSwitchValue('14 days');
                             setBidModalBidInputValidationValue(true);
                             setBidModalFormOpen(true);
+                            setBidModalBidStepInputValue(5);
+                            setBidModalBidStepInputValidationValue(true);
+                            setBidModalCPOInputValue(50);
+                            setBidModalCPOInputValidationValue(true);
                         }}
                     >
                         Ставки
@@ -1356,27 +1438,103 @@ export const MassAdvertPage = () => {
                                     options={bidModalSwitchValues}
                                     onUpdate={(val) => {
                                         setBidModalSwitchValue(val);
+                                        setBidModalBidInputValue(125);
+                                        setBidModalAnalyticsSwitchValue('14 days');
+                                        setBidModalBidInputValidationValue(true);
+                                        setBidModalFormOpen(true);
+                                        setBidModalBidStepInputValue(5);
+                                        setBidModalBidStepInputValidationValue(true);
+                                        setBidModalCPOInputValue(50);
+                                        setBidModalCPOInputValidationValue(true);
                                     }}
                                 />
-                                <TextInput
-                                    style={{
-                                        maxWidth: '70%',
-                                        margin: '4px 0',
-                                    }}
-                                    type="number"
-                                    value={String(bidModalBidInputValue)}
-                                    onChange={(val) => {
-                                        const bid = Number(val.target.value);
-                                        if (bid < 125) setBidModalBidInputValidationValue(false);
-                                        else setBidModalBidInputValidationValue(true);
-                                        setBidModalBidInputValue(bid);
-                                    }}
-                                    errorMessage={'Введите не менее 125'}
-                                    validationState={
-                                        bidModalBidInputValidationValue ? undefined : 'invalid'
-                                    }
-                                    label="Ставка"
-                                />
+
+                                {bidModalSwitchValue == 'Установить' ? (
+                                    <TextInput
+                                        style={{
+                                            maxWidth: '70%',
+                                            margin: '4px 0',
+                                        }}
+                                        type="number"
+                                        value={String(bidModalBidInputValue)}
+                                        onChange={(val) => {
+                                            const bid = Number(val.target.value);
+                                            if (bid < 125)
+                                                setBidModalBidInputValidationValue(false);
+                                            else setBidModalBidInputValidationValue(true);
+                                            setBidModalBidInputValue(bid);
+                                        }}
+                                        errorMessage={'Введите не менее 125'}
+                                        validationState={
+                                            bidModalBidInputValidationValue ? undefined : 'invalid'
+                                        }
+                                        label="Ставка"
+                                    />
+                                ) : (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            width: '100%',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <TextInput
+                                            style={{
+                                                maxWidth: '70%',
+                                                margin: '4px 0',
+                                            }}
+                                            type="number"
+                                            value={String(bidModalCPOInputValue)}
+                                            onChange={(val) => {
+                                                const cpo = Number(val.target.value);
+                                                if (cpo < 0)
+                                                    setBidModalCPOInputValidationValue(false);
+                                                else setBidModalCPOInputValidationValue(true);
+                                                setBidModalCPOInputValue(cpo);
+                                            }}
+                                            errorMessage={'Введите не менее 0'}
+                                            validationState={
+                                                bidModalCPOInputValidationValue
+                                                    ? undefined
+                                                    : 'invalid'
+                                            }
+                                            label="Целевой CPO"
+                                        />
+                                        <TextInput
+                                            style={{
+                                                maxWidth: '70%',
+                                                margin: '4px 0',
+                                            }}
+                                            type="number"
+                                            value={String(bidModalBidStepInputValue)}
+                                            onChange={(val) => {
+                                                const bidStep = Number(val.target.value);
+                                                if (bidStep < 0)
+                                                    setBidModalBidStepInputValidationValue(false);
+                                                else setBidModalBidStepInputValidationValue(true);
+                                                setBidModalBidStepInputValue(bidStep);
+                                            }}
+                                            errorMessage={'Введите не менее 0'}
+                                            validationState={
+                                                bidModalBidStepInputValidationValue
+                                                    ? undefined
+                                                    : 'invalid'
+                                            }
+                                            label="Шаг ставки"
+                                        />
+                                        <Text variant="subheader-1">Аналитика</Text>
+                                        <RadioButton
+                                            style={{margin: '0 2px 0 4px'}}
+                                            defaultValue={bidModalAnalyticsSwitchValue}
+                                            options={bidModalAnalyticsSwitchValues}
+                                            onUpdate={(val) => {
+                                                setBidModalAnalyticsSwitchValue(val);
+                                            }}
+                                        />
+                                    </div>
+                                )}
                                 <Button
                                     style={{
                                         margin: '8px 0px',
