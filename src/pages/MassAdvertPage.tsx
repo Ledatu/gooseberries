@@ -93,6 +93,15 @@ export const MassAdvertPage = () => {
     ];
     const [budgetModalSwitchValue, setBudgetModalSwitchValue] = React.useState('Пополнить');
 
+    const [bidModalFormOpen, setBidModalFormOpen] = useState(false);
+    const [bidModalBidInputValue, setBidModalBidInputValue] = useState(125);
+    const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
+    const bidModalSwitchValues: any[] = [
+        {value: 'Установить', content: 'Установить'},
+        {value: 'Задать правила', content: 'Задать правила', disabled: true},
+    ];
+    const [bidModalSwitchValue, setBidModalSwitchValue] = React.useState('Установить');
+
     const [data, setTableData] = useState<any[]>([]);
     const generateColumns = (columnsInfo) => {
         const columns: Column<any>[] = [
@@ -131,6 +140,7 @@ export const MassAdvertPage = () => {
                 className: b(className ?? (i == 0 ? 'td_fixed' : 'td_body')),
                 header: (
                     <div
+                        title={placeholder}
                         style={{
                             minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
                             display: 'flex',
@@ -520,9 +530,11 @@ export const MassAdvertPage = () => {
         },
         {name: 'budget', placeholder: 'Баланс, ₽'},
         {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
-        {name: 'orders', placeholder: 'Заказов, шт.'},
-        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {name: 'sum', placeholder: 'Расход, ₽'},
+        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
+        {name: 'orders', placeholder: 'Заказов, шт.'},
+        {name: 'cpo', placeholder: 'CPO, ₽'},
+        {name: 'cpoAi', placeholder: 'CPO AI, ₽'},
         {name: 'drr', placeholder: 'ДРР, %'},
         {name: 'views', placeholder: 'Показов, шт.'},
         {name: 'clicks', placeholder: 'Кликов, шт.'},
@@ -530,7 +542,6 @@ export const MassAdvertPage = () => {
         {name: 'cpc', placeholder: 'CPC, ₽'},
         {name: 'cpm', placeholder: 'CPM, ₽'},
         {name: 'cr', placeholder: 'CR, %'},
-        {name: 'cpo', placeholder: 'CPO, ₽'},
     ];
     const columns = generateColumns(columnData);
 
@@ -844,6 +855,7 @@ export const MassAdvertPage = () => {
                     width: '100%',
                     justifyContent: 'space-around',
                     flexWrap: 'wrap',
+                    margin: '8px 0',
                 }}
             >
                 <Card style={cardStyle} theme="info" view="raised">
@@ -938,7 +950,6 @@ export const MassAdvertPage = () => {
                     width: '100%',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: '8px',
                     flexWrap: 'wrap',
                 }}
             >
@@ -955,7 +966,7 @@ export const MassAdvertPage = () => {
                         view="outlined"
                         onClick={() => setModalFormOpen(true)}
                     >
-                        Создать РК
+                        Создать
                     </Button>
                     <Modal
                         open={modalFormOpen}
@@ -1046,7 +1057,7 @@ export const MassAdvertPage = () => {
                                     validationState={
                                         bidInputValidationValue ? undefined : 'invalid'
                                     }
-                                    label="Ставка"
+                                    label="Ставки"
                                 />
                                 <Checkbox
                                     style={{margin: '2px 0'}}
@@ -1186,9 +1197,12 @@ export const MassAdvertPage = () => {
                                     options={budgetModalSwitchValues}
                                     onUpdate={(val) => {
                                         setBudgetModalSwitchValue(val);
+                                        setBudgetModalBudgetInputValue(500);
+                                        setBudgetModalBudgetInputValidationValue(true);
                                     }}
                                 />
                                 <TextInput
+                                    hasClear={budgetModalSwitchValue == 'Установить лимит'}
                                     style={{
                                         maxWidth: '70%',
                                         margin: '4px 0',
@@ -1197,9 +1211,17 @@ export const MassAdvertPage = () => {
                                     value={String(budgetModalBudgetInputValue)}
                                     onChange={(val) => {
                                         const budget = Number(val.target.value);
-                                        if (budget < 500)
+
+                                        if (
+                                            budget == 0 &&
+                                            budgetModalSwitchValue == 'Установить лимит'
+                                        )
+                                            setBudgetModalBudgetInputValidationValue(true);
+                                        else if (budget < 500) {
                                             setBudgetModalBudgetInputValidationValue(false);
-                                        else setBudgetModalBudgetInputValidationValue(true);
+                                        } else {
+                                            setBudgetModalBudgetInputValidationValue(true);
+                                        }
                                         setBudgetModalBudgetInputValue(budget);
                                     }}
                                     errorMessage={'Введите не менее 500'}
@@ -1273,6 +1295,152 @@ export const MassAdvertPage = () => {
                                         //////////////////////////////////
 
                                         setBudgetModalFormOpen(false);
+                                    }}
+                                >
+                                    {budgetModalSwitchValue == 'Установить лимит'
+                                        ? budgetModalBudgetInputValue != 0
+                                            ? 'Отправить'
+                                            : 'Удалить лимит'
+                                        : 'Отправить'}
+                                </Button>
+                            </div>
+                        </Card>
+                    </Modal>
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        view="outlined"
+                        onClick={() => {
+                            setBidModalBidInputValue(125);
+                            setBidModalSwitchValue('Установить');
+                            setBidModalBidInputValidationValue(true);
+                            setBidModalFormOpen(true);
+                        }}
+                    >
+                        Ставки
+                    </Button>
+                    <Modal open={bidModalFormOpen} onClose={() => setBidModalFormOpen(false)}>
+                        <Card
+                            // theme="raissed"
+                            view="raised"
+                            style={{
+                                width: 300,
+                                // maxWidth: '15vw',
+                                // height: 300,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    height: '50%',
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    margin: '16px 0',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    Ставки
+                                </Text>
+                                <RadioButton
+                                    style={{margin: '4px 0'}}
+                                    defaultValue={bidModalSwitchValue}
+                                    options={bidModalSwitchValues}
+                                    onUpdate={(val) => {
+                                        setBidModalSwitchValue(val);
+                                    }}
+                                />
+                                <TextInput
+                                    style={{
+                                        maxWidth: '70%',
+                                        margin: '4px 0',
+                                    }}
+                                    type="number"
+                                    value={String(bidModalBidInputValue)}
+                                    onChange={(val) => {
+                                        const bid = Number(val.target.value);
+                                        if (bid < 125) setBidModalBidInputValidationValue(false);
+                                        else setBidModalBidInputValidationValue(true);
+                                        setBidModalBidInputValue(bid);
+                                    }}
+                                    errorMessage={'Введите не менее 125'}
+                                    validationState={
+                                        bidModalBidInputValidationValue ? undefined : 'invalid'
+                                    }
+                                    label="Ставка"
+                                />
+                                <Button
+                                    style={{
+                                        margin: '8px 0px',
+                                        maxWidth: '60%',
+                                    }}
+                                    pin="circle-circle"
+                                    size="l"
+                                    width="max"
+                                    view="action"
+                                    // disabled={!bidModalBidInputValidationValue}
+                                    disabled
+                                    // view="outlined-success"
+                                    // selected
+                                    onClick={() => {
+                                        const params = {
+                                            uid: Userfront.user.userUuid,
+                                            campaignName: selectValue[0],
+                                            advertsIds: {},
+                                        };
+                                        for (let i = 0; i < data.length; i++) {
+                                            const adverts = data[i].adverts;
+                                            if (adverts) {
+                                                for (const [
+                                                    advertType,
+                                                    advertsOfType,
+                                                ] of Object.entries(adverts)) {
+                                                    if (!advertType || !advertsOfType) continue;
+
+                                                    for (const [
+                                                        advertId,
+                                                        advertData,
+                                                    ] of Object.entries(advertsOfType)) {
+                                                        if (!advertId || !advertData) continue;
+                                                        const status = advertData['status'];
+                                                        if (![4, 9, 11].includes(status)) continue;
+                                                        params.advertsIds[advertId] = {
+                                                            mode: bidModalSwitchValue,
+                                                            bid: bidModalBidInputValue,
+                                                            advertId: advertId,
+                                                        };
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        console.log(params);
+
+                                        //////////////////////////////////
+                                        // const token =
+                                        //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                        // axios
+                                        //     .post(
+                                        //         'http://185.164.172.100:24456/api/depositAdvertsBids',
+                                        //         params,
+                                        //         {
+                                        //             headers: {
+                                        //                 Authorization: 'Bearer ' + token,
+                                        //             },
+                                        //         },
+                                        //     )
+                                        //     .then((response) => console.log(response.data))
+                                        //     .catch((error) => console.error(error));
+                                        //////////////////////////////////
+
+                                        setBidModalFormOpen(false);
                                     }}
                                 >
                                     Отправить

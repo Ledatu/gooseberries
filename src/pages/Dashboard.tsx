@@ -7,6 +7,7 @@ import {
     Persona,
     RadioButton,
     RadioButtonOption,
+    Icon,
     // Tabs,
 } from '@gravity-ui/uikit';
 import '../App.scss';
@@ -19,6 +20,7 @@ import {MassAdvertPage} from './MassAdvertPage';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
+import {Sun, Moon} from '@gravity-ui/icons';
 
 const b = block('app');
 
@@ -30,15 +32,15 @@ enum Theme {
 export const Dashboard = () => {
     const [theme, setTheme] = React.useState(Theme.Dark);
     const optionsTheme: RadioButtonOption[] = [
-        {value: 'light', content: 'Светлая'},
-        {value: 'dark', content: 'Темная'},
+        {value: 'dark', content: <Icon data={Moon}></Icon>},
+        {value: 'light', content: <Icon data={Sun}></Icon>},
     ];
     const optionsPages: RadioButtonOption[] = [
         // {value: 'api', content: 'Управление магазинами'},
         // {value: 'create_rk', content: 'Создание РК'},
-        {value: 'stats_rk', content: 'Статистика РК'},
-        {value: 'massAdvert', content: 'Запуск РК'},
-        {value: 'deliveryOrders', content: 'Заказы на поставку'},
+        {value: 'massAdvert', content: 'Реклама'},
+        {value: 'stats_rk', content: 'Статистика'},
+        {value: 'deliveryOrders', content: 'Поставки'},
     ];
     const [page, setPage] = React.useState('massAdvert');
     return (
@@ -72,7 +74,7 @@ export const Dashboard = () => {
                         }}
                         type="email"
                         text={Userfront.user.email ?? ''}
-                    ></Persona>
+                    />
 
                     <RadioButton
                         style={{marginBottom: '8px', marginRight: '8px'}}
