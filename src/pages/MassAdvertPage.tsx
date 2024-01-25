@@ -54,7 +54,7 @@ const getUserDoc = () => {
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
         axios
             .post(
-                'http://185.164.172.100:24456/api/getMassAdverts',
+                'https://185.164.172.100:24458/api/getMassAdverts',
                 {uid: Userfront.user.userUuid ?? '', dateRange: {from: '2023', to: '2024'}},
                 {
                     headers: {
@@ -1204,7 +1204,7 @@ export const MassAdvertPage = () => {
                                             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
                                         axios
                                             .post(
-                                                'http://185.164.172.100:24456/api/createMassAdverts',
+                                                'https://185.164.172.100:24458/api/createMassAdverts',
                                                 params,
                                                 {
                                                     headers: {
@@ -1359,7 +1359,7 @@ export const MassAdvertPage = () => {
                                             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
                                         axios
                                             .post(
-                                                'http://185.164.172.100:24456/api/depositAdvertsBudgets',
+                                                'https://185.164.172.100:24458/api/depositAdvertsBudgets',
                                                 params,
                                                 {
                                                     headers: {
@@ -1586,7 +1586,7 @@ export const MassAdvertPage = () => {
                                         //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
                                         // axios
                                         //     .post(
-                                        //         'http://185.164.172.100:24456/api/depositAdvertsBids',
+                                        //         'https://185.164.172.100:24458/api/depositAdvertsBids',
                                         //         params,
                                         //         {
                                         //             headers: {
