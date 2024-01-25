@@ -92,6 +92,7 @@ export const MassAdvertPage = () => {
     ];
     const [budgetModalSwitchValue, setBudgetModalSwitchValue] = React.useState('Пополнить');
 
+    const [data, setTableData] = useState<any[]>([]);
     const generateColumns = (columnsInfo) => {
         const columns: Column<any>[] = [
             // {
@@ -125,7 +126,13 @@ export const MassAdvertPage = () => {
                 className: b(className ?? (i == 0 ? 'td_fixed' : 'td_body')),
                 header: (
                     <div
-                        style={{minWidth: width ?? 100, display: 'flex'}}
+                        style={{
+                            minWidth: width ?? 100,
+                            display: 'flex',
+                            width: 'auto',
+                            // marginLeft:
+                            //     name == 'art' ? `${String(data.length).length * 6 + 32}px` : 0,
+                        }}
                         onClick={(event) => {
                             event.stopPropagation();
                         }}
@@ -142,7 +149,7 @@ export const MassAdvertPage = () => {
                             }}
                             hasClear
                             placeholder={placeholder}
-                            leftContent={
+                            rightContent={
                                 <DropdownMenu
                                     renderSwitcher={(props) => (
                                         <Button
@@ -377,16 +384,28 @@ export const MassAdvertPage = () => {
             name: 'art',
             placeholder: 'Артикул',
             width: 200,
-            render: ({value, row, footer}) => {
+            render: ({value, row, footer, index}) => {
                 return footer ? (
                     value
                 ) : (
-                    <Link
-                        href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
-                        target="_blank"
-                    >
-                        {value}
-                    </Link>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div
+                            style={{
+                                width: `${String(data.length).length * 6}px`,
+                                margin: '0 16px',
+                                display: 'flex',
+                                justifyContent: 'right',
+                            }}
+                        >
+                            <div>{index + 1}</div>
+                        </div>
+                        <Link
+                            href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
+                            target="_blank"
+                        >
+                            {value}
+                        </Link>
+                    </div>
                 );
             },
             valueType: 'text',
@@ -532,7 +551,6 @@ export const MassAdvertPage = () => {
     // lbdDate.subtract(90, 'day');
     // setLbd(new Date());
 
-    const [data, setTableData] = useState<any[]>([]);
     const [summary, setSummary] = useState({
         views: 0,
         clicks: 0,
@@ -1390,7 +1408,7 @@ export const MassAdvertPage = () => {
                     settings={{
                         stickyHead: MOVING,
                         stickyFooter: MOVING,
-                        displayIndices: true,
+                        displayIndices: false,
                         highlightRows: true,
                     }}
                     theme="yandex-cloud"
