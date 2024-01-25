@@ -44,6 +44,7 @@ import {
     DiamondExclamation,
     CloudCheck,
 } from '@gravity-ui/icons';
+import useWindowDimensions from 'src/hooks/useWindowDimensions';
 
 const getUserDoc = () => {
     const [document, setDocument] = useState<any>();
@@ -117,19 +118,23 @@ export const MassAdvertPage = () => {
             // },
         ];
         if (!columnsInfo && !columnsInfo.length) return columns;
+        const viewportSize = useWindowDimensions();
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
             if (!column) continue;
             const {name, placeholder, width, render, className, valueType} = column;
+            let minWidth = viewportSize.width / 20;
+            if (minWidth < 40) minWidth = 60;
+            if (minWidth > 100) minWidth = 100;
             columns.push({
                 name: name,
                 className: b(className ?? (i == 0 ? 'td_fixed' : 'td_body')),
                 header: (
                     <div
                         style={{
-                            minWidth: width ?? 100,
+                            minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
                             display: 'flex',
-                            width: 'auto',
+                            maxWidth: '30vw',
                             // marginLeft:
                             //     name == 'art' ? `${String(data.length).length * 6 + 32}px` : 0,
                         }}
@@ -386,9 +391,15 @@ export const MassAdvertPage = () => {
             width: 200,
             render: ({value, row, footer, index}) => {
                 return footer ? (
-                    value
+                    <Text ellipsis>{value}</Text>
                 ) : (
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            zIndex: 40,
+                        }}
+                    >
                         <div
                             style={{
                                 width: `${String(data.length).length * 6}px`,
@@ -400,6 +411,11 @@ export const MassAdvertPage = () => {
                             <div>{index + 1}</div>
                         </div>
                         <Link
+                            style={{
+                                textOverflow: 'ellipsis',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                            }}
                             href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
                             target="_blank"
                         >
