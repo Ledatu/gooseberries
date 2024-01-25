@@ -391,9 +391,10 @@ export const MassAdvertPage = () => {
             width: 200,
             render: ({value, row, footer, index}) => {
                 return footer ? (
-                    <Text ellipsis>{value}</Text>
+                    value
                 ) : (
                     <div
+                        title={value}
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
