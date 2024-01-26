@@ -893,6 +893,8 @@ export const MassAdvertPage = () => {
         filteredSummaryTemp.cpo = getRoundValue(
             filteredSummaryTemp.sum,
             filteredSummaryTemp.orders,
+            false,
+            filteredSummaryTemp.sum,
         );
         setFilteredSummary(filteredSummaryTemp);
         // if (!temp.length) temp.push({});
