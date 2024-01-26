@@ -11,6 +11,8 @@ const columns = [
     {id: 'Ключ Апи', width: '50%', meta: {copy: true}},
 ];
 
+const {ipAddress} = require('../serverAddress');
+
 const getUserDoc = () => {
     const [document, setDocument] = useState<DocumentData>();
 
@@ -100,7 +102,7 @@ export const ApiPage = () => {
                                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
                                 axios
                                     .post(
-                                        'https://aurum-mp.ru/api/craftNecessaryFoldersAndFilesIfNeeded',
+                                        `${ipAddress}/api/craftNecessaryFoldersAndFilesIfNeeded`,
                                         {uid: Userfront.user.userUuid ?? '', campaigns: campaigns},
                                         {
                                             headers: {

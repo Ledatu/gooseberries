@@ -12,24 +12,13 @@ import Userfront, {SignupForm, LoginForm, PasswordResetForm} from '@userfront/to
 import {Button, Link} from '@gravity-ui/uikit';
 import {Dashboard} from './pages/Dashboard';
 import {autoFetchCards} from './utilities/fetchRkData';
-const {scheduleJob} = require('node-schedule');
 
 Userfront.init('xbr4jv4b');
-
-scheduleJob('20 * * * *', () => autoFetchCards());
 
 export const App = () => {
     return (
         <Router>
             <Routes>
-                <Route
-                    path="/dashboard"
-                    element={
-                        <RequireAuth>
-                            <Dashboard />
-                        </RequireAuth>
-                    }
-                />
                 <Route path="/signup" element={<SignUpElem />} />
                 <Route path="/login" element={<LoginElem />} />
                 <Route path="/reset" element={<PasswordResetElem />} />

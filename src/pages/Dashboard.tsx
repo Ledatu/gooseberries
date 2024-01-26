@@ -53,7 +53,7 @@ export const Dashboard = () => {
                     style={{
                         display: 'flex',
                         width: '100%',
-                        justifyContent: 'space-between',
+                        justifyContent: 'space-around',
                         flexWrap: 'wrap',
                     }}
                 >

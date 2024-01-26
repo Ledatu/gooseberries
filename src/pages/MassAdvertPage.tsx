@@ -44,8 +44,11 @@ import {
     DiamondExclamation,
     CloudCheck,
     Calendar,
+    TrashBin,
 } from '@gravity-ui/icons';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
+
+const {ipAddress} = require('../serverAddress');
 
 const getUserDoc = () => {
     const [document, setDocument] = useState<any>();
@@ -54,7 +57,7 @@ const getUserDoc = () => {
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
         axios
             .post(
-                'https://aurum-mp.ru/api/getMassAdverts',
+                `${ipAddress}/api/getMassAdverts`,
                 {uid: Userfront.user.userUuid ?? '', dateRange: {from: '2023', to: '2024'}},
                 {
                     headers: {
@@ -97,6 +100,7 @@ export const MassAdvertPage = () => {
     const [bidModalFormOpen, setBidModalFormOpen] = useState(false);
     const [bidModalBidInputValue, setBidModalBidInputValue] = useState(125);
     const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
+    const [bidModalDeleteModeSelected, setBidModalDeleteModeSelected] = useState(false);
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
     const [bidModalBidStepInputValidationValue, setBidModalBidStepInputValidationValue] =
         useState(true);
@@ -812,6 +816,7 @@ export const MassAdvertPage = () => {
             for (const [filterArg, filterData] of Object.entries(useFilters)) {
                 if (filterArg == 'undef' || !filterData) continue;
                 if (filterData['val'] == '') continue;
+                // if (filterArg == 'adverts') {}
                 if (!compare(artInfo[filterArg], filterData)) {
                     addFlag = false;
                     break;
@@ -1206,15 +1211,11 @@ export const MassAdvertPage = () => {
                                         const token =
                                             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
                                         axios
-                                            .post(
-                                                'https://aurum-mp.ru/api/createMassAdverts',
-                                                params,
-                                                {
-                                                    headers: {
-                                                        Authorization: 'Bearer ' + token,
-                                                    },
+                                            .post(`${ipAddress}/api/createMassAdverts`, params, {
+                                                headers: {
+                                                    Authorization: 'Bearer ' + token,
                                                 },
-                                            )
+                                            })
                                             .then((response) => console.log(response.data))
                                             .catch((error) => console.error(error));
                                         //////////////////////////////////
@@ -1362,7 +1363,7 @@ export const MassAdvertPage = () => {
                                             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
                                         axios
                                             .post(
-                                                'https://aurum-mp.ru/api/depositAdvertsBudgets',
+                                                `${ipAddress}/api/depositAdvertsBudgets`,
                                                 params,
                                                 {
                                                     headers: {
@@ -1394,6 +1395,7 @@ export const MassAdvertPage = () => {
                             setBidModalSwitchValue('Установить');
                             setBidModalAnalyticsSwitchValue('14 days');
                             setBidModalBidInputValidationValue(true);
+                            setBidModalDeleteModeSelected(false);
                             setBidModalFormOpen(true);
                             setBidModalBidStepInputValue(5);
                             setBidModalBidStepInputValidationValue(true);
@@ -1410,7 +1412,6 @@ export const MassAdvertPage = () => {
                             style={{
                                 width: 300,
                                 // maxWidth: '15vw',
-                                // height: 300,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
@@ -1444,6 +1445,7 @@ export const MassAdvertPage = () => {
                                         setBidModalBidInputValue(125);
                                         setBidModalAnalyticsSwitchValue('14 days');
                                         setBidModalBidInputValidationValue(true);
+                                        setBidModalDeleteModeSelected(false);
                                         setBidModalFormOpen(true);
                                         setBidModalBidStepInputValue(5);
                                         setBidModalBidStepInputValidationValue(true);
@@ -1473,7 +1475,7 @@ export const MassAdvertPage = () => {
                                         }
                                         label="Ставка"
                                     />
-                                ) : (
+                                ) : !bidModalDeleteModeSelected ? (
                                     <div
                                         style={{
                                             display: 'flex',
@@ -1484,6 +1486,7 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <TextInput
+                                            disabled={bidModalDeleteModeSelected}
                                             style={{
                                                 maxWidth: '70%',
                                                 margin: '4px 0',
@@ -1506,6 +1509,7 @@ export const MassAdvertPage = () => {
                                             label="Целевой CPO"
                                         />
                                         <TextInput
+                                            disabled={bidModalDeleteModeSelected}
                                             style={{
                                                 maxWidth: '70%',
                                                 margin: '4px 0',
@@ -1529,6 +1533,7 @@ export const MassAdvertPage = () => {
                                         />
                                         <Text variant="subheader-1">Аналитика</Text>
                                         <RadioButton
+                                            disabled={bidModalDeleteModeSelected}
                                             style={{margin: '0 2px 0 4px'}}
                                             defaultValue={bidModalAnalyticsSwitchValue}
                                             options={bidModalAnalyticsSwitchValues}
@@ -1537,87 +1542,134 @@ export const MassAdvertPage = () => {
                                             }}
                                         />
                                     </div>
+                                ) : (
+                                    <></>
                                 )}
-                                <Button
+                                <div
                                     style={{
-                                        margin: '8px 0px',
-                                        maxWidth: '60%',
+                                        width: '100%',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        position: 'relative',
                                     }}
-                                    pin="circle-circle"
-                                    size="l"
-                                    width="max"
-                                    view="action"
-                                    disabled={!bidModalBidInputValidationValue}
-                                    // view="outlined-success"
-                                    // selected
-                                    onClick={() => {
-                                        const params = {
-                                            uid: Userfront.user.userUuid,
-                                            campaignName: selectValue[0],
-                                            advertsIds: {},
-                                        };
-                                        for (let i = 0; i < data.length; i++) {
-                                            const adverts = data[i].adverts;
-                                            if (adverts) {
-                                                for (const [
-                                                    advertType,
-                                                    advertsOfType,
-                                                ] of Object.entries(adverts)) {
-                                                    if (!advertType || !advertsOfType) continue;
-
+                                >
+                                    <Button
+                                        style={{
+                                            margin: '8px 0px',
+                                            maxWidth: '50%',
+                                        }}
+                                        pin="circle-circle"
+                                        size="l"
+                                        width="max"
+                                        disabled={!bidModalBidInputValidationValue}
+                                        // view="action"
+                                        view={
+                                            bidModalDeleteModeSelected
+                                                ? 'outlined-danger'
+                                                : 'action'
+                                        }
+                                        // selected
+                                        onClick={() => {
+                                            const params = {
+                                                uid: Userfront.user.userUuid,
+                                                campaignName: selectValue[0],
+                                                advertsIds: {},
+                                            };
+                                            for (let i = 0; i < data.length; i++) {
+                                                const adverts = data[i].adverts;
+                                                if (adverts) {
                                                     for (const [
-                                                        advertId,
-                                                        advertData,
-                                                    ] of Object.entries(advertsOfType)) {
-                                                        if (!advertId || !advertData) continue;
-                                                        const status = advertData['status'];
-                                                        if (![4, 9, 11].includes(status)) continue;
-                                                        if (bidModalSwitchValue == 'Установить') {
-                                                            params.advertsIds[advertId] = {
-                                                                mode: bidModalSwitchValue,
-                                                                bid: bidModalBidInputValue,
-                                                                advertId: advertId,
-                                                            };
-                                                        } else if (
-                                                            bidModalSwitchValue == 'Автоставки'
-                                                        ) {
-                                                            params.advertsIds[advertId] = {
-                                                                mode: bidModalSwitchValue,
-                                                                cpo: bidModalCPOInputValue,
-                                                                bidStep: bidModalBidStepInputValue,
-                                                                analyticsRange:
-                                                                    bidModalAnalyticsSwitchValue,
-                                                                advertId: advertId,
-                                                            };
+                                                        advertType,
+                                                        advertsOfType,
+                                                    ] of Object.entries(adverts)) {
+                                                        if (!advertType || !advertsOfType) continue;
+
+                                                        for (const [
+                                                            advertId,
+                                                            advertData,
+                                                        ] of Object.entries(advertsOfType)) {
+                                                            if (!advertId || !advertData) continue;
+                                                            const status = advertData['status'];
+                                                            if (![4, 9, 11].includes(status))
+                                                                continue;
+                                                            if (
+                                                                bidModalSwitchValue == 'Установить'
+                                                            ) {
+                                                                params.advertsIds[advertId] = {
+                                                                    mode: bidModalSwitchValue,
+                                                                    bid: bidModalBidInputValue,
+                                                                    advertId: advertId,
+                                                                };
+                                                            } else if (
+                                                                bidModalSwitchValue == 'Автоставки'
+                                                            ) {
+                                                                if (!bidModalDeleteModeSelected) {
+                                                                    params.advertsIds[advertId] = {
+                                                                        mode: bidModalSwitchValue,
+                                                                        cpo: bidModalCPOInputValue,
+                                                                        bidStep:
+                                                                            bidModalBidStepInputValue,
+                                                                        analyticsRange:
+                                                                            bidModalAnalyticsSwitchValue,
+                                                                        advertId: advertId,
+                                                                    };
+                                                                } else {
+                                                                    params.advertsIds[advertId] = {
+                                                                        mode: 'Удалить правила',
+                                                                        advertId: advertId,
+                                                                    };
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
-                                        console.log(params);
+                                            console.log(params);
 
-                                        //////////////////////////////////
-                                        const token =
-                                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                        axios
-                                            .post(
-                                                'https://aurum-mp.ru/api/setAdvertsCPMs',
-                                                params,
-                                                {
+                                            //////////////////////////////////
+                                            const token =
+                                                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                            axios
+                                                .post(`${ipAddress}/api/setAdvertsCPMs`, params, {
                                                     headers: {
                                                         Authorization: 'Bearer ' + token,
                                                     },
-                                                },
-                                            )
-                                            .then((response) => console.log(response.data))
-                                            .catch((error) => console.error(error));
-                                        //////////////////////////////////
+                                                })
+                                                .then((response) => console.log(response.data))
+                                                .catch((error) => console.error(error));
+                                            //////////////////////////////////
 
-                                        setBidModalFormOpen(false);
-                                    }}
-                                >
-                                    Отправить
-                                </Button>
+                                            setBidModalFormOpen(false);
+                                        }}
+                                    >
+                                        {bidModalSwitchValue == 'Автоставки'
+                                            ? !bidModalDeleteModeSelected
+                                                ? 'Задать правила'
+                                                : 'Удалить правила'
+                                            : 'Отправить'}
+                                    </Button>
+                                    {bidModalSwitchValue == 'Автоставки' ? (
+                                        <Button
+                                            style={{position: 'absolute', marginLeft: '70%'}}
+                                            pin="circle-circle"
+                                            view={
+                                                bidModalDeleteModeSelected
+                                                    ? 'flat-warning'
+                                                    : undefined
+                                            }
+                                            selected={bidModalDeleteModeSelected}
+                                            // view="action"
+                                            onClick={() => {
+                                                setBidModalDeleteModeSelected((val) => !val);
+                                            }}
+                                        >
+                                            <Icon data={TrashBin}></Icon>
+                                        </Button>
+                                    ) : (
+                                        <></>
+                                    )}
+                                </div>
                             </div>
                         </Card>
                     </Modal>
