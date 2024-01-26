@@ -48,7 +48,7 @@ import {
 } from '@gravity-ui/icons';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 
-const {ipAddress} = require('../serverAddress');
+const {ipAddress} = require('../ipAddress');
 
 const getUserDoc = () => {
     const [document, setDocument] = useState<any>();
@@ -726,6 +726,7 @@ export const MassAdvertPage = () => {
                 cpm: 0,
                 cr: 0,
                 cpo: 0,
+                cpoAI: 0,
             };
             artInfo.art = artData['art'];
             artInfo.object = artData['object'];
@@ -778,7 +779,7 @@ export const MassAdvertPage = () => {
                 artInfo.cpc = getRoundValue(artInfo.sum, artInfo.clicks);
                 artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
                 artInfo.cr = getRoundValue(artInfo.orders, artInfo.views, true);
-                artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders);
+                artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
 
                 summaryTemp.sum_orders += artInfo.sum_orders;
                 summaryTemp.orders += artInfo.orders;

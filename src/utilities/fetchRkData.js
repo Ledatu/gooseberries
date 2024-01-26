@@ -15,7 +15,7 @@ const getAdverts = (authToken, params) => {
         .catch((error) => console.error(error));
 };
 
-const {ipAddress} = require('../serverAddress');
+const {ipAddress} = require('../ipAddress');
 
 const getStatsByDay = () => {
     const token =

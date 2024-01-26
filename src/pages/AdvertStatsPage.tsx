@@ -27,7 +27,7 @@ const b = block('app');
 
 import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
 
-const {ipAddress} = require('../serverAddress');
+const {ipAddress} = require('../ipAddress');
 
 const getUserDoc = () => {
     const [document, setDocument] = useState<any>();

@@ -11,7 +11,7 @@ const columns = [
     {id: 'Ключ Апи', width: '50%', meta: {copy: true}},
 ];
 
-const {ipAddress} = require('../serverAddress');
+const {ipAddress} = require('../ipAddress');
 
 const getUserDoc = () => {
     const [document, setDocument] = useState<DocumentData>();

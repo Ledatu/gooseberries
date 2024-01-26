@@ -27,7 +27,7 @@ import DataTable, {Column} from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
-const {ipAddress} = require('../serverAddress');
+const {ipAddress} = require('../ipAddress');
 
 const getUserDoc = (dateRange) => {
     const [document, setDocument] = useState<any>();
