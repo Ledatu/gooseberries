@@ -1547,10 +1547,7 @@ export const MassAdvertPage = () => {
                                     size="l"
                                     width="max"
                                     view="action"
-                                    disabled={
-                                        !bidModalBidInputValidationValue ||
-                                        bidModalSwitchValue == 'Автоставки'
-                                    }
+                                    disabled={!bidModalBidInputValidationValue}
                                     // view="outlined-success"
                                     // selected
                                     onClick={() => {
@@ -1575,11 +1572,24 @@ export const MassAdvertPage = () => {
                                                         if (!advertId || !advertData) continue;
                                                         const status = advertData['status'];
                                                         if (![4, 9, 11].includes(status)) continue;
-                                                        params.advertsIds[advertId] = {
-                                                            mode: bidModalSwitchValue,
-                                                            bid: bidModalBidInputValue,
-                                                            advertId: advertId,
-                                                        };
+                                                        if (bidModalSwitchValue == 'Установить') {
+                                                            params.advertsIds[advertId] = {
+                                                                mode: bidModalSwitchValue,
+                                                                bid: bidModalBidInputValue,
+                                                                advertId: advertId,
+                                                            };
+                                                        } else if (
+                                                            bidModalSwitchValue == 'Автоставки'
+                                                        ) {
+                                                            params.advertsIds[advertId] = {
+                                                                mode: bidModalSwitchValue,
+                                                                cpo: bidModalCPOInputValue,
+                                                                bidStep: bidModalBidStepInputValue,
+                                                                analyticsRange:
+                                                                    bidModalAnalyticsSwitchValue,
+                                                                advertId: advertId,
+                                                            };
+                                                        }
                                                     }
                                                 }
                                             }
