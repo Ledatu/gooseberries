@@ -34,7 +34,7 @@ const getUserDoc = (dateRange) => {
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
         axios
             .post(
-                'https://185.164.172.100:24458/api/getDeliveryOrders',
+                'http://185.164.172.100:24456/api/getDeliveryOrders',
                 {uid: Userfront.user.userUuid ?? '', dateRange: dateRange},
                 {
                     headers: {
