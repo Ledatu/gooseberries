@@ -607,6 +607,7 @@ export const MassAdvertPage = () => {
         },
         {name: 'budget', placeholder: 'Баланс, ₽'},
         {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
+        {name: 'bid', placeholder: 'Ставка, ₽'},
         {name: 'sum', placeholder: 'Расход, ₽'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {name: 'orders', placeholder: 'Заказов, шт.'},
@@ -707,6 +708,7 @@ export const MassAdvertPage = () => {
                 stocks: 0,
                 adverts: 0,
                 budget: undefined,
+                bid: undefined,
                 budgetToKeep: undefined,
                 brand: '',
                 orders: 0,
@@ -741,6 +743,7 @@ export const MassAdvertPage = () => {
                         const budgetToKeep = advertData['budgetToKeep'];
                         artInfo.budget = budget;
                         artInfo.budgetToKeep = budgetToKeep;
+                        artInfo.bid = artData['cpm'];
                     }
                 }
             }
