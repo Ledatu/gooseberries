@@ -1544,8 +1544,10 @@ export const MassAdvertPage = () => {
                                     size="l"
                                     width="max"
                                     view="action"
-                                    // disabled={!bidModalBidInputValidationValue}
-                                    disabled
+                                    disabled={
+                                        !bidModalBidInputValidationValue ||
+                                        bidModalSwitchValue == 'Автоставки'
+                                    }
                                     // view="outlined-success"
                                     // selected
                                     onClick={() => {
@@ -1582,20 +1584,20 @@ export const MassAdvertPage = () => {
                                         console.log(params);
 
                                         //////////////////////////////////
-                                        // const token =
-                                        //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                        // axios
-                                        //     .post(
-                                        //         'https://aurum-mp.ru/api/depositAdvertsBids',
-                                        //         params,
-                                        //         {
-                                        //             headers: {
-                                        //                 Authorization: 'Bearer ' + token,
-                                        //             },
-                                        //         },
-                                        //     )
-                                        //     .then((response) => console.log(response.data))
-                                        //     .catch((error) => console.error(error));
+                                        const token =
+                                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                        axios
+                                            .post(
+                                                'https://aurum-mp.ru/api/setAdvertsCPMs',
+                                                params,
+                                                {
+                                                    headers: {
+                                                        Authorization: 'Bearer ' + token,
+                                                    },
+                                                },
+                                            )
+                                            .then((response) => console.log(response.data))
+                                            .catch((error) => console.error(error));
                                         //////////////////////////////////
 
                                         setBidModalFormOpen(false);
