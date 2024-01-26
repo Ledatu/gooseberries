@@ -743,7 +743,7 @@ export const MassAdvertPage = () => {
                         const budgetToKeep = advertData['budgetToKeep'];
                         artInfo.budget = budget;
                         artInfo.budgetToKeep = budgetToKeep;
-                        artInfo.bid = artData['cpm'];
+                        artInfo.bid = advertData['cpm'];
                     }
                 }
             }
