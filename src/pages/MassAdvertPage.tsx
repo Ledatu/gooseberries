@@ -114,7 +114,7 @@ export const MassAdvertPage = () => {
     const [bidModalSwitchValue, setBidModalSwitchValue] = React.useState('Установить');
     const bidModalAnalyticsSwitchValues: any[] = [
         {
-            value: '1 day',
+            value: 1,
             content: (
                 <div
                     style={{
@@ -130,7 +130,7 @@ export const MassAdvertPage = () => {
             ),
         },
         {
-            value: '7 days',
+            value: 7,
             content: (
                 <div
                     style={{
@@ -146,7 +146,7 @@ export const MassAdvertPage = () => {
             ),
         },
         {
-            value: '14 days',
+            value: 14,
             content: (
                 <div
                     style={{
@@ -163,7 +163,7 @@ export const MassAdvertPage = () => {
             ),
         },
         {
-            value: '30 days',
+            value: 30,
             content: (
                 <div
                     style={{
@@ -180,8 +180,7 @@ export const MassAdvertPage = () => {
             ),
         },
     ];
-    const [bidModalAnalyticsSwitchValue, setBidModalAnalyticsSwitchValue] =
-        React.useState('14 days');
+    const [bidModalAnalyticsSwitchValue, setBidModalAnalyticsSwitchValue] = React.useState(14);
 
     const [data, setTableData] = useState<any[]>([]);
     const generateColumns = (columnsInfo) => {
@@ -1402,7 +1401,7 @@ export const MassAdvertPage = () => {
                         onClick={() => {
                             setBidModalBidInputValue(125);
                             setBidModalSwitchValue('Установить');
-                            setBidModalAnalyticsSwitchValue('14 days');
+                            setBidModalAnalyticsSwitchValue(14);
                             setBidModalBidInputValidationValue(true);
                             setBidModalDeleteModeSelected(false);
                             setBidModalFormOpen(true);
@@ -1454,7 +1453,7 @@ export const MassAdvertPage = () => {
                                     onUpdate={(val) => {
                                         setBidModalSwitchValue(val);
                                         setBidModalBidInputValue(125);
-                                        setBidModalAnalyticsSwitchValue('14 days');
+                                        setBidModalAnalyticsSwitchValue(14);
                                         setBidModalBidInputValidationValue(true);
                                         setBidModalDeleteModeSelected(false);
                                         setBidModalFormOpen(true);
@@ -1546,10 +1545,10 @@ export const MassAdvertPage = () => {
                                         <RadioButton
                                             disabled={bidModalDeleteModeSelected}
                                             style={{margin: '0 2px 0 4px'}}
-                                            defaultValue={bidModalAnalyticsSwitchValue}
+                                            defaultValue={String(bidModalAnalyticsSwitchValue)}
                                             options={bidModalAnalyticsSwitchValues}
                                             onUpdate={(val) => {
-                                                setBidModalAnalyticsSwitchValue(val);
+                                                setBidModalAnalyticsSwitchValue(parseInt(val));
                                             }}
                                         />
                                     </div>
