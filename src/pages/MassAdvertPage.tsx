@@ -1414,6 +1414,8 @@ export const MassAdvertPage = () => {
                             view="raised"
                             style={{
                                 width: 300,
+                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
+                                animation: '3s linear 1s slidein',
                                 // maxWidth: '15vw',
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -1577,54 +1579,32 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid: Userfront.user.userUuid,
                                                 campaignName: selectValue[0],
-                                                advertsIds: {},
+                                                data: {},
                                             };
                                             for (let i = 0; i < data.length; i++) {
-                                                const adverts = data[i].adverts;
-                                                if (adverts) {
-                                                    for (const [
-                                                        advertType,
-                                                        advertsOfType,
-                                                    ] of Object.entries(adverts)) {
-                                                        if (!advertType || !advertsOfType) continue;
+                                                const art = data[i].art;
+                                                if (!art) continue;
 
-                                                        for (const [
-                                                            advertId,
-                                                            advertData,
-                                                        ] of Object.entries(advertsOfType)) {
-                                                            if (!advertId || !advertData) continue;
-                                                            const status = advertData['status'];
-                                                            if (![4, 9, 11].includes(status))
-                                                                continue;
-                                                            if (
-                                                                bidModalSwitchValue == 'Установить'
-                                                            ) {
-                                                                params.advertsIds[advertId] = {
-                                                                    mode: bidModalSwitchValue,
-                                                                    bid: bidModalBidInputValue,
-                                                                    advertId: advertId,
-                                                                };
-                                                            } else if (
-                                                                bidModalSwitchValue == 'Автоставки'
-                                                            ) {
-                                                                if (!bidModalDeleteModeSelected) {
-                                                                    params.advertsIds[advertId] = {
-                                                                        mode: bidModalSwitchValue,
-                                                                        cpo: bidModalCPOInputValue,
-                                                                        bidStep:
-                                                                            bidModalBidStepInputValue,
-                                                                        analyticsRange:
-                                                                            bidModalAnalyticsSwitchValue,
-                                                                        advertId: advertId,
-                                                                    };
-                                                                } else {
-                                                                    params.advertsIds[advertId] = {
-                                                                        mode: 'Удалить правила',
-                                                                        advertId: advertId,
-                                                                    };
-                                                                }
-                                                            }
-                                                        }
+                                                if (bidModalSwitchValue == 'Установить') {
+                                                    params.data[art] = {
+                                                        mode: bidModalSwitchValue,
+                                                        bid: bidModalBidInputValue,
+                                                        art: art,
+                                                    };
+                                                } else if (bidModalSwitchValue == 'Автоставки') {
+                                                    if (!bidModalDeleteModeSelected) {
+                                                        params.data[art] = {
+                                                            mode: bidModalSwitchValue,
+                                                            desiredCPO: bidModalCPOInputValue,
+                                                            bidStep: bidModalBidStepInputValue,
+                                                            dateRange: bidModalAnalyticsSwitchValue,
+                                                            advertId: art,
+                                                        };
+                                                    } else {
+                                                        params.data[art] = {
+                                                            mode: 'Удалить правила',
+                                                            art: art,
+                                                        };
                                                     }
                                                 }
                                             }
