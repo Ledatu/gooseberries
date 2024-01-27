@@ -616,7 +616,12 @@ export const MassAdvertPage = () => {
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {name: 'orders', placeholder: 'Заказов, шт.'},
         {name: 'cpo', placeholder: 'CPO, ₽'},
-        {name: 'cpoAi', placeholder: 'CPO AI, ₽'},
+        {
+            name: 'cpoAI',
+            placeholder: 'CPO AI, ₽',
+            render: ({value}) =>
+                value ? (value.desiredCPO ? value.desiredCPO : undefined) : undefined,
+        },
         {name: 'drr', placeholder: 'ДРР, %'},
         {name: 'views', placeholder: 'Показов, шт.'},
         {name: 'clicks', placeholder: 'Кликов, шт.'},
@@ -735,6 +740,7 @@ export const MassAdvertPage = () => {
             artInfo.brand = artData['brand'];
             artInfo.stocks = artData['stocks'];
             artInfo.adverts = artData['adverts'];
+            artInfo.cpoAI = artData['cpoAI'];
 
             if (artInfo.adverts) {
                 for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
