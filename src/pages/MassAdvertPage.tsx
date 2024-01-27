@@ -739,6 +739,7 @@ export const MassAdvertPage = () => {
             artInfo.brand = artData['brand'];
             artInfo.stocks = artData['stocks'];
             artInfo.adverts = artData['adverts'];
+            artInfo.budgetToKeep = artData['budgetToKeep'];
             artInfo.cpoAI = artData['cpoAI'];
 
             if (artInfo.adverts) {
@@ -750,9 +751,7 @@ export const MassAdvertPage = () => {
                         const status = advertData['status'];
                         if (![4, 9, 11].includes(status)) continue;
                         const budget = advertData['budget'];
-                        const budgetToKeep = advertData['budgetToKeep'];
                         artInfo.budget = budget;
-                        artInfo.budgetToKeep = budgetToKeep;
                         artInfo.bid = advertData['cpm'];
                     }
                 }
@@ -1337,32 +1336,17 @@ export const MassAdvertPage = () => {
                                         const params = {
                                             uid: Userfront.user.userUuid,
                                             campaignName: selectValue[0],
-                                            advertsIds: {},
+                                            data: {},
                                         };
                                         for (let i = 0; i < data.length; i++) {
-                                            const adverts = data[i].adverts;
-                                            if (adverts) {
-                                                for (const [
-                                                    advertType,
-                                                    advertsOfType,
-                                                ] of Object.entries(adverts)) {
-                                                    if (!advertType || !advertsOfType) continue;
+                                            const art = data[i].art;
+                                            if (!art) continue;
 
-                                                    for (const [
-                                                        advertId,
-                                                        advertData,
-                                                    ] of Object.entries(advertsOfType)) {
-                                                        if (!advertId || !advertData) continue;
-                                                        const status = advertData['status'];
-                                                        if (![4, 9, 11].includes(status)) continue;
-                                                        params.advertsIds[advertId] = {
-                                                            mode: budgetModalSwitchValue,
-                                                            budget: budgetModalBudgetInputValue,
-                                                            advertId: advertId,
-                                                        };
-                                                    }
-                                                }
-                                            }
+                                            params.data[art] = {
+                                                mode: budgetModalSwitchValue,
+                                                budget: budgetModalBudgetInputValue,
+                                                art: art,
+                                            };
                                         }
                                         console.log(params);
 
