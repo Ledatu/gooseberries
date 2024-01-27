@@ -59,9 +59,8 @@
 
     &__selectCampaign {
         margin-bottom: 8px;
-
     }
-    
+
     td {
         z-index: 10;
         max-width: 20vw;
@@ -77,10 +76,8 @@
         max-width: 20vw;
     }
 
-    
     tr:hover {
-        .data-table__td.app__td_fixed::before
-        {
+        .data-table__td.app__td_fixed::before {
             pointer-events: none;
             position: absolute;
             top: 0;
@@ -92,20 +89,18 @@
             // box-shadow: 60px -16px teal;
         }
     }
-    
-    .app__td_fixed
-    {
+
+    .app__td_fixed {
         position: relative;
         top: 0;
         left: 0;
         z-index: 20 !important;
         position: sticky !important;
         background: var(--g-color-base-background) !important;
-        border: none !important
+        border: none !important;
     }
-    
-    .app__td_fixed::after
-    {
+
+    .app__td_fixed::after {
         pointer-events: none;
         position: absolute;
         top: -0.7px;
@@ -133,7 +128,7 @@
     }
 
     &__datePickerRangeButton {
-        margin-bottom: 8px,
+        margin-bottom: 8px;
     }
 
     &__content {
@@ -150,6 +145,41 @@
     &__label {
         margin-left: 10px;
     }
+
+    // div.fade-in {
+    //     display: block;
+    //     animation: fade-in 0.7s ease-in forwards;
+    // }
+
+    // div.fade-out {
+    //     animation: fade-out 0.7s ease-out forwards;
+    // }
+
+    // /* Animation keyframes */
+
+    // @keyframes fade-in {
+    //     0% {
+    //         opacity: 0;
+    //         display: none;
+    //     }
+
+    //     100% {
+    //         opacity: 1;
+    //         display: block;
+    //     }
+    // }
+
+    // @keyframes fade-out {
+    //     0% {
+    //         opacity: 1;
+    //         display: block;
+    //     }
+
+    //     100% {
+    //         opacity: 0;
+    //         display: none;
+    //     }
+    // }
 }
 
 @keyframes app-logo-spin {

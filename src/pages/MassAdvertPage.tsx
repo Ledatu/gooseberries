@@ -614,7 +614,28 @@ export const MassAdvertPage = () => {
         {name: 'sum', placeholder: 'Расход, ₽'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {name: 'orders', placeholder: 'Заказов, шт.'},
-        {name: 'cpo', placeholder: 'CPO, ₽'},
+        {
+            name: 'cpo',
+            placeholder: 'CPO, ₽',
+            render: ({value, row}) => {
+                const desiredCPO = row.cpoAI ? row.cpoAI.desiredCPO : undefined;
+                return (
+                    <Text
+                        color={
+                            desiredCPO
+                                ? value <= desiredCPO
+                                    ? value == 0
+                                        ? 'primary'
+                                        : 'positive'
+                                    : 'danger'
+                                : 'primary'
+                        }
+                    >
+                        {value}
+                    </Text>
+                );
+            },
+        },
         {
             name: 'cpoAI',
             placeholder: 'CPO AI, ₽',
@@ -1471,6 +1492,9 @@ export const MassAdvertPage = () => {
                                     />
                                 ) : !bidModalDeleteModeSelected ? (
                                     <div
+                                        // className={
+                                        //     bidModalDeleteModeSelected ? 'fade-in' : 'fade-out'
+                                        // }
                                         style={{
                                             display: 'flex',
                                             flexDirection: 'column',
