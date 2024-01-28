@@ -18,6 +18,7 @@ import {
     Modal,
     Checkbox,
     RadioButton,
+    List,
     // Checkbox,
     // RadioButton,
     // Icon,
@@ -73,6 +74,8 @@ const getUserDoc = () => {
 };
 
 export const MassAdvertPage = () => {
+    const windowDimensions = useWindowDimensions();
+    const isDesktop = windowDimensions.height < windowDimensions.width;
     const [filters, setFilters] = useState({undef: false});
     const [modalFormOpen, setModalFormOpen] = useState(false);
     const [budgetInputValue, setBudgetInputValue] = useState(500);
@@ -97,6 +100,25 @@ export const MassAdvertPage = () => {
         {value: 'Установить лимит', content: 'Установить лимит'},
     ];
     const [budgetModalSwitchValue, setBudgetModalSwitchValue] = React.useState('Пополнить');
+
+    const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
+    const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
+        any[]
+    >([]);
+    const [semanticsModalSemanticsMinusItemsValue, setSemanticsModalSemanticsMinusItemsValue] =
+        useState<any[]>([]);
+    const [semanticsModalSemanticsPlusItemsValue, setSemanticsModalSemanticsPlusItemsValue] =
+        useState<any[]>([]);
+
+    // const [
+    //     semanticsModalSemanticsInputValidationValue,
+    //     setSemanticsModalSemanticsInputValidationValue,
+    // ] = useState(true);
+    // const semanticsModalSwitchValues: any[] = [
+    //     {value: 'Пополнить', content: 'Пополнить'},
+    //     {value: 'Установить лимит', content: 'Установить лимит'},
+    // ];
+    // const [semanticsModalSwitchValue, setSemanticsModalSwitchValue] = React.useState('Пополнить');
 
     const [bidModalFormOpen, setBidModalFormOpen] = useState(false);
     const [bidModalBidInputValue, setBidModalBidInputValue] = useState(125);
@@ -609,6 +631,36 @@ export const MassAdvertPage = () => {
                 );
             },
         },
+        {
+            name: 'semantics',
+            placeholder: 'Семантика',
+            valueType: 'text',
+            render: ({value, row}) => {
+                if (value === null) return;
+                if (!row.adverts) return;
+                // const themeToUse = 'normal';
+
+                const themeToUse = value.plus && value.plus.length ? 'info' : 'normal';
+
+                return (
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                        <Label
+                            // theme="normal"
+                            // theme="info"
+                            theme={themeToUse}
+                            onClick={() => {
+                                // setSemanticsModalFormOpen(true);
+                                setSemanticsModalSemanticsItemsValue(value.keywords);
+                                setSemanticsModalSemanticsMinusItemsValue(value.excluded);
+                                setSemanticsModalSemanticsPlusItemsValue(value.plus);
+                            }}
+                        >
+                            {themeToUse == 'info' ? row.art.split('_')[0] : 'Добавить'}
+                        </Label>
+                    </div>
+                );
+            },
+        },
         {name: 'budget', placeholder: 'Баланс, ₽'},
         {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
         {name: 'bid', placeholder: 'Ставка, ₽'},
@@ -663,6 +715,7 @@ export const MassAdvertPage = () => {
         orders: 0,
         sum_orders: 0,
         adverts: null,
+        semantics: null,
     });
 
     // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
@@ -737,6 +790,7 @@ export const MassAdvertPage = () => {
                 title: '',
                 stocks: 0,
                 adverts: 0,
+                semantics: undefined,
                 budget: undefined,
                 bid: undefined,
                 budgetToKeep: undefined,
@@ -774,6 +828,7 @@ export const MassAdvertPage = () => {
                         if (![4, 9, 11].includes(status)) continue;
                         const budget = advertData['budget'];
                         artInfo.budget = budget;
+                        artInfo.semantics = advertData['words'];
                         artInfo.bid = advertData['cpm'];
                     }
                 }
@@ -871,6 +926,7 @@ export const MassAdvertPage = () => {
             cr: 0,
             cpo: 0,
             adverts: null,
+            semantics: null,
             budget: 0,
             budgetToKeep: 0,
         };
@@ -1489,18 +1545,7 @@ export const MassAdvertPage = () => {
                                                 : 130,
                                             opacity: bidModalDeleteModeSelected ? 0 : 1,
                                         }}
-                                        transition={{
-                                            type: 'spring',
-                                            // damping: 15,
-                                            damping:
-                                                bidModalSwitchValue == 'Установить' ||
-                                                !bidModalDeleteModeSelected
-                                                    ? 10
-                                                    : 15,
-                                            // ease: 'easeInOut',
-                                            // ease: [0.17, 0.67, 0.83, 0.67],
-                                            // opacity: {duration: 0.1},
-                                        }}
+                                        transition={{duration: 0.1}}
                                         style={{
                                             overflow: 'hidden',
                                             display: 'flex',
@@ -1525,9 +1570,10 @@ export const MassAdvertPage = () => {
                                                 //     : -100,
                                             }}
                                             transition={{
-                                                // ease: 'easeInOut',
+                                                duration: 0.01,
+                                                ease: 'easeInOut',
                                                 // ease: [0.67, 0.83, 0.67, 0.17],
-                                                type: 'spring',
+                                                // type: 'spring',
                                                 // duration: 4,
                                                 // stiffness: 30,
                                                 // damping: 15,
@@ -1787,6 +1833,128 @@ export const MassAdvertPage = () => {
                                 </motion.div>
                             </Card>
                         </div>
+                    </Modal>
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        view="outlined"
+                        onClick={() => {
+                            // setSemanticsModalSemanticsInputValue(500);
+                            // setSemanticsModalSwitchValue('Пополнить');
+                            // setSemanticsModalSemanticsInputValidationValue(true);
+                            // setSemanticsModalFormOpen(true);
+                        }}
+                    >
+                        Семантика
+                    </Button>
+                    <Modal
+                        open={semanticsModalFormOpen}
+                        onClose={() => setSemanticsModalFormOpen(false)}
+                    >
+                        <motion.div
+                            layout
+                            animate={{height: semanticsModalFormOpen ? '60vh' : 0}}
+                            // transition={{delay: 0.12, type: 'spring'}}
+                            style={{
+                                // height: '60vh',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                flexDirection: isDesktop ? 'row' : 'column',
+                                width: isDesktop ? '80vw' : '70vw',
+                                padding: 32,
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <motion.div
+                                layout
+                                // animate={{x: semanticsModalFormOpen ? 0 : -1000}}
+                                // transition={{delay: 2, type: 'spring'}}
+                                style={{
+                                    display: 'flex',
+                                    height: !isDesktop ? '23vh' : undefined,
+                                    width: isDesktop ? '25vw' : undefined,
+                                    flexDirection: 'column',
+                                }}
+                            >
+                                <Text style={{marginBottom: 8}} variant="header-1">
+                                    Фразы
+                                </Text>
+                                <List
+                                    items={semanticsModalSemanticsItemsValue}
+                                    renderItem={(item) => {
+                                        const {keyword} = item;
+                                        return (
+                                            <div
+                                                style={{
+                                                    textOverflow: 'ellipsis',
+                                                    overflow: 'hidden',
+                                                    whiteSpace: 'nowrap',
+                                                }}
+                                                title={keyword}
+                                            >
+                                                <Text>{keyword}</Text>
+                                            </div>
+                                        );
+                                    }}
+                                    onItemClick={(item) => {
+                                        console.log(item);
+
+                                        setSemanticsModalSemanticsItemsValue(
+                                            semanticsModalSemanticsItemsValue.concat([item]),
+                                        );
+                                    }}
+                                />
+                            </motion.div>
+                            <motion.div
+                                layout
+                                // animate={{x: semanticsModalFormOpen ? 0 : -1000}}
+                                // transition={{delay: 2, type: 'spring'}}
+                                style={{
+                                    display: 'flex',
+                                    height: !isDesktop ? '23vh' : undefined,
+                                    width: isDesktop ? '25vw' : undefined,
+                                    flexDirection: 'column',
+                                }}
+                            >
+                                <Text style={{marginBottom: 8}} variant="header-1">
+                                    Минус фразы
+                                </Text>
+                                <List
+                                    items={semanticsModalSemanticsMinusItemsValue}
+                                    onItemClick={(item) => {
+                                        console.log(item);
+
+                                        setSemanticsModalSemanticsItemsValue(
+                                            semanticsModalSemanticsItemsValue.concat([item]),
+                                        );
+                                    }}
+                                />
+                            </motion.div>
+                            <motion.div
+                                layout
+                                // animate={{x: semanticsModalFormOpen ? 0 : -1000}}
+                                // transition={{delay: 2, type: 'spring'}}
+                                style={{
+                                    display: 'flex',
+                                    height: !isDesktop ? '23vh' : undefined,
+                                    width: isDesktop ? '25vw' : undefined,
+                                    flexDirection: 'column',
+                                }}
+                            >
+                                <Text style={{marginBottom: 8}} variant="header-1">
+                                    Плюс фразы
+                                </Text>
+                                <List
+                                    items={semanticsModalSemanticsPlusItemsValue}
+                                    onItemClick={(item) => {
+                                        console.log(item);
+
+                                        setSemanticsModalSemanticsItemsValue(
+                                            semanticsModalSemanticsItemsValue.concat([item]),
+                                        );
+                                    }}
+                                />
+                            </motion.div>
+                        </motion.div>
                     </Modal>
                     <Select
                         className={b('selectCampaign')}
