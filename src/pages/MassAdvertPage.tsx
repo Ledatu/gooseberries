@@ -47,6 +47,7 @@ import {
     TrashBin,
 } from '@gravity-ui/icons';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
+import {motion} from 'framer-motion';
 
 const {ipAddress} = require('../ipAddress');
 
@@ -1096,16 +1097,18 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Card
-                            // theme="raissed"
-                            view="raised"
+                            // view="raised"
+                            view="clear"
                             style={{
                                 width: 300,
+                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
+                                // animation: '3s linear 1s slidein',
                                 // maxWidth: '15vw',
-                                // height: 300,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
+                                backgroundColor: 'none',
                             }}
                         >
                             <div
@@ -1270,16 +1273,18 @@ export const MassAdvertPage = () => {
                     </Button>
                     <Modal open={budgetModalFormOpen} onClose={() => setBudgetModalFormOpen(false)}>
                         <Card
-                            // theme="raissed"
-                            view="raised"
+                            // view="raised"
+                            view="clear"
                             style={{
                                 width: 300,
+                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
+                                // animation: '3s linear 1s slidein',
                                 // maxWidth: '15vw',
-                                // height: 300,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
+                                backgroundColor: 'none',
                             }}
                         >
                             <div
@@ -1419,83 +1424,85 @@ export const MassAdvertPage = () => {
                         Ставки
                     </Button>
                     <Modal open={bidModalFormOpen} onClose={() => setBidModalFormOpen(false)}>
-                        <Card
-                            // theme="raissed"
-                            view="raised"
-                            style={{
-                                width: 300,
-                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
-                                animation: '3s linear 1s slidein',
-                                // maxWidth: '15vw',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                            }}
-                        >
-                            <div
+                        <div>
+                            <Card
+                                // view="raised"
+                                view="clear"
                                 style={{
-                                    height: '50%',
-                                    width: '100%',
+                                    width: 300,
+                                    // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
+                                    // animation: '3s linear 1s slidein',
+                                    // maxWidth: '15vw',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    margin: '16px 0',
+                                    justifyContent: 'space-between',
+                                    backgroundColor: 'none',
                                 }}
                             >
-                                <Text
+                                <motion.div
                                     style={{
-                                        margin: '8px 0',
+                                        height: '50%',
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        margin: '16px 0',
                                     }}
-                                    variant="display-2"
                                 >
-                                    Ставки
-                                </Text>
-                                <RadioButton
-                                    style={{margin: '4px 0'}}
-                                    defaultValue={bidModalSwitchValue}
-                                    options={bidModalSwitchValues}
-                                    onUpdate={(val) => {
-                                        setBidModalSwitchValue(val);
-                                        setBidModalBidInputValue(125);
-                                        setBidModalAnalyticsSwitchValue(14);
-                                        setBidModalBidInputValidationValue(true);
-                                        setBidModalDeleteModeSelected(false);
-                                        setBidModalFormOpen(true);
-                                        setBidModalBidStepInputValue(5);
-                                        setBidModalBidStepInputValidationValue(true);
-                                        setBidModalCPOInputValue(50);
-                                        setBidModalCPOInputValidationValue(true);
-                                    }}
-                                />
-
-                                {bidModalSwitchValue == 'Установить' ? (
-                                    <TextInput
+                                    <Text
                                         style={{
-                                            maxWidth: '70%',
-                                            margin: '4px 0',
+                                            margin: '8px 0',
                                         }}
-                                        type="number"
-                                        value={String(bidModalBidInputValue)}
-                                        onChange={(val) => {
-                                            const bid = Number(val.target.value);
-                                            if (bid < 125)
-                                                setBidModalBidInputValidationValue(false);
-                                            else setBidModalBidInputValidationValue(true);
-                                            setBidModalBidInputValue(bid);
+                                        variant="display-2"
+                                    >
+                                        Ставки
+                                    </Text>
+                                    <RadioButton
+                                        style={{marginTop: 4}}
+                                        defaultValue={bidModalSwitchValue}
+                                        options={bidModalSwitchValues}
+                                        onUpdate={(val) => {
+                                            setBidModalSwitchValue(val);
+                                            setBidModalBidInputValue(125);
+                                            setBidModalAnalyticsSwitchValue(14);
+                                            setBidModalBidInputValidationValue(true);
+                                            setBidModalDeleteModeSelected(false);
+                                            setBidModalFormOpen(true);
+                                            setBidModalBidStepInputValue(5);
+                                            setBidModalBidStepInputValidationValue(true);
+                                            setBidModalCPOInputValue(50);
+                                            setBidModalCPOInputValidationValue(true);
                                         }}
-                                        errorMessage={'Введите не менее 125'}
-                                        validationState={
-                                            bidModalBidInputValidationValue ? undefined : 'invalid'
-                                        }
-                                        label="Ставка"
                                     />
-                                ) : !bidModalDeleteModeSelected ? (
-                                    <div
+
+                                    <motion.div
+                                        layout
                                         // className={
                                         //     bidModalDeleteModeSelected ? 'fade-in' : 'fade-out'
                                         // }
+                                        animate={{
+                                            height: bidModalDeleteModeSelected
+                                                ? 8
+                                                : bidModalSwitchValue == 'Установить'
+                                                ? 44
+                                                : 130,
+                                            opacity: bidModalDeleteModeSelected ? 0 : 1,
+                                        }}
+                                        transition={{
+                                            type: 'spring',
+                                            // damping: 15,
+                                            damping:
+                                                bidModalSwitchValue == 'Установить' ||
+                                                !bidModalDeleteModeSelected
+                                                    ? 10
+                                                    : 15,
+                                            // ease: 'easeInOut',
+                                            // ease: [0.17, 0.67, 0.83, 0.67],
+                                            // opacity: {duration: 0.1},
+                                        }}
                                         style={{
+                                            overflow: 'hidden',
                                             display: 'flex',
                                             flexDirection: 'column',
                                             width: '100%',
@@ -1503,171 +1510,279 @@ export const MassAdvertPage = () => {
                                             alignItems: 'center',
                                         }}
                                     >
-                                        <TextInput
-                                            disabled={bidModalDeleteModeSelected}
+                                        <motion.div
+                                            layout
+                                            animate={{
+                                                y: !bidModalDeleteModeSelected
+                                                    ? bidModalSwitchValue == 'Установить'
+                                                        ? 59
+                                                        : -20
+                                                    : 150,
+                                                // x: !bidModalDeleteModeSelected
+                                                //     ? bidModalSwitchValue == 'Установить'
+                                                //         ? 59
+                                                //         : -20
+                                                //     : -100,
+                                            }}
+                                            transition={{
+                                                // ease: 'easeInOut',
+                                                // ease: [0.67, 0.83, 0.67, 0.17],
+                                                type: 'spring',
+                                                // duration: 4,
+                                                // stiffness: 30,
+                                                // damping: 15,
+                                            }}
                                             style={{
-                                                maxWidth: '70%',
-                                                margin: '4px 0',
-                                            }}
-                                            type="number"
-                                            value={String(bidModalCPOInputValue)}
-                                            onChange={(val) => {
-                                                const cpo = Number(val.target.value);
-                                                if (cpo < 0)
-                                                    setBidModalCPOInputValidationValue(false);
-                                                else setBidModalCPOInputValidationValue(true);
-                                                setBidModalCPOInputValue(cpo);
-                                            }}
-                                            errorMessage={'Введите не менее 0'}
-                                            validationState={
-                                                bidModalCPOInputValidationValue
-                                                    ? undefined
-                                                    : 'invalid'
-                                            }
-                                            label="Целевой CPO"
-                                        />
-                                        <TextInput
-                                            disabled={bidModalDeleteModeSelected}
-                                            style={{
-                                                maxWidth: '70%',
-                                                margin: '4px 0',
-                                            }}
-                                            type="number"
-                                            value={String(bidModalBidStepInputValue)}
-                                            onChange={(val) => {
-                                                const bidStep = Number(val.target.value);
-                                                if (bidStep < 0)
-                                                    setBidModalBidStepInputValidationValue(false);
-                                                else setBidModalBidStepInputValidationValue(true);
-                                                setBidModalBidStepInputValue(bidStep);
-                                            }}
-                                            errorMessage={'Введите не менее 0'}
-                                            validationState={
-                                                bidModalBidStepInputValidationValue
-                                                    ? undefined
-                                                    : 'invalid'
-                                            }
-                                            label="Шаг ставки"
-                                        />
-                                        <Text variant="subheader-1">Аналитика</Text>
-                                        <RadioButton
-                                            disabled={bidModalDeleteModeSelected}
-                                            style={{margin: '0 2px 0 4px'}}
-                                            defaultValue={String(bidModalAnalyticsSwitchValue)}
-                                            options={bidModalAnalyticsSwitchValues}
-                                            onUpdate={(val) => {
-                                                setBidModalAnalyticsSwitchValue(parseInt(val));
-                                            }}
-                                        />
-                                    </div>
-                                ) : (
-                                    <></>
-                                )}
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        position: 'relative',
-                                    }}
-                                >
-                                    <Button
-                                        style={{
-                                            margin: '8px 0px',
-                                            maxWidth: '50%',
-                                        }}
-                                        pin="circle-circle"
-                                        size="l"
-                                        width="max"
-                                        disabled={!bidModalBidInputValidationValue}
-                                        // view="action"
-                                        view={
-                                            bidModalDeleteModeSelected
-                                                ? 'outlined-danger'
-                                                : 'action'
-                                        }
-                                        // selected
-                                        onClick={() => {
-                                            const params = {
-                                                uid: Userfront.user.userUuid,
-                                                campaignName: selectValue[0],
-                                                data: {},
-                                            };
-                                            for (let i = 0; i < data.length; i++) {
-                                                const art = data[i].art;
-                                                if (!art) continue;
-
-                                                if (bidModalSwitchValue == 'Установить') {
-                                                    params.data[art] = {
-                                                        mode: bidModalSwitchValue,
-                                                        bid: bidModalBidInputValue,
-                                                        art: art,
-                                                    };
-                                                } else if (bidModalSwitchValue == 'Автоставки') {
-                                                    if (!bidModalDeleteModeSelected) {
-                                                        params.data[art] = {
-                                                            mode: bidModalSwitchValue,
-                                                            desiredCPO: bidModalCPOInputValue,
-                                                            bidStep: bidModalBidStepInputValue,
-                                                            dateRange: bidModalAnalyticsSwitchValue,
-                                                            advertId: art,
-                                                        };
-                                                    } else {
-                                                        params.data[art] = {
-                                                            mode: 'Удалить правила',
-                                                            art: art,
-                                                        };
-                                                    }
-                                                }
-                                            }
-                                            console.log(params);
-
-                                            //////////////////////////////////
-                                            const token =
-                                                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                            axios
-                                                .post(`${ipAddress}/api/setAdvertsCPMs`, params, {
-                                                    headers: {
-                                                        Authorization: 'Bearer ' + token,
-                                                    },
-                                                })
-                                                .then((response) => console.log(response.data))
-                                                .catch((error) => console.error(error));
-                                            //////////////////////////////////
-
-                                            setBidModalFormOpen(false);
-                                        }}
-                                    >
-                                        {bidModalSwitchValue == 'Автоставки'
-                                            ? !bidModalDeleteModeSelected
-                                                ? 'Задать правила'
-                                                : 'Удалить правила'
-                                            : 'Отправить'}
-                                    </Button>
-                                    {bidModalSwitchValue == 'Автоставки' ? (
-                                        <Button
-                                            style={{position: 'absolute', marginLeft: '70%'}}
-                                            pin="circle-circle"
-                                            view={
-                                                bidModalDeleteModeSelected
-                                                    ? 'flat-warning'
-                                                    : undefined
-                                            }
-                                            selected={bidModalDeleteModeSelected}
-                                            // view="action"
-                                            onClick={() => {
-                                                setBidModalDeleteModeSelected((val) => !val);
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                width: '100%',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
                                             }}
                                         >
-                                            <Icon data={TrashBin}></Icon>
+                                            <motion.div
+                                                layout
+                                                animate={{
+                                                    opacity:
+                                                        bidModalSwitchValue == 'Установить' ? 1 : 0,
+                                                }}
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    width: '100%',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <TextInput
+                                                    style={{
+                                                        maxWidth: '70%',
+                                                        margin: '4px 0',
+                                                    }}
+                                                    type="number"
+                                                    value={String(bidModalBidInputValue)}
+                                                    onChange={(val) => {
+                                                        const bid = Number(val.target.value);
+                                                        if (bid < 125)
+                                                            setBidModalBidInputValidationValue(
+                                                                false,
+                                                            );
+                                                        else
+                                                            setBidModalBidInputValidationValue(
+                                                                true,
+                                                            );
+                                                        setBidModalBidInputValue(bid);
+                                                    }}
+                                                    errorMessage={'Введите не менее 125'}
+                                                    validationState={
+                                                        bidModalBidInputValidationValue
+                                                            ? undefined
+                                                            : 'invalid'
+                                                    }
+                                                    label="Ставка"
+                                                />
+                                            </motion.div>
+                                            <motion.div
+                                                layout
+                                                animate={{
+                                                    opacity:
+                                                        bidModalSwitchValue != 'Установить' &&
+                                                        !bidModalDeleteModeSelected
+                                                            ? 1
+                                                            : 0,
+                                                }}
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    width: '100%',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <TextInput
+                                                    style={{
+                                                        maxWidth: '70%',
+                                                        margin: '4px 0',
+                                                    }}
+                                                    type="number"
+                                                    value={String(bidModalCPOInputValue)}
+                                                    onChange={(val) => {
+                                                        const cpo = Number(val.target.value);
+                                                        if (cpo < 0)
+                                                            setBidModalCPOInputValidationValue(
+                                                                false,
+                                                            );
+                                                        else
+                                                            setBidModalCPOInputValidationValue(
+                                                                true,
+                                                            );
+                                                        setBidModalCPOInputValue(cpo);
+                                                    }}
+                                                    errorMessage={'Введите не менее 0'}
+                                                    validationState={
+                                                        bidModalCPOInputValidationValue
+                                                            ? undefined
+                                                            : 'invalid'
+                                                    }
+                                                    label="Целевой CPO"
+                                                />
+                                                <TextInput
+                                                    style={{
+                                                        maxWidth: '70%',
+                                                        margin: '4px 0',
+                                                    }}
+                                                    type="number"
+                                                    value={String(bidModalBidStepInputValue)}
+                                                    onChange={(val) => {
+                                                        const bidStep = Number(val.target.value);
+                                                        if (bidStep < 0)
+                                                            setBidModalBidStepInputValidationValue(
+                                                                false,
+                                                            );
+                                                        else
+                                                            setBidModalBidStepInputValidationValue(
+                                                                true,
+                                                            );
+                                                        setBidModalBidStepInputValue(bidStep);
+                                                    }}
+                                                    errorMessage={'Введите не менее 0'}
+                                                    validationState={
+                                                        bidModalBidStepInputValidationValue
+                                                            ? undefined
+                                                            : 'invalid'
+                                                    }
+                                                    label="Шаг ставки"
+                                                />
+                                                <Text variant="subheader-1">Аналитика</Text>
+                                                <RadioButton
+                                                    style={{margin: '0 2px 0 4px'}}
+                                                    defaultValue={String(
+                                                        bidModalAnalyticsSwitchValue,
+                                                    )}
+                                                    options={bidModalAnalyticsSwitchValues}
+                                                    onUpdate={(val) => {
+                                                        setBidModalAnalyticsSwitchValue(
+                                                            parseInt(val),
+                                                        );
+                                                    }}
+                                                />
+                                            </motion.div>
+                                        </motion.div>
+                                    </motion.div>
+
+                                    <div
+                                        style={{
+                                            width: '100%',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            position: 'relative',
+                                        }}
+                                    >
+                                        <Button
+                                            style={{
+                                                marginBottom: 8,
+                                                maxWidth: '50%',
+                                            }}
+                                            pin="circle-circle"
+                                            size="l"
+                                            width="max"
+                                            disabled={!bidModalBidInputValidationValue}
+                                            // view="action"
+                                            view={
+                                                bidModalDeleteModeSelected
+                                                    ? 'outlined-danger'
+                                                    : 'action'
+                                            }
+                                            // selected
+                                            onClick={() => {
+                                                const params = {
+                                                    uid: Userfront.user.userUuid,
+                                                    campaignName: selectValue[0],
+                                                    data: {},
+                                                };
+                                                for (let i = 0; i < data.length; i++) {
+                                                    const art = data[i].art;
+                                                    if (!art) continue;
+
+                                                    if (bidModalSwitchValue == 'Установить') {
+                                                        params.data[art] = {
+                                                            mode: bidModalSwitchValue,
+                                                            bid: bidModalBidInputValue,
+                                                            art: art,
+                                                        };
+                                                    } else if (
+                                                        bidModalSwitchValue == 'Автоставки'
+                                                    ) {
+                                                        if (!bidModalDeleteModeSelected) {
+                                                            params.data[art] = {
+                                                                mode: bidModalSwitchValue,
+                                                                desiredCPO: bidModalCPOInputValue,
+                                                                bidStep: bidModalBidStepInputValue,
+                                                                dateRange:
+                                                                    bidModalAnalyticsSwitchValue,
+                                                                advertId: art,
+                                                            };
+                                                        } else {
+                                                            params.data[art] = {
+                                                                mode: 'Удалить правила',
+                                                                art: art,
+                                                            };
+                                                        }
+                                                    }
+                                                }
+                                                console.log(params);
+
+                                                //////////////////////////////////
+                                                const token =
+                                                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                                axios
+                                                    .post(
+                                                        `${ipAddress}/api/setAdvertsCPMs`,
+                                                        params,
+                                                        {
+                                                            headers: {
+                                                                Authorization: 'Bearer ' + token,
+                                                            },
+                                                        },
+                                                    )
+                                                    .then((response) => console.log(response.data))
+                                                    .catch((error) => console.error(error));
+                                                //////////////////////////////////
+
+                                                setBidModalFormOpen(false);
+                                            }}
+                                        >
+                                            {bidModalSwitchValue == 'Автоставки'
+                                                ? !bidModalDeleteModeSelected
+                                                    ? 'Задать правила'
+                                                    : 'Удалить правила'
+                                                : 'Отправить'}
                                         </Button>
-                                    ) : (
-                                        <></>
-                                    )}
-                                </div>
-                            </div>
-                        </Card>
+                                        {bidModalSwitchValue == 'Автоставки' ? (
+                                            <Button
+                                                style={{position: 'absolute', marginLeft: '70%'}}
+                                                pin="circle-circle"
+                                                view={
+                                                    bidModalDeleteModeSelected
+                                                        ? 'flat-warning'
+                                                        : undefined
+                                                }
+                                                selected={bidModalDeleteModeSelected}
+                                                // view="action"
+                                                onClick={() => {
+                                                    setBidModalDeleteModeSelected((val) => !val);
+                                                }}
+                                            >
+                                                <Icon data={TrashBin}></Icon>
+                                            </Button>
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            </Card>
+                        </div>
                     </Modal>
                     <Select
                         className={b('selectCampaign')}
