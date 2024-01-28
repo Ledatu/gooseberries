@@ -1517,7 +1517,7 @@ export const MassAdvertPage = () => {
                                                     ? bidModalSwitchValue == 'Установить'
                                                         ? 59
                                                         : -20
-                                                    : 150,
+                                                    : 77,
                                                 // x: !bidModalDeleteModeSelected
                                                 //     ? bidModalSwitchValue == 'Установить'
                                                 //         ? 59
@@ -1761,7 +1761,11 @@ export const MassAdvertPage = () => {
                                         </Button>
                                         {bidModalSwitchValue == 'Автоставки' ? (
                                             <Button
-                                                style={{position: 'absolute', marginLeft: '70%'}}
+                                                style={{
+                                                    position: 'absolute',
+                                                    marginLeft: '70%',
+                                                    marginBottom: 8,
+                                                }}
                                                 pin="circle-circle"
                                                 view={
                                                     bidModalDeleteModeSelected
