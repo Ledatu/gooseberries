@@ -91,6 +91,9 @@ export const MassAdvertPage = () => {
     ];
     const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState('Авто');
 
+    const [plusPhrasesModalFormOpen, setPlusPhrasesModalFormOpen] = useState(false);
+    const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState<any[]>([]);
+
     const [budgetModalFormOpen, setBudgetModalFormOpen] = useState(false);
     const [budgetModalBudgetInputValue, setBudgetModalBudgetInputValue] = useState(500);
     const [budgetModalBudgetInputValidationValue, setBudgetModalBudgetInputValidationValue] =
@@ -671,7 +674,13 @@ export const MassAdvertPage = () => {
                                 setSemanticsModalSemanticsPlusItemsTemplateNameValue(
                                     value.plus ?? 'Не установлен',
                                 );
-                                setSemanticsModalSemanticsThresholdValue(100);
+                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                    value.plus ?? 'Новый шаблон',
+                                );
+                                const plusThreshold = document.plusPhrasesTemplates[value.plus]
+                                    ? document.plusPhrasesTemplates[value.plus].threshhold
+                                    : 100;
+                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
                                 // console.log(value.plus);
                                 const plusItems = document.plusPhrasesTemplates[value.plus]
                                     ? document.plusPhrasesTemplates[value.plus].keywords
@@ -679,7 +688,7 @@ export const MassAdvertPage = () => {
                                 setSemanticsModalSemanticsPlusItemsValue(plusItems);
                             }}
                         >
-                            {themeToUse == 'info' ? row.art.split('_')[0] : 'Добавить'}
+                            {themeToUse == 'info' ? value.plus : 'Добавить'}
                         </Label>
                     </div>
                 );
@@ -1868,7 +1877,104 @@ export const MassAdvertPage = () => {
                             // setSemanticsModalSemanticsInputValue(500);
                             // setSemanticsModalSwitchValue('Пополнить');
                             // setSemanticsModalSemanticsInputValidationValue(true);
-                            setSemanticsModalFormOpen(true);
+                            setPlusPhrasesModalFormOpen(true);
+                            const plusPhrasesTemplatesTemp: any[] = [];
+                            for (const [name, _] of Object.entries(document.plusPhrasesTemplates)) {
+                                plusPhrasesTemplatesTemp.push(
+                                    <div style={{margin: '2px 3px'}}>
+                                        <Label
+                                            size="m"
+                                            theme="info"
+                                            onClick={() => {
+                                                const params = {
+                                                    uid: Userfront.user.userUuid,
+                                                    campaignName: selectValue[0],
+                                                    data: {},
+                                                };
+                                                for (let i = 0; i < data.length; i++) {
+                                                    const art = data[i].art;
+                                                    if (!art) continue;
+
+                                                    params.data[art] = {
+                                                        mode: 'Установить',
+                                                        templateName: name,
+                                                        art: art,
+                                                    };
+                                                }
+                                                console.log(params);
+
+                                                //////////////////////////////////
+                                                const token =
+                                                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                                axios
+                                                    .post(
+                                                        `${ipAddress}/api/setAdvertsPlusPhrasesTemplates`,
+                                                        params,
+                                                        {
+                                                            headers: {
+                                                                Authorization: 'Bearer ' + token,
+                                                            },
+                                                        },
+                                                    )
+                                                    .then((response) => console.log(response.data))
+                                                    .catch((error) => console.error(error));
+                                                //////////////////////////////////
+
+                                                setPlusPhrasesModalFormOpen(false);
+                                            }}
+                                        >
+                                            {name}
+                                        </Label>
+                                    </div>,
+                                );
+                            }
+                            plusPhrasesTemplatesTemp.push(
+                                <div style={{margin: '2px 3px'}}>
+                                    <Label
+                                        size="m"
+                                        theme="danger"
+                                        onClick={() => {
+                                            const params = {
+                                                uid: Userfront.user.userUuid,
+                                                campaignName: selectValue[0],
+                                                data: {},
+                                            };
+                                            for (let i = 0; i < data.length; i++) {
+                                                const art = data[i].art;
+                                                if (!art) continue;
+
+                                                params.data[art] = {
+                                                    mode: 'Удалить',
+                                                    art: art,
+                                                };
+                                            }
+                                            console.log(params);
+
+                                            //////////////////////////////////
+                                            const token =
+                                                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                            axios
+                                                .post(
+                                                    `${ipAddress}/api/setAdvertsPlusPhrasesTemplates`,
+                                                    params,
+                                                    {
+                                                        headers: {
+                                                            Authorization: 'Bearer ' + token,
+                                                        },
+                                                    },
+                                                )
+                                                .then((response) => console.log(response.data))
+                                                .catch((error) => console.error(error));
+                                            //////////////////////////////////
+
+                                            setPlusPhrasesModalFormOpen(false);
+                                        }}
+                                    >
+                                        Удалить
+                                    </Label>
+                                </div>,
+                            );
+                            setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
                         }}
                     >
                         Семантика
@@ -1880,7 +1986,7 @@ export const MassAdvertPage = () => {
                         <motion.div
                             layout
                             animate={{height: semanticsModalFormOpen ? '80vh' : 0}}
-                            // transition={{delay: 0.12, type: 'spring'}}
+                            transition={{ease: 'easeInOut', duration: 0.2}}
                             style={{
                                 // height: '60vh',
                                 display: 'flex',
@@ -1914,26 +2020,23 @@ export const MassAdvertPage = () => {
                                     <Text variant="header-1">Фразы</Text>
                                     <Button
                                         onClick={() => {
-                                            setSemanticsModalSemanticsPlusItemsValue((val) => {
-                                                if (!val) val = [];
-                                                for (
-                                                    let i = 0;
-                                                    i <
-                                                    semanticsModalSemanticsItemsFiltratedValue.length;
-                                                    i++
-                                                ) {
-                                                    const keyword =
-                                                        semanticsModalSemanticsItemsFiltratedValue[
-                                                            i
-                                                        ].keyword;
-                                                    if (val.includes(keyword)) continue;
-                                                    val.push(keyword);
-                                                    console.log(keyword);
-                                                }
-                                                console.log(val);
+                                            const val = semanticsModalSemanticsPlusItemsValue;
+                                            for (
+                                                let i = 0;
+                                                i <
+                                                semanticsModalSemanticsItemsFiltratedValue.length;
+                                                i++
+                                            ) {
+                                                const keyword =
+                                                    semanticsModalSemanticsItemsFiltratedValue[i]
+                                                        .keyword;
+                                                if (val.includes(keyword)) continue;
+                                                val.push(keyword);
+                                                // console.log(keyword);
+                                            }
+                                            // console.log(val);
 
-                                                return val;
-                                            });
+                                            setSemanticsModalSemanticsPlusItemsValue(val);
                                         }}
                                     >
                                         Добавить все
@@ -1944,34 +2047,51 @@ export const MassAdvertPage = () => {
                                     items={semanticsModalSemanticsItemsValue}
                                     onFilterEnd={({items}) => {
                                         setSemanticsModalSemanticsItemsFiltratedValue(items);
-                                        console.log(
-                                            semanticsModalSemanticsItemsFiltratedValue.length,
-                                        );
+                                        // console.log(
+                                        //     semanticsModalSemanticsItemsFiltratedValue.length,
+                                        // );
                                     }}
                                     filterItem={(filter) => (item) => {
                                         return item.keyword.includes(filter);
                                     }}
                                     renderItem={(item) => {
-                                        const {keyword} = item;
+                                        const {keyword, count} = item;
+                                        const colorToUse =
+                                            semanticsModalSemanticsPlusItemsValue.includes(keyword)
+                                                ? 'positive'
+                                                : 'primary';
                                         return (
                                             <div
                                                 style={{
-                                                    textOverflow: 'ellipsis',
-                                                    overflow: 'hidden',
-                                                    whiteSpace: 'nowrap',
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'space-between',
+                                                    width: '100%',
                                                 }}
                                                 title={keyword}
                                             >
-                                                <Text>{keyword}</Text>
+                                                <div
+                                                    style={{
+                                                        textOverflow: 'ellipsis',
+                                                        overflow: 'hidden',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
+                                                    <Text color={colorToUse}>{keyword}</Text>
+                                                </div>
+                                                <Text color="warning">{count}</Text>
                                             </div>
                                         );
                                     }}
                                     onItemClick={(item) => {
-                                        console.log(item);
-
-                                        setSemanticsModalSemanticsItemsValue(
-                                            semanticsModalSemanticsItemsValue.concat([item]),
-                                        );
+                                        let val = semanticsModalSemanticsPlusItemsValue;
+                                        const {keyword} = item;
+                                        if (!val.includes(keyword)) {
+                                            val.push(keyword);
+                                        } else {
+                                            val = val.filter((value) => value != keyword);
+                                        }
+                                        setSemanticsModalSemanticsPlusItemsValue(val);
                                     }}
                                 />
                             </motion.div>
@@ -2009,40 +2129,25 @@ export const MassAdvertPage = () => {
                                 <div
                                     style={{
                                         marginBottom: 8,
+                                        width: '100%',
                                         display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'start',
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <div
-                                        style={{
-                                            marginBottom: 8,
-                                            width: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                        }}
+                                    <Text variant="header-1">Плюс фразы</Text>
+                                    <Label
+                                        size="m"
+                                        theme={
+                                            semanticsModalSemanticsPlusItemsTemplateNameValue ==
+                                            'Не установлен'
+                                                ? 'normal'
+                                                : 'info'
+                                        }
                                     >
-                                        <Text variant="header-1">Плюс фразы</Text>
-                                        <Label
-                                            size="m"
-                                            theme={
-                                                semanticsModalSemanticsPlusItemsTemplateNameValue ==
-                                                'Не установлен'
-                                                    ? 'normal'
-                                                    : 'info'
-                                            }
-                                        >
-                                            {semanticsModalSemanticsPlusItemsTemplateNameValue}
-                                        </Label>
-                                    </div>
-
-                                    <List
-                                        items={semanticsModalSemanticsPlusItemsValue}
-                                        filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
-                                    />
+                                        {semanticsModalSemanticsPlusItemsTemplateNameValue}
+                                    </Label>
                                 </div>
                                 <div
                                     style={{
@@ -2055,7 +2160,8 @@ export const MassAdvertPage = () => {
                                     }}
                                 >
                                     <TextInput
-                                        label="Отсечка"
+                                        style={{width: 200}}
+                                        placeholder="Отсечка"
                                         hasClear
                                         value={String(semanticsModalSemanticsThresholdValue)}
                                         onUpdate={(val) => {
@@ -2076,10 +2182,112 @@ export const MassAdvertPage = () => {
                                             );
                                         }}
                                     />
-                                    <Button>Сохранить</Button>
+                                    <Button
+                                        onClick={() => {
+                                            const params = {
+                                                uid: Userfront.user.userUuid,
+                                                data: {
+                                                    mode: 'Установить',
+                                                    name: semanticsModalSemanticsPlusItemsTemplateNameSaveValue,
+                                                    keywords: semanticsModalSemanticsPlusItemsValue,
+                                                    threshold:
+                                                        semanticsModalSemanticsThresholdValue,
+                                                },
+                                            };
+                                            console.log(params);
+
+                                            const token =
+                                                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                                            axios
+                                                .post(
+                                                    `${ipAddress}/api/setPlusPhraseTemplate`,
+                                                    params,
+                                                    {
+                                                        headers: {
+                                                            Authorization: 'Bearer ' + token,
+                                                        },
+                                                    },
+                                                )
+                                                .then((response) => console.log(response.data))
+                                                .catch((error) => console.error(error));
+
+                                            setSemanticsModalFormOpen(false);
+                                        }}
+                                    >
+                                        Сохранить
+                                    </Button>
                                 </div>
+
+                                <List
+                                    items={semanticsModalSemanticsPlusItemsValue}
+                                    filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
+                                    onItemClick={(keyword) => {
+                                        let val = semanticsModalSemanticsPlusItemsValue;
+                                        val = val.filter((value) => value != keyword);
+                                        setSemanticsModalSemanticsPlusItemsValue(val);
+                                    }}
+                                    renderItem={(item) => {
+                                        if (!item) return;
+                                        return (
+                                            <div
+                                                style={{
+                                                    textOverflow: 'ellipsis',
+                                                    overflow: 'hidden',
+                                                    whiteSpace: 'nowrap',
+                                                }}
+                                                title={item}
+                                            >
+                                                <Text>{item}</Text>
+                                            </div>
+                                        );
+                                    }}
+                                />
                             </motion.div>
                         </motion.div>
+                    </Modal>
+                    <Modal
+                        open={plusPhrasesModalFormOpen}
+                        onClose={() => setPlusPhrasesModalFormOpen(false)}
+                    >
+                        <Card
+                            // view="raised"
+                            view="clear"
+                            style={{
+                                width: 300,
+                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
+                                // animation: '3s linear 1s slidein',
+                                // maxWidth: '15vw',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                backgroundColor: 'none',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    height: '50%',
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    margin: '16px 0',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    Шаблоны
+                                </Text>
+
+                                <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                                    {plusPhrasesTemplatesLabels}
+                                </div>
+                            </div>
+                        </Card>
                     </Modal>
                     <Select
                         className={b('selectCampaign')}
