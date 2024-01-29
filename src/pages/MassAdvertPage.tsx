@@ -105,10 +105,24 @@ export const MassAdvertPage = () => {
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
         any[]
     >([]);
+    const [
+        semanticsModalSemanticsItemsFiltratedValue,
+        setSemanticsModalSemanticsItemsFiltratedValue,
+    ] = useState<any[]>([]);
     const [semanticsModalSemanticsMinusItemsValue, setSemanticsModalSemanticsMinusItemsValue] =
         useState<any[]>([]);
     const [semanticsModalSemanticsPlusItemsValue, setSemanticsModalSemanticsPlusItemsValue] =
         useState<any[]>([]);
+    const [
+        semanticsModalSemanticsPlusItemsTemplateNameValue,
+        setSemanticsModalSemanticsPlusItemsTemplateNameValue,
+    ] = useState('Не установлен');
+    const [
+        semanticsModalSemanticsPlusItemsTemplateNameSaveValue,
+        setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue,
+    ] = useState('Новый шаблон');
+    const [semanticsModalSemanticsThresholdValue, setSemanticsModalSemanticsThresholdValue] =
+        useState(100);
 
     // const [
     //     semanticsModalSemanticsInputValidationValue,
@@ -639,8 +653,9 @@ export const MassAdvertPage = () => {
                 if (value === null) return;
                 if (!row.adverts) return;
                 // const themeToUse = 'normal';
+                // console.log(value.plus);
 
-                const themeToUse = value.plus && value.plus.length ? 'info' : 'normal';
+                const themeToUse = value.plus ? 'info' : 'normal';
 
                 return (
                     <div style={{display: 'flex', justifyContent: 'center'}}>
@@ -649,10 +664,19 @@ export const MassAdvertPage = () => {
                             // theme="info"
                             theme={themeToUse}
                             onClick={() => {
-                                // setSemanticsModalFormOpen(true);
+                                setSemanticsModalFormOpen(true);
                                 setSemanticsModalSemanticsItemsValue(value.keywords);
+                                setSemanticsModalSemanticsItemsFiltratedValue(value.keywords);
                                 setSemanticsModalSemanticsMinusItemsValue(value.excluded);
-                                setSemanticsModalSemanticsPlusItemsValue(value.plus);
+                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                    value.plus ?? 'Не установлен',
+                                );
+                                setSemanticsModalSemanticsThresholdValue(100);
+                                // console.log(value.plus);
+                                const plusItems = document.plusPhrasesTemplates[value.plus]
+                                    ? document.plusPhrasesTemplates[value.plus].keywords
+                                    : [];
+                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
                             }}
                         >
                             {themeToUse == 'info' ? row.art.split('_')[0] : 'Добавить'}
@@ -778,10 +802,13 @@ export const MassAdvertPage = () => {
             sum_orders: 0,
         };
 
+        const campaignData = document
+            ? document.campaigns
+                ? document.campaigns[selected == '' ? selectValue[0] : selected]
+                : {}
+            : {};
         const temp: any[] = [];
-        for (const [art, artData] of Object.entries(
-            document[selected == '' ? selectValue[0] : selected],
-        )) {
+        for (const [art, artData] of Object.entries(campaignData)) {
             if (!art || !artData) continue;
             const artInfo = {
                 art: '',
@@ -991,7 +1018,7 @@ export const MassAdvertPage = () => {
     if (!document) return <Spin />;
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(document)) {
+        for (const [campaignName, _] of Object.entries(document['campaigns'])) {
             campaignsNames.push({value: campaignName, content: campaignName});
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
@@ -1841,7 +1868,7 @@ export const MassAdvertPage = () => {
                             // setSemanticsModalSemanticsInputValue(500);
                             // setSemanticsModalSwitchValue('Пополнить');
                             // setSemanticsModalSemanticsInputValidationValue(true);
-                            // setSemanticsModalFormOpen(true);
+                            setSemanticsModalFormOpen(true);
                         }}
                     >
                         Семантика
@@ -1852,7 +1879,7 @@ export const MassAdvertPage = () => {
                     >
                         <motion.div
                             layout
-                            animate={{height: semanticsModalFormOpen ? '60vh' : 0}}
+                            animate={{height: semanticsModalFormOpen ? '80vh' : 0}}
                             // transition={{delay: 0.12, type: 'spring'}}
                             style={{
                                 // height: '60vh',
@@ -1875,11 +1902,55 @@ export const MassAdvertPage = () => {
                                     flexDirection: 'column',
                                 }}
                             >
-                                <Text style={{marginBottom: 8}} variant="header-1">
-                                    Фразы
-                                </Text>
+                                <div
+                                    style={{
+                                        marginBottom: 8,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text variant="header-1">Фразы</Text>
+                                    <Button
+                                        onClick={() => {
+                                            setSemanticsModalSemanticsPlusItemsValue((val) => {
+                                                if (!val) val = [];
+                                                for (
+                                                    let i = 0;
+                                                    i <
+                                                    semanticsModalSemanticsItemsFiltratedValue.length;
+                                                    i++
+                                                ) {
+                                                    const keyword =
+                                                        semanticsModalSemanticsItemsFiltratedValue[
+                                                            i
+                                                        ].keyword;
+                                                    if (val.includes(keyword)) continue;
+                                                    val.push(keyword);
+                                                    console.log(keyword);
+                                                }
+                                                console.log(val);
+
+                                                return val;
+                                            });
+                                        }}
+                                    >
+                                        Добавить все
+                                    </Button>
+                                </div>
                                 <List
+                                    filterPlaceholder={`Поиск в ${semanticsModalSemanticsItemsValue.length} фразах`}
                                     items={semanticsModalSemanticsItemsValue}
+                                    onFilterEnd={({items}) => {
+                                        setSemanticsModalSemanticsItemsFiltratedValue(items);
+                                        console.log(
+                                            semanticsModalSemanticsItemsFiltratedValue.length,
+                                        );
+                                    }}
+                                    filterItem={(filter) => (item) => {
+                                        return item.keyword.includes(filter);
+                                    }}
                                     renderItem={(item) => {
                                         const {keyword} = item;
                                         return (
@@ -1920,13 +1991,7 @@ export const MassAdvertPage = () => {
                                 </Text>
                                 <List
                                     items={semanticsModalSemanticsMinusItemsValue}
-                                    onItemClick={(item) => {
-                                        console.log(item);
-
-                                        setSemanticsModalSemanticsItemsValue(
-                                            semanticsModalSemanticsItemsValue.concat([item]),
-                                        );
-                                    }}
+                                    filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
                                 />
                             </motion.div>
                             <motion.div
@@ -1935,24 +2000,84 @@ export const MassAdvertPage = () => {
                                 // transition={{delay: 2, type: 'spring'}}
                                 style={{
                                     display: 'flex',
-                                    height: !isDesktop ? '23vh' : undefined,
+                                    height: !isDesktop ? '23vh' : '100%',
                                     width: isDesktop ? '25vw' : undefined,
                                     flexDirection: 'column',
+                                    justifyContent: 'space-between',
                                 }}
                             >
-                                <Text style={{marginBottom: 8}} variant="header-1">
-                                    Плюс фразы
-                                </Text>
-                                <List
-                                    items={semanticsModalSemanticsPlusItemsValue}
-                                    onItemClick={(item) => {
-                                        console.log(item);
-
-                                        setSemanticsModalSemanticsItemsValue(
-                                            semanticsModalSemanticsItemsValue.concat([item]),
-                                        );
+                                <div
+                                    style={{
+                                        marginBottom: 8,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'start',
+                                        alignItems: 'center',
                                     }}
-                                />
+                                >
+                                    <div
+                                        style={{
+                                            marginBottom: 8,
+                                            width: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Text variant="header-1">Плюс фразы</Text>
+                                        <Label
+                                            size="m"
+                                            theme={
+                                                semanticsModalSemanticsPlusItemsTemplateNameValue ==
+                                                'Не установлен'
+                                                    ? 'normal'
+                                                    : 'info'
+                                            }
+                                        >
+                                            {semanticsModalSemanticsPlusItemsTemplateNameValue}
+                                        </Label>
+                                    </div>
+
+                                    <List
+                                        items={semanticsModalSemanticsPlusItemsValue}
+                                        filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
+                                    />
+                                </div>
+                                <div
+                                    style={{
+                                        marginBottom: 8,
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <TextInput
+                                        label="Отсечка"
+                                        hasClear
+                                        value={String(semanticsModalSemanticsThresholdValue)}
+                                        onUpdate={(val) => {
+                                            setSemanticsModalSemanticsThresholdValue(Number(val));
+                                        }}
+                                        type="number"
+                                    />
+                                    <TextInput
+                                        style={{margin: '0 8px'}}
+                                        placeholder="Имя"
+                                        hasClear
+                                        value={
+                                            semanticsModalSemanticsPlusItemsTemplateNameSaveValue
+                                        }
+                                        onUpdate={(val) => {
+                                            setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                                val,
+                                            );
+                                        }}
+                                    />
+                                    <Button>Сохранить</Button>
+                                </div>
                             </motion.div>
                         </motion.div>
                     </Modal>
