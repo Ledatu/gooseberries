@@ -2020,7 +2020,9 @@ export const MassAdvertPage = () => {
                                     <Text variant="header-1">Фразы</Text>
                                     <Button
                                         onClick={() => {
-                                            const val = semanticsModalSemanticsPlusItemsValue;
+                                            const val = new Array(
+                                                semanticsModalSemanticsPlusItemsValue,
+                                            );
                                             for (
                                                 let i = 0;
                                                 i <
@@ -2084,7 +2086,7 @@ export const MassAdvertPage = () => {
                                         );
                                     }}
                                     onItemClick={(item) => {
-                                        let val = semanticsModalSemanticsPlusItemsValue;
+                                        let val = new Array(semanticsModalSemanticsPlusItemsValue);
                                         const {keyword} = item;
                                         if (!val.includes(keyword)) {
                                             val.push(keyword);
@@ -2222,7 +2224,7 @@ export const MassAdvertPage = () => {
                                     items={semanticsModalSemanticsPlusItemsValue}
                                     filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
                                     onItemClick={(keyword) => {
-                                        let val = semanticsModalSemanticsPlusItemsValue;
+                                        let val = new Array(semanticsModalSemanticsPlusItemsValue);
                                         val = val.filter((value) => value != keyword);
                                         setSemanticsModalSemanticsPlusItemsValue(val);
                                     }}
