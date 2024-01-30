@@ -2191,7 +2191,7 @@ export const MassAdvertPage = () => {
                                                 data: {
                                                     mode: 'Установить',
                                                     name: semanticsModalSemanticsPlusItemsTemplateNameSaveValue,
-                                                    keywords: semanticsModalSemanticsPlusItemsValue,
+                                                    clusters: semanticsModalSemanticsPlusItemsValue,
                                                     threshold:
                                                         semanticsModalSemanticsThresholdValue,
                                                 },
