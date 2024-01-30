@@ -2054,7 +2054,7 @@ export const MassAdvertPage = () => {
                                         // );
                                     }}
                                     filterItem={(filter) => (item) => {
-                                        return item.keyword.includes(filter);
+                                        return item.cluster.includes(filter);
                                     }}
                                     renderItem={(item) => {
                                         const {cluster, count} = item;
