@@ -683,7 +683,7 @@ export const MassAdvertPage = () => {
                                 setSemanticsModalSemanticsThresholdValue(plusThreshold);
                                 // console.log(value.plus);
                                 const plusItems = document.plusPhrasesTemplates[value.plus]
-                                    ? document.plusPhrasesTemplates[value.plus].keywords
+                                    ? document.plusPhrasesTemplates[value.plus].clusters
                                     : [];
                                 setSemanticsModalSemanticsPlusItemsValue(plusItems);
                             }}
@@ -2029,11 +2029,11 @@ export const MassAdvertPage = () => {
                                                 semanticsModalSemanticsItemsFiltratedValue.length;
                                                 i++
                                             ) {
-                                                const keyword =
+                                                const cluster =
                                                     semanticsModalSemanticsItemsFiltratedValue[i]
-                                                        .keyword;
-                                                if (val.includes(keyword)) continue;
-                                                val.push(keyword);
+                                                        .cluster;
+                                                if (val.includes(cluster)) continue;
+                                                val.push(cluster);
                                                 // console.log(keyword);
                                             }
                                             // console.log(val);
