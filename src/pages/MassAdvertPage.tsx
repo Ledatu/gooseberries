@@ -668,8 +668,8 @@ export const MassAdvertPage = () => {
                             theme={themeToUse}
                             onClick={() => {
                                 setSemanticsModalFormOpen(true);
-                                setSemanticsModalSemanticsItemsValue(value.keywords);
-                                setSemanticsModalSemanticsItemsFiltratedValue(value.keywords);
+                                setSemanticsModalSemanticsItemsValue(value.clusters);
+                                setSemanticsModalSemanticsItemsFiltratedValue(value.clusters);
                                 setSemanticsModalSemanticsMinusItemsValue(value.excluded);
                                 setSemanticsModalSemanticsPlusItemsTemplateNameValue(
                                     value.plus ?? 'Не установлен',
@@ -2057,9 +2057,9 @@ export const MassAdvertPage = () => {
                                         return item.keyword.includes(filter);
                                     }}
                                     renderItem={(item) => {
-                                        const {keyword, count} = item;
+                                        const {cluster, count} = item;
                                         const colorToUse =
-                                            semanticsModalSemanticsPlusItemsValue.includes(keyword)
+                                            semanticsModalSemanticsPlusItemsValue.includes(cluster)
                                                 ? 'positive'
                                                 : 'primary';
                                         return (
@@ -2070,7 +2070,7 @@ export const MassAdvertPage = () => {
                                                     justifyContent: 'space-between',
                                                     width: '100%',
                                                 }}
-                                                title={keyword}
+                                                title={cluster}
                                             >
                                                 <div
                                                     style={{
@@ -2079,7 +2079,7 @@ export const MassAdvertPage = () => {
                                                         whiteSpace: 'nowrap',
                                                     }}
                                                 >
-                                                    <Text color={colorToUse}>{keyword}</Text>
+                                                    <Text color={colorToUse}>{cluster}</Text>
                                                 </div>
                                                 <Text color="warning">{count}</Text>
                                             </div>
