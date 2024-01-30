@@ -2087,11 +2087,11 @@ export const MassAdvertPage = () => {
                                     }}
                                     onItemClick={(item) => {
                                         let val = Array.from(semanticsModalSemanticsPlusItemsValue);
-                                        const {keyword} = item;
-                                        if (!val.includes(keyword)) {
-                                            val.push(keyword);
+                                        const {cluster} = item;
+                                        if (!val.includes(cluster)) {
+                                            val.push(cluster);
                                         } else {
-                                            val = val.filter((value) => value != keyword);
+                                            val = val.filter((value) => value != cluster);
                                         }
                                         setSemanticsModalSemanticsPlusItemsValue(val);
                                     }}
@@ -2223,9 +2223,9 @@ export const MassAdvertPage = () => {
                                 <List
                                     items={semanticsModalSemanticsPlusItemsValue}
                                     filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
-                                    onItemClick={(keyword) => {
+                                    onItemClick={(cluster) => {
                                         let val = Array.from(semanticsModalSemanticsPlusItemsValue);
-                                        val = val.filter((value) => value != keyword);
+                                        val = val.filter((value) => value != cluster);
                                         setSemanticsModalSemanticsPlusItemsValue(val);
                                     }}
                                     renderItem={(item) => {
