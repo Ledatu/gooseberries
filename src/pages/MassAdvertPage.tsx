@@ -521,9 +521,7 @@ export const MassAdvertPage = () => {
             width: 200,
             render: ({value, row, footer, index}) => {
                 return footer ? (
-                    <Label theme="clear" size="m">
-                        {value}
-                    </Label>
+                    <div style={{height: 28}}>{value}</div>
                 ) : (
                     <div
                         title={value}
