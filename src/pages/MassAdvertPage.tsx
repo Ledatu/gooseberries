@@ -521,7 +521,9 @@ export const MassAdvertPage = () => {
             width: 200,
             render: ({value, row, footer, index}) => {
                 return footer ? (
-                    value
+                    <Label theme="clear" size="m">
+                        {value}
+                    </Label>
                 ) : (
                     <div
                         title={value}
@@ -2443,7 +2445,9 @@ export const MassAdvertPage = () => {
                     onRowClick={(row, index, event) => {
                         console.log(row, index, event);
                     }}
-                    rowClassName={(_row, index) => b('tableRow_' + index)}
+                    rowClassName={(_row, index, isFooterData) =>
+                        isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
+                    }
                     // defaultSortState={sort}
                     // sortState={sort}
                     // onSortStateChange={(state) => setSort(state)}

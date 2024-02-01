@@ -12,10 +12,11 @@ import {
     TextInput,
     Link,
     List,
-
+    Icon,
     // TextInput,
 } from '@gravity-ui/uikit';
 import {RangeCalendar} from '@gravity-ui/date-components';
+// import {FilePreview} from '@gravity-ui/components';
 import '../App.scss';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
@@ -26,6 +27,9 @@ import Userfront from '@userfront/toolkit';
 import DataTable, {Column} from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
+
+import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
+import useWindowDimensions from 'src/hooks/useWindowDimensions';
 
 const {ipAddress} = require('../ipAddress');
 
@@ -51,6 +55,8 @@ const getUserDoc = (dateRange) => {
 };
 
 export const DeliveryOrdersPage = () => {
+    const viewportSize = useWindowDimensions();
+
     const [columns, setColumns] = useState<Column<any>[]>([]);
     const [filters, setFilters] = useState({undef: false});
     const [filteredSummary, setFilteredSummary] = useState({
@@ -83,6 +89,12 @@ export const DeliveryOrdersPage = () => {
     const warehouseListRef = useRef(null);
     const [warehouseList, setWarehouseList] = useState<any[]>([]);
     const [warehouseListOpen, setWarehouseListOpen] = useState(false);
+    const [data, setTableData] = useState<any[]>([]);
+
+    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+
+    const [firstRecalc, setFirstRecalc] = useState(false);
 
     const document = getUserDoc({
         from: dateRange[0]
@@ -99,183 +111,330 @@ export const DeliveryOrdersPage = () => {
     // lbdDate.subtract(90, 'day');
     // setLbd(new Date());
 
-    const [data, setTableData] = useState<any[]>([]);
+    const generateColumns = (columnsInfo) => {
+        const columns: Column<any>[] = [
+            // {
+            //     sortable: false,
+            //     name: 'selected',
+            //     header: (
+            //         // <Checkbox
+            //         //     style={{marginTop: 5}}
+            //         //     value={Number(selectAllDisplayed)}
+            //         //     onUpdate={(checked) => {
+            //         //         setSelectAllDisplayed(checked);
+            //         //     }}
+            //         //     size="l"
+            //         // />
+            //     ),
+            //     render: ({value}) => {
+            //         if (!value) return;
+            //         const {val, disabled} = value as {val: boolean; disabled: boolean};
+            //         if (disabled) return;
+            //         return <Checkbox>{val}</Checkbox>;
+            //     },
+            // },
+        ];
+        if (!columnsInfo && !columnsInfo.length) return columns;
+        for (let i = 0; i < columnsInfo.length; i++) {
+            const column = columnsInfo[i];
+            if (!column) continue;
+            const {name, placeholder, width, render, className, valueType} = column;
+            let minWidth = viewportSize.width / 20;
+            if (minWidth < 40) minWidth = 60;
+            if (minWidth > 100) minWidth = 100;
+            columns.push({
+                name: name,
+                className: b(className ?? (i == 0 ? 'td_fixed' : 'td_body')),
+                header: (
+                    <div
+                        title={placeholder}
+                        style={{
+                            minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
+                            display: 'flex',
+                            maxWidth: '30vw',
+                            // marginLeft:
+                            //     name == 'art' ? `${String(data.length).length * 6 + 32}px` : 0,
+                        }}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                        }}
+                    >
+                        <TextInput
+                            onChange={(val) => {
+                                setFilters(() => {
+                                    if (!(name in filters))
+                                        filters[name] = {compMode: 'include', val: ''};
+                                    filters[name].val = val.target.value;
+                                    recalc(dateRange, '', filters);
+                                    return filters;
+                                });
+                            }}
+                            hasClear
+                            placeholder={placeholder}
+                            rightContent={
+                                <DropdownMenu
+                                    renderSwitcher={(props) => (
+                                        <Button
+                                            {...props}
+                                            view={
+                                                filters[name]
+                                                    ? filters[name].val != ''
+                                                        ? !filters[name].compMode.includes('not')
+                                                            ? 'flat-success'
+                                                            : 'flat-danger'
+                                                        : 'flat'
+                                                    : 'flat'
+                                            }
+                                            size="xs"
+                                        >
+                                            <Icon data={Funnel} />
+                                        </Button>
+                                    )}
+                                    items={[
+                                        [
+                                            {
+                                                iconStart: (
+                                                    <Icon
+                                                        data={
+                                                            filters[name]
+                                                                ? filters[name].compMode ==
+                                                                  'include'
+                                                                    ? CirclePlusFill
+                                                                    : CirclePlus
+                                                                : CirclePlusFill
+                                                        }
+                                                    />
+                                                ),
+                                                action: () => {
+                                                    setFilters(() => {
+                                                        if (!(name in filters))
+                                                            filters[name] = {
+                                                                compMode: 'include',
+                                                                val: '',
+                                                            };
+                                                        filters[name].compMode = 'include';
+                                                        recalc(dateRange, '', filters);
+                                                        return filters;
+                                                    });
+                                                },
+                                                text: 'Включает',
+                                            },
+                                            {
+                                                iconStart: (
+                                                    <Icon
+                                                        data={
+                                                            filters[name]
+                                                                ? filters[name].compMode ==
+                                                                  'not include'
+                                                                    ? CircleMinusFill
+                                                                    : CircleMinus
+                                                                : CircleMinus
+                                                        }
+                                                    />
+                                                ),
+                                                action: () => {
+                                                    setFilters(() => {
+                                                        if (!(name in filters))
+                                                            filters[name] = {
+                                                                compMode: 'not include',
+                                                                val: '',
+                                                            };
+                                                        filters[name].compMode = 'not include';
+                                                        recalc(dateRange, '', filters);
+                                                        return filters;
+                                                    });
+                                                },
+                                                text: 'Не включает',
+                                                theme: 'danger',
+                                            },
+                                        ],
+                                        [
+                                            {
+                                                iconStart: (
+                                                    <Icon
+                                                        data={
+                                                            filters[name]
+                                                                ? filters[name].compMode == 'equal'
+                                                                    ? CirclePlusFill
+                                                                    : CirclePlus
+                                                                : CirclePlus
+                                                        }
+                                                    />
+                                                ),
+                                                action: () => {
+                                                    setFilters(() => {
+                                                        if (!(name in filters))
+                                                            filters[name] = {
+                                                                compMode: 'equal',
+                                                                val: '',
+                                                            };
+                                                        filters[name].compMode = 'equal';
+                                                        recalc(dateRange, '', filters);
+                                                        return filters;
+                                                    });
+                                                },
+                                                text: 'Равно',
+                                            },
+                                            {
+                                                iconStart: (
+                                                    <Icon
+                                                        data={
+                                                            filters[name]
+                                                                ? filters[name].compMode ==
+                                                                  'not equal'
+                                                                    ? CircleMinusFill
+                                                                    : CircleMinus
+                                                                : CircleMinus
+                                                        }
+                                                    />
+                                                ),
+                                                action: () => {
+                                                    setFilters(() => {
+                                                        if (!(name in filters))
+                                                            filters[name] = {
+                                                                compMode: 'not equal',
+                                                                val: '',
+                                                            };
+                                                        filters[name].compMode = 'not equal';
+                                                        recalc(dateRange, '', filters);
+                                                        return filters;
+                                                    });
+                                                },
+                                                text: 'Не равно',
+                                                theme: 'danger',
+                                            },
+                                        ],
+                                        valueType != 'text'
+                                            ? [
+                                                  {
+                                                      iconStart: (
+                                                          <Icon
+                                                              data={
+                                                                  filters[name]
+                                                                      ? filters[name].compMode ==
+                                                                        'bigger'
+                                                                          ? CirclePlusFill
+                                                                          : CirclePlus
+                                                                      : CirclePlus
+                                                              }
+                                                          />
+                                                      ),
+                                                      action: () => {
+                                                          setFilters(() => {
+                                                              if (!(name in filters))
+                                                                  filters[name] = {
+                                                                      compMode: 'bigger',
+                                                                      val: '',
+                                                                  };
+                                                              filters[name].compMode = 'bigger';
+                                                              recalc(dateRange, '', filters);
+                                                              return filters;
+                                                          });
+                                                      },
+                                                      text: 'Больше',
+                                                  },
+                                                  {
+                                                      iconStart: (
+                                                          <Icon
+                                                              data={
+                                                                  filters[name]
+                                                                      ? filters[name].compMode ==
+                                                                        'not bigger'
+                                                                          ? CircleMinusFill
+                                                                          : CircleMinus
+                                                                      : CircleMinus
+                                                              }
+                                                          />
+                                                      ),
+                                                      action: () => {
+                                                          setFilters(() => {
+                                                              if (!(name in filters))
+                                                                  filters[name] = {
+                                                                      compMode: 'not bigger',
+                                                                      val: '',
+                                                                  };
+                                                              filters[name].compMode = 'not bigger';
+                                                              recalc(dateRange, '', filters);
+                                                              return filters;
+                                                          });
+                                                      },
+                                                      text: 'Меньше',
+                                                      theme: 'danger',
+                                                  },
+                                              ]
+                                            : [],
+                                    ]}
+                                />
+                            }
+                        />
+                    </div>
+                ),
+                render: render
+                    ? (args) => render(args)
+                    : ({value}) => {
+                          return typeof value === 'number' && valueType !== 'text'
+                              ? new Intl.NumberFormat('ru-RU').format(value)
+                              : value;
+                      },
+            });
+        }
+
+        return columns;
+    };
 
     const calcColumns = (selected = '', sortedWarehouseNames: any[] = []) => {
-        const columnsTemp = [
+        const columnData = [
             {
                 name: 'art',
-                // render: ({value}) => (
-                //     <TextInput view="clear" defaultValue={`${(value as string) ?? ''}`}></TextInput>
-                // ),
-                header: (
-                    <div
-                        style={{width: '160px'}}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <TextInput
-                            onChange={(val) => {
-                                setFilters(() => {
-                                    filters['art'] = val.target.value;
-                                    console.log(filters);
-                                    recalc(dateRange, '', filters);
-                                    return filters;
-                                });
+                placeholder: 'Артикул',
+                width: 200,
+                render: ({value, row, footer, index}) => {
+                    return footer ? (
+                        value
+                    ) : (
+                        <div
+                            title={value}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                zIndex: 40,
                             }}
-                            hasClear
-                            placeholder="Артикул"
-                        />
-                    </div>
-                ),
-            } as Column<any>,
-            {
-                name: 'object',
-                // render: ({value}) => (
-                //     <TextInput view="clear" defaultValue={`${(value as string) ?? ''}`}></TextInput>
-                // ),
-                header: (
-                    <div
-                        style={{width: '120px'}}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <TextInput
-                            onChange={(val) => {
-                                setFilters(() => {
-                                    filters['object'] = val.target.value;
-                                    console.log(filters);
-                                    recalc(dateRange, '', filters);
-                                    return filters;
-                                });
-                            }}
-                            hasClear
-                            placeholder="Тип предмета"
-                        />
-                    </div>
-                ),
-            } as Column<any>,
-            {
-                name: 'link',
-                render: ({value}: {value: any}) => {
-                    // console.log(value);
-                    return value ? (
-                        <div style={{maxWidth: 100}}>
-                            <Link
-                                target="_blank"
-                                href={`https://www.wildberries.ru/catalog/${value.nmId}/detail.aspx?targetUrl=BP`}
+                        >
+                            <div
+                                style={{
+                                    width: `${String(data.length).length * 6}px`,
+                                    margin: '0 16px',
+                                    display: 'flex',
+                                    justifyContent: 'right',
+                                }}
                             >
-                                {value.title}
+                                <div>{index + 1}</div>
+                            </div>
+                            <Link
+                                style={{
+                                    textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                }}
+                                href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
+                                target="_blank"
+                            >
+                                {value}
                             </Link>
                         </div>
-                    ) : (
-                        ''
                     );
                 },
-                sortable: false,
-                header: (
-                    <div
-                        style={{width: '120px'}}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <TextInput
-                            onChange={(val) => {
-                                setFilters(() => {
-                                    filters['subject'] = val.target.value;
-                                    console.log(filters);
-                                    recalc(dateRange, '', filters);
-                                    return filters;
-                                });
-                            }}
-                            hasClear
-                            placeholder="Наименование"
-                        />
-                    </div>
-                ),
-            } as Column<any>,
-            {
-                name: 'nmId',
-                header: (
-                    <div
-                        style={{width: '120px'}}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <TextInput
-                            onChange={(val) => {
-                                setFilters(() => {
-                                    filters['nmId'] = val.target.value;
-                                    console.log(filters);
-                                    recalc(dateRange, '', filters);
-                                    return filters;
-                                });
-                            }}
-                            hasClear
-                            placeholder="Артикул ВБ"
-                        />
-                    </div>
-                ),
-            } as Column<any>,
-            {
-                name: 'size',
-                // render: ({value}) => (
-                //     <TextInput view="clear" defaultValue={`${(value as string) ?? ''}`}></TextInput>
-                // ),
-                header: (
-                    <div
-                        style={{width: '70px'}}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <TextInput
-                            onChange={(val) => {
-                                setFilters(() => {
-                                    filters['size'] = val.target.value;
-                                    console.log(filters);
-                                    recalc(dateRange, '', filters);
-                                    return filters;
-                                });
-                            }}
-                            hasClear
-                            placeholder="Размер"
-                        />
-                    </div>
-                ),
-            } as Column<any>,
-            {
-                name: 'barcode',
-                // render: ({value}) => (
-                //     <TextInput view="clear" defaultValue={`${(value as string) ?? ''}`}></TextInput>
-                // ),
-                header: (
-                    <div
-                        style={{width: '100px'}}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <TextInput
-                            onChange={(val) => {
-                                setFilters(() => {
-                                    filters['barcode'] = val.target.value;
-                                    console.log(filters);
-                                    recalc(dateRange, '', filters);
-                                    return filters;
-                                });
-                            }}
-                            hasClear
-                            placeholder="Штрихкод"
-                        />
-                    </div>
-                ),
-            } as Column<any>,
+                valueType: 'text',
+            },
+            {name: 'size', placeholder: 'Размер', valueType: 'text'},
+            {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
+            {name: 'object', placeholder: 'Предмет', valueType: 'text'},
+            {name: 'nmId', placeholder: 'Артикул ВБ', valueType: 'text'},
+            {name: 'barcode', placeholder: 'Штрихкод', valueType: 'text'},
         ];
+
+        const columnsTemp = generateColumns(columnData);
+
         const createNewWarehouseColumn = (warehouseName) => {
             columnsTemp.push({
                 name: 'warehouse_' + warehouseName,
@@ -357,6 +516,7 @@ export const DeliveryOrdersPage = () => {
                 link: {title: '', nmId: 0},
                 size: 0,
                 barcode: 0,
+                brand: '',
             };
             artInfo.art = artData['art'];
             artInfo.object = artData['object'];
@@ -365,6 +525,7 @@ export const DeliveryOrdersPage = () => {
             artInfo.link.nmId = artData['nmId'];
             artInfo.size = artData['size'];
             artInfo.barcode = artData['barcode'];
+            artInfo.brand = artData['brand'];
 
             artInfo['Все склады_orders'] = artData['byWarehouses']['Электросталь']['orders'];
             artInfo['Все склады_orderRate'] = artData['byWarehouses']['Электросталь']['orderRate'];
@@ -390,10 +551,6 @@ export const DeliveryOrdersPage = () => {
         setTableData(temp);
     };
 
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
-
-    const [firstRecalc, setFirstRecalc] = useState(false);
     if (!document) return <Spin />;
     if (!firstRecalc) {
         console.log(document);
@@ -411,67 +568,6 @@ export const DeliveryOrdersPage = () => {
 
         setFirstRecalc(true);
     }
-
-    // columns = [
-    //     {
-    //         name: 'number',
-    //     },
-    //     {
-    //         name: 'col1',
-    //         group: true,
-    //     },
-    //     {
-    //         name: 'col2',
-    //     },
-    //     {
-    //         name: 'string',
-    //         onClick: ({row, index}) => {
-    //             alert(`Click on row #${index}: ${row.string}`);
-    //         },
-    //     },
-    //     {
-    //         name: 'complex',
-    //         render: ({value}) => JSON.stringify(value, null, 2),
-    //         defaultOrder: DataTable.DESCENDING,
-    //         sortAscending: (item1, item2) => {
-    //             const value1 = item1.row.complex.value;
-    //             const value2 = item2.row.complex.value;
-    //             return (value1 % 2) - (value2 % 2) || value1 - value2;
-    //         },
-    //     },
-    //     {
-    //         name: 'bar',
-    //         render: ({value}) => (
-    //             <div style={{width: value as number, height: 10, background: '#18b0ff'}} />
-    //         ),
-    //     },
-    //     {
-    //         name: 'multiLevel',
-    //         sub: [
-    //             {
-    //                 name: 'sub1-1',
-    //                 customStyle: () => ({backgroundColor: 'wheat', fontSize: '1.2em'}),
-    //                 sub: [
-    //                     {
-    //                         name: 'sub2-1',
-    //                     },
-    //                     {
-    //                         name: 'sub2-2',
-    //                         sub: [
-    //                             {
-    //                                 name: 'sub3-1',
-    //                                 accessor: 'something',
-    //                             },
-    //                         ],
-    //                     },
-    //                 ],
-    //             },
-    //             {
-    //                 name: 'sub1-2',
-    //             },
-    //         ],
-    //     },
-    // ];
 
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
@@ -542,6 +638,8 @@ export const DeliveryOrdersPage = () => {
                             calcColumns(nextValue[0]);
                         }}
                     />
+                    {/* <FilePreview file={undefined}></FilePreview> */}
+                    <TextInput type="file"></TextInput>
                 </div>
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <div style={{marginRight: 8}} ref={warehouseListRef}>
@@ -720,15 +818,12 @@ export const DeliveryOrdersPage = () => {
                 }}
             >
                 <DataTable
-                    onSort={() => {
-                        recalc(dateRange);
-                    }}
+                    startIndex={1}
                     settings={{
-                        // dynamicRender: true,
                         stickyHead: MOVING,
                         stickyFooter: MOVING,
+                        displayIndices: false,
                         highlightRows: true,
-                        stripedRows: true,
                     }}
                     theme="yandex-cloud"
                     onRowClick={(row, index, event) => {
