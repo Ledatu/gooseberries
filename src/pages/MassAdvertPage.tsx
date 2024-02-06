@@ -50,6 +50,11 @@ import {
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 import {motion} from 'framer-motion';
 
+import ChartKit, {settings} from '@gravity-ui/chartkit';
+import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
+import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
+settings.set({plugins: [YagrPlugin]});
+
 const {ipAddress} = require('../ipAddress');
 
 const getUserDoc = () => {
@@ -696,7 +701,71 @@ export const MassAdvertPage = () => {
         },
         {name: 'budget', placeholder: 'Баланс, ₽'},
         {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
-        {name: 'bid', placeholder: 'Ставка, ₽'},
+        {
+            name: 'bid',
+            placeholder: 'Ставка, ₽',
+            render: ({value, row}) => {
+                if (!value) return;
+
+                const cpm = value;
+                if (!cpm) return;
+
+                const bidLog = row.bidLog;
+
+                const timeline: any[] = [];
+                const graphsData: any[] = [];
+                if (bidLog) {
+                    for (let i = 0; i < bidLog.bids.length; i++) {
+                        const {time, val} = bidLog.bids[i];
+                        if (!time || !val) continue;
+
+                        timeline.push(new Date(time).getTime());
+                        graphsData.push(val);
+                    }
+                }
+                const yagrData: YagrWidgetData = {
+                    data: {
+                        timeline: timeline,
+                        graphs: [
+                            {
+                                id: '0',
+                                name: 'Ставка',
+                                color: '#5fb8a5',
+                                data: graphsData,
+                            },
+                        ],
+                    },
+                    libraryConfig: {
+                        chart: {
+                            series: {
+                                type: 'line',
+                                interpolation: 'smooth',
+                            },
+                        },
+                        title: {
+                            text: 'Изменение ставки',
+                        },
+                    },
+                };
+
+                return (
+                    <div>
+                        <Popover
+                            behavior={'delayed' as PopoverBehavior}
+                            disabled={value === undefined}
+                            content={
+                                <>
+                                    <ChartKit type="yagr" data={yagrData} />
+                                </>
+                            }
+                        >
+                            {/* <Label onClick={()=>} ref={ref}>{value}</Label> */}
+                            <Text>{cpm}</Text>
+                        </Popover>
+                    </div>
+                );
+            },
+        },
         {name: 'sum', placeholder: 'Расход, ₽'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {name: 'orders', placeholder: 'Заказов, шт.'},
@@ -829,6 +898,7 @@ export const MassAdvertPage = () => {
                 semantics: undefined,
                 budget: undefined,
                 bid: undefined,
+                bidLog: {},
                 budgetToKeep: undefined,
                 brand: '',
                 orders: 0,
@@ -866,6 +936,7 @@ export const MassAdvertPage = () => {
                         artInfo.budget = budget;
                         artInfo.semantics = advertData['words'];
                         artInfo.bid = advertData['cpm'];
+                        artInfo.bidLog = advertData['bidLog'];
                     }
                 }
             }

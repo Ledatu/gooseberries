@@ -21,6 +21,7 @@ import {MassAdvertPage} from './MassAdvertPage';
 
 // import { Editable } from 'src/components/Editable';
 import {Sun, Moon} from '@gravity-ui/icons';
+import {NomenclaturesPage} from './NomenclaturesPage';
 
 const b = block('app');
 
@@ -41,7 +42,9 @@ export const Dashboard = () => {
         {value: 'massAdvert', content: 'Реклама'},
         {value: 'stats_rk', content: 'Статистика'},
         {value: 'deliveryOrders', content: 'Поставки'},
+        {value: 'nomenclatures', content: 'Номенклатуры'},
     ];
+    // const [page, setPage] = React.useState('nomenclatures');
     const [page, setPage] = React.useState('massAdvert');
     return (
         <ThemeProvider theme={theme}>
@@ -114,6 +117,7 @@ function PageElem({page}) {
         stats_rk: <AdvertStatsPage />,
         deliveryOrders: <DeliveryOrdersPage />,
         massAdvert: <MassAdvertPage />,
+        nomenclatures: <NomenclaturesPage />,
     };
     return pages[page] ?? <div></div>;
 }

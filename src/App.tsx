@@ -12,6 +12,7 @@ import Userfront, {SignupForm, LoginForm, PasswordResetForm} from '@userfront/to
 import {Button, Link} from '@gravity-ui/uikit';
 import {Dashboard} from './pages/Dashboard';
 import {autoFetchCards} from './utilities/fetchRkData';
+import '@gravity-ui/uikit/styles/styles.scss';
 
 Userfront.init('xbr4jv4b');
 

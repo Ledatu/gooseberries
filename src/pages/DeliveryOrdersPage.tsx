@@ -452,9 +452,15 @@ export const DeliveryOrdersPage = () => {
                     },
                     {
                         name: warehouseName + '_obor',
-                        header: 'Оборачиваемость',
+                        header: 'Текущая оборачиваемость',
                         width: 500,
                         accessor: warehouseName + '_obor',
+                    },
+                    {
+                        name: warehouseName + '_prefObor',
+                        header: 'Установленная оборачиваемость',
+                        width: 500,
+                        accessor: warehouseName + '_prefObor',
                     },
                     {
                         name: warehouseName + '_stock',
@@ -527,10 +533,10 @@ export const DeliveryOrdersPage = () => {
             artInfo.barcode = artData['barcode'];
             artInfo.brand = artData['brand'];
 
-            artInfo['Все склады_orders'] = artData['byWarehouses']['Электросталь']['orders'];
-            artInfo['Все склады_orderRate'] = artData['byWarehouses']['Электросталь']['orderRate'];
-            artInfo['Все склады_stock'] = artData['byWarehouses']['Электросталь']['stock'];
-            artInfo['Все склады_toOrder'] = artData['byWarehouses']['Электросталь']['toOrder'];
+            // artInfo['Все склады_orders'] = artData['byWarehouses']['Электросталь']['orders'];
+            // artInfo['Все склады_orderRate'] = artData['byWarehouses']['Электросталь']['orderRate'];
+            // artInfo['Все склады_stock'] = artData['byWarehouses']['Электросталь']['stock'];
+            // artInfo['Все склады_toOrder'] = artData['byWarehouses']['Электросталь']['toOrder'];
 
             if (artData['byWarehouses']) {
                 for (const [warehouseName, warehouseData] of Object.entries(
@@ -543,6 +549,7 @@ export const DeliveryOrdersPage = () => {
                     artInfo[`${warehouseName}_stock`] = warehouseData['stock'];
                     artInfo[`${warehouseName}_toOrder`] = warehouseData['toOrder'];
                     artInfo[`${warehouseName}_obor`] = warehouseData['obor'];
+                    artInfo[`${warehouseName}_prefObor`] = warehouseData['prefObor'];
                 }
             }
 
@@ -579,7 +586,6 @@ export const DeliveryOrdersPage = () => {
                     width: '100%',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: '8px',
                     flexWrap: 'wrap',
                 }}
             >
@@ -639,7 +645,6 @@ export const DeliveryOrdersPage = () => {
                         }}
                     />
                     {/* <FilePreview file={undefined}></FilePreview> */}
-                    <TextInput type="file"></TextInput>
                 </div>
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     <div style={{marginRight: 8}} ref={warehouseListRef}>
