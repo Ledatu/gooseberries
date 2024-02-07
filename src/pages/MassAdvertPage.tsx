@@ -45,6 +45,7 @@ import {
     DiamondExclamation,
     CloudCheck,
     Calendar,
+    // CircleRuble,
     TrashBin,
 } from '@gravity-ui/icons';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
@@ -683,7 +684,7 @@ export const MassAdvertPage = () => {
                                     value.plus ?? 'Новый шаблон',
                                 );
                                 const plusThreshold = document.plusPhrasesTemplates[value.plus]
-                                    ? document.plusPhrasesTemplates[value.plus].threshhold
+                                    ? document.plusPhrasesTemplates[value.plus].threshold
                                     : 100;
                                 setSemanticsModalSemanticsThresholdValue(plusThreshold);
                                 // console.log(value.plus);
@@ -794,8 +795,32 @@ export const MassAdvertPage = () => {
         {
             name: 'cpoAI',
             placeholder: 'CPO AI, ₽',
-            render: ({value}) =>
-                value ? (value.desiredCPO ? value.desiredCPO : undefined) : undefined,
+            render: ({value}) => {
+                if (!value) return;
+                const {desiredCPO, dateRange} = value;
+                if (desiredCPO === undefined || dateRange === undefined) return;
+
+                return (
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Text>{desiredCPO} </Text>
+                            <div style={{width: 2}} />₽
+                        </div>
+                        <div style={{width: 8}} />
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text>{dateRange} </Text>
+                            <div style={{width: 2}} />
+                            <Icon size={12} data={Calendar} />
+                        </div>
+                    </div>
+                );
+            },
         },
         {name: 'drr', placeholder: 'ДРР, %'},
         {name: 'views', placeholder: 'Показов, шт.'},
@@ -1649,7 +1674,7 @@ export const MassAdvertPage = () => {
                                                 ? 8
                                                 : bidModalSwitchValue == 'Установить'
                                                 ? 44
-                                                : 130,
+                                                : 96,
                                             opacity: bidModalDeleteModeSelected ? 0 : 1,
                                         }}
                                         transition={{duration: 0.1}}
@@ -1667,7 +1692,7 @@ export const MassAdvertPage = () => {
                                             animate={{
                                                 y: !bidModalDeleteModeSelected
                                                     ? bidModalSwitchValue == 'Установить'
-                                                        ? 59
+                                                        ? 41
                                                         : -20
                                                     : 77,
                                                 // x: !bidModalDeleteModeSelected
@@ -1783,6 +1808,7 @@ export const MassAdvertPage = () => {
                                                     style={{
                                                         maxWidth: '70%',
                                                         margin: '4px 0',
+                                                        display: 'none',
                                                     }}
                                                     type="number"
                                                     value={String(bidModalBidStepInputValue)}
@@ -2185,6 +2211,34 @@ export const MassAdvertPage = () => {
                                 <List
                                     items={semanticsModalSemanticsMinusItemsValue}
                                     filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
+                                    onItemClick={(item) => {
+                                        let val = Array.from(semanticsModalSemanticsPlusItemsValue);
+                                        const cluster = item;
+                                        if (!val.includes(cluster)) {
+                                            val.push(cluster);
+                                        } else {
+                                            val = val.filter((value) => value != cluster);
+                                        }
+                                        setSemanticsModalSemanticsPlusItemsValue(val);
+                                    }}
+                                    renderItem={(item) => {
+                                        const cluster = item;
+                                        const colorToUse =
+                                            semanticsModalSemanticsPlusItemsValue.includes(cluster)
+                                                ? 'positive'
+                                                : 'primary';
+                                        return (
+                                            <div
+                                                style={{
+                                                    textOverflow: 'ellipsis',
+                                                    overflow: 'hidden',
+                                                    whiteSpace: 'nowrap',
+                                                }}
+                                            >
+                                                <Text color={colorToUse}>{cluster}</Text>
+                                            </div>
+                                        );
+                                    }}
                                 />
                             </motion.div>
                             <motion.div
@@ -2356,7 +2410,14 @@ export const MassAdvertPage = () => {
                                     Шаблоны
                                 </Text>
 
-                                <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
                                     {plusPhrasesTemplatesLabels}
                                 </div>
                             </div>
