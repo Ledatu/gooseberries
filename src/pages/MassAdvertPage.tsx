@@ -674,24 +674,28 @@ export const MassAdvertPage = () => {
                             theme={themeToUse}
                             onClick={() => {
                                 setSemanticsModalFormOpen(true);
-                                setSemanticsModalSemanticsItemsValue(value.clusters);
-                                setSemanticsModalSemanticsItemsFiltratedValue(value.clusters);
-                                setSemanticsModalSemanticsMinusItemsValue(value.excluded);
-                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                    value.plus ?? 'Не установлен',
-                                );
-                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                    value.plus ?? 'Новый шаблон',
-                                );
-                                const plusThreshold = document.plusPhrasesTemplates[value.plus]
-                                    ? document.plusPhrasesTemplates[value.plus].threshold
-                                    : 100;
-                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
-                                // console.log(value.plus);
-                                const plusItems = document.plusPhrasesTemplates[value.plus]
-                                    ? document.plusPhrasesTemplates[value.plus].clusters
-                                    : [];
-                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
+                                if (value) {
+                                    setSemanticsModalSemanticsItemsValue(value.clusters ?? []);
+                                    setSemanticsModalSemanticsItemsFiltratedValue(
+                                        value.clusters ?? [],
+                                    );
+                                    setSemanticsModalSemanticsMinusItemsValue(value.excluded ?? []);
+                                    setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                        value.plus ?? 'Не установлен',
+                                    );
+                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                        value.plus ?? 'Новый шаблон',
+                                    );
+                                    const plusThreshold = document.plusPhrasesTemplates[value.plus]
+                                        ? document.plusPhrasesTemplates[value.plus].threshold
+                                        : 100;
+                                    setSemanticsModalSemanticsThresholdValue(plusThreshold);
+                                    // console.log(value.plus);
+                                    const plusItems = document.plusPhrasesTemplates[value.plus]
+                                        ? document.plusPhrasesTemplates[value.plus].clusters
+                                        : [];
+                                    setSemanticsModalSemanticsPlusItemsValue(plusItems);
+                                }
                             }}
                         >
                             {themeToUse == 'info' ? value.plus : 'Добавить'}
