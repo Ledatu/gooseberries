@@ -565,7 +565,6 @@ export const MassAdvertPage = () => {
         },
         {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
         {name: 'object', placeholder: 'Предмет', valueType: 'text'},
-        {name: 'stocks', placeholder: 'Остаток'},
         {
             name: 'adverts',
             placeholder: 'Реклама',
@@ -704,6 +703,7 @@ export const MassAdvertPage = () => {
                 );
             },
         },
+        {name: 'stocks', placeholder: 'Остаток'},
         {name: 'budget', placeholder: 'Баланс, ₽'},
         {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
         {
@@ -922,9 +922,9 @@ export const MassAdvertPage = () => {
                 object: '',
                 nmId: 0,
                 title: '',
-                stocks: 0,
                 adverts: 0,
                 semantics: undefined,
+                stocks: 0,
                 budget: undefined,
                 bid: undefined,
                 bidLog: {},
