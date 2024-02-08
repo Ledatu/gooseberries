@@ -546,6 +546,7 @@ export const MassAdvertPage = () => {
                             }}
                         >
                             <div>{index + 1}</div>
+                            {/* <Button><Icon data={}/></Button> */}
                         </div>
                         <Link
                             style={{
@@ -565,6 +566,57 @@ export const MassAdvertPage = () => {
         },
         {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
         {name: 'object', placeholder: 'Предмет', valueType: 'text'},
+
+        {
+            name: 'semantics',
+            placeholder: 'Семантика',
+            valueType: 'text',
+            render: ({value, row}) => {
+                if (value === null) return;
+                if (!row.adverts) return;
+                // const themeToUse = 'normal';
+                // console.log(value.plus);
+
+                const themeToUse = value.plus ? 'info' : 'normal';
+
+                return (
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                        <Label
+                            // theme="normal"
+                            // theme="info"
+                            theme={themeToUse}
+                            onClick={() => {
+                                setSemanticsModalFormOpen(true);
+                                if (value) {
+                                    setSemanticsModalSemanticsItemsValue(value.clusters ?? []);
+                                    setSemanticsModalSemanticsItemsFiltratedValue(
+                                        value.clusters ?? [],
+                                    );
+                                    setSemanticsModalSemanticsMinusItemsValue(value.excluded ?? []);
+                                    setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                        value.plus ?? 'Не установлен',
+                                    );
+                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                        value.plus ?? 'Новый шаблон',
+                                    );
+                                    const plusThreshold = document.plusPhrasesTemplates[value.plus]
+                                        ? document.plusPhrasesTemplates[value.plus].threshold
+                                        : 100;
+                                    setSemanticsModalSemanticsThresholdValue(plusThreshold);
+                                    // console.log(value.plus);
+                                    const plusItems = document.plusPhrasesTemplates[value.plus]
+                                        ? document.plusPhrasesTemplates[value.plus].clusters
+                                        : [];
+                                    setSemanticsModalSemanticsPlusItemsValue(plusItems);
+                                }
+                            }}
+                        >
+                            {themeToUse == 'info' ? value.plus : 'Добавить'}
+                        </Label>
+                    </div>
+                );
+            },
+        },
         {
             name: 'adverts',
             placeholder: 'Реклама',
@@ -649,56 +701,6 @@ export const MassAdvertPage = () => {
                         >
                             <div style={{display: 'flex'}}>{tags}</div>
                         </Popover>
-                    </div>
-                );
-            },
-        },
-        {
-            name: 'semantics',
-            placeholder: 'Семантика',
-            valueType: 'text',
-            render: ({value, row}) => {
-                if (value === null) return;
-                if (!row.adverts) return;
-                // const themeToUse = 'normal';
-                // console.log(value.plus);
-
-                const themeToUse = value.plus ? 'info' : 'normal';
-
-                return (
-                    <div style={{display: 'flex', justifyContent: 'center'}}>
-                        <Label
-                            // theme="normal"
-                            // theme="info"
-                            theme={themeToUse}
-                            onClick={() => {
-                                setSemanticsModalFormOpen(true);
-                                if (value) {
-                                    setSemanticsModalSemanticsItemsValue(value.clusters ?? []);
-                                    setSemanticsModalSemanticsItemsFiltratedValue(
-                                        value.clusters ?? [],
-                                    );
-                                    setSemanticsModalSemanticsMinusItemsValue(value.excluded ?? []);
-                                    setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                        value.plus ?? 'Не установлен',
-                                    );
-                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                        value.plus ?? 'Новый шаблон',
-                                    );
-                                    const plusThreshold = document.plusPhrasesTemplates[value.plus]
-                                        ? document.plusPhrasesTemplates[value.plus].threshold
-                                        : 100;
-                                    setSemanticsModalSemanticsThresholdValue(plusThreshold);
-                                    // console.log(value.plus);
-                                    const plusItems = document.plusPhrasesTemplates[value.plus]
-                                        ? document.plusPhrasesTemplates[value.plus].clusters
-                                        : [];
-                                    setSemanticsModalSemanticsPlusItemsValue(plusItems);
-                                }
-                            }}
-                        >
-                            {themeToUse == 'info' ? value.plus : 'Добавить'}
-                        </Label>
                     </div>
                 );
             },
