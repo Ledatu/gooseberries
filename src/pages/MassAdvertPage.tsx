@@ -19,6 +19,7 @@ import {
     Checkbox,
     RadioButton,
     List,
+    Switch,
     // Checkbox,
     // RadioButton,
     // Icon,
@@ -135,6 +136,13 @@ export const MassAdvertPage = () => {
     ] = useState('Новый шаблон');
     const [semanticsModalSemanticsThresholdValue, setSemanticsModalSemanticsThresholdValue] =
         useState(100);
+
+    const semanticsModalAdvertTypes: any[] = [
+        {value: 'АВТО', content: 'Авто'},
+        {value: 'ПОИСК', content: 'Поиск'},
+    ];
+    const [semanticsModalAdvertType, setSemanticsModalAdvertType] = React.useState('АВТО');
+    const [semanticsModalIsFixed, setSemanticsModalIsFixed] = useState(false);
 
     // const [
     //     semanticsModalSemanticsInputValidationValue,
@@ -640,14 +648,23 @@ export const MassAdvertPage = () => {
                                     setSemanticsModalSemanticsPlusItemsTemplateNameValue(
                                         value.plus ?? 'Не установлен',
                                     );
-                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                        value.plus ?? 'Новый шаблон',
-                                    );
+
                                     const plusThreshold = document.plusPhrasesTemplates[value.plus]
                                         ? document.plusPhrasesTemplates[value.plus].threshold
                                         : 100;
                                     setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+                                    const isFixed = document.plusPhrasesTemplates[value.plus]
+                                        ? document.plusPhrasesTemplates[value.plus].isFixed ?? false
+                                        : false;
+                                    setSemanticsModalIsFixed(isFixed);
+
+                                    const templateType = row.adverts['8'] ? 'АВТО' : 'ПОИСК';
+                                    setSemanticsModalAdvertType(templateType);
                                     // console.log(value.plus);
+                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                        value.plus ?? `Новый шаблон ${templateType}`,
+                                    );
                                     const plusItems = document.plusPhrasesTemplates[value.plus]
                                         ? document.plusPhrasesTemplates[value.plus].clusters
                                         : [];
@@ -2263,9 +2280,17 @@ export const MassAdvertPage = () => {
                                     flexDirection: 'column',
                                 }}
                             >
-                                <Text style={{marginBottom: 8}} variant="header-1">
-                                    Минус фразы
-                                </Text>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        marginBottom: 8,
+                                        height: 28,
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text variant="header-1">Минус фразы</Text>
+                                </div>
                                 <List
                                     items={semanticsModalSemanticsMinusItemsValue}
                                     filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
@@ -2344,6 +2369,46 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
+                                    <RadioButton
+                                        defaultValue={semanticsModalAdvertType}
+                                        options={semanticsModalAdvertTypes}
+                                        onUpdate={(val) => {
+                                            setSemanticsModalAdvertType(val);
+                                            setSemanticsModalIsFixed(false);
+                                            setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                                (cur) => {
+                                                    const name = cur.trim();
+                                                    const nameArray = name.split(' ');
+                                                    if (
+                                                        nameArray.at(-1) == 'АВТО' ||
+                                                        nameArray.at(-1) == 'ПОИСК'
+                                                    )
+                                                        nameArray.pop();
+
+                                                    return nameArray.join(' ') + ' ' + val;
+                                                },
+                                            );
+                                        }}
+                                    />
+
+                                    <Switch
+                                        disabled={semanticsModalAdvertType == 'АВТО'}
+                                        checked={semanticsModalIsFixed}
+                                        onUpdate={(val) => setSemanticsModalIsFixed(val)}
+                                    >
+                                        Фикс. фразы
+                                    </Switch>
+                                </div>
+                                <div
+                                    style={{
+                                        marginBottom: 8,
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}
+                                >
                                     <TextInput
                                         style={{width: 200}}
                                         placeholder="Отсечка"
@@ -2369,11 +2434,21 @@ export const MassAdvertPage = () => {
                                     />
                                     <Button
                                         onClick={() => {
+                                            const name =
+                                                semanticsModalSemanticsPlusItemsTemplateNameSaveValue.trim();
                                             const params = {
                                                 uid: Userfront.user.userUuid,
                                                 data: {
                                                     mode: 'Установить',
-                                                    name: semanticsModalSemanticsPlusItemsTemplateNameSaveValue,
+                                                    isFixed: semanticsModalIsFixed,
+                                                    name:
+                                                        name +
+                                                        (!name.includes(
+                                                            ' ' + semanticsModalAdvertType,
+                                                        )
+                                                            ? ' ' + semanticsModalAdvertType
+                                                            : ''),
+                                                    type: semanticsModalAdvertType,
                                                     clusters: semanticsModalSemanticsPlusItemsValue,
                                                     threshold:
                                                         semanticsModalSemanticsThresholdValue,
