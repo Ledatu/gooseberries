@@ -88,6 +88,21 @@
             background: var(--data-table-color-hover-area);
             // box-shadow: 60px -16px teal;
         }
+        .app__td_fixed:hover {
+            .app__art_pin {
+                display: flex;
+            }
+            .app__art_index {
+                display: none;
+            }
+        }
+    }
+
+    .app__art_pin {
+        display: none;
+    }
+    .app__art_index {
+        display: flex;
     }
 
     .app__td_fixed {

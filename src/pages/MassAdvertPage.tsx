@@ -46,6 +46,8 @@ import {
     CloudCheck,
     Calendar,
     // CircleRuble,
+    Pin,
+    PinSlash,
     TrashBin,
 } from '@gravity-ui/icons';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
@@ -83,6 +85,7 @@ export const MassAdvertPage = () => {
     const windowDimensions = useWindowDimensions();
     const isDesktop = windowDimensions.height < windowDimensions.width;
     const [filters, setFilters] = useState({undef: false});
+    const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
     const [modalFormOpen, setModalFormOpen] = useState(false);
     const [budgetInputValue, setBudgetInputValue] = useState(500);
     const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
@@ -279,6 +282,9 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <TextInput
+                            hasClear
+                            disabled={pinned.isPinned}
+                            value={filters[name] ? filters[name].val : ''}
                             onChange={(val) => {
                                 setFilters(() => {
                                     if (!(name in filters))
@@ -288,13 +294,13 @@ export const MassAdvertPage = () => {
                                     return filters;
                                 });
                             }}
-                            hasClear
                             placeholder={placeholder}
                             rightContent={
                                 <DropdownMenu
                                     renderSwitcher={(props) => (
                                         <Button
                                             {...props}
+                                            disabled={pinned.isPinned}
                                             view={
                                                 filters[name]
                                                     ? filters[name].val != ''
@@ -532,33 +538,71 @@ export const MassAdvertPage = () => {
                     <div
                         title={value}
                         style={{
+                            maxWidth: '20vw',
                             display: 'flex',
                             flexDirection: 'row',
                             zIndex: 40,
+                            justifyContent: 'space-between',
                         }}
                     >
                         <div
+                            title={value}
                             style={{
-                                width: `${String(data.length).length * 6}px`,
-                                margin: '0 16px',
-                                display: 'flex',
-                                justifyContent: 'right',
-                            }}
-                        >
-                            <div>{index + 1}</div>
-                            {/* <Button><Icon data={}/></Button> */}
-                        </div>
-                        <Link
-                            style={{
-                                textOverflow: 'ellipsis',
                                 overflow: 'hidden',
-                                whiteSpace: 'nowrap',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                marginRight: 8,
                             }}
-                            href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
-                            target="_blank"
                         >
-                            {value}
-                        </Link>
+                            <div
+                                style={{
+                                    width: `${String(data.length).length * 6}px`,
+                                    margin: '0 16px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <Button
+                                    className={b('art_pin')}
+                                    size="xs"
+                                    view="flat"
+                                    onClick={() => {
+                                        setFilters(() => {
+                                            if (!pinned.isPinned) {
+                                                setPinned({
+                                                    isPinned: true,
+                                                    oldArtFilters: filters['art'],
+                                                });
+                                                filters['art'] = {compMode: 'equal', val: value};
+                                            } else {
+                                                filters['art'] = pinned.oldArtFilters;
+                                                setPinned({
+                                                    isPinned: false,
+                                                    oldArtFilters: {compMode: 'include', val: ''},
+                                                });
+                                            }
+
+                                            recalc(dateRange, '', filters);
+                                            return filters;
+                                        });
+                                    }}
+                                >
+                                    <Icon data={pinned.isPinned ? PinSlash : Pin} size={13} />
+                                </Button>
+                                <div className={b('art_index')}>{index + 1}</div>
+                            </div>
+                            <Link
+                                style={{
+                                    textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                }}
+                                href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
+                                target="_blank"
+                            >
+                                {value}
+                            </Link>
+                        </div>
                     </div>
                 );
             },
@@ -945,6 +989,7 @@ export const MassAdvertPage = () => {
                 cpo: 0,
                 cpoAI: 0,
             };
+
             artInfo.art = artData['art'];
             artInfo.object = artData['object'];
             artInfo.nmId = artData['nmId'];
@@ -1136,6 +1181,13 @@ export const MassAdvertPage = () => {
         const selected = campaignsNames[0]['value'];
         setSelectValue([selected]);
         console.log(document);
+
+        for (let i = 0; i < columnData.length; i++) {
+            const {name} = columnData[i];
+            if (!name) continue;
+            if (!filters[name]) filters[name] = {val: '', compMode: 'include'};
+        }
+        setFilters(filters);
 
         recalc(dateRange, selected);
         setFirstRecalc(true);
