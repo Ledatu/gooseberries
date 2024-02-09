@@ -50,6 +50,10 @@ import {
     Pin,
     PinSlash,
     TrashBin,
+    Play,
+    Pause,
+    Check,
+    Xmark,
 } from '@gravity-ui/icons';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 import {motion} from 'framer-motion';
@@ -57,6 +61,7 @@ import {motion} from 'framer-motion';
 import ChartKit, {settings} from '@gravity-ui/chartkit';
 import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
 import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
+import callApi from 'src/utilities/callApi';
 settings.set({plugins: [YagrPlugin]});
 
 const {ipAddress} = require('../ipAddress');
@@ -87,6 +92,9 @@ export const MassAdvertPage = () => {
     const isDesktop = windowDimensions.height < windowDimensions.width;
     const [filters, setFilters] = useState({undef: false});
     const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
+    const [manageModalOpen, setManageModalOpen] = useState(false);
+    const [selectedButton, setSelectedButton] = useState('');
+
     const [modalFormOpen, setModalFormOpen] = useState(false);
     const [budgetInputValue, setBudgetInputValue] = useState(500);
     const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
@@ -721,7 +729,8 @@ export const MassAdvertPage = () => {
                             const status = advertData['status'];
                             if (![4, 9, 11].includes(status)) continue;
 
-                            const themeToUse = status == 9 ? 'success' : 'danger';
+                            const themeToUse =
+                                status == 9 ? 'success' : status == 11 ? 'danger' : 'warning';
 
                             tags.push(
                                 <div style={{margin: '0 2px'}}>
@@ -1338,6 +1347,153 @@ export const MassAdvertPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        view="outlined"
+                        onClick={() => {
+                            setManageModalOpen(true);
+                            setSelectedButton('');
+                        }}
+                    >
+                        Управление
+                    </Button>
+                    <Modal
+                        open={manageModalOpen}
+                        onClose={() => {
+                            setManageModalOpen(false);
+                            setSelectedButton('');
+                        }}
+                    >
+                        <Card
+                            // view="raised"
+                            view="clear"
+                            style={{
+                                width: 300,
+                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
+                                // animation: '3s linear 1s slidein',
+                                // maxWidth: '15vw',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                backgroundColor: 'none',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    height: '50%',
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    margin: '16px 0',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    Управление
+                                </Text>
+
+                                {generateModalButtonWithActions(
+                                    {
+                                        view: 'flat-success',
+                                        icon: Play,
+                                        placeholder: 'Запустить',
+                                        onClick: () => {
+                                            const params = {
+                                                uid: Userfront.user.userUuid,
+                                                campaignName: selectValue[0],
+                                                data: {
+                                                    mode: 'start',
+                                                    arts: [] as any[],
+                                                },
+                                            };
+                                            for (let i = 0; i < data.length; i++) {
+                                                const art = data[i].art;
+                                                if (!art) continue;
+                                                params.data.arts.push(art);
+                                            }
+                                            console.log(params);
+
+                                            //////////////////////////////////
+                                            callApi('manageAdvertsActivity', params);
+                                            //////////////////////////////////
+
+                                            setManageModalOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                {generateModalButtonWithActions(
+                                    {
+                                        view: 'flat-warning',
+                                        icon: Pause,
+                                        placeholder: 'Приостановить',
+                                        onClick: () => {
+                                            const params = {
+                                                uid: Userfront.user.userUuid,
+                                                campaignName: selectValue[0],
+                                                data: {
+                                                    mode: 'pause',
+                                                    arts: [] as any[],
+                                                },
+                                            };
+                                            for (let i = 0; i < data.length; i++) {
+                                                const art = data[i].art;
+                                                if (!art) continue;
+                                                params.data.arts.push(art);
+                                            }
+                                            console.log(params);
+
+                                            //////////////////////////////////
+                                            callApi('manageAdvertsActivity', params);
+                                            //////////////////////////////////
+
+                                            setManageModalOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                {generateModalButtonWithActions(
+                                    {
+                                        view: 'flat-danger',
+                                        icon: TrashBin,
+                                        placeholder: 'Завершить',
+                                        onClick: () => {
+                                            const params = {
+                                                uid: Userfront.user.userUuid,
+                                                campaignName: selectValue[0],
+                                                data: {
+                                                    mode: 'stop',
+                                                    arts: [] as any[],
+                                                },
+                                            };
+                                            for (let i = 0; i < data.length; i++) {
+                                                const art = data[i].art;
+                                                if (!art) continue;
+                                                params.data.arts.push(art);
+                                            }
+                                            console.log(params);
+
+                                            //////////////////////////////////
+                                            callApi('manageAdvertsActivity', params);
+                                            //////////////////////////////////
+
+                                            setManageModalOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                            </div>
+                        </Card>
+                    </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="outlined"
@@ -2731,5 +2887,70 @@ export const MassAdvertPage = () => {
                 />
             </div>
         </div>
+    );
+};
+
+const generateModalButtonWithActions = (
+    params: {
+        pin?;
+        size?;
+        view?;
+        style?;
+        selected?;
+        placeholder;
+        icon;
+        onClick?;
+    },
+    selectedButton,
+    setSelectedButton,
+) => {
+    const {pin, size, view, style, selected, placeholder, icon, onClick} = params;
+    const isSelected = selectedButton == placeholder;
+    if (onClick || selected) {
+    }
+    return (
+        <motion.div
+            style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}
+        >
+            <motion.div animate={{opacity: isSelected ? 1 : 0, x: isSelected ? -16 : 0}}>
+                <Button pin="circle-circle" view="flat-success" onClick={onClick}>
+                    <Icon data={Check} />
+                </Button>
+            </motion.div>
+            <Button
+                disabled={!isSelected && selectedButton != ''}
+                style={
+                    style ?? {
+                        margin: '4px 0px',
+                    }
+                }
+                pin={pin ?? 'circle-circle'}
+                size={size ?? 'l'}
+                view={view ?? 'action'}
+                selected={isSelected}
+                onClick={() => {
+                    setSelectedButton((val) => {
+                        return val == placeholder ? '' : placeholder;
+                    });
+                }}
+            >
+                <Icon data={icon} />
+                {placeholder}
+            </Button>
+            <motion.div animate={{opacity: isSelected ? 1 : 0, x: isSelected ? 16 : 0}}>
+                <Button
+                    pin="circle-circle"
+                    view="flat-danger"
+                    onClick={() => setSelectedButton('')}
+                >
+                    <Icon data={Xmark} />
+                </Button>
+            </motion.div>
+        </motion.div>
     );
 };
