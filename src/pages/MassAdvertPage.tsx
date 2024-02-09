@@ -1398,6 +1398,7 @@ export const MassAdvertPage = () => {
                                     options={advertTypeSwitchValues}
                                     onUpdate={(val) => {
                                         setAdvertTypeSwitchValue(val);
+                                        setBidInputValue(val == 'Авто' ? 125 : 250);
                                     }}
                                 />
                                 <TextInput
@@ -1428,7 +1429,7 @@ export const MassAdvertPage = () => {
                                     value={String(bidInputValue)}
                                     onChange={(val) => {
                                         const bid = Number(val.target.value);
-                                        if (bid < 500) setBidInputValidationValue(false);
+                                        if (bid < 125) setBidInputValidationValue(false);
                                         else setBidInputValidationValue(true);
                                         setBidInputValue(bid);
                                     }}
@@ -1436,35 +1437,44 @@ export const MassAdvertPage = () => {
                                     validationState={
                                         bidInputValidationValue ? undefined : 'invalid'
                                     }
-                                    label="Ставки"
+                                    label="Ставка"
                                 />
-                                <Checkbox
-                                    style={{margin: '2px 0'}}
-                                    checked={placementsBoosterInputValue}
-                                    onUpdate={(checked) => {
-                                        setPlacementsBoosterInputValue(checked);
+                                <div
+                                    style={{
+                                        display: advertTypeSwitchValue == 'Авто' ? 'flex' : 'none',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
                                     }}
-                                    title="Поиск/Каталог"
-                                    content="Поиск/Каталог"
-                                />
-                                <Checkbox
-                                    style={{margin: '2px 0'}}
-                                    checked={placementsRecomInputValue}
-                                    onUpdate={(checked) => {
-                                        setPlacementsRecomInputValue(checked);
-                                    }}
-                                    title="Рекомендации на главной"
-                                    content="Рекомендации на главной"
-                                />
-                                <Checkbox
-                                    style={{margin: '4px 0 2px 0'}}
-                                    checked={placementsCarouselInputValue}
-                                    onUpdate={(checked) => {
-                                        setPlacementsCarouselInputValue(checked);
-                                    }}
-                                    title="Карточка товара"
-                                    content="Карточка товара"
-                                />
+                                >
+                                    <Checkbox
+                                        style={{margin: '2px 0'}}
+                                        checked={placementsBoosterInputValue}
+                                        onUpdate={(checked) => {
+                                            setPlacementsBoosterInputValue(checked);
+                                        }}
+                                        title="Поиск/Каталог"
+                                        content="Поиск/Каталог"
+                                    />
+                                    <Checkbox
+                                        style={{margin: '2px 0'}}
+                                        checked={placementsRecomInputValue}
+                                        onUpdate={(checked) => {
+                                            setPlacementsRecomInputValue(checked);
+                                        }}
+                                        title="Рекомендации на главной"
+                                        content="Рекомендации на главной"
+                                    />
+                                    <Checkbox
+                                        style={{margin: '4px 0 2px 0'}}
+                                        checked={placementsCarouselInputValue}
+                                        onUpdate={(checked) => {
+                                            setPlacementsCarouselInputValue(checked);
+                                        }}
+                                        title="Карточка товара"
+                                        content="Карточка товара"
+                                    />
+                                </div>
                                 <Button
                                     style={{
                                         margin: '8px 0px',
