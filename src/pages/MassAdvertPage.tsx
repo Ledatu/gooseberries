@@ -19,7 +19,8 @@ import {
     Checkbox,
     RadioButton,
     List,
-    Switch,
+    TextArea,
+    // Switch,
     // Checkbox,
     // RadioButton,
     // Icon,
@@ -94,6 +95,9 @@ export const MassAdvertPage = () => {
     const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
     const [manageModalOpen, setManageModalOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
+
+    const [semanticsModalTextAreaAddMode, setSemanticsModalTextAreaAddMode] = useState(false);
+    const [semanticsModalTextAreaValue, setSemanticsModalTextAreaValue] = useState('');
 
     const [modalFormOpen, setModalFormOpen] = useState(false);
     const [budgetInputValue, setBudgetInputValue] = useState(500);
@@ -677,6 +681,8 @@ export const MassAdvertPage = () => {
                                         ? document.plusPhrasesTemplates[value.plus].clusters
                                         : [];
                                     setSemanticsModalSemanticsPlusItemsValue(plusItems);
+                                    setSemanticsModalTextAreaValue('');
+                                    setSemanticsModalTextAreaAddMode(false);
                                 }
                             }}
                         >
@@ -2332,7 +2338,7 @@ export const MassAdvertPage = () => {
                                 flexDirection: isDesktop ? 'row' : 'column',
                                 width: isDesktop ? '80vw' : '70vw',
                                 padding: 32,
-                                overflow: 'hidden',
+                                overflow: 'auto',
                             }}
                         >
                             <motion.div
@@ -2499,7 +2505,7 @@ export const MassAdvertPage = () => {
                                     height: !isDesktop ? '23vh' : '100%',
                                     width: isDesktop ? '25vw' : undefined,
                                     flexDirection: 'column',
-                                    justifyContent: 'space-between',
+                                    // justifyContent: 'space-',
                                 }}
                             >
                                 <div
@@ -2535,35 +2541,80 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <RadioButton
-                                        defaultValue={semanticsModalAdvertType}
-                                        options={semanticsModalAdvertTypes}
-                                        onUpdate={(val) => {
-                                            setSemanticsModalAdvertType(val);
-                                            setSemanticsModalIsFixed(false);
-                                            setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                                (cur) => {
-                                                    const name = cur.trim();
-                                                    const nameArray = name.split(' ');
-                                                    if (
-                                                        nameArray.at(-1) == 'АВТО' ||
-                                                        nameArray.at(-1) == 'ПОИСК'
-                                                    )
-                                                        nameArray.pop();
-
-                                                    return nameArray.join(' ') + ' ' + val;
-                                                },
-                                            );
+                                    <div
+                                        style={{
+                                            display: semanticsModalTextAreaAddMode
+                                                ? 'none'
+                                                : 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
                                         }}
-                                    />
-
-                                    <Switch
-                                        disabled={semanticsModalAdvertType == 'АВТО'}
-                                        checked={semanticsModalIsFixed}
-                                        onUpdate={(val) => setSemanticsModalIsFixed(val)}
                                     >
-                                        Фикс. фразы
-                                    </Switch>
+                                        <RadioButton
+                                            defaultValue={semanticsModalAdvertType}
+                                            options={semanticsModalAdvertTypes}
+                                            onUpdate={(val) => {
+                                                setSemanticsModalAdvertType(val);
+                                                setSemanticsModalIsFixed(false);
+                                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                                    (cur) => {
+                                                        const name = cur.trim();
+                                                        const nameArray = name.split(' ');
+                                                        if (
+                                                            nameArray.at(-1) == 'АВТО' ||
+                                                            nameArray.at(-1) == 'ПОИСК'
+                                                        )
+                                                            nameArray.pop();
+
+                                                        return nameArray.join(' ') + ' ' + val;
+                                                    },
+                                                );
+                                            }}
+                                        />
+                                        <Button
+                                            // width="max"
+                                            style={{margin: '0 8px'}}
+                                            disabled={semanticsModalAdvertType == 'АВТО'}
+                                            selected={semanticsModalIsFixed}
+                                            onClick={() =>
+                                                setSemanticsModalIsFixed(!semanticsModalIsFixed)
+                                            }
+                                        >
+                                            {`Фикс. ${!semanticsModalIsFixed ? 'выкл.' : 'вкл.'}`}
+                                        </Button>
+                                    </div>
+                                    <Button
+                                        width="max"
+                                        view={
+                                            semanticsModalTextAreaAddMode
+                                                ? 'flat-success'
+                                                : 'normal'
+                                        }
+                                        selected={semanticsModalTextAreaAddMode}
+                                        onClick={() => {
+                                            setSemanticsModalTextAreaAddMode(
+                                                !semanticsModalTextAreaAddMode,
+                                            );
+                                            const rows = semanticsModalTextAreaValue.split('\n');
+                                            const val = Array.from(
+                                                semanticsModalSemanticsPlusItemsValue,
+                                            );
+                                            for (let i = 0; i < rows.length; i++) {
+                                                const cluster = rows[i].trim();
+                                                if (!cluster || cluster === '') continue;
+                                                if (!val.includes(cluster)) {
+                                                    val.push(cluster);
+                                                }
+                                            }
+                                            setSemanticsModalSemanticsPlusItemsValue(val);
+                                            setSemanticsModalTextAreaValue('');
+                                        }}
+                                    >
+                                        {`${
+                                            semanticsModalTextAreaAddMode ? 'Сохранить' : 'Добавить'
+                                        } фразы`}
+                                    </Button>
                                 </div>
                                 <div
                                     style={{
@@ -2643,31 +2694,45 @@ export const MassAdvertPage = () => {
                                         Сохранить
                                     </Button>
                                 </div>
-
-                                <List
-                                    items={semanticsModalSemanticsPlusItemsValue}
-                                    filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
-                                    onItemClick={(cluster) => {
-                                        let val = Array.from(semanticsModalSemanticsPlusItemsValue);
-                                        val = val.filter((value) => value != cluster);
-                                        setSemanticsModalSemanticsPlusItemsValue(val);
-                                    }}
-                                    renderItem={(item) => {
-                                        if (!item) return;
-                                        return (
-                                            <div
-                                                style={{
-                                                    textOverflow: 'ellipsis',
-                                                    overflow: 'hidden',
-                                                    whiteSpace: 'nowrap',
-                                                }}
-                                                title={item}
-                                            >
-                                                <Text>{item}</Text>
-                                            </div>
-                                        );
-                                    }}
-                                />
+                                {semanticsModalTextAreaAddMode ? (
+                                    <TextArea
+                                        onUpdate={(val) => {
+                                            setSemanticsModalTextAreaValue(val);
+                                        }}
+                                        hasClear
+                                        placeholder="Вводите фразы для добавления с новой строки"
+                                        maxRows={Math.round(
+                                            (windowDimensions.height * 0.4) / 16 + 10,
+                                        )}
+                                    />
+                                ) : (
+                                    <List
+                                        items={semanticsModalSemanticsPlusItemsValue}
+                                        filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
+                                        onItemClick={(cluster) => {
+                                            let val = Array.from(
+                                                semanticsModalSemanticsPlusItemsValue,
+                                            );
+                                            val = val.filter((value) => value != cluster);
+                                            setSemanticsModalSemanticsPlusItemsValue(val);
+                                        }}
+                                        renderItem={(item) => {
+                                            if (!item) return;
+                                            return (
+                                                <div
+                                                    style={{
+                                                        textOverflow: 'ellipsis',
+                                                        overflow: 'hidden',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                    title={item}
+                                                >
+                                                    <Text>{item}</Text>
+                                                </div>
+                                            );
+                                        }}
+                                    />
+                                )}
                             </motion.div>
                         </motion.div>
                     </Modal>
