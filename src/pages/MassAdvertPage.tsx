@@ -637,11 +637,11 @@ export const MassAdvertPage = () => {
             valueType: 'text',
             render: ({value, row}) => {
                 if (value === null) return;
-                if (!row.adverts) return;
+                // if (!row.adverts) return;
                 // const themeToUse = 'normal';
                 // console.log(value.plus);
-
-                const themeToUse = value.plus ? 'info' : 'normal';
+                const plusPhrasesTemplate = row.plusPhrasesTemplate;
+                const themeToUse = plusPhrasesTemplate ? 'info' : 'normal';
 
                 return (
                     <div style={{display: 'flex', justifyContent: 'center'}}>
@@ -658,16 +658,22 @@ export const MassAdvertPage = () => {
                                     );
                                     setSemanticsModalSemanticsMinusItemsValue(value.excluded ?? []);
                                     setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                        value.plus ?? 'Не установлен',
+                                        plusPhrasesTemplate ?? 'Не установлен',
                                     );
 
-                                    const plusThreshold = document.plusPhrasesTemplates[value.plus]
-                                        ? document.plusPhrasesTemplates[value.plus].threshold
+                                    const plusThreshold = document.plusPhrasesTemplates[
+                                        plusPhrasesTemplate
+                                    ]
+                                        ? document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                              .threshold
                                         : 100;
                                     setSemanticsModalSemanticsThresholdValue(plusThreshold);
 
-                                    const isFixed = document.plusPhrasesTemplates[value.plus]
-                                        ? document.plusPhrasesTemplates[value.plus].isFixed ?? false
+                                    const isFixed = document.plusPhrasesTemplates[
+                                        plusPhrasesTemplate
+                                    ]
+                                        ? document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                              .isFixed ?? false
                                         : false;
                                     setSemanticsModalIsFixed(isFixed);
 
@@ -675,10 +681,13 @@ export const MassAdvertPage = () => {
                                     setSemanticsModalAdvertType(templateType);
                                     // console.log(value.plus);
                                     setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                        value.plus ?? `Новый шаблон ${templateType}`,
+                                        plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
                                     );
-                                    const plusItems = document.plusPhrasesTemplates[value.plus]
-                                        ? document.plusPhrasesTemplates[value.plus].clusters
+                                    const plusItems = document.plusPhrasesTemplates[
+                                        plusPhrasesTemplate
+                                    ]
+                                        ? document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                              .clusters
                                         : [];
                                     setSemanticsModalSemanticsPlusItemsValue(plusItems);
                                     setSemanticsModalTextAreaValue('');
@@ -686,7 +695,7 @@ export const MassAdvertPage = () => {
                                 }
                             }}
                         >
-                            {themeToUse == 'info' ? value.plus : 'Добавить'}
+                            {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
                         </Label>
                     </div>
                 );
@@ -739,23 +748,40 @@ export const MassAdvertPage = () => {
                                 status == 9 ? 'success' : status == 11 ? 'danger' : 'warning';
 
                             tags.push(
-                                <div style={{margin: '0 2px'}}>
-                                    <Label
-                                        icon={
-                                            advertData['updateTime'] === 'Ошибка.' ? (
-                                                <Icon
-                                                    data={
-                                                        advertData['updateTime'] === 'Ошибка.'
-                                                            ? DiamondExclamation
-                                                            : CloudCheck
-                                                    }
-                                                />
-                                            ) : undefined
-                                        }
-                                        theme={themeToUse}
-                                    >
-                                        {paramMap.type[advertType]}
-                                    </Label>
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                    <div style={{margin: '0 2px'}}>
+                                        <Label
+                                            icon={
+                                                advertData['updateTime'] === 'Ошибка.' ? (
+                                                    <Icon
+                                                        data={
+                                                            advertData['updateTime'] === 'Ошибка.'
+                                                                ? DiamondExclamation
+                                                                : CloudCheck
+                                                        }
+                                                    />
+                                                ) : undefined
+                                            }
+                                            theme={themeToUse}
+                                        >
+                                            {paramMap.type[advertType]}
+                                        </Label>
+                                    </div>
+                                    <div style={{margin: '0 2px'}}>
+                                        <Label theme={'clear'}>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <Text>{advertData['daysInWork'] + 1}</Text>
+                                                <div style={{width: 2}} />
+                                                <Icon size={12} data={Calendar} />
+                                            </div>
+                                        </Label>
+                                    </div>
                                 </div>,
                             );
                         }
@@ -1002,6 +1028,7 @@ export const MassAdvertPage = () => {
                 title: '',
                 adverts: 0,
                 semantics: undefined,
+                plusPhrasesTemplate: '',
                 stocks: 0,
                 budget: undefined,
                 bid: undefined,
@@ -1031,6 +1058,7 @@ export const MassAdvertPage = () => {
             artInfo.adverts = artData['adverts'];
             artInfo.budgetToKeep = artData['budgetToKeep'];
             artInfo.cpoAI = artData['cpoAI'];
+            artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
 
             if (artInfo.adverts) {
                 for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
