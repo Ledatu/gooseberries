@@ -948,6 +948,7 @@ export const MassAdvertPage = () => {
         ctr: 0,
         drr: 0,
         orders: 0,
+        stocks: 0,
         sum_orders: 0,
         adverts: null,
         semantics: null,
@@ -1167,6 +1168,7 @@ export const MassAdvertPage = () => {
             cpc: 0,
             cpm: 0,
             cr: 0,
+            stocks: 0,
             cpo: 0,
             adverts: null,
             semantics: null,
@@ -1177,6 +1179,7 @@ export const MassAdvertPage = () => {
             const row = temp[i];
             filteredSummaryTemp.sum_orders += row['sum_orders'];
             filteredSummaryTemp.orders += row['orders'];
+            filteredSummaryTemp.stocks += row['stocks'];
             filteredSummaryTemp.sum += row['sum'];
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
@@ -1185,6 +1188,7 @@ export const MassAdvertPage = () => {
         }
         filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
         filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
+        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks);
         filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
         filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
         filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
