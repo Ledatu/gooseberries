@@ -651,48 +651,49 @@ export const MassAdvertPage = () => {
                             theme={themeToUse}
                             onClick={() => {
                                 setSemanticsModalFormOpen(true);
-                                if (value) {
-                                    setSemanticsModalSemanticsItemsValue(value.clusters ?? []);
-                                    setSemanticsModalSemanticsItemsFiltratedValue(
-                                        value.clusters ?? [],
-                                    );
-                                    setSemanticsModalSemanticsMinusItemsValue(value.excluded ?? []);
-                                    setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                        plusPhrasesTemplate ?? 'Не установлен',
-                                    );
 
-                                    const plusThreshold = document.plusPhrasesTemplates[
-                                        plusPhrasesTemplate
-                                    ]
-                                        ? document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                              .threshold
-                                        : 100;
-                                    setSemanticsModalSemanticsThresholdValue(plusThreshold);
+                                setSemanticsModalSemanticsItemsValue(
+                                    value ? value.clusters ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsItemsFiltratedValue(
+                                    value ? value.clusters ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsMinusItemsValue(
+                                    value ? value.excluded ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                    plusPhrasesTemplate ?? 'Не установлен',
+                                );
 
-                                    const isFixed = document.plusPhrasesTemplates[
-                                        plusPhrasesTemplate
-                                    ]
-                                        ? document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                              .isFixed ?? false
-                                        : false;
-                                    setSemanticsModalIsFixed(isFixed);
+                                const plusThreshold = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
+                                    : 100;
+                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
 
-                                    const templateType = row.adverts['8'] ? 'АВТО' : 'ПОИСК';
-                                    setSemanticsModalAdvertType(templateType);
-                                    // console.log(value.plus);
-                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                        plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
-                                    );
-                                    const plusItems = document.plusPhrasesTemplates[
-                                        plusPhrasesTemplate
-                                    ]
-                                        ? document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                              .clusters
-                                        : [];
-                                    setSemanticsModalSemanticsPlusItemsValue(plusItems);
-                                    setSemanticsModalTextAreaValue('');
-                                    setSemanticsModalTextAreaAddMode(false);
-                                }
+                                const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
+                                      false
+                                    : false;
+                                setSemanticsModalIsFixed(isFixed);
+
+                                const templateType = row.adverts
+                                    ? row.adverts['8']
+                                        ? 'АВТО'
+                                        : 'ПОИСК'
+                                    : 'АВТО';
+                                setSemanticsModalAdvertType(templateType);
+                                // console.log(value.plus);
+                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                    plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
+                                );
+                                const plusItems = document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].clusters
+                                    : [];
+                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
+                                setSemanticsModalTextAreaValue('');
+                                setSemanticsModalTextAreaAddMode(false);
                             }}
                         >
                             {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
