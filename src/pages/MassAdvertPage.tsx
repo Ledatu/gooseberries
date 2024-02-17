@@ -181,75 +181,75 @@ export const MassAdvertPage = () => {
         {value: 'Автоставки', content: 'Автоставки'},
     ];
     const [bidModalSwitchValue, setBidModalSwitchValue] = React.useState('Установить');
-    const bidModalAnalyticsSwitchValues: any[] = [
-        {
-            value: 1,
-            content: (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    1<div style={{width: 2}} />
-                    <Icon size={12} data={Calendar}></Icon>
-                </div>
-            ),
-        },
-        {
-            value: 7,
-            content: (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    7<div style={{width: 2}} />
-                    <Icon size={12} data={Calendar}></Icon>
-                </div>
-            ),
-        },
-        {
-            value: 14,
-            content: (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    14
-                    <div style={{width: 2}} />
-                    <Icon size={12} data={Calendar}></Icon>
-                </div>
-            ),
-        },
-        {
-            value: 30,
-            content: (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    30
-                    <div style={{width: 2}} />
-                    <Icon size={12} data={Calendar}></Icon>
-                </div>
-            ),
-        },
-    ];
-    const [bidModalAnalyticsSwitchValue, setBidModalAnalyticsSwitchValue] = React.useState(14);
+    // const bidModalAnalyticsSwitchValues: any[] = [
+    //     {
+    //         value: 1,
+    //         content: (
+    //             <div
+    //                 style={{
+    //                     display: 'flex',
+    //                     flexDirection: 'row',
+    //                     justifyContent: 'center',
+    //                     alignItems: 'center',
+    //                 }}
+    //             >
+    //                 1<div style={{width: 2}} />
+    //                 <Icon size={12} data={Calendar}></Icon>
+    //             </div>
+    //         ),
+    //     },
+    //     {
+    //         value: 7,
+    //         content: (
+    //             <div
+    //                 style={{
+    //                     display: 'flex',
+    //                     flexDirection: 'row',
+    //                     justifyContent: 'center',
+    //                     alignItems: 'center',
+    //                 }}
+    //             >
+    //                 7<div style={{width: 2}} />
+    //                 <Icon size={12} data={Calendar}></Icon>
+    //             </div>
+    //         ),
+    //     },
+    //     {
+    //         value: 14,
+    //         content: (
+    //             <div
+    //                 style={{
+    //                     display: 'flex',
+    //                     flexDirection: 'row',
+    //                     justifyContent: 'center',
+    //                     alignItems: 'center',
+    //                 }}
+    //             >
+    //                 14
+    //                 <div style={{width: 2}} />
+    //                 <Icon size={12} data={Calendar}></Icon>
+    //             </div>
+    //         ),
+    //     },
+    //     {
+    //         value: 30,
+    //         content: (
+    //             <div
+    //                 style={{
+    //                     display: 'flex',
+    //                     flexDirection: 'row',
+    //                     justifyContent: 'center',
+    //                     alignItems: 'center',
+    //                 }}
+    //             >
+    //                 30
+    //                 <div style={{width: 2}} />
+    //                 <Icon size={12} data={Calendar}></Icon>
+    //             </div>
+    //         ),
+    //     },
+    // ];
+    // const [bidModalAnalyticsSwitchValue, setBidModalAnalyticsSwitchValue] = React.useState(14);
 
     const [data, setTableData] = useState<any[]>([]);
     const generateColumns = (columnsInfo) => {
@@ -906,8 +906,8 @@ export const MassAdvertPage = () => {
             placeholder: 'CPO AI, ₽',
             render: ({value}) => {
                 if (!value) return;
-                const {desiredCPO, dateRange} = value;
-                if (desiredCPO === undefined || dateRange === undefined) return;
+                const {desiredCPO} = value;
+                if (desiredCPO === undefined) return;
 
                 return (
                     <div style={{display: 'flex', flexDirection: 'row'}}>
@@ -916,17 +916,6 @@ export const MassAdvertPage = () => {
                             <div style={{width: 2}} />₽
                         </div>
                         <div style={{width: 8}} />
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Text>{dateRange} </Text>
-                            <div style={{width: 2}} />
-                            <Icon size={12} data={Calendar} />
-                        </div>
                     </div>
                 );
             },
@@ -1879,7 +1868,7 @@ export const MassAdvertPage = () => {
                         onClick={() => {
                             setBidModalBidInputValue(125);
                             setBidModalSwitchValue('Установить');
-                            setBidModalAnalyticsSwitchValue(14);
+                            // setBidModalAnalyticsSwitchValue(14);
                             setBidModalBidInputValidationValue(true);
                             setBidModalDeleteModeSelected(false);
                             setBidModalFormOpen(true);
@@ -1933,7 +1922,7 @@ export const MassAdvertPage = () => {
                                         onUpdate={(val) => {
                                             setBidModalSwitchValue(val);
                                             setBidModalBidInputValue(125);
-                                            setBidModalAnalyticsSwitchValue(14);
+                                            // setBidModalAnalyticsSwitchValue(14);
                                             setBidModalBidInputValidationValue(true);
                                             setBidModalDeleteModeSelected(false);
                                             setBidModalFormOpen(true);
@@ -1954,7 +1943,7 @@ export const MassAdvertPage = () => {
                                                 ? 8
                                                 : bidModalSwitchValue == 'Установить'
                                                 ? 44
-                                                : 96,
+                                                : 44,
                                             opacity: bidModalDeleteModeSelected ? 0 : 1,
                                         }}
                                         transition={{duration: 0.1}}
@@ -1972,8 +1961,8 @@ export const MassAdvertPage = () => {
                                             animate={{
                                                 y: !bidModalDeleteModeSelected
                                                     ? bidModalSwitchValue == 'Установить'
-                                                        ? 41
-                                                        : -20
+                                                        ? 18
+                                                        : -18
                                                     : 77,
                                                 // x: !bidModalDeleteModeSelected
                                                 //     ? bidModalSwitchValue == 'Установить'
@@ -1982,7 +1971,7 @@ export const MassAdvertPage = () => {
                                                 //     : -100,
                                             }}
                                             transition={{
-                                                duration: 0.01,
+                                                duration: 0.1,
                                                 ease: 'easeInOut',
                                                 // ease: [0.67, 0.83, 0.67, 0.17],
                                                 // type: 'spring',
@@ -2112,7 +2101,7 @@ export const MassAdvertPage = () => {
                                                     }
                                                     label="Шаг ставки"
                                                 />
-                                                <Text variant="subheader-1">Аналитика</Text>
+                                                {/* <Text variant="subheader-1">Аналитика</Text>
                                                 <RadioButton
                                                     style={{margin: '0 2px 0 4px'}}
                                                     defaultValue={String(
@@ -2124,7 +2113,7 @@ export const MassAdvertPage = () => {
                                                             parseInt(val),
                                                         );
                                                     }}
-                                                />
+                                                /> */}
                                             </motion.div>
                                         </motion.div>
                                     </motion.div>
@@ -2178,8 +2167,8 @@ export const MassAdvertPage = () => {
                                                                 mode: bidModalSwitchValue,
                                                                 desiredCPO: bidModalCPOInputValue,
                                                                 bidStep: bidModalBidStepInputValue,
-                                                                dateRange:
-                                                                    bidModalAnalyticsSwitchValue,
+                                                                // dateRange:
+                                                                //     bidModalAnalyticsSwitchValue,
                                                                 advertId: art,
                                                             };
                                                         } else {
