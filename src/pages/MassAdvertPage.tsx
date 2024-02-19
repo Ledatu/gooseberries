@@ -177,8 +177,8 @@ export const MassAdvertPage = () => {
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
     const [bidModalBidStepInputValidationValue, setBidModalBidStepInputValidationValue] =
         useState(true);
-    const [bidModalCPOInputValue, setBidModalCPOInputValue] = useState(50);
-    const [bidModalCPOInputValidationValue, setBidModalCPOInputValidationValue] = useState(true);
+    const [bidModalDRRInputValue, setBidModalDRRInputValue] = useState(50);
+    const [bidModalDRRInputValidationValue, setBidModalDRRInputValidationValue] = useState(true);
 
     const bidModalSwitchValues: any[] = [
         {value: 'Установить', content: 'Установить'},
@@ -634,86 +634,6 @@ export const MassAdvertPage = () => {
         },
         {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
         {name: 'object', placeholder: 'Предмет', valueType: 'text'},
-
-        {
-            name: 'semantics',
-            placeholder: 'Семантика',
-            valueType: 'text',
-            render: ({value, row}) => {
-                if (value === null) return;
-                // if (!row.adverts) return;
-                // const themeToUse = 'normal';
-                // console.log(value.plus);
-                const plusPhrasesTemplate = row.plusPhrasesTemplate;
-                const themeToUse = plusPhrasesTemplate ? 'info' : 'normal';
-
-                return (
-                    <div style={{display: 'flex', justifyContent: 'center'}}>
-                        <Label
-                            // theme="normal"
-                            // theme="info"
-                            theme={themeToUse}
-                            onClick={() => {
-                                setSemanticsModalFormOpen(true);
-
-                                setSemanticsModalSemanticsItemsValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsItemsFiltratedValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsMinusItemsValue(
-                                    value ? value.excluded ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                    plusPhrasesTemplate ?? 'Не установлен',
-                                );
-
-                                const plusThreshold = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
-                                    : 100;
-                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
-
-                                const plusCTRThreshold = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                          .ctrThreshold
-                                    : 5;
-                                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
-
-                                const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
-                                      false
-                                    : false;
-                                setSemanticsModalIsFixed(isFixed);
-
-                                const templateType = row.adverts
-                                    ? row.adverts['8']
-                                        ? 'АВТО'
-                                        : 'ПОИСК'
-                                    : 'АВТО';
-                                setSemanticsModalAdvertType(templateType);
-                                // console.log(value.plus);
-                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                    plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
-                                );
-                                const plusItems = document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].clusters
-                                    : [];
-                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
-                                setSemanticsModalTextAreaValue('');
-                                setSemanticsModalTextAreaAddMode(false);
-                            }}
-                        >
-                            {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
-                        </Label>
-                    </div>
-                );
-            },
-        },
         {
             name: 'adverts',
             placeholder: 'Реклама',
@@ -820,9 +740,87 @@ export const MassAdvertPage = () => {
                 );
             },
         },
-        {name: 'stocks', placeholder: 'Остаток'},
-        {name: 'budget', placeholder: 'Баланс, ₽'},
+        {
+            name: 'semantics',
+            placeholder: 'Семантика',
+            valueType: 'text',
+            render: ({value, row}) => {
+                if (value === null) return;
+                // if (!row.adverts) return;
+                // const themeToUse = 'normal';
+                // console.log(value.plus);
+                const plusPhrasesTemplate = row.plusPhrasesTemplate;
+                const themeToUse = plusPhrasesTemplate ? 'info' : 'normal';
+
+                return (
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                        <Label
+                            // theme="normal"
+                            // theme="info"
+                            theme={themeToUse}
+                            onClick={() => {
+                                setSemanticsModalFormOpen(true);
+
+                                setSemanticsModalSemanticsItemsValue(
+                                    value ? value.clusters ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsItemsFiltratedValue(
+                                    value ? value.clusters ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsMinusItemsValue(
+                                    value ? value.excluded ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                    plusPhrasesTemplate ?? 'Не установлен',
+                                );
+
+                                const plusThreshold = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
+                                    : 100;
+                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+                                const plusCTRThreshold = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                          .ctrThreshold
+                                    : 5;
+                                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
+
+                                const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
+                                      false
+                                    : false;
+                                setSemanticsModalIsFixed(isFixed);
+
+                                const templateType = row.adverts
+                                    ? row.adverts['8']
+                                        ? 'АВТО'
+                                        : 'ПОИСК'
+                                    : 'АВТО';
+                                setSemanticsModalAdvertType(templateType);
+                                // console.log(value.plus);
+                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                    plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
+                                );
+                                const plusItems = document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].clusters
+                                    : [];
+                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
+                                setSemanticsModalTextAreaValue('');
+                                setSemanticsModalTextAreaAddMode(false);
+                            }}
+                        >
+                            {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
+                        </Label>
+                    </div>
+                );
+            },
+        },
         {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
+        {name: 'budget', placeholder: 'Баланс, ₽'},
         {
             name: 'bid',
             placeholder: 'Ставка, ₽',
@@ -889,18 +887,19 @@ export const MassAdvertPage = () => {
             },
         },
         {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
+        {name: 'stocks', placeholder: 'Остаток'},
         {name: 'orders', placeholder: 'Заказов, шт.'},
+        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {
-            name: 'cpo',
-            placeholder: 'CPO, ₽',
+            name: 'drr',
+            placeholder: 'ДРР, %',
             render: ({value, row}) => {
-                const desiredCPO = row.cpoAI ? row.cpoAI.desiredCPO : undefined;
+                const desiredDRR = row.drrAI ? row.drrAI.desiredDRR : undefined;
                 return (
                     <Text
                         color={
-                            desiredCPO
-                                ? value <= desiredCPO
+                            desiredDRR
+                                ? value <= desiredDRR
                                     ? value == 0
                                         ? 'primary'
                                         : 'positive'
@@ -914,17 +913,17 @@ export const MassAdvertPage = () => {
             },
         },
         {
-            name: 'cpoAI',
-            placeholder: 'CPO AI, ₽',
+            name: 'drrAI',
+            placeholder: 'План ДРР, %',
             render: ({value}) => {
                 if (!value) return;
-                const {desiredCPO} = value;
-                if (desiredCPO === undefined) return;
+                const {desiredDRR} = value;
+                if (desiredDRR === undefined) return;
 
                 return (
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Text>{desiredCPO} </Text>
+                            <Text>{desiredDRR} </Text>
                             <div style={{width: 2}} />₽
                         </div>
                         <div style={{width: 8}} />
@@ -932,7 +931,11 @@ export const MassAdvertPage = () => {
                 );
             },
         },
-        {name: 'drr', placeholder: 'ДРР, %'},
+
+        {
+            name: 'cpo',
+            placeholder: 'CPO, ₽',
+        },
         {name: 'views', placeholder: 'Показов, шт.'},
         {name: 'clicks', placeholder: 'Кликов, шт.'},
         {name: 'ctr', placeholder: 'CTR, %'},
@@ -1049,7 +1052,7 @@ export const MassAdvertPage = () => {
                 cpm: 0,
                 cr: 0,
                 cpo: 0,
-                cpoAI: 0,
+                drrAI: 0,
             };
 
             artInfo.art = artData['art'];
@@ -1060,7 +1063,7 @@ export const MassAdvertPage = () => {
             artInfo.stocks = artData['stocks'];
             artInfo.adverts = artData['adverts'];
             artInfo.budgetToKeep = artData['budgetToKeep'];
-            artInfo.cpoAI = artData['cpoAI'];
+            artInfo.drrAI = artData['drrAI'];
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
 
             if (artInfo.adverts) {
@@ -1886,8 +1889,8 @@ export const MassAdvertPage = () => {
                             setBidModalFormOpen(true);
                             setBidModalBidStepInputValue(5);
                             setBidModalBidStepInputValidationValue(true);
-                            setBidModalCPOInputValue(50);
-                            setBidModalCPOInputValidationValue(true);
+                            setBidModalDRRInputValue(50);
+                            setBidModalDRRInputValidationValue(true);
                         }}
                     >
                         Ставки
@@ -1940,8 +1943,8 @@ export const MassAdvertPage = () => {
                                             setBidModalFormOpen(true);
                                             setBidModalBidStepInputValue(5);
                                             setBidModalBidStepInputValidationValue(true);
-                                            setBidModalCPOInputValue(50);
-                                            setBidModalCPOInputValidationValue(true);
+                                            setBidModalDRRInputValue(50);
+                                            setBidModalDRRInputValidationValue(true);
                                         }}
                                     />
 
@@ -2064,26 +2067,26 @@ export const MassAdvertPage = () => {
                                                         margin: '4px 0',
                                                     }}
                                                     type="number"
-                                                    value={String(bidModalCPOInputValue)}
+                                                    value={String(bidModalDRRInputValue)}
                                                     onChange={(val) => {
                                                         const cpo = Number(val.target.value);
                                                         if (cpo < 0)
-                                                            setBidModalCPOInputValidationValue(
+                                                            setBidModalDRRInputValidationValue(
                                                                 false,
                                                             );
                                                         else
-                                                            setBidModalCPOInputValidationValue(
+                                                            setBidModalDRRInputValidationValue(
                                                                 true,
                                                             );
-                                                        setBidModalCPOInputValue(cpo);
+                                                        setBidModalDRRInputValue(cpo);
                                                     }}
                                                     errorMessage={'Введите не менее 0'}
                                                     validationState={
-                                                        bidModalCPOInputValidationValue
+                                                        bidModalDRRInputValidationValue
                                                             ? undefined
                                                             : 'invalid'
                                                     }
-                                                    label="Целевой CPO"
+                                                    label="Целевой ДРР"
                                                 />
                                                 <TextInput
                                                     style={{
@@ -2177,7 +2180,7 @@ export const MassAdvertPage = () => {
                                                         if (!bidModalDeleteModeSelected) {
                                                             params.data[art] = {
                                                                 mode: bidModalSwitchValue,
-                                                                desiredCPO: bidModalCPOInputValue,
+                                                                desiredDRR: bidModalDRRInputValue,
                                                                 bidStep: bidModalBidStepInputValue,
                                                                 // dateRange:
                                                                 //     bidModalAnalyticsSwitchValue,
@@ -2766,7 +2769,7 @@ export const MassAdvertPage = () => {
                                 >
                                     <TextInput
                                         style={{marginRight: 4}}
-                                        label="Отсечка"
+                                        label="Показы"
                                         hasClear
                                         value={String(semanticsModalSemanticsThresholdValue)}
                                         onUpdate={(val) => {
