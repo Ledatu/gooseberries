@@ -2261,100 +2261,54 @@ export const MassAdvertPage = () => {
                             setPlusPhrasesModalFormOpen(true);
                             const plusPhrasesTemplatesTemp: any[] = [];
                             for (const [name, _] of Object.entries(document.plusPhrasesTemplates)) {
-                                plusPhrasesTemplatesTemp.push(
-                                    <div style={{margin: '2px 3px'}}>
-                                        <Label
-                                            size="m"
-                                            theme="info"
-                                            onClick={() => {
-                                                const params = {
-                                                    uid: Userfront.user.userUuid,
-                                                    campaignName: selectValue[0],
-                                                    data: {},
-                                                };
-                                                for (let i = 0; i < data.length; i++) {
-                                                    const art = data[i].art;
-                                                    if (!art) continue;
-
-                                                    params.data[art] = {
-                                                        mode: 'Установить',
-                                                        templateName: name,
-                                                        art: art,
-                                                    };
-                                                }
-                                                console.log(params);
-
-                                                //////////////////////////////////
-                                                const token =
-                                                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                                axios
-                                                    .post(
-                                                        `${ipAddress}/api/setAdvertsPlusPhrasesTemplates`,
-                                                        params,
-                                                        {
-                                                            headers: {
-                                                                Authorization: 'Bearer ' + token,
-                                                            },
-                                                        },
-                                                    )
-                                                    .then((response) => console.log(response.data))
-                                                    .catch((error) => console.error(error));
-                                                //////////////////////////////////
-
-                                                setPlusPhrasesModalFormOpen(false);
-                                            }}
-                                        >
-                                            {name}
-                                        </Label>
-                                    </div>,
-                                );
+                                plusPhrasesTemplatesTemp.push(name);
                             }
-                            plusPhrasesTemplatesTemp.push(
-                                <div style={{margin: '2px 3px'}}>
-                                    <Label
-                                        size="m"
-                                        theme="danger"
-                                        onClick={() => {
-                                            const params = {
-                                                uid: Userfront.user.userUuid,
-                                                campaignName: selectValue[0],
-                                                data: {},
-                                            };
-                                            for (let i = 0; i < data.length; i++) {
-                                                const art = data[i].art;
-                                                if (!art) continue;
+                            // plusPhrasesTemplatesTemp.push(
+                            //     <div style={{margin: '2px 3px'}}>
+                            //         <Label
+                            //             size="m"
+                            //             theme="danger"
+                            //             onClick={() => {
+                            //                 const params = {
+                            //                     uid: Userfront.user.userUuid,
+                            //                     campaignName: selectValue[0],
+                            //                     data: {},
+                            //                 };
+                            //                 for (let i = 0; i < data.length; i++) {
+                            //                     const art = data[i].art;
+                            //                     if (!art) continue;
 
-                                                params.data[art] = {
-                                                    mode: 'Удалить',
-                                                    art: art,
-                                                };
-                                            }
-                                            console.log(params);
+                            //                     params.data[art] = {
+                            //                         mode: 'Удалить',
+                            //                         art: art,
+                            //                     };
+                            //                 }
+                            //                 console.log(params);
 
-                                            //////////////////////////////////
-                                            const token =
-                                                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                            axios
-                                                .post(
-                                                    `${ipAddress}/api/setAdvertsPlusPhrasesTemplates`,
-                                                    params,
-                                                    {
-                                                        headers: {
-                                                            Authorization: 'Bearer ' + token,
-                                                        },
-                                                    },
-                                                )
-                                                .then((response) => console.log(response.data))
-                                                .catch((error) => console.error(error));
-                                            //////////////////////////////////
+                            //                 //////////////////////////////////
+                            //                 const token =
+                            //                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+                            //                 axios
+                            //                     .post(
+                            //                         `${ipAddress}/api/setAdvertsPlusPhrasesTemplates`,
+                            //                         params,
+                            //                         {
+                            //                             headers: {
+                            //                                 Authorization: 'Bearer ' + token,
+                            //                             },
+                            //                         },
+                            //                     )
+                            //                     .then((response) => console.log(response.data))
+                            //                     .catch((error) => console.error(error));
+                            //                 //////////////////////////////////
 
-                                            setPlusPhrasesModalFormOpen(false);
-                                        }}
-                                    >
-                                        Удалить
-                                    </Label>
-                                </div>,
-                            );
+                            //                 setPlusPhrasesModalFormOpen(false);
+                            //             }}
+                            //         >
+                            //             Удалить
+                            //         </Label>
+                            //     </div>,
+                            // );
                             setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
                         }}
                     >
@@ -2910,7 +2864,7 @@ export const MassAdvertPage = () => {
                             // view="raised"
                             view="clear"
                             style={{
-                                width: 300,
+                                width: 400,
                                 // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
                                 // animation: '3s linear 1s slidein',
                                 // maxWidth: '15vw',
@@ -2925,6 +2879,7 @@ export const MassAdvertPage = () => {
                                 style={{
                                     height: '50%',
                                     width: '100%',
+
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
@@ -2939,17 +2894,75 @@ export const MassAdvertPage = () => {
                                 >
                                     Шаблоны
                                 </Text>
-
                                 <div
                                     style={{
                                         display: 'flex',
+                                        width: '80%',
                                         flexWrap: 'wrap',
                                         alignItems: 'center',
                                         justifyContent: 'center',
+                                        marginBottom: 8,
                                     }}
                                 >
-                                    {plusPhrasesTemplatesLabels}
+                                    <List
+                                        onItemClick={(item) => {
+                                            const params = {
+                                                uid: Userfront.user.userUuid,
+                                                campaignName: selectValue[0],
+                                                data: {},
+                                            };
+                                            for (let i = 0; i < data.length; i++) {
+                                                const art = data[i].art;
+                                                if (!art) continue;
+
+                                                params.data[art] = {
+                                                    mode: 'Установить',
+                                                    templateName: item,
+                                                    art: art,
+                                                };
+                                            }
+                                            console.log(params);
+
+                                            callApi('setAdvertsPlusPhrasesTemplates', params);
+
+                                            setPlusPhrasesModalFormOpen(false);
+                                        }}
+                                        filterPlaceholder={`Поиск в ${plusPhrasesTemplatesLabels.length} шаблонах`}
+                                        items={plusPhrasesTemplatesLabels}
+                                        itemsHeight={300}
+                                        itemHeight={28}
+                                    />
                                 </div>
+                                {generateModalButtonWithActions(
+                                    {
+                                        view: 'flat-danger',
+                                        icon: TrashBin,
+                                        placeholder: 'Удалить',
+                                        onClick: () => {
+                                            const params = {
+                                                uid: Userfront.user.userUuid,
+                                                campaignName: selectValue[0],
+                                                data: {},
+                                            };
+                                            for (let i = 0; i < data.length; i++) {
+                                                const art = data[i].art;
+                                                if (!art) continue;
+
+                                                params.data[art] = {
+                                                    mode: 'Удалить',
+                                                    art: art,
+                                                };
+                                            }
+                                            console.log(params);
+
+                                            callApi('setAdvertsPlusPhrasesTemplates', params);
+
+                                            setPlusPhrasesModalFormOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
                             </div>
                         </Card>
                     </Modal>
@@ -3149,7 +3162,14 @@ const generateModalButtonWithActions = (
             }}
         >
             <motion.div animate={{opacity: isSelected ? 1 : 0, x: isSelected ? -16 : 0}}>
-                <Button pin="circle-circle" view="flat-success" onClick={onClick}>
+                <Button
+                    pin="circle-circle"
+                    view="flat-success"
+                    onClick={() => {
+                        setSelectedButton('');
+                        onClick();
+                    }}
+                >
                     <Icon data={Check} />
                 </Button>
             </motion.div>
