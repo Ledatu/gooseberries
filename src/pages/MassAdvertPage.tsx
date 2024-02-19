@@ -47,6 +47,7 @@ import {
     DiamondExclamation,
     CloudCheck,
     Calendar,
+    Eye,
     // CircleRuble,
     Pin,
     PinSlash,
@@ -55,6 +56,7 @@ import {
     Pause,
     Check,
     Xmark,
+    LayoutHeaderCursor,
 } from '@gravity-ui/icons';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 import {motion} from 'framer-motion';
@@ -148,6 +150,8 @@ export const MassAdvertPage = () => {
     ] = useState('Новый шаблон');
     const [semanticsModalSemanticsThresholdValue, setSemanticsModalSemanticsThresholdValue] =
         useState(100);
+    const [semanticsModalSemanticsCTRThresholdValue, setSemanticsModalSemanticsCTRThresholdValue] =
+        useState(5);
 
     const semanticsModalAdvertTypes: any[] = [
         {value: 'АВТО', content: 'Авто'},
@@ -671,6 +675,14 @@ export const MassAdvertPage = () => {
                                     ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
                                     : 100;
                                 setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+                                const plusCTRThreshold = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                          .ctrThreshold
+                                    : 5;
+                                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
 
                                 const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
                                     ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
@@ -2370,7 +2382,7 @@ export const MassAdvertPage = () => {
                                 style={{
                                     display: 'flex',
                                     height: !isDesktop ? '23vh' : undefined,
-                                    width: isDesktop ? '25vw' : undefined,
+                                    width: isDesktop ? '35vw' : undefined,
                                     flexDirection: 'column',
                                 }}
                             >
@@ -2423,10 +2435,10 @@ export const MassAdvertPage = () => {
                                         return item.cluster.includes(filter);
                                     }}
                                     renderItem={(item) => {
-                                        const {cluster, count} = item;
+                                        const {cluster, count, sum, ctr, clicks} = item;
                                         const colorToUse =
                                             semanticsModalSemanticsPlusItemsValue.includes(cluster)
-                                                ? 'positive'
+                                                ? 'warning'
                                                 : 'primary';
                                         return (
                                             <div
@@ -2447,7 +2459,110 @@ export const MassAdvertPage = () => {
                                                 >
                                                     <Text color={colorToUse}>{cluster}</Text>
                                                 </div>
-                                                <Text color="warning">{count}</Text>
+                                                <div
+                                                    style={{display: 'flex', flexDirection: 'row'}}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        <Text color="secondary">
+                                                            {Math.round(sum)}
+                                                        </Text>
+                                                        <div style={{width: 3}} />
+                                                        <Text
+                                                            color="secondary"
+                                                            style={{
+                                                                display: 'flex',
+                                                                flexDirection: 'row',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                            }}
+                                                        >
+                                                            ₽
+                                                        </Text>
+                                                    </div>
+                                                    <div style={{width: 8}} />
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        <Text color="secondary">
+                                                            {Math.round(count)}
+                                                        </Text>
+                                                        <div style={{width: 3}} />
+                                                        <Text
+                                                            color="secondary"
+                                                            style={{
+                                                                display: 'flex',
+                                                                flexDirection: 'row',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                            }}
+                                                        >
+                                                            <Icon size={12} data={Eye} />
+                                                        </Text>
+                                                    </div>
+                                                    <div style={{width: 8}} />
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        <Text color="secondary">
+                                                            {Math.round(clicks)}
+                                                        </Text>
+                                                        <div style={{width: 3}} />
+                                                        <Text
+                                                            color="secondary"
+                                                            style={{
+                                                                display: 'flex',
+                                                                flexDirection: 'row',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                            }}
+                                                        >
+                                                            <Icon
+                                                                size={12}
+                                                                data={LayoutHeaderCursor}
+                                                            />
+                                                        </Text>
+                                                    </div>
+                                                    <div style={{width: 8}} />
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        <Text color="secondary">{ctr}</Text>
+                                                        <div style={{width: 3}} />
+                                                        <Text
+                                                            color="secondary"
+                                                            style={{
+                                                                display: 'flex',
+                                                                flexDirection: 'row',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                            }}
+                                                        >
+                                                            %
+                                                        </Text>
+                                                    </div>
+                                                </div>
                                             </div>
                                         );
                                     }}
@@ -2470,7 +2585,7 @@ export const MassAdvertPage = () => {
                                 style={{
                                     display: 'flex',
                                     height: !isDesktop ? '23vh' : undefined,
-                                    width: isDesktop ? '25vw' : undefined,
+                                    width: isDesktop ? '15vw' : undefined,
                                     flexDirection: 'column',
                                 }}
                             >
@@ -2638,6 +2753,7 @@ export const MassAdvertPage = () => {
                                         } фразы`}
                                     </Button>
                                 </div>
+
                                 <div
                                     style={{
                                         marginBottom: 8,
@@ -2649,8 +2765,8 @@ export const MassAdvertPage = () => {
                                     }}
                                 >
                                     <TextInput
-                                        style={{width: 200}}
-                                        placeholder="Отсечка"
+                                        style={{marginRight: 4}}
+                                        label="Отсечка"
                                         hasClear
                                         value={String(semanticsModalSemanticsThresholdValue)}
                                         onUpdate={(val) => {
@@ -2659,7 +2775,30 @@ export const MassAdvertPage = () => {
                                         type="number"
                                     />
                                     <TextInput
-                                        style={{margin: '0 8px'}}
+                                        style={{marginLeft: 4}}
+                                        label="CTR"
+                                        hasClear
+                                        value={String(semanticsModalSemanticsCTRThresholdValue)}
+                                        onUpdate={(val) => {
+                                            setSemanticsModalSemanticsCTRThresholdValue(
+                                                Number(val),
+                                            );
+                                        }}
+                                        type="number"
+                                    />
+                                </div>
+                                <div
+                                    style={{
+                                        marginBottom: 8,
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <TextInput
+                                        style={{marginRight: 8}}
                                         placeholder="Имя"
                                         hasClear
                                         value={
@@ -2691,6 +2830,8 @@ export const MassAdvertPage = () => {
                                                     clusters: semanticsModalSemanticsPlusItemsValue,
                                                     threshold:
                                                         semanticsModalSemanticsThresholdValue,
+                                                    ctrThreshold:
+                                                        semanticsModalSemanticsCTRThresholdValue,
                                                 },
                                             };
                                             console.log(params);
