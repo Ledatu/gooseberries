@@ -924,7 +924,7 @@ export const MassAdvertPage = () => {
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <Text>{desiredDRR} </Text>
-                            <div style={{width: 2}} />₽
+                            {/* <div style={{width: 2}} />₽ */}
                         </div>
                         <div style={{width: 8}} />
                     </div>
