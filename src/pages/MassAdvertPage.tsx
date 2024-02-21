@@ -1251,10 +1251,14 @@ export const MassAdvertPage = () => {
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(document['campaigns'])) {
-            if (
-                campaignName == 'ИП Валерий' &&
-                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-            ) {
+            if (Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a') {
+                if (campaignName == 'ИП Валерий') {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else {
                 campaignsNames.push({
                     value: campaignName,
                     content: campaignName,
