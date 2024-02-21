@@ -102,7 +102,7 @@ export const HomePage = () => {
                             // href="https://preview.gravity-ui.com/uikit/"
                             target="_blank"
                             onClick={async () => {
-                                console.log(Userfront.user.userUuid);
+                                console.log((Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' || Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a' ? '332fa5da-8450-451a-b859-a84ca9951a34' : ''));
                                 interface ICampaign {
                                     campaignName: string;
                                     'api-key': string;
@@ -115,7 +115,7 @@ export const HomePage = () => {
                                 // payload[campaignName] = ;
                                 try {
                                     await updateDoc(
-                                        doc(db, 'customers', Userfront.user.userUuid ?? ''),
+                                        doc(db, 'customers', (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' || Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a' ? '332fa5da-8450-451a-b859-a84ca9951a34' : '') ?? ''),
                                         {campaigns},
                                     );
                                 } catch (e) {

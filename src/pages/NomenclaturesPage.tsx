@@ -43,7 +43,13 @@ import axios from 'axios';
 const getUserDoc = () => {
     const [documentData, setDocument] = useState<any>();
     useEffect(() => {
-        callApi('getNomenclatures', {uid: Userfront.user.userUuid ?? ''})
+        callApi('getNomenclatures', {
+            uid:
+                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    : '') ?? '',
+        })
             .then((res: any) => setDocument(res.data))
             .catch((error) => console.error(error));
     }, []);
@@ -66,7 +72,13 @@ export const NomenclaturesPage = () => {
         const formData = new FormData();
         if (!file) return;
         formData.append('file', file);
-        formData.append('uid', Userfront.user.userUuid ?? '');
+        formData.append(
+            'uid',
+            (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+            Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                : '') ?? '',
+        );
         formData.append('campaignName', selectValue[0]);
 
         const token =
@@ -680,7 +692,13 @@ export const NomenclaturesPage = () => {
                             onClick={() => {
                                 setUploadProgress(0);
                                 callApi('downloadPricesTemplate', {
-                                    uid: Userfront.user.userUuid ?? '',
+                                    uid:
+                                        (Userfront.user.userUuid ==
+                                            '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                        Userfront.user.userUuid ==
+                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                            : '') ?? '',
                                     campaignName: selectValue[0],
                                 })
                                     .then((res: any) => {
@@ -893,7 +911,11 @@ const generatePrefOborModalForm = (documentData, selectedCampaign, tableData) =>
                     console.log(data);
 
                     callApi('setByWarehousesInfo', {
-                        uid: Userfront.user.userUuid ?? '',
+                        uid:
+                            (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                            Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                : '') ?? '',
                         campaignName: selectedCampaign,
                         data: data,
                     });

@@ -39,10 +39,25 @@ export const Dashboard = () => {
     const optionsPages: RadioButtonOption[] = [
         // {value: 'api', content: 'Управление магазинами'},
         // {value: 'create_rk', content: 'Создание РК'},
-        {value: 'massAdvert', content: 'Реклама'},
-        {value: 'stats_rk', content: 'Статистика'},
-        {value: 'deliveryOrders', content: 'Поставки'},
-        {value: 'nomenclatures', content: 'Номенклатуры'},
+        {
+            value: 'massAdvert',
+            content: 'Реклама',
+        },
+        {
+            value: 'stats_rk',
+            content: 'Статистика',
+            disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+        },
+        {
+            value: 'deliveryOrders',
+            content: 'Поставки',
+            disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+        },
+        {
+            value: 'nomenclatures',
+            content: 'Номенклатуры',
+            disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+        },
     ];
     // const [page, setPage] = React.useState('nomenclatures');
     const [page, setPage] = React.useState('massAdvert');

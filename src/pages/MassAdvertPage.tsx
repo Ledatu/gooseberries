@@ -77,7 +77,14 @@ const getUserDoc = () => {
         axios
             .post(
                 `${ipAddress}/api/getMassAdverts`,
-                {uid: Userfront.user.userUuid ?? '', dateRange: {from: '2023', to: '2024'}},
+                {
+                    uid:
+                        (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                        Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                            : '') ?? '',
+                    dateRange: {from: '2023', to: '2024'},
+                },
                 {
                     headers: {
                         Authorization: 'Bearer ' + token,
@@ -1244,7 +1251,15 @@ export const MassAdvertPage = () => {
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(document['campaigns'])) {
-            campaignsNames.push({value: campaignName, content: campaignName});
+            if (
+                campaignName == 'ИП Валерий' &&
+                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+            ) {
+                campaignsNames.push({
+                    value: campaignName,
+                    content: campaignName,
+                });
+            }
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected = campaignsNames[0]['value'];
@@ -1448,7 +1463,13 @@ export const MassAdvertPage = () => {
                                         placeholder: 'Запустить',
                                         onClick: () => {
                                             const params = {
-                                                uid: Userfront.user.userUuid,
+                                                uid:
+                                                    Userfront.user.userUuid ==
+                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        : '',
                                                 campaignName: selectValue[0],
                                                 data: {
                                                     mode: 'start',
@@ -1479,7 +1500,13 @@ export const MassAdvertPage = () => {
                                         placeholder: 'Приостановить',
                                         onClick: () => {
                                             const params = {
-                                                uid: Userfront.user.userUuid,
+                                                uid:
+                                                    Userfront.user.userUuid ==
+                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        : '',
                                                 campaignName: selectValue[0],
                                                 data: {
                                                     mode: 'pause',
@@ -1510,7 +1537,13 @@ export const MassAdvertPage = () => {
                                         placeholder: 'Завершить',
                                         onClick: () => {
                                             const params = {
-                                                uid: Userfront.user.userUuid,
+                                                uid:
+                                                    Userfront.user.userUuid ==
+                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        : '',
                                                 campaignName: selectValue[0],
                                                 data: {
                                                     mode: 'stop',
@@ -1690,7 +1723,13 @@ export const MassAdvertPage = () => {
                                     // selected
                                     onClick={() => {
                                         const params = {
-                                            uid: Userfront.user.userUuid,
+                                            uid:
+                                                Userfront.user.userUuid ==
+                                                    '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                Userfront.user.userUuid ==
+                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                    : '',
                                             campaignName: selectValue[0],
                                             arts: {},
                                         };
@@ -1832,7 +1871,13 @@ export const MassAdvertPage = () => {
                                     // selected
                                     onClick={() => {
                                         const params = {
-                                            uid: Userfront.user.userUuid,
+                                            uid:
+                                                Userfront.user.userUuid ==
+                                                    '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                Userfront.user.userUuid ==
+                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                    : '',
                                             campaignName: selectValue[0],
                                             data: {},
                                         };
@@ -2160,7 +2205,13 @@ export const MassAdvertPage = () => {
                                             // selected
                                             onClick={() => {
                                                 const params = {
-                                                    uid: Userfront.user.userUuid,
+                                                    uid:
+                                                        Userfront.user.userUuid ==
+                                                            '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                        Userfront.user.userUuid ==
+                                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                            : '',
                                                     campaignName: selectValue[0],
                                                     data: {},
                                                 };
@@ -2270,7 +2321,7 @@ export const MassAdvertPage = () => {
                             //             theme="danger"
                             //             onClick={() => {
                             //                 const params = {
-                            //                     uid: Userfront.user.userUuid,
+                            //                     uid: (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' || Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a' ? '332fa5da-8450-451a-b859-a84ca9951a34' : ''),
                             //                     campaignName: selectValue[0],
                             //                     data: {},
                             //                 };
@@ -2772,7 +2823,13 @@ export const MassAdvertPage = () => {
                                             const name =
                                                 semanticsModalSemanticsPlusItemsTemplateNameSaveValue.trim();
                                             const params = {
-                                                uid: Userfront.user.userUuid,
+                                                uid:
+                                                    Userfront.user.userUuid ==
+                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        : '',
                                                 data: {
                                                     mode: 'Установить',
                                                     isFixed: semanticsModalIsFixed,
@@ -2907,7 +2964,13 @@ export const MassAdvertPage = () => {
                                     <List
                                         onItemClick={(item) => {
                                             const params = {
-                                                uid: Userfront.user.userUuid,
+                                                uid:
+                                                    Userfront.user.userUuid ==
+                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        : '',
                                                 campaignName: selectValue[0],
                                                 data: {},
                                             };
@@ -2940,7 +3003,13 @@ export const MassAdvertPage = () => {
                                         placeholder: 'Удалить',
                                         onClick: () => {
                                             const params = {
-                                                uid: Userfront.user.userUuid,
+                                                uid:
+                                                    Userfront.user.userUuid ==
+                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        : '',
                                                 campaignName: selectValue[0],
                                                 data: {},
                                             };

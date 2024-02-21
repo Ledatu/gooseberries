@@ -63,7 +63,16 @@ const writeAdvertsToDB = async (data, campaignName) => {
     }
     try {
         await setDoc(
-            doc(db, `customers/${Userfront.user.userUuid ?? ''}/${campaignName}`, 'adverts'),
+            doc(
+                db,
+                `customers/${
+                    (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                    Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                        : '') ?? ''
+                }/${campaignName}`,
+                'adverts',
+            ),
             jsonData,
         );
     } catch (e) {
@@ -110,7 +119,16 @@ const fetchAdvertStatsAndWriteToDB = async (campaignData) => {
     const adverts =
         (
             await getDoc(
-                doc(db, `customers/${Userfront.user.userUuid ?? ''}/${campaignName}`, 'adverts'),
+                doc(
+                    db,
+                    `customers/${
+                        (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                        Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                            : '') ?? ''
+                    }/${campaignName}`,
+                    'adverts',
+                ),
             )
         ).data() ?? {};
 
@@ -132,7 +150,10 @@ const fetchAdvertStatsAndWriteToDB = async (campaignData) => {
                         doc(
                             db,
                             'customers',
-                            Userfront.user.userUuid ?? '',
+                            (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                            Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                : '') ?? '',
                             campaignName,
                             'adverts',
                             advertId,
@@ -167,7 +188,16 @@ const fetchAdvertInfosAndWriteToDB = async (campaignData) => {
     const adverts =
         (
             await getDoc(
-                doc(db, `customers/${Userfront.user.userUuid ?? ''}/${campaignName}`, 'adverts'),
+                doc(
+                    db,
+                    `customers/${
+                        (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                        Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                            : '') ?? ''
+                    }/${campaignName}`,
+                    'adverts',
+                ),
             )
         ).data() ?? {};
 
@@ -190,7 +220,16 @@ const fetchAdvertInfosAndWriteToDB = async (campaignData) => {
     }
     try {
         await setDoc(
-            doc(db, `customers/${Userfront.user.userUuid ?? ''}/${campaignName}`, 'advertInfos'),
+            doc(
+                db,
+                `customers/${
+                    (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                    Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                        : '') ?? ''
+                }/${campaignName}`,
+                'advertInfos',
+            ),
             jsonData,
         );
     } catch (e) {}
@@ -256,7 +295,16 @@ const writeVendorCodeToDB = async (data, campaignName) => {
     // console.log(campaignName, arts);
     try {
         await setDoc(
-            doc(db, `customers/${Userfront.user.userUuid ?? ''}/${campaignName}`, 'arts'),
+            doc(
+                db,
+                `customers/${
+                    (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                    Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                        : '') ?? ''
+                }/${campaignName}`,
+                'arts',
+            ),
             jsonDataBarcodesFull,
         );
     } catch (e) {}
@@ -281,7 +329,18 @@ const fetchCardsAndWriteToDB = (campaignData) => {
 };
 
 export const autoFetchCards = async () => {
-    const result = (await getDoc(doc(db, 'customers', Userfront.user.userUuid ?? ''))).data();
+    const result = (
+        await getDoc(
+            doc(
+                db,
+                'customers',
+                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    : '') ?? '',
+            ),
+        )
+    ).data();
     if (result)
         for (let i = 0; i < result.campaigns.length; i++) {
             console.log(result, result.campaigns, result.campaigns[i]);
@@ -290,7 +349,18 @@ export const autoFetchCards = async () => {
 };
 
 export const autoFetchAdverts = async () => {
-    const result = (await getDoc(doc(db, 'customers', Userfront.user.userUuid ?? ''))).data();
+    const result = (
+        await getDoc(
+            doc(
+                db,
+                'customers',
+                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    : '') ?? '',
+            ),
+        )
+    ).data();
     if (result)
         for (let i = 0; i < result.campaigns.length; i++) {
             console.log(result, result.campaigns, result.campaigns[i]);
@@ -299,7 +369,18 @@ export const autoFetchAdverts = async () => {
 };
 
 export const autoFetchAdvertInfos = async () => {
-    const result = (await getDoc(doc(db, 'customers', Userfront.user.userUuid ?? ''))).data();
+    const result = (
+        await getDoc(
+            doc(
+                db,
+                'customers',
+                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    : '') ?? '',
+            ),
+        )
+    ).data();
     if (result)
         for (let i = 0; i < result.campaigns.length; i++) {
             console.log(result, result.campaigns, result.campaigns[i]);
@@ -308,7 +389,18 @@ export const autoFetchAdvertInfos = async () => {
 };
 
 export const autoFetchAdvertStats = async () => {
-    const result = (await getDoc(doc(db, 'customers', Userfront.user.userUuid ?? ''))).data();
+    const result = (
+        await getDoc(
+            doc(
+                db,
+                'customers',
+                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    : '') ?? '',
+            ),
+        )
+    ).data();
     if (result)
         for (let i = 0; i < result.campaigns.length; i++) {
             console.log(result, result.campaigns, result.campaigns[i]);
@@ -317,7 +409,18 @@ export const autoFetchAdvertStats = async () => {
 };
 
 export const autoGetAdvertStatsByDay = async () => {
-    const result = (await getDoc(doc(db, 'customers', Userfront.user.userUuid ?? ''))).data();
+    const result = (
+        await getDoc(
+            doc(
+                db,
+                'customers',
+                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    : '') ?? '',
+            ),
+        )
+    ).data();
     if (result) {
         const jsonData = {};
         for (let i = 0; i < result.campaigns.length; i++) {

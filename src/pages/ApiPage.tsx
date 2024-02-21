@@ -20,7 +20,16 @@ const getUserDoc = () => {
         const dataFetch = async () => {
             // waiting for allthethings in parallel
             const result = (
-                await getDoc(doc(db, 'customers', Userfront.user.userUuid ?? ''))
+                await getDoc(
+                    doc(
+                        db,
+                        'customers',
+                        (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                        Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                            : '') ?? '',
+                    ),
+                )
             ).data();
 
             // when the data is ready, save it to state
@@ -93,7 +102,16 @@ export const ApiPage = () => {
                                     'Ключ Апи': enteredApiKey,
                                 });
                                 await updateDoc(
-                                    doc(db, 'customers', Userfront.user.userUuid ?? ''),
+                                    doc(
+                                        db,
+                                        'customers',
+                                        (Userfront.user.userUuid ==
+                                            '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                        Userfront.user.userUuid ==
+                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                            : '') ?? '',
+                                    ),
                                     {campaigns},
                                 );
                                 // setEnteredCampaign('');
@@ -103,7 +121,16 @@ export const ApiPage = () => {
                                 axios
                                     .post(
                                         `${ipAddress}/api/craftNecessaryFoldersAndFilesIfNeeded`,
-                                        {uid: Userfront.user.userUuid ?? '', campaigns: campaigns},
+                                        {
+                                            uid:
+                                                (Userfront.user.userUuid ==
+                                                    '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                Userfront.user.userUuid ==
+                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                    : '') ?? '',
+                                            campaigns: campaigns,
+                                        },
                                         {
                                             headers: {
                                                 Authorization: 'Bearer ' + token,

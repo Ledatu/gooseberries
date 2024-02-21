@@ -41,7 +41,14 @@ const getUserDoc = (dateRange) => {
         axios
             .post(
                 `${ipAddress}/api/getDeliveryOrders`,
-                {uid: Userfront.user.userUuid ?? '', dateRange: dateRange},
+                {
+                    uid:
+                        (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                        Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                            : '') ?? '',
+                    dateRange: dateRange,
+                },
                 {
                     headers: {
                         Authorization: 'Bearer ' + token,
