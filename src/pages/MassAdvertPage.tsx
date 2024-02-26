@@ -20,6 +20,7 @@ import {
     RadioButton,
     List,
     TextArea,
+    Switch,
     // Switch,
     // Checkbox,
     // RadioButton,
@@ -44,9 +45,9 @@ import {
     CirclePlusFill,
     CirclePlus,
     Funnel,
-    DiamondExclamation,
-    CloudCheck,
-    Calendar,
+    // DiamondExclamation,
+    // CloudCheck,
+    // Calendar,
     Eye,
     // CircleRuble,
     Pin,
@@ -55,6 +56,7 @@ import {
     Play,
     Pause,
     Check,
+    CloudArrowUpIn,
     Xmark,
     LayoutHeaderCursor,
 } from '@gravity-ui/icons';
@@ -69,14 +71,19 @@ settings.set({plugins: [YagrPlugin]});
 
 const {ipAddress} = require('../ipAddress');
 
-const getUserDoc = () => {
+const getUserDoc = (doc = undefined) => {
     const [document, setDocument] = useState<any>();
+
+    if (doc) {
+        setDocument(doc);
+    }
+
     useEffect(() => {
         const token =
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
         axios
             .post(
-                `${ipAddress}/api/getMassAdverts`,
+                `${ipAddress}/api/getMassAdvertsNew`,
                 {
                     uid:
                         (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
@@ -100,6 +107,15 @@ const getUserDoc = () => {
 export const MassAdvertPage = () => {
     const windowDimensions = useWindowDimensions();
     const isDesktop = windowDimensions.height < windowDimensions.width;
+
+    const [changedDoc, setChangedDoc] = useState<any>(undefined);
+
+    const [advertsTypesInput, setAdvertsTypesInput] = useState({
+        search: false,
+        booster: false,
+        carousel: false,
+    });
+
     const [filters, setFilters] = useState({undef: false});
     const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
     const [manageModalOpen, setManageModalOpen] = useState(false);
@@ -291,7 +307,7 @@ export const MassAdvertPage = () => {
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
             if (!column) continue;
-            const {name, placeholder, width, render, className, valueType} = column;
+            const {name, placeholder, width, render, className, valueType, group} = column;
             let minWidth = viewportSize.width / 20;
             if (minWidth < 40) minWidth = 60;
             if (minWidth > 100) minWidth = 100;
@@ -525,6 +541,7 @@ export const MassAdvertPage = () => {
                         />
                     </div>
                 ),
+                group: group,
                 render: render
                     ? (args) => render(args)
                     : ({value}) => {
@@ -620,7 +637,7 @@ export const MassAdvertPage = () => {
                                 >
                                     <Icon data={pinned.isPinned ? PinSlash : Pin} size={13} />
                                 </Button>
-                                <div className={b('art_index')}>{index + 1}</div>
+                                <div className={b('art_index')}>{index / 3 + 1}</div>
                             </div>
                             <Link
                                 style={{
@@ -638,111 +655,172 @@ export const MassAdvertPage = () => {
                 );
             },
             valueType: 'text',
+            group: true,
         },
-        {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
-        {name: 'object', placeholder: 'Предмет', valueType: 'text'},
+        {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
+        {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
         {
             name: 'adverts',
             placeholder: 'Реклама',
             valueType: 'text',
-            render: ({value}) => {
+            // render: ({value}) => {
+            //     if (value === null) return;
+            //     const tags: any[] = [];
+            //     const generateHtml = () => {
+            //         let string = `<div style={display: 'flex'}>`;
+            //         if (value) {
+            //             for (const [advertType, advertsOfType] of Object.entries(value)) {
+            //                 if (!advertType || !advertsOfType) continue;
+
+            //                 for (const [advertId, advertData] of Object.entries(advertsOfType)) {
+            //                     if (!advertId || !advertData) continue;
+            //                     const status = advertData['status'];
+            //                     if (![4, 9, 11].includes(status)) continue;
+
+            //                     string += `<div style="display: flex; flex-direction: row; justify-content: space-between; font-size: 8pt;">`;
+            //                     string +=
+            //                         `<div style="margin: 0 4px;">ID: ${advertId}</div>` +
+            //                         `<div style="margin: 0 4px;">Тип: ${
+            //                             paramMap.type[advertData['type']]
+            //                         }</div>` +
+            //                         `<div style="margin: 0 4px;">Обновлена: ${
+            //                             // paramMap.status[advertData['status']]
+            //                             advertData['updateTime']
+            //                         }</div>`;
+            //                     string += '</div>';
+            //                 }
+            //             }
+            //         }
+            //         string += '</div>';
+            //         return string;
+            //     };
+            //     if (value !== undefined) {
+            //         for (const [advertType, advertsOfType] of Object.entries(value)) {
+            //             if (!advertType || !advertsOfType) continue;
+            //             for (const [advertId, advertData] of Object.entries(advertsOfType)) {
+            //                 if (!advertId || !advertData) continue;
+            //                 const status = advertData['status'];
+            //                 if (![4, 9, 11].includes(status)) continue;
+
+            //                 const themeToUse =
+            //                     status == 9 ? 'success' : status == 11 ? 'danger' : 'warning';
+
+            //                 tags.push(
+            //                     <div style={{display: 'flex', flexDirection: 'row'}}>
+            //                         <div style={{margin: '0 2px'}}>
+            //                             <Label
+            //                                 icon={
+            //                                     advertData['updateTime'] === 'Ошибка.' ? (
+            //                                         <Icon
+            //                                             data={
+            //                                                 advertData['updateTime'] === 'Ошибка.'
+            //                                                     ? DiamondExclamation
+            //                                                     : CloudCheck
+            //                                             }
+            //                                         />
+            //                                     ) : undefined
+            //                                 }
+            //                                 theme={themeToUse}
+            //                             >
+            //                                 {paramMap.type[advertType]}
+            //                             </Label>
+            //                         </div>
+            //                         <div style={{margin: '0 2px'}}>
+            //                             <Label theme={'clear'}>
+            //                                 <div
+            //                                     style={{
+            //                                         display: 'flex',
+            //                                         flexDirection: 'row',
+            //                                         alignItems: 'center',
+            //                                     }}
+            //                                 >
+            //                                     <Text>{advertData['daysInWork'] + 1}</Text>
+            //                                     <div style={{width: 2}} />
+            //                                     <Icon size={12} data={Calendar} />
+            //                                 </div>
+            //                             </Label>
+            //                         </div>
+            //                     </div>,
+            //                 );
+            //             }
+            //         }
+            //     }
+            //     if (tags.length == 0) {
+            //         return (
+            //             <div style={{display: 'flex', justifyContent: 'center'}}>
+            //                 <Label theme="unknown">Кампаний нет</Label>
+            //             </div>
+            //         );
+            //     }
+            //     return (
+            //         <div style={{display: 'flex', justifyContent: 'center'}}>
+            //             <Popover
+            //                 behavior={'delayed' as PopoverBehavior}
+            //                 disabled={value === undefined}
+            //                 htmlContent={generateHtml()}
+            //             >
+            //                 <div style={{display: 'flex'}}>{tags}</div>
+            //             </Popover>
+            //         </div>
+            //     );
+            // },
+            render: ({value, row}) => {
                 if (value === null) return;
-                const tags: any[] = [];
-                const generateHtml = () => {
-                    let string = `<div style={display: 'flex'}>`;
-                    if (value) {
-                        for (const [advertType, advertsOfType] of Object.entries(value)) {
-                            if (!advertType || !advertsOfType) continue;
-
-                            for (const [advertId, advertData] of Object.entries(advertsOfType)) {
-                                if (!advertId || !advertData) continue;
-                                const status = advertData['status'];
-                                if (![4, 9, 11].includes(status)) continue;
-
-                                string += `<div style="display: flex; flex-direction: row; justify-content: space-between; font-size: 8pt;">`;
-                                string +=
-                                    `<div style="margin: 0 4px;">ID: ${advertId}</div>` +
-                                    `<div style="margin: 0 4px;">Тип: ${
-                                        paramMap.type[advertData['type']]
-                                    }</div>` +
-                                    `<div style="margin: 0 4px;">Обновлена: ${
-                                        // paramMap.status[advertData['status']]
-                                        advertData['updateTime']
-                                    }</div>`;
-                                string += '</div>';
-                            }
-                        }
-                    }
-                    string += '</div>';
-                    return string;
+                if (value) {
+                    paramMap[4] = paramMap[4] + '';
+                }
+                const mapp = {
+                    search: 'Поиск',
+                    booster: 'Бустер',
+                    carousel: 'Карточка',
                 };
-                if (value !== undefined) {
-                    for (const [advertType, advertsOfType] of Object.entries(value)) {
-                        if (!advertType || !advertsOfType) continue;
-                        for (const [advertId, advertData] of Object.entries(advertsOfType)) {
-                            if (!advertId || !advertData) continue;
-                            const status = advertData['status'];
-                            if (![4, 9, 11].includes(status)) continue;
-
-                            const themeToUse =
-                                status == 9 ? 'success' : status == 11 ? 'danger' : 'warning';
-
-                            tags.push(
-                                <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    <div style={{margin: '0 2px'}}>
-                                        <Label
-                                            icon={
-                                                advertData['updateTime'] === 'Ошибка.' ? (
-                                                    <Icon
-                                                        data={
-                                                            advertData['updateTime'] === 'Ошибка.'
-                                                                ? DiamondExclamation
-                                                                : CloudCheck
-                                                        }
-                                                    />
-                                                ) : undefined
-                                            }
-                                            theme={themeToUse}
-                                        >
-                                            {paramMap.type[advertType]}
-                                        </Label>
-                                    </div>
-                                    <div style={{margin: '0 2px'}}>
-                                        <Label theme={'clear'}>
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                <Text>{advertData['daysInWork'] + 1}</Text>
-                                                <div style={{width: 2}} />
-                                                <Icon size={12} data={Calendar} />
-                                            </div>
-                                        </Label>
-                                    </div>
-                                </div>,
-                            );
-                        }
-                    }
-                }
-                if (tags.length == 0) {
-                    return (
-                        <div style={{display: 'flex', justifyContent: 'center'}}>
-                            <Label theme="unknown">Кампаний нет</Label>
-                        </div>
-                    );
-                }
+                const advertsType = row['advertsType'];
+                const advertsManagerRulesMode = row.advertsManagerRules
+                    ? row.advertsManagerRules[advertsType]
+                        ? row.advertsManagerRules[advertsType].mode
+                        : false
+                    : false;
+                const {status} = value ?? {};
                 return (
-                    <div style={{display: 'flex', justifyContent: 'center'}}>
-                        <Popover
-                            behavior={'delayed' as PopoverBehavior}
-                            disabled={value === undefined}
-                            htmlContent={generateHtml()}
+                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                        <Switch
+                            defaultChecked={advertsManagerRulesMode}
+                            style={{display: 'flex', alignItems: 'top'}}
+                            onUpdate={(checked) => {
+                                const params = {
+                                    uid:
+                                        Userfront.user.userUuid ==
+                                            '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                        Userfront.user.userUuid ==
+                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                            : '',
+                                    campaignName: selectValue[0],
+                                    data: {
+                                        arts: {},
+                                    },
+                                };
+                                params.data.arts[row.art] = {};
+                                params.data.arts[row.art][advertsType] = checked;
+                                console.log(params);
+
+                                callApi('updateAdvertsManagerRules', params);
+                            }}
                         >
-                            <div style={{display: 'flex'}}>{tags}</div>
-                        </Popover>
+                            <Text
+                                color={
+                                    status
+                                        ? status == 9
+                                            ? 'positive'
+                                            : status == '11'
+                                            ? 'danger'
+                                            : 'warning'
+                                        : 'primary'
+                                }
+                            >
+                                {mapp[advertsType]}
+                            </Text>
+                        </Switch>
                     </div>
                 );
             },
@@ -894,7 +972,7 @@ export const MassAdvertPage = () => {
             },
         },
         {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'stocks', placeholder: 'Остаток'},
+        {name: 'stocks', placeholder: 'Остаток', group: true},
         {name: 'orders', placeholder: 'Заказов, шт.'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {
@@ -969,7 +1047,8 @@ export const MassAdvertPage = () => {
     // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [document, setUserDoc] = React.useState(getUserDoc());
-    const document = getUserDoc();
+    const document = getUserDoc(changedDoc);
+
     // const document = {};
     const today = new Date(
         new Date()
@@ -1036,30 +1115,13 @@ export const MassAdvertPage = () => {
             if (!art || !artData) continue;
             const artInfo = {
                 art: '',
+                brand: '',
                 object: '',
                 nmId: 0,
                 title: '',
                 adverts: 0,
-                semantics: undefined,
-                plusPhrasesTemplate: '',
                 stocks: 0,
-                budget: undefined,
-                bid: undefined,
-                bidLog: {},
-                budgetToKeep: undefined,
-                brand: '',
-                orders: 0,
-                sum_orders: 0,
-                sum: 0,
-                views: 0,
-                clicks: 0,
-                drr: 0,
-                ctr: 0,
-                cpc: 0,
-                cpm: 0,
-                cr: 0,
-                cpo: 0,
-                drrAI: 0,
+                advertsManagerRules: undefined,
             };
 
             artInfo.art = artData['art'];
@@ -1069,9 +1131,40 @@ export const MassAdvertPage = () => {
             artInfo.brand = artData['brand'];
             artInfo.stocks = artData['stocks'];
             artInfo.adverts = artData['adverts'];
-            artInfo.budgetToKeep = artData['budgetToKeep'];
-            artInfo.drrAI = artData['drrAI'];
-            artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
+            artInfo.advertsManagerRules = artData['advertsManagerRules'];
+
+            for (const [key, _] of Object.entries({
+                search: 'search',
+                booster: 'booster',
+                carousel: 'carousel',
+            })) {
+                artInfo[key] = {
+                    semantics: undefined,
+                    plusPhrasesTemplate: artData['plusPhrasesTemplate']
+                        ? artData['plusPhrasesTemplate'][key]
+                        : undefined,
+                    budget: undefined,
+                    bid: undefined,
+                    bidLog: {},
+                    budgetToKeep: artData['budgetToKeep']
+                        ? artData['budgetToKeep'][key]
+                        : undefined,
+                    orders: 0,
+                    sum_orders: 0,
+                    sum: 0,
+                    views: 0,
+                    clicks: 0,
+                    drr: 0,
+                    ctr: 0,
+                    cpc: 0,
+                    cpm: 0,
+                    cr: 0,
+                    cpo: 0,
+                    drrAI: artData['drrAI'] ? artData['drrAI'][key] : undefined,
+                };
+            }
+
+            // console.log(artInfo);
 
             if (artInfo.adverts) {
                 for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
@@ -1082,48 +1175,71 @@ export const MassAdvertPage = () => {
                         const status = advertData['status'];
                         if (![4, 9, 11].includes(status)) continue;
                         const budget = advertData['budget'];
-                        artInfo.budget = budget;
-                        artInfo.semantics = advertData['words'];
-                        artInfo.bid = advertData['cpm'];
-                        artInfo.bidLog = advertData['bidLog'];
+                        artInfo[advertType].budget = budget;
+                        artInfo[advertType].semantics = advertData['words'];
+                        artInfo[advertType].bid = advertData['cpm'];
+                        artInfo[advertType].bidLog = advertData['bidLog'];
                     }
                 }
             }
             if (artData['advertsStats']) {
-                for (const [strDate, day] of Object.entries(artData['advertsStats'])) {
-                    if (strDate == 'updateTime') continue;
-                    if (!day) continue;
-                    const date = new Date(strDate);
-                    date.setHours(0);
-                    date.setMinutes(0);
-                    date.setSeconds(0);
-                    if (date < startDate || date > endDate) continue;
+                for (const [strDate, dateData] of Object.entries(artData['advertsStats'])) {
+                    if (strDate == 'updateTime' || !dateData) continue;
+                    for (const [key, day] of Object.entries(dateData)) {
+                        if (!day) continue;
+                        const date = new Date(strDate);
+                        date.setHours(0);
+                        date.setMinutes(0);
+                        date.setSeconds(0);
+                        if (date < startDate || date > endDate) continue;
 
-                    artInfo.sum_orders += day['sum_orders'];
-                    artInfo.orders += day['orders'];
-                    artInfo.sum += day['sum'];
-                    artInfo.views += day['views'];
-                    artInfo.clicks += day['clicks'];
+                        artInfo[key].sum_orders += day['sum_orders'];
+                        artInfo[key].orders += day['orders'];
+                        artInfo[key].sum += day['sum'];
+                        artInfo[key].views += day['views'];
+                        artInfo[key].clicks += day['clicks'];
+                    }
                 }
-                artInfo.sum_orders = Math.round(artInfo.sum_orders);
-                artInfo.orders = Math.round(artInfo.orders);
-                artInfo.sum = Math.round(artInfo.sum);
-                artInfo.views = Math.round(artInfo.views);
-                artInfo.clicks = Math.round(artInfo.clicks);
+                for (const [key, _] of Object.entries({
+                    search: 'search',
+                    booster: 'booster',
+                    carousel: 'carousel',
+                })) {
+                    artInfo[key].sum_orders = Math.round(artInfo[key].sum_orders);
+                    artInfo[key].orders = Math.round(artInfo[key].orders);
+                    artInfo[key].sum = Math.round(artInfo[key].sum);
+                    artInfo[key].views = Math.round(artInfo[key].views);
+                    artInfo[key].clicks = Math.round(artInfo[key].clicks);
 
-                artInfo.drr = getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1);
-                artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
-                artInfo.cpc = getRoundValue(artInfo.sum, artInfo.clicks);
-                artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
-                artInfo.cr = getRoundValue(artInfo.orders, artInfo.views, true);
-                artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
+                    artInfo[key].drr = getRoundValue(
+                        artInfo[key].sum,
+                        artInfo[key].sum_orders,
+                        true,
+                        1,
+                    );
+                    artInfo[key].ctr = getRoundValue(artInfo[key].clicks, artInfo[key].views, true);
+                    artInfo[key].cpc = getRoundValue(artInfo[key].sum, artInfo[key].clicks);
+                    artInfo[key].cpm = getRoundValue(artInfo[key].sum * 1000, artInfo[key].views);
+                    artInfo[key].cr = getRoundValue(artInfo[key].orders, artInfo[key].views, true);
+                    artInfo[key].cpo = getRoundValue(
+                        artInfo[key].sum,
+                        artInfo[key].orders,
+                        false,
+                        artInfo[key].sum,
+                    );
 
-                summaryTemp.sum_orders += artInfo.sum_orders;
-                summaryTemp.orders += artInfo.orders;
-                summaryTemp.sum += artInfo.sum;
-                summaryTemp.views += artInfo.views;
-                summaryTemp.clicks += artInfo.clicks;
-                summaryTemp.drr = getRoundValue(summaryTemp.sum, summaryTemp.sum_orders, true, 1);
+                    summaryTemp.sum_orders += artInfo[key].sum_orders;
+                    summaryTemp.orders += artInfo[key].orders;
+                    summaryTemp.sum += artInfo[key].sum;
+                    summaryTemp.views += artInfo[key].views;
+                    summaryTemp.clicks += artInfo[key].clicks;
+                    summaryTemp.drr = getRoundValue(
+                        summaryTemp.sum,
+                        summaryTemp.sum_orders,
+                        true,
+                        1,
+                    );
+                }
             }
 
             const compare = (a, filterData) => {
@@ -1160,7 +1276,47 @@ export const MassAdvertPage = () => {
                     break;
                 }
             }
-            if (addFlag) temp.push(artInfo);
+            if (addFlag) {
+                for (const [key, _] of Object.entries({
+                    search: 'search',
+                    booster: 'booster',
+                    carousel: 'carousel',
+                })) {
+                    temp.push({
+                        advertsType: key,
+                        art: artInfo.art,
+                        brand: artInfo.brand,
+                        object: artInfo.object,
+                        nmId: artInfo.nmId,
+                        title: artInfo.title,
+                        adverts: artInfo.adverts
+                            ? artInfo.adverts[key]
+                                ? artInfo.adverts[key][Object.keys(artInfo.adverts[key])[0]]
+                                : undefined
+                            : undefined,
+                        stocks: artInfo.stocks,
+                        semantics: artInfo[key].semantics,
+                        plusPhrasesTemplate: artInfo[key].plusPhrasesTemplate,
+                        budget: artInfo[key].budget,
+                        bid: artInfo[key].bid,
+                        bidLog: artInfo[key].bidLog,
+                        budgetToKeep: artInfo[key].budgetToKeep,
+                        orders: artInfo[key].orders,
+                        sum_orders: artInfo[key].sum_orders,
+                        sum: artInfo[key].sum,
+                        views: artInfo[key].views,
+                        clicks: artInfo[key].clicks,
+                        drr: artInfo[key].drr,
+                        ctr: artInfo[key].ctr,
+                        cpc: artInfo[key].cpc,
+                        cpm: artInfo[key].cpm,
+                        cr: artInfo[key].cr,
+                        cpo: artInfo[key].cpo,
+                        drrAI: artInfo[key].drrAI,
+                        advertsManagerRules: artInfo.advertsManagerRules,
+                    });
+                }
+            }
 
             // data.push(advertStats);
         }
@@ -1169,7 +1325,7 @@ export const MassAdvertPage = () => {
 
         // console.log(temp);
         const filteredSummaryTemp = {
-            art: `Показано артикулов: ${temp.length}`,
+            art: `Показано артикулов: ${temp.length / 3}`,
             orders: 0,
             sum_orders: 0,
             sum: 0,
@@ -1200,7 +1356,7 @@ export const MassAdvertPage = () => {
         }
         filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
         filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
-        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks);
+        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks / 3);
         filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
         filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
         filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
@@ -1247,6 +1403,13 @@ export const MassAdvertPage = () => {
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
 
     const [firstRecalc, setFirstRecalc] = useState(false);
+
+    if (changedDoc) {
+        setChangedDoc(undefined);
+        recalc(dateRange);
+        console.log(document);
+    }
+
     if (!document) return <Spin />;
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
@@ -1778,6 +1941,8 @@ export const MassAdvertPage = () => {
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="outlined"
                         onClick={() => {
+                            setSelectedButton('');
+                            setAdvertsTypesInput({search: false, booster: false, carousel: false});
                             setBudgetModalBudgetInputValue(500);
                             setBudgetModalSwitchValue('Пополнить');
                             setBudgetModalBudgetInputValidationValue(true);
@@ -1828,6 +1993,7 @@ export const MassAdvertPage = () => {
                                         setBudgetModalSwitchValue(val);
                                         setBudgetModalBudgetInputValue(500);
                                         setBudgetModalBudgetInputValidationValue(true);
+                                        setSelectedButton('');
                                     }}
                                 />
                                 <TextInput
@@ -1851,6 +2017,7 @@ export const MassAdvertPage = () => {
                                         } else {
                                             setBudgetModalBudgetInputValidationValue(true);
                                         }
+                                        setSelectedButton('');
                                         setBudgetModalBudgetInputValue(budget);
                                     }}
                                     errorMessage={'Введите не менее 500'}
@@ -1861,68 +2028,84 @@ export const MassAdvertPage = () => {
                                     }
                                     label="Бюджет"
                                 />
-                                <Button
-                                    style={{
-                                        margin: '8px 0px',
-                                        maxWidth: '60%',
-                                    }}
-                                    pin="circle-circle"
-                                    size="l"
-                                    width="max"
-                                    view="action"
-                                    disabled={!budgetModalBudgetInputValidationValue}
-                                    // view="outlined-success"
-                                    // selected
-                                    onClick={() => {
-                                        const params = {
-                                            uid:
-                                                Userfront.user.userUuid ==
-                                                    '332fa5da-8450-451a-b859-a84ca9951a34' ||
-                                                Userfront.user.userUuid ==
-                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
-                                                    : '',
-                                            campaignName: selectValue[0],
-                                            data: {},
-                                        };
-                                        for (let i = 0; i < data.length; i++) {
-                                            const art = data[i].art;
-                                            if (!art) continue;
-
-                                            params.data[art] = {
-                                                mode: budgetModalSwitchValue,
-                                                budget: budgetModalBudgetInputValue,
-                                                art: art,
+                                {generateModalAdvertsTypesInput(setAdvertsTypesInput)}
+                                {generateModalButtonWithActions(
+                                    {
+                                        style: {margin: '8px 0'},
+                                        placeholder:
+                                            budgetModalSwitchValue == 'Установить лимит'
+                                                ? budgetModalBudgetInputValue != 0
+                                                    ? 'Отправить'
+                                                    : 'Удалить лимит'
+                                                : 'Отправить',
+                                        disabled: !budgetModalBudgetInputValidationValue,
+                                        icon:
+                                            budgetModalSwitchValue == 'Установить лимит'
+                                                ? budgetModalBudgetInputValue != 0
+                                                    ? CloudArrowUpIn
+                                                    : TrashBin
+                                                : CloudArrowUpIn,
+                                        view:
+                                            budgetModalSwitchValue == 'Установить лимит'
+                                                ? budgetModalBudgetInputValue != 0
+                                                    ? 'outlined-success'
+                                                    : 'outlined-danger'
+                                                : 'outlined-success',
+                                        onClick: () => {
+                                            const params = {
+                                                uid:
+                                                    Userfront.user.userUuid ==
+                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        : '',
+                                                campaignName: selectValue[0],
+                                                data: {arts: {}, advertsTypes: advertsTypesInput},
                                             };
-                                        }
-                                        console.log(params);
+                                            for (let i = 0; i < data.length; i++) {
+                                                const art = data[i].art;
+                                                if (!art) continue;
 
-                                        //////////////////////////////////
-                                        const token =
-                                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                        axios
-                                            .post(
-                                                `${ipAddress}/api/depositAdvertsBudgets`,
-                                                params,
-                                                {
-                                                    headers: {
-                                                        Authorization: 'Bearer ' + token,
-                                                    },
-                                                },
-                                            )
-                                            .then((response) => console.log(response.data))
-                                            .catch((error) => console.error(error));
-                                        //////////////////////////////////
+                                                params.data.arts[art] = {
+                                                    mode: budgetModalSwitchValue,
+                                                    budget: budgetModalBudgetInputValue,
+                                                    art: art,
+                                                };
 
-                                        setBudgetModalFormOpen(false);
-                                    }}
-                                >
-                                    {budgetModalSwitchValue == 'Установить лимит'
-                                        ? budgetModalBudgetInputValue != 0
-                                            ? 'Отправить'
-                                            : 'Удалить лимит'
-                                        : 'Отправить'}
-                                </Button>
+                                                if (budgetModalSwitchValue == 'Установить лимит') {
+                                                    for (const [
+                                                        advertsType,
+                                                        value,
+                                                    ] of Object.entries(advertsTypesInput)) {
+                                                        if (!advertsType || !value) continue;
+                                                        if (
+                                                            !document.campaigns[selectValue[0]][art]
+                                                                .budgetToKeep
+                                                        )
+                                                            document.campaigns[selectValue[0]][
+                                                                art
+                                                            ].budgetToKeep = {};
+                                                        document.campaigns[selectValue[0]][
+                                                            art
+                                                        ].budgetToKeep[advertsType] =
+                                                            budgetModalBudgetInputValue;
+                                                    }
+                                                }
+                                            }
+                                            console.log(params);
+
+                                            //////////////////////////////////
+                                            callApi('depositAdvertsBudgets', params);
+                                            setChangedDoc(document);
+                                            //////////////////////////////////
+
+                                            setBudgetModalFormOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
                             </div>
                         </Card>
                     </Modal>
@@ -1930,6 +2113,8 @@ export const MassAdvertPage = () => {
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="outlined"
                         onClick={() => {
+                            setSelectedButton('');
+                            setAdvertsTypesInput({search: false, booster: false, carousel: false});
                             setBidModalBidInputValue(125);
                             setBidModalSwitchValue('Установить');
                             // setBidModalAnalyticsSwitchValue(14);
@@ -2181,9 +2366,10 @@ export const MassAdvertPage = () => {
                                             </motion.div>
                                         </motion.div>
                                     </motion.div>
-
+                                    {generateModalAdvertsTypesInput(setAdvertsTypesInput)}
                                     <div
                                         style={{
+                                            marginTop: 8,
                                             width: '100%',
                                             display: 'flex',
                                             justifyContent: 'center',
@@ -2217,15 +2403,20 @@ export const MassAdvertPage = () => {
                                                             ? '332fa5da-8450-451a-b859-a84ca9951a34'
                                                             : '',
                                                     campaignName: selectValue[0],
-                                                    data: {},
+                                                    data: {
+                                                        arts: {},
+                                                        advertsTypes: advertsTypesInput,
+                                                        mode: bidModalDeleteModeSelected
+                                                            ? 'Удалить правила'
+                                                            : bidModalSwitchValue,
+                                                    },
                                                 };
                                                 for (let i = 0; i < data.length; i++) {
                                                     const art = data[i].art;
                                                     if (!art) continue;
 
                                                     if (bidModalSwitchValue == 'Установить') {
-                                                        params.data[art] = {
-                                                            mode: bidModalSwitchValue,
+                                                        params.data.arts[art] = {
                                                             bid: bidModalBidInputValue,
                                                             art: art,
                                                         };
@@ -2233,8 +2424,7 @@ export const MassAdvertPage = () => {
                                                         bidModalSwitchValue == 'Автоставки'
                                                     ) {
                                                         if (!bidModalDeleteModeSelected) {
-                                                            params.data[art] = {
-                                                                mode: bidModalSwitchValue,
+                                                            params.data.arts[art] = {
                                                                 desiredDRR: bidModalDRRInputValue,
                                                                 bidStep: bidModalBidStepInputValue,
                                                                 // dateRange:
@@ -2242,8 +2432,7 @@ export const MassAdvertPage = () => {
                                                                 advertId: art,
                                                             };
                                                         } else {
-                                                            params.data[art] = {
-                                                                mode: 'Удалить правила',
+                                                            params.data.arts[art] = {
                                                                 art: art,
                                                             };
                                                         }
@@ -2252,20 +2441,7 @@ export const MassAdvertPage = () => {
                                                 console.log(params);
 
                                                 //////////////////////////////////
-                                                const token =
-                                                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                                axios
-                                                    .post(
-                                                        `${ipAddress}/api/setAdvertsCPMs`,
-                                                        params,
-                                                        {
-                                                            headers: {
-                                                                Authorization: 'Bearer ' + token,
-                                                            },
-                                                        },
-                                                    )
-                                                    .then((response) => console.log(response.data))
-                                                    .catch((error) => console.error(error));
+                                                callApi('setAdvertsCPMs', params);
                                                 //////////////////////////////////
 
                                                 setBidModalFormOpen(false);
@@ -2955,6 +3131,11 @@ export const MassAdvertPage = () => {
                                 >
                                     Шаблоны
                                 </Text>
+
+                                <div style={{marginBottom: 8}}>
+                                    {generateModalAdvertsTypesInput(setAdvertsTypesInput)}
+                                </div>
+
                                 <div
                                     style={{
                                         display: 'flex',
@@ -2976,13 +3157,13 @@ export const MassAdvertPage = () => {
                                                         ? '332fa5da-8450-451a-b859-a84ca9951a34'
                                                         : '',
                                                 campaignName: selectValue[0],
-                                                data: {},
+                                                data: {arts: {}, advertsTypes: advertsTypesInput},
                                             };
                                             for (let i = 0; i < data.length; i++) {
                                                 const art = data[i].art;
                                                 if (!art) continue;
 
-                                                params.data[art] = {
+                                                params.data.arts[art] = {
                                                     mode: 'Установить',
                                                     templateName: item,
                                                     art: art,
@@ -3209,6 +3390,7 @@ export const MassAdvertPage = () => {
 
 const generateModalButtonWithActions = (
     params: {
+        disabled?;
         pin?;
         size?;
         view?;
@@ -3221,7 +3403,7 @@ const generateModalButtonWithActions = (
     selectedButton,
     setSelectedButton,
 ) => {
-    const {pin, size, view, style, selected, placeholder, icon, onClick} = params;
+    const {pin, size, view, style, selected, placeholder, icon, onClick, disabled} = params;
     const isSelected = selectedButton == placeholder;
     if (onClick || selected) {
     }
@@ -3234,7 +3416,9 @@ const generateModalButtonWithActions = (
                 alignItems: 'center',
             }}
         >
-            <motion.div animate={{opacity: isSelected ? 1 : 0, x: isSelected ? -16 : 0}}>
+            <motion.div
+                animate={{opacity: isSelected && !disabled ? 1 : 0, x: isSelected ? -16 : 0}}
+            >
                 <Button
                     pin="circle-circle"
                     view="flat-success"
@@ -3247,7 +3431,7 @@ const generateModalButtonWithActions = (
                 </Button>
             </motion.div>
             <Button
-                disabled={!isSelected && selectedButton != ''}
+                disabled={(!isSelected && selectedButton != '') || disabled}
                 style={
                     style ?? {
                         margin: '4px 0px',
@@ -3266,7 +3450,9 @@ const generateModalButtonWithActions = (
                 <Icon data={icon} />
                 {placeholder}
             </Button>
-            <motion.div animate={{opacity: isSelected ? 1 : 0, x: isSelected ? 16 : 0}}>
+            <motion.div
+                animate={{opacity: isSelected && !disabled ? 1 : 0, x: isSelected ? 16 : 0}}
+            >
                 <Button
                     pin="circle-circle"
                     view="flat-danger"
@@ -3276,5 +3462,49 @@ const generateModalButtonWithActions = (
                 </Button>
             </motion.div>
         </motion.div>
+    );
+};
+
+const generateModalAdvertsTypesInput = (setAdvertsTypesInput) => {
+    return (
+        <div style={{display: 'flex', flexDirection: 'column'}}>
+            <Text style={{marginLeft: 8}} variant="subheader-1">
+                Типы кампаний
+            </Text>
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+                <Checkbox
+                    onUpdate={(checked) =>
+                        setAdvertsTypesInput((val) => {
+                            val['search'] = checked;
+                            return val;
+                        })
+                    }
+                >
+                    Поиск
+                </Checkbox>
+                <div style={{width: 8}}></div>
+                <Checkbox
+                    onUpdate={(checked) =>
+                        setAdvertsTypesInput((val) => {
+                            val['booster'] = checked;
+                            return val;
+                        })
+                    }
+                >
+                    Бустер
+                </Checkbox>
+                <div style={{width: 8}}></div>
+                <Checkbox
+                    onUpdate={(checked) =>
+                        setAdvertsTypesInput((val) => {
+                            val['carousel'] = checked;
+                            return val;
+                        })
+                    }
+                >
+                    Карточка
+                </Checkbox>
+            </div>
+        </div>
     );
 };
