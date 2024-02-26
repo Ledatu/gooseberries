@@ -659,6 +659,7 @@ export const MassAdvertPage = () => {
         },
         {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
         {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
+        {name: 'stocks', placeholder: 'Остаток', group: true},
         {
             name: 'adverts',
             placeholder: 'Реклама',
@@ -972,7 +973,6 @@ export const MassAdvertPage = () => {
             },
         },
         {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'stocks', placeholder: 'Остаток', group: true},
         {name: 'orders', placeholder: 'Заказов, шт.'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
         {
