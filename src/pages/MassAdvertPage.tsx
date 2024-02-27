@@ -48,7 +48,8 @@ import {
     Funnel,
     // DiamondExclamation,
     // CloudCheck,
-    // Calendar,
+    Ban,
+    Calendar,
     Eye,
     // CircleRuble,
     Pin,
@@ -790,53 +791,74 @@ export const MassAdvertPage = () => {
                         ? row.advertsManagerRules[advertsType].mode
                         : false
                     : false;
-                const {status} = value ?? {};
+                const {status, daysInWork} = value ?? {};
                 return (
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                        <Switch
-                            checked={advertsManagerRulesMode}
-                            // defaultChecked={advertsManagerRulesMode}
-                            style={{display: 'flex', alignItems: 'top'}}
-                            onUpdate={(checked) => {
-                                if (!document['campaigns'][selectValue[0]][art].advertsManagerRules)
-                                    document['campaigns'][selectValue[0]][art].advertsManagerRules =
-                                        {};
-
-                                if (
-                                    !document['campaigns'][selectValue[0]][art].advertsManagerRules[
-                                        advertsType
-                                    ]
-                                )
-                                    document['campaigns'][selectValue[0]][art].advertsManagerRules[
-                                        advertsType
-                                    ] = {mode: false};
-
-                                document['campaigns'][selectValue[0]][art].advertsManagerRules[
-                                    advertsType
-                                ].mode = checked;
-                                setChangedDoc(document);
-
-                                const params = {
-                                    uid:
-                                        Userfront.user.userUuid ==
-                                            '332fa5da-8450-451a-b859-a84ca9951a34' ||
-                                        Userfront.user.userUuid ==
-                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
-                                            : '',
-                                    campaignName: selectValue[0],
-                                    data: {
-                                        arts: {},
-                                    },
-                                };
-                                params.data.arts[row.art] = {};
-                                params.data.arts[row.art][advertsType] = checked;
-                                console.log(params);
-
-                                callApi('updateAdvertsManagerRules', params);
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: 'nowrap',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                flexWrap: 'nowrap',
+                                justifyContent: 'space-between',
                             }}
                         >
+                            <Switch
+                                checked={advertsManagerRulesMode}
+                                // defaultChecked={advertsManagerRulesMode}
+                                style={{display: 'flex', alignItems: 'top'}}
+                                onUpdate={(checked) => {
+                                    if (
+                                        !document['campaigns'][selectValue[0]][art]
+                                            .advertsManagerRules
+                                    )
+                                        document['campaigns'][selectValue[0]][
+                                            art
+                                        ].advertsManagerRules = {};
+
+                                    if (
+                                        !document['campaigns'][selectValue[0]][art]
+                                            .advertsManagerRules[advertsType]
+                                    )
+                                        document['campaigns'][selectValue[0]][
+                                            art
+                                        ].advertsManagerRules[advertsType] = {mode: false};
+
+                                    document['campaigns'][selectValue[0]][art].advertsManagerRules[
+                                        advertsType
+                                    ].mode = checked;
+                                    setChangedDoc(document);
+
+                                    const params = {
+                                        uid:
+                                            Userfront.user.userUuid ==
+                                                '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                            Userfront.user.userUuid ==
+                                                '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                : '',
+                                        campaignName: selectValue[0],
+                                        data: {
+                                            arts: {},
+                                        },
+                                    };
+                                    params.data.arts[row.art] = {};
+                                    params.data.arts[row.art][advertsType] = checked;
+                                    console.log(params);
+
+                                    callApi('updateAdvertsManagerRules', params);
+                                }}
+                            ></Switch>
+                            <div style={{width: 8}} />
+
                             <Text
+                                // style={{position: 'relative', top: -2}}
                                 color={
                                     status
                                         ? status == 9
@@ -849,7 +871,29 @@ export const MassAdvertPage = () => {
                             >
                                 {mapp[advertsType]}
                             </Text>
-                        </Switch>
+                        </div>
+                        <div style={{width: 8}} />
+                        {status !== undefined ? (
+                            <Button
+                                size="xs"
+                                view="outlined"
+                                onClick={() => {
+                                    const nDaysAgo = new Date(today);
+
+                                    nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
+
+                                    const range = [nDaysAgo, today];
+                                    recalc(range);
+                                    setDateRange(range);
+                                }}
+                            >
+                                {daysInWork + 1}
+                                <div style={{width: 2}} />
+                                <Icon size={12} data={status ? Calendar : Ban}></Icon>
+                            </Button>
+                        ) : (
+                            <></>
+                        )}
                     </div>
                 );
             },
@@ -909,10 +953,11 @@ export const MassAdvertPage = () => {
                                     : false;
                                 setSemanticsModalIsFixed(isFixed);
 
-                                const templateType = row.adverts
-                                    ? row.adverts['8']
-                                        ? 'АВТО'
-                                        : 'ПОИСК'
+                                const templateType = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].type ??
+                                      'АВТО'
                                     : 'АВТО';
                                 setSemanticsModalAdvertType(templateType);
                                 // console.log(value.plus);
@@ -3038,6 +3083,11 @@ export const MassAdvertPage = () => {
                                         onClick={() => {
                                             const name =
                                                 semanticsModalSemanticsPlusItemsTemplateNameSaveValue.trim();
+                                            const endName =
+                                                name +
+                                                (!name.includes(' ' + semanticsModalAdvertType)
+                                                    ? ' ' + semanticsModalAdvertType
+                                                    : '');
                                             const params = {
                                                 uid:
                                                     Userfront.user.userUuid ==
@@ -3049,13 +3099,7 @@ export const MassAdvertPage = () => {
                                                 data: {
                                                     mode: 'Установить',
                                                     isFixed: semanticsModalIsFixed,
-                                                    name:
-                                                        name +
-                                                        (!name.includes(
-                                                            ' ' + semanticsModalAdvertType,
-                                                        )
-                                                            ? ' ' + semanticsModalAdvertType
-                                                            : ''),
+                                                    name: endName,
                                                     type: semanticsModalAdvertType,
                                                     clusters: semanticsModalSemanticsPlusItemsValue,
                                                     threshold:
@@ -3064,22 +3108,22 @@ export const MassAdvertPage = () => {
                                                         semanticsModalSemanticsCTRThresholdValue,
                                                 },
                                             };
+
+                                            document.plusPhrasesTemplates[endName] = {
+                                                isFixed: semanticsModalIsFixed,
+                                                name: endName,
+                                                type: semanticsModalAdvertType,
+                                                clusters: semanticsModalSemanticsPlusItemsValue,
+                                                threshold: semanticsModalSemanticsThresholdValue,
+                                                ctrThreshold:
+                                                    semanticsModalSemanticsCTRThresholdValue,
+                                            };
+
                                             console.log(params);
 
-                                            const token =
-                                                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                            axios
-                                                .post(
-                                                    `${ipAddress}/api/setPlusPhraseTemplate`,
-                                                    params,
-                                                    {
-                                                        headers: {
-                                                            Authorization: 'Bearer ' + token,
-                                                        },
-                                                    },
-                                                )
-                                                .then((response) => console.log(response.data))
-                                                .catch((error) => console.error(error));
+                                            setChangedDoc(document);
+
+                                            callApi('setPlusPhraseTemplate', params);
 
                                             setSemanticsModalFormOpen(false);
                                         }}
@@ -3250,13 +3294,13 @@ export const MassAdvertPage = () => {
                                                         ? '332fa5da-8450-451a-b859-a84ca9951a34'
                                                         : '',
                                                 campaignName: selectValue[0],
-                                                data: {},
+                                                data: {arts: {}, advertsTypes: advertsTypesInput},
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
                                                 const art = filteredData[i].art;
                                                 if (!art) continue;
 
-                                                params.data[art] = {
+                                                params.data.arts[art] = {
                                                     mode: 'Удалить',
                                                     art: art,
                                                 };
