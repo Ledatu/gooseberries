@@ -16,6 +16,7 @@ import {
     Label,
     PopoverBehavior,
     Modal,
+    Pagination,
     Checkbox,
     RadioButton,
     List,
@@ -193,6 +194,9 @@ export const MassAdvertPage = () => {
     // ];
     // const [semanticsModalSwitchValue, setSemanticsModalSwitchValue] = React.useState('Пополнить');
 
+    const [pagesTotal, setPagesTotal] = useState(1);
+    const [pagesCurrent, setPagesCurrent] = useState(1);
+
     const [bidModalFormOpen, setBidModalFormOpen] = useState(false);
     const [bidModalBidInputValue, setBidModalBidInputValue] = useState(125);
     const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
@@ -278,7 +282,9 @@ export const MassAdvertPage = () => {
     // ];
     // const [bidModalAnalyticsSwitchValue, setBidModalAnalyticsSwitchValue] = React.useState(14);
 
-    const [data, setTableData] = useState<any[]>([]);
+    const [data, setTableData] = useState({});
+    const [filteredData, setFilteredData] = useState<any[]>([]);
+    const [paginatedData, setPaginatedData] = useState<any[]>([]);
     const generateColumns = (columnsInfo) => {
         const columns: Column<any>[] = [
             // {
@@ -337,7 +343,7 @@ export const MassAdvertPage = () => {
                                     if (!(name in filters))
                                         filters[name] = {compMode: 'include', val: ''};
                                     filters[name].val = val.target.value;
-                                    recalc(dateRange, '', filters);
+                                    filterTableData(filters);
                                     return filters;
                                 });
                             }}
@@ -385,7 +391,7 @@ export const MassAdvertPage = () => {
                                                                 val: '',
                                                             };
                                                         filters[name].compMode = 'include';
-                                                        recalc(dateRange, '', filters);
+                                                        filterTableData(filters);
                                                         return filters;
                                                     });
                                                 },
@@ -412,7 +418,7 @@ export const MassAdvertPage = () => {
                                                                 val: '',
                                                             };
                                                         filters[name].compMode = 'not include';
-                                                        recalc(dateRange, '', filters);
+                                                        filterTableData(filters);
                                                         return filters;
                                                     });
                                                 },
@@ -441,7 +447,7 @@ export const MassAdvertPage = () => {
                                                                 val: '',
                                                             };
                                                         filters[name].compMode = 'equal';
-                                                        recalc(dateRange, '', filters);
+                                                        filterTableData(filters);
                                                         return filters;
                                                     });
                                                 },
@@ -468,7 +474,7 @@ export const MassAdvertPage = () => {
                                                                 val: '',
                                                             };
                                                         filters[name].compMode = 'not equal';
-                                                        recalc(dateRange, '', filters);
+                                                        filterTableData(filters);
                                                         return filters;
                                                     });
                                                 },
@@ -499,7 +505,7 @@ export const MassAdvertPage = () => {
                                                                       val: '',
                                                                   };
                                                               filters[name].compMode = 'bigger';
-                                                              recalc(dateRange, '', filters);
+                                                              filterTableData(filters);
                                                               return filters;
                                                           });
                                                       },
@@ -526,7 +532,7 @@ export const MassAdvertPage = () => {
                                                                       val: '',
                                                                   };
                                                               filters[name].compMode = 'not bigger';
-                                                              recalc(dateRange, '', filters);
+                                                              filterTableData(filters);
                                                               return filters;
                                                           });
                                                       },
@@ -604,7 +610,7 @@ export const MassAdvertPage = () => {
                         >
                             <div
                                 style={{
-                                    width: `${String(data.length).length * 6}px`,
+                                    width: `${String(filteredData.length).length * 6}px`,
                                     margin: '0 16px',
                                     display: 'flex',
                                     justifyContent: 'center',
@@ -630,14 +636,16 @@ export const MassAdvertPage = () => {
                                                 });
                                             }
 
-                                            recalc(dateRange, '', filters);
+                                            filterTableData(filters);
                                             return filters;
                                         });
                                     }}
                                 >
                                     <Icon data={pinned.isPinned ? PinSlash : Pin} size={13} />
                                 </Button>
-                                <div className={b('art_index')}>{index / 3 + 1}</div>
+                                <div className={b('art_index')}>
+                                    {(pagesCurrent - 1) * 300 + index / 3 + 1}
+                                </div>
                             </div>
                             <Link
                                 style={{
@@ -775,7 +783,8 @@ export const MassAdvertPage = () => {
                     booster: 'Бустер',
                     carousel: 'Карточка',
                 };
-                const advertsType = row['advertsType'];
+
+                const {art, advertsType} = row;
                 const advertsManagerRulesMode = row.advertsManagerRules
                     ? row.advertsManagerRules[advertsType]
                         ? row.advertsManagerRules[advertsType].mode
@@ -785,9 +794,18 @@ export const MassAdvertPage = () => {
                 return (
                     <div style={{display: 'flex', flexDirection: 'column'}}>
                         <Switch
-                            defaultChecked={advertsManagerRulesMode}
+                            checked={advertsManagerRulesMode}
+                            // defaultChecked={advertsManagerRulesMode}
                             style={{display: 'flex', alignItems: 'top'}}
                             onUpdate={(checked) => {
+                                if (!document['campaigns'][selectValue[0]][art].advertsManagerRules)
+                                    document['campaigns'][selectValue[0]][art].advertsManagerRules =
+                                        {mode: undefined};
+                                document['campaigns'][selectValue[0]][art].advertsManagerRules[
+                                    advertsType
+                                ].mode = checked;
+                                setChangedDoc(document);
+
                                 const params = {
                                     uid:
                                         Userfront.user.userUuid ==
@@ -1028,7 +1046,6 @@ export const MassAdvertPage = () => {
         {name: 'cpm', placeholder: 'CPM, ₽'},
         {name: 'cr', placeholder: 'CR, %'},
     ];
-    const columns = generateColumns(columnData);
 
     const [filteredSummary, setFilteredSummary] = useState({
         art: '',
@@ -1076,17 +1093,16 @@ export const MassAdvertPage = () => {
         sum_orders: 0,
     });
 
-    const recalc = (daterng, selected = '', withfFilters = {}) => {
-        const getRoundValue = (a, b, isPercentage = false, def = 0) => {
-            let result = b ? a / b : def;
-            if (isPercentage) {
-                result = Math.round(result * 100 * 100) / 100;
-            } else {
-                result = Math.round(result);
-            }
-            return result;
-        };
-
+    const getRoundValue = (a, b, isPercentage = false, def = 0) => {
+        let result = b ? a / b : def;
+        if (isPercentage) {
+            result = Math.round(result * 100 * 100) / 100;
+        } else {
+            result = Math.round(result);
+        }
+        return result;
+    };
+    const recalc = (daterng, selected = '') => {
         const [startDate, endDate] = daterng;
         startDate.setHours(0);
         startDate.setMinutes(0);
@@ -1110,7 +1126,7 @@ export const MassAdvertPage = () => {
                 ? document.campaigns[selected == '' ? selectValue[0] : selected]
                 : {}
             : {};
-        const temp: any[] = [];
+        const temp = {};
         for (const [art, artData] of Object.entries(campaignData)) {
             if (!art || !artData) continue;
             const artInfo = {
@@ -1168,7 +1184,7 @@ export const MassAdvertPage = () => {
 
             if (artInfo.adverts) {
                 for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
-                    if (!advertType || !advertsOfType) continue;
+                    if (!advertType || advertType == 'none' || !advertsOfType) continue;
 
                     for (const [advertId, advertData] of Object.entries(advertsOfType)) {
                         if (!advertId || !advertData) continue;
@@ -1242,28 +1258,45 @@ export const MassAdvertPage = () => {
                 }
             }
 
-            const compare = (a, filterData) => {
-                const {val, compMode} = filterData;
-                if (compMode == 'include') {
-                    return String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
-                }
-                if (compMode == 'not include') {
-                    return !String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
-                }
-                if (compMode == 'equal') {
-                    return String(a).toLocaleLowerCase() == String(val).toLocaleLowerCase();
-                }
-                if (compMode == 'not equal') {
-                    return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
-                }
-                if (compMode == 'bigger') {
-                    return Number(a) > Number(val);
-                }
-                if (compMode == 'not bigger') {
-                    return Number(a) < Number(val);
-                }
-                return false;
-            };
+            temp[art] = artInfo;
+        }
+
+        setSummary(summaryTemp);
+        setTableData(temp);
+
+        filterTableData({}, temp);
+    };
+
+    const filterTableData = (withfFilters = {}, tableData = {}) => {
+        const compare = (a, filterData) => {
+            const {val, compMode} = filterData;
+            if (compMode == 'include') {
+                return String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
+            }
+            if (compMode == 'not include') {
+                return !String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
+            }
+            if (compMode == 'equal') {
+                return String(a).toLocaleLowerCase() == String(val).toLocaleLowerCase();
+            }
+            if (compMode == 'not equal') {
+                return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
+            }
+            if (compMode == 'bigger') {
+                return Number(a) > Number(val);
+            }
+            if (compMode == 'not bigger') {
+                return Number(a) < Number(val);
+            }
+            return false;
+        };
+
+        const temp = [] as any;
+
+        for (const [art, artInfo] of Object.entries(
+            Object.keys(tableData).length ? tableData : data,
+        )) {
+            if (!art || !artInfo) continue;
 
             let addFlag = true;
             const useFilters = withfFilters['undef'] ? withfFilters : filters;
@@ -1284,17 +1317,17 @@ export const MassAdvertPage = () => {
                 })) {
                     temp.push({
                         advertsType: key,
-                        art: artInfo.art,
-                        brand: artInfo.brand,
-                        object: artInfo.object,
-                        nmId: artInfo.nmId,
-                        title: artInfo.title,
-                        adverts: artInfo.adverts
-                            ? artInfo.adverts[key]
-                                ? artInfo.adverts[key][Object.keys(artInfo.adverts[key])[0]]
+                        art: artInfo['art'],
+                        brand: artInfo['brand'],
+                        object: artInfo['object'],
+                        nmId: artInfo['nmId'],
+                        title: artInfo['title'],
+                        adverts: artInfo['adverts']
+                            ? artInfo['adverts'][key]
+                                ? artInfo['adverts'][key][Object.keys(artInfo['adverts'][key])[0]]
                                 : undefined
                             : undefined,
-                        stocks: artInfo.stocks,
+                        stocks: artInfo['stocks'],
                         semantics: artInfo[key].semantics,
                         plusPhrasesTemplate: artInfo[key].plusPhrasesTemplate,
                         budget: artInfo[key].budget,
@@ -1313,19 +1346,14 @@ export const MassAdvertPage = () => {
                         cr: artInfo[key].cr,
                         cpo: artInfo[key].cpo,
                         drrAI: artInfo[key].drrAI,
-                        advertsManagerRules: artInfo.advertsManagerRules,
+                        advertsManagerRules: artInfo['advertsManagerRules'],
                     });
                 }
             }
-
-            // data.push(advertStats);
         }
-
-        setSummary(summaryTemp);
-
-        // console.log(temp);
+        const paginatedDataTemp = temp.slice(0, 900);
         const filteredSummaryTemp = {
-            art: `Показано артикулов: ${temp.length / 3}`,
+            art: `На странице: ${paginatedDataTemp.length / 3} Всего: ${temp.length / 3}`,
             orders: 0,
             sum_orders: 0,
             sum: 0,
@@ -1394,20 +1422,32 @@ export const MassAdvertPage = () => {
             filteredSummaryTemp.sum,
         );
         setFilteredSummary(filteredSummaryTemp);
-        // if (!temp.length) temp.push({});
-        temp.sort((a, b) => a.art.localeCompare(b.art));
-        setTableData(temp);
+
+        temp.sort((a, b) => {
+            return a.art.localeCompare(b.art, 'ru-RU');
+        });
+        setFilteredData(temp);
+
+        setPaginatedData(paginatedDataTemp);
+        setPagesCurrent(1);
+        setPagesTotal(Math.ceil(temp.length));
     };
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
 
     const [firstRecalc, setFirstRecalc] = useState(false);
+    const [changedColumns, setChangedColumns] = useState<any>(false);
+    const columns = generateColumns(columnData);
 
     if (changedDoc) {
         setChangedDoc(undefined);
         recalc(dateRange);
-        console.log(document);
+        // console.log(document);
+    }
+
+    if (changedColumns) {
+        setChangedColumns(false);
     }
 
     if (!document) return <Spin />;
@@ -1643,7 +1683,7 @@ export const MassAdvertPage = () => {
                                                     arts: [] as any[],
                                                 },
                                             };
-                                            for (let i = 0; i < data.length; i++) {
+                                            for (let i = 0; i < filteredData.length; i++) {
                                                 const art = data[i].art;
                                                 if (!art) continue;
                                                 params.data.arts.push(art);
@@ -1680,7 +1720,7 @@ export const MassAdvertPage = () => {
                                                     arts: [] as any[],
                                                 },
                                             };
-                                            for (let i = 0; i < data.length; i++) {
+                                            for (let i = 0; i < filteredData.length; i++) {
                                                 const art = data[i].art;
                                                 if (!art) continue;
                                                 params.data.arts.push(art);
@@ -1717,7 +1757,7 @@ export const MassAdvertPage = () => {
                                                     arts: [] as any[],
                                                 },
                                             };
-                                            for (let i = 0; i < data.length; i++) {
+                                            for (let i = 0; i < filteredData.length; i++) {
                                                 const art = data[i].art;
                                                 if (!art) continue;
                                                 params.data.arts.push(art);
@@ -1900,7 +1940,7 @@ export const MassAdvertPage = () => {
                                             campaignName: selectValue[0],
                                             arts: {},
                                         };
-                                        for (let i = 0; i < data.length; i++) {
+                                        for (let i = 0; i < filteredData.length; i++) {
                                             const art = data[i].art;
                                             params.arts[art] = {
                                                 type: advertTypeSwitchValue,
@@ -2063,7 +2103,7 @@ export const MassAdvertPage = () => {
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}, advertsTypes: advertsTypesInput},
                                             };
-                                            for (let i = 0; i < data.length; i++) {
+                                            for (let i = 0; i < filteredData.length; i++) {
                                                 const art = data[i].art;
                                                 if (!art) continue;
 
@@ -2411,7 +2451,7 @@ export const MassAdvertPage = () => {
                                                             : bidModalSwitchValue,
                                                     },
                                                 };
-                                                for (let i = 0; i < data.length; i++) {
+                                                for (let i = 0; i < filteredData.length; i++) {
                                                     const art = data[i].art;
                                                     if (!art) continue;
 
@@ -3159,7 +3199,7 @@ export const MassAdvertPage = () => {
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}, advertsTypes: advertsTypesInput},
                                             };
-                                            for (let i = 0; i < data.length; i++) {
+                                            for (let i = 0; i < filteredData.length; i++) {
                                                 const art = data[i].art;
                                                 if (!art) continue;
 
@@ -3198,7 +3238,7 @@ export const MassAdvertPage = () => {
                                                 campaignName: selectValue[0],
                                                 data: {},
                                             };
-                                            for (let i = 0; i < data.length; i++) {
+                                            for (let i = 0; i < filteredData.length; i++) {
                                                 const art = data[i].art;
                                                 if (!art) continue;
 
@@ -3226,8 +3266,31 @@ export const MassAdvertPage = () => {
                         placeholder="Values"
                         options={selectOptions}
                         onUpdate={(nextValue) => {
-                            setSelectValue(nextValue);
-                            recalc(dateRange, nextValue[0]);
+                            if (!Object.keys(document['campaigns'][nextValue[0]]).length) {
+                                callApi('getMassAdvertsNew', {
+                                    uid:
+                                        (Userfront.user.userUuid ==
+                                            '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                        Userfront.user.userUuid ==
+                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                            : '') ?? '',
+                                    dateRange: {from: '2023', to: '2024'},
+                                    campaignName: nextValue,
+                                }).then((res) => {
+                                    if (!res) return;
+                                    const resData = res['data'];
+                                    document['campaigns'][nextValue[0]] =
+                                        resData['campaigns'][nextValue[0]];
+                                    setChangedDoc(document);
+                                    setSelectValue(nextValue);
+                                    recalc(dateRange, nextValue[0]);
+                                });
+                            } else {
+                                setSelectValue(nextValue);
+                                recalc(dateRange, nextValue[0]);
+                            }
+                            setPagesCurrent(1);
                         }}
                     />
                 </div>
@@ -3356,32 +3419,61 @@ export const MassAdvertPage = () => {
             <div
                 style={{
                     width: '100%',
-                    maxHeight: '60vh',
-                    overflow: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                 }}
             >
-                <DataTable
-                    startIndex={1}
-                    settings={{
-                        stickyHead: MOVING,
-                        stickyFooter: MOVING,
-                        displayIndices: false,
-                        highlightRows: true,
+                <div
+                    style={{
+                        width: '100%',
+                        maxHeight: '60vh',
+                        overflow: 'auto',
                     }}
-                    theme="yandex-cloud"
-                    onRowClick={(row, index, event) => {
-                        console.log(row, index, event);
+                >
+                    <DataTable
+                        startIndex={1}
+                        settings={{
+                            stickyHead: MOVING,
+                            stickyFooter: MOVING,
+                            displayIndices: false,
+                            highlightRows: true,
+                        }}
+                        theme="yandex-cloud"
+                        onRowClick={(row, index, event) => {
+                            console.log(row, index, event);
+                        }}
+                        rowClassName={(_row, index, isFooterData) =>
+                            isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
+                        }
+                        // defaultSortState={sort}
+                        // sortState={sort}
+                        // onSortStateChange={(state) => setSort(state)}
+                        // className={b('tableStats')}
+                        data={paginatedData}
+                        columns={columns}
+                        footerData={[filteredSummary]}
+                    />
+                </div>
+                <div style={{height: 8}} />
+                <Pagination
+                    showInput
+                    total={pagesTotal}
+                    page={pagesCurrent}
+                    pageSize={900}
+                    onUpdate={(page) => {
+                        setPagesCurrent(page);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 900, page * 900);
+                        setFilteredSummary((row) => {
+                            const temp = row;
+                            temp.art = `На странице: ${paginatedDataTemp.length / 3} Всего: ${
+                                filteredData.length / 3
+                            }`;
+
+                            return temp;
+                        });
+                        setPaginatedData(paginatedDataTemp);
                     }}
-                    rowClassName={(_row, index, isFooterData) =>
-                        isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
-                    }
-                    // defaultSortState={sort}
-                    // sortState={sort}
-                    // onSortStateChange={(state) => setSort(state)}
-                    // className={b('tableStats')}
-                    data={data}
-                    columns={columns}
-                    footerData={[filteredSummary]}
                 />
             </div>
         </div>

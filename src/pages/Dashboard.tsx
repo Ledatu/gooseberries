@@ -55,7 +55,7 @@ export const Dashboard = () => {
         },
         {
             value: 'nomenclatures',
-            content: 'Номенклатуры',
+            content: 'Товары',
             disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
         },
     ];
