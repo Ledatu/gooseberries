@@ -644,7 +644,7 @@ export const MassAdvertPage = () => {
                                     <Icon data={pinned.isPinned ? PinSlash : Pin} size={13} />
                                 </Button>
                                 <div className={b('art_index')}>
-                                    {(pagesCurrent - 1) * 300 + index / 3 + 1}
+                                    {Math.round((pagesCurrent - 1) * 300 + index / 3 + 1)}
                                 </div>
                             </div>
                             <Link
@@ -800,7 +800,17 @@ export const MassAdvertPage = () => {
                             onUpdate={(checked) => {
                                 if (!document['campaigns'][selectValue[0]][art].advertsManagerRules)
                                     document['campaigns'][selectValue[0]][art].advertsManagerRules =
-                                        {mode: undefined};
+                                        {};
+
+                                if (
+                                    !document['campaigns'][selectValue[0]][art].advertsManagerRules[
+                                        advertsType
+                                    ]
+                                )
+                                    document['campaigns'][selectValue[0]][art].advertsManagerRules[
+                                        advertsType
+                                    ] = {mode: false};
+
                                 document['campaigns'][selectValue[0]][art].advertsManagerRules[
                                     advertsType
                                 ].mode = checked;
@@ -997,7 +1007,8 @@ export const MassAdvertPage = () => {
             name: 'drr',
             placeholder: 'ДРР, %',
             render: ({value, row}) => {
-                const desiredDRR = row.drrAI ? row.drrAI.desiredDRR : undefined;
+                const desiredDRR = row.drrAI ? row.drrAI.desiredDRR ?? undefined : undefined;
+
                 return (
                     <Text
                         color={
@@ -1222,7 +1233,7 @@ export const MassAdvertPage = () => {
                     carousel: 'carousel',
                 })) {
                     artInfo[key].sum_orders = Math.round(artInfo[key].sum_orders);
-                    artInfo[key].orders = Math.round(artInfo[key].orders);
+                    artInfo[key].orders = Math.round(artInfo[key].orders * 100) / 100;
                     artInfo[key].sum = Math.round(artInfo[key].sum);
                     artInfo[key].views = Math.round(artInfo[key].views);
                     artInfo[key].clicks = Math.round(artInfo[key].clicks);
@@ -1260,6 +1271,9 @@ export const MassAdvertPage = () => {
 
             temp[art] = artInfo;
         }
+
+        summaryTemp.sum_orders = Math.round(summaryTemp.sum_orders);
+        summaryTemp.orders = Math.round(summaryTemp.orders);
 
         setSummary(summaryTemp);
         setTableData(temp);
@@ -1351,6 +1365,10 @@ export const MassAdvertPage = () => {
                 }
             }
         }
+
+        temp.sort((a, b) => {
+            return a.art.localeCompare(b.art, 'ru-RU');
+        });
         const paginatedDataTemp = temp.slice(0, 900);
         const filteredSummaryTemp = {
             art: `На странице: ${paginatedDataTemp.length / 3} Всего: ${temp.length / 3}`,
@@ -1423,9 +1441,6 @@ export const MassAdvertPage = () => {
         );
         setFilteredSummary(filteredSummaryTemp);
 
-        temp.sort((a, b) => {
-            return a.art.localeCompare(b.art, 'ru-RU');
-        });
         setFilteredData(temp);
 
         setPaginatedData(paginatedDataTemp);
@@ -1684,7 +1699,7 @@ export const MassAdvertPage = () => {
                                                 },
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const art = data[i].art;
+                                                const art = filteredData[i].art;
                                                 if (!art) continue;
                                                 params.data.arts.push(art);
                                             }
@@ -1721,7 +1736,7 @@ export const MassAdvertPage = () => {
                                                 },
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const art = data[i].art;
+                                                const art = filteredData[i].art;
                                                 if (!art) continue;
                                                 params.data.arts.push(art);
                                             }
@@ -1758,7 +1773,7 @@ export const MassAdvertPage = () => {
                                                 },
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const art = data[i].art;
+                                                const art = filteredData[i].art;
                                                 if (!art) continue;
                                                 params.data.arts.push(art);
                                             }
@@ -1941,7 +1956,7 @@ export const MassAdvertPage = () => {
                                             arts: {},
                                         };
                                         for (let i = 0; i < filteredData.length; i++) {
-                                            const art = data[i].art;
+                                            const art = filteredData[i].art;
                                             params.arts[art] = {
                                                 type: advertTypeSwitchValue,
                                                 budget: budgetInputValue,
@@ -2104,7 +2119,7 @@ export const MassAdvertPage = () => {
                                                 data: {arts: {}, advertsTypes: advertsTypesInput},
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const art = data[i].art;
+                                                const art = filteredData[i].art;
                                                 if (!art) continue;
 
                                                 params.data.arts[art] = {
@@ -2452,7 +2467,7 @@ export const MassAdvertPage = () => {
                                                     },
                                                 };
                                                 for (let i = 0; i < filteredData.length; i++) {
-                                                    const art = data[i].art;
+                                                    const art = filteredData[i].art;
                                                     if (!art) continue;
 
                                                     if (bidModalSwitchValue == 'Установить') {
@@ -2476,12 +2491,37 @@ export const MassAdvertPage = () => {
                                                                 art: art,
                                                             };
                                                         }
+
+                                                        for (const [
+                                                            advertsType,
+                                                            value,
+                                                        ] of Object.entries(advertsTypesInput)) {
+                                                            if (!advertsType || !value) continue;
+                                                            if (
+                                                                !document.campaigns[selectValue[0]][
+                                                                    art
+                                                                ].drrAI
+                                                            )
+                                                                document.campaigns[selectValue[0]][
+                                                                    art
+                                                                ].drrAI = {};
+                                                            document.campaigns[selectValue[0]][
+                                                                art
+                                                            ].drrAI[advertsType] = {
+                                                                desiredDRR:
+                                                                    bidModalDeleteModeSelected
+                                                                        ? undefined
+                                                                        : bidModalDRRInputValue,
+                                                            };
+                                                        }
                                                     }
                                                 }
+
                                                 console.log(params);
 
                                                 //////////////////////////////////
                                                 callApi('setAdvertsCPMs', params);
+                                                setChangedDoc(document);
                                                 //////////////////////////////////
 
                                                 setBidModalFormOpen(false);
@@ -2529,57 +2569,13 @@ export const MassAdvertPage = () => {
                             // setSemanticsModalSemanticsInputValue(500);
                             // setSemanticsModalSwitchValue('Пополнить');
                             // setSemanticsModalSemanticsInputValidationValue(true);
+                            setAdvertsTypesInput({search: false, booster: false, carousel: false});
                             setPlusPhrasesModalFormOpen(true);
                             const plusPhrasesTemplatesTemp: any[] = [];
                             for (const [name, _] of Object.entries(document.plusPhrasesTemplates)) {
                                 plusPhrasesTemplatesTemp.push(name);
                             }
-                            // plusPhrasesTemplatesTemp.push(
-                            //     <div style={{margin: '2px 3px'}}>
-                            //         <Label
-                            //             size="m"
-                            //             theme="danger"
-                            //             onClick={() => {
-                            //                 const params = {
-                            //                     uid: (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' || Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a' ? '332fa5da-8450-451a-b859-a84ca9951a34' : ''),
-                            //                     campaignName: selectValue[0],
-                            //                     data: {},
-                            //                 };
-                            //                 for (let i = 0; i < data.length; i++) {
-                            //                     const art = data[i].art;
-                            //                     if (!art) continue;
 
-                            //                     params.data[art] = {
-                            //                         mode: 'Удалить',
-                            //                         art: art,
-                            //                     };
-                            //                 }
-                            //                 console.log(params);
-
-                            //                 //////////////////////////////////
-                            //                 const token =
-                            //                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                            //                 axios
-                            //                     .post(
-                            //                         `${ipAddress}/api/setAdvertsPlusPhrasesTemplates`,
-                            //                         params,
-                            //                         {
-                            //                             headers: {
-                            //                                 Authorization: 'Bearer ' + token,
-                            //                             },
-                            //                         },
-                            //                     )
-                            //                     .then((response) => console.log(response.data))
-                            //                     .catch((error) => console.error(error));
-                            //                 //////////////////////////////////
-
-                            //                 setPlusPhrasesModalFormOpen(false);
-                            //             }}
-                            //         >
-                            //             Удалить
-                            //         </Label>
-                            //     </div>,
-                            // );
                             setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
                         }}
                     >
@@ -3200,7 +3196,7 @@ export const MassAdvertPage = () => {
                                                 data: {arts: {}, advertsTypes: advertsTypesInput},
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const art = data[i].art;
+                                                const art = filteredData[i].art;
                                                 if (!art) continue;
 
                                                 params.data.arts[art] = {
@@ -3208,11 +3204,29 @@ export const MassAdvertPage = () => {
                                                     templateName: item,
                                                     art: art,
                                                 };
+
+                                                for (const [advertsType, value] of Object.entries(
+                                                    advertsTypesInput,
+                                                )) {
+                                                    if (!advertsType || !value) continue;
+                                                    if (
+                                                        !document.campaigns[selectValue[0]][art]
+                                                            .plusPhrasesTemplate
+                                                    )
+                                                        document.campaigns[selectValue[0]][
+                                                            art
+                                                        ].plusPhrasesTemplate = {};
+                                                    document.campaigns[selectValue[0]][
+                                                        art
+                                                    ].plusPhrasesTemplate[advertsType] = item;
+                                                }
                                             }
                                             console.log(params);
 
+                                            /////////////////////////
                                             callApi('setAdvertsPlusPhrasesTemplates', params);
-
+                                            setChangedDoc(document);
+                                            /////////////////////////
                                             setPlusPhrasesModalFormOpen(false);
                                         }}
                                         filterPlaceholder={`Поиск в ${plusPhrasesTemplatesLabels.length} шаблонах`}
@@ -3239,17 +3253,36 @@ export const MassAdvertPage = () => {
                                                 data: {},
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const art = data[i].art;
+                                                const art = filteredData[i].art;
                                                 if (!art) continue;
 
                                                 params.data[art] = {
                                                     mode: 'Удалить',
                                                     art: art,
                                                 };
+
+                                                for (const [advertsType, value] of Object.entries(
+                                                    advertsTypesInput,
+                                                )) {
+                                                    if (!advertsType || !value) continue;
+                                                    if (
+                                                        !document.campaigns[selectValue[0]][art]
+                                                            .plusPhrasesTemplate
+                                                    )
+                                                        document.campaigns[selectValue[0]][
+                                                            art
+                                                        ].plusPhrasesTemplate = {};
+                                                    document.campaigns[selectValue[0]][
+                                                        art
+                                                    ].plusPhrasesTemplate[advertsType] = undefined;
+                                                }
                                             }
                                             console.log(params);
 
+                                            /////////////////////////
                                             callApi('setAdvertsPlusPhrasesTemplates', params);
+                                            setChangedDoc(document);
+                                            /////////////////////////
 
                                             setPlusPhrasesModalFormOpen(false);
                                         },
