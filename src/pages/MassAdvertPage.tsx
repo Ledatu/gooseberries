@@ -861,11 +861,21 @@ export const MassAdvertPage = () => {
                                 // style={{position: 'relative', top: -2}}
                                 color={
                                     status
-                                        ? status == 9
-                                            ? 'positive'
-                                            : status == '11'
-                                            ? 'danger'
-                                            : 'warning'
+                                        ? Object.keys(
+                                              document['campaigns'][selectValue[0]][art]['adverts']
+                                                  ? document['campaigns'][selectValue[0]][art][
+                                                        'adverts'
+                                                    ][advertsType]
+                                                  : {},
+                                          ).length > 1
+                                            ? 'info'
+                                            : status
+                                            ? status == 9
+                                                ? 'positive'
+                                                : status == '11'
+                                                ? 'danger'
+                                                : 'warning'
+                                            : 'primary'
                                         : 'primary'
                                 }
                             >
@@ -3361,7 +3371,8 @@ export const MassAdvertPage = () => {
                                         resData['campaigns'][nextValue[0]];
                                     setChangedDoc(document);
                                     setSelectValue(nextValue);
-                                    recalc(dateRange, nextValue[0]);
+                                    // recalc(dateRange, nextValue[0]);
+                                    console.log(document);
                                 });
                             } else {
                                 setSelectValue(nextValue);
