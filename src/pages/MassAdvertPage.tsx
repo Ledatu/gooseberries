@@ -55,8 +55,8 @@ import {
     Pin,
     PinSlash,
     TrashBin,
-    Play,
-    Pause,
+    // Play,
+    // Pause,
     Check,
     CloudArrowUpIn,
     Xmark,
@@ -120,25 +120,25 @@ export const MassAdvertPage = () => {
 
     const [filters, setFilters] = useState({undef: false});
     const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
-    const [manageModalOpen, setManageModalOpen] = useState(false);
+    // const [manageModalOpen, setManageModalOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
 
     const [semanticsModalTextAreaAddMode, setSemanticsModalTextAreaAddMode] = useState(false);
     const [semanticsModalTextAreaValue, setSemanticsModalTextAreaValue] = useState('');
 
     const [modalFormOpen, setModalFormOpen] = useState(false);
-    const [budgetInputValue, setBudgetInputValue] = useState(500);
-    const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
-    const [bidInputValue, setBidInputValue] = useState(125);
-    const [bidInputValidationValue, setBidInputValidationValue] = useState(true);
-    const [placementsRecomInputValue, setPlacementsRecomInputValue] = useState(false);
-    const [placementsBoosterInputValue, setPlacementsBoosterInputValue] = useState(true);
-    const [placementsCarouselInputValue, setPlacementsCarouselInputValue] = useState(false);
-    const advertTypeSwitchValues: any[] = [
-        {value: 'Авто', content: 'Авто'},
-        {value: 'Поиск', content: 'Поиск'},
-    ];
-    const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState('Авто');
+    // const [budgetInputValue, setBudgetInputValue] = useState(500);
+    // const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
+    // const [bidInputValue, setBidInputValue] = useState(125);
+    // const [bidInputValidationValue, setBidInputValidationValue] = useState(true);
+    // const [placementsRecomInputValue, setPlacementsRecomInputValue] = useState(false);
+    // const [placementsBoosterInputValue, setPlacementsBoosterInputValue] = useState(true);
+    // const [placementsCarouselInputValue, setPlacementsCarouselInputValue] = useState(false);
+    // const advertTypeSwitchValues: any[] = [
+    //     {value: 'Авто', content: 'Авто'},
+    //     {value: 'Поиск', content: 'Поиск'},
+    // ];
+    // const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState('Авто');
 
     const [plusPhrasesModalFormOpen, setPlusPhrasesModalFormOpen] = useState(false);
     const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState<any[]>([]);
@@ -1682,7 +1682,7 @@ export const MassAdvertPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <Button
+                    {/* <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="outlined"
                         onClick={() => {
@@ -1846,26 +1846,30 @@ export const MassAdvertPage = () => {
                                 )}
                             </div>
                         </Card>
-                    </Modal>
+                    </Modal> */}
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="outlined"
-                        onClick={() => setModalFormOpen(true)}
+                        onClick={() => {
+                            setModalFormOpen(true);
+                            setAdvertsTypesInput({search: false, booster: false, carousel: false});
+                            setSelectedButton('');
+                        }}
                     >
-                        Создать
+                        Управление
                     </Button>
                     <Modal
                         open={modalFormOpen}
                         onClose={() => {
-                            setAdvertTypeSwitchValue('Авто');
-                            setBudgetInputValue(500);
-                            setBudgetInputValidationValue(true);
-                            setBidInputValue(125);
-                            setBidInputValidationValue(true);
+                            // setAdvertTypeSwitchValue('Авто');
+                            // setBudgetInputValue(500);
+                            // setBudgetInputValidationValue(true);
+                            // setBidInputValue(125);
+                            // setBidInputValidationValue(true);
                             setModalFormOpen(false);
-                            setPlacementsBoosterInputValue(true);
-                            setPlacementsRecomInputValue(false);
-                            setPlacementsCarouselInputValue(false);
+                            // setPlacementsBoosterInputValue(true);
+                            // setPlacementsRecomInputValue(false);
+                            // setPlacementsCarouselInputValue(false);
                         }}
                     >
                         <Card
@@ -1899,151 +1903,124 @@ export const MassAdvertPage = () => {
                                     }}
                                     variant="display-2"
                                 >
-                                    Параметры
+                                    Управление
                                 </Text>
-                                <RadioButton
-                                    style={{marginBottom: '4px'}}
-                                    defaultValue={advertTypeSwitchValue}
-                                    options={advertTypeSwitchValues}
-                                    onUpdate={(val) => {
-                                        setAdvertTypeSwitchValue(val);
-                                        setBidInputValue(val == 'Авто' ? 125 : 250);
-                                    }}
-                                />
-                                <TextInput
-                                    style={{
-                                        maxWidth: '70%',
-                                        margin: '4px 0',
-                                    }}
-                                    type="number"
-                                    value={String(budgetInputValue)}
-                                    onChange={(val) => {
-                                        const budget = Number(val.target.value);
-                                        if (budget < 500) setBudgetInputValidationValue(false);
-                                        else setBudgetInputValidationValue(true);
-                                        setBudgetInputValue(budget);
-                                    }}
-                                    errorMessage={'Введите не менее 500'}
-                                    validationState={
-                                        budgetInputValidationValue ? undefined : 'invalid'
-                                    }
-                                    label="Бюджет"
-                                />{' '}
-                                <TextInput
-                                    style={{
-                                        maxWidth: '70%',
-                                        margin: '4px 0',
-                                    }}
-                                    type="number"
-                                    value={String(bidInputValue)}
-                                    onChange={(val) => {
-                                        const bid = Number(val.target.value);
-                                        if (bid < 125) setBidInputValidationValue(false);
-                                        else setBidInputValidationValue(true);
-                                        setBidInputValue(bid);
-                                    }}
-                                    errorMessage={'Введите не менее 125'}
-                                    validationState={
-                                        bidInputValidationValue ? undefined : 'invalid'
-                                    }
-                                    label="Ставка"
-                                />
                                 <div
                                     style={{
-                                        display: advertTypeSwitchValue == 'Авто' ? 'flex' : 'none',
+                                        height: '50%',
+
+                                        display: 'flex',
                                         flexDirection: 'column',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
+
+                                        margin: '16px 0',
                                     }}
                                 >
-                                    <Checkbox
-                                        style={{margin: '2px 0'}}
-                                        checked={placementsBoosterInputValue}
+                                    <Switch
+                                        size="l"
+                                        style={{display: 'flex', alignItems: 'top'}}
                                         onUpdate={(checked) => {
-                                            setPlacementsBoosterInputValue(checked);
+                                            setAdvertsTypesInput({
+                                                search: checked,
+                                                booster: advertsTypesInput.booster,
+                                                carousel: advertsTypesInput.carousel,
+                                            });
                                         }}
-                                        title="Поиск/Каталог"
-                                        content="Поиск/Каталог"
-                                    />
-                                    <Checkbox
-                                        style={{margin: '2px 0'}}
-                                        checked={placementsRecomInputValue}
+                                    >
+                                        Поиск
+                                    </Switch>
+                                    <div style={{height: 8}} />
+                                    <Switch
+                                        size="l"
+                                        style={{display: 'flex', alignItems: 'top'}}
                                         onUpdate={(checked) => {
-                                            setPlacementsRecomInputValue(checked);
+                                            setAdvertsTypesInput({
+                                                search: advertsTypesInput.search,
+                                                booster: checked,
+                                                carousel: advertsTypesInput.carousel,
+                                            });
                                         }}
-                                        title="Рекомендации на главной"
-                                        content="Рекомендации на главной"
-                                    />
-                                    <Checkbox
-                                        style={{margin: '4px 0 2px 0'}}
-                                        checked={placementsCarouselInputValue}
+                                    >
+                                        Бустер
+                                    </Switch>
+                                    <div style={{height: 8}} />
+
+                                    <Switch
+                                        size="l"
+                                        style={{display: 'flex', alignItems: 'top'}}
                                         onUpdate={(checked) => {
-                                            setPlacementsCarouselInputValue(checked);
+                                            setAdvertsTypesInput({
+                                                search: advertsTypesInput.search,
+                                                booster: advertsTypesInput.booster,
+                                                carousel: checked,
+                                            });
                                         }}
-                                        title="Карточка товара"
-                                        content="Карточка товара"
-                                    />
+                                    >
+                                        Карточка
+                                    </Switch>
                                 </div>
-                                <Button
-                                    style={{
-                                        margin: '8px 0px',
-                                        maxWidth: '60%',
-                                    }}
-                                    pin="circle-circle"
-                                    size="l"
-                                    width="max"
-                                    view="action"
-                                    disabled={
-                                        !(budgetInputValidationValue && bidInputValidationValue)
-                                    }
-                                    // view="outlined-success"
-                                    // selected
-                                    onClick={() => {
-                                        const params = {
-                                            uid:
-                                                Userfront.user.userUuid ==
-                                                    '332fa5da-8450-451a-b859-a84ca9951a34' ||
-                                                Userfront.user.userUuid ==
-                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
-                                                    : '',
-                                            campaignName: selectValue[0],
-                                            arts: {},
-                                        };
-                                        for (let i = 0; i < filteredData.length; i++) {
-                                            const art = filteredData[i].art;
-                                            params.arts[art] = {
-                                                type: advertTypeSwitchValue,
-                                                budget: budgetInputValue,
-                                                bid: bidInputValue,
-                                                nmId: data[i].nmId,
-                                                placements: {
-                                                    recom: placementsRecomInputValue,
-                                                    booster: placementsBoosterInputValue,
-                                                    carousel: placementsCarouselInputValue,
-                                                },
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Установить',
+                                        icon: CloudArrowUpIn,
+                                        view: 'outlined-success',
+                                        onClick: () => {
+                                            const params = {
+                                                uid:
+                                                    Userfront.user.userUuid ==
+                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        : '',
+                                                campaignName: selectValue[0],
+                                                data: {arts: {}},
                                             };
-                                        }
-                                        console.log(params);
+                                            for (let i = 0; i < filteredData.length; i++) {
+                                                const art = filteredData[i].art;
+                                                if (!art) continue;
+                                                params.data.arts[art] = {};
 
-                                        //////////////////////////////////
-                                        const token =
-                                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-                                        axios
-                                            .post(`${ipAddress}/api/createMassAdverts`, params, {
-                                                headers: {
-                                                    Authorization: 'Bearer ' + token,
-                                                },
-                                            })
-                                            .then((response) => console.log(response.data))
-                                            .catch((error) => console.error(error));
-                                        //////////////////////////////////
+                                                for (const [advertsType, value] of Object.entries(
+                                                    advertsTypesInput,
+                                                )) {
+                                                    if (!advertsType) continue;
+                                                    params.data.arts[art][advertsType] = value;
+                                                    if (
+                                                        !document.campaigns[selectValue[0]][art]
+                                                            .advertsManagerRules
+                                                    )
+                                                        document.campaigns[selectValue[0]][
+                                                            art
+                                                        ].advertsManagerRules = {};
+                                                    if (
+                                                        !document.campaigns[selectValue[0]][art]
+                                                            .advertsManagerRules[advertsType]
+                                                    )
+                                                        document.campaigns[selectValue[0]][
+                                                            art
+                                                        ].advertsManagerRules[advertsType] = {
+                                                            mode: false,
+                                                        };
+                                                    document.campaigns[selectValue[0]][
+                                                        art
+                                                    ].advertsManagerRules[advertsType].mode = value;
+                                                }
+                                            }
+                                            console.log(params);
 
-                                        setModalFormOpen(false);
-                                    }}
-                                >
-                                    Запуск
-                                </Button>
+                                            //////////////////////////////////
+                                            // console.log(document);
+
+                                            callApi('updateAdvertsManagerRules', params);
+                                            setChangedDoc(document);
+                                            //////////////////////////////////
+
+                                            setModalFormOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
                             </div>
                         </Card>
                     </Modal>
