@@ -139,6 +139,7 @@ export const MassAdvertPage = () => {
     //     {value: 'Поиск', content: 'Поиск'},
     // ];
     // const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState('Авто');
+    const [groupingEnabledState, setGroupingEnabledState] = useState(true);
 
     const [plusPhrasesModalFormOpen, setPlusPhrasesModalFormOpen] = useState(false);
     const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState<any[]>([]);
@@ -548,7 +549,7 @@ export const MassAdvertPage = () => {
                         />
                     </div>
                 ),
-                group: group,
+                group: group && groupingEnabledState,
                 render: render
                     ? (args) => render(args)
                     : ({value}) => {
@@ -645,7 +646,7 @@ export const MassAdvertPage = () => {
                                     <Icon data={pinned.isPinned ? PinSlash : Pin} size={13} />
                                 </Button>
                                 <div className={b('art_index')}>
-                                    {Math.round((pagesCurrent - 1) * 300 + index / 3 + 1)}
+                                    {Math.floor((pagesCurrent - 1) * 300 + index / 3 + 1)}
                                 </div>
                             </div>
                             <Link
@@ -669,6 +670,86 @@ export const MassAdvertPage = () => {
         {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
         {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
         {name: 'stocks', placeholder: 'Остаток', group: true},
+        {
+            name: 'semantics',
+            placeholder: 'Семантика',
+            valueType: 'text',
+            render: ({value, row}) => {
+                if (value === null) return;
+                // if (!row.adverts) return;
+                // const themeToUse = 'normal';
+                // console.log(value.plus);
+                const plusPhrasesTemplate = row.plusPhrasesTemplate;
+                const themeToUse = plusPhrasesTemplate ? 'info' : 'normal';
+
+                return (
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                        <Label
+                            // theme="normal"
+                            // theme="info"
+                            theme={themeToUse}
+                            onClick={() => {
+                                setSemanticsModalFormOpen(true);
+
+                                setSemanticsModalSemanticsItemsValue(
+                                    value ? value.clusters ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsItemsFiltratedValue(
+                                    value ? value.clusters ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsMinusItemsValue(
+                                    value ? value.excluded ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                    plusPhrasesTemplate ?? 'Не установлен',
+                                );
+
+                                const plusThreshold = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
+                                    : 100;
+                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+                                const plusCTRThreshold = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                          .ctrThreshold
+                                    : 5;
+                                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
+
+                                const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
+                                      false
+                                    : false;
+                                setSemanticsModalIsFixed(isFixed);
+
+                                const templateType = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].type ??
+                                      'АВТО'
+                                    : 'АВТО';
+                                setSemanticsModalAdvertType(templateType);
+                                // console.log(value.plus);
+                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                    plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
+                                );
+                                const plusItems = document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].clusters
+                                    : [];
+                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
+                                setSemanticsModalTextAreaValue('');
+                                setSemanticsModalTextAreaAddMode(false);
+                            }}
+                        >
+                            {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
+                        </Label>
+                    </div>
+                );
+            },
+        },
         {
             name: 'adverts',
             placeholder: 'Реклама',
@@ -908,86 +989,7 @@ export const MassAdvertPage = () => {
                 );
             },
         },
-        {
-            name: 'semantics',
-            placeholder: 'Семантика',
-            valueType: 'text',
-            render: ({value, row}) => {
-                if (value === null) return;
-                // if (!row.adverts) return;
-                // const themeToUse = 'normal';
-                // console.log(value.plus);
-                const plusPhrasesTemplate = row.plusPhrasesTemplate;
-                const themeToUse = plusPhrasesTemplate ? 'info' : 'normal';
 
-                return (
-                    <div style={{display: 'flex', justifyContent: 'center'}}>
-                        <Label
-                            // theme="normal"
-                            // theme="info"
-                            theme={themeToUse}
-                            onClick={() => {
-                                setSemanticsModalFormOpen(true);
-
-                                setSemanticsModalSemanticsItemsValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsItemsFiltratedValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsMinusItemsValue(
-                                    value ? value.excluded ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                    plusPhrasesTemplate ?? 'Не установлен',
-                                );
-
-                                const plusThreshold = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
-                                    : 100;
-                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
-
-                                const plusCTRThreshold = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                          .ctrThreshold
-                                    : 5;
-                                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
-
-                                const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
-                                      false
-                                    : false;
-                                setSemanticsModalIsFixed(isFixed);
-
-                                const templateType = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].type ??
-                                      'АВТО'
-                                    : 'АВТО';
-                                setSemanticsModalAdvertType(templateType);
-                                // console.log(value.plus);
-                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                    plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
-                                );
-                                const plusItems = document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].clusters
-                                    : [];
-                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
-                                setSemanticsModalTextAreaValue('');
-                                setSemanticsModalTextAreaAddMode(false);
-                            }}
-                        >
-                            {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
-                        </Label>
-                    </div>
-                );
-            },
-        },
         {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
         {name: 'budget', placeholder: 'Баланс, ₽'},
         {
@@ -1367,56 +1369,63 @@ export const MassAdvertPage = () => {
         )) {
             if (!art || !artInfo) continue;
 
-            let addFlag = true;
-            const useFilters = withfFilters['undef'] ? withfFilters : filters;
-            for (const [filterArg, filterData] of Object.entries(useFilters)) {
-                if (filterArg == 'undef' || !filterData) continue;
-                if (filterData['val'] == '') continue;
-                // if (filterArg == 'adverts') {}
-                if (!compare(artInfo[filterArg], filterData)) {
-                    addFlag = false;
-                    break;
+            for (const [key, keyRus] of Object.entries({
+                search: 'Поиск',
+                booster: 'Бустер',
+                carousel: 'Карточка',
+            })) {
+                const tempTypeRow = {
+                    advertsType: key,
+                    art: artInfo['art'],
+                    brand: artInfo['brand'],
+                    object: artInfo['object'],
+                    nmId: artInfo['nmId'],
+                    title: artInfo['title'],
+                    adverts: artInfo['adverts']
+                        ? artInfo['adverts'][key]
+                            ? artInfo['adverts'][key][Object.keys(artInfo['adverts'][key])[0]]
+                            : undefined
+                        : undefined,
+                    stocks: artInfo['stocks'],
+                    semantics: artInfo[key].semantics,
+                    plusPhrasesTemplate: artInfo[key].plusPhrasesTemplate,
+                    budget: artInfo[key].budget,
+                    bid: artInfo[key].bid,
+                    bidLog: artInfo[key].bidLog,
+                    budgetToKeep: artInfo[key].budgetToKeep,
+                    orders: artInfo[key].orders,
+                    sum_orders: artInfo[key].sum_orders,
+                    sum: artInfo[key].sum,
+                    views: artInfo[key].views,
+                    clicks: artInfo[key].clicks,
+                    drr: artInfo[key].drr,
+                    ctr: artInfo[key].ctr,
+                    cpc: artInfo[key].cpc,
+                    cpm: artInfo[key].cpm,
+                    cr: artInfo[key].cr,
+                    cpo: artInfo[key].cpo,
+                    drrAI: artInfo[key].drrAI,
+                    advertsManagerRules: artInfo['advertsManagerRules'],
+                };
+
+                let addFlag = true;
+                const useFilters = withfFilters['undef'] ? withfFilters : filters;
+                for (const [filterArg, filterData] of Object.entries(useFilters)) {
+                    if (filterArg == 'undef' || !filterData) continue;
+                    if (filterData['val'] == '') continue;
+                    if (filterArg == 'adverts') {
+                        if (!compare(keyRus, filterData)) {
+                            addFlag = false;
+                            break;
+                        }
+                    } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                        addFlag = false;
+                        break;
+                    }
                 }
-            }
-            if (addFlag) {
-                for (const [key, _] of Object.entries({
-                    search: 'search',
-                    booster: 'booster',
-                    carousel: 'carousel',
-                })) {
-                    temp.push({
-                        advertsType: key,
-                        art: artInfo['art'],
-                        brand: artInfo['brand'],
-                        object: artInfo['object'],
-                        nmId: artInfo['nmId'],
-                        title: artInfo['title'],
-                        adverts: artInfo['adverts']
-                            ? artInfo['adverts'][key]
-                                ? artInfo['adverts'][key][Object.keys(artInfo['adverts'][key])[0]]
-                                : undefined
-                            : undefined,
-                        stocks: artInfo['stocks'],
-                        semantics: artInfo[key].semantics,
-                        plusPhrasesTemplate: artInfo[key].plusPhrasesTemplate,
-                        budget: artInfo[key].budget,
-                        bid: artInfo[key].bid,
-                        bidLog: artInfo[key].bidLog,
-                        budgetToKeep: artInfo[key].budgetToKeep,
-                        orders: artInfo[key].orders,
-                        sum_orders: artInfo[key].sum_orders,
-                        sum: artInfo[key].sum,
-                        views: artInfo[key].views,
-                        clicks: artInfo[key].clicks,
-                        drr: artInfo[key].drr,
-                        ctr: artInfo[key].ctr,
-                        cpc: artInfo[key].cpc,
-                        cpm: artInfo[key].cpm,
-                        cr: artInfo[key].cr,
-                        cpo: artInfo[key].cpo,
-                        drrAI: artInfo[key].drrAI,
-                        advertsManagerRules: artInfo['advertsManagerRules'],
-                    });
+
+                if (addFlag) {
+                    temp.push(tempTypeRow);
                 }
             }
         }
@@ -1446,6 +1455,7 @@ export const MassAdvertPage = () => {
         };
         for (let i = 0; i < temp.length; i++) {
             const row = temp[i];
+            // const art = row['art'];
             filteredSummaryTemp.sum_orders += row['sum_orders'];
             filteredSummaryTemp.orders += row['orders'];
             filteredSummaryTemp.stocks += row['stocks'];
@@ -2690,6 +2700,9 @@ export const MassAdvertPage = () => {
                                     filterItem={(filter) => (item) => {
                                         return item.cluster.includes(filter);
                                     }}
+                                    itemHeight={(item) => {
+                                        return 30 * Math.round(item.cluster.length / 40);
+                                    }}
                                     renderItem={(item) => {
                                         const {cluster, count, sum, ctr, clicks} = item;
                                         const colorToUse =
@@ -2708,9 +2721,7 @@ export const MassAdvertPage = () => {
                                             >
                                                 <div
                                                     style={{
-                                                        textOverflow: 'ellipsis',
-                                                        overflow: 'hidden',
-                                                        whiteSpace: 'nowrap',
+                                                        textWrap: 'wrap',
                                                     }}
                                                 >
                                                     <Text color={colorToUse}>{cluster}</Text>
@@ -2859,6 +2870,9 @@ export const MassAdvertPage = () => {
                                 <List
                                     items={semanticsModalSemanticsMinusItemsValue}
                                     filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
+                                    itemHeight={(item) => {
+                                        return 30 * Math.ceil(item.length / 30);
+                                    }}
                                     onItemClick={(item) => {
                                         let val = Array.from(semanticsModalSemanticsPlusItemsValue);
                                         const cluster = item;
@@ -2878,9 +2892,7 @@ export const MassAdvertPage = () => {
                                         return (
                                             <div
                                                 style={{
-                                                    textOverflow: 'ellipsis',
-                                                    overflow: 'hidden',
-                                                    whiteSpace: 'nowrap',
+                                                    textWrap: 'wrap',
                                                 }}
                                             >
                                                 <Text color={colorToUse}>{cluster}</Text>
@@ -3131,6 +3143,9 @@ export const MassAdvertPage = () => {
                                     />
                                 ) : (
                                     <List
+                                        itemHeight={(item) => {
+                                            return 30 * Math.ceil(item.length / 45);
+                                        }}
                                         items={semanticsModalSemanticsPlusItemsValue}
                                         filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
                                         onItemClick={(cluster) => {
@@ -3513,7 +3528,17 @@ export const MassAdvertPage = () => {
                         }
                         // defaultSortState={sort}
                         // sortState={sort}
-                        // onSortStateChange={(state) => setSort(state)}
+                        onSort={(sortOrder) => {
+                            if (!sortOrder) {
+                                setGroupingEnabledState(true);
+                                return;
+                            }
+                            if (sortOrder['length']) {
+                                setGroupingEnabledState(false);
+                            } else {
+                                setGroupingEnabledState(true);
+                            }
+                        }}
                         // className={b('tableStats')}
                         data={paginatedData}
                         columns={columns}
