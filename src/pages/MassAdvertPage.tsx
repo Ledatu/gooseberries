@@ -206,6 +206,11 @@ export const MassAdvertPage = () => {
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
     const [bidModalBidStepInputValidationValue, setBidModalBidStepInputValidationValue] =
         useState(true);
+    const [bidModalStocksThresholdInputValue, setBidModalStocksThresholdInputValue] = useState(5);
+    const [
+        bidModalStocksThresholdInputValidationValue,
+        setBidModalStocksThresholdInputValidationValue,
+    ] = useState(true);
     const [bidModalDRRInputValue, setBidModalDRRInputValue] = useState(50);
     const [bidModalDRRInputValidationValue, setBidModalDRRInputValidationValue] = useState(true);
 
@@ -669,7 +674,24 @@ export const MassAdvertPage = () => {
         },
         {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
         {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
-        {name: 'stocks', placeholder: 'Остаток', group: true},
+        {
+            name: 'stocks',
+            placeholder: 'Остаток',
+            group: true,
+            render: ({value, row}) => {
+                const {advertsStocksThreshold} = row;
+
+                if (!advertsStocksThreshold) return value;
+                const {stocksThreshold} = advertsStocksThreshold ?? {};
+
+                if (!stocksThreshold) return value;
+                return (
+                    <div>
+                        <Text>{`${value} (${stocksThreshold})`}</Text>
+                    </div>
+                );
+            },
+        },
         {
             name: 'semantics',
             placeholder: 'Семантика',
@@ -1206,6 +1228,7 @@ export const MassAdvertPage = () => {
                 adverts: 0,
                 stocks: 0,
                 advertsManagerRules: undefined,
+                advertsStocksThreshold: undefined,
             };
 
             artInfo.art = artData['art'];
@@ -1216,6 +1239,7 @@ export const MassAdvertPage = () => {
             artInfo.stocks = artData['stocks'];
             artInfo.adverts = artData['adverts'];
             artInfo.advertsManagerRules = artData['advertsManagerRules'];
+            artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
 
             for (const [key, _] of Object.entries({
                 search: 'search',
@@ -1406,6 +1430,7 @@ export const MassAdvertPage = () => {
                     cpo: artInfo[key].cpo,
                     drrAI: artInfo[key].drrAI,
                     advertsManagerRules: artInfo['advertsManagerRules'],
+                    advertsStocksThreshold: artInfo['advertsStocksThreshold'],
                 };
 
                 let addFlag = true;
@@ -2220,6 +2245,8 @@ export const MassAdvertPage = () => {
                             setBidModalFormOpen(true);
                             setBidModalBidStepInputValue(5);
                             setBidModalBidStepInputValidationValue(true);
+                            setBidModalStocksThresholdInputValue(5);
+                            setBidModalStocksThresholdInputValidationValue(true);
                             setBidModalDRRInputValue(50);
                             setBidModalDRRInputValidationValue(true);
                         }}
@@ -2288,8 +2315,8 @@ export const MassAdvertPage = () => {
                                             height: bidModalDeleteModeSelected
                                                 ? 8
                                                 : bidModalSwitchValue == 'Установить'
-                                                ? 44
-                                                : 44,
+                                                ? 40
+                                                : 78,
                                             opacity: bidModalDeleteModeSelected ? 0 : 1,
                                         }}
                                         transition={{duration: 0.1}}
@@ -2307,8 +2334,8 @@ export const MassAdvertPage = () => {
                                             animate={{
                                                 y: !bidModalDeleteModeSelected
                                                     ? bidModalSwitchValue == 'Установить'
-                                                        ? 18
-                                                        : -18
+                                                        ? 38
+                                                        : -16
                                                     : 77,
                                                 // x: !bidModalDeleteModeSelected
                                                 //     ? bidModalSwitchValue == 'Установить'
@@ -2423,6 +2450,39 @@ export const MassAdvertPage = () => {
                                                     style={{
                                                         maxWidth: '70%',
                                                         margin: '4px 0',
+                                                    }}
+                                                    type="number"
+                                                    value={String(
+                                                        bidModalStocksThresholdInputValue,
+                                                    )}
+                                                    onChange={(val) => {
+                                                        const stocksThreshold = Number(
+                                                            val.target.value,
+                                                        );
+                                                        if (stocksThreshold < 0)
+                                                            setBidModalStocksThresholdInputValidationValue(
+                                                                false,
+                                                            );
+                                                        else
+                                                            setBidModalStocksThresholdInputValidationValue(
+                                                                true,
+                                                            );
+                                                        setBidModalStocksThresholdInputValue(
+                                                            stocksThreshold,
+                                                        );
+                                                    }}
+                                                    errorMessage={'Введите не менее 0'}
+                                                    validationState={
+                                                        bidModalStocksThresholdInputValidationValue
+                                                            ? undefined
+                                                            : 'invalid'
+                                                    }
+                                                    label="Мин. остаток"
+                                                />
+                                                <TextInput
+                                                    style={{
+                                                        maxWidth: '70%',
+                                                        margin: '4px 0',
                                                         display: 'none',
                                                     }}
                                                     type="number"
@@ -2482,7 +2542,10 @@ export const MassAdvertPage = () => {
                                             pin="circle-circle"
                                             size="l"
                                             width="max"
-                                            disabled={!bidModalBidInputValidationValue}
+                                            disabled={
+                                                !bidModalBidInputValidationValue ||
+                                                !bidModalStocksThresholdInputValidationValue
+                                            }
                                             // view="action"
                                             view={
                                                 bidModalDeleteModeSelected
@@ -2506,6 +2569,8 @@ export const MassAdvertPage = () => {
                                                         mode: bidModalDeleteModeSelected
                                                             ? 'Удалить правила'
                                                             : bidModalSwitchValue,
+                                                        stocksThreshold:
+                                                            bidModalStocksThresholdInputValue,
                                                     },
                                                 };
                                                 for (let i = 0; i < filteredData.length; i++) {
@@ -2526,6 +2591,7 @@ export const MassAdvertPage = () => {
                                                                 bidStep: bidModalBidStepInputValue,
                                                                 // dateRange:
                                                                 //     bidModalAnalyticsSwitchValue,
+
                                                                 advertId: art,
                                                             };
                                                         } else {
@@ -2556,6 +2622,17 @@ export const MassAdvertPage = () => {
                                                                         : bidModalDRRInputValue,
                                                             };
                                                         }
+                                                        if (
+                                                            !document.campaigns[selectValue[0]][art]
+                                                                .advertsStocksThreshold
+                                                        )
+                                                            document.campaigns[selectValue[0]][
+                                                                art
+                                                            ].advertsStocksThreshold = {};
+                                                        document.campaigns[selectValue[0]][
+                                                            art
+                                                        ].advertsStocksThreshold.stocksThreshold =
+                                                            bidModalStocksThresholdInputValue;
                                                     }
                                                 }
 
