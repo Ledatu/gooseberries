@@ -1096,6 +1096,8 @@ export const MassAdvertPage = () => {
                                     ? value == 0
                                         ? 'primary'
                                         : 'positive'
+                                    : value / desiredDRR - 1 < 0.5
+                                    ? 'warning'
                                     : 'danger'
                                 : 'primary'
                         }
