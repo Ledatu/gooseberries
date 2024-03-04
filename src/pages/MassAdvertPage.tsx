@@ -2823,6 +2823,9 @@ export const MassAdvertPage = () => {
                                     <Text variant="header-1">Минус фразы</Text>
                                 </div>
                                 <List
+                                    filterItem={(filter) => (item) => {
+                                        return item.cluster.includes(filter);
+                                    }}
                                     items={semanticsModalSemanticsMinusItemsValue}
                                     filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
                                     itemHeight={(item) => {
