@@ -2727,7 +2727,7 @@ export const MassAdvertPage = () => {
                                 style={{
                                     display: 'flex',
                                     height: !isDesktop ? '23vh' : undefined,
-                                    width: isDesktop ? '35vw' : undefined,
+                                    width: isDesktop ? '25vw' : undefined,
                                     flexDirection: 'column',
                                 }}
                             >
@@ -2780,138 +2780,14 @@ export const MassAdvertPage = () => {
                                         return item.cluster.includes(filter);
                                     }}
                                     itemHeight={(item) => {
-                                        return 30 * Math.round(item.cluster.length / 40);
+                                        return 15 * Math.ceil(item.cluster.length / 35) + 15;
                                     }}
-                                    renderItem={(item) => {
-                                        const {cluster, count, sum, ctr, clicks} = item;
-                                        const colorToUse =
-                                            semanticsModalSemanticsPlusItemsValue.includes(cluster)
-                                                ? 'warning'
-                                                : 'primary';
-                                        return (
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'space-between',
-                                                    width: '100%',
-                                                }}
-                                                title={cluster}
-                                            >
-                                                <div
-                                                    style={{
-                                                        textWrap: 'wrap',
-                                                    }}
-                                                >
-                                                    <Text color={colorToUse}>{cluster}</Text>
-                                                </div>
-                                                <div
-                                                    style={{display: 'flex', flexDirection: 'row'}}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                        }}
-                                                    >
-                                                        <Text color="secondary">
-                                                            {Math.round(sum)}
-                                                        </Text>
-                                                        <div style={{width: 3}} />
-                                                        <Text
-                                                            color="secondary"
-                                                            style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'row',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                            }}
-                                                        >
-                                                            ₽
-                                                        </Text>
-                                                    </div>
-                                                    <div style={{width: 8}} />
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                        }}
-                                                    >
-                                                        <Text color="secondary">
-                                                            {Math.round(count)}
-                                                        </Text>
-                                                        <div style={{width: 3}} />
-                                                        <Text
-                                                            color="secondary"
-                                                            style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'row',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                            }}
-                                                        >
-                                                            <Icon size={12} data={Eye} />
-                                                        </Text>
-                                                    </div>
-                                                    <div style={{width: 8}} />
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                        }}
-                                                    >
-                                                        <Text color="secondary">
-                                                            {Math.round(clicks)}
-                                                        </Text>
-                                                        <div style={{width: 3}} />
-                                                        <Text
-                                                            color="secondary"
-                                                            style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'row',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                            }}
-                                                        >
-                                                            <Icon
-                                                                size={12}
-                                                                data={LayoutHeaderCursor}
-                                                            />
-                                                        </Text>
-                                                    </div>
-                                                    <div style={{width: 8}} />
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                        }}
-                                                    >
-                                                        <Text color="secondary">{ctr}</Text>
-                                                        <div style={{width: 3}} />
-                                                        <Text
-                                                            color="secondary"
-                                                            style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'row',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                            }}
-                                                        >
-                                                            %
-                                                        </Text>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    }}
+                                    renderItem={(item) =>
+                                        renderPhrasesStatListItem(
+                                            item,
+                                            semanticsModalSemanticsPlusItemsValue,
+                                        )
+                                    }
                                     onItemClick={(item) => {
                                         let val = Array.from(semanticsModalSemanticsPlusItemsValue);
                                         const {cluster} = item;
@@ -2931,7 +2807,7 @@ export const MassAdvertPage = () => {
                                 style={{
                                     display: 'flex',
                                     height: !isDesktop ? '23vh' : undefined,
-                                    width: isDesktop ? '15vw' : undefined,
+                                    width: isDesktop ? '25vw' : undefined,
                                     flexDirection: 'column',
                                 }}
                             >
@@ -2950,33 +2826,23 @@ export const MassAdvertPage = () => {
                                     items={semanticsModalSemanticsMinusItemsValue}
                                     filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
                                     itemHeight={(item) => {
-                                        return 30 * Math.ceil(item.length / 30);
+                                        return 15 * Math.ceil(item.cluster.length / 35) + 15;
                                     }}
+                                    renderItem={(item) =>
+                                        renderPhrasesStatListItem(
+                                            item,
+                                            semanticsModalSemanticsPlusItemsValue,
+                                        )
+                                    }
                                     onItemClick={(item) => {
                                         let val = Array.from(semanticsModalSemanticsPlusItemsValue);
-                                        const cluster = item;
+                                        const {cluster} = item;
                                         if (!val.includes(cluster)) {
                                             val.push(cluster);
                                         } else {
                                             val = val.filter((value) => value != cluster);
                                         }
                                         setSemanticsModalSemanticsPlusItemsValue(val);
-                                    }}
-                                    renderItem={(item) => {
-                                        const cluster = item;
-                                        const colorToUse =
-                                            semanticsModalSemanticsPlusItemsValue.includes(cluster)
-                                                ? 'positive'
-                                                : 'primary';
-                                        return (
-                                            <div
-                                                style={{
-                                                    textWrap: 'wrap',
-                                                }}
-                                            >
-                                                <Text color={colorToUse}>{cluster}</Text>
-                                            </div>
-                                        );
                                     }}
                                 />
                             </motion.div>
@@ -3223,7 +3089,7 @@ export const MassAdvertPage = () => {
                                 ) : (
                                     <List
                                         itemHeight={(item) => {
-                                            return 30 * Math.ceil(item.length / 45);
+                                            return 15 * Math.ceil(item.length / 45) + 15;
                                         }}
                                         items={semanticsModalSemanticsPlusItemsValue}
                                         filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
@@ -3765,6 +3631,125 @@ const generateModalAdvertsTypesInput = (setAdvertsTypesInput) => {
                 >
                     Карточка
                 </Checkbox>
+            </div>
+        </div>
+    );
+};
+
+const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) => {
+    const {cluster, count, sum, ctr, clicks} = item;
+    const colorToUse = semanticsModalSemanticsPlusItemsValue.includes(cluster)
+        ? 'warning'
+        : 'primary';
+    return (
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                width: '100%',
+            }}
+            title={cluster}
+        >
+            <div
+                style={{
+                    textWrap: 'wrap',
+                }}
+            >
+                <Text color={colorToUse}>{cluster}</Text>
+            </div>
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{Math.round(sum ?? 0)}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        ₽
+                    </Text>
+                </div>
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{Math.round(count ?? 0)}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Icon size={12} data={Eye} />
+                    </Text>
+                </div>
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{Math.round(clicks ?? 0)}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Icon size={12} data={LayoutHeaderCursor} />
+                    </Text>
+                </div>
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{ctr ?? 0}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        %
+                    </Text>
+                </div>
             </div>
         </div>
     );
