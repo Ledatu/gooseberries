@@ -2780,7 +2780,7 @@ export const MassAdvertPage = () => {
                                         return item.cluster.includes(filter);
                                     }}
                                     itemHeight={(item) => {
-                                        return 15 * Math.ceil(item.cluster.length / 35) + 15;
+                                        return 20 * Math.ceil(item.cluster.length / 30) + 20;
                                     }}
                                     renderItem={(item) =>
                                         renderPhrasesStatListItem(
@@ -2826,7 +2826,7 @@ export const MassAdvertPage = () => {
                                     items={semanticsModalSemanticsMinusItemsValue}
                                     filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
                                     itemHeight={(item) => {
-                                        return 15 * Math.ceil(item.cluster.length / 35) + 15;
+                                        return 20 * Math.ceil(item.cluster.length / 30) + 20;
                                     }}
                                     renderItem={(item) =>
                                         renderPhrasesStatListItem(
@@ -3089,7 +3089,7 @@ export const MassAdvertPage = () => {
                                 ) : (
                                     <List
                                         itemHeight={(item) => {
-                                            return 15 * Math.ceil(item.length / 45) + 15;
+                                            return 20 * Math.ceil(item.length / 45) + 20;
                                         }}
                                         items={semanticsModalSemanticsPlusItemsValue}
                                         filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
