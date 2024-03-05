@@ -162,6 +162,10 @@ export const MassAdvertPage = () => {
         semanticsModalSemanticsItemsFiltratedValue,
         setSemanticsModalSemanticsItemsFiltratedValue,
     ] = useState<any[]>([]);
+    const [
+        semanticsModalSemanticsMinusItemsFiltratedValue,
+        setSemanticsModalSemanticsMinusItemsFiltratedValue,
+    ] = useState<any[]>([]);
     const [semanticsModalSemanticsMinusItemsValue, setSemanticsModalSemanticsMinusItemsValue] =
         useState<any[]>([]);
     const [semanticsModalSemanticsPlusItemsValue, setSemanticsModalSemanticsPlusItemsValue] =
@@ -722,6 +726,9 @@ export const MassAdvertPage = () => {
                                 setSemanticsModalSemanticsMinusItemsValue(
                                     value ? value.excluded ?? [] : [],
                                 );
+                                setSemanticsModalSemanticsMinusItemsFiltratedValue(
+                                    value ? value.excluded ?? [] : [],
+                                );
                                 setSemanticsModalSemanticsPlusItemsTemplateNameValue(
                                     plusPhrasesTemplate ?? 'Не установлен',
                                 );
@@ -1053,6 +1060,16 @@ export const MassAdvertPage = () => {
                             series: {
                                 type: 'line',
                                 interpolation: 'smooth',
+                            },
+                        },
+                        axes: {
+                            y: {
+                                precision: 'auto',
+                                show: true,
+                            },
+                            x: {
+                                precision: 'auto',
+                                show: true,
                             },
                         },
                         title: {
@@ -2813,16 +2830,45 @@ export const MassAdvertPage = () => {
                             >
                                 <div
                                     style={{
+                                        marginBottom: 8,
                                         display: 'flex',
                                         flexDirection: 'row',
-                                        marginBottom: 8,
-                                        height: 28,
+                                        justifyContent: 'space-between',
                                         alignItems: 'center',
                                     }}
                                 >
                                     <Text variant="header-1">Минус фразы</Text>
+                                    <Button
+                                        onClick={() => {
+                                            const val = Array.from(
+                                                semanticsModalSemanticsPlusItemsValue,
+                                            );
+                                            for (
+                                                let i = 0;
+                                                i <
+                                                semanticsModalSemanticsMinusItemsFiltratedValue.length;
+                                                i++
+                                            ) {
+                                                const cluster =
+                                                    semanticsModalSemanticsMinusItemsFiltratedValue[
+                                                        i
+                                                    ].cluster;
+                                                if (val.includes(cluster)) continue;
+                                                val.push(cluster);
+                                                // console.log(keyword);
+                                            }
+                                            // console.log(val);
+
+                                            setSemanticsModalSemanticsPlusItemsValue(val);
+                                        }}
+                                    >
+                                        Добавить все
+                                    </Button>
                                 </div>
                                 <List
+                                    onFilterEnd={({items}) => {
+                                        setSemanticsModalSemanticsMinusItemsFiltratedValue(items);
+                                    }}
                                     filterItem={(filter) => (item) => {
                                         return item.cluster.includes(filter);
                                     }}
