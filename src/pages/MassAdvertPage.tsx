@@ -3417,6 +3417,15 @@ export const MassAdvertPage = () => {
                                             : 0
                                         : 0
                                     : 0,
+                            )} 
+                            Счет: ${new Intl.NumberFormat('ru-RU').format(
+                                document
+                                    ? document.balances
+                                        ? document.balances[selectValue[0]]
+                                            ? document.balances[selectValue[0]].balance ?? 0
+                                            : 0
+                                        : 0
+                                    : 0,
                             )}`}
                         </Label>
                     </div>
