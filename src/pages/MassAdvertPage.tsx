@@ -88,11 +88,16 @@ const getUserDoc = (doc = undefined) => {
                 `${ipAddress}/api/getMassAdvertsNew`,
                 {
                     uid:
-                        (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                        (Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
+                        Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
                         Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
                             ? '332fa5da-8450-451a-b859-a84ca9951a34'
                             : '') ?? '',
                     dateRange: {from: '2023', to: '2024'},
+                    campaignName:
+                        Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c'
+                            ? 'Клининг Сервис'
+                            : 'ИП Валерий',
                 },
                 {
                     headers: {
@@ -948,6 +953,8 @@ export const MassAdvertPage = () => {
                                     const params = {
                                         uid:
                                             Userfront.user.userUuid ==
+                                                'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
+                                            Userfront.user.userUuid ==
                                                 '332fa5da-8450-451a-b859-a84ca9951a34' ||
                                             Userfront.user.userUuid ==
                                                 '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
@@ -1578,7 +1585,14 @@ export const MassAdvertPage = () => {
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(document['campaigns'])) {
-            if (Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a') {
+            if (Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c') {
+                if (campaignName == 'Клининг Сервис') {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else if (Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a') {
                 if (campaignName == 'ИП Валерий') {
                     campaignsNames.push({
                         value: campaignName,
@@ -2021,6 +2035,8 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid:
                                                     Userfront.user.userUuid ==
+                                                        'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
+                                                    Userfront.user.userUuid ==
                                                         '332fa5da-8450-451a-b859-a84ca9951a34' ||
                                                     Userfront.user.userUuid ==
                                                         '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
@@ -2195,6 +2211,8 @@ export const MassAdvertPage = () => {
                                         onClick: () => {
                                             const params = {
                                                 uid:
+                                                    Userfront.user.userUuid ==
+                                                        'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
                                                     Userfront.user.userUuid ==
                                                         '332fa5da-8450-451a-b859-a84ca9951a34' ||
                                                     Userfront.user.userUuid ==
@@ -2575,6 +2593,8 @@ export const MassAdvertPage = () => {
                                             onClick={() => {
                                                 const params = {
                                                     uid:
+                                                        Userfront.user.userUuid ==
+                                                            'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
                                                         Userfront.user.userUuid ==
                                                             '332fa5da-8450-451a-b859-a84ca9951a34' ||
                                                         Userfront.user.userUuid ==
@@ -3086,6 +3106,8 @@ export const MassAdvertPage = () => {
                                                     Userfront.user.userUuid ==
                                                         '332fa5da-8450-451a-b859-a84ca9951a34' ||
                                                     Userfront.user.userUuid ==
+                                                        'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
+                                                    Userfront.user.userUuid ==
                                                         '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
                                                         ? '332fa5da-8450-451a-b859-a84ca9951a34'
                                                         : '',
@@ -3229,6 +3251,8 @@ export const MassAdvertPage = () => {
                                                     Userfront.user.userUuid ==
                                                         '332fa5da-8450-451a-b859-a84ca9951a34' ||
                                                     Userfront.user.userUuid ==
+                                                        'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
+                                                    Userfront.user.userUuid ==
                                                         '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
                                                         ? '332fa5da-8450-451a-b859-a84ca9951a34'
                                                         : '',
@@ -3285,6 +3309,8 @@ export const MassAdvertPage = () => {
                                                 uid:
                                                     Userfront.user.userUuid ==
                                                         '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                                    Userfront.user.userUuid ==
+                                                        'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
                                                     Userfront.user.userUuid ==
                                                         '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
                                                         ? '332fa5da-8450-451a-b859-a84ca9951a34'
@@ -3345,6 +3371,8 @@ export const MassAdvertPage = () => {
                                         (Userfront.user.userUuid ==
                                             '332fa5da-8450-451a-b859-a84ca9951a34' ||
                                         Userfront.user.userUuid ==
+                                            'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
+                                        Userfront.user.userUuid ==
                                             '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
                                             ? '332fa5da-8450-451a-b859-a84ca9951a34'
                                             : '') ?? '',
@@ -3355,6 +3383,8 @@ export const MassAdvertPage = () => {
                                     const resData = res['data'];
                                     document['campaigns'][nextValue[0]] =
                                         resData['campaigns'][nextValue[0]];
+                                    document['balances'][nextValue[0]] =
+                                        resData['balances'][nextValue[0]];
                                     setChangedDoc(document);
                                     setSelectValue(nextValue);
                                     // recalc(dateRange, nextValue[0]);
@@ -3367,6 +3397,29 @@ export const MassAdvertPage = () => {
                             setPagesCurrent(1);
                         }}
                     />
+
+                    <div style={{marginRight: '8px', marginLeft: 8, marginBottom: '8px'}}>
+                        <Label theme="clear" size="m">
+                            {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
+                                document
+                                    ? document.balances
+                                        ? document.balances[selectValue[0]]
+                                            ? document.balances[selectValue[0]].net ?? 0
+                                            : 0
+                                        : 0
+                                    : 0,
+                            )}
+                            Бонусы: ${new Intl.NumberFormat('ru-RU').format(
+                                document
+                                    ? document.balances
+                                        ? document.balances[selectValue[0]]
+                                            ? document.balances[selectValue[0]].bonus ?? 0
+                                            : 0
+                                        : 0
+                                    : 0,
+                            )}`}
+                        </Label>
+                    </div>
                 </div>
 
                 <div ref={fieldRef}>
