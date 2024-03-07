@@ -906,6 +906,12 @@ export const MassAdvertPage = () => {
                         ? row.advertsManagerRules[advertsType].mode
                         : false
                     : false;
+                const {
+                    updateTime,
+                    disabledByDRR,
+                    disabledByStocks,
+                }: {updateTime: string; disabledByDRR: boolean; disabledByStocks: boolean} =
+                    row.advertsManagerRules ? row.advertsManagerRules[advertsType] ?? {} : {};
                 const {status, daysInWork} = value ?? {};
                 return (
                     <div
@@ -925,6 +931,19 @@ export const MassAdvertPage = () => {
                             }}
                         >
                             <Switch
+                                title={`${
+                                    updateTime
+                                        ? new Date(updateTime).toLocaleString('ru-RU') + ' '
+                                        : ''
+                                }${
+                                    disabledByDRR || disabledByStocks
+                                        ? 'Выкл. по ' + disabledByDRR
+                                            ? 'ДРР'
+                                            : '' + disabledByStocks
+                                            ? 'Остаткам'
+                                            : ''
+                                        : ''
+                                }`}
                                 checked={advertsManagerRulesMode}
                                 // defaultChecked={advertsManagerRulesMode}
                                 style={{display: 'flex', alignItems: 'top'}}
