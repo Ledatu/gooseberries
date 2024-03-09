@@ -76,9 +76,9 @@
         max-width: 20vw;
     }
 
-    .td_fixed_adverts {
-        left: calc(20vw + 20px) !important;
-    }
+    // .td_fixed_adverts {
+    //     left: calc(20vw + 20px) !important;
+    // }
 
     tr:hover {
         .data-table__td.app__td_fixed::before {

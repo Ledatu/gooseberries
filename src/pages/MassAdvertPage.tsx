@@ -73,11 +73,11 @@ settings.set({plugins: [YagrPlugin]});
 
 const {ipAddress} = require('../ipAddress');
 
-const getUserDoc = (doc = undefined) => {
-    const [document, setDocument] = useState<any>();
+const getUserDoc = (docum = undefined) => {
+    const [doc, setDocument] = useState<any>();
 
-    if (doc) {
-        setDocument(doc);
+    if (docum) {
+        setDocument(docum);
     }
 
     useEffect(() => {
@@ -108,11 +108,12 @@ const getUserDoc = (doc = undefined) => {
             .then((response) => setDocument(response.data))
             .catch((error) => console.error(error));
     }, []);
-    return document;
+    return doc;
 };
 
 export const MassAdvertPage = () => {
     const windowDimensions = useWindowDimensions();
+
     const isDesktop = windowDimensions.height < windowDimensions.width;
 
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
@@ -122,6 +123,20 @@ export const MassAdvertPage = () => {
         booster: false,
         carousel: false,
     });
+
+    const myObserver = new ResizeObserver((entries) => {
+        const advertsColumnItems = document.getElementsByClassName('td_fixed_adverts');
+        for (let i = 0; i < advertsColumnItems.length; i++) {
+            (advertsColumnItems[i] as HTMLElement).style.left = `${
+                entries[0].contentRect.width + 20
+            }px`;
+        }
+    });
+
+    const artColumnElement = document.getElementsByClassName('td_fixed_art')[0];
+    if (artColumnElement) {
+        myObserver.observe(artColumnElement);
+    }
 
     const [filters, setFilters] = useState({undef: false});
     const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
@@ -608,7 +623,7 @@ export const MassAdvertPage = () => {
                     <div
                         title={value}
                         style={{
-                            width: '20vw',
+                            maxWidth: '20vw',
                             display: 'flex',
                             flexDirection: 'row',
                             zIndex: 40,
@@ -810,6 +825,7 @@ export const MassAdvertPage = () => {
                 }: {updateTime: string; disabledByDRR: boolean; disabledByStocks: boolean} =
                     row.advertsManagerRules ? row.advertsManagerRules[advertsType] ?? {} : {};
                 const {status, daysInWork} = value ?? {};
+
                 return (
                     <div
                         style={{
@@ -845,26 +861,23 @@ export const MassAdvertPage = () => {
                                 // defaultChecked={advertsManagerRulesMode}
                                 style={{display: 'flex', alignItems: 'top'}}
                                 onUpdate={(checked) => {
-                                    if (
-                                        !document['campaigns'][selectValue[0]][art]
-                                            .advertsManagerRules
-                                    )
-                                        document['campaigns'][selectValue[0]][
-                                            art
-                                        ].advertsManagerRules = {};
+                                    if (!doc['campaigns'][selectValue[0]][art].advertsManagerRules)
+                                        doc['campaigns'][selectValue[0]][art].advertsManagerRules =
+                                            {};
 
                                     if (
-                                        !document['campaigns'][selectValue[0]][art]
-                                            .advertsManagerRules[advertsType]
+                                        !doc['campaigns'][selectValue[0]][art].advertsManagerRules[
+                                            advertsType
+                                        ]
                                     )
-                                        document['campaigns'][selectValue[0]][
-                                            art
-                                        ].advertsManagerRules[advertsType] = {mode: false};
+                                        doc['campaigns'][selectValue[0]][art].advertsManagerRules[
+                                            advertsType
+                                        ] = {mode: false};
 
-                                    document['campaigns'][selectValue[0]][art].advertsManagerRules[
+                                    doc['campaigns'][selectValue[0]][art].advertsManagerRules[
                                         advertsType
                                     ].mode = checked;
-                                    setChangedDoc(document);
+                                    setChangedDoc(doc);
 
                                     const params = {
                                         uid:
@@ -895,8 +908,8 @@ export const MassAdvertPage = () => {
                                 color={
                                     status
                                         ? Object.keys(
-                                              document['campaigns'][selectValue[0]][art]['adverts']
-                                                  ? document['campaigns'][selectValue[0]][art][
+                                              doc['campaigns'][selectValue[0]][art]['adverts']
+                                                  ? doc['campaigns'][selectValue[0]][art][
                                                         'adverts'
                                                     ][advertsType]
                                                   : {},
@@ -981,40 +994,33 @@ export const MassAdvertPage = () => {
                                     plusPhrasesTemplate ?? 'Не установлен',
                                 );
 
-                                const plusThreshold = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
+                                const plusThreshold = doc.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].threshold
                                     : 100;
                                 setSemanticsModalSemanticsThresholdValue(plusThreshold);
 
-                                const plusCTRThreshold = document.plusPhrasesTemplates[
+                                const plusCTRThreshold = doc.plusPhrasesTemplates[
                                     plusPhrasesTemplate
                                 ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                          .ctrThreshold
+                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].ctrThreshold
                                     : 5;
                                 setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
 
-                                const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
-                                      false
+                                const isFixed = doc.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ?? false
                                     : false;
                                 setSemanticsModalIsFixed(isFixed);
 
-                                const templateType = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].type ??
-                                      'АВТО'
+                                const templateType = doc.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].type ?? 'АВТО'
                                     : 'АВТО';
                                 setSemanticsModalAdvertType(templateType);
                                 // console.log(value.plus);
                                 setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
                                     plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
                                 );
-                                const plusItems = document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].clusters
+                                const plusItems = doc.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].clusters
                                     : [];
                                 setSemanticsModalSemanticsPlusItemsValue(plusItems);
                                 setSemanticsModalTextAreaValue('');
@@ -1198,10 +1204,10 @@ export const MassAdvertPage = () => {
 
     // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
-    // const [document, setUserDoc] = React.useState(getUserDoc());
-    const document = getUserDoc(changedDoc);
+    // const [doc, setUserDoc] = React.useState(getUserDoc());
+    const doc = getUserDoc(changedDoc);
 
-    // const document = {};
+    // const doc = {};
     const today = new Date(
         new Date()
             .toLocaleDateString('ru-RU')
@@ -1214,7 +1220,7 @@ export const MassAdvertPage = () => {
     const [startDate, endDate] = dateRange;
     const fieldRef = useRef(null);
     const [datePickerOpen, setDatePickerOpen] = useState(false);
-    // console.log(document);
+    // console.log(doc);
     // const lbdDate: DateTime =;
     // lbdDate.subtract(90, 'day');
     // setLbd(new Date());
@@ -1256,9 +1262,9 @@ export const MassAdvertPage = () => {
             sum_orders: 0,
         };
 
-        const campaignData = document
-            ? document.campaigns
-                ? document.campaigns[selected == '' ? selectValue[0] : selected]
+        const campaignData = doc
+            ? doc.campaigns
+                ? doc.campaigns[selected == '' ? selectValue[0] : selected]
                 : {}
             : {};
         const temp = {};
@@ -1593,17 +1599,17 @@ export const MassAdvertPage = () => {
     if (changedDoc) {
         setChangedDoc(undefined);
         recalc(dateRange);
-        // console.log(document);
+        // console.log(doc);
     }
 
     if (changedColumns) {
         setChangedColumns(false);
     }
 
-    if (!document) return <Spin />;
+    if (!doc) return <Spin />;
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(document['campaigns'])) {
+        for (const [campaignName, _] of Object.entries(doc['campaigns'])) {
             if (Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c') {
                 if (campaignName == 'Клининг Сервис') {
                     campaignsNames.push({
@@ -1628,7 +1634,7 @@ export const MassAdvertPage = () => {
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected = campaignsNames[0]['value'];
         setSelectValue([selected]);
-        console.log(document);
+        console.log(doc);
 
         for (let i = 0; i < columnData.length; i++) {
             const {name} = columnData[i];
@@ -2075,22 +2081,22 @@ export const MassAdvertPage = () => {
                                                     if (!advertsType) continue;
                                                     params.data.arts[art][advertsType] = value;
                                                     if (
-                                                        !document.campaigns[selectValue[0]][art]
+                                                        !doc.campaigns[selectValue[0]][art]
                                                             .advertsManagerRules
                                                     )
-                                                        document.campaigns[selectValue[0]][
+                                                        doc.campaigns[selectValue[0]][
                                                             art
                                                         ].advertsManagerRules = {};
                                                     if (
-                                                        !document.campaigns[selectValue[0]][art]
+                                                        !doc.campaigns[selectValue[0]][art]
                                                             .advertsManagerRules[advertsType]
                                                     )
-                                                        document.campaigns[selectValue[0]][
+                                                        doc.campaigns[selectValue[0]][
                                                             art
                                                         ].advertsManagerRules[advertsType] = {
                                                             mode: false,
                                                         };
-                                                    document.campaigns[selectValue[0]][
+                                                    doc.campaigns[selectValue[0]][
                                                         art
                                                     ].advertsManagerRules[advertsType].mode = value;
                                                 }
@@ -2098,10 +2104,10 @@ export const MassAdvertPage = () => {
                                             console.log(params);
 
                                             //////////////////////////////////
-                                            // console.log(document);
+                                            // console.log(doc);
 
                                             callApi('updateAdvertsManagerRules', params);
-                                            setChangedDoc(document);
+                                            setChangedDoc(doc);
                                             //////////////////////////////////
 
                                             setModalFormOpen(false);
@@ -2258,13 +2264,13 @@ export const MassAdvertPage = () => {
                                                     ] of Object.entries(advertsTypesInput)) {
                                                         if (!advertsType || !value) continue;
                                                         if (
-                                                            !document.campaigns[selectValue[0]][art]
+                                                            !doc.campaigns[selectValue[0]][art]
                                                                 .budgetToKeep
                                                         )
-                                                            document.campaigns[selectValue[0]][
+                                                            doc.campaigns[selectValue[0]][
                                                                 art
                                                             ].budgetToKeep = {};
-                                                        document.campaigns[selectValue[0]][
+                                                        doc.campaigns[selectValue[0]][
                                                             art
                                                         ].budgetToKeep[advertsType] =
                                                             budgetModalBudgetInputValue;
@@ -2275,7 +2281,7 @@ export const MassAdvertPage = () => {
 
                                             //////////////////////////////////
                                             callApi('depositAdvertsBudgets', params);
-                                            setChangedDoc(document);
+                                            setChangedDoc(doc);
                                             //////////////////////////////////
 
                                             setBudgetModalFormOpen(false);
@@ -2664,14 +2670,13 @@ export const MassAdvertPage = () => {
                                                         ] of Object.entries(advertsTypesInput)) {
                                                             if (!advertsType || !value) continue;
                                                             if (
-                                                                !document.campaigns[selectValue[0]][
-                                                                    art
-                                                                ].drrAI
+                                                                !doc.campaigns[selectValue[0]][art]
+                                                                    .drrAI
                                                             )
-                                                                document.campaigns[selectValue[0]][
+                                                                doc.campaigns[selectValue[0]][
                                                                     art
                                                                 ].drrAI = {};
-                                                            document.campaigns[selectValue[0]][
+                                                            doc.campaigns[selectValue[0]][
                                                                 art
                                                             ].drrAI[advertsType] = {
                                                                 desiredDRR:
@@ -2681,13 +2686,13 @@ export const MassAdvertPage = () => {
                                                             };
                                                         }
                                                         if (
-                                                            !document.campaigns[selectValue[0]][art]
+                                                            !doc.campaigns[selectValue[0]][art]
                                                                 .advertsStocksThreshold
                                                         )
-                                                            document.campaigns[selectValue[0]][
+                                                            doc.campaigns[selectValue[0]][
                                                                 art
                                                             ].advertsStocksThreshold = {};
-                                                        document.campaigns[selectValue[0]][
+                                                        doc.campaigns[selectValue[0]][
                                                             art
                                                         ].advertsStocksThreshold.stocksThreshold =
                                                             bidModalStocksThresholdInputValue;
@@ -2698,7 +2703,7 @@ export const MassAdvertPage = () => {
 
                                                 //////////////////////////////////
                                                 callApi('setAdvertsCPMs', params);
-                                                setChangedDoc(document);
+                                                setChangedDoc(doc);
                                                 //////////////////////////////////
 
                                                 setBidModalFormOpen(false);
@@ -2749,7 +2754,7 @@ export const MassAdvertPage = () => {
                             setAdvertsTypesInput({search: false, booster: false, carousel: false});
                             setPlusPhrasesModalFormOpen(true);
                             const plusPhrasesTemplatesTemp: any[] = [];
-                            for (const [name, _] of Object.entries(document.plusPhrasesTemplates)) {
+                            for (const [name, _] of Object.entries(doc.plusPhrasesTemplates)) {
                                 plusPhrasesTemplatesTemp.push(name);
                             }
 
@@ -3143,7 +3148,7 @@ export const MassAdvertPage = () => {
                                                 },
                                             };
 
-                                            document.plusPhrasesTemplates[endName] = {
+                                            doc.plusPhrasesTemplates[endName] = {
                                                 isFixed: semanticsModalIsFixed,
                                                 name: endName,
                                                 type: semanticsModalAdvertType,
@@ -3155,7 +3160,7 @@ export const MassAdvertPage = () => {
 
                                             console.log(params);
 
-                                            setChangedDoc(document);
+                                            setChangedDoc(doc);
 
                                             callApi('setPlusPhraseTemplate', params);
 
@@ -3293,13 +3298,13 @@ export const MassAdvertPage = () => {
                                                 )) {
                                                     if (!advertsType || !value) continue;
                                                     if (
-                                                        !document.campaigns[selectValue[0]][art]
+                                                        !doc.campaigns[selectValue[0]][art]
                                                             .plusPhrasesTemplate
                                                     )
-                                                        document.campaigns[selectValue[0]][
+                                                        doc.campaigns[selectValue[0]][
                                                             art
                                                         ].plusPhrasesTemplate = {};
-                                                    document.campaigns[selectValue[0]][
+                                                    doc.campaigns[selectValue[0]][
                                                         art
                                                     ].plusPhrasesTemplate[advertsType] = item;
                                                 }
@@ -3308,7 +3313,7 @@ export const MassAdvertPage = () => {
 
                                             /////////////////////////
                                             callApi('setAdvertsPlusPhrasesTemplates', params);
-                                            setChangedDoc(document);
+                                            setChangedDoc(doc);
                                             /////////////////////////
                                             setPlusPhrasesModalFormOpen(false);
                                         }}
@@ -3351,13 +3356,13 @@ export const MassAdvertPage = () => {
                                                 )) {
                                                     if (!advertsType || !value) continue;
                                                     if (
-                                                        !document.campaigns[selectValue[0]][art]
+                                                        !doc.campaigns[selectValue[0]][art]
                                                             .plusPhrasesTemplate
                                                     )
-                                                        document.campaigns[selectValue[0]][
+                                                        doc.campaigns[selectValue[0]][
                                                             art
                                                         ].plusPhrasesTemplate = {};
-                                                    document.campaigns[selectValue[0]][
+                                                    doc.campaigns[selectValue[0]][
                                                         art
                                                     ].plusPhrasesTemplate[advertsType] = undefined;
                                                 }
@@ -3366,7 +3371,7 @@ export const MassAdvertPage = () => {
 
                                             /////////////////////////
                                             callApi('setAdvertsPlusPhrasesTemplates', params);
-                                            setChangedDoc(document);
+                                            setChangedDoc(doc);
                                             /////////////////////////
 
                                             setPlusPhrasesModalFormOpen(false);
@@ -3384,7 +3389,7 @@ export const MassAdvertPage = () => {
                         placeholder="Values"
                         options={selectOptions}
                         onUpdate={(nextValue) => {
-                            if (!Object.keys(document['campaigns'][nextValue[0]]).length) {
+                            if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                 callApi('getMassAdvertsNew', {
                                     uid:
                                         (Userfront.user.userUuid ==
@@ -3400,14 +3405,14 @@ export const MassAdvertPage = () => {
                                 }).then((res) => {
                                     if (!res) return;
                                     const resData = res['data'];
-                                    document['campaigns'][nextValue[0]] =
+                                    doc['campaigns'][nextValue[0]] =
                                         resData['campaigns'][nextValue[0]];
-                                    document['balances'][nextValue[0]] =
+                                    doc['balances'][nextValue[0]] =
                                         resData['balances'][nextValue[0]];
-                                    setChangedDoc(document);
+                                    setChangedDoc(doc);
                                     setSelectValue(nextValue);
                                     // recalc(dateRange, nextValue[0]);
-                                    console.log(document);
+                                    console.log(doc);
                                 });
                             } else {
                                 setSelectValue(nextValue);
@@ -3420,28 +3425,28 @@ export const MassAdvertPage = () => {
                     <div style={{marginRight: '8px', marginLeft: 8, marginBottom: '8px'}}>
                         <Label theme="clear" size="m">
                             {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
-                                document
-                                    ? document.balances
-                                        ? document.balances[selectValue[0]]
-                                            ? document.balances[selectValue[0]].net ?? 0
+                                doc
+                                    ? doc.balances
+                                        ? doc.balances[selectValue[0]]
+                                            ? doc.balances[selectValue[0]].net ?? 0
                                             : 0
                                         : 0
                                     : 0,
                             )}
                             Бонусы: ${new Intl.NumberFormat('ru-RU').format(
-                                document
-                                    ? document.balances
-                                        ? document.balances[selectValue[0]]
-                                            ? document.balances[selectValue[0]].bonus ?? 0
+                                doc
+                                    ? doc.balances
+                                        ? doc.balances[selectValue[0]]
+                                            ? doc.balances[selectValue[0]].bonus ?? 0
                                             : 0
                                         : 0
                                     : 0,
                             )} 
                             Счет: ${new Intl.NumberFormat('ru-RU').format(
-                                document
-                                    ? document.balances
-                                        ? document.balances[selectValue[0]]
-                                            ? document.balances[selectValue[0]].balance ?? 0
+                                doc
+                                    ? doc.balances
+                                        ? doc.balances[selectValue[0]]
+                                            ? doc.balances[selectValue[0]].balance ?? 0
                                             : 0
                                         : 0
                                     : 0,
