@@ -943,24 +943,7 @@ export const MassAdvertPage = () => {
         },
         {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
         {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
-        {
-            name: 'stocks',
-            placeholder: 'Остаток',
-            group: true,
-            render: ({value, row}) => {
-                const {advertsStocksThreshold} = row;
 
-                if (!advertsStocksThreshold) return value;
-                const {stocksThreshold} = advertsStocksThreshold ?? {};
-
-                if (!stocksThreshold) return value;
-                return (
-                    <div>
-                        <Text>{`${value} (${stocksThreshold})`}</Text>
-                    </div>
-                );
-            },
-        },
         {
             name: 'semantics',
             placeholder: 'Фразы',
@@ -1040,6 +1023,24 @@ export const MassAdvertPage = () => {
                         >
                             {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
                         </Label>
+                    </div>
+                );
+            },
+        },
+        {
+            name: 'stocks',
+            placeholder: 'Остаток',
+            group: true,
+            render: ({value, row}) => {
+                const {advertsStocksThreshold} = row;
+
+                if (!advertsStocksThreshold) return value;
+                const {stocksThreshold} = advertsStocksThreshold ?? {};
+
+                if (!stocksThreshold) return value;
+                return (
+                    <div>
+                        <Text>{`${value} (${stocksThreshold})`}</Text>
                     </div>
                 );
             },
