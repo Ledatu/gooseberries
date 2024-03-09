@@ -335,7 +335,7 @@ export const MassAdvertPage = () => {
             if (minWidth > 100) minWidth = 100;
             columns.push({
                 name: name,
-                className: b(className ?? (i == 0 ? 'td_fixed' : 'td_body')),
+                className: b(className ?? (i < 2 ? `td_fixed td_fixed_${name}` : 'td_body')),
                 header: (
                     <div
                         title={placeholder}
@@ -608,7 +608,7 @@ export const MassAdvertPage = () => {
                     <div
                         title={value}
                         style={{
-                            maxWidth: '20vw',
+                            width: '20vw',
                             display: 'flex',
                             flexDirection: 'row',
                             zIndex: 40,
@@ -680,109 +680,6 @@ export const MassAdvertPage = () => {
             },
             valueType: 'text',
             group: true,
-        },
-        {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
-        {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
-        {
-            name: 'stocks',
-            placeholder: 'Остаток',
-            group: true,
-            render: ({value, row}) => {
-                const {advertsStocksThreshold} = row;
-
-                if (!advertsStocksThreshold) return value;
-                const {stocksThreshold} = advertsStocksThreshold ?? {};
-
-                if (!stocksThreshold) return value;
-                return (
-                    <div>
-                        <Text>{`${value} (${stocksThreshold})`}</Text>
-                    </div>
-                );
-            },
-        },
-        {
-            name: 'semantics',
-            placeholder: 'Семантика',
-            valueType: 'text',
-            render: ({value, row}) => {
-                if (value === null) return;
-                // if (!row.adverts) return;
-                // const themeToUse = 'normal';
-                // console.log(value.plus);
-                const plusPhrasesTemplate = row.plusPhrasesTemplate;
-                const themeToUse = plusPhrasesTemplate ? 'info' : 'normal';
-
-                return (
-                    <div style={{display: 'flex', justifyContent: 'center'}}>
-                        <Label
-                            // theme="normal"
-                            // theme="info"
-                            theme={themeToUse}
-                            onClick={() => {
-                                setSemanticsModalFormOpen(true);
-
-                                setSemanticsModalSemanticsItemsValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsItemsFiltratedValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsMinusItemsValue(
-                                    value ? value.excluded ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsMinusItemsFiltratedValue(
-                                    value ? value.excluded ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                    plusPhrasesTemplate ?? 'Не установлен',
-                                );
-
-                                const plusThreshold = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
-                                    : 100;
-                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
-
-                                const plusCTRThreshold = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                          .ctrThreshold
-                                    : 5;
-                                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
-
-                                const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
-                                      false
-                                    : false;
-                                setSemanticsModalIsFixed(isFixed);
-
-                                const templateType = document.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].type ??
-                                      'АВТО'
-                                    : 'АВТО';
-                                setSemanticsModalAdvertType(templateType);
-                                // console.log(value.plus);
-                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                    plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
-                                );
-                                const plusItems = document.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].clusters
-                                    : [];
-                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
-                                setSemanticsModalTextAreaValue('');
-                                setSemanticsModalTextAreaAddMode(false);
-                            }}
-                        >
-                            {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
-                        </Label>
-                    </div>
-                );
-            },
         },
         {
             name: 'adverts',
@@ -1044,7 +941,109 @@ export const MassAdvertPage = () => {
                 );
             },
         },
+        {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
+        {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
+        {
+            name: 'stocks',
+            placeholder: 'Остаток',
+            group: true,
+            render: ({value, row}) => {
+                const {advertsStocksThreshold} = row;
 
+                if (!advertsStocksThreshold) return value;
+                const {stocksThreshold} = advertsStocksThreshold ?? {};
+
+                if (!stocksThreshold) return value;
+                return (
+                    <div>
+                        <Text>{`${value} (${stocksThreshold})`}</Text>
+                    </div>
+                );
+            },
+        },
+        {
+            name: 'semantics',
+            placeholder: 'Фразы',
+            valueType: 'text',
+            render: ({value, row}) => {
+                if (value === null) return;
+                // if (!row.adverts) return;
+                // const themeToUse = 'normal';
+                // console.log(value.plus);
+                const plusPhrasesTemplate = row.plusPhrasesTemplate;
+                const themeToUse = plusPhrasesTemplate ? 'info' : 'normal';
+
+                return (
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                        <Label
+                            // theme="normal"
+                            // theme="info"
+                            theme={themeToUse}
+                            onClick={() => {
+                                setSemanticsModalFormOpen(true);
+
+                                setSemanticsModalSemanticsItemsValue(
+                                    value ? value.clusters ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsItemsFiltratedValue(
+                                    value ? value.clusters ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsMinusItemsValue(
+                                    value ? value.excluded ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsMinusItemsFiltratedValue(
+                                    value ? value.excluded ?? [] : [],
+                                );
+                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                    plusPhrasesTemplate ?? 'Не установлен',
+                                );
+
+                                const plusThreshold = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].threshold
+                                    : 100;
+                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+                                const plusCTRThreshold = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                          .ctrThreshold
+                                    : 5;
+                                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
+
+                                const isFixed = document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ??
+                                      false
+                                    : false;
+                                setSemanticsModalIsFixed(isFixed);
+
+                                const templateType = document.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].type ??
+                                      'АВТО'
+                                    : 'АВТО';
+                                setSemanticsModalAdvertType(templateType);
+                                // console.log(value.plus);
+                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                    plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
+                                );
+                                const plusItems = document.plusPhrasesTemplates[plusPhrasesTemplate]
+                                    ? document.plusPhrasesTemplates[plusPhrasesTemplate].clusters
+                                    : [];
+                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
+                                setSemanticsModalTextAreaValue('');
+                                setSemanticsModalTextAreaAddMode(false);
+                            }}
+                        >
+                            {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
+                        </Label>
+                    </div>
+                );
+            },
+        },
         {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
         {name: 'budget', placeholder: 'Баланс, ₽'},
         {
@@ -2756,7 +2755,7 @@ export const MassAdvertPage = () => {
                             setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
                         }}
                     >
-                        Семантика
+                        Фразы
                     </Button>
                     <Modal
                         open={semanticsModalFormOpen}
