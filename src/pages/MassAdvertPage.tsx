@@ -133,9 +133,9 @@ export const MassAdvertPage = () => {
         }
     });
 
-    const artColumnElement = document.getElementsByClassName('td_fixed_art')[0];
-    if (artColumnElement) {
-        myObserver.observe(artColumnElement);
+    const artColumnElements = document.getElementsByClassName('td_fixed_art');
+    if (artColumnElements && artColumnElements[0]) {
+        myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
     }
 
     const [filters, setFilters] = useState({undef: false});
