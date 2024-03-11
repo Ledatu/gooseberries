@@ -112,6 +112,22 @@ const getUserDoc = (docum = undefined) => {
 };
 
 export const MassAdvertPage = () => {
+    const myObserver = new ResizeObserver((entries) => {
+        console.log('resized');
+
+        const advertsColumnItems = document.getElementsByClassName('td_fixed_adverts');
+        for (let i = 0; i < advertsColumnItems.length; i++) {
+            (advertsColumnItems[i] as HTMLElement).style.left = `${
+                entries[0].contentRect.width + 20
+            }px`;
+        }
+    });
+
+    const artColumnElements = document.getElementsByClassName('td_fixed_art');
+    if (artColumnElements[0]) {
+        myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
+    }
+
     const windowDimensions = useWindowDimensions();
 
     const isDesktop = windowDimensions.height < windowDimensions.width;
@@ -123,20 +139,6 @@ export const MassAdvertPage = () => {
         booster: false,
         carousel: false,
     });
-
-    const myObserver = new ResizeObserver((entries) => {
-        const advertsColumnItems = document.getElementsByClassName('td_fixed_adverts');
-        for (let i = 0; i < advertsColumnItems.length; i++) {
-            (advertsColumnItems[i] as HTMLElement).style.left = `${
-                entries[0].contentRect.width + 20
-            }px`;
-        }
-    });
-
-    const artColumnElements = document.getElementsByClassName('td_fixed_art');
-    if (artColumnElements && artColumnElements[0]) {
-        myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
-    }
 
     const [filters, setFilters] = useState({undef: false});
     const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
@@ -675,7 +677,7 @@ export const MassAdvertPage = () => {
                                     <Icon data={pinned.isPinned ? PinSlash : Pin} size={13} />
                                 </Button>
                                 <div className={b('art_index')}>
-                                    {Math.floor((pagesCurrent - 1) * 300 + index / 3 + 1)}
+                                    {Math.floor((pagesCurrent - 1) * 200 + index / 3 + 1)}
                                 </div>
                             </div>
                             <Link
@@ -956,7 +958,46 @@ export const MassAdvertPage = () => {
         },
         {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
         {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
+        {
+            name: 'placements',
+            placeholder: 'Позиция',
+            render: ({value}) => {
+                if (!value) return undefined;
 
+                const {updateTime, index, prevIndex, phrase} = value;
+
+                if (phrase == '') return undefined;
+
+                const updateTimeObj = new Date(updateTime);
+                const moreThatHour =
+                    new Date().getTime() / 1000 / 3600 - updateTimeObj.getTime() / 1000 / 3600 > 1;
+                return (
+                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                        {' '}
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Text
+                                color={
+                                    index != -1
+                                        ? index > prevIndex && prevIndex != -1
+                                            ? 'danger'
+                                            : 'positive'
+                                        : 'danger'
+                                }
+                            >{`${!index || index == -1 ? 'Нет в выдаче' : index}`}</Text>
+                            <div style={{width: 4}} />
+                            <Text>{`(${
+                                !prevIndex || prevIndex == -1 ? 'Не было в выдаче' : prevIndex
+                            })`}</Text>
+                        </div>
+                        <Text>{`${phrase}`}</Text>
+                        <Text
+                            color={moreThatHour ? 'danger' : 'primary'}
+                        >{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
+                    </div>
+                );
+            },
+            group: true,
+        },
         {
             name: 'semantics',
             placeholder: 'Фразы',
@@ -1280,6 +1321,7 @@ export const MassAdvertPage = () => {
                 stocks: 0,
                 advertsManagerRules: undefined,
                 advertsStocksThreshold: undefined,
+                placements: undefined,
             };
 
             artInfo.art = artData['art'];
@@ -1291,6 +1333,7 @@ export const MassAdvertPage = () => {
             artInfo.adverts = artData['adverts'];
             artInfo.advertsManagerRules = artData['advertsManagerRules'];
             artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
+            artInfo.placements = artData['placements'];
 
             for (const [key, _] of Object.entries({
                 search: 'search',
@@ -1482,6 +1525,7 @@ export const MassAdvertPage = () => {
                     drrAI: artInfo[key].drrAI,
                     advertsManagerRules: artInfo['advertsManagerRules'],
                     advertsStocksThreshold: artInfo['advertsStocksThreshold'],
+                    placements: artInfo['placements'],
                 };
 
                 let addFlag = true;
@@ -1509,7 +1553,7 @@ export const MassAdvertPage = () => {
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 900);
+        const paginatedDataTemp = temp.slice(0, 600);
         const filteredSummaryTemp = {
             art: `На странице: ${paginatedDataTemp.length / 3} Всего: ${temp.length / 3}`,
             orders: 0,
@@ -3630,10 +3674,10 @@ export const MassAdvertPage = () => {
                     showInput
                     total={pagesTotal}
                     page={pagesCurrent}
-                    pageSize={900}
+                    pageSize={600}
                     onUpdate={(page) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 900, page * 900);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 600, page * 600);
                         setFilteredSummary((row) => {
                             const temp = row;
                             temp.art = `На странице: ${paginatedDataTemp.length / 3} Всего: ${
