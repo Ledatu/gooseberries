@@ -230,6 +230,10 @@ export const MassAdvertPage = () => {
     const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
     const [bidModalDeleteModeSelected, setBidModalDeleteModeSelected] = useState(false);
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
+    const [bidModalRange, setBidModalRange] = useState({from: 1, to: 100});
+    const [bidModalRangeValid, setBidModalRangeValid] = useState(true);
+    const [bidModalMaxBid, setBidModalMaxBid] = useState(500);
+    const [bidModalMaxBidValid, setBidModalMaxBidValid] = useState(true);
     const [bidModalBidStepInputValidationValue, setBidModalBidStepInputValidationValue] =
         useState(true);
     const [bidModalStocksThresholdInputValue, setBidModalStocksThresholdInputValue] = useState(5);
@@ -237,7 +241,7 @@ export const MassAdvertPage = () => {
         bidModalStocksThresholdInputValidationValue,
         setBidModalStocksThresholdInputValidationValue,
     ] = useState(true);
-    const [bidModalDRRInputValue, setBidModalDRRInputValue] = useState(50);
+    const [bidModalDRRInputValue, setBidModalDRRInputValue] = useState(10);
     const [bidModalDRRInputValidationValue, setBidModalDRRInputValidationValue] = useState(true);
 
     const bidModalSwitchValues: any[] = [
@@ -910,10 +914,12 @@ export const MassAdvertPage = () => {
                                 color={
                                     status
                                         ? Object.keys(
-                                              doc['campaigns'][selectValue[0]][art]['adverts']
-                                                  ? doc['campaigns'][selectValue[0]][art][
-                                                        'adverts'
-                                                    ][advertsType]
+                                              doc['campaigns'][selectValue[0]][art]
+                                                  ? doc['campaigns'][selectValue[0]][art]['adverts']
+                                                      ? doc['campaigns'][selectValue[0]][art][
+                                                            'adverts'
+                                                        ][advertsType]
+                                                      : {}
                                                   : {},
                                           ).length > 1
                                             ? 'info'
@@ -1643,7 +1649,6 @@ export const MassAdvertPage = () => {
     if (changedDoc) {
         setChangedDoc(undefined);
         recalc(dateRange);
-        // console.log(doc);
     }
 
     if (changedColumns) {
@@ -2350,10 +2355,14 @@ export const MassAdvertPage = () => {
                             setBidModalDeleteModeSelected(false);
                             setBidModalFormOpen(true);
                             setBidModalBidStepInputValue(5);
+                            setBidModalRange({from: 1, to: 100});
+                            setBidModalRangeValid(true);
+                            setBidModalMaxBid(500);
+                            setBidModalMaxBidValid(true);
                             setBidModalBidStepInputValidationValue(true);
                             setBidModalStocksThresholdInputValue(5);
                             setBidModalStocksThresholdInputValidationValue(true);
-                            setBidModalDRRInputValue(50);
+                            setBidModalDRRInputValue(10);
                             setBidModalDRRInputValidationValue(true);
                         }}
                     >
@@ -2406,8 +2415,12 @@ export const MassAdvertPage = () => {
                                             setBidModalDeleteModeSelected(false);
                                             setBidModalFormOpen(true);
                                             setBidModalBidStepInputValue(5);
+                                            setBidModalRange({from: 1, to: 100});
+                                            setBidModalRangeValid(true);
+                                            setBidModalMaxBid(500);
+                                            setBidModalMaxBidValid(true);
                                             setBidModalBidStepInputValidationValue(true);
-                                            setBidModalDRRInputValue(50);
+                                            setBidModalDRRInputValue(10);
                                             setBidModalDRRInputValidationValue(true);
                                         }}
                                     />
@@ -2422,7 +2435,7 @@ export const MassAdvertPage = () => {
                                                 ? 8
                                                 : bidModalSwitchValue == 'Установить'
                                                 ? 40
-                                                : 78,
+                                                : 166,
                                             opacity: bidModalDeleteModeSelected ? 0 : 1,
                                         }}
                                         transition={{duration: 0.1}}
@@ -2440,7 +2453,7 @@ export const MassAdvertPage = () => {
                                             animate={{
                                                 y: !bidModalDeleteModeSelected
                                                     ? bidModalSwitchValue == 'Установить'
-                                                        ? 38
+                                                        ? 83
                                                         : -16
                                                     : 77,
                                                 // x: !bidModalDeleteModeSelected
@@ -2531,6 +2544,107 @@ export const MassAdvertPage = () => {
                                                         margin: '4px 0',
                                                     }}
                                                     type="number"
+                                                    value={String(bidModalMaxBid)}
+                                                    onUpdate={(val) => {
+                                                        const intVal = Number(val);
+
+                                                        setBidModalMaxBidValid(intVal >= 125);
+
+                                                        setBidModalMaxBid(intVal);
+                                                    }}
+                                                    // errorMessage={'Введите не менее 125'}
+                                                    validationState={
+                                                        bidModalMaxBidValid ? undefined : 'invalid'
+                                                    }
+                                                    label="Макс. ставка"
+                                                />
+                                                <div
+                                                    style={{
+                                                        margin: '4px 0',
+                                                        width: '70%',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                    }}
+                                                >
+                                                    <Text
+                                                        style={{marginLeft: 8}}
+                                                        variant="subheader-1"
+                                                    >
+                                                        Позиция
+                                                    </Text>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        }}
+                                                    >
+                                                        <TextInput
+                                                            style={{
+                                                                marginRight: 4,
+                                                            }}
+                                                            type="number"
+                                                            value={String(bidModalRange.from)}
+                                                            onUpdate={(val) => {
+                                                                const intVal = Number(val);
+
+                                                                setBidModalRange(({to}) => {
+                                                                    setBidModalRangeValid(
+                                                                        intVal < 0
+                                                                            ? false
+                                                                            : to >= intVal,
+                                                                    );
+                                                                    return {
+                                                                        from: intVal,
+                                                                        to: to,
+                                                                    };
+                                                                });
+                                                            }}
+                                                            validationState={
+                                                                bidModalRangeValid
+                                                                    ? undefined
+                                                                    : 'invalid'
+                                                            }
+                                                            label="От"
+                                                        />
+                                                        <TextInput
+                                                            style={{
+                                                                marginLeft: 4,
+                                                            }}
+                                                            type="number"
+                                                            value={String(bidModalRange.to)}
+                                                            onUpdate={(val) => {
+                                                                const intVal = Number(val);
+
+                                                                setBidModalRange(({from}) => {
+                                                                    setBidModalRangeValid(
+                                                                        intVal < 0
+                                                                            ? false
+                                                                            : from <= intVal,
+                                                                    );
+                                                                    return {
+                                                                        from: from,
+                                                                        to: intVal,
+                                                                    };
+                                                                });
+                                                            }}
+                                                            validationState={
+                                                                bidModalRangeValid
+                                                                    ? undefined
+                                                                    : 'invalid'
+                                                            }
+                                                            label="До"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <TextInput
+                                                    style={{
+                                                        maxWidth: '70%',
+                                                        margin: '4px 0',
+                                                    }}
+                                                    type="number"
                                                     value={String(bidModalDRRInputValue)}
                                                     onChange={(val) => {
                                                         const cpo = Number(val.target.value);
@@ -2585,6 +2699,7 @@ export const MassAdvertPage = () => {
                                                     }
                                                     label="Мин. остаток"
                                                 />
+
                                                 <TextInput
                                                     style={{
                                                         maxWidth: '70%',
@@ -2650,7 +2765,9 @@ export const MassAdvertPage = () => {
                                             width="max"
                                             disabled={
                                                 !bidModalBidInputValidationValue ||
-                                                !bidModalStocksThresholdInputValidationValue
+                                                !bidModalStocksThresholdInputValidationValue ||
+                                                !bidModalRangeValid ||
+                                                !bidModalMaxBidValid
                                             }
                                             // view="action"
                                             view={
@@ -2679,12 +2796,24 @@ export const MassAdvertPage = () => {
                                                             : bidModalSwitchValue,
                                                         stocksThreshold:
                                                             bidModalStocksThresholdInputValue,
+                                                        placementsRange: bidModalRange,
+                                                        maxBid: bidModalMaxBid,
                                                     },
                                                 };
                                                 for (let i = 0; i < filteredData.length; i++) {
                                                     const art = filteredData[i].art;
                                                     if (!art) continue;
+                                                    if (!doc.campaigns[selectValue[0]][art]) {
+                                                        console.log(
+                                                            art,
+                                                            doc,
+                                                            doc.campaigns,
+                                                            doc.campaigns[selectValue[0]],
+                                                            selectValue[0],
+                                                        );
 
+                                                        continue;
+                                                    }
                                                     if (bidModalSwitchValue == 'Установить') {
                                                         params.data.arts[art] = {
                                                             bid: bidModalBidInputValue,
@@ -2697,6 +2826,7 @@ export const MassAdvertPage = () => {
                                                             params.data.arts[art] = {
                                                                 desiredDRR: bidModalDRRInputValue,
                                                                 bidStep: bidModalBidStepInputValue,
+
                                                                 // dateRange:
                                                                 //     bidModalAnalyticsSwitchValue,
 
@@ -2713,6 +2843,7 @@ export const MassAdvertPage = () => {
                                                             value,
                                                         ] of Object.entries(advertsTypesInput)) {
                                                             if (!advertsType || !value) continue;
+
                                                             if (
                                                                 !doc.campaigns[selectValue[0]][art]
                                                                     .drrAI
@@ -3427,46 +3558,48 @@ export const MassAdvertPage = () => {
                             </div>
                         </Card>
                     </Modal>
-                    <Select
-                        className={b('selectCampaign')}
-                        value={selectValue}
-                        placeholder="Values"
-                        options={selectOptions}
-                        onUpdate={(nextValue) => {
-                            if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
-                                callApi('getMassAdvertsNew', {
-                                    uid:
-                                        (Userfront.user.userUuid ==
-                                            '332fa5da-8450-451a-b859-a84ca9951a34' ||
-                                        Userfront.user.userUuid ==
-                                            'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
-                                        Userfront.user.userUuid ==
-                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
-                                            : '') ?? '',
-                                    dateRange: {from: '2023', to: '2024'},
-                                    campaignName: nextValue,
-                                }).then((res) => {
-                                    if (!res) return;
-                                    const resData = res['data'];
-                                    doc['campaigns'][nextValue[0]] =
-                                        resData['campaigns'][nextValue[0]];
-                                    doc['balances'][nextValue[0]] =
-                                        resData['balances'][nextValue[0]];
-                                    setChangedDoc(doc);
+                    <div style={{marginRight: 8}}>
+                        <Select
+                            className={b('selectCampaign')}
+                            value={selectValue}
+                            placeholder="Values"
+                            options={selectOptions}
+                            onUpdate={(nextValue) => {
+                                if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
+                                    callApi('getMassAdvertsNew', {
+                                        uid:
+                                            (Userfront.user.userUuid ==
+                                                '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                            Userfront.user.userUuid ==
+                                                'f9192af1-d9fa-4e3c-8959-33b668413e8c' ||
+                                            Userfront.user.userUuid ==
+                                                '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
+                                                ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                : '') ?? '',
+                                        dateRange: {from: '2023', to: '2024'},
+                                        campaignName: nextValue,
+                                    }).then((res) => {
+                                        if (!res) return;
+                                        const resData = res['data'];
+                                        doc['campaigns'][nextValue[0]] =
+                                            resData['campaigns'][nextValue[0]];
+                                        doc['balances'][nextValue[0]] =
+                                            resData['balances'][nextValue[0]];
+                                        setChangedDoc(doc);
+                                        setSelectValue(nextValue);
+                                        // recalc(dateRange, nextValue[0]);
+                                        console.log(doc);
+                                    });
+                                } else {
                                     setSelectValue(nextValue);
-                                    // recalc(dateRange, nextValue[0]);
-                                    console.log(doc);
-                                });
-                            } else {
-                                setSelectValue(nextValue);
-                                recalc(dateRange, nextValue[0]);
-                            }
-                            setPagesCurrent(1);
-                        }}
-                    />
+                                    recalc(dateRange, nextValue[0]);
+                                }
+                                setPagesCurrent(1);
+                            }}
+                        />
+                    </div>
 
-                    <div style={{marginRight: '8px', marginLeft: 8, marginBottom: '8px'}}>
+                    <div style={{marginRight: 8, marginBottom: '8px'}}>
                         <Label theme="clear" size="m">
                             {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
                                 doc
