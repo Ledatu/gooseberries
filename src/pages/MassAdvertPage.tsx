@@ -970,11 +970,11 @@ export const MassAdvertPage = () => {
         {
             name: 'placements',
             placeholder: 'Позиция',
-            render: ({value}) => {
+            render: ({value, row}) => {
                 if (!value) return undefined;
 
                 const {updateTime, index, prevIndex, phrase} = value;
-
+                const {drrAI} = row;
                 if (phrase == '') return undefined;
 
                 const updateTimeObj = new Date(updateTime);
@@ -1002,6 +1002,15 @@ export const MassAdvertPage = () => {
                         <Text
                             color={moreThatHour ? 'danger' : 'primary'}
                         >{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
+                        <Text>
+                            {drrAI
+                                ? drrAI.placementsRange &&
+                                  drrAI.placementsRange.from != 0 &&
+                                  drrAI.placementsRange.to != 0
+                                    ? `Диапазон: ${drrAI.placementsRange.from} - ${drrAI.placementsRange.to}`
+                                    : 'Ставки по ДРР'
+                                : ''}
+                        </Text>
                     </div>
                 );
             },
@@ -1663,7 +1672,9 @@ export const MassAdvertPage = () => {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['campaigns'])) {
             if (Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c') {
-                if (campaignName == 'Клининг Сервис') {
+                if (
+                    ['Клининг Сервис', 'Торговый Дом', 'ТПК', 'Гуд Ритейл'].includes(campaignName)
+                ) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,
