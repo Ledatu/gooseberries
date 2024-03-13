@@ -1667,7 +1667,7 @@ export const MassAdvertPage = () => {
                     });
                 }
             } else if (Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a') {
-                if (campaignName == 'ИП Валерий') {
+                if (['ИП Валерий', 'ИП Артем', 'ИП Оксана', 'Текстиль'].includes(campaignName)) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,
