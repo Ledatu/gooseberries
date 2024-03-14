@@ -974,7 +974,7 @@ export const MassAdvertPage = () => {
                 if (!value) return undefined;
 
                 const {updateTime, index, prevIndex, phrase} = value;
-                const {drrAI} = row;
+                const {placementsRange} = row;
                 if (phrase == '') return undefined;
 
                 const updateTimeObj = new Date(updateTime);
@@ -1003,11 +1003,9 @@ export const MassAdvertPage = () => {
                             color={moreThatHour ? 'danger' : 'primary'}
                         >{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
                         <Text>
-                            {drrAI
-                                ? drrAI.placementsRange &&
-                                  drrAI.placementsRange.from != 0 &&
-                                  drrAI.placementsRange.to != 0
-                                    ? `Диапазон: ${drrAI.placementsRange.from} - ${drrAI.placementsRange.to}`
+                            {placementsRange
+                                ? placementsRange.from != 0 && placementsRange.to != 0
+                                    ? `Диапазон: ${placementsRange.from} - ${placementsRange.to}`
                                     : 'Ставки по ДРР'
                                 : ''}
                         </Text>
@@ -1342,6 +1340,7 @@ export const MassAdvertPage = () => {
                 stocks: 0,
                 advertsManagerRules: undefined,
                 advertsStocksThreshold: undefined,
+                placementsRange: undefined,
                 placements: undefined,
             };
 
@@ -1385,6 +1384,11 @@ export const MassAdvertPage = () => {
                     cpo: 0,
                     drrAI: artData['drrAI'] ? artData['drrAI'][key] : undefined,
                 };
+                artInfo.placementsRange = artData['drrAI']
+                    ? artData['drrAI'][key]
+                        ? artData['drrAI'][key].placementsRange
+                        : artInfo.placementsRange
+                    : artInfo.placementsRange;
             }
 
             // console.log(artInfo);
@@ -1547,6 +1551,7 @@ export const MassAdvertPage = () => {
                     advertsManagerRules: artInfo['advertsManagerRules'],
                     advertsStocksThreshold: artInfo['advertsStocksThreshold'],
                     placements: artInfo['placements'],
+                    placementsRange: artInfo['placementsRange'],
                 };
 
                 let addFlag = true;
