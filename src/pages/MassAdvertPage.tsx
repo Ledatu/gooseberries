@@ -1121,7 +1121,7 @@ export const MassAdvertPage = () => {
                 const cpm = value;
                 if (!cpm) return;
 
-                const bidLog = row.bidLog;
+                const {bidLog, drrAI} = row;
 
                 const timeline: any[] = [];
                 const graphsData: any[] = [];
@@ -1181,7 +1181,10 @@ export const MassAdvertPage = () => {
                             }
                         >
                             {/* <Label onClick={()=>} ref={ref}>{value}</Label> */}
-                            <Text>{cpm}</Text>
+                            <Text>
+                                {`${cpm}` +
+                                    (drrAI ? (drrAI.maxBid ? ` (${drrAI.maxBid})` : '') : '')}
+                            </Text>
                         </Popover>
                     </div>
                 );
