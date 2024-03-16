@@ -41,6 +41,12 @@ import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
 import {
+    Person,
+    Magnifier,
+    ChartLine,
+    CircleRuble,
+    SlidersVertical,
+    ChevronDown,
     CircleMinusFill,
     CircleMinus,
     CirclePlusFill,
@@ -2032,13 +2038,15 @@ export const MassAdvertPage = () => {
                     </Modal> */}
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="outlined"
+                        view="action"
+                        size="l"
                         onClick={() => {
                             setModalFormOpen(true);
                             setAdvertsTypesInput({search: false, booster: false, carousel: false});
                             setSelectedButton('');
                         }}
                     >
+                        <Icon data={SlidersVertical} />
                         Управление
                     </Button>
                     <Modal
@@ -2210,7 +2218,8 @@ export const MassAdvertPage = () => {
                     </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="outlined"
+                        view="action"
+                        size="l"
                         onClick={() => {
                             setSelectedButton('');
                             setAdvertsTypesInput({search: false, booster: false, carousel: false});
@@ -2220,6 +2229,7 @@ export const MassAdvertPage = () => {
                             setBudgetModalFormOpen(true);
                         }}
                     >
+                        <Icon data={CircleRuble} />
                         Бюджет
                     </Button>
                     <Modal open={budgetModalFormOpen} onClose={() => setBudgetModalFormOpen(false)}>
@@ -2383,7 +2393,8 @@ export const MassAdvertPage = () => {
                     </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="outlined"
+                        view="action"
+                        size="l"
                         onClick={() => {
                             setSelectedButton('');
                             setAdvertsTypesInput({search: false, booster: false, carousel: false});
@@ -2405,6 +2416,7 @@ export const MassAdvertPage = () => {
                             setBidModalDRRInputValidationValue(true);
                         }}
                     >
+                        <Icon data={ChartLine} />
                         Ставки
                     </Button>
                     <Modal open={bidModalFormOpen} onClose={() => setBidModalFormOpen(false)}>
@@ -2959,7 +2971,8 @@ export const MassAdvertPage = () => {
                     </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="outlined"
+                        view="action"
+                        size="l"
                         onClick={() => {
                             // setSemanticsModalSemanticsInputValue(500);
                             // setSemanticsModalSwitchValue('Пополнить');
@@ -2974,6 +2987,7 @@ export const MassAdvertPage = () => {
                             setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
                         }}
                     >
+                        <Icon data={Magnifier} />
                         Фразы
                     </Button>
                     <Modal
@@ -3599,6 +3613,23 @@ export const MassAdvertPage = () => {
                             value={selectValue}
                             placeholder="Values"
                             options={selectOptions}
+                            renderControl={({onClick, onKeyDown, ref}) => {
+                                return (
+                                    <Button
+                                        ref={ref}
+                                        size="l"
+                                        view="action"
+                                        onClick={onClick}
+                                        extraProps={{
+                                            onKeyDown,
+                                        }}
+                                    >
+                                        <Icon data={Person} />
+                                        <Text>{selectValue[0]}</Text>
+                                        <Icon data={ChevronDown} />
+                                    </Button>
+                                );
+                            }}
                             onUpdate={(nextValue) => {
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi('getMassAdvertsNew', {
@@ -3634,7 +3665,7 @@ export const MassAdvertPage = () => {
                     </div>
 
                     <div style={{marginRight: 8, marginBottom: '8px'}}>
-                        <Label theme="clear" size="m">
+                        <Button view="outlined-success" size="l">
                             {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
                                 doc
                                     ? doc.balances
@@ -3662,14 +3693,15 @@ export const MassAdvertPage = () => {
                                         : 0
                                     : 0,
                             )}`}
-                        </Label>
+                        </Button>
                     </div>
                 </div>
 
                 <div ref={fieldRef}>
                     <Button
                         style={{cursor: 'pointer', marginBottom: '8px'}}
-                        view="outlined"
+                        view="outlined-warning"
+                        size="l"
                         onClick={() => {
                             setDatePickerOpen((curVal) => !curVal);
                         }}
