@@ -41,7 +41,7 @@ import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
 import {
-    Person,
+    Key,
     Magnifier,
     ChartLine,
     CircleRuble,
@@ -3445,7 +3445,7 @@ export const MassAdvertPage = () => {
                                             onKeyDown,
                                         }}
                                     >
-                                        <Icon data={Person} />
+                                        <Icon data={Key} />
                                         <Text variant="subheader-1">{selectValue[0]}</Text>
                                         <Icon data={ChevronDown} />
                                     </Button>
