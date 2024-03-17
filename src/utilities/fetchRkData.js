@@ -66,9 +66,9 @@ const writeAdvertsToDB = async (data, campaignName) => {
             doc(
                 db,
                 `customers/${
-                    (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                    (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                     Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                         : '') ?? ''
                 }/${campaignName}`,
                 'adverts',
@@ -122,9 +122,9 @@ const fetchAdvertStatsAndWriteToDB = async (campaignData) => {
                 doc(
                     db,
                     `customers/${
-                        (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                        (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                         Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                            ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                             : '') ?? ''
                     }/${campaignName}`,
                     'adverts',
@@ -150,9 +150,9 @@ const fetchAdvertStatsAndWriteToDB = async (campaignData) => {
                         doc(
                             db,
                             'customers',
-                            (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                            (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                             Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                 : '') ?? '',
                             campaignName,
                             'adverts',
@@ -191,9 +191,9 @@ const fetchAdvertInfosAndWriteToDB = async (campaignData) => {
                 doc(
                     db,
                     `customers/${
-                        (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                        (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                         Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                            ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                             : '') ?? ''
                     }/${campaignName}`,
                     'adverts',
@@ -223,9 +223,9 @@ const fetchAdvertInfosAndWriteToDB = async (campaignData) => {
             doc(
                 db,
                 `customers/${
-                    (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                    (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                     Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                         : '') ?? ''
                 }/${campaignName}`,
                 'advertInfos',
@@ -298,9 +298,9 @@ const writeVendorCodeToDB = async (data, campaignName) => {
             doc(
                 db,
                 `customers/${
-                    (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                    (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                     Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                         : '') ?? ''
                 }/${campaignName}`,
                 'arts',
@@ -334,9 +334,9 @@ export const autoFetchCards = async () => {
             doc(
                 db,
                 'customers',
-                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                 Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                     : '') ?? '',
             ),
         )
@@ -354,9 +354,9 @@ export const autoFetchAdverts = async () => {
             doc(
                 db,
                 'customers',
-                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                 Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                     : '') ?? '',
             ),
         )
@@ -374,9 +374,9 @@ export const autoFetchAdvertInfos = async () => {
             doc(
                 db,
                 'customers',
-                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                 Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                     : '') ?? '',
             ),
         )
@@ -394,9 +394,9 @@ export const autoFetchAdvertStats = async () => {
             doc(
                 db,
                 'customers',
-                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                 Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                     : '') ?? '',
             ),
         )
@@ -414,9 +414,9 @@ export const autoGetAdvertStatsByDay = async () => {
             doc(
                 db,
                 'customers',
-                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                 Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                     : '') ?? '',
             ),
         )

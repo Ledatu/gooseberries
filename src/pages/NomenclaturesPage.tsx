@@ -45,9 +45,9 @@ const getUserDoc = () => {
     useEffect(() => {
         callApi('getNomenclatures', {
             uid:
-                (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                 Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                     : '') ?? '',
         })
             .then((res: any) => setDocument(res.data))
@@ -74,9 +74,9 @@ export const NomenclaturesPage = () => {
         formData.append('file', file);
         formData.append(
             'uid',
-            (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+            (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
             Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                 : '') ?? '',
         );
         formData.append('campaignName', selectValue[0]);
@@ -694,10 +694,10 @@ export const NomenclaturesPage = () => {
                                 callApi('downloadPricesTemplate', {
                                     uid:
                                         (Userfront.user.userUuid ==
-                                            '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                                            '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                                         Userfront.user.userUuid ==
                                             '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                            ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                             : '') ?? '',
                                     campaignName: selectValue[0],
                                 })
@@ -912,9 +912,9 @@ const generatePrefOborModalForm = (documentData, selectedCampaign, tableData) =>
 
                     callApi('setByWarehousesInfo', {
                         uid:
-                            (Userfront.user.userUuid == '332fa5da-8450-451a-b859-a84ca9951a34' ||
+                            (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
                             Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                 : '') ?? '',
                         campaignName: selectedCampaign,
                         data: data,
