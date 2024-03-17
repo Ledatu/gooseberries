@@ -8,8 +8,6 @@ import {
     RadioButton,
     RadioButtonOption,
     Icon,
-    TabsItemProps,
-    Tabs,
     // Tabs,
 } from '@gravity-ui/uikit';
 import '../App.scss';
@@ -38,26 +36,26 @@ export const Dashboard = () => {
         {value: 'dark', content: <Icon data={Moon}></Icon>},
         {value: 'light', content: <Icon data={Sun}></Icon>},
     ];
-    const optionsPages: TabsItemProps[] = [
+    const optionsPages: RadioButtonOption[] = [
         // {value: 'api', content: 'Управление магазинами'},
         // {value: 'create_rk', content: 'Создание РК'},
         {
-            id: 'massAdvert',
-            title: 'Реклама',
+            value: 'massAdvert',
+            content: 'Реклама',
         },
         {
-            id: 'stats_rk',
-            title: 'Статистика',
+            value: 'stats_rk',
+            content: 'Статистика',
             disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
         },
         {
-            id: 'deliveryOrders',
-            title: 'Поставки',
+            value: 'deliveryOrders',
+            content: 'Поставки',
             disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
         },
         {
-            id: 'nomenclatures',
-            title: 'Товары',
+            value: 'nomenclatures',
+            content: 'Товары',
             disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
         },
     ];
@@ -77,12 +75,12 @@ export const Dashboard = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <Tabs
-                        // style={{marginBottom: '8px', marginRight: '8px'}}
-                        size="xl"
-                        activeTab={page}
-                        items={optionsPages}
-                        onSelectTab={async (val) => {
+                    <RadioButton
+                        style={{marginBottom: '8px', marginRight: '8px'}}
+                        name="pageRadioButton"
+                        defaultValue={page}
+                        options={optionsPages}
+                        onUpdate={async (val) => {
                             setPage(val);
                         }}
                     />
