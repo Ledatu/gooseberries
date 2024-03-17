@@ -8,6 +8,8 @@ import {
     RadioButton,
     RadioButtonOption,
     Icon,
+    TabsItemProps,
+    Tabs,
     // Tabs,
 } from '@gravity-ui/uikit';
 import '../App.scss';
@@ -36,26 +38,26 @@ export const Dashboard = () => {
         {value: 'dark', content: <Icon data={Moon}></Icon>},
         {value: 'light', content: <Icon data={Sun}></Icon>},
     ];
-    const optionsPages: RadioButtonOption[] = [
+    const optionsPages: TabsItemProps[] = [
         // {value: 'api', content: 'Управление магазинами'},
         // {value: 'create_rk', content: 'Создание РК'},
         {
-            value: 'massAdvert',
-            content: 'Реклама',
+            id: 'massAdvert',
+            title: 'Реклама',
         },
         {
-            value: 'stats_rk',
-            content: 'Статистика',
+            id: 'stats_rk',
+            title: 'Статистика',
             disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
         },
         {
-            value: 'deliveryOrders',
-            content: 'Поставки',
+            id: 'deliveryOrders',
+            title: 'Поставки',
             disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
         },
         {
-            value: 'nomenclatures',
-            content: 'Товары',
+            id: 'nomenclatures',
+            title: 'Товары',
             disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
         },
     ];
@@ -75,12 +77,12 @@ export const Dashboard = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <RadioButton
-                        style={{marginBottom: '8px', marginRight: '8px'}}
-                        name="pageRadioButton"
-                        defaultValue={page}
-                        options={optionsPages}
-                        onUpdate={async (val) => {
+                    <Tabs
+                        // style={{marginBottom: '8px', marginRight: '8px'}}
+                        size="xl"
+                        activeTab={page}
+                        items={optionsPages}
+                        onSelectTab={async (val) => {
                             setPage(val);
                         }}
                     />

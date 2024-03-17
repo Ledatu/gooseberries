@@ -95,11 +95,10 @@ const getUserDoc = (docum = undefined) => {
                 {
                     uid: [
                         'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                        '332fa5da-8450-451a-b859-a84ca9951a34',
-                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                        '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                         '46431a09-85c3-4703-8246-d1b5c9e52594',
                     ].includes(Userfront.user.userUuid ?? '')
-                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                         : '',
                     dateRange: {from: '2023', to: '2024'},
                     campaignName:
@@ -898,11 +897,10 @@ export const MassAdvertPage = () => {
                                     const params = {
                                         uid: [
                                             'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                            '332fa5da-8450-451a-b859-a84ca9951a34',
-                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                                            '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                             '46431a09-85c3-4703-8246-d1b5c9e52594',
                                         ].includes(Userfront.user.userUuid ?? '')
-                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                            ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                             : '',
                                         campaignName: selectValue[0],
                                         data: {
@@ -1694,13 +1692,6 @@ export const MassAdvertPage = () => {
                         content: campaignName,
                     });
                 }
-            } else if (Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a') {
-                if (['ИП Валерий', 'ИП Артем', 'ИП Оксана', 'Текстиль'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
             } else if (Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594') {
                 if (
                     [
@@ -1871,171 +1862,6 @@ export const MassAdvertPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    {/* <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="outlined"
-                        onClick={() => {
-                            setManageModalOpen(true);
-                            setSelectedButton('');
-                        }}
-                    >
-                        Управление
-                    </Button>
-                    <Modal
-                        open={manageModalOpen}
-                        onClose={() => {
-                            setManageModalOpen(false);
-                            setSelectedButton('');
-                        }}
-                    >
-                        <Card
-                            // view="raised"
-                            view="clear"
-                            style={{
-                                width: 300,
-                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
-                                // animation: '3s linear 1s slidein',
-                                // maxWidth: '15vw',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                backgroundColor: 'none',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    height: '50%',
-                                    width: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    margin: '16px 0',
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        margin: '8px 0',
-                                    }}
-                                    variant="display-2"
-                                >
-                                    Управление
-                                </Text>
-
-                                {generateModalButtonWithActions(
-                                    {
-                                        view: 'flat-success',
-                                        icon: Play,
-                                        placeholder: 'Запустить',
-                                        onClick: () => {
-                                            const params = {
-                                                uid:
-                                                    Userfront.user.userUuid ==
-                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
-                                                    Userfront.user.userUuid ==
-                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
-                                                        : '',
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    mode: 'start',
-                                                    arts: [] as any[],
-                                                },
-                                            };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const art = filteredData[i].art;
-                                                if (!art) continue;
-                                                params.data.arts.push(art);
-                                            }
-                                            console.log(params);
-
-                                            //////////////////////////////////
-                                            callApi('manageAdvertsActivity', params);
-                                            //////////////////////////////////
-
-                                            setManageModalOpen(false);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                {generateModalButtonWithActions(
-                                    {
-                                        view: 'flat-warning',
-                                        icon: Pause,
-                                        placeholder: 'Приостановить',
-                                        onClick: () => {
-                                            const params = {
-                                                uid:
-                                                    Userfront.user.userUuid ==
-                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
-                                                    Userfront.user.userUuid ==
-                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
-                                                        : '',
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    mode: 'pause',
-                                                    arts: [] as any[],
-                                                },
-                                            };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const art = filteredData[i].art;
-                                                if (!art) continue;
-                                                params.data.arts.push(art);
-                                            }
-                                            console.log(params);
-
-                                            //////////////////////////////////
-                                            callApi('manageAdvertsActivity', params);
-                                            //////////////////////////////////
-
-                                            setManageModalOpen(false);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                {generateModalButtonWithActions(
-                                    {
-                                        view: 'flat-danger',
-                                        icon: TrashBin,
-                                        placeholder: 'Завершить',
-                                        onClick: () => {
-                                            const params = {
-                                                uid:
-                                                    Userfront.user.userUuid ==
-                                                        '332fa5da-8450-451a-b859-a84ca9951a34' ||
-                                                    Userfront.user.userUuid ==
-                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
-                                                        : '',
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    mode: 'stop',
-                                                    arts: [] as any[],
-                                                },
-                                            };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const art = filteredData[i].art;
-                                                if (!art) continue;
-                                                params.data.arts.push(art);
-                                            }
-                                            console.log(params);
-
-                                            //////////////////////////////////
-                                            callApi('manageAdvertsActivity', params);
-                                            //////////////////////////////////
-
-                                            setManageModalOpen(false);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                            </div>
-                        </Card>
-                    </Modal> */}
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="action"
@@ -2159,11 +1985,10 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid: [
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '332fa5da-8450-451a-b859-a84ca9951a34',
-                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
                                                 ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}},
@@ -2337,11 +2162,10 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid: [
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '332fa5da-8450-451a-b859-a84ca9951a34',
-                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
                                                 ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}, advertsTypes: advertsTypesInput},
@@ -2832,11 +2656,10 @@ export const MassAdvertPage = () => {
                                                 const params = {
                                                     uid: [
                                                         'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                        '332fa5da-8450-451a-b859-a84ca9951a34',
-                                                        '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                                                        '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                         '46431a09-85c3-4703-8246-d1b5c9e52594',
                                                     ].includes(Userfront.user.userUuid ?? '')
-                                                        ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                         : '',
                                                     campaignName: selectValue[0],
                                                     data: {
@@ -3356,11 +3179,10 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid: [
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '332fa5da-8450-451a-b859-a84ca9951a34',
-                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
                                                 ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
                                                 data: {
                                                     mode: 'Установить',
@@ -3500,11 +3322,10 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid: [
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '332fa5da-8450-451a-b859-a84ca9951a34',
-                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
                                                 ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}, advertsTypes: advertsTypesInput},
@@ -3558,11 +3379,10 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid: [
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '332fa5da-8450-451a-b859-a84ca9951a34',
-                                                    '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
                                                 ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}, advertsTypes: advertsTypesInput},
@@ -3636,11 +3456,10 @@ export const MassAdvertPage = () => {
                                     callApi('getMassAdvertsNew', {
                                         uid: [
                                             'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                            '332fa5da-8450-451a-b859-a84ca9951a34',
-                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+                                            '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                             '46431a09-85c3-4703-8246-d1b5c9e52594',
                                         ].includes(Userfront.user.userUuid ?? '')
-                                            ? '332fa5da-8450-451a-b859-a84ca9951a34'
+                                            ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                             : '',
                                         dateRange: {from: '2023', to: '2024'},
                                         campaignName: nextValue,
