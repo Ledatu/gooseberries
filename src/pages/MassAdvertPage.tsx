@@ -2047,7 +2047,8 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Icon data={SlidersVertical} />
-                        Управление
+
+                        <Text variant="subheader-1">Управление</Text>
                     </Button>
                     <Modal
                         open={modalFormOpen}
@@ -2230,7 +2231,7 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Icon data={CircleRuble} />
-                        Бюджет
+                        <Text variant="subheader-1">Бюджет</Text>
                     </Button>
                     <Modal open={budgetModalFormOpen} onClose={() => setBudgetModalFormOpen(false)}>
                         <Card
@@ -2417,7 +2418,7 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Icon data={ChartLine} />
-                        Ставки
+                        <Text variant="subheader-1">Ставки</Text>
                     </Button>
                     <Modal open={bidModalFormOpen} onClose={() => setBidModalFormOpen(false)}>
                         <div>
@@ -2988,7 +2989,7 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Icon data={Magnifier} />
-                        Фразы
+                        <Text variant="subheader-1">Фразы</Text>
                     </Button>
                     <Modal
                         open={semanticsModalFormOpen}
@@ -3625,7 +3626,7 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <Icon data={Person} />
-                                        <Text>{selectValue[0]}</Text>
+                                        <Text variant="subheader-1">{selectValue[0]}</Text>
                                         <Icon data={ChevronDown} />
                                     </Button>
                                 );
@@ -3666,15 +3667,16 @@ export const MassAdvertPage = () => {
 
                     <div style={{marginRight: 8, marginBottom: '8px'}}>
                         <Button view="outlined-success" size="l">
-                            {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
-                                doc
-                                    ? doc.balances
-                                        ? doc.balances[selectValue[0]]
-                                            ? doc.balances[selectValue[0]].net ?? 0
+                            <Text variant="subheader-1">
+                                {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
+                                    doc
+                                        ? doc.balances
+                                            ? doc.balances[selectValue[0]]
+                                                ? doc.balances[selectValue[0]].net ?? 0
+                                                : 0
                                             : 0
-                                        : 0
-                                    : 0,
-                            )}
+                                        : 0,
+                                )}
                             Бонусы: ${new Intl.NumberFormat('ru-RU').format(
                                 doc
                                     ? doc.balances
@@ -3693,6 +3695,7 @@ export const MassAdvertPage = () => {
                                         : 0
                                     : 0,
                             )}`}
+                            </Text>
                         </Button>
                     </div>
                 </div>
@@ -3706,9 +3709,11 @@ export const MassAdvertPage = () => {
                             setDatePickerOpen((curVal) => !curVal);
                         }}
                     >
-                        {`${startDate.toLocaleDateString('ru-RU')} - ${endDate.toLocaleDateString(
-                            'ru-RU',
-                        )}`}
+                        <Text variant="subheader-1">
+                            {`${startDate.toLocaleDateString(
+                                'ru-RU',
+                            )} - ${endDate.toLocaleDateString('ru-RU')}`}
+                        </Text>
                     </Button>
                 </div>
                 <Popup
