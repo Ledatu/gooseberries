@@ -2732,6 +2732,8 @@ export const MassAdvertPage = () => {
                                                                     bidModalDeleteModeSelected
                                                                         ? undefined
                                                                         : bidModalDRRInputValue,
+                                                                placementsRange: bidModalRange,
+                                                                maxBid: bidModalMaxBid,
                                                             };
                                                         }
                                                         if (
@@ -3518,22 +3520,37 @@ export const MassAdvertPage = () => {
                         </Button>
                     </div>
                 </div>
-
-                <div ref={fieldRef}>
+                <div style={{display: 'flex', flexDirection: 'row', marginBottom: 8}}>
                     <Button
-                        style={{cursor: 'pointer', marginBottom: '8px'}}
-                        view="outlined-warning"
                         size="l"
+                        view="action"
                         onClick={() => {
-                            setDatePickerOpen((curVal) => !curVal);
+                            setFilters(() => {
+                                const newFilters = {undef: true};
+                                filterTableData(newFilters);
+                                return newFilters;
+                            });
                         }}
                     >
-                        <Text variant="subheader-1">
-                            {`${startDate.toLocaleDateString(
-                                'ru-RU',
-                            )} - ${endDate.toLocaleDateString('ru-RU')}`}
-                        </Text>
+                        <Icon data={TrashBin} />
+                        <Text variant="subheader-1">Очистить фильтры</Text>
                     </Button>
+                    <div style={{width: 8}} />
+                    <div ref={fieldRef}>
+                        <Button
+                            view="outlined-warning"
+                            size="l"
+                            onClick={() => {
+                                setDatePickerOpen((curVal) => !curVal);
+                            }}
+                        >
+                            <Text variant="subheader-1">
+                                {`${startDate.toLocaleDateString(
+                                    'ru-RU',
+                                )} - ${endDate.toLocaleDateString('ru-RU')}`}
+                            </Text>
+                        </Button>
+                    </div>
                 </div>
                 <Popup
                     open={datePickerOpen}
