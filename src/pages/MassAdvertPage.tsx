@@ -1715,7 +1715,13 @@ export const MassAdvertPage = () => {
                 }
             } else if (Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c') {
                 if (
-                    ['Клининг Сервис', 'Торговый Дом', 'ТПК', 'Гуд Ритейл'].includes(campaignName)
+                    [
+                        'Клининг Сервис',
+                        'Торговый Дом',
+                        'ТПК',
+                        'Гуд Ритейл',
+                        'ИП Мартыненко',
+                    ].includes(campaignName)
                 ) {
                     campaignsNames.push({
                         value: campaignName,
