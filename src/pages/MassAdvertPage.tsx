@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
+// import {scheduleJob} from 'node-schedule';
 import {
     Spin,
     DropdownMenu,
@@ -34,7 +35,6 @@ import '../App.scss';
 
 import block from 'bem-cn-lite';
 
-import axios from 'axios';
 import Userfront from '@userfront/toolkit';
 import DataTable, {Column} from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
@@ -77,8 +77,6 @@ import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import callApi from 'src/utilities/callApi';
 settings.set({plugins: [YagrPlugin]});
 
-const {ipAddress} = require('../ipAddress');
-
 const getUserDoc = (docum = undefined) => {
     const [doc, setDocument] = useState<any>();
 
@@ -87,34 +85,24 @@ const getUserDoc = (docum = undefined) => {
     }
 
     useEffect(() => {
-        const token =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-        axios
-            .post(
-                `${ipAddress}/api/getMassAdvertsNew`,
-                {
-                    uid: [
-                        'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                        '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                        '46431a09-85c3-4703-8246-d1b5c9e52594',
-                    ].includes(Userfront.user.userUuid ?? '')
-                        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                        : '',
-                    dateRange: {from: '2023', to: '2024'},
-                    campaignName:
-                        Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c'
-                            ? 'Клининг Сервис'
-                            : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
-                            ? 'ИП Иосифов М.С.'
-                            : 'ИП Валерий',
-                },
-                {
-                    headers: {
-                        Authorization: 'Bearer ' + token,
-                    },
-                },
-            )
-            .then((response) => setDocument(response.data))
+        callApi('getMassAdvertsNew', {
+            uid: [
+                'f9192af1-d9fa-4e3c-8959-33b668413e8c',
+                '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+                '46431a09-85c3-4703-8246-d1b5c9e52594',
+                '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
+            ].includes(Userfront.user.userUuid ?? '')
+                ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
+                : '',
+            dateRange: {from: '2023', to: '2024'},
+            campaignName:
+                Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c'
+                    ? 'Клининг Сервис'
+                    : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+                    ? 'ИП Иосифов М.С.'
+                    : 'ИП Валерий',
+        })
+            .then((response) => setDocument(response ? response['data'] : undefined))
             .catch((error) => console.error(error));
     }, []);
     return doc;
@@ -899,6 +887,7 @@ export const MassAdvertPage = () => {
                                             'f9192af1-d9fa-4e3c-8959-33b668413e8c',
                                             '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                             '46431a09-85c3-4703-8246-d1b5c9e52594',
+                                            '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
                                         ].includes(Userfront.user.userUuid ?? '')
                                             ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                             : '',
@@ -1667,6 +1656,36 @@ export const MassAdvertPage = () => {
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
 
     const [firstRecalc, setFirstRecalc] = useState(false);
+
+    // useEffect(() => {
+    //     scheduleJob('*/2 * * * *', async () => {
+    //         console.log('hola');
+    //         if (!firstRecalc) return;
+    //         await callApi('getMassAdvertsNew', {
+    //             uid: [
+    //                 'f9192af1-d9fa-4e3c-8959-33b668413e8c',
+    //                 '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+    //                 '46431a09-85c3-4703-8246-d1b5c9e52594',
+    //             ].includes(Userfront.user.userUuid ?? '')
+    //                 ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
+    //                 : '',
+    //             dateRange: {from: '2023', to: '2024'},
+    //             campaignName:
+    //                 selectValue[0] ??
+    //                 Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c'
+    //                     ? 'Клининг Сервис'
+    //                     : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+    //                     ? 'ИП Иосифов М.С.'
+    //                     : 'ИП Валерий',
+    //         })
+    //             .then((response) => {
+    //                 setChangedDoc(response ? response['data'] : undefined);
+    //                 // console.log(response ? response['data'] : undefined);
+    //             })
+    //             .catch((error) => console.error(error));
+    //     });
+    // }, []);
+
     const [changedColumns, setChangedColumns] = useState<any>(false);
     const columns = generateColumns(columnData);
 
@@ -1683,7 +1702,18 @@ export const MassAdvertPage = () => {
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['campaigns'])) {
-            if (Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c') {
+            if (Userfront.user.userUuid == '1c5a0344-31ea-469e-945e-1dfc4b964ecd') {
+                if (
+                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
+                        campaignName,
+                    )
+                ) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else if (Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c') {
                 if (
                     ['Клининг Сервис', 'Торговый Дом', 'ТПК', 'Гуд Ритейл'].includes(campaignName)
                 ) {
@@ -1987,6 +2017,7 @@ export const MassAdvertPage = () => {
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
                                                     '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
+                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
                                                 ].includes(Userfront.user.userUuid ?? '')
                                                     ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
@@ -2164,6 +2195,7 @@ export const MassAdvertPage = () => {
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
                                                     '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
+                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
                                                 ].includes(Userfront.user.userUuid ?? '')
                                                     ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
@@ -2658,6 +2690,7 @@ export const MassAdvertPage = () => {
                                                         'f9192af1-d9fa-4e3c-8959-33b668413e8c',
                                                         '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                         '46431a09-85c3-4703-8246-d1b5c9e52594',
+                                                        '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
                                                     ].includes(Userfront.user.userUuid ?? '')
                                                         ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                         : '',
@@ -3183,6 +3216,7 @@ export const MassAdvertPage = () => {
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
                                                     '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
+                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
                                                 ].includes(Userfront.user.userUuid ?? '')
                                                     ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
@@ -3326,6 +3360,7 @@ export const MassAdvertPage = () => {
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
                                                     '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
+                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
                                                 ].includes(Userfront.user.userUuid ?? '')
                                                     ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
@@ -3383,6 +3418,7 @@ export const MassAdvertPage = () => {
                                                     'f9192af1-d9fa-4e3c-8959-33b668413e8c',
                                                     '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                                     '46431a09-85c3-4703-8246-d1b5c9e52594',
+                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
                                                 ].includes(Userfront.user.userUuid ?? '')
                                                     ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
@@ -3460,6 +3496,7 @@ export const MassAdvertPage = () => {
                                             'f9192af1-d9fa-4e3c-8959-33b668413e8c',
                                             '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                                             '46431a09-85c3-4703-8246-d1b5c9e52594',
+                                            '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
                                         ].includes(Userfront.user.userUuid ?? '')
                                             ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                             : '',
