@@ -1062,6 +1062,8 @@ export const MassAdvertPage = () => {
                                         autoPhrasesTemplate.notIncludes ?? [],
                                     );
                                 }
+                                setSemanticsAutoPhrasesModalIncludesListInput('');
+                                setSemanticsAutoPhrasesModalNotIncludesListInput('');
 
                                 setSemanticsModalSemanticsItemsValue(
                                     value ? value.clusters ?? [] : [],
