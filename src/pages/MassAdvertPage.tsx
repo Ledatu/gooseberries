@@ -1061,6 +1061,9 @@ export const MassAdvertPage = () => {
                                     setSemanticsAutoPhrasesModalNotIncludesList(
                                         autoPhrasesTemplate.notIncludes ?? [],
                                     );
+                                } else {
+                                    setSemanticsAutoPhrasesModalIncludesList([]);
+                                    setSemanticsAutoPhrasesModalNotIncludesList([]);
                                 }
                                 setSemanticsAutoPhrasesModalIncludesListInput('');
                                 setSemanticsAutoPhrasesModalNotIncludesListInput('');
@@ -3081,22 +3084,27 @@ export const MassAdvertPage = () => {
                                         width: '100%',
                                         display: 'flex',
                                         flexDirection: 'row',
-                                        justifyContent: 'space-between',
+                                        justifyContent: 'center',
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Text variant="header-1">Плюс фразы</Text>
-                                    <Label
+                                    {/* <Text variant="header-1">Плюс фразы</Text> */}
+                                    <Button
+                                        width="max"
                                         size="m"
-                                        theme={
+                                        view={
                                             semanticsModalSemanticsPlusItemsTemplateNameValue ==
                                             'Не установлен'
                                                 ? 'normal'
-                                                : 'info'
+                                                : 'flat-info'
+                                        }
+                                        selected={
+                                            semanticsModalSemanticsPlusItemsTemplateNameValue !=
+                                            'Не установлен'
                                         }
                                     >
                                         {semanticsModalSemanticsPlusItemsTemplateNameValue}
-                                    </Label>
+                                    </Button>
                                 </div>
                                 <div
                                     style={{
@@ -3151,7 +3159,18 @@ export const MassAdvertPage = () => {
                                     </div>
                                     <Button
                                         width="max"
-                                        // view="utility"
+                                        view={
+                                            semanticsAutoPhrasesModalIncludesList.length ||
+                                            semanticsAutoPhrasesModalNotIncludesListInput.length
+                                                ? 'flat-success'
+                                                : 'normal'
+                                        }
+                                        selected={
+                                            semanticsAutoPhrasesModalIncludesList.length ||
+                                            semanticsAutoPhrasesModalNotIncludesListInput.length
+                                                ? true
+                                                : undefined
+                                        }
                                         onClick={() => {
                                             setSemanticsAutoPhrasesModalFormOpen(
                                                 !semanticsAutoPhrasesModalFormOpen,
