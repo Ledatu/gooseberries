@@ -1048,20 +1048,20 @@ export const MassAdvertPage = () => {
                                     value ? value.clusters ?? [] : [],
                                 );
 
-                                setSemanticsAutoPhrasesModalIncludesList(
-                                    value
-                                        ? value.autoPhrasesTemplate
-                                            ? value.autoPhrasesTemplate.notIncludes ?? []
-                                            : []
-                                        : [],
-                                );
-                                setSemanticsAutoPhrasesModalNotIncludesList(
-                                    value
-                                        ? value.autoPhrasesTemplate
-                                            ? value.autoPhrasesTemplate.includes ?? []
-                                            : []
-                                        : [],
-                                );
+                                const autoPhrasesTemplate = doc.plusPhrasesTemplates[
+                                    plusPhrasesTemplate
+                                ]
+                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate]
+                                          .autoPhrasesTemplate
+                                    : undefined;
+                                if (autoPhrasesTemplate) {
+                                    setSemanticsAutoPhrasesModalIncludesList(
+                                        autoPhrasesTemplate.includes ?? [],
+                                    );
+                                    setSemanticsAutoPhrasesModalNotIncludesList(
+                                        autoPhrasesTemplate.notIncludes ?? [],
+                                    );
+                                }
 
                                 setSemanticsModalSemanticsItemsValue(
                                     value ? value.clusters ?? [] : [],
