@@ -983,7 +983,7 @@ export const MassAdvertPage = () => {
                 if (!value) return undefined;
 
                 const {updateTime, index, prevIndex, phrase} = value;
-                const {placementsRange} = row;
+                const {placementsRange} = row.drrAI ?? {};
                 if (phrase == '') return undefined;
 
                 const updateTimeObj = new Date(updateTime);
@@ -1033,7 +1033,18 @@ export const MassAdvertPage = () => {
                 // const themeToUse = 'normal';
                 // console.log(value.plus);
                 const plusPhrasesTemplate = row.plusPhrasesTemplate;
-                const themeToUse = plusPhrasesTemplate ? 'info' : 'normal';
+                const autoPhrasesTemplate = doc.plusPhrasesTemplates[plusPhrasesTemplate]
+                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].autoPhrasesTemplate
+                    : undefined;
+
+                const themeToUse = plusPhrasesTemplate
+                    ? autoPhrasesTemplate &&
+                      ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
+                          (autoPhrasesTemplate.notIncludes &&
+                              autoPhrasesTemplate.notIncludes.length))
+                        ? 'success'
+                        : 'info'
+                    : 'normal';
 
                 return (
                     <div style={{display: 'flex', justifyContent: 'center'}}>
@@ -1048,12 +1059,6 @@ export const MassAdvertPage = () => {
                                     value ? value.clusters ?? [] : [],
                                 );
 
-                                const autoPhrasesTemplate = doc.plusPhrasesTemplates[
-                                    plusPhrasesTemplate
-                                ]
-                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate]
-                                          .autoPhrasesTemplate
-                                    : undefined;
                                 if (autoPhrasesTemplate) {
                                     setSemanticsAutoPhrasesModalIncludesList(
                                         autoPhrasesTemplate.includes ?? [],
@@ -1373,8 +1378,9 @@ export const MassAdvertPage = () => {
                 stocks: 0,
                 advertsManagerRules: undefined,
                 advertsStocksThreshold: undefined,
-                placementsRange: undefined,
                 placements: undefined,
+                drrAI: undefined,
+                plusPhrasesTemplate: undefined,
             };
 
             artInfo.art = artData['art'];
@@ -1387,6 +1393,8 @@ export const MassAdvertPage = () => {
             artInfo.advertsManagerRules = artData['advertsManagerRules'];
             artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
             artInfo.placements = artData['placements'];
+            artInfo.drrAI = artData['drrAI'];
+            artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
 
             for (const [key, _] of Object.entries({
                 search: 'search',
@@ -1395,9 +1403,6 @@ export const MassAdvertPage = () => {
             })) {
                 artInfo[key] = {
                     semantics: undefined,
-                    plusPhrasesTemplate: artData['plusPhrasesTemplate']
-                        ? artData['plusPhrasesTemplate'][key]
-                        : undefined,
                     budget: undefined,
                     bid: undefined,
                     bidLog: {},
@@ -1415,13 +1420,7 @@ export const MassAdvertPage = () => {
                     cpm: 0,
                     cr: 0,
                     cpo: 0,
-                    drrAI: artData['drrAI'] ? artData['drrAI'][key] : undefined,
                 };
-                artInfo.placementsRange = artData['drrAI']
-                    ? artData['drrAI'][key]
-                        ? artData['drrAI'][key].placementsRange
-                        : artInfo.placementsRange
-                    : artInfo.placementsRange;
             }
 
             // console.log(artInfo);
@@ -1563,8 +1562,8 @@ export const MassAdvertPage = () => {
                             : undefined
                         : undefined,
                     stocks: artInfo['stocks'],
-                    semantics: artInfo[key].semantics,
-                    plusPhrasesTemplate: artInfo[key].plusPhrasesTemplate,
+                    semantics: artInfo[key]['semantics'],
+                    plusPhrasesTemplate: artInfo['plusPhrasesTemplate'],
                     budget: artInfo[key].budget,
                     bid: artInfo[key].bid,
                     bidLog: artInfo[key].bidLog,
@@ -1580,11 +1579,10 @@ export const MassAdvertPage = () => {
                     cpm: artInfo[key].cpm,
                     cr: artInfo[key].cr,
                     cpo: artInfo[key].cpo,
-                    drrAI: artInfo[key].drrAI,
+                    drrAI: artInfo['drrAI'],
                     advertsManagerRules: artInfo['advertsManagerRules'],
                     advertsStocksThreshold: artInfo['advertsStocksThreshold'],
                     placements: artInfo['placements'],
-                    placementsRange: artInfo['placementsRange'],
                 };
 
                 let addFlag = true;
@@ -2693,7 +2691,6 @@ export const MassAdvertPage = () => {
                                             </motion.div>
                                         </motion.div>
                                     </motion.div>
-                                    {generateModalAdvertsTypesInput(setAdvertsTypesInput)}
                                     <div
                                         style={{
                                             marginTop: 8,
@@ -2738,7 +2735,6 @@ export const MassAdvertPage = () => {
                                                     campaignName: selectValue[0],
                                                     data: {
                                                         arts: {},
-                                                        advertsTypes: advertsTypesInput,
                                                         mode: bidModalDeleteModeSelected
                                                             ? 'Удалить правила'
                                                             : bidModalSwitchValue,
@@ -2786,30 +2782,25 @@ export const MassAdvertPage = () => {
                                                             };
                                                         }
 
-                                                        for (const [
-                                                            advertsType,
-                                                            value,
-                                                        ] of Object.entries(advertsTypesInput)) {
-                                                            if (!advertsType || !value) continue;
-
-                                                            if (
-                                                                !doc.campaigns[selectValue[0]][art]
-                                                                    .drrAI
-                                                            )
-                                                                doc.campaigns[selectValue[0]][
-                                                                    art
-                                                                ].drrAI = {};
+                                                        if (
+                                                            !doc.campaigns[selectValue[0]][art]
+                                                                .drrAI
+                                                        )
                                                             doc.campaigns[selectValue[0]][
                                                                 art
-                                                            ].drrAI[advertsType] = {
-                                                                desiredDRR:
-                                                                    bidModalDeleteModeSelected
-                                                                        ? undefined
-                                                                        : bidModalDRRInputValue,
-                                                                placementsRange: bidModalRange,
-                                                                maxBid: bidModalMaxBid,
-                                                            };
-                                                        }
+                                                            ].drrAI = {};
+                                                        doc.campaigns[selectValue[0]][art].drrAI =
+                                                            bidModalDeleteModeSelected
+                                                                ? undefined
+                                                                : {
+                                                                      desiredDRR:
+                                                                          bidModalDeleteModeSelected
+                                                                              ? undefined
+                                                                              : bidModalDRRInputValue,
+                                                                      placementsRange:
+                                                                          bidModalRange,
+                                                                      maxBid: bidModalMaxBid,
+                                                                  };
                                                         if (
                                                             !doc.campaigns[selectValue[0]][art]
                                                                 .advertsStocksThreshold
@@ -2820,7 +2811,9 @@ export const MassAdvertPage = () => {
                                                         doc.campaigns[selectValue[0]][
                                                             art
                                                         ].advertsStocksThreshold.stocksThreshold =
-                                                            bidModalStocksThresholdInputValue;
+                                                            bidModalDeleteModeSelected
+                                                                ? undefined
+                                                                : bidModalStocksThresholdInputValue;
                                                     }
                                                 }
 
@@ -2880,7 +2873,9 @@ export const MassAdvertPage = () => {
                             setAdvertsTypesInput({search: false, booster: false, carousel: false});
                             setPlusPhrasesModalFormOpen(true);
                             const plusPhrasesTemplatesTemp: any[] = [];
-                            for (const [name, _] of Object.entries(doc.plusPhrasesTemplates)) {
+                            for (const [name, _] of Object.entries(
+                                doc.plusPhrasesTemplates[selectValue[0]],
+                            )) {
                                 plusPhrasesTemplatesTemp.push(name);
                             }
 
@@ -3577,10 +3572,6 @@ export const MassAdvertPage = () => {
                                     Шаблоны
                                 </Text>
 
-                                <div style={{marginBottom: 8}}>
-                                    {generateModalAdvertsTypesInput(setAdvertsTypesInput)}
-                                </div>
-
                                 <div
                                     style={{
                                         display: 'flex',
@@ -3603,7 +3594,7 @@ export const MassAdvertPage = () => {
                                                     ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
                                                 campaignName: selectValue[0],
-                                                data: {arts: {}, advertsTypes: advertsTypesInput},
+                                                data: {arts: {}},
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
                                                 const art = filteredData[i].art;
@@ -3615,21 +3606,16 @@ export const MassAdvertPage = () => {
                                                     art: art,
                                                 };
 
-                                                for (const [advertsType, value] of Object.entries(
-                                                    advertsTypesInput,
-                                                )) {
-                                                    if (!advertsType || !value) continue;
-                                                    if (
-                                                        !doc.campaigns[selectValue[0]][art]
-                                                            .plusPhrasesTemplate
-                                                    )
-                                                        doc.campaigns[selectValue[0]][
-                                                            art
-                                                        ].plusPhrasesTemplate = {};
+                                                if (
+                                                    !doc.campaigns[selectValue[0]][art]
+                                                        .plusPhrasesTemplate
+                                                )
                                                     doc.campaigns[selectValue[0]][
                                                         art
-                                                    ].plusPhrasesTemplate[advertsType] = item;
-                                                }
+                                                    ].plusPhrasesTemplate = {};
+                                                doc.campaigns[selectValue[0]][
+                                                    art
+                                                ].plusPhrasesTemplate = item;
                                             }
                                             console.log(params);
 
@@ -3661,7 +3647,7 @@ export const MassAdvertPage = () => {
                                                     ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
                                                 campaignName: selectValue[0],
-                                                data: {arts: {}, advertsTypes: advertsTypesInput},
+                                                data: {arts: {}},
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
                                                 const art = filteredData[i].art;
@@ -3672,22 +3658,18 @@ export const MassAdvertPage = () => {
                                                     art: art,
                                                 };
 
-                                                for (const [advertsType, value] of Object.entries(
-                                                    advertsTypesInput,
-                                                )) {
-                                                    if (!advertsType || !value) continue;
-                                                    if (
-                                                        !doc.campaigns[selectValue[0]][art]
-                                                            .plusPhrasesTemplate
-                                                    )
-                                                        doc.campaigns[selectValue[0]][
-                                                            art
-                                                        ].plusPhrasesTemplate = {};
+                                                if (
+                                                    !doc.campaigns[selectValue[0]][art]
+                                                        .plusPhrasesTemplate
+                                                )
                                                     doc.campaigns[selectValue[0]][
                                                         art
-                                                    ].plusPhrasesTemplate[advertsType] = undefined;
-                                                }
+                                                    ].plusPhrasesTemplate = {};
+                                                doc.campaigns[selectValue[0]][
+                                                    art
+                                                ].plusPhrasesTemplate = undefined;
                                             }
+
                                             console.log(params);
 
                                             /////////////////////////
@@ -3833,13 +3815,16 @@ export const MassAdvertPage = () => {
                     onClose={() => recalc(dateRange)}
                     // placement="bottom-end"
                 >
-                    <div style={{display: 'flex', flexDirection: 'row', marginLeft: 10}}>
+                    <div
+                        style={{display: 'flex', flexDirection: 'row', marginLeft: 10, height: 250}}
+                    >
                         <div
                             style={{
+                                marginTop: 8,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                justifyContent: 'center',
                                 alignItems: 'center',
+                                overflow: 'auto',
                             }}
                         >
                             <Button
@@ -3869,6 +3854,140 @@ export const MassAdvertPage = () => {
                                 }}
                             >
                                 Вчера
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const today = new Date();
+                                    const startOfWeek = new Date(today);
+                                    startOfWeek.setDate(today.getDate() - today.getDay()); // Set to the first day of the current week (Sunday)
+
+                                    const endOfWeek = new Date(today);
+                                    endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the current week (Saturday)
+
+                                    const range = [startOfWeek, endOfWeek];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                Текущая неделя
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const today = new Date();
+                                    const startOfPreviousWeek = new Date(today);
+                                    startOfPreviousWeek.setDate(
+                                        today.getDate() - today.getDay() - 7,
+                                    ); // Set to the first day of the previous week (Sunday)
+
+                                    const endOfPreviousWeek = new Date(startOfPreviousWeek);
+                                    endOfPreviousWeek.setDate(startOfPreviousWeek.getDate() + 6); // Set to the last day of the previous week (Saturday)
+
+                                    const range = [startOfPreviousWeek, endOfPreviousWeek];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                Предыдущая неделя
+                            </Button>{' '}
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const today = new Date();
+                                    const startOfMonth = new Date(
+                                        today.getFullYear(),
+                                        today.getMonth(),
+                                        1,
+                                    ); // Set to the first day of the current month
+                                    const endOfMonth = new Date(
+                                        today.getFullYear(),
+                                        today.getMonth() + 1,
+                                        0,
+                                    ); // Set to the last day of the current month
+
+                                    const range = [startOfMonth, endOfMonth];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                Текущий месяц
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const today = new Date();
+                                    const firstDayOfPreviousMonth = new Date(
+                                        today.getFullYear(),
+                                        today.getMonth() - 1,
+                                        1,
+                                    ); // First day of the previous month
+                                    const lastDayOfPreviousMonth = new Date(
+                                        today.getFullYear(),
+                                        today.getMonth(),
+                                        0,
+                                    ); // Last day of the previous month
+
+                                    const range = [firstDayOfPreviousMonth, lastDayOfPreviousMonth];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                Предыдущий месяц
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const today = new Date();
+                                    const startOfYear = new Date(today.getFullYear(), 0, 1); // Set to the first day of the current year
+                                    const endOfYear = new Date(today.getFullYear(), 11, 31); // Set to the last day of the current year
+
+                                    const range = [startOfYear, endOfYear];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                Текущий год
+                            </Button>
+                            <Button
+                                className={b('datePickerRangeButton')}
+                                width="max"
+                                view="flat"
+                                onClick={() => {
+                                    const today = new Date();
+                                    const startOfPreviousYear = new Date(
+                                        today.getFullYear() - 1,
+                                        0,
+                                        1,
+                                    ); // Set to the first day of the previous year
+                                    const endOfPreviousYear = new Date(
+                                        today.getFullYear() - 1,
+                                        11,
+                                        31,
+                                    ); // Set to the last day of the previous year
+
+                                    const range = [startOfPreviousYear, endOfPreviousYear];
+                                    setDateRange(range);
+                                    recalc(range);
+                                    setDatePickerOpen(false);
+                                }}
+                            >
+                                Предыдущий год
                             </Button>
                             <Button
                                 className={b('datePickerRangeButton')}
@@ -3923,6 +4042,7 @@ export const MassAdvertPage = () => {
                             </Button>
                         </div>
                         <RangeCalendar
+                            size="m"
                             timeZone="Europe/Moscow"
                             onUpdate={(val) => {
                                 const range = [val.start.toDate(), val.end.toDate()];
