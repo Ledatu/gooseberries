@@ -1147,7 +1147,7 @@ export const MassAdvertPage = () => {
                                 // setSemanticsModalTextAreaAddMode(false);
                             }}
                         >
-                            {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
+                            {themeToUse != 'normal' ? plusPhrasesTemplate : 'Добавить'}
                         </Label>
                         {Array.from(value ? value.clusters ?? [] : []).length ? (
                             <>
