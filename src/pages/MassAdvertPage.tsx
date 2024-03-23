@@ -85,7 +85,7 @@ const getUid = () => {
         '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
         '46431a09-85c3-4703-8246-d1b5c9e52594',
         '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-        'bd8731df-4a5c-4152-83f7-e8b771bc0de7',
+        '9af0639b-4f32-48af-b81a-171580f7b144',
     ].includes(Userfront.user.userUuid ?? '')
         ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
         : '';
@@ -107,8 +107,8 @@ const getUserDoc = (docum = undefined) => {
                     ? 'Клининг Сервис'
                     : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифов М.С.'
-                    : Userfront.user.userUuid == 'bd8731df-4a5c-4152-83f7-e8b771bc0de7'
-                    ? 'ИП Конаплёв К.В.'
+                    : Userfront.user.userUuid == '9af0639b-4f32-48af-b81a-171580f7b144'
+                    ? 'ИП Коноплёв К.В.'
                     : 'ИП Валерий',
         })
             .then((response) => setDocument(response ? response['data'] : undefined))
@@ -1844,8 +1844,8 @@ export const MassAdvertPage = () => {
                         content: campaignName,
                     });
                 }
-            } else if (Userfront.user.userUuid == 'bd8731df-4a5c-4152-83f7-e8b771bc0de7') {
-                if (['ИП Конаплёв К.В.'].includes(campaignName)) {
+            } else if (Userfront.user.userUuid == '9af0639b-4f32-48af-b81a-171580f7b144') {
+                if (['ИП Коноплёв К.В.'].includes(campaignName)) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,
