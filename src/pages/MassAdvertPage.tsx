@@ -1042,8 +1042,11 @@ export const MassAdvertPage = () => {
                 // const themeToUse = 'normal';
                 // console.log(value.plus);
                 const plusPhrasesTemplate = row.plusPhrasesTemplate;
-                const autoPhrasesTemplate = doc.plusPhrasesTemplates[plusPhrasesTemplate]
-                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].autoPhrasesTemplate
+                const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][
+                    plusPhrasesTemplate
+                ]
+                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                          .autoPhrasesTemplate
                     : undefined;
 
                 const themeToUse = plusPhrasesTemplate
@@ -1098,33 +1101,46 @@ export const MassAdvertPage = () => {
                                     plusPhrasesTemplate ?? 'Не установлен',
                                 );
 
-                                const plusThreshold = doc.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].threshold
+                                const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][
+                                    plusPhrasesTemplate
+                                ]
+                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                                          .threshold
                                     : 100;
                                 setSemanticsModalSemanticsThresholdValue(plusThreshold);
 
-                                const plusCTRThreshold = doc.plusPhrasesTemplates[
+                                const plusCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][
                                     plusPhrasesTemplate
                                 ]
-                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].ctrThreshold
+                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                                          .ctrThreshold
                                     : 5;
                                 setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
 
-                                const isFixed = doc.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].isFixed ?? false
+                                const isFixed = doc.plusPhrasesTemplates[selectValue[0]][
+                                    plusPhrasesTemplate
+                                ]
+                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                                          .isFixed ?? false
                                     : false;
                                 setSemanticsModalIsFixed(isFixed);
 
-                                const templateType = doc.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].type ?? 'АВТО'
+                                const templateType = doc.plusPhrasesTemplates[selectValue[0]][
+                                    plusPhrasesTemplate
+                                ]
+                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                                          .type ?? 'АВТО'
                                     : 'АВТО';
                                 setSemanticsModalAdvertType(templateType);
                                 // console.log(value.plus);
                                 setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
                                     plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
                                 );
-                                const plusItems = doc.plusPhrasesTemplates[plusPhrasesTemplate]
-                                    ? doc.plusPhrasesTemplates[plusPhrasesTemplate].clusters
+                                const plusItems = doc.plusPhrasesTemplates[selectValue[0]][
+                                    plusPhrasesTemplate
+                                ]
+                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                                          .clusters
                                     : [];
                                 setSemanticsModalSemanticsPlusItemsValue(plusItems);
                                 // setSemanticsModalTextAreaValue('');
@@ -3806,6 +3822,8 @@ export const MassAdvertPage = () => {
                                             resData['campaigns'][nextValue[0]];
                                         doc['balances'][nextValue[0]] =
                                             resData['balances'][nextValue[0]];
+                                        doc['plusPhrasesTemplates'][nextValue[0]] =
+                                            resData['plusPhrasesTemplates'][nextValue[0]];
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
                                         // recalc(dateRange, nextValue[0]);
@@ -4420,7 +4438,7 @@ const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) 
                         <Icon size={12} data={LayoutHeaderCursor} />
                     </Text>
                 </div>
-                {cpc === Infinity ? (
+                {!isFinite(cpc) || isNaN(cpc) ? (
                     <></>
                 ) : (
                     <>
