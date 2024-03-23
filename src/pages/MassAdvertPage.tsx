@@ -4251,7 +4251,8 @@ const generateModalAdvertsTypesInput = (setAdvertsTypesInput) => {
 };
 
 const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) => {
-    const {cluster, count, sum, ctr, clicks} = item;
+    const {cluster, count, sum, ctr, clicks, freq} = item;
+    const cpc = sum / clicks;
     const colorToUse = semanticsModalSemanticsPlusItemsValue.includes(cluster)
         ? 'warning'
         : 'primary';
@@ -4295,6 +4296,7 @@ const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) 
                         ₽
                     </Text>
                 </div>
+
                 <div style={{width: 8}} />
                 <div
                     style={{
@@ -4341,6 +4343,35 @@ const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) 
                         <Icon size={12} data={LayoutHeaderCursor} />
                     </Text>
                 </div>
+                {cpc === Infinity ? (
+                    <></>
+                ) : (
+                    <>
+                        <div style={{width: 8}} />
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Text color="secondary">{Math.round(cpc ?? 0)}</Text>
+                            <div style={{width: 3}} />
+                            <Text
+                                color="secondary"
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                ₽/ <Icon size={12} data={LayoutHeaderCursor} />
+                            </Text>
+                        </div>
+                    </>
+                )}
                 <div style={{width: 8}} />
                 <div
                     style={{
@@ -4362,6 +4393,29 @@ const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) 
                         }}
                     >
                         %
+                    </Text>
+                </div>
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{freq ?? 0}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Icon size={12} data={Magnifier} />
                     </Text>
                 </div>
             </div>
