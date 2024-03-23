@@ -2976,7 +2976,7 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Text variant="header-1">Фразы</Text>
+                                    <Text variant="header-1">Кластеры в показах</Text>
                                     <Button
                                         onClick={() => {
                                             const val = Array.from(
@@ -3056,7 +3056,7 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Text variant="header-1">Минус фразы</Text>
+                                    <Text variant="header-1">Исключенные кластеры</Text>
                                     <Button
                                         onClick={() => {
                                             const val = Array.from(
