@@ -3521,6 +3521,7 @@ export const MassAdvertPage = () => {
                                                 ].includes(Userfront.user.userUuid ?? '')
                                                     ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
                                                     : '',
+                                                campaignName: selectValue[0],
                                                 data: {
                                                     mode: 'Установить',
                                                     isFixed: semanticsModalIsFixed,
@@ -3540,7 +3541,7 @@ export const MassAdvertPage = () => {
                                                 },
                                             };
 
-                                            doc.plusPhrasesTemplates[endName] = {
+                                            doc.plusPhrasesTemplates[selectValue[0]][endName] = {
                                                 isFixed: semanticsModalIsFixed,
                                                 name: endName,
                                                 type: semanticsModalAdvertType,
