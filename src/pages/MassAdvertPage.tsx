@@ -79,6 +79,18 @@ import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import callApi from 'src/utilities/callApi';
 settings.set({plugins: [YagrPlugin]});
 
+const getUid = () => {
+    return [
+        'f9192af1-d9fa-4e3c-8959-33b668413e8c',
+        '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+        '46431a09-85c3-4703-8246-d1b5c9e52594',
+        '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
+        'bd8731df-4a5c-4152-83f7-e8b771bc0de7',
+    ].includes(Userfront.user.userUuid ?? '')
+        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
+        : '';
+};
+
 const getUserDoc = (docum = undefined) => {
     const [doc, setDocument] = useState<any>();
 
@@ -88,20 +100,15 @@ const getUserDoc = (docum = undefined) => {
 
     useEffect(() => {
         callApi('getMassAdvertsNew', {
-            uid: [
-                'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                '46431a09-85c3-4703-8246-d1b5c9e52594',
-                '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-            ].includes(Userfront.user.userUuid ?? '')
-                ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                : '',
+            uid: getUid(),
             dateRange: {from: '2023', to: '2024'},
             campaignName:
                 Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c'
                     ? 'Клининг Сервис'
                     : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифов М.С.'
+                    : Userfront.user.userUuid == 'bd8731df-4a5c-4152-83f7-e8b771bc0de7'
+                    ? 'ИП Конаплёв К.В.'
                     : 'ИП Валерий',
         })
             .then((response) => setDocument(response ? response['data'] : undefined))
@@ -908,14 +915,7 @@ export const MassAdvertPage = () => {
                                     setChangedDoc(doc);
 
                                     const params = {
-                                        uid: [
-                                            'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                            '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                                            '46431a09-85c3-4703-8246-d1b5c9e52594',
-                                            '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-                                        ].includes(Userfront.user.userUuid ?? '')
-                                            ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                            : '',
+                                        uid: getUid(),
                                         campaignName: selectValue[0],
                                         data: {
                                             arts: {},
@@ -1844,6 +1844,13 @@ export const MassAdvertPage = () => {
                         content: campaignName,
                     });
                 }
+            } else if (Userfront.user.userUuid == 'bd8731df-4a5c-4152-83f7-e8b771bc0de7') {
+                if (['ИП Конаплёв К.В.'].includes(campaignName)) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
             } else {
                 campaignsNames.push({
                     value: campaignName,
@@ -2119,14 +2126,7 @@ export const MassAdvertPage = () => {
                                         view: 'outlined-success',
                                         onClick: () => {
                                             const params = {
-                                                uid: [
-                                                    'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                                                    '46431a09-85c3-4703-8246-d1b5c9e52594',
-                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-                                                ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                                    : '',
+                                                uid: getUid(),
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}},
                                             };
@@ -2297,14 +2297,7 @@ export const MassAdvertPage = () => {
                                                 : 'outlined-success',
                                         onClick: () => {
                                             const params = {
-                                                uid: [
-                                                    'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                                                    '46431a09-85c3-4703-8246-d1b5c9e52594',
-                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-                                                ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                                    : '',
+                                                uid: getUid(),
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}, advertsTypes: advertsTypesInput},
                                             };
@@ -2791,14 +2784,7 @@ export const MassAdvertPage = () => {
                                             // selected
                                             onClick={() => {
                                                 const params = {
-                                                    uid: [
-                                                        'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                        '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                                                        '46431a09-85c3-4703-8246-d1b5c9e52594',
-                                                        '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-                                                    ].includes(Userfront.user.userUuid ?? '')
-                                                        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                                        : '',
+                                                    uid: getUid(),
                                                     campaignName: selectValue[0],
                                                     data: {
                                                         arts: {},
@@ -3529,14 +3515,7 @@ export const MassAdvertPage = () => {
                                                     ? ' ' + semanticsModalAdvertType
                                                     : '');
                                             const params = {
-                                                uid: [
-                                                    'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                                                    '46431a09-85c3-4703-8246-d1b5c9e52594',
-                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-                                                ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                                    : '',
+                                                uid: getUid(),
                                                 campaignName: selectValue[0],
                                                 data: {
                                                     mode: 'Установить',
@@ -3678,14 +3657,7 @@ export const MassAdvertPage = () => {
                                     <List
                                         onItemClick={(item) => {
                                             const params = {
-                                                uid: [
-                                                    'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                                                    '46431a09-85c3-4703-8246-d1b5c9e52594',
-                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-                                                ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                                    : '',
+                                                uid: getUid(),
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}},
                                             };
@@ -3731,14 +3703,7 @@ export const MassAdvertPage = () => {
                                         placeholder: 'Удалить',
                                         onClick: () => {
                                             const params = {
-                                                uid: [
-                                                    'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                                    '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                                                    '46431a09-85c3-4703-8246-d1b5c9e52594',
-                                                    '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-                                                ].includes(Userfront.user.userUuid ?? '')
-                                                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                                    : '',
+                                                uid: getUid(),
                                                 campaignName: selectValue[0],
                                                 data: {arts: {}},
                                             };
@@ -3805,14 +3770,7 @@ export const MassAdvertPage = () => {
                             onUpdate={(nextValue) => {
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi('getMassAdvertsNew', {
-                                        uid: [
-                                            'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-                                            '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                                            '46431a09-85c3-4703-8246-d1b5c9e52594',
-                                            '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-                                        ].includes(Userfront.user.userUuid ?? '')
-                                            ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                            : '',
+                                        uid: getUid(),
                                         dateRange: {from: '2023', to: '2024'},
                                         campaignName: nextValue,
                                     }).then((res) => {
