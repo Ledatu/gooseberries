@@ -58,6 +58,7 @@ import {
     Ban,
     Calendar,
     Eye,
+    EyeSlash,
     // CircleRuble,
     Pin,
     PinSlash,
@@ -178,12 +179,20 @@ export const MassAdvertPage = () => {
         useState(false);
     const [semanticsAutoPhrasesModalIncludesList, setSemanticsAutoPhrasesModalIncludesList] =
         useState<any[]>([]);
+    // const [
+    //     semanticsAutoPhrasesModalIncludesListTemp,
+    //     setSemanticsAutoPhrasesModalIncludesListTemp,
+    // ] = useState<any[]>([]);
     const [
         semanticsAutoPhrasesModalIncludesListInput,
         setSemanticsAutoPhrasesModalIncludesListInput,
     ] = useState('');
     const [semanticsAutoPhrasesModalNotIncludesList, setSemanticsAutoPhrasesModalNotIncludesList] =
         useState<any[]>([]);
+    // const [
+    //     semanticsAutoPhrasesModalNotIncludesListTemp,
+    //     setSemanticsAutoPhrasesModalNotIncludesListTemp,
+    // ] = useState<any[]>([]);
     const [
         semanticsAutoPhrasesModalNotIncludesListInput,
         setSemanticsAutoPhrasesModalNotIncludesListInput,
@@ -1124,6 +1133,48 @@ export const MassAdvertPage = () => {
                         >
                             {themeToUse == 'info' ? plusPhrasesTemplate : 'Добавить'}
                         </Label>
+                        {Array.from(value ? value.clusters ?? [] : []).length ? (
+                            <>
+                                <div style={{width: 5}} />
+                                <Label theme="clear">
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        {value.clusters.length}
+                                        <div style={{width: 3}} />
+                                        <Icon size={12} data={Eye} />
+                                    </div>
+                                </Label>
+                            </>
+                        ) : (
+                            <></>
+                        )}
+                        {Array.from(value ? value.excluded ?? [] : []).length ? (
+                            <>
+                                <div style={{width: 5}} />
+                                <Label theme="clear">
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        {value.excluded.length}
+                                        <div style={{width: 3}} />
+                                        <Icon size={12} data={EyeSlash} />
+                                    </div>
+                                </Label>
+                            </>
+                        ) : (
+                            <></>
+                        )}
                     </div>
                 );
             },
@@ -3201,7 +3252,7 @@ export const MassAdvertPage = () => {
                                     <div
                                         style={{
                                             display: 'flex',
-                                            flexDirection: 'row',
+                                            flexDirection: 'column',
                                             height: '70vh',
                                             width: '70vw',
                                             justifyContent: 'space-between',
@@ -3211,164 +3262,189 @@ export const MassAdvertPage = () => {
                                         <div
                                             style={{
                                                 display: 'flex',
-                                                flexDirection: 'column',
-                                                height: '80vh',
-                                                width: '48%',
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
                                             }}
                                         >
-                                            <Text variant="header-1">Фразы должны содержать</Text>
-                                            <div style={{height: 8}} />
-                                            <TextInput
-                                                value={semanticsAutoPhrasesModalIncludesListInput}
-                                                onKeyPress={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        if (
-                                                            !semanticsAutoPhrasesModalIncludesList.includes(
-                                                                semanticsAutoPhrasesModalIncludesListInput,
-                                                            ) &&
-                                                            semanticsAutoPhrasesModalIncludesListInput !=
-                                                                ''
-                                                        )
-                                                            semanticsAutoPhrasesModalIncludesList.push(
-                                                                semanticsAutoPhrasesModalIncludesListInput,
-                                                            );
-                                                        setSemanticsAutoPhrasesModalIncludesListInput(
-                                                            '',
-                                                        );
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    height: '68vh',
+                                                    width: '48%',
+                                                }}
+                                            >
+                                                <Text variant="header-1">
+                                                    Фразы должны содержать
+                                                </Text>
+                                                <div style={{height: 8}} />
+                                                <TextInput
+                                                    value={
+                                                        semanticsAutoPhrasesModalIncludesListInput
                                                     }
-                                                }}
-                                                onUpdate={(value) => {
-                                                    setSemanticsAutoPhrasesModalIncludesListInput(
-                                                        value,
-                                                    );
-                                                }}
-                                                placeholder={' Вводите правила сюда'}
-                                            />
-                                            <div style={{height: 8}} />
-                                            <List
-                                                itemHeight={(item) => {
-                                                    return 20 * Math.ceil(item.length / 60) + 20;
-                                                }}
-                                                renderItem={(item) => {
-                                                    if (!item) return;
-                                                    return (
-                                                        <div
-                                                            style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'row',
-                                                                justifyContent: 'space-between',
-                                                                margin: '0 8px',
-                                                                width: '100%',
-                                                            }}
-                                                            title={item}
-                                                        >
-                                                            <div
-                                                                style={{
-                                                                    textWrap: 'wrap',
-                                                                }}
-                                                            >
-                                                                <Text>{item}</Text>
-                                                            </div>
+                                                    onKeyPress={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            if (
+                                                                !semanticsAutoPhrasesModalIncludesList.includes(
+                                                                    semanticsAutoPhrasesModalIncludesListInput,
+                                                                ) &&
+                                                                semanticsAutoPhrasesModalIncludesListInput !=
+                                                                    ''
+                                                            )
+                                                                semanticsAutoPhrasesModalIncludesList.push(
+                                                                    semanticsAutoPhrasesModalIncludesListInput,
+                                                                );
+                                                            setSemanticsAutoPhrasesModalIncludesListInput(
+                                                                '',
+                                                            );
+                                                        }
+                                                    }}
+                                                    onUpdate={(value) => {
+                                                        setSemanticsAutoPhrasesModalIncludesListInput(
+                                                            value,
+                                                        );
+                                                    }}
+                                                    placeholder={' Вводите правила сюда'}
+                                                />
+                                                <div style={{height: 8}} />
+                                                <List
+                                                    itemHeight={(item) => {
+                                                        return (
+                                                            20 * Math.ceil(item.length / 60) + 20
+                                                        );
+                                                    }}
+                                                    renderItem={(item) => {
+                                                        if (!item) return;
+                                                        return (
                                                             <div
                                                                 style={{
                                                                     display: 'flex',
                                                                     flexDirection: 'row',
+                                                                    justifyContent: 'space-between',
+                                                                    margin: '0 8px',
+                                                                    width: '100%',
                                                                 }}
+                                                                title={item}
                                                             >
-                                                                <Button
-                                                                    size="xs"
-                                                                    view="flat"
-                                                                    onClick={() => {
-                                                                        setSemanticsAutoPhrasesModalIncludesListInput(
-                                                                            item,
-                                                                        );
+                                                                <div
+                                                                    style={{
+                                                                        textWrap: 'wrap',
                                                                     }}
                                                                 >
-                                                                    <Icon
-                                                                        data={Pencil}
-                                                                        size={14}
-                                                                    ></Icon>
-                                                                </Button>
+                                                                    <Text>{item}</Text>
+                                                                </div>
+                                                                <div
+                                                                    style={{
+                                                                        display: 'flex',
+                                                                        flexDirection: 'row',
+                                                                    }}
+                                                                >
+                                                                    <Button
+                                                                        size="xs"
+                                                                        view="flat"
+                                                                        onClick={() => {
+                                                                            setSemanticsAutoPhrasesModalIncludesListInput(
+                                                                                item,
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <Icon
+                                                                            data={Pencil}
+                                                                            size={14}
+                                                                        ></Icon>
+                                                                    </Button>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    );
-                                                }}
-                                                filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalIncludesList.length} фразах`}
-                                                onItemClick={(rule) => {
-                                                    let val = Array.from(
-                                                        semanticsAutoPhrasesModalIncludesList,
-                                                    );
-                                                    val = val.filter((value) => value != rule);
-                                                    setSemanticsAutoPhrasesModalIncludesList(val);
-                                                }}
-                                                items={semanticsAutoPhrasesModalIncludesList}
-                                            />
-                                        </div>
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                height: '80vh',
-                                                width: '48%',
-                                            }}
-                                        >
-                                            <Text variant="header-1">
-                                                Фразы не должны содержать
-                                            </Text>
-                                            <div style={{height: 8}} />
-                                            <TextInput
-                                                value={
-                                                    semanticsAutoPhrasesModalNotIncludesListInput
-                                                }
-                                                onKeyPress={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        const arr = Array.from(
-                                                            semanticsAutoPhrasesModalNotIncludesList as any[],
                                                         );
-                                                        if (
-                                                            !arr.includes(
-                                                                semanticsAutoPhrasesModalNotIncludesListInput,
-                                                            ) &&
-                                                            semanticsAutoPhrasesModalNotIncludesListInput !=
-                                                                ''
-                                                        ) {
-                                                            arr.push(
-                                                                semanticsAutoPhrasesModalNotIncludesListInput,
+                                                    }}
+                                                    filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalIncludesList.length} фразах`}
+                                                    onItemClick={(rule) => {
+                                                        let val = Array.from(
+                                                            semanticsAutoPhrasesModalIncludesList,
+                                                        );
+                                                        val = val.filter((value) => value != rule);
+                                                        setSemanticsAutoPhrasesModalIncludesList(
+                                                            val,
+                                                        );
+                                                    }}
+                                                    items={semanticsAutoPhrasesModalIncludesList}
+                                                />
+                                            </div>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    height: '68vh',
+                                                    width: '48%',
+                                                }}
+                                            >
+                                                <Text variant="header-1">
+                                                    Фразы не должны содержать
+                                                </Text>
+                                                <div style={{height: 8}} />
+                                                <TextInput
+                                                    value={
+                                                        semanticsAutoPhrasesModalNotIncludesListInput
+                                                    }
+                                                    onKeyPress={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            const arr = Array.from(
+                                                                semanticsAutoPhrasesModalNotIncludesList as any[],
                                                             );
-                                                            setSemanticsAutoPhrasesModalNotIncludesList(
-                                                                arr,
+                                                            if (
+                                                                !arr.includes(
+                                                                    semanticsAutoPhrasesModalNotIncludesListInput,
+                                                                ) &&
+                                                                semanticsAutoPhrasesModalNotIncludesListInput !=
+                                                                    ''
+                                                            ) {
+                                                                arr.push(
+                                                                    semanticsAutoPhrasesModalNotIncludesListInput,
+                                                                );
+                                                                setSemanticsAutoPhrasesModalNotIncludesList(
+                                                                    arr,
+                                                                );
+                                                            }
+                                                            setSemanticsAutoPhrasesModalNotIncludesListInput(
+                                                                '',
+                                                            );
+                                                            console.log(
+                                                                semanticsAutoPhrasesModalNotIncludesList,
                                                             );
                                                         }
+                                                    }}
+                                                    onUpdate={(value) => {
                                                         setSemanticsAutoPhrasesModalNotIncludesListInput(
-                                                            '',
+                                                            value,
                                                         );
-                                                        console.log(
+                                                    }}
+                                                    placeholder={' Вводите правила сюда'}
+                                                />
+                                                <div style={{height: 8}} />
+                                                <List
+                                                    filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalNotIncludesList.length} фразах`}
+                                                    onItemClick={(rule) => {
+                                                        let val = Array.from(
                                                             semanticsAutoPhrasesModalNotIncludesList,
                                                         );
-                                                    }
-                                                }}
-                                                onUpdate={(value) => {
-                                                    setSemanticsAutoPhrasesModalNotIncludesListInput(
-                                                        value,
-                                                    );
-                                                }}
-                                                placeholder={' Вводите правила сюда'}
-                                            />
-                                            <div style={{height: 8}} />
-                                            <List
-                                                filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalNotIncludesList.length} фразах`}
-                                                onItemClick={(rule) => {
-                                                    let val = Array.from(
-                                                        semanticsAutoPhrasesModalNotIncludesList,
-                                                    );
-                                                    val = val.filter((value) => value != rule);
-                                                    setSemanticsAutoPhrasesModalNotIncludesList(
-                                                        val,
-                                                    );
-                                                }}
-                                                items={semanticsAutoPhrasesModalNotIncludesList}
-                                            />
+                                                        val = val.filter((value) => value != rule);
+                                                        setSemanticsAutoPhrasesModalNotIncludesList(
+                                                            val,
+                                                        );
+                                                    }}
+                                                    items={semanticsAutoPhrasesModalNotIncludesList}
+                                                />
+                                            </div>
                                         </div>
+                                        <Button
+                                            pin="circle-circle"
+                                            view="action"
+                                            onClick={() =>
+                                                setSemanticsAutoPhrasesModalFormOpen(false)
+                                            }
+                                        >
+                                            Закрыть
+                                        </Button>
                                     </div>
                                 </Modal>
                                 <div
