@@ -206,6 +206,7 @@ export const MassAdvertPage = () => {
     ] = useState('');
 
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
+    const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
         any[]
     >([]);
@@ -234,11 +235,6 @@ export const MassAdvertPage = () => {
     const [semanticsModalSemanticsCTRThresholdValue, setSemanticsModalSemanticsCTRThresholdValue] =
         useState(5);
 
-    const semanticsModalAdvertTypes: any[] = [
-        {value: 'АВТО', content: 'Авто'},
-        {value: 'ПОИСК', content: 'Поиск'},
-    ];
-    const [semanticsModalAdvertType, setSemanticsModalAdvertType] = React.useState('АВТО');
     const [semanticsModalIsFixed, setSemanticsModalIsFixed] = useState(false);
 
     // const [
@@ -986,6 +982,15 @@ export const MassAdvertPage = () => {
         {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
         {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
         {
+            name: 'title',
+            placeholder: 'Наименование',
+            valueType: 'text',
+            group: true,
+            render: ({value}) => {
+                return <div style={{overflow: 'scroll'}}>{value}</div>;
+            },
+        },
+        {
             name: 'placements',
             placeholder: 'Позиция',
             render: ({value, row}) => {
@@ -1041,6 +1046,7 @@ export const MassAdvertPage = () => {
                 // if (!row.adverts) return;
                 // const themeToUse = 'normal';
                 // console.log(value.plus);
+                const art = row.art;
                 const plusPhrasesTemplate = row.plusPhrasesTemplate;
                 const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][
                     plusPhrasesTemplate
@@ -1067,9 +1073,7 @@ export const MassAdvertPage = () => {
                             onClick={() => {
                                 setSemanticsModalFormOpen(true);
 
-                                setSemanticsModalSemanticsItemsValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
+                                setSemanticsModalOpenFromArt(art);
 
                                 if (autoPhrasesTemplate) {
                                     setSemanticsAutoPhrasesModalIncludesList(
@@ -1125,16 +1129,9 @@ export const MassAdvertPage = () => {
                                     : false;
                                 setSemanticsModalIsFixed(isFixed);
 
-                                const templateType = doc.plusPhrasesTemplates[selectValue[0]][
-                                    plusPhrasesTemplate
-                                ]
-                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .type ?? 'АВТО'
-                                    : 'АВТО';
-                                setSemanticsModalAdvertType(templateType);
                                 // console.log(value.plus);
                                 setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                    plusPhrasesTemplate ?? `Новый шаблон ${templateType}`,
+                                    plusPhrasesTemplate ?? `Новый шаблон`,
                                 );
                                 const plusItems = doc.plusPhrasesTemplates[selectValue[0]][
                                     plusPhrasesTemplate
@@ -3164,47 +3161,16 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                        }}
+                                    <Button
+                                        width="max"
+                                        selected={semanticsModalIsFixed}
+                                        onClick={() =>
+                                            setSemanticsModalIsFixed(!semanticsModalIsFixed)
+                                        }
                                     >
-                                        <RadioButton
-                                            defaultValue={semanticsModalAdvertType}
-                                            options={semanticsModalAdvertTypes}
-                                            onUpdate={(val) => {
-                                                setSemanticsModalAdvertType(val);
-                                                setSemanticsModalIsFixed(false);
-                                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                                    (cur) => {
-                                                        const name = cur.trim();
-                                                        const nameArray = name.split(' ');
-                                                        if (
-                                                            nameArray.at(-1) == 'АВТО' ||
-                                                            nameArray.at(-1) == 'ПОИСК'
-                                                        )
-                                                            nameArray.pop();
-
-                                                        return nameArray.join(' ') + ' ' + val;
-                                                    },
-                                                );
-                                            }}
-                                        />
-                                        <Button
-                                            // width="max"
-                                            style={{margin: '0 8px'}}
-                                            disabled={semanticsModalAdvertType == 'АВТО'}
-                                            selected={semanticsModalIsFixed}
-                                            onClick={() =>
-                                                setSemanticsModalIsFixed(!semanticsModalIsFixed)
-                                            }
-                                        >
-                                            {`Фикс. ${!semanticsModalIsFixed ? 'выкл.' : 'вкл.'}`}
-                                        </Button>
-                                    </div>
+                                        {`Фикс. ${!semanticsModalIsFixed ? 'выкл.' : 'вкл.'}`}
+                                    </Button>
+                                    <div style={{width: 16}} />
                                     <Button
                                         width="max"
                                         view={
@@ -3509,19 +3475,13 @@ export const MassAdvertPage = () => {
                                         onClick={() => {
                                             const name =
                                                 semanticsModalSemanticsPlusItemsTemplateNameSaveValue.trim();
-                                            const endName =
-                                                name +
-                                                (!name.includes(' ' + semanticsModalAdvertType)
-                                                    ? ' ' + semanticsModalAdvertType
-                                                    : '');
                                             const params = {
                                                 uid: getUid(),
                                                 campaignName: selectValue[0],
                                                 data: {
                                                     mode: 'Установить',
                                                     isFixed: semanticsModalIsFixed,
-                                                    name: endName,
-                                                    type: semanticsModalAdvertType,
+                                                    name: name,
                                                     clusters: semanticsModalSemanticsPlusItemsValue,
                                                     threshold:
                                                         semanticsModalSemanticsThresholdValue,
@@ -3536,10 +3496,9 @@ export const MassAdvertPage = () => {
                                                 },
                                             };
 
-                                            doc.plusPhrasesTemplates[selectValue[0]][endName] = {
+                                            doc.plusPhrasesTemplates[selectValue[0]][name] = {
                                                 isFixed: semanticsModalIsFixed,
-                                                name: endName,
-                                                type: semanticsModalAdvertType,
+                                                name: name,
                                                 clusters: semanticsModalSemanticsPlusItemsValue,
                                                 threshold: semanticsModalSemanticsThresholdValue,
                                                 ctrThreshold:
@@ -3550,6 +3509,47 @@ export const MassAdvertPage = () => {
                                                         semanticsAutoPhrasesModalNotIncludesList,
                                                 },
                                             };
+                                            {
+                                                // ADDING TEMPLATE TO ART
+                                                if (
+                                                    semanticsModalOpenFromArt &&
+                                                    semanticsModalOpenFromArt != ''
+                                                ) {
+                                                    const art = semanticsModalOpenFromArt;
+                                                    console.log(art);
+
+                                                    const paramsAddToArt = {
+                                                        uid: getUid(),
+                                                        campaignName: selectValue[0],
+                                                        data: {arts: {}},
+                                                    };
+                                                    paramsAddToArt.data.arts[art] = {
+                                                        mode: 'Установить',
+                                                        templateName: name,
+                                                        art: art,
+                                                    };
+
+                                                    console.log(
+                                                        paramsAddToArt,
+                                                        doc.campaigns[selectValue[0]][art],
+                                                    );
+
+                                                    if (
+                                                        !doc.campaigns[selectValue[0]][art]
+                                                            .plusPhrasesTemplate
+                                                    )
+                                                        doc.campaigns[selectValue[0]][
+                                                            art
+                                                        ].plusPhrasesTemplate = {};
+                                                    doc.campaigns[selectValue[0]][
+                                                        art
+                                                    ].plusPhrasesTemplate = name;
+                                                    callApi(
+                                                        'setAdvertsPlusPhrasesTemplates',
+                                                        paramsAddToArt,
+                                                    );
+                                                }
+                                            }
 
                                             console.log(params);
 
