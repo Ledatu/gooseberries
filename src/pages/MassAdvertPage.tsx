@@ -1526,6 +1526,7 @@ export const MassAdvertPage = () => {
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
     const [selectedValueMethodOptions] = React.useState<SelectOption<any>[]>([
         {
             value: 'Под Позицию',
@@ -3558,6 +3559,8 @@ export const MassAdvertPage = () => {
                                 );
                             }}
                             onUpdate={(nextValue) => {
+                                setSwitchingCampaignsFlag(true);
+
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi('getMassAdvertsNew', {
                                         uid: getUid(),
@@ -3575,17 +3578,23 @@ export const MassAdvertPage = () => {
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
                                         // recalc(dateRange, nextValue[0]);
+                                        setSwitchingCampaignsFlag(false);
                                         console.log(doc);
                                     });
                                 } else {
                                     setSelectValue(nextValue);
+                                    setSwitchingCampaignsFlag(false);
                                     recalc(dateRange, nextValue[0]);
                                 }
                                 setPagesCurrent(1);
                             }}
                         />
                     </div>
-
+                    {switchingCampaignsFlag ? (
+                        <Spin style={{marginRight: 8, marginBottom: 8}} />
+                    ) : (
+                        <></>
+                    )}
                     <div style={{marginRight: 8, marginBottom: '8px'}}>
                         <Button view="outlined-success" size="l">
                             <Text variant="subheader-1">
