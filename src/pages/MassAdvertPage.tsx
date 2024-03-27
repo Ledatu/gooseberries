@@ -1174,9 +1174,11 @@ export const MassAdvertPage = () => {
     const [summary, setSummary] = useState({
         views: 0,
         clicks: 0,
+        ctr: 0,
         sum: 0,
-        drr: 0,
-        orders: 0,
+        drr_orders: 0,
+        drr_sales: 0,
+        sum_sales: 0,
         sum_orders: 0,
     });
 
@@ -1201,11 +1203,12 @@ export const MassAdvertPage = () => {
         const summaryTemp = {
             views: 0,
             clicks: 0,
-            sum: 0,
             ctr: 0,
-            drr: 0,
-            orders: 0,
+            sum: 0,
+            drr_orders: 0,
+            drr_sales: 0,
             sum_orders: 0,
+            sum_sales: 0,
         };
 
         const campaignData = doc
@@ -1270,6 +1273,8 @@ export const MassAdvertPage = () => {
                     cpm: 0,
                     cr: 0,
                     cpo: 0,
+                    sales: 0,
+                    sum_sales: 0,
                 };
             }
 
@@ -1304,6 +1309,8 @@ export const MassAdvertPage = () => {
 
                         artInfo[key].sum_orders += day['sum_orders'];
                         artInfo[key].orders += day['orders'];
+                        artInfo[key].sum_sales += day['sum_sales'];
+                        artInfo[key].sales += day['sales'];
                         artInfo[key].sum += day['sum'];
                         artInfo[key].views += day['views'];
                         artInfo[key].clicks += day['clicks'];
@@ -1316,6 +1323,8 @@ export const MassAdvertPage = () => {
                 })) {
                     artInfo[key].sum_orders = Math.round(artInfo[key].sum_orders);
                     artInfo[key].orders = Math.round(artInfo[key].orders * 100) / 100;
+                    artInfo[key].sum_sales = Math.round(artInfo[key].sum_sales);
+                    artInfo[key].sales = Math.round(artInfo[key].sales * 100) / 100;
                     artInfo[key].sum = Math.round(artInfo[key].sum);
                     artInfo[key].views = Math.round(artInfo[key].views);
                     artInfo[key].clicks = Math.round(artInfo[key].clicks);
@@ -1338,16 +1347,10 @@ export const MassAdvertPage = () => {
                     );
 
                     summaryTemp.sum_orders += artInfo[key].sum_orders;
-                    summaryTemp.orders += artInfo[key].orders;
+                    summaryTemp.sum_sales += artInfo[key].sum_sales;
                     summaryTemp.sum += artInfo[key].sum;
                     summaryTemp.views += artInfo[key].views;
                     summaryTemp.clicks += artInfo[key].clicks;
-                    summaryTemp.drr = getRoundValue(
-                        summaryTemp.sum,
-                        summaryTemp.sum_orders,
-                        true,
-                        1,
-                    );
                 }
             }
 
@@ -1355,7 +1358,10 @@ export const MassAdvertPage = () => {
         }
 
         summaryTemp.sum_orders = Math.round(summaryTemp.sum_orders);
-        summaryTemp.orders = Math.round(summaryTemp.orders);
+        summaryTemp.sum_sales = Math.round(summaryTemp.sum_sales);
+        summaryTemp.ctr = getRoundValue(summaryTemp.clicks, summaryTemp.views, true);
+        summaryTemp.drr_orders = getRoundValue(summaryTemp.sum, summaryTemp.sum_orders, true, 1);
+        summaryTemp.drr_sales = getRoundValue(summaryTemp.sum, summaryTemp.sum_sales, true, 1);
 
         setSummary(summaryTemp);
         setTableData(temp);
@@ -1655,18 +1661,6 @@ export const MassAdvertPage = () => {
         myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
     }
 
-    const cardStyle = {
-        width: '100%',
-        maxWidth: '120px',
-        height: '120px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: '16px',
-        marginRight: '4px',
-        marginLeft: '4px',
-    };
-
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
             {/* <DatePicker></DatePicker>
@@ -1680,91 +1674,14 @@ export const MassAdvertPage = () => {
                     margin: '8px 0',
                 }}
             >
-                <Card style={cardStyle} theme="info" view="raised">
-                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                        <Text
-                            style={{
-                                fontWeight: 'bold',
-                                fontSize: '18pt',
-                                marginTop: '10px',
-                            }}
-                        >
-                            {new Intl.NumberFormat('ru-RU').format(summary['sum'])}
-                        </Text>
-                        <Text>Расход, ₽</Text>
-                    </div>
-                </Card>
-                <Card style={cardStyle} theme="info" view="raised">
-                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                        <Text
-                            className={b('summary-text')}
-                            style={{
-                                fontWeight: 'bold',
-                                fontSize: '18pt',
-                                marginTop: '10px',
-                            }}
-                        >
-                            {new Intl.NumberFormat('ru-RU').format(summary['drr'])}
-                        </Text>
-                        <Text> Дрр, %</Text>
-                    </div>
-                </Card>
-                <Card style={cardStyle} theme="info" view="raised">
-                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                        <Text
-                            style={{
-                                fontWeight: 'bold',
-                                fontSize: '18pt',
-                                marginTop: '10px',
-                            }}
-                        >
-                            {new Intl.NumberFormat('ru-RU').format(summary['orders'])}
-                        </Text>
-                        <Text>Заказов, шт.</Text>
-                    </div>
-                </Card>
-                <Card style={cardStyle} theme="info" view="raised">
-                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                        <Text
-                            style={{
-                                fontWeight: 'bold',
-                                fontSize: '18pt',
-                                marginTop: '10px',
-                            }}
-                        >
-                            {new Intl.NumberFormat('ru-RU').format(summary['sum_orders'])}
-                        </Text>
-                        <Text> Заказов, ₽</Text>
-                    </div>
-                </Card>
-                <Card style={cardStyle} theme="info" view="raised">
-                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                        <Text
-                            style={{
-                                fontWeight: 'bold',
-                                fontSize: '18pt',
-                                marginTop: '10px',
-                            }}
-                        >
-                            {new Intl.NumberFormat('ru-RU').format(summary['views'])}
-                        </Text>
-                        <Text>Показов, шт.</Text>
-                    </div>
-                </Card>
-                <Card style={cardStyle} theme="info" view="raised">
-                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                        <Text
-                            style={{
-                                fontWeight: 'bold',
-                                fontSize: '18pt',
-                                marginTop: '10px',
-                            }}
-                        >
-                            {new Intl.NumberFormat('ru-RU').format(summary['clicks'])}
-                        </Text>
-                        <Text>Кликов, шт.</Text>
-                    </div>
-                </Card>
+                {generateCard({summary, key: 'sum_orders', placeholder: 'Заказов, ₽'})}
+                {generateCard({summary, key: 'sum_sales', placeholder: 'Продаж, ₽'})}
+                {generateCard({summary, key: 'sum', placeholder: 'Расход, ₽'})}
+                {generateCard({summary, key: 'drr_orders', placeholder: 'ДРР к заказам, %'})}
+                {generateCard({summary, key: 'drr_sales', placeholder: 'ДРР к продажам, %'})}
+                {generateCard({summary, key: 'views', placeholder: 'Показов, шт.'})}
+                {generateCard({summary, key: 'clicks', placeholder: 'Кликов, шт.'})}
+                {generateCard({summary, key: 'ctr', placeholder: 'CTR, %'})}
             </div>
             <div
                 style={{
@@ -4800,4 +4717,34 @@ const compare = (a, filterData) => {
         return Number(a) < Number(val);
     }
     return false;
+};
+
+const generateCard = (args) => {
+    const {summary, key, placeholder} = args;
+    const cardStyle = {
+        width: '18vh',
+        height: '18vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '16px',
+        marginRight: '4px',
+        marginLeft: '4px',
+    };
+    return (
+        <Card style={cardStyle} theme="info" view="raised">
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <Text
+                    style={{
+                        fontWeight: 'bold',
+                        fontSize: '18pt',
+                        marginTop: '10px',
+                    }}
+                >
+                    {new Intl.NumberFormat('ru-RU').format(summary[key])}
+                </Text>
+                <Text>{placeholder}</Text>
+            </div>
+        </Card>
+    );
 };
