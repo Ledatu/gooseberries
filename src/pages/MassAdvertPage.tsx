@@ -44,6 +44,7 @@ import {
     Pencil,
     Key,
     Magnifier,
+    LayoutHeader,
     ChartLine,
     CircleRuble,
     SlidersVertical,
@@ -78,6 +79,7 @@ import ChartKit, {settings} from '@gravity-ui/chartkit';
 import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
 import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import callApi from 'src/utilities/callApi';
+import axios from 'axios';
 settings.set({plugins: [YagrPlugin]});
 
 const getUid = () => {
@@ -135,6 +137,7 @@ export const MassAdvertPage = () => {
     const isDesktop = windowDimensions.height < windowDimensions.width;
 
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
+    const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
     const [advertsTypesInput, setAdvertsTypesInput] = useState({
         search: false,
@@ -1152,6 +1155,14 @@ export const MassAdvertPage = () => {
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [doc, setUserDoc] = React.useState(getUserDoc());
     const doc = getUserDoc(changedDoc);
+
+    if (fetchedPlacements) {
+        Object.assign(doc.fetchedPlacements, fetchedPlacements);
+        console.log(doc);
+
+        setFetchedPlacements(undefined);
+        setChangedDoc(doc);
+    }
 
     // const doc = {};
     const today = new Date(
@@ -2422,11 +2433,9 @@ export const MassAdvertPage = () => {
                                                             onUpdate={(val) => {
                                                                 const intVal = Number(val);
 
-                                                                setBidModalRange(({from}) => {
+                                                                setBidModalRange(() => {
                                                                     setBidModalRangeValid(
-                                                                        intVal < 0
-                                                                            ? false
-                                                                            : from <= intVal,
+                                                                        intVal > 0,
                                                                     );
                                                                     return {
                                                                         from: intVal,
@@ -2801,6 +2810,7 @@ export const MassAdvertPage = () => {
                                         renderPhrasesStatListItem(
                                             item,
                                             semanticsModalSemanticsPlusItemsValue,
+                                            setFetchedPlacements,
                                         )
                                     }
                                     onItemClick={(item) => {
@@ -2888,6 +2898,7 @@ export const MassAdvertPage = () => {
                                         renderPhrasesStatListItem(
                                             item,
                                             semanticsModalSemanticsPlusItemsValue,
+                                            setFetchedPlacements,
                                         )
                                     }
                                     onItemClick={(item) => {
@@ -3544,6 +3555,7 @@ export const MassAdvertPage = () => {
                             renderControl={({onClick, onKeyDown, ref}) => {
                                 return (
                                     <Button
+                                        loading={switchingCampaignsFlag}
                                         ref={ref}
                                         size="l"
                                         view="action"
@@ -4177,7 +4189,11 @@ const generateModalAdvertsTypesInput = (setAdvertsTypesInput) => {
     );
 };
 
-const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) => {
+const renderPhrasesStatListItem = (
+    item,
+    semanticsModalSemanticsPlusItemsValue,
+    setFetchedPlacements,
+) => {
     const {cluster, count, sum, ctr, clicks, freq} = item;
     const cpc = sum / clicks;
     const colorToUse = semanticsModalSemanticsPlusItemsValue.includes(cluster)
@@ -4344,6 +4360,29 @@ const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) 
                     >
                         <Icon size={12} data={Magnifier} />
                     </Text>
+                </div>
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    {/* <Text color="secondary">{'Найти '}</Text> */}
+                    {/* <div style={{width: 3}} /> */}
+                    <Button
+                        size="xs"
+                        view="flat"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            parseFirst10Pages(cluster, setFetchedPlacements);
+                        }}
+                    >
+                        №
+                        <Icon size={12} data={LayoutHeader} />
+                    </Button>
                 </div>
             </div>
         </div>
@@ -4756,4 +4795,70 @@ const generateCard = (args) => {
             </div>
         </Card>
     );
+};
+
+const parseFirst10Pages = async (searchPhrase, setFetchedPlacements) => {
+    const allCardDataList = {updateTime: '', data: {}};
+
+    const fetchedPlacements = {};
+
+    let retryCount = 0;
+    for (let page = 1; page <= 5; page++) {
+        // retryCount = 0;
+        const url = `https://search.wb.ru/exactmatch/ru/common/v5/search?ab_testing=false&appType=1&page=${page}&curr=rub&dest=-1257218&query=${encodeURIComponent(
+            searchPhrase,
+        )}&resultset=catalog&sort=popular&spp=30&suppressSpellcheck=false`;
+
+        try {
+            const response = await axios.get(url);
+            const data = response.data;
+            if (data && data.data && data.data.products && data.data.products.length == 100) {
+                const myData = {};
+                for (let i = 0; i < data.data.products.length; i++) {
+                    const cur = data.data.products[i];
+                    cur.index = i + 1 + (page - 1) * 100;
+                    const {id} = cur;
+                    myData[id] = cur;
+                }
+
+                Object.assign(allCardDataList.data, myData);
+
+                console.log(`Data saved for search phrase: ${searchPhrase}, page: ${page}`);
+                await new Promise((resolve) => setTimeout(resolve, 100));
+            } else {
+                page--;
+                retryCount++;
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                if (retryCount % 10 == 0) {
+                    console.log(searchPhrase, retryCount);
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
+                if (retryCount == 20) {
+                    retryCount = 0;
+                    break;
+                }
+                // console.log(`Not enough data for search phrase: ${searchPhrase} on page ${page} only ${data.data.products.length} retrying`);
+            }
+        } catch (error) {
+            console.error(
+                `Error fetching data for search phrase: ${searchPhrase}, page: ${page}`,
+                error,
+            );
+        }
+    }
+
+    if (
+        allCardDataList &&
+        allCardDataList.data &&
+        Object.keys(allCardDataList.data).length == 5 * 100
+    ) {
+        allCardDataList.updateTime = new Date().toISOString();
+
+        fetchedPlacements[searchPhrase] = allCardDataList;
+
+        console.log(`All data saved for search phrase: ${searchPhrase}`);
+    }
+
+    console.log(fetchedPlacements);
+    setFetchedPlacements(fetchedPlacements);
 };
