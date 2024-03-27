@@ -51,6 +51,7 @@ import {
     CircleMinusFill,
     CircleMinus,
     CirclePlusFill,
+    ArrowRight,
     CirclePlus,
     Funnel,
     // DiamondExclamation,
@@ -129,11 +130,6 @@ export const MassAdvertPage = () => {
         }
     });
 
-    const artColumnElements = document.getElementsByClassName('td_fixed_art');
-    if (artColumnElements[0]) {
-        myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
-    }
-
     const windowDimensions = useWindowDimensions();
 
     const isDesktop = windowDimensions.height < windowDimensions.width;
@@ -147,6 +143,7 @@ export const MassAdvertPage = () => {
     });
 
     const [filters, setFilters] = useState({undef: false});
+
     const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
     // const [manageModalOpen, setManageModalOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
@@ -247,6 +244,81 @@ export const MassAdvertPage = () => {
     // ];
     // const [semanticsModalSwitchValue, setSemanticsModalSwitchValue] = React.useState('Пополнить');
 
+    const [clustersFiltersActive, setClustersFiltersActive] = useState({undef: false});
+    const [clustersSortByActive, setClustersSortByActive] = useState({undef: false});
+    const clustersSortDataActive = (clusters: any[], withSortBy: any) => {
+        const _sortBy = withSortBy ?? clustersSortByActive;
+        const {key, ord, valueType} = _sortBy;
+        return clusters.sort((a, b) => {
+            if (valueType == 'number') {
+                return ord == 'asc' ? a[key] - b[key] : b[key] - a[key];
+            } else {
+                const strA = String(a[key]).toLocaleLowerCase();
+                const strB = String(b[key]).toLocaleLowerCase();
+                return ord == 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
+            }
+        });
+    };
+    const clustersFilterDataActive = (withfFilters: any, clusters: any[]) => {
+        const _clustersFilters = withfFilters ?? clustersFiltersActive;
+        const _clusters = clusters ?? semanticsModalSemanticsItemsValue;
+        console.log(_clustersFilters, _clusters);
+
+        setSemanticsModalSemanticsItemsFiltratedValue(
+            _clusters.filter((cluster) => {
+                for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
+                    if (filterArg == 'undef' || !filterData) continue;
+                    if (filterData['val'] == '') continue;
+                    else if (!compare(cluster[filterArg], filterData)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }),
+        );
+    };
+    const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
+    const [clustersSortByMinus, setClustersSortByMinus] = useState({undef: false});
+    const clustersSortDataMinus = (clusters: any[], withSortBy: any) => {
+        const _sortBy = withSortBy ?? clustersSortByMinus;
+        const {key, ord, valueType} = _sortBy;
+        return clusters.sort((a, b) => {
+            if (valueType == 'number') {
+                return ord == 'asc' ? a[key] - b[key] : b[key] - a[key];
+            } else {
+                const strA = String(a[key]).toLocaleLowerCase();
+                const strB = String(b[key]).toLocaleLowerCase();
+                return ord == 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
+            }
+        });
+    };
+    const clustersFilterDataMinus = (withfFilters: any, clusters: any[]) => {
+        const _clustersFilters = withfFilters ?? clustersFiltersMinus;
+        const _clusters = clusters ?? semanticsModalSemanticsMinusItemsValue;
+        console.log(_clustersFilters, _clusters);
+
+        const temp = [] as any[];
+        for (const cluster of _clusters) {
+            let addFlag = true;
+            for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
+                if (filterArg == 'undef' || !filterData) continue;
+                if (filterData['val'] == '') continue;
+                else if (!compare(cluster[filterArg], filterData)) {
+                    addFlag = false;
+                    break;
+                }
+            }
+
+            if (addFlag) {
+                temp.push(cluster);
+            }
+        }
+        console.log(temp);
+
+        setSemanticsModalSemanticsMinusItemsFiltratedValue([...temp]);
+    };
+
     const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
@@ -255,7 +327,7 @@ export const MassAdvertPage = () => {
     const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
     const [bidModalDeleteModeSelected, setBidModalDeleteModeSelected] = useState(false);
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
-    const [bidModalRange, setBidModalRange] = useState({from: 1, to: 100});
+    const [bidModalRange, setBidModalRange] = useState({from: 50, to: 50});
     const [bidModalRangeValid, setBidModalRangeValid] = useState(true);
     const [bidModalMaxBid, setBidModalMaxBid] = useState(500);
     const [bidModalMaxBidValid, setBidModalMaxBidValid] = useState(true);
@@ -372,243 +444,26 @@ export const MassAdvertPage = () => {
         ];
         if (!columnsInfo && !columnsInfo.length) return columns;
         const viewportSize = useWindowDimensions();
+
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
             if (!column) continue;
             const {name, placeholder, width, render, className, valueType, group} = column;
-            let minWidth = viewportSize.width / 20;
-            if (minWidth < 40) minWidth = 60;
-            if (minWidth > 100) minWidth = 100;
+
             columns.push({
                 name: name,
                 className: b(className ?? (i < 2 ? `td_fixed td_fixed_${name}` : 'td_body')),
-                header: (
-                    <div
-                        title={placeholder}
-                        style={{
-                            minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
-                            display: 'flex',
-                            maxWidth: '30vw',
-                            // marginLeft:
-                            //     name == 'art' ? `${String(data.length).length * 6 + 32}px` : 0,
-                        }}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <TextInput
-                            hasClear
-                            disabled={pinned.isPinned}
-                            value={filters[name] ? filters[name].val : ''}
-                            onChange={(val) => {
-                                setFilters(() => {
-                                    if (!(name in filters))
-                                        filters[name] = {compMode: 'include', val: ''};
-                                    filters[name].val = val.target.value;
-                                    filterTableData(filters);
-                                    return filters;
-                                });
-                            }}
-                            placeholder={placeholder}
-                            rightContent={
-                                <DropdownMenu
-                                    renderSwitcher={(props) => (
-                                        <Button
-                                            {...props}
-                                            disabled={pinned.isPinned}
-                                            view={
-                                                filters[name]
-                                                    ? filters[name].val != ''
-                                                        ? !filters[name].compMode.includes('not')
-                                                            ? 'flat-success'
-                                                            : 'flat-danger'
-                                                        : 'flat'
-                                                    : 'flat'
-                                            }
-                                            size="xs"
-                                        >
-                                            <Icon data={Funnel} />
-                                        </Button>
-                                    )}
-                                    items={[
-                                        [
-                                            {
-                                                iconStart: (
-                                                    <Icon
-                                                        data={
-                                                            filters[name]
-                                                                ? filters[name].compMode ==
-                                                                  'include'
-                                                                    ? CirclePlusFill
-                                                                    : CirclePlus
-                                                                : CirclePlusFill
-                                                        }
-                                                    />
-                                                ),
-                                                action: () => {
-                                                    setFilters(() => {
-                                                        if (!(name in filters))
-                                                            filters[name] = {
-                                                                compMode: 'include',
-                                                                val: '',
-                                                            };
-                                                        filters[name].compMode = 'include';
-                                                        filterTableData(filters);
-                                                        return filters;
-                                                    });
-                                                },
-                                                text: 'Включает',
-                                            },
-                                            {
-                                                iconStart: (
-                                                    <Icon
-                                                        data={
-                                                            filters[name]
-                                                                ? filters[name].compMode ==
-                                                                  'not include'
-                                                                    ? CircleMinusFill
-                                                                    : CircleMinus
-                                                                : CircleMinus
-                                                        }
-                                                    />
-                                                ),
-                                                action: () => {
-                                                    setFilters(() => {
-                                                        if (!(name in filters))
-                                                            filters[name] = {
-                                                                compMode: 'not include',
-                                                                val: '',
-                                                            };
-                                                        filters[name].compMode = 'not include';
-                                                        filterTableData(filters);
-                                                        return filters;
-                                                    });
-                                                },
-                                                text: 'Не включает',
-                                                theme: 'danger',
-                                            },
-                                        ],
-                                        [
-                                            {
-                                                iconStart: (
-                                                    <Icon
-                                                        data={
-                                                            filters[name]
-                                                                ? filters[name].compMode == 'equal'
-                                                                    ? CirclePlusFill
-                                                                    : CirclePlus
-                                                                : CirclePlus
-                                                        }
-                                                    />
-                                                ),
-                                                action: () => {
-                                                    setFilters(() => {
-                                                        if (!(name in filters))
-                                                            filters[name] = {
-                                                                compMode: 'equal',
-                                                                val: '',
-                                                            };
-                                                        filters[name].compMode = 'equal';
-                                                        filterTableData(filters);
-                                                        return filters;
-                                                    });
-                                                },
-                                                text: 'Равно',
-                                            },
-                                            {
-                                                iconStart: (
-                                                    <Icon
-                                                        data={
-                                                            filters[name]
-                                                                ? filters[name].compMode ==
-                                                                  'not equal'
-                                                                    ? CircleMinusFill
-                                                                    : CircleMinus
-                                                                : CircleMinus
-                                                        }
-                                                    />
-                                                ),
-                                                action: () => {
-                                                    setFilters(() => {
-                                                        if (!(name in filters))
-                                                            filters[name] = {
-                                                                compMode: 'not equal',
-                                                                val: '',
-                                                            };
-                                                        filters[name].compMode = 'not equal';
-                                                        filterTableData(filters);
-                                                        return filters;
-                                                    });
-                                                },
-                                                text: 'Не равно',
-                                                theme: 'danger',
-                                            },
-                                        ],
-                                        valueType != 'text'
-                                            ? [
-                                                  {
-                                                      iconStart: (
-                                                          <Icon
-                                                              data={
-                                                                  filters[name]
-                                                                      ? filters[name].compMode ==
-                                                                        'bigger'
-                                                                          ? CirclePlusFill
-                                                                          : CirclePlus
-                                                                      : CirclePlus
-                                                              }
-                                                          />
-                                                      ),
-                                                      action: () => {
-                                                          setFilters(() => {
-                                                              if (!(name in filters))
-                                                                  filters[name] = {
-                                                                      compMode: 'bigger',
-                                                                      val: '',
-                                                                  };
-                                                              filters[name].compMode = 'bigger';
-                                                              filterTableData(filters);
-                                                              return filters;
-                                                          });
-                                                      },
-                                                      text: 'Больше',
-                                                  },
-                                                  {
-                                                      iconStart: (
-                                                          <Icon
-                                                              data={
-                                                                  filters[name]
-                                                                      ? filters[name].compMode ==
-                                                                        'not bigger'
-                                                                          ? CircleMinusFill
-                                                                          : CircleMinus
-                                                                      : CircleMinus
-                                                              }
-                                                          />
-                                                      ),
-                                                      action: () => {
-                                                          setFilters(() => {
-                                                              if (!(name in filters))
-                                                                  filters[name] = {
-                                                                      compMode: 'not bigger',
-                                                                      val: '',
-                                                                  };
-                                                              filters[name].compMode = 'not bigger';
-                                                              filterTableData(filters);
-                                                              return filters;
-                                                          });
-                                                      },
-                                                      text: 'Меньше',
-                                                      theme: 'danger',
-                                                  },
-                                              ]
-                                            : [],
-                                    ]}
-                                />
-                            }
-                        />
-                    </div>
-                ),
+                header: generateFilterTextInput({
+                    pinned,
+                    filters,
+                    setFilters,
+                    filterData: filterTableData,
+                    name,
+                    placeholder,
+                    valueType,
+                    width,
+                    viewportSize,
+                }),
                 group: group && groupingEnabledState,
                 render: render
                     ? (args) => render(args)
@@ -731,107 +586,6 @@ export const MassAdvertPage = () => {
             name: 'adverts',
             placeholder: 'Реклама',
             valueType: 'text',
-            // render: ({value}) => {
-            //     if (value === null) return;
-            //     const tags: any[] = [];
-            //     const generateHtml = () => {
-            //         let string = `<div style={display: 'flex'}>`;
-            //         if (value) {
-            //             for (const [advertType, advertsOfType] of Object.entries(value)) {
-            //                 if (!advertType || !advertsOfType) continue;
-
-            //                 for (const [advertId, advertData] of Object.entries(advertsOfType)) {
-            //                     if (!advertId || !advertData) continue;
-            //                     const status = advertData['status'];
-            //                     if (![4, 9, 11].includes(status)) continue;
-
-            //                     string += `<div style="display: flex; flex-direction: row; justify-content: space-between; font-size: 8pt;">`;
-            //                     string +=
-            //                         `<div style="margin: 0 4px;">ID: ${advertId}</div>` +
-            //                         `<div style="margin: 0 4px;">Тип: ${
-            //                             paramMap.type[advertData['type']]
-            //                         }</div>` +
-            //                         `<div style="margin: 0 4px;">Обновлена: ${
-            //                             // paramMap.status[advertData['status']]
-            //                             advertData['updateTime']
-            //                         }</div>`;
-            //                     string += '</div>';
-            //                 }
-            //             }
-            //         }
-            //         string += '</div>';
-            //         return string;
-            //     };
-            //     if (value !== undefined) {
-            //         for (const [advertType, advertsOfType] of Object.entries(value)) {
-            //             if (!advertType || !advertsOfType) continue;
-            //             for (const [advertId, advertData] of Object.entries(advertsOfType)) {
-            //                 if (!advertId || !advertData) continue;
-            //                 const status = advertData['status'];
-            //                 if (![4, 9, 11].includes(status)) continue;
-
-            //                 const themeToUse =
-            //                     status == 9 ? 'success' : status == 11 ? 'danger' : 'warning';
-
-            //                 tags.push(
-            //                     <div style={{display: 'flex', flexDirection: 'row'}}>
-            //                         <div style={{margin: '0 2px'}}>
-            //                             <Label
-            //                                 icon={
-            //                                     advertData['updateTime'] === 'Ошибка.' ? (
-            //                                         <Icon
-            //                                             data={
-            //                                                 advertData['updateTime'] === 'Ошибка.'
-            //                                                     ? DiamondExclamation
-            //                                                     : CloudCheck
-            //                                             }
-            //                                         />
-            //                                     ) : undefined
-            //                                 }
-            //                                 theme={themeToUse}
-            //                             >
-            //                                 {paramMap.type[advertType]}
-            //                             </Label>
-            //                         </div>
-            //                         <div style={{margin: '0 2px'}}>
-            //                             <Label theme={'clear'}>
-            //                                 <div
-            //                                     style={{
-            //                                         display: 'flex',
-            //                                         flexDirection: 'row',
-            //                                         alignItems: 'center',
-            //                                     }}
-            //                                 >
-            //                                     <Text>{advertData['daysInWork'] + 1}</Text>
-            //                                     <div style={{width: 2}} />
-            //                                     <Icon size={12} data={Calendar} />
-            //                                 </div>
-            //                             </Label>
-            //                         </div>
-            //                     </div>,
-            //                 );
-            //             }
-            //         }
-            //     }
-            //     if (tags.length == 0) {
-            //         return (
-            //             <div style={{display: 'flex', justifyContent: 'center'}}>
-            //                 <Label theme="unknown">Кампаний нет</Label>
-            //             </div>
-            //         );
-            //     }
-            //     return (
-            //         <div style={{display: 'flex', justifyContent: 'center'}}>
-            //             <Popover
-            //                 behavior={'delayed' as PopoverBehavior}
-            //                 disabled={value === undefined}
-            //                 htmlContent={generateHtml()}
-            //             >
-            //                 <div style={{display: 'flex'}}>{tags}</div>
-            //             </Popover>
-            //         </div>
-            //     );
-            // },
             render: ({value, row}) => {
                 if (value === null) return;
                 if (value) {
@@ -995,33 +749,62 @@ export const MassAdvertPage = () => {
             placeholder: 'Позиция',
             render: ({value, row}) => {
                 if (!value) return undefined;
+                const {drrAI, placementsValue} = row;
 
-                const {updateTime, index, prevIndex, phrase} = value;
-                const {placementsRange} = row.drrAI ?? {};
+                if (!placementsValue) return undefined;
+                const {updateTime, index, phrase, log, firstAdvertIndex} = placementsValue;
+                const {placementsRange} = drrAI ?? {};
                 if (phrase == '') return undefined;
+
+                const {position} = log ?? {};
 
                 const updateTimeObj = new Date(updateTime);
                 const moreThatHour =
                     new Date().getTime() / 1000 / 3600 - updateTimeObj.getTime() / 1000 / 3600 > 1;
                 return (
                     <div style={{display: 'flex', flexDirection: 'column'}}>
-                        {' '}
                         <div style={{display: 'flex', flexDirection: 'row'}}>
+                            {position ? (
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text color="secondary">{`${position}`}</Text>
+                                    <div style={{width: 3}} />
+                                    <Icon data={ArrowRight} size={13}></Icon>
+                                    <div style={{width: 3}} />
+                                </div>
+                            ) : (
+                                <></>
+                            )}
+
                             <Text
                                 color={
                                     index != -1
-                                        ? index > prevIndex && prevIndex != -1
-                                            ? 'danger'
-                                            : 'positive'
+                                        ? placementsRange &&
+                                          placementsRange.from != 0 &&
+                                          placementsRange.to != 0
+                                            ? Math.abs(placementsRange.from - index) < 5 &&
+                                              Math.abs(placementsRange.to - index) < 5
+                                                ? placementsRange.from == index &&
+                                                  placementsRange.from == index
+                                                    ? 'positive'
+                                                    : 'warning'
+                                                : 'primary'
+                                            : 'primary'
                                         : 'danger'
                                 }
                             >{`${!index || index == -1 ? 'Нет в выдаче' : index}`}</Text>
                             <div style={{width: 4}} />
-                            <Text>{`(${
-                                !prevIndex || prevIndex == -1 ? 'Не было в выдаче' : prevIndex
-                            })`}</Text>
                         </div>
-                        <Text>{`${phrase}`}</Text>
+                        <Link
+                            href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${phrase}`}
+                            target="_blank"
+                            // view="primary"
+                        >{`${phrase}`}</Link>
                         <Text
                             color={moreThatHour ? 'danger' : 'primary'}
                         >{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
@@ -1032,6 +815,7 @@ export const MassAdvertPage = () => {
                                     : 'Ставки по ДРР'
                                 : ''}
                         </Text>
+                        <Text>{`Позиция первой карточки с РК: ${firstAdvertIndex}`}</Text>
                     </div>
                 );
             },
@@ -1443,6 +1227,7 @@ export const MassAdvertPage = () => {
                 advertsManagerRules: undefined,
                 advertsStocksThreshold: undefined,
                 placements: undefined,
+                placementsValue: undefined,
                 drrAI: undefined,
                 plusPhrasesTemplate: undefined,
             };
@@ -1456,9 +1241,10 @@ export const MassAdvertPage = () => {
             artInfo.adverts = artData['adverts'];
             artInfo.advertsManagerRules = artData['advertsManagerRules'];
             artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
-            artInfo.placements = artData['placements'];
+            artInfo.placementsValue = artData['placements'];
             artInfo.drrAI = artData['drrAI'];
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
+            artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
 
             for (const [key, _] of Object.entries({
                 search: 'search',
@@ -1578,29 +1364,6 @@ export const MassAdvertPage = () => {
     };
 
     const filterTableData = (withfFilters = {}, tableData = {}) => {
-        const compare = (a, filterData) => {
-            const {val, compMode} = filterData;
-            if (compMode == 'include') {
-                return String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
-            }
-            if (compMode == 'not include') {
-                return !String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
-            }
-            if (compMode == 'equal') {
-                return String(a).toLocaleLowerCase() == String(val).toLocaleLowerCase();
-            }
-            if (compMode == 'not equal') {
-                return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
-            }
-            if (compMode == 'bigger') {
-                return Number(a) > Number(val);
-            }
-            if (compMode == 'not bigger') {
-                return Number(a) < Number(val);
-            }
-            return false;
-        };
-
         const temp = [] as any;
 
         for (const [art, artInfo] of Object.entries(
@@ -1646,7 +1409,8 @@ export const MassAdvertPage = () => {
                     drrAI: artInfo['drrAI'],
                     advertsManagerRules: artInfo['advertsManagerRules'],
                     advertsStocksThreshold: artInfo['advertsStocksThreshold'],
-                    placements: artInfo['placements'],
+                    placements: artInfo['placements'] == -1 ? 10 * 1000 : artInfo['placements'],
+                    placementsValue: artInfo['placementsValue'],
                 };
 
                 let addFlag = true;
@@ -1756,6 +1520,17 @@ export const MassAdvertPage = () => {
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [selectedValueMethodOptions] = React.useState<SelectOption<any>[]>([
+        {
+            value: 'Под Позицию',
+            content: 'Под Позицию',
+        },
+        {
+            value: 'По ДРР',
+            content: 'По ДРР',
+        },
+    ]);
+    const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['Под Позицию']);
 
     const [firstRecalc, setFirstRecalc] = useState(false);
 
@@ -1864,14 +1639,20 @@ export const MassAdvertPage = () => {
         console.log(doc);
 
         for (let i = 0; i < columnData.length; i++) {
-            const {name} = columnData[i];
+            const {name, valueType} = columnData[i];
             if (!name) continue;
-            if (!filters[name]) filters[name] = {val: '', compMode: 'include'};
+            if (!filters[name])
+                filters[name] = {val: '', compMode: valueType != 'text' ? 'bigger' : 'include'};
         }
         setFilters(filters);
 
         recalc(dateRange, selected);
         setFirstRecalc(true);
+    }
+
+    const artColumnElements = document.getElementsByClassName('td_fixed_art');
+    if (artColumnElements[0]) {
+        myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
     }
 
     const cardStyle = {
@@ -2358,7 +2139,8 @@ export const MassAdvertPage = () => {
                             setBidModalDeleteModeSelected(false);
                             setBidModalFormOpen(true);
                             setBidModalBidStepInputValue(5);
-                            setBidModalRange({from: 1, to: 100});
+                            setBidModalRange({from: 50, to: 50});
+                            setSelectedValueMethod([selectedValueMethodOptions[0].value]);
                             setBidModalRangeValid(true);
                             setBidModalMaxBid(500);
                             setBidModalMaxBidValid(true);
@@ -2378,7 +2160,7 @@ export const MassAdvertPage = () => {
                                 // view="raised"
                                 view="clear"
                                 style={{
-                                    width: 300,
+                                    width: 350,
                                     // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
                                     // animation: '3s linear 1s slidein',
                                     // maxWidth: '15vw',
@@ -2419,7 +2201,7 @@ export const MassAdvertPage = () => {
                                             setBidModalDeleteModeSelected(false);
                                             setBidModalFormOpen(true);
                                             setBidModalBidStepInputValue(5);
-                                            setBidModalRange({from: 1, to: 100});
+                                            setBidModalRange({from: 50, to: 50});
                                             setBidModalRangeValid(true);
                                             setBidModalMaxBid(500);
                                             setBidModalMaxBidValid(true);
@@ -2457,7 +2239,7 @@ export const MassAdvertPage = () => {
                                             animate={{
                                                 y: !bidModalDeleteModeSelected
                                                     ? bidModalSwitchValue == 'Установить'
-                                                        ? 83
+                                                        ? 76
                                                         : -16
                                                     : 77,
                                                 // x: !bidModalDeleteModeSelected
@@ -2542,80 +2324,181 @@ export const MassAdvertPage = () => {
                                                     alignItems: 'center',
                                                 }}
                                             >
-                                                <TextInput
-                                                    style={{
-                                                        maxWidth: '70%',
-                                                        margin: '4px 0',
-                                                    }}
-                                                    type="number"
-                                                    value={String(bidModalMaxBid)}
-                                                    onUpdate={(val) => {
-                                                        const intVal = Number(val);
-
-                                                        setBidModalMaxBidValid(intVal >= 125);
-
-                                                        setBidModalMaxBid(intVal);
-                                                    }}
-                                                    // errorMessage={'Введите не менее 125'}
-                                                    validationState={
-                                                        bidModalMaxBidValid ? undefined : 'invalid'
-                                                    }
-                                                    label="Макс. ставка"
-                                                />
                                                 <div
                                                     style={{
-                                                        margin: '4px 0',
-                                                        width: '70%',
+                                                        maxWidth: '70%',
                                                         display: 'flex',
-                                                        flexDirection: 'column',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'bottom',
                                                     }}
                                                 >
-                                                    <Text
-                                                        style={{marginLeft: 8}}
-                                                        variant="subheader-1"
-                                                    >
-                                                        Позиция
-                                                    </Text>
+                                                    {' '}
                                                     <div
                                                         style={{
                                                             display: 'flex',
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
+                                                            flexDirection: 'column',
+                                                            margin: '4px 0',
                                                         }}
                                                     >
-                                                        <TextInput
-                                                            style={{
-                                                                marginRight: 4,
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="subheader-1"
+                                                        >
+                                                            {'Метод'}
+                                                        </Text>
+                                                        <Select
+                                                            onUpdate={(nextValue) => {
+                                                                setSelectedValueMethod(nextValue);
+                                                                if (nextValue[0] == 'По ДРР') {
+                                                                    setBidModalRange({
+                                                                        from: 0,
+                                                                        to: 0,
+                                                                    });
+                                                                } else {
+                                                                    setBidModalRange({
+                                                                        from: 50,
+                                                                        to: 50,
+                                                                    });
+                                                                }
                                                             }}
+                                                            options={selectedValueMethodOptions}
+                                                            renderControl={({
+                                                                onClick,
+                                                                onKeyDown,
+                                                                ref,
+                                                            }) => {
+                                                                return (
+                                                                    <Button
+                                                                        style={{width: '100%'}}
+                                                                        // width="max"
+                                                                        ref={ref}
+                                                                        view="outlined"
+                                                                        onClick={onClick}
+                                                                        extraProps={{
+                                                                            onKeyDown,
+                                                                        }}
+                                                                    >
+                                                                        {selectedValueMethod[0]}
+                                                                        <Icon data={ChevronDown} />
+                                                                    </Button>
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div style={{width: 8}} />
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            margin: '4px 0',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="subheader-1"
+                                                        >
+                                                            {'Макс. ставка'}
+                                                        </Text>
+                                                        <TextInput
+                                                            style={
+                                                                {
+                                                                    // maxWidth: '50%',
+                                                                }
+                                                            }
                                                             type="number"
-                                                            value={String(bidModalRange.from)}
+                                                            value={String(bidModalMaxBid)}
                                                             onUpdate={(val) => {
                                                                 const intVal = Number(val);
 
-                                                                setBidModalRange(({to}) => {
-                                                                    setBidModalRangeValid(
-                                                                        intVal < 0
-                                                                            ? false
-                                                                            : to >= intVal,
-                                                                    );
-                                                                    return {
-                                                                        from: intVal,
-                                                                        to: to,
-                                                                    };
-                                                                });
+                                                                setBidModalMaxBidValid(
+                                                                    intVal >= 125,
+                                                                );
+
+                                                                setBidModalMaxBid(intVal);
                                                             }}
+                                                            // errorMessage={'Введите не менее 125'}
                                                             validationState={
-                                                                bidModalRangeValid
+                                                                bidModalMaxBidValid
                                                                     ? undefined
                                                                     : 'invalid'
                                                             }
-                                                            label="От"
                                                         />
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                        maxWidth: '70%',
+                                                        justifyContent: 'center',
+                                                        margin: '4px 0',
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="subheader-1"
+                                                        >
+                                                            {'Целевой ДРР'}
+                                                        </Text>
                                                         <TextInput
-                                                            style={{
-                                                                marginLeft: 4,
+                                                            type="number"
+                                                            value={String(bidModalDRRInputValue)}
+                                                            onChange={(val) => {
+                                                                const cpo = Number(
+                                                                    val.target.value,
+                                                                );
+                                                                if (cpo < 0)
+                                                                    setBidModalDRRInputValidationValue(
+                                                                        false,
+                                                                    );
+                                                                else
+                                                                    setBidModalDRRInputValidationValue(
+                                                                        true,
+                                                                    );
+                                                                setBidModalDRRInputValue(cpo);
                                                             }}
+                                                            errorMessage={'Введите не менее 0'}
+                                                            validationState={
+                                                                bidModalDRRInputValidationValue
+                                                                    ? undefined
+                                                                    : 'invalid'
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            width: 8,
+                                                        }}
+                                                    />
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            // selectedValueMethod[0] ==
+                                                            // 'Под Позицию'
+                                                            //     ? 'flex'
+                                                            //     : 'none',
+                                                            flexDirection: 'column',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="subheader-1"
+                                                        >
+                                                            {'Позиция'}
+                                                        </Text>
+                                                        <TextInput
+                                                            disabled={
+                                                                selectedValueMethod[0] !=
+                                                                'Под Позицию'
+                                                            }
                                                             type="number"
                                                             value={String(bidModalRange.to)}
                                                             onUpdate={(val) => {
@@ -2628,7 +2511,7 @@ export const MassAdvertPage = () => {
                                                                             : from <= intVal,
                                                                     );
                                                                     return {
-                                                                        from: from,
+                                                                        from: intVal,
                                                                         to: intVal,
                                                                     };
                                                                 });
@@ -2638,38 +2521,10 @@ export const MassAdvertPage = () => {
                                                                     ? undefined
                                                                     : 'invalid'
                                                             }
-                                                            label="До"
                                                         />
                                                     </div>
                                                 </div>
 
-                                                <TextInput
-                                                    style={{
-                                                        maxWidth: '70%',
-                                                        margin: '4px 0',
-                                                    }}
-                                                    type="number"
-                                                    value={String(bidModalDRRInputValue)}
-                                                    onChange={(val) => {
-                                                        const cpo = Number(val.target.value);
-                                                        if (cpo < 0)
-                                                            setBidModalDRRInputValidationValue(
-                                                                false,
-                                                            );
-                                                        else
-                                                            setBidModalDRRInputValidationValue(
-                                                                true,
-                                                            );
-                                                        setBidModalDRRInputValue(cpo);
-                                                    }}
-                                                    errorMessage={'Введите не менее 0'}
-                                                    validationState={
-                                                        bidModalDRRInputValidationValue
-                                                            ? undefined
-                                                            : 'invalid'
-                                                    }
-                                                    label="Целевой ДРР"
-                                                />
                                                 <TextInput
                                                     style={{
                                                         maxWidth: '70%',
@@ -3000,18 +2855,27 @@ export const MassAdvertPage = () => {
                                         Добавить все
                                     </Button>
                                 </div>
+                                {generateFilterTextInputsForClusterStats({
+                                    filters: clustersFiltersActive,
+                                    setFilters: setClustersFiltersActive,
+                                    filterData: clustersFilterDataActive,
+                                    sortBy: clustersSortByActive,
+                                    setSortBy: setClustersSortByActive,
+                                    sortData: clustersSortDataActive,
+                                })}
                                 <List
-                                    filterPlaceholder={`Поиск в ${semanticsModalSemanticsItemsValue.length} фразах`}
+                                    filterable={false}
+                                    // filterPlaceholder={`Поиск в ${semanticsModalSemanticsItemsValue.length} фразах`}
                                     items={semanticsModalSemanticsItemsValue}
-                                    onFilterEnd={({items}) => {
-                                        setSemanticsModalSemanticsItemsFiltratedValue(items);
-                                        // console.log(
-                                        //     semanticsModalSemanticsItemsFiltratedValue.length,
-                                        // );
-                                    }}
-                                    filterItem={(filter) => (item) => {
-                                        return item.cluster.includes(filter);
-                                    }}
+                                    // onFilterEnd={({items}) => {
+                                    //     setSemanticsModalSemanticsItemsFiltratedValue(items);
+                                    //     // console.log(
+                                    //     //     semanticsModalSemanticsItemsFiltratedValue.length,
+                                    //     // );
+                                    // }}
+                                    // filterItem={(filter) => (item) => {
+                                    //     return item.cluster.includes(filter);
+                                    // }}
                                     itemHeight={(item) => {
                                         return 20 * Math.ceil(item.cluster.length / 30) + 20;
                                     }}
@@ -3081,15 +2945,24 @@ export const MassAdvertPage = () => {
                                         Добавить все
                                     </Button>
                                 </div>
+                                {generateFilterTextInputsForClusterStats({
+                                    filters: clustersFiltersMinus,
+                                    setFilters: setClustersFiltersMinus,
+                                    filterData: clustersFilterDataMinus,
+                                    sortBy: clustersSortByMinus,
+                                    setSortBy: setClustersSortByMinus,
+                                    sortData: clustersSortDataMinus,
+                                })}
                                 <List
-                                    onFilterEnd={({items}) => {
-                                        setSemanticsModalSemanticsMinusItemsFiltratedValue(items);
-                                    }}
-                                    filterItem={(filter) => (item) => {
-                                        return item.cluster.includes(filter);
-                                    }}
+                                    filterable={false}
+                                    // onFilterEnd={({items}) => {
+                                    //     setSemanticsModalSemanticsMinusItemsFiltratedValue(items);
+                                    // }}
+                                    // filterItem={(filter) => (item) => {
+                                    //     return item.cluster.includes(filter);
+                                    // }}
                                     items={semanticsModalSemanticsMinusItemsValue}
-                                    filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
+                                    // filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
                                     itemHeight={(item) => {
                                         return 20 * Math.ceil(item.cluster.length / 30) + 20;
                                     }}
@@ -4549,4 +4422,382 @@ const renderPhrasesStatListItem = (item, semanticsModalSemanticsPlusItemsValue) 
             </div>
         </div>
     );
+};
+
+const generateFilterTextInput = (args) => {
+    const {
+        pinned,
+        filters,
+        setFilters,
+        filterData,
+        name,
+        placeholder,
+        valueType,
+        width,
+        viewportSize,
+    } = args;
+    let minWidth = viewportSize ? viewportSize.width / 20 : 60;
+    if (minWidth < 40) minWidth = 60;
+    if (minWidth > 100) minWidth = 100;
+
+    return (
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
+
+                maxWidth: '30vw',
+            }}
+            onClick={(event) => {
+                event.stopPropagation();
+            }}
+        >
+            <Text style={{marginLeft: 4}} variant="subheader-1">
+                {placeholder}
+            </Text>
+            <TextInput
+                hasClear
+                disabled={pinned && pinned.isPinned}
+                value={filters[name] ? filters[name].val : ''}
+                onChange={(val) => {
+                    setFilters(() => {
+                        if (!(name in filters))
+                            filters[name] = {
+                                compMode: valueType != 'text' ? 'bigger' : 'include',
+                                val: '',
+                            };
+                        filters[name].val = val.target.value;
+                        filterData(filters);
+                        return filters;
+                    });
+                }}
+                // placeholder={'Фильтр'}
+                rightContent={
+                    <DropdownMenu
+                        renderSwitcher={(props) => (
+                            <Button
+                                {...props}
+                                disabled={pinned && pinned.isPinned}
+                                view={
+                                    filters[name]
+                                        ? filters[name].val != ''
+                                            ? !filters[name].compMode.includes('not')
+                                                ? 'flat-success'
+                                                : 'flat-danger'
+                                            : 'flat'
+                                        : 'flat'
+                                }
+                                size="xs"
+                            >
+                                <Icon data={Funnel} />
+                            </Button>
+                        )}
+                        items={[
+                            [
+                                {
+                                    iconStart: (
+                                        <Icon
+                                            data={
+                                                filters[name]
+                                                    ? filters[name].compMode == 'include'
+                                                        ? CirclePlusFill
+                                                        : CirclePlus
+                                                    : CirclePlusFill
+                                            }
+                                        />
+                                    ),
+                                    action: () => {
+                                        setFilters(() => {
+                                            if (!(name in filters))
+                                                filters[name] = {
+                                                    compMode: 'include',
+                                                    val: '',
+                                                };
+                                            filters[name].compMode = 'include';
+                                            filterData(filters);
+                                            return filters;
+                                        });
+                                    },
+                                    text: 'Включает',
+                                },
+                                {
+                                    iconStart: (
+                                        <Icon
+                                            data={
+                                                filters[name]
+                                                    ? filters[name].compMode == 'not include'
+                                                        ? CircleMinusFill
+                                                        : CircleMinus
+                                                    : CircleMinus
+                                            }
+                                        />
+                                    ),
+                                    action: () => {
+                                        setFilters(() => {
+                                            if (!(name in filters))
+                                                filters[name] = {
+                                                    compMode: 'not include',
+                                                    val: '',
+                                                };
+                                            filters[name].compMode = 'not include';
+                                            filterData(filters);
+                                            return filters;
+                                        });
+                                    },
+                                    text: 'Не включает',
+                                    theme: 'danger',
+                                },
+                            ],
+                            [
+                                {
+                                    iconStart: (
+                                        <Icon
+                                            data={
+                                                filters[name]
+                                                    ? filters[name].compMode == 'equal'
+                                                        ? CirclePlusFill
+                                                        : CirclePlus
+                                                    : CirclePlus
+                                            }
+                                        />
+                                    ),
+                                    action: () => {
+                                        setFilters(() => {
+                                            if (!(name in filters))
+                                                filters[name] = {
+                                                    compMode: 'equal',
+                                                    val: '',
+                                                };
+                                            filters[name].compMode = 'equal';
+                                            filterData(filters);
+                                            return filters;
+                                        });
+                                    },
+                                    text: 'Равно',
+                                },
+                                {
+                                    iconStart: (
+                                        <Icon
+                                            data={
+                                                filters[name]
+                                                    ? filters[name].compMode == 'not equal'
+                                                        ? CircleMinusFill
+                                                        : CircleMinus
+                                                    : CircleMinus
+                                            }
+                                        />
+                                    ),
+                                    action: () => {
+                                        setFilters(() => {
+                                            if (!(name in filters))
+                                                filters[name] = {
+                                                    compMode: 'not equal',
+                                                    val: '',
+                                                };
+                                            filters[name].compMode = 'not equal';
+                                            filterData(filters);
+                                            return filters;
+                                        });
+                                    },
+                                    text: 'Не равно',
+                                    theme: 'danger',
+                                },
+                            ],
+                            valueType != 'text'
+                                ? [
+                                      {
+                                          iconStart: (
+                                              <Icon
+                                                  data={
+                                                      filters[name]
+                                                          ? filters[name].compMode == 'bigger'
+                                                              ? CirclePlusFill
+                                                              : CirclePlus
+                                                          : CirclePlus
+                                                  }
+                                              />
+                                          ),
+                                          action: () => {
+                                              setFilters(() => {
+                                                  if (!(name in filters))
+                                                      filters[name] = {
+                                                          compMode: 'bigger',
+                                                          val: '',
+                                                      };
+                                                  filters[name].compMode = 'bigger';
+                                                  filterData(filters);
+                                                  return filters;
+                                              });
+                                          },
+                                          text: 'Больше',
+                                      },
+                                      {
+                                          iconStart: (
+                                              <Icon
+                                                  data={
+                                                      filters[name]
+                                                          ? filters[name].compMode == 'not bigger'
+                                                              ? CircleMinusFill
+                                                              : CircleMinus
+                                                          : CircleMinus
+                                                  }
+                                              />
+                                          ),
+                                          action: () => {
+                                              setFilters(() => {
+                                                  if (!(name in filters))
+                                                      filters[name] = {
+                                                          compMode: 'not bigger',
+                                                          val: '',
+                                                      };
+                                                  filters[name].compMode = 'not bigger';
+                                                  filterData(filters);
+                                                  return filters;
+                                              });
+                                          },
+                                          text: 'Меньше',
+                                          theme: 'danger',
+                                      },
+                                  ]
+                                : [],
+                        ]}
+                    />
+                }
+            />
+        </div>
+    );
+};
+
+const generateFilterTextInputsForClusterStats = (args) => {
+    const {filters, setFilters, filterData, sortBy, setSortBy, sortData} = args;
+    const clusterStatsParams = {
+        cluster: {
+            name: 'cluster',
+            placeholder: 'Кластер',
+            filters,
+            setFilters,
+            filterData,
+            valueType: 'text',
+            sortBy,
+            setSortBy,
+            sortData,
+        },
+        sum: {
+            name: 'sum',
+            placeholder: 'Расход',
+            filters,
+            setFilters,
+            filterData,
+            valueType: 'number',
+            sortBy,
+            setSortBy,
+            sortData,
+        },
+        count: {
+            name: 'count',
+            placeholder: 'Показов',
+            filters,
+            setFilters,
+            filterData,
+            valueType: 'number',
+            sortBy,
+            setSortBy,
+            sortData,
+        },
+        cpc: {
+            name: 'cpc',
+            placeholder: 'CPC',
+            filters,
+            setFilters,
+            filterData,
+            valueType: 'number',
+            sortBy,
+            setSortBy,
+            sortData,
+        },
+        ctr: {
+            name: 'ctr',
+            placeholder: 'CTR',
+            filters,
+            setFilters,
+            filterData,
+            valueType: 'number',
+            sortBy,
+            setSortBy,
+            sortData,
+        },
+        clicks: {
+            name: 'clicks',
+            placeholder: 'Кликов',
+            filters,
+            setFilters,
+            filterData,
+            valueType: 'number',
+            sortBy,
+            setSortBy,
+            sortData,
+        },
+        freq: {
+            name: 'freq',
+            placeholder: 'Частота',
+            filters,
+            setFilters,
+            filterData,
+            valueType: 'number',
+            sortBy,
+            setSortBy,
+            sortData,
+        },
+    };
+    const textInputsArray = [] as any[];
+    for (const [name, data] of Object.entries(clusterStatsParams)) {
+        if (!name || !data) continue;
+        textInputsArray.push(generateFilterTextInput(data));
+    }
+    return (
+        <div style={{display: 'flex', flexDirection: 'column'}}>
+            {generateFilterTextInput(clusterStatsParams['cluster'])}
+            <div style={{height: 8}} />
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+                {generateFilterTextInput(clusterStatsParams['freq'])}
+                <div style={{width: 24}} />
+                {generateFilterTextInput(clusterStatsParams['count'])}
+                <div style={{width: 24}} />
+                {generateFilterTextInput(clusterStatsParams['ctr'])}
+            </div>
+            <div style={{height: 8}} />
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+                {generateFilterTextInput(clusterStatsParams['sum'])}
+                <div style={{width: 24}} />
+                {generateFilterTextInput(clusterStatsParams['clicks'])}
+                <div style={{width: 24}} />
+                {generateFilterTextInput(clusterStatsParams['cpc'])}
+            </div>
+            <div style={{height: 8}} />
+        </div>
+    );
+};
+
+const compare = (a, filterData) => {
+    const {val, compMode} = filterData;
+    if (compMode == 'include') {
+        return String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
+    }
+    if (compMode == 'not include') {
+        return !String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
+    }
+    if (compMode == 'equal') {
+        return String(a).toLocaleLowerCase() == String(val).toLocaleLowerCase();
+    }
+    if (compMode == 'not equal') {
+        return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
+    }
+    if (compMode == 'bigger') {
+        return Number(a) > Number(val);
+    }
+    if (compMode == 'not bigger') {
+        return Number(a) < Number(val);
+    }
+    return false;
 };
