@@ -765,7 +765,7 @@ export const MassAdvertPage = () => {
                 return (
                     <div style={{display: 'flex', flexDirection: 'column'}}>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            {position ? (
+                            {position !== undefined ? (
                                 <div
                                     style={{
                                         display: 'flex',
@@ -773,7 +773,7 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Text color="secondary">{`${position}`}</Text>
+                                    <Text color="secondary">{`${position + 1}`}</Text>
                                     <div style={{width: 3}} />
                                     <Icon data={ArrowRight} size={13}></Icon>
                                     <div style={{width: 3}} />
@@ -4510,15 +4510,53 @@ const renderPhrasesStatListItem = (
                                 );
                             }}
                         >
-                            {doc.fetchedPlacements[cluster] && doc.campaigns[selectValue[0]][art]
-                                ? doc.fetchedPlacements[cluster].data[
-                                      doc.campaigns[selectValue[0]][art].nmId
-                                  ]
-                                    ? doc.fetchedPlacements[cluster].data[
-                                          doc.campaigns[selectValue[0]][art].nmId
-                                      ].index
-                                    : 'Нет в выдаче'
-                                : '№'}
+                            {doc.fetchedPlacements[cluster] &&
+                            doc.campaigns[selectValue[0]][art] ? (
+                                doc.fetchedPlacements[cluster].data[
+                                    doc.campaigns[selectValue[0]][art].nmId
+                                ] ? (
+                                    doc.fetchedPlacements[cluster].data[
+                                        doc.campaigns[selectValue[0]][art].nmId
+                                    ].log &&
+                                    doc.fetchedPlacements[cluster].data[
+                                        doc.campaigns[selectValue[0]][art].nmId
+                                    ].log.position !== undefined ? (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <Text color="secondary">{`${
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][art].nmId
+                                                ].log.position + 1
+                                            }`}</Text>
+                                            <div style={{width: 3}} />
+                                            <Icon data={ArrowRight} size={13}></Icon>
+                                            <div style={{width: 3}} />
+                                            {
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][art].nmId
+                                                ].index
+                                            }
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][art].nmId
+                                                ].index
+                                            }
+                                        </>
+                                    )
+                                ) : (
+                                    'Нет в выдаче'
+                                )
+                            ) : (
+                                '№'
+                            )}
                             <Icon size={12} data={LayoutHeader} />
                         </Button>
                     </div>
