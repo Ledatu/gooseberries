@@ -822,7 +822,9 @@ export const MassAdvertPage = () => {
                         </Text>
                         <Text
                             color={
-                                firstAdvertIndex > placementsRange.from && placementsRange.from
+                                placementsRange &&
+                                firstAdvertIndex > placementsRange.from &&
+                                placementsRange.from
                                     ? 'danger'
                                     : 'primary'
                             }
