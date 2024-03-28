@@ -1455,6 +1455,11 @@ export const MassAdvertPage = () => {
                             addFlag = false;
                             break;
                         }
+                    } else if (filterArg == 'semantics') {
+                        if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
+                            addFlag = false;
+                            break;
+                        }
                     } else if (!compare(tempTypeRow[filterArg], filterData)) {
                         addFlag = false;
                         break;
