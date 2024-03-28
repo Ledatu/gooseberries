@@ -4237,12 +4237,11 @@ const renderPhrasesStatListItem = (
 ) => {
     const {cluster, count, sum, ctr, clicks, freq} = item;
     const cpc = sum / clicks;
-    const colorToUse =
-        selectedSearchPhrase == cluster
+    const colorToUse = semanticsModalSemanticsPlusItemsValue.includes(cluster)
+        ? selectedSearchPhrase == cluster
             ? 'positive'
-            : semanticsModalSemanticsPlusItemsValue.includes(cluster)
-            ? 'warning'
-            : 'primary';
+            : 'warning'
+        : 'primary';
     return (
         <div
             style={{
@@ -4969,14 +4968,14 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
 
     setCurrentParsingProgress((obj) => {
         const curVal = Object.assign({}, obj);
-        curVal[searchPhrase] = {max: 500, progress: 0, warnong: false, error: false};
+        curVal[searchPhrase] = {max: 20 * 100, progress: 0, warnong: false, error: false};
         return curVal;
     });
 
     const fetchedPlacements = {};
 
     let retryCount = 0;
-    for (let page = 1; page <= 5; page++) {
+    for (let page = 1; page <= 20; page++) {
         // retryCount = 0;
         const url = `https://search.wb.ru/exactmatch/ru/common/v5/search?ab_testing=false&appType=1&page=${page}&curr=rub&dest=-1257218&query=${encodeURIComponent(
             searchPhrase,
@@ -4992,9 +4991,9 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
 
                     setCurrentParsingProgress((obj) => {
                         const curVal = Object.assign({}, obj);
-                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 500};
+                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 20 * 100};
                         curVal[searchPhrase].progress = index;
-                        if (index == 500) curVal[searchPhrase].warning = false;
+                        if (index == 20 * 100) curVal[searchPhrase].warning = false;
                         return curVal;
                     });
 
@@ -5007,24 +5006,25 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
                 Object.assign(allCardDataList.data, myData);
 
                 console.log(`Data saved for search phrase: ${searchPhrase}, page: ${page}`);
-                // await new Promise((resolve) => setTimeout(resolve, 200));
+                await new Promise((resolve) => setTimeout(resolve, 500));
             } else {
                 page--;
                 retryCount++;
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                if (retryCount % 10 == 0) {
+                // await new Promise((resolve) => setTimeout(resolve, 1000));
+                if (retryCount % 100 == 0) {
                     console.log(searchPhrase, retryCount);
                     setCurrentParsingProgress((curVal) => {
-                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 500, progress: 0};
+                        if (!curVal[searchPhrase])
+                            curVal[searchPhrase] = {max: 20 * 100, progress: 0};
                         curVal[searchPhrase].warning = true;
                         return curVal;
                     });
-                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    // await new Promise((resolve) => setTimeout(resolve, 100));
                 }
-                if (retryCount == 20) {
+                if (retryCount == 200) {
                     retryCount = 0;
                     setCurrentParsingProgress((curVal) => {
-                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 500};
+                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 20 * 100};
                         curVal[searchPhrase].progress = curVal[searchPhrase].max;
                         curVal[searchPhrase].error = true;
                         return curVal;
@@ -5044,7 +5044,7 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
     if (
         allCardDataList &&
         allCardDataList.data &&
-        Object.keys(allCardDataList.data).length == 5 * 100
+        Object.keys(allCardDataList.data).length == 20 * 100
     ) {
         allCardDataList.updateTime = new Date().toISOString();
 
