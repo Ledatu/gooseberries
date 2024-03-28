@@ -50,6 +50,7 @@ import {
     SlidersVertical,
     ChevronDown,
     CircleMinusFill,
+    ArrowShapeUp,
     CircleMinus,
     CirclePlusFill,
     ArrowRight,
@@ -207,6 +208,7 @@ export const MassAdvertPage = () => {
 
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
+    const [selectedSearchPhrase, setSelectedSearchPhrase] = useState('');
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
         any[]
     >([]);
@@ -247,80 +249,80 @@ export const MassAdvertPage = () => {
     // ];
     // const [semanticsModalSwitchValue, setSemanticsModalSwitchValue] = React.useState('Пополнить');
 
-    const [clustersFiltersActive, setClustersFiltersActive] = useState({undef: false});
-    const [clustersSortByActive, setClustersSortByActive] = useState({undef: false});
-    const clustersSortDataActive = (clusters: any[], withSortBy: any) => {
-        const _sortBy = withSortBy ?? clustersSortByActive;
-        const {key, ord, valueType} = _sortBy;
-        return clusters.sort((a, b) => {
-            if (valueType == 'number') {
-                return ord == 'asc' ? a[key] - b[key] : b[key] - a[key];
-            } else {
-                const strA = String(a[key]).toLocaleLowerCase();
-                const strB = String(b[key]).toLocaleLowerCase();
-                return ord == 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
-            }
-        });
-    };
-    const clustersFilterDataActive = (withfFilters: any, clusters: any[]) => {
-        const _clustersFilters = withfFilters ?? clustersFiltersActive;
-        const _clusters = clusters ?? semanticsModalSemanticsItemsValue;
-        console.log(_clustersFilters, _clusters);
+    // const [clustersFiltersActive, setClustersFiltersActive] = useState({undef: false});
+    // const [clustersSortByActive, setClustersSortByActive] = useState({undef: false});
+    // const clustersSortDataActive = (clusters: any[], withSortBy: any) => {
+    //     const _sortBy = withSortBy ?? clustersSortByActive;
+    //     const {key, ord, valueType} = _sortBy;
+    //     return clusters.sort((a, b) => {
+    //         if (valueType == 'number') {
+    //             return ord == 'asc' ? a[key] - b[key] : b[key] - a[key];
+    //         } else {
+    //             const strA = String(a[key]).toLocaleLowerCase();
+    //             const strB = String(b[key]).toLocaleLowerCase();
+    //             return ord == 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
+    //         }
+    //     });
+    // };
+    // const clustersFilterDataActive = (withfFilters: any, clusters: any[]) => {
+    //     const _clustersFilters = withfFilters ?? clustersFiltersActive;
+    //     const _clusters = clusters ?? semanticsModalSemanticsItemsValue;
+    //     console.log(_clustersFilters, _clusters);
 
-        setSemanticsModalSemanticsItemsFiltratedValue(
-            _clusters.filter((cluster) => {
-                for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
-                    if (filterArg == 'undef' || !filterData) continue;
-                    if (filterData['val'] == '') continue;
-                    else if (!compare(cluster[filterArg], filterData)) {
-                        return false;
-                    }
-                }
+    //     setSemanticsModalSemanticsItemsFiltratedValue(
+    //         _clusters.filter((cluster) => {
+    //             for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
+    //                 if (filterArg == 'undef' || !filterData) continue;
+    //                 if (filterData['val'] == '') continue;
+    //                 else if (!compare(cluster[filterArg], filterData)) {
+    //                     return false;
+    //                 }
+    //             }
 
-                return true;
-            }),
-        );
-    };
-    const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
-    const [clustersSortByMinus, setClustersSortByMinus] = useState({undef: false});
-    const clustersSortDataMinus = (clusters: any[], withSortBy: any) => {
-        const _sortBy = withSortBy ?? clustersSortByMinus;
-        const {key, ord, valueType} = _sortBy;
-        return clusters.sort((a, b) => {
-            if (valueType == 'number') {
-                return ord == 'asc' ? a[key] - b[key] : b[key] - a[key];
-            } else {
-                const strA = String(a[key]).toLocaleLowerCase();
-                const strB = String(b[key]).toLocaleLowerCase();
-                return ord == 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
-            }
-        });
-    };
-    const clustersFilterDataMinus = (withfFilters: any, clusters: any[]) => {
-        const _clustersFilters = withfFilters ?? clustersFiltersMinus;
-        const _clusters = clusters ?? semanticsModalSemanticsMinusItemsValue;
-        console.log(_clustersFilters, _clusters);
+    //             return true;
+    //         }),
+    //     );
+    // };
+    // const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
+    // const [clustersSortByMinus, setClustersSortByMinus] = useState({undef: false});
+    // const clustersSortDataMinus = (clusters: any[], withSortBy: any) => {
+    //     const _sortBy = withSortBy ?? clustersSortByMinus;
+    //     const {key, ord, valueType} = _sortBy;
+    //     return clusters.sort((a, b) => {
+    //         if (valueType == 'number') {
+    //             return ord == 'asc' ? a[key] - b[key] : b[key] - a[key];
+    //         } else {
+    //             const strA = String(a[key]).toLocaleLowerCase();
+    //             const strB = String(b[key]).toLocaleLowerCase();
+    //             return ord == 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
+    //         }
+    //     });
+    // };
+    // const clustersFilterDataMinus = (withfFilters: any, clusters: any[]) => {
+    //     const _clustersFilters = withfFilters ?? clustersFiltersMinus;
+    //     const _clusters = clusters ?? semanticsModalSemanticsMinusItemsValue;
+    //     console.log(_clustersFilters, _clusters);
 
-        const temp = [] as any[];
-        for (const cluster of _clusters) {
-            let addFlag = true;
-            for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
-                if (filterArg == 'undef' || !filterData) continue;
-                if (filterData['val'] == '') continue;
-                else if (!compare(cluster[filterArg], filterData)) {
-                    addFlag = false;
-                    break;
-                }
-            }
+    //     const temp = [] as any[];
+    //     for (const cluster of _clusters) {
+    //         let addFlag = true;
+    //         for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
+    //             if (filterArg == 'undef' || !filterData) continue;
+    //             if (filterData['val'] == '') continue;
+    //             else if (!compare(cluster[filterArg], filterData)) {
+    //                 addFlag = false;
+    //                 break;
+    //             }
+    //         }
 
-            if (addFlag) {
-                temp.push(cluster);
-            }
-        }
-        console.log(temp);
+    //         if (addFlag) {
+    //             temp.push(cluster);
+    //         }
+    //     }
+    //     console.log(temp);
 
-        setSemanticsModalSemanticsMinusItemsFiltratedValue([...temp]);
-    };
+    //     setSemanticsModalSemanticsMinusItemsFiltratedValue([...temp]);
+    // };
 
     const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
@@ -814,11 +816,17 @@ export const MassAdvertPage = () => {
                         <Text>
                             {placementsRange
                                 ? placementsRange.from != 0 && placementsRange.to != 0
-                                    ? `Диапазон: ${placementsRange.from} - ${placementsRange.to}`
+                                    ? `Целевая позиция: ${placementsRange.from}`
                                     : 'Ставки по ДРР'
                                 : ''}
                         </Text>
-                        <Text>{`Позиция первой карточки с РК: ${firstAdvertIndex}`}</Text>
+                        <Text
+                            color={
+                                firstAdvertIndex > placementsRange.from && placementsRange.from
+                                    ? 'danger'
+                                    : 'primary'
+                            }
+                        >{`Позиция первой карточки с РК: ${firstAdvertIndex}`}</Text>
                     </div>
                 );
             },
@@ -834,6 +842,8 @@ export const MassAdvertPage = () => {
                 // const themeToUse = 'normal';
                 // console.log(value.plus);
                 const art = row.art;
+                const advertsSelectedPhrases = row.advertsSelectedPhrases;
+
                 const plusPhrasesTemplate = row.plusPhrasesTemplate;
                 const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][
                     plusPhrasesTemplate
@@ -859,6 +869,10 @@ export const MassAdvertPage = () => {
                             theme={themeToUse}
                             onClick={() => {
                                 setSemanticsModalFormOpen(true);
+
+                                setSelectedSearchPhrase(
+                                    advertsSelectedPhrases ? advertsSelectedPhrases.phrase : '',
+                                );
 
                                 setSemanticsModalOpenFromArt(art);
 
@@ -1244,6 +1258,7 @@ export const MassAdvertPage = () => {
                 placementsValue: undefined,
                 drrAI: undefined,
                 plusPhrasesTemplate: undefined,
+                advertsSelectedPhrases: undefined,
             };
 
             artInfo.art = artData['art'];
@@ -1258,6 +1273,7 @@ export const MassAdvertPage = () => {
             artInfo.placementsValue = artData['placements'];
             artInfo.drrAI = artData['drrAI'];
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
+            artInfo.advertsSelectedPhrases = artData['advertsSelectedPhrases'];
             artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
 
             for (const [key, _] of Object.entries({
@@ -1408,6 +1424,7 @@ export const MassAdvertPage = () => {
                     stocks: artInfo['stocks'],
                     semantics: artInfo[key]['semantics'],
                     plusPhrasesTemplate: artInfo['plusPhrasesTemplate'],
+                    advertsSelectedPhrases: artInfo['advertsSelectedPhrases'],
                     budget: artInfo[key].budget,
                     bid: artInfo[key].bid,
                     bidLog: artInfo[key].bidLog,
@@ -2782,27 +2799,27 @@ export const MassAdvertPage = () => {
                                         Добавить все
                                     </Button>
                                 </div>
-                                {generateFilterTextInputsForClusterStats({
+                                {/* {generateFilterTextInputsForClusterStats({
                                     filters: clustersFiltersActive,
                                     setFilters: setClustersFiltersActive,
                                     filterData: clustersFilterDataActive,
                                     sortBy: clustersSortByActive,
                                     setSortBy: setClustersSortByActive,
                                     sortData: clustersSortDataActive,
-                                })}
+                                })} */}
                                 <List
-                                    filterable={false}
-                                    // filterPlaceholder={`Поиск в ${semanticsModalSemanticsItemsValue.length} фразах`}
+                                    // filterable={false}
+                                    filterPlaceholder={`Поиск в ${semanticsModalSemanticsItemsValue.length} фразах`}
                                     items={semanticsModalSemanticsItemsValue}
-                                    // onFilterEnd={({items}) => {
-                                    //     setSemanticsModalSemanticsItemsFiltratedValue(items);
-                                    //     // console.log(
-                                    //     //     semanticsModalSemanticsItemsFiltratedValue.length,
-                                    //     // );
-                                    // }}
-                                    // filterItem={(filter) => (item) => {
-                                    //     return item.cluster.includes(filter);
-                                    // }}
+                                    onFilterEnd={({items}) => {
+                                        setSemanticsModalSemanticsItemsFiltratedValue(items);
+                                        // console.log(
+                                        //     semanticsModalSemanticsItemsFiltratedValue.length,
+                                        // );
+                                    }}
+                                    filterItem={(filter) => (item) => {
+                                        return item.cluster.includes(filter);
+                                    }}
                                     itemHeight={(item) => {
                                         return 20 * Math.ceil(item.cluster.length / 30) + 20;
                                     }}
@@ -2811,6 +2828,13 @@ export const MassAdvertPage = () => {
                                             item,
                                             semanticsModalSemanticsPlusItemsValue,
                                             setFetchedPlacements,
+                                            doc,
+                                            setChangedDoc,
+                                            selectValue,
+                                            true,
+                                            semanticsModalOpenFromArt,
+                                            selectedSearchPhrase,
+                                            setSelectedSearchPhrase,
                                         )
                                     }
                                     onItemClick={(item) => {
@@ -2873,24 +2897,24 @@ export const MassAdvertPage = () => {
                                         Добавить все
                                     </Button>
                                 </div>
-                                {generateFilterTextInputsForClusterStats({
+                                {/* {generateFilterTextInputsForClusterStats({
                                     filters: clustersFiltersMinus,
                                     setFilters: setClustersFiltersMinus,
                                     filterData: clustersFilterDataMinus,
                                     sortBy: clustersSortByMinus,
                                     setSortBy: setClustersSortByMinus,
                                     sortData: clustersSortDataMinus,
-                                })}
+                                })} */}
                                 <List
-                                    filterable={false}
-                                    // onFilterEnd={({items}) => {
-                                    //     setSemanticsModalSemanticsMinusItemsFiltratedValue(items);
-                                    // }}
-                                    // filterItem={(filter) => (item) => {
-                                    //     return item.cluster.includes(filter);
-                                    // }}
+                                    // filterable={false}
+                                    onFilterEnd={({items}) => {
+                                        setSemanticsModalSemanticsMinusItemsFiltratedValue(items);
+                                    }}
+                                    filterItem={(filter) => (item) => {
+                                        return item.cluster.includes(filter);
+                                    }}
                                     items={semanticsModalSemanticsMinusItemsValue}
-                                    // filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
+                                    filterPlaceholder={`Поиск в ${semanticsModalSemanticsMinusItemsValue.length} фразах`}
                                     itemHeight={(item) => {
                                         return 20 * Math.ceil(item.cluster.length / 30) + 20;
                                     }}
@@ -2899,6 +2923,13 @@ export const MassAdvertPage = () => {
                                             item,
                                             semanticsModalSemanticsPlusItemsValue,
                                             setFetchedPlacements,
+                                            doc,
+                                            setChangedDoc,
+                                            selectValue,
+                                            false,
+                                            semanticsModalOpenFromArt,
+                                            selectedSearchPhrase,
+                                            setSelectedSearchPhrase,
                                         )
                                     }
                                     onItemClick={(item) => {
@@ -4193,15 +4224,26 @@ const renderPhrasesStatListItem = (
     item,
     semanticsModalSemanticsPlusItemsValue,
     setFetchedPlacements,
+    doc,
+    setChangedDoc,
+    selectValue,
+    isDisplayedClusters,
+    art,
+    selectedSearchPhrase,
+    setSelectedSearchPhrase,
 ) => {
     const {cluster, count, sum, ctr, clicks, freq} = item;
     const cpc = sum / clicks;
-    const colorToUse = semanticsModalSemanticsPlusItemsValue.includes(cluster)
-        ? 'warning'
-        : 'primary';
+    const colorToUse =
+        selectedSearchPhrase == cluster
+            ? 'positive'
+            : semanticsModalSemanticsPlusItemsValue.includes(cluster)
+            ? 'warning'
+            : 'primary';
     return (
         <div
             style={{
+                padding: '0 4px',
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
@@ -4211,10 +4253,78 @@ const renderPhrasesStatListItem = (
         >
             <div
                 style={{
-                    textWrap: 'wrap',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                 }}
             >
-                <Text color={colorToUse}>{cluster}</Text>
+                {isDisplayedClusters ? (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Button
+                            // selected={selectedSearchPhrase == cluster}
+                            view={selectedSearchPhrase == cluster ? 'flat-success' : 'flat'}
+                            size="xs"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                if (!doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases)
+                                    doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases = {
+                                        phrase: '',
+                                    };
+
+                                if (selectedSearchPhrase == cluster) {
+                                    doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases =
+                                        undefined;
+                                } else {
+                                    doc['campaigns'][selectValue[0]][
+                                        art
+                                    ].advertsSelectedPhrases.phrase = cluster;
+                                }
+
+                                setChangedDoc(doc);
+
+                                const params = {
+                                    uid: getUid(),
+                                    campaignName: selectValue[0],
+                                    data: {
+                                        mode:
+                                            selectedSearchPhrase == cluster
+                                                ? 'Удалить'
+                                                : 'Установить',
+                                        arts: {},
+                                    },
+                                };
+                                params.data.arts[art] = {};
+                                params.data.arts[art].phrase = cluster;
+                                console.log(params);
+
+                                setSelectedSearchPhrase(
+                                    selectedSearchPhrase == cluster ? '' : cluster,
+                                );
+
+                                callApi('updateAdvertsSelectedPhrases', params);
+                            }}
+                        >
+                            <Icon data={ArrowShapeUp} />
+                        </Button>
+                        <div style={{width: 8}} />
+                    </div>
+                ) : (
+                    <></>
+                )}
+                <div
+                    style={{
+                        textWrap: 'wrap',
+                    }}
+                >
+                    <Text color={colorToUse}>{cluster}</Text>
+                </div>
             </div>
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 <div
@@ -4222,7 +4332,7 @@ const renderPhrasesStatListItem = (
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'center',
+                        justifyContent: 'sta',
                     }}
                 >
                     <Text color="secondary">{Math.round(sum ?? 0)}</Text>
@@ -4634,115 +4744,115 @@ const generateFilterTextInput = (args) => {
     );
 };
 
-const generateFilterTextInputsForClusterStats = (args) => {
-    const {filters, setFilters, filterData, sortBy, setSortBy, sortData} = args;
-    const clusterStatsParams = {
-        cluster: {
-            name: 'cluster',
-            placeholder: 'Кластер',
-            filters,
-            setFilters,
-            filterData,
-            valueType: 'text',
-            sortBy,
-            setSortBy,
-            sortData,
-        },
-        sum: {
-            name: 'sum',
-            placeholder: 'Расход',
-            filters,
-            setFilters,
-            filterData,
-            valueType: 'number',
-            sortBy,
-            setSortBy,
-            sortData,
-        },
-        count: {
-            name: 'count',
-            placeholder: 'Показов',
-            filters,
-            setFilters,
-            filterData,
-            valueType: 'number',
-            sortBy,
-            setSortBy,
-            sortData,
-        },
-        cpc: {
-            name: 'cpc',
-            placeholder: 'CPC',
-            filters,
-            setFilters,
-            filterData,
-            valueType: 'number',
-            sortBy,
-            setSortBy,
-            sortData,
-        },
-        ctr: {
-            name: 'ctr',
-            placeholder: 'CTR',
-            filters,
-            setFilters,
-            filterData,
-            valueType: 'number',
-            sortBy,
-            setSortBy,
-            sortData,
-        },
-        clicks: {
-            name: 'clicks',
-            placeholder: 'Кликов',
-            filters,
-            setFilters,
-            filterData,
-            valueType: 'number',
-            sortBy,
-            setSortBy,
-            sortData,
-        },
-        freq: {
-            name: 'freq',
-            placeholder: 'Частота',
-            filters,
-            setFilters,
-            filterData,
-            valueType: 'number',
-            sortBy,
-            setSortBy,
-            sortData,
-        },
-    };
-    const textInputsArray = [] as any[];
-    for (const [name, data] of Object.entries(clusterStatsParams)) {
-        if (!name || !data) continue;
-        textInputsArray.push(generateFilterTextInput(data));
-    }
-    return (
-        <div style={{display: 'flex', flexDirection: 'column'}}>
-            {generateFilterTextInput(clusterStatsParams['cluster'])}
-            <div style={{height: 8}} />
-            <div style={{display: 'flex', flexDirection: 'row'}}>
-                {generateFilterTextInput(clusterStatsParams['freq'])}
-                <div style={{width: 24}} />
-                {generateFilterTextInput(clusterStatsParams['count'])}
-                <div style={{width: 24}} />
-                {generateFilterTextInput(clusterStatsParams['ctr'])}
-            </div>
-            <div style={{height: 8}} />
-            <div style={{display: 'flex', flexDirection: 'row'}}>
-                {generateFilterTextInput(clusterStatsParams['sum'])}
-                <div style={{width: 24}} />
-                {generateFilterTextInput(clusterStatsParams['clicks'])}
-                <div style={{width: 24}} />
-                {generateFilterTextInput(clusterStatsParams['cpc'])}
-            </div>
-            <div style={{height: 8}} />
-        </div>
-    );
-};
+// const generateFilterTextInputsForClusterStats = (args) => {
+//     const {filters, setFilters, filterData, sortBy, setSortBy, sortData} = args;
+//     const clusterStatsParams = {
+//         cluster: {
+//             name: 'cluster',
+//             placeholder: 'Кластер',
+//             filters,
+//             setFilters,
+//             filterData,
+//             valueType: 'text',
+//             sortBy,
+//             setSortBy,
+//             sortData,
+//         },
+//         sum: {
+//             name: 'sum',
+//             placeholder: 'Расход',
+//             filters,
+//             setFilters,
+//             filterData,
+//             valueType: 'number',
+//             sortBy,
+//             setSortBy,
+//             sortData,
+//         },
+//         count: {
+//             name: 'count',
+//             placeholder: 'Показов',
+//             filters,
+//             setFilters,
+//             filterData,
+//             valueType: 'number',
+//             sortBy,
+//             setSortBy,
+//             sortData,
+//         },
+//         cpc: {
+//             name: 'cpc',
+//             placeholder: 'CPC',
+//             filters,
+//             setFilters,
+//             filterData,
+//             valueType: 'number',
+//             sortBy,
+//             setSortBy,
+//             sortData,
+//         },
+//         ctr: {
+//             name: 'ctr',
+//             placeholder: 'CTR',
+//             filters,
+//             setFilters,
+//             filterData,
+//             valueType: 'number',
+//             sortBy,
+//             setSortBy,
+//             sortData,
+//         },
+//         clicks: {
+//             name: 'clicks',
+//             placeholder: 'Кликов',
+//             filters,
+//             setFilters,
+//             filterData,
+//             valueType: 'number',
+//             sortBy,
+//             setSortBy,
+//             sortData,
+//         },
+//         freq: {
+//             name: 'freq',
+//             placeholder: 'Частота',
+//             filters,
+//             setFilters,
+//             filterData,
+//             valueType: 'number',
+//             sortBy,
+//             setSortBy,
+//             sortData,
+//         },
+//     };
+//     const textInputsArray = [] as any[];
+//     for (const [name, data] of Object.entries(clusterStatsParams)) {
+//         if (!name || !data) continue;
+//         textInputsArray.push(generateFilterTextInput(data));
+//     }
+//     return (
+//         <div style={{display: 'flex', flexDirection: 'column'}}>
+//             {generateFilterTextInput(clusterStatsParams['cluster'])}
+//             <div style={{height: 8}} />
+//             <div style={{display: 'flex', flexDirection: 'row'}}>
+//                 {generateFilterTextInput(clusterStatsParams['freq'])}
+//                 <div style={{width: 24}} />
+//                 {generateFilterTextInput(clusterStatsParams['count'])}
+//                 <div style={{width: 24}} />
+//                 {generateFilterTextInput(clusterStatsParams['ctr'])}
+//             </div>
+//             <div style={{height: 8}} />
+//             <div style={{display: 'flex', flexDirection: 'row'}}>
+//                 {generateFilterTextInput(clusterStatsParams['sum'])}
+//                 <div style={{width: 24}} />
+//                 {generateFilterTextInput(clusterStatsParams['clicks'])}
+//                 <div style={{width: 24}} />
+//                 {generateFilterTextInput(clusterStatsParams['cpc'])}
+//             </div>
+//             <div style={{height: 8}} />
+//         </div>
+//     );
+// };
 
 const compare = (a, filterData) => {
     const {val, compMode} = filterData;
