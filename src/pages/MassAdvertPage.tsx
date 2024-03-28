@@ -2803,7 +2803,7 @@ export const MassAdvertPage = () => {
                                         return item.cluster.includes(filter);
                                     }}
                                     itemHeight={(item) => {
-                                        return 20 * Math.ceil(item.cluster.length / 30) + 20;
+                                        return 20 * Math.ceil(item.cluster.length / 30) + 60;
                                     }}
                                     renderItem={(item) =>
                                         renderPhrasesStatListItem(
@@ -4257,18 +4257,153 @@ const renderPhrasesStatListItem = (
                 style={{
                     display: 'flex',
                     flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    width: '100%',
+                    alignItems: 'center',
                 }}
             >
+                {isDisplayedClusters ? (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Button
+                            // selected={selectedSearchPhrase == cluster}
+                            view={selectedSearchPhrase == cluster ? 'flat-success' : 'flat'}
+                            size="xs"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                if (!doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases)
+                                    doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases = {
+                                        phrase: '',
+                                    };
+
+                                if (selectedSearchPhrase == cluster) {
+                                    doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases =
+                                        undefined;
+                                } else {
+                                    doc['campaigns'][selectValue[0]][
+                                        art
+                                    ].advertsSelectedPhrases.phrase = cluster;
+                                }
+
+                                setChangedDoc(doc);
+
+                                const params = {
+                                    uid: getUid(),
+                                    campaignName: selectValue[0],
+                                    data: {
+                                        mode:
+                                            selectedSearchPhrase == cluster
+                                                ? 'Удалить'
+                                                : 'Установить',
+                                        arts: {},
+                                    },
+                                };
+                                params.data.arts[art] = {};
+                                params.data.arts[art].phrase = cluster;
+                                console.log(params);
+
+                                setSelectedSearchPhrase(
+                                    selectedSearchPhrase == cluster ? '' : cluster,
+                                );
+
+                                callApi('updateAdvertsSelectedPhrases', params);
+                            }}
+                        >
+                            <Icon data={ArrowShapeUp} />
+                        </Button>
+                        <div style={{width: 8}} />
+                    </div>
+                ) : (
+                    <></>
+                )}
+                <div
+                    style={{
+                        textWrap: 'wrap',
+                    }}
+                >
+                    <Text color={colorToUse}>{cluster}</Text>
+                </div>
+            </div>
+
+            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                 <div
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
+                        justifyContent: 'center',
                     }}
                 >
-                    {isDisplayedClusters ? (
+                    <Text color="secondary">{Math.round(sum ?? 0)}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        ₽
+                    </Text>
+                </div>
+
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{Math.round(count ?? 0)}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Icon size={12} data={Eye} />
+                    </Text>
+                </div>
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{Math.round(clicks ?? 0)}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Icon size={12} data={LayoutHeaderCursor} />
+                    </Text>
+                </div>
+                {!isFinite(cpc) || isNaN(cpc) ? (
+                    <></>
+                ) : (
+                    <>
+                        <div style={{width: 8}} />
                         <div
                             style={{
                                 display: 'flex',
@@ -4277,147 +4412,10 @@ const renderPhrasesStatListItem = (
                                 justifyContent: 'center',
                             }}
                         >
-                            <Button
-                                // selected={selectedSearchPhrase == cluster}
-                                view={selectedSearchPhrase == cluster ? 'flat-success' : 'flat'}
-                                size="xs"
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    if (
-                                        !doc['campaigns'][selectValue[0]][art]
-                                            .advertsSelectedPhrases
-                                    )
-                                        doc['campaigns'][selectValue[0]][
-                                            art
-                                        ].advertsSelectedPhrases = {
-                                            phrase: '',
-                                        };
-
-                                    if (selectedSearchPhrase == cluster) {
-                                        doc['campaigns'][selectValue[0]][
-                                            art
-                                        ].advertsSelectedPhrases = undefined;
-                                    } else {
-                                        doc['campaigns'][selectValue[0]][
-                                            art
-                                        ].advertsSelectedPhrases.phrase = cluster;
-                                    }
-
-                                    setChangedDoc(doc);
-
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            mode:
-                                                selectedSearchPhrase == cluster
-                                                    ? 'Удалить'
-                                                    : 'Установить',
-                                            arts: {},
-                                        },
-                                    };
-                                    params.data.arts[art] = {};
-                                    params.data.arts[art].phrase = cluster;
-                                    console.log(params);
-
-                                    setSelectedSearchPhrase(
-                                        selectedSearchPhrase == cluster ? '' : cluster,
-                                    );
-
-                                    callApi('updateAdvertsSelectedPhrases', params);
-                                }}
-                            >
-                                <Icon data={ArrowShapeUp} />
-                            </Button>
-                            <div style={{width: 8}} />
-                        </div>
-                    ) : (
-                        <></>
-                    )}
-                    <div
-                        style={{
-                            textWrap: 'wrap',
-                        }}
-                    >
-                        <Text color={colorToUse}>{cluster}</Text>
-                    </div>
-                </div>
-                <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'sta',
-                        }}
-                    >
-                        <Text color="secondary">{Math.round(sum ?? 0)}</Text>
-                        <div style={{width: 3}} />
-                        <Text
-                            color="secondary"
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            ₽
-                        </Text>
-                    </div>
-
-                    <div style={{width: 8}} />
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Text color="secondary">{Math.round(count ?? 0)}</Text>
-                        <div style={{width: 3}} />
-                        <Text
-                            color="secondary"
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Icon size={12} data={Eye} />
-                        </Text>
-                    </div>
-                    <div style={{width: 8}} />
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Text color="secondary">{Math.round(clicks ?? 0)}</Text>
-                        <div style={{width: 3}} />
-                        <Text
-                            color="secondary"
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Icon size={12} data={LayoutHeaderCursor} />
-                        </Text>
-                    </div>
-                    {!isFinite(cpc) || isNaN(cpc) ? (
-                        <></>
-                    ) : (
-                        <>
-                            <div style={{width: 8}} />
-                            <div
+                            <Text color="secondary">{Math.round(cpc ?? 0)}</Text>
+                            <div style={{width: 3}} />
+                            <Text
+                                color="secondary"
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'row',
@@ -4425,24 +4423,24 @@ const renderPhrasesStatListItem = (
                                     justifyContent: 'center',
                                 }}
                             >
-                                <Text color="secondary">{Math.round(cpc ?? 0)}</Text>
-                                <div style={{width: 3}} />
-                                <Text
-                                    color="secondary"
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}
-                                >
-                                    ₽/ <Icon size={12} data={LayoutHeaderCursor} />
-                                </Text>
-                            </div>
-                        </>
-                    )}
-                    <div style={{width: 8}} />
-                    <div
+                                ₽/ <Icon size={12} data={LayoutHeaderCursor} />
+                            </Text>
+                        </div>
+                    </>
+                )}
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{ctr ?? 0}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
@@ -4450,22 +4448,22 @@ const renderPhrasesStatListItem = (
                             justifyContent: 'center',
                         }}
                     >
-                        <Text color="secondary">{ctr ?? 0}</Text>
-                        <div style={{width: 3}} />
-                        <Text
-                            color="secondary"
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            %
-                        </Text>
-                    </div>
-                    <div style={{width: 8}} />
-                    <div
+                        %
+                    </Text>
+                </div>
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text color="secondary">{freq ?? 0}</Text>
+                    <div style={{width: 3}} />
+                    <Text
+                        color="secondary"
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
@@ -4473,93 +4471,80 @@ const renderPhrasesStatListItem = (
                             justifyContent: 'center',
                         }}
                     >
-                        <Text color="secondary">{freq ?? 0}</Text>
-                        <div style={{width: 3}} />
-                        <Text
-                            color="secondary"
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Icon size={12} data={Magnifier} />
-                        </Text>
-                    </div>
-                    <div style={{width: 8}} />
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                        <Icon size={12} data={Magnifier} />
+                    </Text>
+                </div>
+                <div style={{width: 8}} />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    {/* <Text color="secondary">{'Найти '}</Text> */}
+                    {/* <div style={{width: 3}} /> */}
+                    <Button
+                        size="xs"
+                        view="flat"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            parseFirst10Pages(
+                                cluster,
+                                setFetchedPlacements,
+                                setCurrentParsingProgress,
+                            );
                         }}
                     >
-                        {/* <Text color="secondary">{'Найти '}</Text> */}
-                        {/* <div style={{width: 3}} /> */}
-                        <Button
-                            size="xs"
-                            view="flat"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                parseFirst10Pages(
-                                    cluster,
-                                    setFetchedPlacements,
-                                    setCurrentParsingProgress,
-                                );
-                            }}
-                        >
-                            {doc.fetchedPlacements[cluster] &&
-                            doc.campaigns[selectValue[0]][art] ? (
+                        {doc.fetchedPlacements[cluster] && doc.campaigns[selectValue[0]][art] ? (
+                            doc.fetchedPlacements[cluster].data[
+                                doc.campaigns[selectValue[0]][art].nmId
+                            ] ? (
                                 doc.fetchedPlacements[cluster].data[
                                     doc.campaigns[selectValue[0]][art].nmId
-                                ] ? (
-                                    doc.fetchedPlacements[cluster].data[
-                                        doc.campaigns[selectValue[0]][art].nmId
-                                    ].log &&
-                                    doc.fetchedPlacements[cluster].data[
-                                        doc.campaigns[selectValue[0]][art].nmId
-                                    ].log.position !== undefined ? (
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <Text color="secondary">{`${
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][art].nmId
-                                                ].log.position + 1
-                                            }`}</Text>
-                                            <div style={{width: 3}} />
-                                            <Icon data={ArrowRight} size={13}></Icon>
-                                            <div style={{width: 3}} />
-                                            {
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][art].nmId
-                                                ].index
-                                            }
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][art].nmId
-                                                ].index
-                                            }
-                                        </>
-                                    )
+                                ].log &&
+                                doc.fetchedPlacements[cluster].data[
+                                    doc.campaigns[selectValue[0]][art].nmId
+                                ].log.position !== undefined ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Text color="secondary">{`${
+                                            doc.fetchedPlacements[cluster].data[
+                                                doc.campaigns[selectValue[0]][art].nmId
+                                            ].log.position + 1
+                                        }`}</Text>
+                                        <div style={{width: 3}} />
+                                        <Icon data={ArrowRight} size={13}></Icon>
+                                        <div style={{width: 3}} />
+                                        {
+                                            doc.fetchedPlacements[cluster].data[
+                                                doc.campaigns[selectValue[0]][art].nmId
+                                            ].index
+                                        }
+                                    </div>
                                 ) : (
-                                    'Нет в выдаче'
+                                    <>
+                                        {
+                                            doc.fetchedPlacements[cluster].data[
+                                                doc.campaigns[selectValue[0]][art].nmId
+                                            ].index
+                                        }
+                                    </>
                                 )
                             ) : (
-                                '№'
-                            )}
-                            <Icon size={12} data={LayoutHeader} />
-                        </Button>
-                    </div>
+                                'Нет в выдаче'
+                            )
+                        ) : (
+                            '№'
+                        )}
+                        <Icon size={12} data={LayoutHeader} />
+                    </Button>
                 </div>
             </div>
             <div>
