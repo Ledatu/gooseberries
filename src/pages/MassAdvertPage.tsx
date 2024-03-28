@@ -5025,7 +5025,7 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
                     retryCount = 0;
                     setCurrentParsingProgress((curVal) => {
                         if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 20 * 100};
-                        if (curVal[searchPhrase].progress < 500) {
+                        if (curVal[searchPhrase].progress < 100) {
                             curVal[searchPhrase].progress = curVal[searchPhrase].max;
                         }
                         curVal[searchPhrase].error = true;
