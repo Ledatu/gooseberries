@@ -23,6 +23,7 @@ import {
     List,
     // TextArea,
     Switch,
+    Progress,
     // Switch,
     // Checkbox,
     // RadioButton,
@@ -85,11 +86,9 @@ settings.set({plugins: [YagrPlugin]});
 
 const getUid = () => {
     return [
-        'f9192af1-d9fa-4e3c-8959-33b668413e8c',
         '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
         '46431a09-85c3-4703-8246-d1b5c9e52594',
         '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-        '9af0639b-4f32-48af-b81a-171580f7b144',
     ].includes(Userfront.user.userUuid ?? '')
         ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
         : '';
@@ -107,12 +106,8 @@ const getUserDoc = (docum = undefined) => {
             uid: getUid(),
             dateRange: {from: '2023', to: '2024'},
             campaignName:
-                Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c'
-                    ? 'Клининг Сервис'
-                    : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифов М.С.'
-                    : Userfront.user.userUuid == '9af0639b-4f32-48af-b81a-171580f7b144'
-                    ? 'ИП Коноплёв К.В.'
                     : 'ИП Валерий',
         })
             .then((response) => setDocument(response ? response['data'] : undefined))
@@ -209,6 +204,7 @@ export const MassAdvertPage = () => {
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [selectedSearchPhrase, setSelectedSearchPhrase] = useState('');
+    const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
         any[]
     >([]);
@@ -1627,15 +1623,6 @@ export const MassAdvertPage = () => {
                         content: campaignName,
                     });
                 }
-            } else if (Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c') {
-                if (
-                    ['Клининг Сервис', 'Торговый Дом', 'ТПК', 'Гуд Ритейл'].includes(campaignName)
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
             } else if (Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594') {
                 if (
                     [
@@ -1648,13 +1635,6 @@ export const MassAdvertPage = () => {
                         'ИП Мартыненко',
                     ].includes(campaignName)
                 ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == '9af0639b-4f32-48af-b81a-171580f7b144') {
-                if (['ИП Коноплёв К.В.'].includes(campaignName)) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,
@@ -2837,6 +2817,8 @@ export const MassAdvertPage = () => {
                                             semanticsModalOpenFromArt,
                                             selectedSearchPhrase,
                                             setSelectedSearchPhrase,
+                                            currentParsingProgress,
+                                            setCurrentParsingProgress,
                                         )
                                     }
                                     onItemClick={(item) => {
@@ -2932,6 +2914,8 @@ export const MassAdvertPage = () => {
                                             semanticsModalOpenFromArt,
                                             selectedSearchPhrase,
                                             setSelectedSearchPhrase,
+                                            currentParsingProgress,
+                                            setCurrentParsingProgress,
                                         )
                                     }
                                     onItemClick={(item) => {
@@ -4233,6 +4217,8 @@ const renderPhrasesStatListItem = (
     art,
     selectedSearchPhrase,
     setSelectedSearchPhrase,
+    currentParsingProgress,
+    setCurrentParsingProgress,
 ) => {
     const {cluster, count, sum, ctr, clicks, freq} = item;
     const cpc = sum / clicks;
@@ -4247,7 +4233,7 @@ const renderPhrasesStatListItem = (
             style={{
                 padding: '0 4px',
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: 'column',
                 justifyContent: 'space-between',
                 width: '100%',
             }}
@@ -4257,152 +4243,18 @@ const renderPhrasesStatListItem = (
                 style={{
                     display: 'flex',
                     flexDirection: 'row',
-                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
                 }}
             >
-                {isDisplayedClusters ? (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Button
-                            // selected={selectedSearchPhrase == cluster}
-                            view={selectedSearchPhrase == cluster ? 'flat-success' : 'flat'}
-                            size="xs"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                if (!doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases)
-                                    doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases = {
-                                        phrase: '',
-                                    };
-
-                                if (selectedSearchPhrase == cluster) {
-                                    doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases =
-                                        undefined;
-                                } else {
-                                    doc['campaigns'][selectValue[0]][
-                                        art
-                                    ].advertsSelectedPhrases.phrase = cluster;
-                                }
-
-                                setChangedDoc(doc);
-
-                                const params = {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
-                                    data: {
-                                        mode:
-                                            selectedSearchPhrase == cluster
-                                                ? 'Удалить'
-                                                : 'Установить',
-                                        arts: {},
-                                    },
-                                };
-                                params.data.arts[art] = {};
-                                params.data.arts[art].phrase = cluster;
-                                console.log(params);
-
-                                setSelectedSearchPhrase(
-                                    selectedSearchPhrase == cluster ? '' : cluster,
-                                );
-
-                                callApi('updateAdvertsSelectedPhrases', params);
-                            }}
-                        >
-                            <Icon data={ArrowShapeUp} />
-                        </Button>
-                        <div style={{width: 8}} />
-                    </div>
-                ) : (
-                    <></>
-                )}
-                <div
-                    style={{
-                        textWrap: 'wrap',
-                    }}
-                >
-                    <Text color={colorToUse}>{cluster}</Text>
-                </div>
-            </div>
-            <div style={{display: 'flex', flexDirection: 'row'}}>
                 <div
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'sta',
                     }}
                 >
-                    <Text color="secondary">{Math.round(sum ?? 0)}</Text>
-                    <div style={{width: 3}} />
-                    <Text
-                        color="secondary"
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        ₽
-                    </Text>
-                </div>
-
-                <div style={{width: 8}} />
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Text color="secondary">{Math.round(count ?? 0)}</Text>
-                    <div style={{width: 3}} />
-                    <Text
-                        color="secondary"
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Icon size={12} data={Eye} />
-                    </Text>
-                </div>
-                <div style={{width: 8}} />
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Text color="secondary">{Math.round(clicks ?? 0)}</Text>
-                    <div style={{width: 3}} />
-                    <Text
-                        color="secondary"
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Icon size={12} data={LayoutHeaderCursor} />
-                    </Text>
-                </div>
-                {!isFinite(cpc) || isNaN(cpc) ? (
-                    <></>
-                ) : (
-                    <>
-                        <div style={{width: 8}} />
+                    {isDisplayedClusters ? (
                         <div
                             style={{
                                 display: 'flex',
@@ -4411,10 +4263,147 @@ const renderPhrasesStatListItem = (
                                 justifyContent: 'center',
                             }}
                         >
-                            <Text color="secondary">{Math.round(cpc ?? 0)}</Text>
-                            <div style={{width: 3}} />
-                            <Text
-                                color="secondary"
+                            <Button
+                                // selected={selectedSearchPhrase == cluster}
+                                view={selectedSearchPhrase == cluster ? 'flat-success' : 'flat'}
+                                size="xs"
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    if (
+                                        !doc['campaigns'][selectValue[0]][art]
+                                            .advertsSelectedPhrases
+                                    )
+                                        doc['campaigns'][selectValue[0]][
+                                            art
+                                        ].advertsSelectedPhrases = {
+                                            phrase: '',
+                                        };
+
+                                    if (selectedSearchPhrase == cluster) {
+                                        doc['campaigns'][selectValue[0]][
+                                            art
+                                        ].advertsSelectedPhrases = undefined;
+                                    } else {
+                                        doc['campaigns'][selectValue[0]][
+                                            art
+                                        ].advertsSelectedPhrases.phrase = cluster;
+                                    }
+
+                                    setChangedDoc(doc);
+
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {
+                                            mode:
+                                                selectedSearchPhrase == cluster
+                                                    ? 'Удалить'
+                                                    : 'Установить',
+                                            arts: {},
+                                        },
+                                    };
+                                    params.data.arts[art] = {};
+                                    params.data.arts[art].phrase = cluster;
+                                    console.log(params);
+
+                                    setSelectedSearchPhrase(
+                                        selectedSearchPhrase == cluster ? '' : cluster,
+                                    );
+
+                                    callApi('updateAdvertsSelectedPhrases', params);
+                                }}
+                            >
+                                <Icon data={ArrowShapeUp} />
+                            </Button>
+                            <div style={{width: 8}} />
+                        </div>
+                    ) : (
+                        <></>
+                    )}
+                    <div
+                        style={{
+                            textWrap: 'wrap',
+                        }}
+                    >
+                        <Text color={colorToUse}>{cluster}</Text>
+                    </div>
+                </div>
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'sta',
+                        }}
+                    >
+                        <Text color="secondary">{Math.round(sum ?? 0)}</Text>
+                        <div style={{width: 3}} />
+                        <Text
+                            color="secondary"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            ₽
+                        </Text>
+                    </div>
+
+                    <div style={{width: 8}} />
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Text color="secondary">{Math.round(count ?? 0)}</Text>
+                        <div style={{width: 3}} />
+                        <Text
+                            color="secondary"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Icon size={12} data={Eye} />
+                        </Text>
+                    </div>
+                    <div style={{width: 8}} />
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Text color="secondary">{Math.round(clicks ?? 0)}</Text>
+                        <div style={{width: 3}} />
+                        <Text
+                            color="secondary"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Icon size={12} data={LayoutHeaderCursor} />
+                        </Text>
+                    </div>
+                    {!isFinite(cpc) || isNaN(cpc) ? (
+                        <></>
+                    ) : (
+                        <>
+                            <div style={{width: 8}} />
+                            <div
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'row',
@@ -4422,24 +4411,24 @@ const renderPhrasesStatListItem = (
                                     justifyContent: 'center',
                                 }}
                             >
-                                ₽/ <Icon size={12} data={LayoutHeaderCursor} />
-                            </Text>
-                        </div>
-                    </>
-                )}
-                <div style={{width: 8}} />
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Text color="secondary">{ctr ?? 0}</Text>
-                    <div style={{width: 3}} />
-                    <Text
-                        color="secondary"
+                                <Text color="secondary">{Math.round(cpc ?? 0)}</Text>
+                                <div style={{width: 3}} />
+                                <Text
+                                    color="secondary"
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    ₽/ <Icon size={12} data={LayoutHeaderCursor} />
+                                </Text>
+                            </div>
+                        </>
+                    )}
+                    <div style={{width: 8}} />
+                    <div
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
@@ -4447,22 +4436,22 @@ const renderPhrasesStatListItem = (
                             justifyContent: 'center',
                         }}
                     >
-                        %
-                    </Text>
-                </div>
-                <div style={{width: 8}} />
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Text color="secondary">{freq ?? 0}</Text>
-                    <div style={{width: 3}} />
-                    <Text
-                        color="secondary"
+                        <Text color="secondary">{ctr ?? 0}</Text>
+                        <div style={{width: 3}} />
+                        <Text
+                            color="secondary"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            %
+                        </Text>
+                    </div>
+                    <div style={{width: 8}} />
+                    <div
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
@@ -4470,32 +4459,83 @@ const renderPhrasesStatListItem = (
                             justifyContent: 'center',
                         }}
                     >
-                        <Icon size={12} data={Magnifier} />
-                    </Text>
+                        <Text color="secondary">{freq ?? 0}</Text>
+                        <div style={{width: 3}} />
+                        <Text
+                            color="secondary"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Icon size={12} data={Magnifier} />
+                        </Text>
+                    </div>
+                    <div style={{width: 8}} />
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        {/* <Text color="secondary">{'Найти '}</Text> */}
+                        {/* <div style={{width: 3}} /> */}
+                        <Button
+                            size="xs"
+                            view="flat"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                parseFirst10Pages(
+                                    cluster,
+                                    setFetchedPlacements,
+                                    setCurrentParsingProgress,
+                                );
+                            }}
+                        >
+                            {doc.fetchedPlacements[cluster]
+                                ? doc.fetchedPlacements[cluster].data[
+                                      doc.campaigns[selectValue[0]][art].nmId
+                                  ]
+                                    ? doc.fetchedPlacements[cluster].data[
+                                          doc.campaigns[selectValue[0]][art].nmId
+                                      ].index
+                                    : 'Нет в выдаче'
+                                : '№'}
+                            <Icon size={12} data={LayoutHeader} />
+                        </Button>
+                    </div>
                 </div>
-                <div style={{width: 8}} />
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    {/* <Text color="secondary">{'Найти '}</Text> */}
-                    {/* <div style={{width: 3}} /> */}
-                    <Button
+            </div>
+            <div>
+                {currentParsingProgress[cluster] ? (
+                    <Progress
                         size="xs"
-                        view="flat"
-                        onClick={(event) => {
-                            event.stopPropagation();
-                            parseFirst10Pages(cluster, setFetchedPlacements);
-                        }}
-                    >
-                        №
-                        <Icon size={12} data={LayoutHeader} />
-                    </Button>
-                </div>
+                        theme={
+                            currentParsingProgress[cluster].error
+                                ? 'danger'
+                                : currentParsingProgress[cluster].warning
+                                ? 'warning'
+                                : (currentParsingProgress[cluster].progress /
+                                      currentParsingProgress[cluster].max) *
+                                      100 ==
+                                  100
+                                ? 'success'
+                                : 'default'
+                        }
+                        value={
+                            (currentParsingProgress[cluster].progress /
+                                currentParsingProgress[cluster].max) *
+                            100
+                            // currentParsingProgress ? 100 : 100
+                        }
+                    />
+                ) : (
+                    <></>
+                )}
             </div>
         </div>
     );
@@ -4909,8 +4949,14 @@ const generateCard = (args) => {
     );
 };
 
-const parseFirst10Pages = async (searchPhrase, setFetchedPlacements) => {
+const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentParsingProgress) => {
     const allCardDataList = {updateTime: '', data: {}};
+
+    setCurrentParsingProgress((obj) => {
+        const curVal = Object.assign({}, obj);
+        curVal[searchPhrase] = {max: 500, progress: 0, warnong: false, error: false};
+        return curVal;
+    });
 
     const fetchedPlacements = {};
 
@@ -4927,8 +4973,18 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements) => {
             if (data && data.data && data.data.products && data.data.products.length == 100) {
                 const myData = {};
                 for (let i = 0; i < data.data.products.length; i++) {
+                    const index = i + 1 + (page - 1) * 100;
+
+                    setCurrentParsingProgress((obj) => {
+                        const curVal = Object.assign({}, obj);
+                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 500};
+                        curVal[searchPhrase].progress = index;
+                        if (index == 500) curVal[searchPhrase].warning = false;
+                        return curVal;
+                    });
+
                     const cur = data.data.products[i];
-                    cur.index = i + 1 + (page - 1) * 100;
+                    cur.index = index;
                     const {id} = cur;
                     myData[id] = cur;
                 }
@@ -4936,17 +4992,28 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements) => {
                 Object.assign(allCardDataList.data, myData);
 
                 console.log(`Data saved for search phrase: ${searchPhrase}, page: ${page}`);
-                await new Promise((resolve) => setTimeout(resolve, 100));
+                // await new Promise((resolve) => setTimeout(resolve, 200));
             } else {
                 page--;
                 retryCount++;
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 100));
                 if (retryCount % 10 == 0) {
                     console.log(searchPhrase, retryCount);
+                    setCurrentParsingProgress((curVal) => {
+                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 500, progress: 0};
+                        curVal[searchPhrase].warning = true;
+                        return curVal;
+                    });
                     await new Promise((resolve) => setTimeout(resolve, 100));
                 }
                 if (retryCount == 20) {
                     retryCount = 0;
+                    setCurrentParsingProgress((curVal) => {
+                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 500};
+                        curVal[searchPhrase].progress = curVal[searchPhrase].max;
+                        curVal[searchPhrase].error = true;
+                        return curVal;
+                    });
                     break;
                 }
                 // console.log(`Not enough data for search phrase: ${searchPhrase} on page ${page} only ${data.data.products.length} retrying`);
@@ -4967,10 +5034,9 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements) => {
         allCardDataList.updateTime = new Date().toISOString();
 
         fetchedPlacements[searchPhrase] = allCardDataList;
+        setFetchedPlacements(fetchedPlacements);
 
         console.log(`All data saved for search phrase: ${searchPhrase}`);
     }
-
-    console.log(fetchedPlacements);
-    setFetchedPlacements(fetchedPlacements);
+    console.log(allCardDataList);
 };
