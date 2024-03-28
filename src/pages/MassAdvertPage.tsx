@@ -5025,7 +5025,9 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
                     retryCount = 0;
                     setCurrentParsingProgress((curVal) => {
                         if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 20 * 100};
-                        curVal[searchPhrase].progress = curVal[searchPhrase].max;
+                        if (curVal[searchPhrase].progress < 500) {
+                            curVal[searchPhrase].progress = curVal[searchPhrase].max;
+                        }
                         curVal[searchPhrase].error = true;
                         return curVal;
                     });
@@ -5044,7 +5046,7 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
     if (
         allCardDataList &&
         allCardDataList.data &&
-        Object.keys(allCardDataList.data).length == 20 * 100
+        Object.keys(allCardDataList.data).length >= 1 * 100
     ) {
         allCardDataList.updateTime = new Date().toISOString();
 
