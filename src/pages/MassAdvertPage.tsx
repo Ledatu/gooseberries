@@ -1214,7 +1214,7 @@ export const MassAdvertPage = () => {
         }
         return result;
     };
-    const recalc = (daterng, selected = '') => {
+    const recalc = (daterng, selected = '', withfFilters = {}) => {
         const [startDate, endDate] = daterng;
         startDate.setHours(0);
         startDate.setMinutes(0);
@@ -1391,7 +1391,7 @@ export const MassAdvertPage = () => {
         setSummary(summaryTemp);
         setTableData(temp);
 
-        filterTableData({}, temp);
+        filterTableData(withfFilters, temp);
     };
 
     const filterTableData = (withfFilters = {}, tableData = {}) => {
@@ -3590,6 +3590,21 @@ export const MassAdvertPage = () => {
                             onUpdate={(nextValue) => {
                                 setSwitchingCampaignsFlag(true);
 
+                                if (pinned.isPinned) {
+                                    setFilters(() => {
+                                        filters['art'] = pinned.oldArtFilters;
+                                        setPinned({
+                                            isPinned: false,
+                                            oldArtFilters: {
+                                                compMode: 'include',
+                                                val: '',
+                                            },
+                                        });
+
+                                        return filters;
+                                    });
+                                }
+
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi('getMassAdvertsNew', {
                                         uid: getUid(),
@@ -3613,8 +3628,8 @@ export const MassAdvertPage = () => {
                                 } else {
                                     setSelectValue(nextValue);
                                     setSwitchingCampaignsFlag(false);
-                                    recalc(dateRange, nextValue[0]);
                                 }
+                                recalc(dateRange, nextValue[0], filters);
                                 setPagesCurrent(1);
                             }}
                         />
