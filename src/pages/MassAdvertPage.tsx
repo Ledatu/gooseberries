@@ -4510,7 +4510,7 @@ const renderPhrasesStatListItem = (
                                 );
                             }}
                         >
-                            {doc.fetchedPlacements[cluster]
+                            {doc.fetchedPlacements[cluster] && doc.campaigns[selectValue[0]][art]
                                 ? doc.fetchedPlacements[cluster].data[
                                       doc.campaigns[selectValue[0]][art].nmId
                                   ]
