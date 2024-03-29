@@ -888,18 +888,42 @@ export const MassAdvertPage = () => {
                                 setSemanticsAutoPhrasesModalIncludesListInput('');
                                 setSemanticsAutoPhrasesModalNotIncludesListInput('');
 
-                                setSemanticsModalSemanticsItemsValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsItemsFiltratedValue(
-                                    value ? value.clusters ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsMinusItemsValue(
-                                    value ? value.excluded ?? [] : [],
-                                );
-                                setSemanticsModalSemanticsMinusItemsFiltratedValue(
-                                    value ? value.excluded ?? [] : [],
-                                );
+                                setSemanticsModalSemanticsItemsValue(() => {
+                                    const temp = value ? value.clusters ?? [] : [];
+                                    temp.sort((a, b) => {
+                                        const freqA = a.freq ? a.freq : 0;
+                                        const freqB = b.freq ? b.freq : 0;
+                                        return freqB - freqA;
+                                    });
+                                    return temp;
+                                });
+                                setSemanticsModalSemanticsItemsFiltratedValue(() => {
+                                    const temp = value ? value.clusters ?? [] : [];
+                                    temp.sort((a, b) => {
+                                        const freqA = a.freq ? a.freq : 0;
+                                        const freqB = b.freq ? b.freq : 0;
+                                        return freqB - freqA;
+                                    });
+                                    return temp;
+                                });
+                                setSemanticsModalSemanticsMinusItemsValue(() => {
+                                    const temp = value ? value.excluded ?? [] : [];
+                                    temp.sort((a, b) => {
+                                        const freqA = a.freq ? a.freq : 0;
+                                        const freqB = b.freq ? b.freq : 0;
+                                        return freqB - freqA;
+                                    });
+                                    return temp;
+                                });
+                                setSemanticsModalSemanticsMinusItemsFiltratedValue(() => {
+                                    const temp = value ? value.excluded ?? [] : [];
+                                    temp.sort((a, b) => {
+                                        const freqA = a.freq ? a.freq : 0;
+                                        const freqB = b.freq ? b.freq : 0;
+                                        return freqB - freqA;
+                                    });
+                                    return temp;
+                                });
                                 setSemanticsModalSemanticsPlusItemsTemplateNameValue(
                                     plusPhrasesTemplate ?? 'Не установлен',
                                 );
@@ -3514,6 +3538,78 @@ export const MassAdvertPage = () => {
                                             /////////////////////////
                                             setPlusPhrasesModalFormOpen(false);
                                         }}
+                                        renderItem={(item, isItemActive) => {
+                                            return (
+                                                <div
+                                                    style={{
+                                                        padding: 8,
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        width: '100%',
+                                                    }}
+                                                >
+                                                    <Text>{item}</Text>
+                                                    {isItemActive ? (
+                                                        <Button
+                                                            size="xs"
+                                                            view="flat"
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                const params = {
+                                                                    uid: getUid(),
+                                                                    campaignName: selectValue[0],
+                                                                    data: {
+                                                                        mode: 'Удалить',
+                                                                        name: item,
+                                                                    },
+                                                                };
+
+                                                                doc.plusPhrasesTemplates[
+                                                                    selectValue[0]
+                                                                ][item] = undefined;
+                                                                if (doc.campaigns[selectValue[0]])
+                                                                    for (const [
+                                                                        art,
+                                                                        artData,
+                                                                    ] of Object.entries(
+                                                                        doc.campaigns[
+                                                                            selectValue[0]
+                                                                        ],
+                                                                    )) {
+                                                                        if (!art || !artData)
+                                                                            continue;
+                                                                        if (
+                                                                            artData[
+                                                                                'plusPhrasesTemplate'
+                                                                            ] == item
+                                                                        )
+                                                                            doc.campaigns[
+                                                                                selectValue[0]
+                                                                            ][
+                                                                                art
+                                                                            ].plusPhrasesTemplate =
+                                                                                undefined;
+                                                                    }
+
+                                                                /////////////////////////
+                                                                callApi(
+                                                                    'setPlusPhraseTemplate',
+                                                                    params,
+                                                                );
+                                                                setChangedDoc(doc);
+                                                                /////////////////////////
+                                                            }}
+                                                        >
+                                                            <Icon data={TrashBin} />
+                                                        </Button>
+                                                    ) : (
+                                                        <></>
+                                                    )}
+                                                </div>
+                                            );
+                                        }}
                                         filterPlaceholder={`Поиск в ${plusPhrasesTemplatesLabels.length} шаблонах`}
                                         items={plusPhrasesTemplatesLabels}
                                         itemsHeight={300}
@@ -5034,7 +5130,7 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
                 Object.assign(allCardDataList.data, myData);
 
                 console.log(`Data saved for search phrase: ${searchPhrase}, page: ${page}`);
-                await new Promise((resolve) => setTimeout(resolve, 500));
+                await new Promise((resolve) => setTimeout(resolve, 400));
             } else {
                 page--;
                 retryCount++;
