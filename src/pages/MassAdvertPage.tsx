@@ -506,7 +506,7 @@ export const MassAdvertPage = () => {
             render: ({value, row, footer, index}) => {
                 const {title, brand, object, nmId, photos, imtId} = row;
 
-                if (title === undefined) return;
+                if (title === undefined) return <div style={{height: 28}}>{value}</div>;
 
                 const imgUrl = photos ? (photos[0] ? photos[0].big : undefined) : undefined;
 
@@ -1539,6 +1539,10 @@ export const MassAdvertPage = () => {
                         let tempFlagInc = 0;
                         for (let k = 0; k < rulesForAnd.length; k++) {
                             const ruleForAdd = rulesForAnd[k];
+                            if (ruleForAdd == '') {
+                                tempFlagInc++;
+                                continue;
+                            }
                             if (
                                 compare(wholeText, {
                                     val: ruleForAdd,
