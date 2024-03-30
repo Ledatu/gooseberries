@@ -118,7 +118,7 @@ const getUserDoc = (docum = undefined) => {
 
 export const MassAdvertPage = () => {
     const myObserver = new ResizeObserver((entries) => {
-        console.log('resized');
+        // console.log('resized');
 
         const advertsColumnItems = document.getElementsByClassName('td_fixed_adverts');
         for (let i = 0; i < advertsColumnItems.length; i++) {
@@ -504,6 +504,28 @@ export const MassAdvertPage = () => {
             placeholder: 'Артикул',
             width: 200,
             render: ({value, row, footer, index}) => {
+                const {title, brand, object, nmId, photos, imtId} = row;
+
+                if (title === undefined) return;
+
+                const imgUrl = photos ? (photos[0] ? photos[0].big : undefined) : undefined;
+
+                let titleWrapped = title;
+                if (title.length > 30) {
+                    let wrapped = false;
+                    titleWrapped = '';
+                    const titleArr = title.split(' ');
+                    for (const word of titleArr) {
+                        titleWrapped += word;
+                        if (titleWrapped.length > 25 && !wrapped) {
+                            titleWrapped += '\n';
+                            wrapped = true;
+                        } else {
+                            titleWrapped += ' ';
+                        }
+                    }
+                }
+
                 return footer ? (
                     <div style={{height: 28}}>{value}</div>
                 ) : (
@@ -520,15 +542,18 @@ export const MassAdvertPage = () => {
                         <div
                             title={value}
                             style={{
+                                justifyContent: 'space-between',
                                 overflow: 'hidden',
                                 display: 'flex',
                                 flexDirection: 'row',
                                 marginRight: 8,
+                                alignItems: 'center',
                             }}
                         >
                             <div
                                 style={{
                                     width: `${String(filteredData.length).length * 6}px`,
+                                    // width: 20,
                                     margin: '0 16px',
                                     display: 'flex',
                                     justifyContent: 'center',
@@ -565,7 +590,7 @@ export const MassAdvertPage = () => {
                                     {Math.floor((pagesCurrent - 1) * 200 + index / 3 + 1)}
                                 </div>
                             </div>
-                            <Link
+                            {/* <Link
                                 style={{
                                     textOverflow: 'ellipsis',
                                     overflow: 'hidden',
@@ -575,7 +600,40 @@ export const MassAdvertPage = () => {
                                 target="_blank"
                             >
                                 {value}
-                            </Link>
+                            </Link> */}
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div style={{width: 40}}>
+                                    <img style={{width: '100%', height: 'auto'}} src={imgUrl} />
+                                </div>
+                                <div style={{width: 8}} />
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    <Link
+                                        view="primary"
+                                        style={{whiteSpace: 'pre-wrap'}}
+                                        href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                                        target="_blank"
+                                    >
+                                        <Text variant="subheader-1">{titleWrapped}</Text>
+                                    </Link>
+                                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                                        <Text variant="caption-2">{object}</Text>
+                                        <div style={{width: 8}} />
+                                        <Text variant="caption-2">{brand}</Text>
+                                    </div>
+                                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                                        <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
+                                        <div style={{width: 8}} />
+                                        <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
+                                    </div>
+                                    <Text variant="caption-2">{`Артикул: ${value}`}</Text>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
@@ -732,17 +790,6 @@ export const MassAdvertPage = () => {
                         )}
                     </div>
                 );
-            },
-        },
-        {name: 'brand', placeholder: 'Бренд', valueType: 'text', group: true},
-        {name: 'object', placeholder: 'Предмет', valueType: 'text', group: true},
-        {
-            name: 'title',
-            placeholder: 'Наименование',
-            valueType: 'text',
-            group: true,
-            render: ({value}) => {
-                return <div style={{overflow: 'scroll'}}>{value}</div>;
             },
         },
         {
@@ -1268,6 +1315,8 @@ export const MassAdvertPage = () => {
             if (!art || !artData) continue;
             const artInfo = {
                 art: '',
+                photos: undefined,
+                imtId: undefined,
                 brand: '',
                 object: '',
                 nmId: 0,
@@ -1284,6 +1333,8 @@ export const MassAdvertPage = () => {
             };
 
             artInfo.art = artData['art'];
+            artInfo.photos = artData['photos'];
+            artInfo.imtId = artData['imtId'];
             artInfo.object = artData['object'];
             artInfo.nmId = artData['nmId'];
             artInfo.title = artData['title'];
@@ -1434,6 +1485,8 @@ export const MassAdvertPage = () => {
                 const tempTypeRow = {
                     advertsType: key,
                     art: artInfo['art'],
+                    photos: artInfo['photos'],
+                    imtId: artInfo['imtId'],
                     brand: artInfo['brand'],
                     object: artInfo['object'],
                     nmId: artInfo['nmId'],
@@ -1474,7 +1527,32 @@ export const MassAdvertPage = () => {
                 for (const [filterArg, filterData] of Object.entries(useFilters)) {
                     if (filterArg == 'undef' || !filterData) continue;
                     if (filterData['val'] == '') continue;
-                    if (filterArg == 'adverts') {
+                    if (filterArg == 'art') {
+                        const rulesForAnd = filterData['val'].split('+');
+                        // console.log(rulesForAnd);
+
+                        let wholeText = '';
+                        for (const key of ['art', 'title', 'brand', 'imtId', 'object']) {
+                            wholeText += tempTypeRow[key] + ' ';
+                        }
+
+                        let tempFlagInc = 0;
+                        for (let k = 0; k < rulesForAnd.length; k++) {
+                            const ruleForAdd = rulesForAnd[k];
+                            if (
+                                compare(wholeText, {
+                                    val: ruleForAdd,
+                                    compMode: filterData['compMode'],
+                                })
+                            ) {
+                                tempFlagInc++;
+                            }
+                        }
+                        if (tempFlagInc != rulesForAnd.length) {
+                            addFlag = false;
+                            break;
+                        }
+                    } else if (filterArg == 'adverts') {
                         if (!compare(keyRus, filterData)) {
                             addFlag = false;
                             break;
