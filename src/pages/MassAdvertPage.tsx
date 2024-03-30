@@ -569,7 +569,10 @@ export const MassAdvertPage = () => {
                                                     isPinned: true,
                                                     oldArtFilters: filters['art'],
                                                 });
-                                                filters['art'] = {compMode: 'equal', val: value};
+                                                filters['art'] = {
+                                                    compMode: 'include',
+                                                    val: value + ' ',
+                                                };
                                             } else {
                                                 filters['art'] = pinned.oldArtFilters;
                                                 setPinned({
