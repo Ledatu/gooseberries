@@ -117,16 +117,16 @@ const getUserDoc = (docum = undefined) => {
 };
 
 export const MassAdvertPage = () => {
-    const myObserver = new ResizeObserver((entries) => {
-        // console.log('resized');
+    // const myObserver = new ResizeObserver((entries) => {
+    //     // console.log('resized');
 
-        const advertsColumnItems = document.getElementsByClassName('td_fixed_adverts');
-        for (let i = 0; i < advertsColumnItems.length; i++) {
-            (advertsColumnItems[i] as HTMLElement).style.left = `${
-                entries[0].contentRect.width + 20
-            }px`;
-        }
-    });
+    //     const advertsColumnItems = document.getElementsByClassName('td_fixed_adverts');
+    //     for (let i = 0; i < advertsColumnItems.length; i++) {
+    //         (advertsColumnItems[i] as HTMLElement).style.left = `${
+    //             entries[0].contentRect.width + 20
+    //         }px`;
+    //     }
+    // });
 
     const windowDimensions = useWindowDimensions();
 
@@ -453,7 +453,7 @@ export const MassAdvertPage = () => {
 
             columns.push({
                 name: name,
-                className: b(className ?? (i < 2 ? `td_fixed td_fixed_${name}` : 'td_body')),
+                className: b(className ?? (i < 1 ? `td_fixed td_fixed_${name}` : 'td_body')),
                 header: generateFilterTextInput({
                     pinned,
                     filters,
@@ -530,7 +530,7 @@ export const MassAdvertPage = () => {
                     <div style={{height: 28}}>{value}</div>
                 ) : (
                     <div
-                        title={value}
+                        // title={value}
                         style={{
                             maxWidth: '20vw',
                             display: 'flex',
@@ -540,7 +540,6 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <div
-                            title={value}
                             style={{
                                 justifyContent: 'space-between',
                                 overflow: 'hidden',
@@ -608,11 +607,28 @@ export const MassAdvertPage = () => {
                                     alignItems: 'center',
                                 }}
                             >
-                                <div style={{width: 40}}>
-                                    <img style={{width: '100%', height: 'auto'}} src={imgUrl} />
-                                </div>
+                                <Popover
+                                    behavior={'delayed' as PopoverBehavior}
+                                    disabled={value === undefined}
+                                    content={
+                                        <div style={{width: 200}}>
+                                            <img
+                                                style={{width: '100%', height: 'auto'}}
+                                                src={imgUrl}
+                                            />
+                                            <></>
+                                        </div>
+                                    }
+                                >
+                                    <div style={{width: 40}}>
+                                        <img style={{width: '100%', height: 'auto'}} src={imgUrl} />
+                                    </div>
+                                </Popover>
                                 <div style={{width: 8}} />
-                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <div
+                                    style={{display: 'flex', flexDirection: 'column'}}
+                                    // title={value}
+                                >
                                     <Link
                                         view="primary"
                                         style={{whiteSpace: 'pre-wrap'}}
@@ -1677,6 +1693,7 @@ export const MassAdvertPage = () => {
     const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['Под Позицию']);
 
     const [firstRecalc, setFirstRecalc] = useState(false);
+    // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
     // useEffect(() => {
     //     scheduleJob('*/2 * * * *', async () => {
@@ -1777,11 +1794,13 @@ export const MassAdvertPage = () => {
         recalc(dateRange, selected);
         setFirstRecalc(true);
     }
-
-    const artColumnElements = document.getElementsByClassName('td_fixed_art');
-    if (artColumnElements[0]) {
-        myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
-    }
+    // if (firstRecalc && !secondRecalcForSticky) {
+    //     setSecondRecalcForSticky(true);
+    // }
+    // const artColumnElements = document.getElementsByClassName('td_fixed_art');
+    // if (artColumnElements[0]) {
+    //     myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
+    // }
 
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
