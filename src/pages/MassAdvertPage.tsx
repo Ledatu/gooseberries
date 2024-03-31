@@ -1714,7 +1714,7 @@ export const MassAdvertPage = () => {
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
     // useEffect(() => {
-    //     scheduleJob('*/2 * * * *', async () => {
+    //     const updation =  async () => {
     //         console.log('hola');
     //         if (!firstRecalc) return;
     //         await callApi('getMassAdvertsNew', {
@@ -1739,7 +1739,9 @@ export const MassAdvertPage = () => {
     //                 // console.log(response ? response['data'] : undefined);
     //             })
     //             .catch((error) => console.error(error));
-    //     });
+    //     }
+    //     updation();
+    //     scheduleJob('*/2 * * * *',
     // }, []);
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
@@ -2970,10 +2972,20 @@ export const MassAdvertPage = () => {
                                             width: '100%',
                                             display: 'flex',
                                             justifyContent: 'center',
+                                            flexDirection: 'column',
                                             alignItems: 'center',
                                             position: 'relative',
                                         }}
                                     >
+                                        {bidModalSwitchValue == 'Установить' ? (
+                                            <div style={{marginBottom: 4}}>
+                                                {generateModalAdvertsTypesInput(
+                                                    setAdvertsTypesInput,
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <></>
+                                        )}
                                         <Button
                                             style={{
                                                 marginBottom: 8,
@@ -3006,6 +3018,7 @@ export const MassAdvertPage = () => {
                                                             : bidModalSwitchValue,
                                                         stocksThreshold:
                                                             bidModalStocksThresholdInputValue,
+                                                        advertsTypes: advertsTypesInput,
                                                         placementsRange: bidModalRange,
                                                         maxBid: bidModalMaxBid,
                                                     },
