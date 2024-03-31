@@ -1793,6 +1793,51 @@ export const MassAdvertPage = () => {
                                 view={
                                     selectedSearchPhrase == value ? 'outlined-success' : 'outlined'
                                 }
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    if (
+                                        !doc['campaigns'][selectValue[0]][semanticsModalOpenFromArt]
+                                            .advertsSelectedPhrases
+                                    )
+                                        doc['campaigns'][selectValue[0]][
+                                            semanticsModalOpenFromArt
+                                        ].advertsSelectedPhrases = {
+                                            phrase: '',
+                                        };
+
+                                    if (selectedSearchPhrase == value) {
+                                        doc['campaigns'][selectValue[0]][
+                                            semanticsModalOpenFromArt
+                                        ].advertsSelectedPhrases = undefined;
+                                    } else {
+                                        doc['campaigns'][selectValue[0]][
+                                            semanticsModalOpenFromArt
+                                        ].advertsSelectedPhrases.phrase = value;
+                                    }
+
+                                    setChangedDoc(doc);
+
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {
+                                            mode:
+                                                selectedSearchPhrase == value
+                                                    ? 'Удалить'
+                                                    : 'Установить',
+                                            arts: {},
+                                        },
+                                    };
+                                    params.data.arts[semanticsModalOpenFromArt] = {};
+                                    params.data.arts[semanticsModalOpenFromArt].phrase = value;
+                                    console.log(params);
+
+                                    setSelectedSearchPhrase(
+                                        selectedSearchPhrase == value ? '' : value,
+                                    );
+
+                                    callApi('updateAdvertsSelectedPhrases', params);
+                                }}
                             >
                                 <Icon data={ArrowShapeUp} />
                             </Button>
