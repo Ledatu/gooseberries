@@ -60,18 +60,12 @@ import {
     ArrowRight,
     CirclePlus,
     Funnel,
-    // DiamondExclamation,
     // CloudCheck,
     Ban,
     Calendar,
     Eye,
     EyeSlash,
-    // CircleRuble,
-    Pin,
-    PinSlash,
     TrashBin,
-    // Play,
-    // Pause,
     Check,
     CloudArrowUpIn,
     Xmark,
@@ -146,7 +140,6 @@ export const MassAdvertPage = () => {
 
     const [filters, setFilters] = useState({undef: false});
 
-    const [pinned, setPinned] = useState({isPinned: false, oldArtFilters: {}});
     // const [manageModalOpen, setManageModalOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
 
@@ -451,7 +444,6 @@ export const MassAdvertPage = () => {
                 name: name,
                 className: b(className ?? (i < 1 ? `td_fixed td_fixed_${name}` : 'td_body')),
                 header: generateFilterTextInput({
-                    pinned,
                     filters,
                     setFilters,
                     filterData: filterData,
@@ -522,6 +514,12 @@ export const MassAdvertPage = () => {
                     }
                 }
 
+                const filterByButton = (val) => {
+                    filters['art'] = {val: String(val) + ' ', compMode: 'include'};
+                    filterTableData(filters);
+                    setFilters(filters);
+                };
+
                 return footer ? (
                     <div style={{height: 28}}>{value}</div>
                 ) : (
@@ -554,51 +552,8 @@ export const MassAdvertPage = () => {
                                     justifyContent: 'center',
                                 }}
                             >
-                                <Button
-                                    className={b('art_pin')}
-                                    size="xs"
-                                    view="flat"
-                                    onClick={() => {
-                                        setFilters(() => {
-                                            if (!pinned.isPinned) {
-                                                setPinned({
-                                                    isPinned: true,
-                                                    oldArtFilters: filters['art'],
-                                                });
-                                                filters['art'] = {
-                                                    compMode: 'include',
-                                                    val: value + ' ',
-                                                };
-                                            } else {
-                                                filters['art'] = pinned.oldArtFilters;
-                                                setPinned({
-                                                    isPinned: false,
-                                                    oldArtFilters: {compMode: 'include', val: ''},
-                                                });
-                                            }
-
-                                            filterTableData(filters);
-                                            return filters;
-                                        });
-                                    }}
-                                >
-                                    <Icon data={pinned.isPinned ? PinSlash : Pin} size={13} />
-                                </Button>
-                                <div className={b('art_index')}>
-                                    {Math.floor((pagesCurrent - 1) * 200 + index / 3 + 1)}
-                                </div>
+                                {Math.floor((pagesCurrent - 1) * 200 + index / 3 + 1)}
                             </div>
-                            {/* <Link
-                                style={{
-                                    textOverflow: 'ellipsis',
-                                    overflow: 'hidden',
-                                    whiteSpace: 'nowrap',
-                                }}
-                                href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
-                                target="_blank"
-                            >
-                                {value}
-                            </Link> */}
                             <div
                                 style={{
                                     display: 'flex',
@@ -623,30 +578,77 @@ export const MassAdvertPage = () => {
                                         <img style={{width: '100%', height: 'auto'}} src={imgUrl} />
                                     </div>
                                 </Popover>
-                                <div style={{width: 8}} />
-                                <div
-                                    style={{display: 'flex', flexDirection: 'column'}}
-                                    // title={value}
-                                >
-                                    <Link
-                                        view="primary"
-                                        style={{whiteSpace: 'pre-wrap'}}
-                                        href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
-                                        target="_blank"
+                                <div style={{width: 4}} />
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    <div style={{marginLeft: 6}}>
+                                        <Link
+                                            view="primary"
+                                            style={{whiteSpace: 'pre-wrap'}}
+                                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                                            target="_blank"
+                                        >
+                                            <Text variant="subheader-1">{titleWrapped}</Text>
+                                        </Link>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
                                     >
-                                        <Text variant="subheader-1">{titleWrapped}</Text>
-                                    </Link>
-                                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                                        <Text variant="caption-2">{object}</Text>
-                                        <div style={{width: 8}} />
-                                        <Text variant="caption-2">{brand}</Text>
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(object)}
+                                        >
+                                            <Text variant="caption-2">{`${object}`}</Text>
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(brand)}
+                                        >
+                                            <Text variant="caption-2">{`${brand}`}</Text>
+                                        </Button>
                                     </div>
-                                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                                        <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
-                                        <div style={{width: 8}} />
-                                        <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(nmId)}
+                                        >
+                                            <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(imtId)}
+                                        >
+                                            <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
+                                        </Button>
                                     </div>
-                                    <Text variant="caption-2">{`Артикул: ${value}`}</Text>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(value)}
+                                        >
+                                            <Text variant="caption-2">{`Артикул: ${value}`}</Text>
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -4049,21 +4051,6 @@ export const MassAdvertPage = () => {
                             onUpdate={(nextValue) => {
                                 setSwitchingCampaignsFlag(true);
 
-                                if (pinned.isPinned) {
-                                    setFilters(() => {
-                                        filters['art'] = pinned.oldArtFilters;
-                                        setPinned({
-                                            isPinned: false,
-                                            oldArtFilters: {
-                                                compMode: 'include',
-                                                val: '',
-                                            },
-                                        });
-
-                                        return filters;
-                                    });
-                                }
-
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi('getMassAdvertsNew', {
                                         uid: getUid(),
@@ -5038,17 +5025,8 @@ const generateModalAdvertsTypesInput = (setAdvertsTypesInput) => {
 // };
 
 const generateFilterTextInput = (args) => {
-    const {
-        pinned,
-        filters,
-        setFilters,
-        filterData,
-        name,
-        placeholder,
-        valueType,
-        width,
-        viewportSize,
-    } = args;
+    const {filters, setFilters, filterData, name, placeholder, valueType, width, viewportSize} =
+        args;
     let minWidth = viewportSize ? viewportSize.width / 20 : 60;
     if (minWidth < 40) minWidth = 60;
     if (minWidth > 100) minWidth = 100;
@@ -5071,7 +5049,6 @@ const generateFilterTextInput = (args) => {
             </Text>
             <TextInput
                 hasClear
-                disabled={pinned && pinned.isPinned}
                 value={filters[name] ? filters[name].val : ''}
                 onChange={(val) => {
                     setFilters(() => {
@@ -5091,7 +5068,6 @@ const generateFilterTextInput = (args) => {
                         renderSwitcher={(props) => (
                             <Button
                                 {...props}
-                                disabled={pinned && pinned.isPinned}
                                 view={
                                     filters[name]
                                         ? filters[name].val != ''
