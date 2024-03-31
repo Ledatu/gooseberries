@@ -1016,6 +1016,10 @@ export const MassAdvertPage = () => {
                                     : false;
                                 setSemanticsModalIsFixed(isFixed);
 
+                                setClustersFiltersActive({undef: false});
+                                setClustersFiltersMinus({undef: false});
+                                setClustersFiltersTemplate({undef: false});
+
                                 // // console.log(value.plus);
                                 setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
                                     plusPhrasesTemplate ?? `Новый шаблон`,
@@ -3105,6 +3109,13 @@ export const MassAdvertPage = () => {
                         onClose={() => setSemanticsModalFormOpen(false)}
                     >
                         <motion.div
+                            onAnimationStart={async () => {
+                                await new Promise((resolve) => setTimeout(resolve, 300));
+                                clustersFilterDataActive(
+                                    {cluser: {val: '', mode: 'include'}},
+                                    semanticsModalSemanticsItemsValue,
+                                );
+                            }}
                             animate={{width: semanticsModalFormOpen ? '70vw' : 0}}
                             style={{
                                 height: '80vh',
