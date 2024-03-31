@@ -978,7 +978,7 @@ export const MassAdvertPage = () => {
                                     plusPhrasesTemplate
                                 ]
                                     ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .threshold ?? 100
+                                          .threshold
                                     : 100;
                                 setSemanticsModalSemanticsThresholdValue(plusThreshold);
 
@@ -986,7 +986,7 @@ export const MassAdvertPage = () => {
                                     plusPhrasesTemplate
                                 ]
                                     ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .ctrThreshold ?? 5
+                                          .ctrThreshold
                                     : 5;
                                 setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
 
@@ -994,7 +994,7 @@ export const MassAdvertPage = () => {
                                     selectValue[0]
                                 ][plusPhrasesTemplate]
                                     ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .secondThreshold ?? 100
+                                          .secondThreshold
                                     : 100;
                                 setSemanticsModalSemanticsSecondThresholdValue(plusSecondThreshold);
 
@@ -1002,7 +1002,7 @@ export const MassAdvertPage = () => {
                                     selectValue[0]
                                 ][plusPhrasesTemplate]
                                     ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .secondCtrThreshold ?? 5
+                                          .secondCtrThreshold
                                     : 5;
                                 setSemanticsModalSemanticsSecondCTRThresholdValue(
                                     plusSecondCTRThreshold,
