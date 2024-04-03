@@ -2274,7 +2274,7 @@ export const MassAdvertPage = () => {
                                     >
                                         Бустер
                                     </Switch>
-                                    <div style={{height: 8}} />
+                                    {/* <div style={{height: 8}} />
 
                                     <Switch
                                         size="l"
@@ -2288,7 +2288,7 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         Карточка
-                                    </Switch>
+                                    </Switch> */}
                                 </div>
                                 {generateModalButtonWithActions(
                                     {
@@ -4685,17 +4685,6 @@ const generateModalAdvertsTypesInput = (setAdvertsTypesInput) => {
                     }
                 >
                     Бустер
-                </Checkbox>
-                <div style={{width: 8}}></div>
-                <Checkbox
-                    onUpdate={(checked) =>
-                        setAdvertsTypesInput((val) => {
-                            val['carousel'] = checked;
-                            return val;
-                        })
-                    }
-                >
-                    Карточка
                 </Checkbox>
             </div>
         </div>
