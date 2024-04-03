@@ -1025,7 +1025,13 @@ export const MassAdvertPage = () => {
                                 setSemanticsAutoPhrasesModalNotIncludesListInput('');
 
                                 setSemanticsModalSemanticsItemsValue(() => {
-                                    const temp = value ? value.clusters ?? [] : [];
+                                    const temp = value
+                                        ? value['booster']
+                                            ? value['booster'].clusters ?? []
+                                            : value['search']
+                                            ? value['search'].clusters ?? []
+                                            : []
+                                        : [];
                                     temp.sort((a, b) => {
                                         const freqA = a.freq ? a.freq : 0;
                                         const freqB = b.freq ? b.freq : 0;
@@ -1035,7 +1041,13 @@ export const MassAdvertPage = () => {
                                     return temp;
                                 });
                                 setSemanticsModalSemanticsMinusItemsValue(() => {
-                                    const temp = value ? value.excluded ?? [] : [];
+                                    const temp = value
+                                        ? value['booster']
+                                            ? value['booster'].exclded ?? []
+                                            : value['search']
+                                            ? value['search'].excluded ?? []
+                                            : []
+                                        : [];
                                     temp.sort((a, b) => {
                                         const freqA = a.freq ? a.freq : 0;
                                         const freqB = b.freq ? b.freq : 0;
