@@ -45,6 +45,7 @@ const b = block('app');
 import {
     Pencil,
     Key,
+    Rocket,
     Magnifier,
     LayoutHeader,
     TriangleExclamation,
@@ -91,10 +92,17 @@ const getUid = () => {
         : '';
 };
 
-const getUserDoc = (docum = undefined) => {
+const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
+        console.log(docum, mode, selectValue);
+
+        if (mode) {
+            doc['campaigns'][selectValue] = docum['campaigns'][selectValue];
+            doc['balances'][selectValue] = docum['balances'][selectValue];
+            doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
+        }
         setDocument(docum);
     }
 
@@ -130,6 +138,7 @@ export const MassAdvertPage = () => {
     // const isDesktop = windowDimensions.height < windowDimensions.width;
 
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
+    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
     const [advertsTypesInput, setAdvertsTypesInput] = useState({
@@ -467,25 +476,26 @@ export const MassAdvertPage = () => {
         return columns;
     };
 
-    const paramMap = {
-        status: {
-            '-1': 'В процессе удаления',
-            4: 'Готова к запуску',
-            7: 'Завершена',
-            8: 'Отказался',
-            // 9: 'Идут показы',
-            9: 'Активна',
-            11: 'Пауза',
-        },
-        type: {
-            4: 'Каталог',
-            5: 'Карточка товара',
-            6: 'Поиск',
-            7: 'Главная страница',
-            8: 'Авто',
-            9: 'Поиск + Каталог',
-        },
-    };
+    // const paramMap = {
+    //     status: {
+    //         '-1': 'В процессе удаления',
+    //         4: 'Готова к запуску',
+    //         7: 'Завершена',
+    //         8: 'Отказался',
+    //         // 9: 'Идут показы',
+    //         9: 'Активна',
+    //         11: 'Пауза',
+    //     },
+    //     type: {
+    //         4: 'Каталог',
+    //         5: 'Карточка товара',
+    //         6: 'Поиск',
+    //         7: 'Главная страница',
+    //         8: 'Авто',
+    //         9: 'Поиск + Каталог',
+    //     },
+    // };
+
     const columnData = [
         {
             name: 'art',
@@ -552,7 +562,7 @@ export const MassAdvertPage = () => {
                                     justifyContent: 'center',
                                 }}
                             >
-                                {Math.floor((pagesCurrent - 1) * 200 + index / 3 + 1)}
+                                {Math.floor((pagesCurrent - 1) * 200 + index + 1)}
                             </div>
                             <div
                                 style={{
@@ -664,38 +674,37 @@ export const MassAdvertPage = () => {
             valueType: 'text',
             render: ({value, row}) => {
                 if (value === null) return;
-                if (value) {
-                    paramMap[4] = paramMap[4] + '';
-                }
+                const {art} = row;
+
                 const mapp = {
-                    search: 'Поиск',
-                    booster: 'Бустер',
-                    carousel: 'Карточка',
+                    search: {name: 'Поиск', icon: Magnifier},
+                    booster: {name: 'Бустер', icon: Rocket},
                 };
+                const switches: any[] = [];
+                for (const [advertsType, advertsTypeDisplayData] of Object.entries(mapp)) {
+                    const advertsManagerRulesMode = row.advertsManagerRules
+                        ? row.advertsManagerRules[advertsType]
+                            ? row.advertsManagerRules[advertsType].mode
+                            : false
+                        : false;
+                    const {
+                        updateTime,
+                        disabledByDRR,
+                        disabledByStocks,
+                        advertId,
+                    }: {
+                        updateTime: string;
+                        disabledByDRR: boolean;
+                        disabledByStocks: boolean;
+                        advertId: number;
+                    } = row.advertsManagerRules ? row.advertsManagerRules[advertsType] ?? {} : {};
+                    const {status, daysInWork}: {status: number; daysInWork: number} = value
+                        ? value[advertsType]
+                            ? value[advertsType][advertId] ?? {}
+                            : {}
+                        : {};
 
-                const {art, advertsType} = row;
-                const advertsManagerRulesMode = row.advertsManagerRules
-                    ? row.advertsManagerRules[advertsType]
-                        ? row.advertsManagerRules[advertsType].mode
-                        : false
-                    : false;
-                const {
-                    updateTime,
-                    disabledByDRR,
-                    disabledByStocks,
-                }: {updateTime: string; disabledByDRR: boolean; disabledByStocks: boolean} =
-                    row.advertsManagerRules ? row.advertsManagerRules[advertsType] ?? {} : {};
-                const {status, daysInWork} = value ?? {};
-
-                return (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            flexWrap: 'nowrap',
-                            justifyContent: 'space-between',
-                        }}
-                    >
+                    switches.push(
                         <div
                             style={{
                                 display: 'flex',
@@ -704,107 +713,170 @@ export const MassAdvertPage = () => {
                                 justifyContent: 'space-between',
                             }}
                         >
-                            <Switch
-                                title={`${
-                                    updateTime
-                                        ? new Date(updateTime).toLocaleString('ru-RU') + ' '
-                                        : ''
-                                }${
-                                    disabledByDRR || disabledByStocks
-                                        ? 'Выкл. по ' + disabledByDRR
-                                            ? 'ДРР'
-                                            : '' + disabledByStocks
-                                            ? 'Остаткам'
-                                            : ''
-                                        : ''
-                                }`}
-                                checked={advertsManagerRulesMode}
-                                // defaultChecked={advertsManagerRulesMode}
-                                style={{display: 'flex', alignItems: 'top'}}
-                                onUpdate={(checked) => {
-                                    if (!doc['campaigns'][selectValue[0]][art].advertsManagerRules)
-                                        doc['campaigns'][selectValue[0]][art].advertsManagerRules =
-                                            {};
-
-                                    if (
-                                        !doc['campaigns'][selectValue[0]][art].advertsManagerRules[
-                                            advertsType
-                                        ]
-                                    )
-                                        doc['campaigns'][selectValue[0]][art].advertsManagerRules[
-                                            advertsType
-                                        ] = {mode: false};
-
-                                    doc['campaigns'][selectValue[0]][art].advertsManagerRules[
-                                        advertsType
-                                    ].mode = checked;
-                                    setChangedDoc(doc);
-
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            arts: {},
-                                        },
-                                    };
-                                    params.data.arts[row.art] = {};
-                                    params.data.arts[row.art][advertsType] = checked;
-                                    console.log(params);
-
-                                    callApi('updateAdvertsManagerRules', params);
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    flexWrap: 'nowrap',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
                                 }}
-                            ></Switch>
-                            <div style={{width: 8}} />
-
-                            <Text
-                                // style={{position: 'relative', top: -2}}
-                                color={
-                                    status
-                                        ? Object.keys(
-                                              doc['campaigns'][selectValue[0]][art]
-                                                  ? doc['campaigns'][selectValue[0]][art]['adverts']
+                            >
+                                <Text
+                                    // style={{position: 'relative', top: -2}}
+                                    color={
+                                        status
+                                            ? Object.keys(
+                                                  doc['campaigns'][selectValue[0]][art]
                                                       ? doc['campaigns'][selectValue[0]][art][
                                                             'adverts'
-                                                        ][advertsType]
-                                                      : {}
-                                                  : {},
-                                          ).length > 1
-                                            ? 'info'
-                                            : status
-                                            ? status == 9
-                                                ? 'positive'
-                                                : status == '11'
-                                                ? 'danger'
-                                                : 'warning'
+                                                        ]
+                                                          ? doc['campaigns'][selectValue[0]][art][
+                                                                'adverts'
+                                                            ][advertsType] ?? {}
+                                                          : {}
+                                                      : {},
+                                              ).length > 1
+                                                ? 'info'
+                                                : status
+                                                ? status == 9
+                                                    ? 'positive'
+                                                    : status == 11
+                                                    ? 'danger'
+                                                    : 'warning'
+                                                : 'primary'
                                             : 'primary'
-                                        : 'primary'
-                                }
-                            >
-                                {mapp[advertsType]}
-                            </Text>
-                        </div>
-                        <div style={{width: 8}} />
-                        {status !== undefined ? (
-                            <Button
-                                size="xs"
-                                view="outlined"
-                                onClick={() => {
-                                    const nDaysAgo = new Date(today);
+                                    }
+                                >
+                                    <Icon data={advertsTypeDisplayData.icon} />
+                                </Text>
+                                <div style={{width: 8}} />
+                                <Switch
+                                    size="l"
+                                    title={`${
+                                        updateTime
+                                            ? new Date(updateTime).toLocaleString('ru-RU') + ' '
+                                            : ''
+                                    }${
+                                        disabledByDRR || disabledByStocks
+                                            ? 'Выкл. по ' + disabledByDRR
+                                                ? 'ДРР'
+                                                : '' + disabledByStocks
+                                                ? 'Остаткам'
+                                                : ''
+                                            : ''
+                                    }`}
+                                    checked={advertsManagerRulesMode}
+                                    // defaultChecked={advertsManagerRulesMode}
+                                    style={{display: 'flex', alignItems: 'top'}}
+                                    onUpdate={(checked) => {
+                                        if (
+                                            !doc['campaigns'][selectValue[0]][art]
+                                                .advertsManagerRules
+                                        )
+                                            doc['campaigns'][selectValue[0]][
+                                                art
+                                            ].advertsManagerRules = {};
 
-                                    nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
+                                        if (
+                                            !doc['campaigns'][selectValue[0]][art]
+                                                .advertsManagerRules[advertsType]
+                                        )
+                                            doc['campaigns'][selectValue[0]][
+                                                art
+                                            ].advertsManagerRules[advertsType] = {mode: false};
 
-                                    const range = [nDaysAgo, today];
-                                    recalc(range);
-                                    setDateRange(range);
-                                }}
-                            >
-                                {daysInWork + 1}
-                                <div style={{width: 2}} />
-                                <Icon size={12} data={status ? Calendar : Ban}></Icon>
-                            </Button>
-                        ) : (
-                            <></>
-                        )}
+                                        doc['campaigns'][selectValue[0]][art].advertsManagerRules[
+                                            advertsType
+                                        ].mode = checked;
+                                        setChangedDoc(doc);
+
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            data: {
+                                                arts: {},
+                                            },
+                                        };
+                                        params.data.arts[row.art] = {};
+                                        params.data.arts[row.art][advertsType] = checked;
+                                        console.log(params);
+
+                                        callApi('updateAdvertsManagerRules', params);
+                                    }}
+                                />
+                                <div style={{width: 8}} />
+                                <Text
+                                    // style={{position: 'relative', top: -2}}
+                                    color={
+                                        status
+                                            ? Object.keys(
+                                                  doc['campaigns'][selectValue[0]][art]
+                                                      ? doc['campaigns'][selectValue[0]][art][
+                                                            'adverts'
+                                                        ]
+                                                          ? doc['campaigns'][selectValue[0]][art][
+                                                                'adverts'
+                                                            ][advertsType] ?? {}
+                                                          : {}
+                                                      : {},
+                                              ).length > 1
+                                                ? 'info'
+                                                : status
+                                                ? status == 9
+                                                    ? 'positive'
+                                                    : status == 11
+                                                    ? 'danger'
+                                                    : 'warning'
+                                                : 'primary'
+                                            : 'primary'
+                                    }
+                                >
+                                    {advertsTypeDisplayData.name}
+                                </Text>
+                            </div>
+                            <div style={{width: 8}} />
+                            {status !== undefined ? (
+                                <Button
+                                    size="xs"
+                                    view="outlined"
+                                    onClick={() => {
+                                        const nDaysAgo = new Date(today);
+
+                                        nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
+
+                                        const range = [nDaysAgo, today];
+                                        recalc(range);
+                                        setDateRange(range);
+                                    }}
+                                >
+                                    {daysInWork + 1}
+                                    <div style={{width: 2}} />
+                                    <Icon size={12} data={status ? Calendar : Ban}></Icon>
+                                </Button>
+                            ) : (
+                                <></>
+                            )}
+                        </div>,
+                    );
+                }
+
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            height: 96,
+                            justifyContent: 'space-evenly',
+                        }}
+                    >
+                        {switches[0]}
+                        <div
+                            style={{
+                                height: 8,
+                            }}
+                        />
+                        {switches[1]}
                     </div>
                 );
             },
@@ -1127,62 +1199,64 @@ export const MassAdvertPage = () => {
 
                 const {bidLog, drrAI} = row;
 
-                const timeline: any[] = [];
-                const graphsData: any[] = [];
-                if (bidLog) {
-                    for (let i = 0; i < bidLog.bids.length; i++) {
-                        const {time, val} = bidLog.bids[i];
-                        if (!time || !val) continue;
+                const charts: any[] = [];
+                for (const advertsType of ['search, booster']) {
+                    const timeline: any[] = [];
+                    const graphsData: any[] = [];
+                    const bidLogType = bidLog[advertsType];
+                    if (bidLogType) {
+                        for (let i = 0; i < bidLogType.bids.length; i++) {
+                            const {time, val} = bidLogType.bids[i];
+                            if (!time || !val) continue;
 
-                        timeline.push(new Date(time).getTime());
-                        graphsData.push(val);
+                            timeline.push(new Date(time).getTime());
+                            graphsData.push(val);
+                        }
                     }
+                    const yagrData: YagrWidgetData = {
+                        data: {
+                            timeline: timeline,
+                            graphs: [
+                                {
+                                    id: '0',
+                                    name: 'Ставка',
+                                    color: '#5fb8a5',
+                                    data: graphsData,
+                                },
+                            ],
+                        },
+                        libraryConfig: {
+                            chart: {
+                                series: {
+                                    type: 'line',
+                                    interpolation: 'smooth',
+                                },
+                            },
+                            axes: {
+                                y: {
+                                    precision: 'auto',
+                                    show: true,
+                                },
+                                x: {
+                                    precision: 'auto',
+                                    show: true,
+                                },
+                            },
+                            title: {
+                                text: 'Изменение ставки',
+                            },
+                        },
+                    };
+
+                    charts.push(<ChartKit type="yagr" data={yagrData} />);
                 }
-                const yagrData: YagrWidgetData = {
-                    data: {
-                        timeline: timeline,
-                        graphs: [
-                            {
-                                id: '0',
-                                name: 'Ставка',
-                                color: '#5fb8a5',
-                                data: graphsData,
-                            },
-                        ],
-                    },
-                    libraryConfig: {
-                        chart: {
-                            series: {
-                                type: 'line',
-                                interpolation: 'smooth',
-                            },
-                        },
-                        axes: {
-                            y: {
-                                precision: 'auto',
-                                show: true,
-                            },
-                            x: {
-                                precision: 'auto',
-                                show: true,
-                            },
-                        },
-                        title: {
-                            text: 'Изменение ставки',
-                        },
-                    },
-                };
 
                 return (
                     <div>
                         <Popover
                             behavior={'delayed' as PopoverBehavior}
                             disabled={value === undefined}
-                            content={
-                                <>
-                                    <ChartKit type="yagr" data={yagrData} />
-                                </>
-                            }
+                            content={<>{charts}</>}
                         >
                             {/* <Label onClick={()=>} ref={ref}>{value}</Label> */}
                             <Text>
@@ -1271,7 +1345,38 @@ export const MassAdvertPage = () => {
     // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [doc, setUserDoc] = React.useState(getUserDoc());
-    const doc = getUserDoc(changedDoc);
+    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
+    // const getCampaignName = () => {
+    //     return selectValue[0];
+    // };
+    // const updateTheData = async () => {
+    //     console.log('YOOO UPDATE INCOMING');
+    //     const params = {
+    //         uid: getUid(),
+    //         dateRange: {from: '2023', to: '2024'},
+    //         campaignName: getCampaignName(),
+    //     };
+    //     console.log(params);
+
+    //     await callApi('getMassAdvertsNew', params)
+    //         .then((response) => {
+    //             console.log(response);
+    //             if (!response) return;
+    //             const resData = response['data'];
+    //             setChangedDoc(resData);
+    //             setChangedDocUpdateType(true);
+    //             // console.log(response ? response['data'] : undefined);
+    //         })
+    //         .catch((error) => console.error(error));
+    // };
+    // useEffect(() => {
+    //     const interval = setInterval(updateTheData, 1 * 60 * 1000);
+
+    //     return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+    // }, []);
 
     if (fetchedPlacements) {
         Object.assign(doc.fetchedPlacements, fetchedPlacements);
@@ -1306,6 +1411,7 @@ export const MassAdvertPage = () => {
         sum: 0,
         drr_orders: 0,
         drr_sales: 0,
+        sales: 0,
         sum_sales: 0,
         sum_orders: 0,
     });
@@ -1333,6 +1439,7 @@ export const MassAdvertPage = () => {
             clicks: 0,
             ctr: 0,
             sum: 0,
+            sales: 0,
             drr_orders: 0,
             drr_sales: 0,
             sum_orders: 0,
@@ -1364,6 +1471,24 @@ export const MassAdvertPage = () => {
                 drrAI: undefined,
                 plusPhrasesTemplate: undefined,
                 advertsSelectedPhrases: undefined,
+                semantics: {},
+                budget: 0,
+                bid: 0,
+                bidLog: {},
+                budgetToKeep: 0,
+                orders: 0,
+                sum_orders: 0,
+                sum: 0,
+                views: 0,
+                clicks: 0,
+                drr: 0,
+                ctr: 0,
+                cpc: 0,
+                cpm: 0,
+                cr: 0,
+                cpo: 0,
+                sales: 0,
+                sum_sales: 0,
             };
 
             artInfo.art = artData['art'];
@@ -1382,39 +1507,12 @@ export const MassAdvertPage = () => {
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
             artInfo.advertsSelectedPhrases = artData['advertsSelectedPhrases'];
             artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
-
-            for (const [key, _] of Object.entries({
-                search: 'search',
-                booster: 'booster',
-                carousel: 'carousel',
-            })) {
-                artInfo[key] = {
-                    semantics: undefined,
-                    budget: undefined,
-                    bid: undefined,
-                    bidLog: {},
-                    budgetToKeep: artData['budgetToKeep']
-                        ? artData['budgetToKeep'][key]
-                        : undefined,
-                    orders: 0,
-                    sum_orders: 0,
-                    sum: 0,
-                    views: 0,
-                    clicks: 0,
-                    drr: 0,
-                    ctr: 0,
-                    cpc: 0,
-                    cpm: 0,
-                    cr: 0,
-                    cpo: 0,
-                    sales: 0,
-                    sum_sales: 0,
-                };
-            }
+            artInfo.budgetToKeep = artData['budgetToKeep'];
 
             // console.log(artInfo);
 
             if (artInfo.adverts) {
+                const bidTemp = {val: 0, n: 0};
                 for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
                     if (!advertType || advertType == 'none' || !advertsOfType) continue;
 
@@ -1423,69 +1521,58 @@ export const MassAdvertPage = () => {
                         const status = advertData['status'];
                         if (![4, 9, 11].includes(status)) continue;
                         const budget = advertData['budget'];
-                        artInfo[advertType].budget = budget;
-                        artInfo[advertType].semantics = advertData['words'];
-                        artInfo[advertType].bid = advertData['cpm'];
-                        artInfo[advertType].bidLog = advertData['bidLog'];
+                        artInfo.budget += budget;
+
+                        bidTemp.val += advertData['cpm'];
+                        bidTemp.n++;
+
+                        artInfo.semantics[advertType] = advertData['words'];
+                        artInfo.bidLog[advertType] = advertData['bidLog'];
                     }
                 }
+                artInfo.bid = getRoundValue(bidTemp.val, bidTemp.n);
             }
             if (artData['advertsStats']) {
                 for (const [strDate, dateData] of Object.entries(artData['advertsStats'])) {
                     if (strDate == 'updateTime' || !dateData) continue;
-                    for (const [key, day] of Object.entries(dateData)) {
-                        if (!day) continue;
-                        const date = new Date(strDate);
-                        date.setHours(0);
-                        date.setMinutes(0);
-                        date.setSeconds(0);
-                        if (date < startDate || date > endDate) continue;
 
-                        artInfo[key].sum_orders += day['sum_orders'];
-                        artInfo[key].orders += day['orders'];
-                        artInfo[key].sum_sales += day['sum_sales'];
-                        artInfo[key].sales += day['sales'];
-                        artInfo[key].sum += day['sum'];
-                        artInfo[key].views += day['views'];
-                        artInfo[key].clicks += day['clicks'];
-                    }
+                    if (!dateData) continue;
+                    const date = new Date(strDate);
+                    date.setHours(0);
+                    date.setMinutes(0);
+                    date.setSeconds(0);
+                    if (date < startDate || date > endDate) continue;
+
+                    artInfo.sum_orders += dateData['sum_orders'];
+                    artInfo.orders += dateData['orders'];
+                    artInfo.sum_sales += dateData['sum_sales'];
+                    artInfo.sales += dateData['sales'];
+                    artInfo.sum += dateData['sum'];
+                    artInfo.views += dateData['views'];
+                    artInfo.clicks += dateData['clicks'];
                 }
-                for (const [key, _] of Object.entries({
-                    search: 'search',
-                    booster: 'booster',
-                    carousel: 'carousel',
-                })) {
-                    artInfo[key].sum_orders = Math.round(artInfo[key].sum_orders);
-                    artInfo[key].orders = Math.round(artInfo[key].orders * 100) / 100;
-                    artInfo[key].sum_sales = Math.round(artInfo[key].sum_sales);
-                    artInfo[key].sales = Math.round(artInfo[key].sales * 100) / 100;
-                    artInfo[key].sum = Math.round(artInfo[key].sum);
-                    artInfo[key].views = Math.round(artInfo[key].views);
-                    artInfo[key].clicks = Math.round(artInfo[key].clicks);
 
-                    artInfo[key].drr = getRoundValue(
-                        artInfo[key].sum,
-                        artInfo[key].sum_orders,
-                        true,
-                        1,
-                    );
-                    artInfo[key].ctr = getRoundValue(artInfo[key].clicks, artInfo[key].views, true);
-                    artInfo[key].cpc = getRoundValue(artInfo[key].sum, artInfo[key].clicks);
-                    artInfo[key].cpm = getRoundValue(artInfo[key].sum * 1000, artInfo[key].views);
-                    artInfo[key].cr = getRoundValue(artInfo[key].orders, artInfo[key].views, true);
-                    artInfo[key].cpo = getRoundValue(
-                        artInfo[key].sum,
-                        artInfo[key].orders,
-                        false,
-                        artInfo[key].sum,
-                    );
+                artInfo.sum_orders = Math.round(artInfo.sum_orders);
+                artInfo.orders = Math.round(artInfo.orders * 100) / 100;
+                artInfo.sum_sales = Math.round(artInfo.sum_sales);
+                artInfo.sales = Math.round(artInfo.sales * 100) / 100;
+                artInfo.sum = Math.round(artInfo.sum);
+                artInfo.views = Math.round(artInfo.views);
+                artInfo.clicks = Math.round(artInfo.clicks);
 
-                    summaryTemp.sum_orders += artInfo[key].sum_orders;
-                    summaryTemp.sum_sales += artInfo[key].sum_sales;
-                    summaryTemp.sum += artInfo[key].sum;
-                    summaryTemp.views += artInfo[key].views;
-                    summaryTemp.clicks += artInfo[key].clicks;
-                }
+                artInfo.drr = getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1);
+                artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
+                artInfo.cpc = getRoundValue(artInfo.sum, artInfo.clicks);
+                artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
+                artInfo.cr = getRoundValue(artInfo.orders, artInfo.views, true);
+                artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
+
+                summaryTemp.sum_orders += artInfo.sum_orders;
+                summaryTemp.sum_sales += artInfo.sum_sales;
+                summaryTemp.sales += artInfo.sales;
+                summaryTemp.sum += artInfo.sum;
+                summaryTemp.views += artInfo.views;
+                summaryTemp.clicks += artInfo.clicks;
             }
 
             temp[art] = artInfo;
@@ -1511,104 +1598,64 @@ export const MassAdvertPage = () => {
         )) {
             if (!art || !artInfo) continue;
 
-            for (const [key, keyRus] of Object.entries({
-                search: 'Поиск',
-                booster: 'Бустер',
-                carousel: 'Карточка',
-            })) {
-                const tempTypeRow = {
-                    advertsType: key,
-                    art: artInfo['art'],
-                    photos: artInfo['photos'],
-                    imtId: artInfo['imtId'],
-                    brand: artInfo['brand'],
-                    object: artInfo['object'],
-                    nmId: artInfo['nmId'],
-                    title: artInfo['title'],
-                    adverts: artInfo['adverts']
-                        ? artInfo['adverts'][key]
-                            ? artInfo['adverts'][key][Object.keys(artInfo['adverts'][key])[0]]
-                            : undefined
-                        : undefined,
-                    stocks: artInfo['stocks'],
-                    semantics: artInfo[key]['semantics'],
-                    plusPhrasesTemplate: artInfo['plusPhrasesTemplate'],
-                    advertsSelectedPhrases: artInfo['advertsSelectedPhrases'],
-                    budget: artInfo[key].budget,
-                    bid: artInfo[key].bid,
-                    bidLog: artInfo[key].bidLog,
-                    budgetToKeep: artInfo[key].budgetToKeep,
-                    orders: artInfo[key].orders,
-                    sum_orders: artInfo[key].sum_orders,
-                    sum: artInfo[key].sum,
-                    views: artInfo[key].views,
-                    clicks: artInfo[key].clicks,
-                    drr: artInfo[key].drr,
-                    ctr: artInfo[key].ctr,
-                    cpc: artInfo[key].cpc,
-                    cpm: artInfo[key].cpm,
-                    cr: artInfo[key].cr,
-                    cpo: artInfo[key].cpo,
-                    drrAI: artInfo['drrAI'],
-                    advertsManagerRules: artInfo['advertsManagerRules'],
-                    advertsStocksThreshold: artInfo['advertsStocksThreshold'],
-                    placements: artInfo['placements'] == -1 ? 10 * 1000 : artInfo['placements'],
-                    placementsValue: artInfo['placementsValue'],
-                };
+            const tempTypeRow = artInfo;
+            tempTypeRow['placements'] =
+                artInfo['placements'] == -1 ? 10 * 1000 : artInfo['placements'];
 
-                let addFlag = true;
-                const useFilters = withfFilters['undef'] ? withfFilters : filters;
-                for (const [filterArg, filterData] of Object.entries(useFilters)) {
-                    if (filterArg == 'undef' || !filterData) continue;
-                    if (filterData['val'] == '') continue;
-                    if (filterArg == 'art') {
-                        const rulesForAnd = filterData['val'].split('+');
-                        // console.log(rulesForAnd);
+            let addFlag = true;
+            const useFilters = withfFilters['undef'] ? withfFilters : filters;
+            for (const [filterArg, filterData] of Object.entries(useFilters)) {
+                if (filterArg == 'undef' || !filterData) continue;
+                if (filterData['val'] == '') continue;
+                if (filterArg == 'art') {
+                    const rulesForAnd = filterData['val'].split('+');
+                    // console.log(rulesForAnd);
 
-                        let wholeText = '';
-                        for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
-                            wholeText += tempTypeRow[key] + ' ';
-                        }
+                    let wholeText = '';
+                    for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
+                        wholeText += tempTypeRow[key] + ' ';
+                    }
 
-                        let tempFlagInc = 0;
-                        for (let k = 0; k < rulesForAnd.length; k++) {
-                            const ruleForAdd = rulesForAnd[k];
-                            if (ruleForAdd == '') {
-                                tempFlagInc++;
-                                continue;
-                            }
-                            if (
-                                compare(wholeText, {
-                                    val: ruleForAdd,
-                                    compMode: filterData['compMode'],
-                                })
-                            ) {
-                                tempFlagInc++;
-                            }
+                    let tempFlagInc = 0;
+                    for (let k = 0; k < rulesForAnd.length; k++) {
+                        const ruleForAdd = rulesForAnd[k];
+                        if (ruleForAdd == '') {
+                            tempFlagInc++;
+                            continue;
                         }
-                        if (tempFlagInc != rulesForAnd.length) {
-                            addFlag = false;
-                            break;
+                        if (
+                            compare(wholeText, {
+                                val: ruleForAdd,
+                                compMode: filterData['compMode'],
+                            })
+                        ) {
+                            tempFlagInc++;
                         }
-                    } else if (filterArg == 'adverts') {
-                        if (!compare(keyRus, filterData)) {
-                            addFlag = false;
-                            break;
-                        }
-                    } else if (filterArg == 'semantics') {
-                        if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
-                            addFlag = false;
-                            break;
-                        }
-                    } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                    }
+                    if (tempFlagInc != rulesForAnd.length) {
                         addFlag = false;
                         break;
                     }
                 }
-
-                if (addFlag) {
-                    temp.push(tempTypeRow);
+                //  else if (filterArg == 'adverts') {
+                //     if (!compare(keyRus, filterData)) {
+                //         addFlag = false;
+                //         break;
+                //     }
+                // }
+                else if (filterArg == 'semantics') {
+                    if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                    addFlag = false;
+                    break;
                 }
+            }
+
+            if (addFlag) {
+                temp.push(tempTypeRow);
             }
         }
 
@@ -1617,7 +1664,7 @@ export const MassAdvertPage = () => {
         });
         const paginatedDataTemp = temp.slice(0, 600);
         const filteredSummaryTemp = {
-            art: `На странице: ${paginatedDataTemp.length / 3} Всего: ${temp.length / 3}`,
+            art: `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`,
             orders: 0,
             sum_orders: 0,
             sum: 0,
@@ -1695,8 +1742,6 @@ export const MassAdvertPage = () => {
         setPagesTotal(Math.ceil(temp.length));
     };
 
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
     const [selectedValueMethodOptions] = React.useState<SelectOption<any>[]>([
         {
@@ -1712,37 +1757,6 @@ export const MassAdvertPage = () => {
 
     const [firstRecalc, setFirstRecalc] = useState(false);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
-
-    // useEffect(() => {
-    //     const updation =  async () => {
-    //         console.log('hola');
-    //         if (!firstRecalc) return;
-    //         await callApi('getMassAdvertsNew', {
-    //             uid: [
-    //                 'f9192af1-d9fa-4e3c-8959-33b668413e8c',
-    //                 '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-    //                 '46431a09-85c3-4703-8246-d1b5c9e52594',
-    //             ].includes(Userfront.user.userUuid ?? '')
-    //                 ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-    //                 : '',
-    //             dateRange: {from: '2023', to: '2024'},
-    //             campaignName:
-    //                 selectValue[0] ??
-    //                 Userfront.user.userUuid == 'f9192af1-d9fa-4e3c-8959-33b668413e8c'
-    //                     ? 'Клининг Сервис'
-    //                     : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
-    //                     ? 'ИП Иосифов М.С.'
-    //                     : 'ИП Валерий',
-    //         })
-    //             .then((response) => {
-    //                 setChangedDoc(response ? response['data'] : undefined);
-    //                 // console.log(response ? response['data'] : undefined);
-    //             })
-    //             .catch((error) => console.error(error));
-    //     }
-    //     updation();
-    //     scheduleJob('*/2 * * * *',
-    // }, []);
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
     const columns = generateColumns(columnData, filters, setFilters, filterTableData);
@@ -2036,6 +2050,7 @@ export const MassAdvertPage = () => {
 
     if (changedDoc) {
         setChangedDoc(undefined);
+        setChangedDocUpdateType(false);
         recalc(dateRange);
     }
 
@@ -2124,6 +2139,7 @@ export const MassAdvertPage = () => {
             >
                 {generateCard({summary, key: 'sum_orders', placeholder: 'Заказов, ₽'})}
                 {generateCard({summary, key: 'sum_sales', placeholder: 'Продаж, ₽'})}
+                {/* {generateCard({summary, key: 'sales', placeholder: 'Продаж, шт'})} */}
                 {generateCard({summary, key: 'sum', placeholder: 'Расход, ₽'})}
                 {generateCard({summary, key: 'drr_orders', placeholder: 'ДРР к заказам, %'})}
                 {generateCard({summary, key: 'drr_sales', placeholder: 'ДРР к продажам, %'})}
@@ -2460,16 +2476,10 @@ export const MassAdvertPage = () => {
                                                         value,
                                                     ] of Object.entries(advertsTypesInput)) {
                                                         if (!advertsType || !value) continue;
-                                                        if (
-                                                            !doc.campaigns[selectValue[0]][art]
-                                                                .budgetToKeep
-                                                        )
-                                                            doc.campaigns[selectValue[0]][
-                                                                art
-                                                            ].budgetToKeep = {};
+
                                                         doc.campaigns[selectValue[0]][
                                                             art
-                                                        ].budgetToKeep[advertsType] =
+                                                        ].budgetToKeep =
                                                             budgetModalBudgetInputValue;
                                                     }
                                                 }
