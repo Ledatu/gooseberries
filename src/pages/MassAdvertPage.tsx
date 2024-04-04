@@ -893,8 +893,8 @@ export const MassAdvertPage = () => {
                                         size="xs"
                                         view="flat"
                                         onClick={() => {
-                                            setModalOpenFromAdvertId(advertId);
                                             openBidModalForm();
+                                            setModalOpenFromAdvertId(advertId);
                                         }}
                                     >
                                         <Text variant="caption-2">{`CPM: ${curCpm}`}</Text>
@@ -3244,7 +3244,7 @@ export const MassAdvertPage = () => {
                                                 console.log(params);
 
                                                 //////////////////////////////////
-                                                callApi('setAdvertsCPMs', params);
+                                                // callApi('setAdvertsCPMs', params);
                                                 setChangedDoc(doc);
                                                 //////////////////////////////////
 
