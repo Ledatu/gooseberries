@@ -894,7 +894,7 @@ export const MassAdvertPage = () => {
                                         view="flat"
                                         onClick={() => {
                                             setModalOpenFromAdvertId(advertId);
-                                            setBidModalFormOpen(true);
+                                            openBidModalForm();
                                         }}
                                     >
                                         <Text variant="caption-2">{`CPM: ${curCpm}`}</Text>
@@ -911,8 +911,8 @@ export const MassAdvertPage = () => {
                                         size="xs"
                                         view="flat"
                                         onClick={() => {
+                                            openBudgetModalForm();
                                             setModalOpenFromAdvertId(advertId);
-                                            setBudgetModalFormOpen(true);
                                         }}
                                     >
                                         <Text variant="caption-2">{`Баланс: ${
@@ -1856,6 +1856,37 @@ export const MassAdvertPage = () => {
     const [firstRecalc, setFirstRecalc] = useState(false);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
+    const openBudgetModalForm = () => {
+        setSelectedButton('');
+        setAdvertsTypesInput({search: false, booster: false, carousel: false});
+        setBudgetModalBudgetInputValue(500);
+        setBudgetModalSwitchValue('Пополнить');
+        setBudgetModalBudgetInputValidationValue(true);
+        setModalOpenFromAdvertId('');
+        setBudgetModalFormOpen(true);
+    };
+    const openBidModalForm = () => {
+        setSelectedButton('');
+        setAdvertsTypesInput({search: false, booster: false, carousel: false});
+        setBidModalBidInputValue(125);
+        setBidModalSwitchValue('Установить');
+        setBidModalBidInputValidationValue(true);
+        setBidModalDeleteModeSelected(false);
+        setBidModalFormOpen(true);
+        setBidModalBidStepInputValue(5);
+        setModalOpenFromAdvertId('');
+        setBidModalRange({from: 50, to: 50});
+        setSelectedValueMethod([selectedValueMethodOptions[0].value]);
+        setBidModalRangeValid(true);
+        setBidModalMaxBid(500);
+        setBidModalMaxBidValid(true);
+        setBidModalBidStepInputValidationValue(true);
+        setBidModalStocksThresholdInputValue(5);
+        setBidModalStocksThresholdInputValidationValue(true);
+        setBidModalDRRInputValue(10);
+        setBidModalDRRInputValidationValue(true);
+    };
+
     const [changedColumns, setChangedColumns] = useState<any>(false);
     const columns = generateColumns(columnData, filters, setFilters, filterTableData);
 
@@ -2424,15 +2455,7 @@ export const MassAdvertPage = () => {
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="action"
                         size="l"
-                        onClick={() => {
-                            setSelectedButton('');
-                            setAdvertsTypesInput({search: false, booster: false, carousel: false});
-                            setBudgetModalBudgetInputValue(500);
-                            setBudgetModalSwitchValue('Пополнить');
-                            setBudgetModalBudgetInputValidationValue(true);
-                            setModalOpenFromAdvertId('');
-                            setBudgetModalFormOpen(true);
-                        }}
+                        onClick={openBudgetModalForm}
                     >
                         <Icon data={CircleRuble} />
                         <Text variant="subheader-1">Бюджет</Text>
@@ -2612,28 +2635,7 @@ export const MassAdvertPage = () => {
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="action"
                         size="l"
-                        onClick={() => {
-                            setSelectedButton('');
-                            setAdvertsTypesInput({search: false, booster: false, carousel: false});
-                            setBidModalBidInputValue(125);
-                            setBidModalSwitchValue('Установить');
-                            // setBidModalAnalyticsSwitchValue(14);
-                            setBidModalBidInputValidationValue(true);
-                            setBidModalDeleteModeSelected(false);
-                            setBidModalFormOpen(true);
-                            setBidModalBidStepInputValue(5);
-                            setModalOpenFromAdvertId('');
-                            setBidModalRange({from: 50, to: 50});
-                            setSelectedValueMethod([selectedValueMethodOptions[0].value]);
-                            setBidModalRangeValid(true);
-                            setBidModalMaxBid(500);
-                            setBidModalMaxBidValid(true);
-                            setBidModalBidStepInputValidationValue(true);
-                            setBidModalStocksThresholdInputValue(5);
-                            setBidModalStocksThresholdInputValidationValue(true);
-                            setBidModalDRRInputValue(10);
-                            setBidModalDRRInputValidationValue(true);
-                        }}
+                        onClick={openBidModalForm}
                     >
                         <Icon data={ChartLine} />
                         <Text variant="subheader-1">Ставки</Text>
