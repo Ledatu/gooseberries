@@ -910,7 +910,10 @@ export const MassAdvertPage = () => {
                                     <Button
                                         size="xs"
                                         view="flat"
-                                        // onClick={() => filterByButton(budget, 'adverts')}
+                                        onClick={() => {
+                                            setModalOpenFromAdvertId(advertId);
+                                            setBudgetModalFormOpen(true);
+                                        }}
                                     >
                                         <Text variant="caption-2">{`Баланс: ${
                                             curBudget !== undefined ? curBudget : 'Нет инф.'
@@ -2427,6 +2430,7 @@ export const MassAdvertPage = () => {
                             setBudgetModalBudgetInputValue(500);
                             setBudgetModalSwitchValue('Пополнить');
                             setBudgetModalBudgetInputValidationValue(true);
+                            setModalOpenFromAdvertId('');
                             setBudgetModalFormOpen(true);
                         }}
                     >
@@ -2538,7 +2542,6 @@ export const MassAdvertPage = () => {
                                                 campaignName: selectValue[0],
                                                 data: {
                                                     mode: budgetModalSwitchValue,
-                                                    arts: {},
                                                     advertsIds: {},
                                                     advertsTypes: advertsTypesInput,
                                                 },
@@ -2556,6 +2559,17 @@ export const MassAdvertPage = () => {
                                                             advertId,
                                                             advertsData,
                                                         ] of Object.entries(advertsTypeData)) {
+                                                            if (
+                                                                modalOpenFromAdvertId != '' &&
+                                                                modalOpenFromAdvertId
+                                                            ) {
+                                                                if (
+                                                                    advertId !=
+                                                                    modalOpenFromAdvertId
+                                                                )
+                                                                    continue;
+                                                            }
+
                                                             params.data.advertsIds[advertId] = {
                                                                 advertId: advertsData.advertId,
                                                                 budget: budgetModalBudgetInputValue,
@@ -2563,12 +2577,6 @@ export const MassAdvertPage = () => {
                                                         }
                                                     }
                                                 }
-
-                                                params.data.arts[art] = {
-                                                    mode: budgetModalSwitchValue,
-                                                    budget: budgetModalBudgetInputValue,
-                                                    art: art,
-                                                };
 
                                                 if (budgetModalSwitchValue == 'Установить лимит') {
                                                     for (const [
@@ -2587,7 +2595,7 @@ export const MassAdvertPage = () => {
                                             console.log(params);
 
                                             //////////////////////////////////
-                                            callApi('depositAdvertsBudgets', params);
+                                            // callApi('depositAdvertsBudgets', params);
                                             setChangedDoc(doc);
                                             //////////////////////////////////
 
