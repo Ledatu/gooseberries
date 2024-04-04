@@ -191,7 +191,7 @@ export const MassAdvertPage = () => {
 
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
-    const [semanticsModalOpenFromAdvertId, setSemanticsModalOpenFromAdvertId] = useState('');
+    const [modalOpenFromAdvertId, setModalOpenFromAdvertId] = useState('');
     const [selectedSearchPhrase, setSelectedSearchPhrase] = useState('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
@@ -892,7 +892,10 @@ export const MassAdvertPage = () => {
                                     <Button
                                         size="xs"
                                         view="flat"
-                                        // onClick={() => filterByButton(bid, 'adverts')}
+                                        onClick={() => {
+                                            setModalOpenFromAdvertId(advertId);
+                                            setBidModalFormOpen(true);
+                                        }}
                                     >
                                         <Text variant="caption-2">{`CPM: ${curCpm}`}</Text>
                                     </Button>
@@ -944,7 +947,7 @@ export const MassAdvertPage = () => {
                                             );
 
                                             setSemanticsModalOpenFromArt(art);
-                                            setSemanticsModalOpenFromAdvertId(advertId);
+                                            setModalOpenFromAdvertId(advertId);
 
                                             if (autoPhrasesTemplate) {
                                                 setSemanticsAutoPhrasesModalIncludesList(
@@ -2611,6 +2614,7 @@ export const MassAdvertPage = () => {
                             setBidModalDeleteModeSelected(false);
                             setBidModalFormOpen(true);
                             setBidModalBidStepInputValue(5);
+                            setModalOpenFromAdvertId('');
                             setBidModalRange({from: 50, to: 50});
                             setSelectedValueMethod([selectedValueMethodOptions[0].value]);
                             setBidModalRangeValid(true);
@@ -2626,7 +2630,13 @@ export const MassAdvertPage = () => {
                         <Icon data={ChartLine} />
                         <Text variant="subheader-1">Ставки</Text>
                     </Button>
-                    <Modal open={bidModalFormOpen} onClose={() => setBidModalFormOpen(false)}>
+                    <Modal
+                        open={bidModalFormOpen}
+                        onClose={() => {
+                            setBidModalFormOpen(false);
+                            setModalOpenFromAdvertId('');
+                        }}
+                    >
                         <div>
                             <Card
                                 // view="raised"
@@ -3135,6 +3145,17 @@ export const MassAdvertPage = () => {
                                                                 advertId,
                                                                 advertsData,
                                                             ] of Object.entries(advertsTypeData)) {
+                                                                if (
+                                                                    modalOpenFromAdvertId != '' &&
+                                                                    modalOpenFromAdvertId
+                                                                ) {
+                                                                    if (
+                                                                        advertId !=
+                                                                        modalOpenFromAdvertId
+                                                                    )
+                                                                        continue;
+                                                                }
+
                                                                 params.data.advertsIds[advertId] = {
                                                                     advertId: advertsData.advertId,
                                                                     bid: bidModalBidInputValue,
@@ -3280,7 +3301,10 @@ export const MassAdvertPage = () => {
                     </Button>
                     <Modal
                         open={semanticsModalFormOpen}
-                        onClose={() => setSemanticsModalFormOpen(false)}
+                        onClose={() => {
+                            setSemanticsModalFormOpen(false);
+                            setModalOpenFromAdvertId('');
+                        }}
                     >
                         <motion.div
                             onAnimationStart={async () => {
@@ -3842,8 +3866,7 @@ export const MassAdvertPage = () => {
                                                         semanticsModalOpenFromArt &&
                                                         semanticsModalOpenFromArt != ''
                                                     ) {
-                                                        const advertId =
-                                                            semanticsModalOpenFromAdvertId;
+                                                        const advertId = modalOpenFromAdvertId;
 
                                                         const paramsAddToArt = {
                                                             uid: getUid(),
