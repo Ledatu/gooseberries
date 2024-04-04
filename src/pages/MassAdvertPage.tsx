@@ -686,6 +686,8 @@ export const MassAdvertPage = () => {
                     for (const [advertId, advertData] of Object.entries(advertsTypeData)) {
                         const {status, daysInWork}: {status: number; daysInWork: number} =
                             advertData;
+                        const curBudget = budget[advertsType];
+                        const curCpm = bid[advertsType];
 
                         switches.push(
                             // <div
@@ -885,7 +887,7 @@ export const MassAdvertPage = () => {
                                         view="flat"
                                         // onClick={() => filterByButton(bid, 'adverts')}
                                     >
-                                        <Text variant="caption-2">{`CPM: ${bid}`}</Text>
+                                        <Text variant="caption-2">{`CPM: ${curCpm}`}</Text>
                                     </Button>
                                 </div>
                                 <div
@@ -900,7 +902,9 @@ export const MassAdvertPage = () => {
                                         view="flat"
                                         // onClick={() => filterByButton(budget, 'adverts')}
                                     >
-                                        <Text variant="caption-2">{`Баланс: ${budget}`}</Text>
+                                        <Text variant="caption-2">{`Баланс: ${
+                                            curBudget !== undefined ? curBudget : 'Нет инф.'
+                                        }`}</Text>
                                     </Button>
                                 </div>
                                 <div
@@ -1528,8 +1532,8 @@ export const MassAdvertPage = () => {
                 plusPhrasesTemplate: undefined,
                 advertsSelectedPhrases: undefined,
                 semantics: {},
-                budget: 0,
-                bid: 0,
+                budget: {},
+                bid: {},
                 bidLog: {},
                 budgetToKeep: 0,
                 orders: 0,
@@ -1568,7 +1572,6 @@ export const MassAdvertPage = () => {
             // console.log(artInfo);
 
             if (artInfo.adverts) {
-                const bidTemp = {val: 0, n: 0};
                 for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
                     if (!advertType || advertType == 'none' || !advertsOfType) continue;
 
@@ -1577,16 +1580,14 @@ export const MassAdvertPage = () => {
                         const status = advertData['status'];
                         if (![4, 9, 11].includes(status)) continue;
                         const budget = advertData['budget'];
-                        artInfo.budget += budget;
+                        artInfo.budget[advertType] = budget;
 
-                        bidTemp.val += advertData['cpm'];
-                        bidTemp.n++;
+                        artInfo.bid[advertType] = advertData['cpm'];
 
                         artInfo.semantics[advertType] = advertData['words'];
                         artInfo.bidLog[advertType] = advertData['bidLog'];
                     }
                 }
-                artInfo.bid = getRoundValue(bidTemp.val, bidTemp.n);
             }
             if (artData['advertsStats']) {
                 for (const [strDate, dateData] of Object.entries(artData['advertsStats'])) {
