@@ -876,7 +876,7 @@ export const MassAdvertPage = () => {
                                                 setSemanticsModalSemanticsMinusItemsValue(() => {
                                                     const temp = semantics
                                                         ? semantics[advertsType]
-                                                            ? semantics[advertsType].exclded ?? []
+                                                            ? semantics[advertsType].excluded ?? []
                                                             : []
                                                         : [];
                                                     temp.sort((a, b) => {
