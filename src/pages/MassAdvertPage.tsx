@@ -2595,7 +2595,7 @@ export const MassAdvertPage = () => {
                                             console.log(params);
 
                                             //////////////////////////////////
-                                            // callApi('depositAdvertsBudgets', params);
+                                            callApi('depositAdvertsBudgets', params);
                                             setChangedDoc(doc);
                                             //////////////////////////////////
 
