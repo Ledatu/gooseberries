@@ -191,6 +191,7 @@ export const MassAdvertPage = () => {
 
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
+    const [semanticsModalOpenFromAdvertId, setSemanticsModalOpenFromAdvertId] = useState('');
     const [selectedSearchPhrase, setSelectedSearchPhrase] = useState('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
@@ -656,24 +657,8 @@ export const MassAdvertPage = () => {
             valueType: 'text',
             render: ({value, row}) => {
                 if (value === null || value === undefined) return;
-                const {bid, budget, budgetToKeep, art, semantics, plusPhrasesTemplate} = row;
+                const {bid, budget, budgetToKeep, art, semantics} = row;
                 const advertsSelectedPhrases = row.advertsSelectedPhrases;
-
-                const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][
-                    plusPhrasesTemplate
-                ]
-                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                          .autoPhrasesTemplate
-                    : undefined;
-
-                const themeToUse = plusPhrasesTemplate
-                    ? autoPhrasesTemplate &&
-                      ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
-                          (autoPhrasesTemplate.notIncludes &&
-                              autoPhrasesTemplate.notIncludes.length))
-                        ? 'success'
-                        : 'info'
-                    : 'normal';
 
                 const mapp = {
                     search: {name: 'Поиск', icon: Magnifier},
@@ -688,6 +673,28 @@ export const MassAdvertPage = () => {
                             advertData;
                         const curBudget = budget[advertsType];
                         const curCpm = bid[advertsType];
+
+                        const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][
+                            advertId
+                        ]
+                            ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
+                            : undefined;
+                        const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][
+                            plusPhrasesTemplate
+                        ]
+                            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                                  .autoPhrasesTemplate
+                            : undefined;
+
+                        const themeToUse = plusPhrasesTemplate
+                            ? autoPhrasesTemplate &&
+                              ((autoPhrasesTemplate.includes &&
+                                  autoPhrasesTemplate.includes.length) ||
+                                  (autoPhrasesTemplate.notIncludes &&
+                                      autoPhrasesTemplate.notIncludes.length))
+                                ? 'success'
+                                : 'info'
+                            : 'normal';
 
                         switches.push(
                             // <div
@@ -937,6 +944,7 @@ export const MassAdvertPage = () => {
                                             );
 
                                             setSemanticsModalOpenFromArt(art);
+                                            setSemanticsModalOpenFromAdvertId(advertId);
 
                                             if (autoPhrasesTemplate) {
                                                 setSemanticsAutoPhrasesModalIncludesList(
@@ -996,7 +1004,7 @@ export const MassAdvertPage = () => {
                                                 ? doc.plusPhrasesTemplates[selectValue[0]][
                                                       plusPhrasesTemplate
                                                   ].threshold
-                                                : 100;
+                                                : 1;
                                             setSemanticsModalSemanticsThresholdValue(plusThreshold);
 
                                             const plusCTRThreshold = doc.plusPhrasesTemplates[
@@ -1005,7 +1013,7 @@ export const MassAdvertPage = () => {
                                                 ? doc.plusPhrasesTemplates[selectValue[0]][
                                                       plusPhrasesTemplate
                                                   ].ctrThreshold
-                                                : 5;
+                                                : 0;
                                             setSemanticsModalSemanticsCTRThresholdValue(
                                                 plusCTRThreshold,
                                             );
@@ -1016,7 +1024,7 @@ export const MassAdvertPage = () => {
                                                 ? doc.plusPhrasesTemplates[selectValue[0]][
                                                       plusPhrasesTemplate
                                                   ].secondThreshold
-                                                : 100;
+                                                : 0;
                                             setSemanticsModalSemanticsSecondThresholdValue(
                                                 plusSecondThreshold,
                                             );
@@ -1027,7 +1035,7 @@ export const MassAdvertPage = () => {
                                                 ? doc.plusPhrasesTemplates[selectValue[0]][
                                                       plusPhrasesTemplate
                                                   ].secondCtrThreshold
-                                                : 5;
+                                                : 0;
                                             setSemanticsModalSemanticsSecondCTRThresholdValue(
                                                 plusSecondCTRThreshold,
                                             );
@@ -3834,39 +3842,36 @@ export const MassAdvertPage = () => {
                                                         semanticsModalOpenFromArt &&
                                                         semanticsModalOpenFromArt != ''
                                                     ) {
-                                                        const art = semanticsModalOpenFromArt;
-                                                        console.log(art);
+                                                        const advertId =
+                                                            semanticsModalOpenFromAdvertId;
 
                                                         const paramsAddToArt = {
                                                             uid: getUid(),
                                                             campaignName: selectValue[0],
-                                                            data: {arts: {}},
+                                                            data: {advertsIds: {}},
                                                         };
-                                                        paramsAddToArt.data.arts[art] = {
+                                                        paramsAddToArt.data.advertsIds[advertId] = {
                                                             mode: 'Установить',
                                                             templateName: name,
-                                                            art: art,
+                                                            advertId: advertId,
                                                         };
-
-                                                        console.log(
-                                                            paramsAddToArt,
-                                                            doc.campaigns[selectValue[0]][art],
-                                                        );
-
-                                                        if (
-                                                            !doc.campaigns[selectValue[0]][art]
-                                                                .plusPhrasesTemplate
-                                                        )
-                                                            doc.campaigns[selectValue[0]][
-                                                                art
-                                                            ].plusPhrasesTemplate = {};
-                                                        doc.campaigns[selectValue[0]][
-                                                            art
-                                                        ].plusPhrasesTemplate = name;
                                                         callApi(
                                                             'setAdvertsPlusPhrasesTemplates',
                                                             paramsAddToArt,
                                                         );
+
+                                                        if (
+                                                            !doc.advertsPlusPhrasesTemplates[
+                                                                selectValue[0]
+                                                            ][advertId]
+                                                        )
+                                                            doc.advertsPlusPhrasesTemplates[
+                                                                selectValue[0]
+                                                            ][advertId] = {};
+
+                                                        doc.advertsPlusPhrasesTemplates[
+                                                            selectValue[0]
+                                                        ][advertId].templateName = name;
                                                     }
                                                 }
 
@@ -3986,28 +3991,41 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid: getUid(),
                                                 campaignName: selectValue[0],
-                                                data: {arts: {}},
+                                                data: {advertsIds: {}},
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const art = filteredData[i].art;
-                                                if (!art) continue;
+                                                const {adverts} = filteredData[i];
+                                                if (adverts) {
+                                                    for (const [
+                                                        advertsType,
+                                                        advertsTypeData,
+                                                    ] of Object.entries(adverts)) {
+                                                        if (!advertsType || !advertsTypeData)
+                                                            continue;
+                                                        for (const [
+                                                            advertId,
+                                                            advertsData,
+                                                        ] of Object.entries(advertsTypeData)) {
+                                                            params.data.advertsIds[advertId] = {
+                                                                advertId: advertsData.advertId,
+                                                                mode: 'Установить',
+                                                                templateName: item,
+                                                            };
 
-                                                params.data.arts[art] = {
-                                                    mode: 'Установить',
-                                                    templateName: item,
-                                                    art: art,
-                                                };
-
-                                                if (
-                                                    !doc.campaigns[selectValue[0]][art]
-                                                        .plusPhrasesTemplate
-                                                )
-                                                    doc.campaigns[selectValue[0]][
-                                                        art
-                                                    ].plusPhrasesTemplate = {};
-                                                doc.campaigns[selectValue[0]][
-                                                    art
-                                                ].plusPhrasesTemplate = item;
+                                                            if (
+                                                                !doc.advertsPlusPhrasesTemplates[
+                                                                    selectValue[0]
+                                                                ][advertId]
+                                                            )
+                                                                doc.advertsPlusPhrasesTemplates[
+                                                                    selectValue[0]
+                                                                ][advertId] = {};
+                                                            doc.advertsPlusPhrasesTemplates[
+                                                                selectValue[0]
+                                                            ][advertId].templateName = item;
+                                                        }
+                                                    }
+                                                }
                                             }
                                             console.log(params);
 
@@ -4044,33 +4062,53 @@ export const MassAdvertPage = () => {
                                                                         name: item,
                                                                     },
                                                                 };
+                                                                const paramsAddToArt = {
+                                                                    uid: getUid(),
+                                                                    campaignName: selectValue[0],
+                                                                    data: {advertsIds: {}},
+                                                                };
 
                                                                 doc.plusPhrasesTemplates[
                                                                     selectValue[0]
                                                                 ][item] = undefined;
-                                                                if (doc.campaigns[selectValue[0]])
+                                                                if (
+                                                                    doc.advertsPlusPhrasesTemplates[
+                                                                        selectValue[0]
+                                                                    ]
+                                                                )
                                                                     for (const [
-                                                                        art,
-                                                                        artData,
+                                                                        advertId,
+                                                                        advertData,
                                                                     ] of Object.entries(
-                                                                        doc.campaigns[
+                                                                        doc
+                                                                            .advertsPlusPhrasesTemplates[
                                                                             selectValue[0]
                                                                         ],
                                                                     )) {
-                                                                        if (!art || !artData)
+                                                                        if (
+                                                                            !advertId ||
+                                                                            !advertData
+                                                                        )
                                                                             continue;
                                                                         if (
-                                                                            artData[
-                                                                                'plusPhrasesTemplate'
+                                                                            advertData[
+                                                                                'templateName'
                                                                             ] == item
                                                                         )
-                                                                            doc.campaigns[
+                                                                            doc.advertsPlusPhrasesTemplates[
                                                                                 selectValue[0]
-                                                                            ][
-                                                                                art
-                                                                            ].plusPhrasesTemplate =
-                                                                                undefined;
+                                                                            ][advertId] = undefined;
+                                                                        paramsAddToArt.data.advertsIds[
+                                                                            advertId
+                                                                        ] = {
+                                                                            mode: 'Удалить',
+                                                                            templateName: item,
+                                                                        };
                                                                     }
+                                                                callApi(
+                                                                    'setAdvertsPlusPhrasesTemplates',
+                                                                    paramsAddToArt,
+                                                                );
 
                                                                 /////////////////////////
                                                                 callApi(
@@ -4104,36 +4142,39 @@ export const MassAdvertPage = () => {
                                             const params = {
                                                 uid: getUid(),
                                                 campaignName: selectValue[0],
-                                                data: {arts: {}},
+                                                data: {advertsIds: {}},
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const art = filteredData[i].art;
-                                                if (!art) continue;
+                                                const {adverts} = filteredData[i];
+                                                if (adverts) {
+                                                    for (const [
+                                                        advertsType,
+                                                        advertsTypeData,
+                                                    ] of Object.entries(adverts)) {
+                                                        if (!advertsType || !advertsTypeData)
+                                                            continue;
+                                                        for (const [
+                                                            advertId,
+                                                            advertsData,
+                                                        ] of Object.entries(advertsTypeData)) {
+                                                            params.data.advertsIds[advertId] = {
+                                                                advertId: advertsData.advertId,
+                                                                mode: 'Удалить',
+                                                            };
 
-                                                params.data.arts[art] = {
-                                                    mode: 'Удалить',
-                                                    art: art,
-                                                };
-
-                                                if (
-                                                    !doc.campaigns[selectValue[0]][art]
-                                                        .plusPhrasesTemplate
-                                                )
-                                                    doc.campaigns[selectValue[0]][
-                                                        art
-                                                    ].plusPhrasesTemplate = {};
-                                                doc.campaigns[selectValue[0]][
-                                                    art
-                                                ].plusPhrasesTemplate = undefined;
+                                                            doc.advertsPlusPhrasesTemplates[
+                                                                selectValue[0]
+                                                            ][advertId] = undefined;
+                                                        }
+                                                    }
+                                                }
                                             }
-
                                             console.log(params);
 
                                             /////////////////////////
                                             callApi('setAdvertsPlusPhrasesTemplates', params);
                                             setChangedDoc(doc);
                                             /////////////////////////
-
                                             setPlusPhrasesModalFormOpen(false);
                                         },
                                     },
