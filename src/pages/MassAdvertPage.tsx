@@ -225,17 +225,17 @@ export const MassAdvertPage = () => {
         setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue,
     ] = useState('Новый шаблон');
     const [semanticsModalSemanticsThresholdValue, setSemanticsModalSemanticsThresholdValue] =
-        useState(100);
+        useState(1);
     const [semanticsModalSemanticsCTRThresholdValue, setSemanticsModalSemanticsCTRThresholdValue] =
-        useState(5);
+        useState(0);
     const [
         semanticsModalSemanticsSecondThresholdValue,
         setSemanticsModalSemanticsSecondThresholdValue,
-    ] = useState(100);
+    ] = useState(0);
     const [
         semanticsModalSemanticsSecondCTRThresholdValue,
         setSemanticsModalSemanticsSecondCTRThresholdValue,
-    ] = useState(5);
+    ] = useState(0);
 
     const [semanticsModalIsFixed, setSemanticsModalIsFixed] = useState(false);
 
@@ -656,7 +656,24 @@ export const MassAdvertPage = () => {
             valueType: 'text',
             render: ({value, row}) => {
                 if (value === null || value === undefined) return;
-                const {bid, budget, budgetToKeep} = row;
+                const {bid, budget, budgetToKeep, art, semantics, plusPhrasesTemplate} = row;
+                const advertsSelectedPhrases = row.advertsSelectedPhrases;
+
+                const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][
+                    plusPhrasesTemplate
+                ]
+                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                          .autoPhrasesTemplate
+                    : undefined;
+
+                const themeToUse = plusPhrasesTemplate
+                    ? autoPhrasesTemplate &&
+                      ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
+                          (autoPhrasesTemplate.notIncludes &&
+                              autoPhrasesTemplate.notIncludes.length))
+                        ? 'success'
+                        : 'info'
+                    : 'normal';
 
                 const mapp = {
                     search: {name: 'Поиск', icon: Magnifier},
@@ -810,6 +827,7 @@ export const MassAdvertPage = () => {
                                 >
                                     <Label
                                         interactive
+                                        onClick={() => filterByButton(advertId, 'adverts')}
                                         // style={{position: 'relative', top: -2}}
                                         theme={
                                             status
@@ -865,7 +883,7 @@ export const MassAdvertPage = () => {
                                     <Button
                                         size="xs"
                                         view="flat"
-                                        onClick={() => filterByButton(bid, 'adverts')}
+                                        // onClick={() => filterByButton(bid, 'adverts')}
                                     >
                                         <Text variant="caption-2">{`CPM: ${bid}`}</Text>
                                     </Button>
@@ -880,7 +898,7 @@ export const MassAdvertPage = () => {
                                     <Button
                                         size="xs"
                                         view="flat"
-                                        onClick={() => filterByButton(budget, 'adverts')}
+                                        // onClick={() => filterByButton(budget, 'adverts')}
                                     >
                                         <Text variant="caption-2">{`Баланс: ${budget}`}</Text>
                                     </Button>
@@ -895,10 +913,205 @@ export const MassAdvertPage = () => {
                                     <Button
                                         size="xs"
                                         view="flat"
-                                        onClick={() => filterByButton(budgetToKeep, 'adverts')}
+                                        // onClick={() => filterByButton(budgetToKeep, 'adverts')}
                                     >
                                         <Text variant="caption-2">{`Бюджет: ${budgetToKeep}`}</Text>
                                     </Button>
+                                </div>
+                                <div style={{display: 'flex'}}>
+                                    <Label
+                                        // theme="normal"
+                                        // theme="info"
+                                        theme={themeToUse}
+                                        onClick={() => {
+                                            setSemanticsModalFormOpen(true);
+
+                                            setSelectedSearchPhrase(
+                                                advertsSelectedPhrases
+                                                    ? advertsSelectedPhrases.phrase
+                                                    : '',
+                                            );
+
+                                            setSemanticsModalOpenFromArt(art);
+
+                                            if (autoPhrasesTemplate) {
+                                                setSemanticsAutoPhrasesModalIncludesList(
+                                                    autoPhrasesTemplate.includes ?? [],
+                                                );
+                                                setSemanticsAutoPhrasesModalNotIncludesList(
+                                                    autoPhrasesTemplate.notIncludes ?? [],
+                                                );
+                                            } else {
+                                                setSemanticsAutoPhrasesModalIncludesList([]);
+                                                setSemanticsAutoPhrasesModalNotIncludesList([]);
+                                            }
+                                            setSemanticsAutoPhrasesModalIncludesListInput('');
+                                            setSemanticsAutoPhrasesModalNotIncludesListInput('');
+
+                                            setSemanticsModalSemanticsItemsValue(() => {
+                                                const temp = semantics
+                                                    ? semantics['booster']
+                                                        ? semantics['booster'].clusters ?? []
+                                                        : semantics['search']
+                                                        ? semantics['search'].clusters ?? []
+                                                        : []
+                                                    : [];
+                                                temp.sort((a, b) => {
+                                                    const freqA = a.freq ? a.freq : 0;
+                                                    const freqB = b.freq ? b.freq : 0;
+                                                    return freqB - freqA;
+                                                });
+                                                setSemanticsModalSemanticsItemsFiltratedValue(temp);
+                                                return temp;
+                                            });
+                                            setSemanticsModalSemanticsMinusItemsValue(() => {
+                                                const temp = semantics
+                                                    ? semantics['booster']
+                                                        ? semantics['booster'].exclded ?? []
+                                                        : semantics['search']
+                                                        ? semantics['search'].excluded ?? []
+                                                        : []
+                                                    : [];
+                                                temp.sort((a, b) => {
+                                                    const freqA = a.freq ? a.freq : 0;
+                                                    const freqB = b.freq ? b.freq : 0;
+                                                    return freqB - freqA;
+                                                });
+                                                setSemanticsModalSemanticsMinusItemsFiltratedValue(
+                                                    temp,
+                                                );
+                                                return temp;
+                                            });
+                                            setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                                plusPhrasesTemplate ?? 'Не установлен',
+                                            );
+
+                                            const plusThreshold = doc.plusPhrasesTemplates[
+                                                selectValue[0]
+                                            ][plusPhrasesTemplate]
+                                                ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                      plusPhrasesTemplate
+                                                  ].threshold
+                                                : 100;
+                                            setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+                                            const plusCTRThreshold = doc.plusPhrasesTemplates[
+                                                selectValue[0]
+                                            ][plusPhrasesTemplate]
+                                                ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                      plusPhrasesTemplate
+                                                  ].ctrThreshold
+                                                : 5;
+                                            setSemanticsModalSemanticsCTRThresholdValue(
+                                                plusCTRThreshold,
+                                            );
+
+                                            const plusSecondThreshold = doc.plusPhrasesTemplates[
+                                                selectValue[0]
+                                            ][plusPhrasesTemplate]
+                                                ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                      plusPhrasesTemplate
+                                                  ].secondThreshold
+                                                : 100;
+                                            setSemanticsModalSemanticsSecondThresholdValue(
+                                                plusSecondThreshold,
+                                            );
+
+                                            const plusSecondCTRThreshold = doc.plusPhrasesTemplates[
+                                                selectValue[0]
+                                            ][plusPhrasesTemplate]
+                                                ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                      plusPhrasesTemplate
+                                                  ].secondCtrThreshold
+                                                : 5;
+                                            setSemanticsModalSemanticsSecondCTRThresholdValue(
+                                                plusSecondCTRThreshold,
+                                            );
+
+                                            const isFixed = doc.plusPhrasesTemplates[
+                                                selectValue[0]
+                                            ][plusPhrasesTemplate]
+                                                ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                      plusPhrasesTemplate
+                                                  ].isFixed ?? false
+                                                : false;
+                                            setSemanticsModalIsFixed(isFixed);
+
+                                            setClustersFiltersActive({undef: false});
+                                            setClustersFiltersMinus({undef: false});
+                                            setClustersFiltersTemplate({undef: false});
+
+                                            // // console.log(value.plus);
+                                            setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                                plusPhrasesTemplate ?? `Новый шаблон`,
+                                            );
+                                            const plusItems = doc.plusPhrasesTemplates[
+                                                selectValue[0]
+                                            ][plusPhrasesTemplate]
+                                                ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                      plusPhrasesTemplate
+                                                  ].clusters
+                                                : [];
+                                            setSemanticsModalSemanticsPlusItemsValue(plusItems);
+
+                                            setSemanticsModalSemanticsTemplateItemsValue(() => {
+                                                const plusItemsTable = [] as any[];
+                                                for (const phrase of plusItems) {
+                                                    plusItemsTable.push({cluster: phrase});
+                                                }
+                                                setSemanticsModalSemanticsTemplateItemsFiltratedValue(
+                                                    plusItemsTable,
+                                                );
+                                                return plusItemsTable;
+                                            });
+                                            // setSemanticsModalTextAreaValue('');
+                                            // setSemanticsModalTextAreaAddMode(false);
+                                        }}
+                                    >
+                                        {themeToUse != 'normal' ? plusPhrasesTemplate : 'Добавить'}
+                                    </Label>
+                                    {Array.from(value ? value.clusters ?? [] : []).length ? (
+                                        <>
+                                            <div style={{width: 5}} />
+                                            <Label theme="clear">
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
+                                                    {value.clusters.length}
+                                                    <div style={{width: 3}} />
+                                                    <Icon size={12} data={Eye} />
+                                                </div>
+                                            </Label>
+                                        </>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    {Array.from(value ? value.excluded ?? [] : []).length ? (
+                                        <>
+                                            <div style={{width: 5}} />
+                                            <Label theme="clear">
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
+                                                    {value.excluded.length}
+                                                    <div style={{width: 3}} />
+                                                    <Icon size={12} data={EyeSlash} />
+                                                </div>
+                                            </Label>
+                                        </>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </div>
                             </div>,
                         );
@@ -1010,220 +1223,6 @@ export const MassAdvertPage = () => {
                 );
             },
             group: true,
-        },
-        {
-            name: 'semantics',
-            placeholder: 'Фразы',
-            valueType: 'text',
-            render: ({value, row}) => {
-                if (value === null) return;
-                // if (!row.adverts) return;
-                // const themeToUse = 'normal';
-                // console.log(value.plus);
-                const art = row.art;
-                const advertsSelectedPhrases = row.advertsSelectedPhrases;
-
-                const plusPhrasesTemplate = row.plusPhrasesTemplate;
-                const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][
-                    plusPhrasesTemplate
-                ]
-                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                          .autoPhrasesTemplate
-                    : undefined;
-
-                const themeToUse = plusPhrasesTemplate
-                    ? autoPhrasesTemplate &&
-                      ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
-                          (autoPhrasesTemplate.notIncludes &&
-                              autoPhrasesTemplate.notIncludes.length))
-                        ? 'success'
-                        : 'info'
-                    : 'normal';
-
-                return (
-                    <div style={{display: 'flex', justifyContent: 'center'}}>
-                        <Label
-                            // theme="normal"
-                            // theme="info"
-                            theme={themeToUse}
-                            onClick={() => {
-                                setSemanticsModalFormOpen(true);
-
-                                setSelectedSearchPhrase(
-                                    advertsSelectedPhrases ? advertsSelectedPhrases.phrase : '',
-                                );
-
-                                setSemanticsModalOpenFromArt(art);
-
-                                if (autoPhrasesTemplate) {
-                                    setSemanticsAutoPhrasesModalIncludesList(
-                                        autoPhrasesTemplate.includes ?? [],
-                                    );
-                                    setSemanticsAutoPhrasesModalNotIncludesList(
-                                        autoPhrasesTemplate.notIncludes ?? [],
-                                    );
-                                } else {
-                                    setSemanticsAutoPhrasesModalIncludesList([]);
-                                    setSemanticsAutoPhrasesModalNotIncludesList([]);
-                                }
-                                setSemanticsAutoPhrasesModalIncludesListInput('');
-                                setSemanticsAutoPhrasesModalNotIncludesListInput('');
-
-                                setSemanticsModalSemanticsItemsValue(() => {
-                                    const temp = value
-                                        ? value['booster']
-                                            ? value['booster'].clusters ?? []
-                                            : value['search']
-                                            ? value['search'].clusters ?? []
-                                            : []
-                                        : [];
-                                    temp.sort((a, b) => {
-                                        const freqA = a.freq ? a.freq : 0;
-                                        const freqB = b.freq ? b.freq : 0;
-                                        return freqB - freqA;
-                                    });
-                                    setSemanticsModalSemanticsItemsFiltratedValue(temp);
-                                    return temp;
-                                });
-                                setSemanticsModalSemanticsMinusItemsValue(() => {
-                                    const temp = value
-                                        ? value['booster']
-                                            ? value['booster'].exclded ?? []
-                                            : value['search']
-                                            ? value['search'].excluded ?? []
-                                            : []
-                                        : [];
-                                    temp.sort((a, b) => {
-                                        const freqA = a.freq ? a.freq : 0;
-                                        const freqB = b.freq ? b.freq : 0;
-                                        return freqB - freqA;
-                                    });
-                                    setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
-                                    return temp;
-                                });
-                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                    plusPhrasesTemplate ?? 'Не установлен',
-                                );
-
-                                const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][
-                                    plusPhrasesTemplate
-                                ]
-                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .threshold
-                                    : 100;
-                                setSemanticsModalSemanticsThresholdValue(plusThreshold);
-
-                                const plusCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][
-                                    plusPhrasesTemplate
-                                ]
-                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .ctrThreshold
-                                    : 5;
-                                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
-
-                                const plusSecondThreshold = doc.plusPhrasesTemplates[
-                                    selectValue[0]
-                                ][plusPhrasesTemplate]
-                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .secondThreshold
-                                    : 100;
-                                setSemanticsModalSemanticsSecondThresholdValue(plusSecondThreshold);
-
-                                const plusSecondCTRThreshold = doc.plusPhrasesTemplates[
-                                    selectValue[0]
-                                ][plusPhrasesTemplate]
-                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .secondCtrThreshold
-                                    : 5;
-                                setSemanticsModalSemanticsSecondCTRThresholdValue(
-                                    plusSecondCTRThreshold,
-                                );
-
-                                const isFixed = doc.plusPhrasesTemplates[selectValue[0]][
-                                    plusPhrasesTemplate
-                                ]
-                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .isFixed ?? false
-                                    : false;
-                                setSemanticsModalIsFixed(isFixed);
-
-                                setClustersFiltersActive({undef: false});
-                                setClustersFiltersMinus({undef: false});
-                                setClustersFiltersTemplate({undef: false});
-
-                                // // console.log(value.plus);
-                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                    plusPhrasesTemplate ?? `Новый шаблон`,
-                                );
-                                const plusItems = doc.plusPhrasesTemplates[selectValue[0]][
-                                    plusPhrasesTemplate
-                                ]
-                                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                          .clusters
-                                    : [];
-                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
-
-                                setSemanticsModalSemanticsTemplateItemsValue(() => {
-                                    const plusItemsTable = [] as any[];
-                                    for (const phrase of plusItems) {
-                                        plusItemsTable.push({cluster: phrase});
-                                    }
-                                    setSemanticsModalSemanticsTemplateItemsFiltratedValue(
-                                        plusItemsTable,
-                                    );
-                                    return plusItemsTable;
-                                });
-                                // setSemanticsModalTextAreaValue('');
-                                // setSemanticsModalTextAreaAddMode(false);
-                            }}
-                        >
-                            {themeToUse != 'normal' ? plusPhrasesTemplate : 'Добавить'}
-                        </Label>
-                        {Array.from(value ? value.clusters ?? [] : []).length ? (
-                            <>
-                                <div style={{width: 5}} />
-                                <Label theme="clear">
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        {value.clusters.length}
-                                        <div style={{width: 3}} />
-                                        <Icon size={12} data={Eye} />
-                                    </div>
-                                </Label>
-                            </>
-                        ) : (
-                            <></>
-                        )}
-                        {Array.from(value ? value.excluded ?? [] : []).length ? (
-                            <>
-                                <div style={{width: 5}} />
-                                <Label theme="clear">
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        {value.excluded.length}
-                                        <div style={{width: 3}} />
-                                        <Icon size={12} data={EyeSlash} />
-                                    </div>
-                                </Label>
-                            </>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-                );
-            },
         },
         {
             name: 'stocks',
@@ -1693,38 +1692,41 @@ export const MassAdvertPage = () => {
                         addFlag = false;
                         break;
                     }
-                }
-                //  else if (filterArg == 'adverts') {
-                //     const rulesForAnd = filterData['val'].split('+');
-                //     // console.log(rulesForAnd);
+                } else if (filterArg == 'adverts') {
+                    const rulesForAnd = filterData['val'].split('+');
+                    // console.log(rulesForAnd);
 
-                //     let wholeText = '';
-                //     for (const key of ['bid', 'title', 'brand', 'nmId', 'imtId', 'object']) {
-                //         wholeText += tempTypeRow[key] + ' ';
-                //     }
+                    let wholeText = '';
+                    const adverts = tempTypeRow[filterArg];
+                    if (adverts)
+                        for (const [advertsTypes, advertsTypesData] of Object.entries(adverts)) {
+                            if (!advertsTypes || !advertsTypesData) continue;
+                            for (const [id, _] of Object.entries(advertsTypesData)) {
+                                wholeText += id + ' ';
+                            }
+                        }
 
-                //     let tempFlagInc = 0;
-                //     for (let k = 0; k < rulesForAnd.length; k++) {
-                //         const ruleForAdd = rulesForAnd[k];
-                //         if (ruleForAdd == '') {
-                //             tempFlagInc++;
-                //             continue;
-                //         }
-                //         if (
-                //             compare(wholeText, {
-                //                 val: ruleForAdd,
-                //                 compMode: filterData['compMode'],
-                //             })
-                //         ) {
-                //             tempFlagInc++;
-                //         }
-                //     }
-                //     if (tempFlagInc != rulesForAnd.length) {
-                //         addFlag = false;
-                //         break;
-                //     }
-                // }
-                else if (filterArg == 'semantics') {
+                    let tempFlagInc = 0;
+                    for (let k = 0; k < rulesForAnd.length; k++) {
+                        const ruleForAdd = rulesForAnd[k];
+                        if (ruleForAdd == '') {
+                            tempFlagInc++;
+                            continue;
+                        }
+                        if (
+                            compare(wholeText, {
+                                val: ruleForAdd,
+                                compMode: filterData['compMode'],
+                            })
+                        ) {
+                            tempFlagInc++;
+                        }
+                    }
+                    if (tempFlagInc != rulesForAnd.length) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'semantics') {
                     if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
                         addFlag = false;
                         break;
