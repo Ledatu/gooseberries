@@ -445,7 +445,7 @@ export const MassAdvertPage = () => {
                     width,
                     viewportSize,
                 }),
-                group: group && groupingEnabledState,
+                group: group && groupingEnabledState && false,
                 render: render
                     ? (args) => render(args)
                     : ({value}) => {
