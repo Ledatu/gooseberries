@@ -3247,7 +3247,7 @@ export const MassAdvertPage = () => {
                                                 console.log(params);
 
                                                 //////////////////////////////////
-                                                // callApi('setAdvertsCPMs', params);
+                                                callApi('setAdvertsCPMs', params);
                                                 setChangedDoc(doc);
                                                 //////////////////////////////////
 
