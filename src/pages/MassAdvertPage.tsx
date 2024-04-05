@@ -698,6 +698,19 @@ export const MassAdvertPage = () => {
                                 : 'flat-info'
                             : 'normal';
 
+                        const advertSemantics = {
+                            clusters: semantics
+                                ? semantics[advertsType]
+                                    ? semantics[advertsType].clusters ?? []
+                                    : []
+                                : [],
+                            excluded: semantics
+                                ? semantics[advertsType]
+                                    ? semantics[advertsType].excluded ?? []
+                                    : []
+                                : [],
+                        };
+
                         switches.push(
                             <Card
                             // style={{overflow: 'hidden'}}
@@ -714,6 +727,7 @@ export const MassAdvertPage = () => {
                                             display: 'flex',
                                             flexDirection: 'row',
                                             alignItems: 'center',
+                                            justifyContent: 'space-between',
                                         }}
                                     >
                                         <Button
@@ -824,26 +838,14 @@ export const MassAdvertPage = () => {
                                         >
                                             <Text variant="caption-2">{`Баланс: ${
                                                 curBudget !== undefined ? curBudget : 'Нет инф.'
+                                            } / ${
+                                                budgetToKeep !== undefined
+                                                    ? budgetToKeep
+                                                    : 'Бюджет не задан.'
                                             }`}</Text>
                                         </Button>
                                     </div>
-                                    <div
-                                        style={{
-                                            display: budgetToKeep !== undefined ? 'flex' : 'none',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            pin="brick-round"
-                                            size="xs"
-                                            view="flat"
-                                            // onClick={() => filterByButton(budgetToKeep, 'adverts')}
-                                        >
-                                            <Text variant="caption-2">{`Бюджет: ${budgetToKeep}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div style={{display: 'flex'}}>
+                                    <div style={{display: 'flex', flexDirection: 'row'}}>
                                         <Button
                                             size="xs"
                                             pin="brick-round"
@@ -883,11 +885,7 @@ export const MassAdvertPage = () => {
                                                 );
 
                                                 setSemanticsModalSemanticsItemsValue(() => {
-                                                    const temp = semantics
-                                                        ? semantics[advertsType]
-                                                            ? semantics[advertsType].clusters ?? []
-                                                            : []
-                                                        : [];
+                                                    const temp = advertSemantics.clusters;
                                                     temp.sort((a, b) => {
                                                         const freqA = a.freq ? a.freq : 0;
                                                         const freqB = b.freq ? b.freq : 0;
@@ -899,11 +897,7 @@ export const MassAdvertPage = () => {
                                                     return temp;
                                                 });
                                                 setSemanticsModalSemanticsMinusItemsValue(() => {
-                                                    const temp = semantics
-                                                        ? semantics[advertsType]
-                                                            ? semantics[advertsType].excluded ?? []
-                                                            : []
-                                                        : [];
+                                                    const temp = advertSemantics.excluded;
                                                     temp.sort((a, b) => {
                                                         const freqA = a.freq ? a.freq : 0;
                                                         const freqB = b.freq ? b.freq : 0;
@@ -1010,48 +1004,56 @@ export const MassAdvertPage = () => {
                                                     : 'Фразы'}
                                             </Text>
                                         </Button>
-                                        {Array.from(value ? value.clusters ?? [] : []).length ? (
-                                            <>
-                                                <div style={{width: 5}} />
-                                                <Label theme="clear">
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            justifyContent: 'center',
-                                                            alignItems: 'center',
-                                                        }}
-                                                    >
-                                                        {value.clusters.length}
-                                                        <div style={{width: 3}} />
-                                                        <Icon size={12} data={Eye} />
-                                                    </div>
-                                                </Label>
-                                            </>
-                                        ) : (
-                                            <></>
-                                        )}
-                                        {Array.from(value ? value.excluded ?? [] : []).length ? (
-                                            <>
-                                                <div style={{width: 5}} />
-                                                <Label theme="clear">
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            justifyContent: 'center',
-                                                            alignItems: 'center',
-                                                        }}
-                                                    >
-                                                        {value.excluded.length}
-                                                        <div style={{width: 3}} />
-                                                        <Icon size={12} data={EyeSlash} />
-                                                    </div>
-                                                </Label>
-                                            </>
-                                        ) : (
-                                            <></>
-                                        )}
+                                        <div style={{height: 4}} />
+                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                            {advertSemantics.clusters.length ? (
+                                                <>
+                                                    <div style={{width: 5}} />
+                                                    <Label theme="clear">
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                flexDirection: 'row',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                            }}
+                                                        >
+                                                            <Text variant="caption-2">
+                                                                {advertSemantics.clusters.length}
+                                                            </Text>
+                                                            <div style={{width: 3}} />
+                                                            <Icon size={11} data={Eye} />
+                                                        </div>
+                                                    </Label>
+                                                </>
+                                            ) : (
+                                                <></>
+                                            )}
+                                            {advertSemantics.excluded.length ? (
+                                                <>
+                                                    <div style={{width: 5}} />
+                                                    <Label theme="clear">
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                flexDirection: 'row',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                            }}
+                                                        >
+                                                            <Text variant="caption-2">
+                                                                {advertSemantics.excluded.length}
+                                                            </Text>
+                                                            <div style={{width: 3}} />
+                                                            <Icon size={11} data={EyeSlash} />
+                                                        </div>
+                                                    </Label>
+                                                </>
+                                            ) : (
+                                                <></>
+                                            )}
+                                            <div style={{width: 5}} />
+                                        </div>
                                     </div>
                                 </div>
                             </Card>,
