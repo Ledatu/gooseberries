@@ -5221,7 +5221,7 @@ const generateFilterTextInput = (args) => {
                 event.stopPropagation();
             }}
         >
-            <div style={{display: 'flex', flexDirection: 'column'}}>
+            <div style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
                 <Text style={{marginLeft: 4}} variant="subheader-1">
                     {placeholder}
                 </Text>
