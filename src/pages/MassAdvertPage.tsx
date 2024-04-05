@@ -36,6 +36,7 @@ import {
     Rocket,
     Magnifier,
     LayoutHeader,
+    ArrowsRotateLeft,
     TriangleExclamation,
     ChartLine,
     CircleRuble,
@@ -673,6 +674,7 @@ export const MassAdvertPage = () => {
                             advertData;
                         const curBudget = budget[advertsType];
                         const curCpm = bid[advertsType];
+                        if (![4, 9, 11].includes(status)) continue;
 
                         const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][
                             advertId
@@ -692,14 +694,14 @@ export const MassAdvertPage = () => {
                                   autoPhrasesTemplate.includes.length) ||
                                   (autoPhrasesTemplate.notIncludes &&
                                       autoPhrasesTemplate.notIncludes.length))
-                                ? 'success'
-                                : 'info'
+                                ? 'flat-success'
+                                : 'flat-info'
                             : 'normal';
 
                         switches.push(
                             <Card
-                                style={{padding: 0, marginRight: 8, overflow: 'hidden'}}
-                                // view="raised"
+                            // style={{overflow: 'hidden'}}
+                            // view="raised"
                             >
                                 <div
                                     style={{
@@ -714,18 +716,25 @@ export const MassAdvertPage = () => {
                                             alignItems: 'center',
                                         }}
                                     >
-                                        <Label
-                                            interactive
+                                        <Button
+                                            selected
+                                            style={{
+                                                borderTopLeftRadius: 7,
+                                                borderBottomRightRadius: 9,
+                                                overflow: 'hidden',
+                                            }}
                                             onClick={() => filterByButton(advertId, 'adverts')}
                                             // style={{position: 'relative', top: -2}}
-                                            theme={
+                                            size="xs"
+                                            pin="brick-brick"
+                                            view={
                                                 status
                                                     ? status == 9
-                                                        ? 'success'
+                                                        ? 'flat-success'
                                                         : status == 11
-                                                        ? 'danger'
-                                                        : 'warning'
-                                                    : 'clear'
+                                                        ? 'flat-danger'
+                                                        : 'flat-warning'
+                                                    : 'flat'
                                             }
                                         >
                                             <div
@@ -742,11 +751,18 @@ export const MassAdvertPage = () => {
                                                 <div style={{width: 2}} />
                                                 {advertId}
                                             </div>
-                                        </Label>
+                                        </Button>
+
                                         {status !== undefined ? (
                                             <Button
-                                                style={{marginLeft: 8}}
+                                                pin="clear-clear"
+                                                style={{
+                                                    borderTopRightRadius: 7,
+                                                    borderBottomLeftRadius: 9,
+                                                    overflow: 'hidden',
+                                                }}
                                                 size="xs"
+                                                // selected
                                                 view="flat"
                                                 onClick={() => {
                                                     const nDaysAgo = new Date(today);
@@ -779,6 +795,7 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <Button
+                                            pin="brick-round"
                                             size="xs"
                                             view="flat"
                                             onClick={() => {
@@ -797,6 +814,7 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <Button
+                                            pin="brick-round"
                                             size="xs"
                                             view="flat"
                                             onClick={() => {
@@ -817,6 +835,7 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <Button
+                                            pin="brick-round"
                                             size="xs"
                                             view="flat"
                                             // onClick={() => filterByButton(budgetToKeep, 'adverts')}
@@ -825,10 +844,16 @@ export const MassAdvertPage = () => {
                                         </Button>
                                     </div>
                                     <div style={{display: 'flex'}}>
-                                        <Label
-                                            // theme="normal"
-                                            // theme="info"
-                                            theme={themeToUse}
+                                        <Button
+                                            size="xs"
+                                            pin="brick-round"
+                                            // style={{
+                                            //     borderTopRightRadius: 7,
+                                            //     borderBottomRightRadius: 7,
+                                            //     overflow: 'hidden',
+                                            // }}
+                                            selected={themeToUse != 'normal'}
+                                            view={themeToUse}
                                             onClick={() => {
                                                 setSemanticsModalFormOpen(true);
 
@@ -979,10 +1004,12 @@ export const MassAdvertPage = () => {
                                                 // setSemanticsModalTextAreaAddMode(false);
                                             }}
                                         >
-                                            {themeToUse != 'normal'
-                                                ? plusPhrasesTemplate
-                                                : 'Добавить'}
-                                        </Label>
+                                            <Text variant="caption-2">
+                                                {themeToUse != 'normal'
+                                                    ? plusPhrasesTemplate
+                                                    : 'Фразы'}
+                                            </Text>
+                                        </Button>
                                         {Array.from(value ? value.clusters ?? [] : []).length ? (
                                             <>
                                                 <div style={{width: 5}} />
@@ -1029,8 +1056,10 @@ export const MassAdvertPage = () => {
                                 </div>
                             </Card>,
                         );
+                        switches.push(<div style={{minWidth: 8}} />);
                     }
                 }
+                switches.pop();
 
                 return (
                     <div
@@ -1038,17 +1067,11 @@ export const MassAdvertPage = () => {
                             display: 'flex',
                             flexDirection: 'row',
                             height: 96,
-                            justifyContent: 'space-evenly',
+                            overflow: 'scroll',
+                            // justifyContent: 'space-between',
                         }}
                     >
-                        {switches[0]}
-                        <div
-                            style={{
-                                overflow: 'scroll',
-                                height: 8,
-                            }}
-                        />
-                        {switches[1]}
+                        {switches}
                     </div>
                 );
             },
@@ -1319,29 +1342,31 @@ export const MassAdvertPage = () => {
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
-    // const getCampaignName = () => {
-    //     return selectValue[0];
-    // };
-    // const updateTheData = async () => {
-    //     console.log('YOOO UPDATE INCOMING');
-    //     const params = {
-    //         uid: getUid(),
-    //         dateRange: {from: '2023', to: '2024'},
-    //         campaignName: getCampaignName(),
-    //     };
-    //     console.log(params);
+    const getCampaignName = () => {
+        return selectValue[0];
+    };
+    const updateTheData = async () => {
+        console.log('YOOO UPDATE INCOMING');
+        setFetchingDataFromServerFlag(true);
+        const params = {
+            uid: getUid(),
+            dateRange: {from: '2023', to: '2024'},
+            campaignName: getCampaignName(),
+        };
+        console.log(params);
 
-    //     await callApi('getMassAdvertsNew', params)
-    //         .then((response) => {
-    //             console.log(response);
-    //             if (!response) return;
-    //             const resData = response['data'];
-    //             setChangedDoc(resData);
-    //             setChangedDocUpdateType(true);
-    //             // console.log(response ? response['data'] : undefined);
-    //         })
-    //         .catch((error) => console.error(error));
-    // };
+        await callApi('getMassAdvertsNew', params)
+            .then((response) => {
+                setFetchingDataFromServerFlag(false);
+                // console.log(response);
+                if (!response) return;
+                const resData = response['data'];
+                setChangedDoc(resData);
+                setChangedDocUpdateType(true);
+                // console.log(response ? response['data'] : undefined);
+            })
+            .catch((error) => console.error(error));
+    };
     // useEffect(() => {
     //     const interval = setInterval(updateTheData, 1 * 60 * 1000);
 
@@ -1737,6 +1762,7 @@ export const MassAdvertPage = () => {
     };
 
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
+    const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = React.useState(false);
     const [selectedValueMethodOptions] = React.useState<SelectOption<any>[]>([
         {
             value: 'Под Позицию',
@@ -2053,20 +2079,25 @@ export const MassAdvertPage = () => {
             },
         },
     ];
+    const renameFirstColumn = (newName: string) => {
+        const columnDataSemanticsCopy = Array.from(columnDataSemantics);
+        columnDataSemanticsCopy[0].placeholder = newName;
+        return columnDataSemanticsCopy;
+    };
     const columnsSemanticsActive = generateColumns(
-        columnDataSemantics,
+        renameFirstColumn('Кластеры в показах'),
         clustersFiltersActive,
         setClustersFiltersActive,
         clustersFilterDataActive,
     );
     const columnsSemanticsMinus = generateColumns(
-        columnDataSemantics,
+        renameFirstColumn('Исключенные кластеры'),
         clustersFiltersMinus,
         setClustersFiltersMinus,
         clustersFilterDataMinus,
     );
     const columnsSemanticsTemplate = generateColumns(
-        [columnDataSemantics[0]],
+        [renameFirstColumn('Кластеры в шаблоне')[0]],
         clustersFiltersTemplate,
         setClustersFiltersTemplate,
         clustersFilterDataTemplate,
@@ -4224,6 +4255,19 @@ export const MassAdvertPage = () => {
                         <Text variant="subheader-1">Очистить фильтры</Text>
                     </Button>
                     <div style={{width: 8}} />
+                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                        <Button
+                            loading={fetchingDataFromServerFlag}
+                            size="l"
+                            view="action"
+                            onClick={updateTheData}
+                        >
+                            <Icon data={ArrowsRotateLeft} />
+                            <Text variant="subheader-1">Обновить</Text>
+                        </Button>
+                        <div style={{width: 8}} />
+                        {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
+                    </div>
                     <div ref={fieldRef}>
                         <Button
                             view="outlined-warning"
