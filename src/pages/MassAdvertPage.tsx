@@ -4261,6 +4261,8 @@ export const MassAdvertPage = () => {
                                             resData['balances'][nextValue[0]];
                                         doc['plusPhrasesTemplates'][nextValue[0]] =
                                             resData['plusPhrasesTemplates'][nextValue[0]];
+                                        doc['advertsPlusPhrasesTemplates'][nextValue[0]] =
+                                            resData['advertsPlusPhrasesTemplates'][nextValue[0]];
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
                                         // recalc(dateRange, nextValue[0]);
