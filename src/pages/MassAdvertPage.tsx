@@ -89,6 +89,8 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['campaigns'][selectValue] = docum['campaigns'][selectValue];
             doc['balances'][selectValue] = docum['balances'][selectValue];
             doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
+            doc['advertsPlusPhrasesTemplates'][selectValue] =
+                docum['advertsPlusPhrasesTemplates'][selectValue];
         }
         setDocument(docum);
     }
@@ -432,7 +434,8 @@ export const MassAdvertPage = () => {
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
             if (!column) continue;
-            const {name, placeholder, width, render, className, valueType, group} = column;
+            const {name, placeholder, width, render, className, valueType, group, additionalNodes} =
+                column;
 
             columns.push({
                 name: name,
@@ -446,6 +449,7 @@ export const MassAdvertPage = () => {
                     valueType,
                     width,
                     viewportSize,
+                    additionalNodes,
                 }),
                 group: group && groupingEnabledState && false,
                 render: render
@@ -1816,6 +1820,7 @@ export const MassAdvertPage = () => {
 
     const columnDataSemantics = [
         {
+            additionalNodes: [] as any[],
             width: 200,
             name: 'cluster',
             placeholder: 'Кластер',
@@ -2081,25 +2086,94 @@ export const MassAdvertPage = () => {
             },
         },
     ];
-    const renameFirstColumn = (newName: string) => {
+    const renameFirstColumn = (newName: string, additionalNodes = [] as any[]) => {
         const columnDataSemanticsCopy = Array.from(columnDataSemantics);
         columnDataSemanticsCopy[0].placeholder = newName;
+        columnDataSemanticsCopy[0].additionalNodes = additionalNodes;
         return columnDataSemanticsCopy;
     };
+    const generateMassAddDelButton = ({placeholder, array, mode}) => {
+        return (
+            <Button
+                style={{marginLeft: 8}}
+                view="outlined"
+                onClick={() => {
+                    const val = [] as any[];
+                    if (mode == 'add') {
+                        val.push(...Array.from(semanticsModalSemanticsPlusItemsValue));
+                        for (let i = 0; i < array.length; i++) {
+                            const cluster = array[i].cluster;
+                            if (val.includes(cluster)) continue;
+                            val.push(cluster);
+                        }
+                    } else if (mode == 'del') {
+                        const clustersToDel = [] as string[];
+                        for (const clusterData of array) clustersToDel.push(clusterData.cluster);
+                        for (let i = 0; i < semanticsModalSemanticsPlusItemsValue.length; i++) {
+                            const cluster = semanticsModalSemanticsPlusItemsValue[i];
+                            if (clustersToDel.includes(cluster)) continue;
+                            if (val.includes(cluster)) continue;
+                            val.push(cluster);
+                        }
+                    }
+
+                    setSemanticsModalSemanticsPlusItemsValue(val);
+                    setSemanticsModalSemanticsTemplateItemsValue(() => {
+                        const plusItemsTable = [] as any[];
+                        for (const phrase of val) {
+                            plusItemsTable.push({cluster: phrase});
+                        }
+                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(plusItemsTable);
+                        return plusItemsTable;
+                    });
+                }}
+            >
+                {placeholder}
+            </Button>
+        );
+    };
     const columnsSemanticsActive = generateColumns(
-        renameFirstColumn('Кластеры в показах'),
+        renameFirstColumn('Кластеры в показах', [
+            generateMassAddDelButton({
+                placeholder: 'Добавить все',
+                array: semanticsModalSemanticsItemsFiltratedValue,
+                mode: 'add',
+            }),
+            generateMassAddDelButton({
+                placeholder: 'Удалить все',
+                array: semanticsModalSemanticsItemsFiltratedValue,
+                mode: 'del',
+            }),
+        ]),
         clustersFiltersActive,
         setClustersFiltersActive,
         clustersFilterDataActive,
     );
     const columnsSemanticsMinus = generateColumns(
-        renameFirstColumn('Исключенные кластеры'),
+        renameFirstColumn('Исключенные кластеры', [
+            generateMassAddDelButton({
+                placeholder: 'Добавить все',
+                array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                mode: 'add',
+            }),
+            generateMassAddDelButton({
+                placeholder: 'Удалить все',
+                array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                mode: 'del',
+            }),
+        ]),
         clustersFiltersMinus,
         setClustersFiltersMinus,
         clustersFilterDataMinus,
     );
     const columnsSemanticsTemplate = generateColumns(
-        [renameFirstColumn('Кластеры в шаблоне')[0]],
+        renameFirstColumn('Кластеры в шаблоне', [
+            generateMassAddDelButton({
+                placeholder: 'Удалить все',
+                array: semanticsModalSemanticsTemplateItemsFiltratedValue,
+                mode: 'del',
+            }),
+        ]).slice(0, 1),
         clustersFiltersTemplate,
         setClustersFiltersTemplate,
         clustersFilterDataTemplate,
@@ -3249,13 +3323,13 @@ export const MassAdvertPage = () => {
                             onAnimationStart={async () => {
                                 await new Promise((resolve) => setTimeout(resolve, 300));
                                 clustersFilterDataActive(
-                                    {cluser: {val: '', mode: 'include'}},
+                                    {cluster: {val: '', mode: 'include'}},
                                     semanticsModalSemanticsItemsValue,
                                 );
                             }}
-                            animate={{width: semanticsModalFormOpen ? '70vw' : 0}}
+                            animate={{width: semanticsModalFormOpen ? '80vw' : 0}}
                             style={{
-                                height: '80vh',
+                                height: '90vh',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
@@ -3265,7 +3339,7 @@ export const MassAdvertPage = () => {
                         >
                             <div
                                 style={{
-                                    height: '25vh',
+                                    height: '28vh',
                                     width: '100%',
                                     overflow: 'auto',
                                 }}
@@ -3291,7 +3365,7 @@ export const MassAdvertPage = () => {
                             </div>
                             <div
                                 style={{
-                                    height: '25vh',
+                                    height: '28vh',
                                     width: '100%',
                                     display: 'flex',
                                     flexDirection: 'row',
@@ -3877,7 +3951,7 @@ export const MassAdvertPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div style={{height: '25vh', overflow: 'auto', width: '100%'}}>
+                            <div style={{height: '28vh', overflow: 'auto', width: '100%'}}>
                                 <DataTable
                                     startIndex={1}
                                     settings={{
@@ -5116,8 +5190,17 @@ const generateModalButtonWithActions = (
 // };
 
 const generateFilterTextInput = (args) => {
-    const {filters, setFilters, filterData, name, placeholder, valueType, width, viewportSize} =
-        args;
+    const {
+        filters,
+        setFilters,
+        filterData,
+        name,
+        placeholder,
+        valueType,
+        width,
+        viewportSize,
+        additionalNodes,
+    } = args;
     let minWidth = viewportSize ? viewportSize.width / 20 : 60;
     if (minWidth < 40) minWidth = 60;
     if (minWidth > 100) minWidth = 100;
@@ -5126,7 +5209,8 @@ const generateFilterTextInput = (args) => {
         <div
             style={{
                 display: 'flex',
-                flexDirection: 'column',
+                flexDirection: 'row',
+                alignItems: 'end',
                 minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
 
                 maxWidth: '30vw',
@@ -5135,216 +5219,220 @@ const generateFilterTextInput = (args) => {
                 event.stopPropagation();
             }}
         >
-            <Text style={{marginLeft: 4}} variant="subheader-1">
-                {placeholder}
-            </Text>
-            <TextInput
-                hasClear
-                value={filters[name] ? filters[name].val : ''}
-                onChange={(val) => {
-                    setFilters(() => {
-                        if (!(name in filters))
-                            filters[name] = {
-                                compMode: valueType != 'text' ? 'bigger' : 'include',
-                                val: '',
-                            };
-                        filters[name].val = val.target.value;
-                        filterData(filters);
-                        return filters;
-                    });
-                }}
-                // placeholder={'Фильтр'}
-                rightContent={
-                    <DropdownMenu
-                        renderSwitcher={(props) => (
-                            <Button
-                                {...props}
-                                view={
-                                    filters[name]
-                                        ? filters[name].val != ''
-                                            ? !filters[name].compMode.includes('not')
-                                                ? 'flat-success'
-                                                : 'flat-danger'
+            <div style={{display: 'flex', flexDirection: 'column'}}>
+                <Text style={{marginLeft: 4}} variant="subheader-1">
+                    {placeholder}
+                </Text>
+                <TextInput
+                    hasClear
+                    value={filters[name] ? filters[name].val : ''}
+                    onChange={(val) => {
+                        setFilters(() => {
+                            if (!(name in filters))
+                                filters[name] = {
+                                    compMode: valueType != 'text' ? 'bigger' : 'include',
+                                    val: '',
+                                };
+                            filters[name].val = val.target.value;
+                            filterData(filters);
+                            return filters;
+                        });
+                    }}
+                    // placeholder={'Фильтр'}
+                    rightContent={
+                        <DropdownMenu
+                            renderSwitcher={(props) => (
+                                <Button
+                                    {...props}
+                                    view={
+                                        filters[name]
+                                            ? filters[name].val != ''
+                                                ? !filters[name].compMode.includes('not')
+                                                    ? 'flat-success'
+                                                    : 'flat-danger'
+                                                : 'flat'
                                             : 'flat'
-                                        : 'flat'
-                                }
-                                size="xs"
-                            >
-                                <Icon data={Funnel} />
-                            </Button>
-                        )}
-                        items={[
-                            [
-                                {
-                                    iconStart: (
-                                        <Icon
-                                            data={
-                                                filters[name]
-                                                    ? filters[name].compMode == 'include'
-                                                        ? CirclePlusFill
-                                                        : CirclePlus
-                                                    : CirclePlusFill
-                                            }
-                                        />
-                                    ),
-                                    action: () => {
-                                        setFilters(() => {
-                                            if (!(name in filters))
-                                                filters[name] = {
-                                                    compMode: 'include',
-                                                    val: '',
-                                                };
-                                            filters[name].compMode = 'include';
-                                            filterData(filters);
-                                            return filters;
-                                        });
+                                    }
+                                    size="xs"
+                                >
+                                    <Icon data={Funnel} />
+                                </Button>
+                            )}
+                            items={[
+                                [
+                                    {
+                                        iconStart: (
+                                            <Icon
+                                                data={
+                                                    filters[name]
+                                                        ? filters[name].compMode == 'include'
+                                                            ? CirclePlusFill
+                                                            : CirclePlus
+                                                        : CirclePlusFill
+                                                }
+                                            />
+                                        ),
+                                        action: () => {
+                                            setFilters(() => {
+                                                if (!(name in filters))
+                                                    filters[name] = {
+                                                        compMode: 'include',
+                                                        val: '',
+                                                    };
+                                                filters[name].compMode = 'include';
+                                                filterData(filters);
+                                                return filters;
+                                            });
+                                        },
+                                        text: 'Включает',
                                     },
-                                    text: 'Включает',
-                                },
-                                {
-                                    iconStart: (
-                                        <Icon
-                                            data={
-                                                filters[name]
-                                                    ? filters[name].compMode == 'not include'
-                                                        ? CircleMinusFill
+                                    {
+                                        iconStart: (
+                                            <Icon
+                                                data={
+                                                    filters[name]
+                                                        ? filters[name].compMode == 'not include'
+                                                            ? CircleMinusFill
+                                                            : CircleMinus
                                                         : CircleMinus
-                                                    : CircleMinus
-                                            }
-                                        />
-                                    ),
-                                    action: () => {
-                                        setFilters(() => {
-                                            if (!(name in filters))
-                                                filters[name] = {
-                                                    compMode: 'not include',
-                                                    val: '',
-                                                };
-                                            filters[name].compMode = 'not include';
-                                            filterData(filters);
-                                            return filters;
-                                        });
+                                                }
+                                            />
+                                        ),
+                                        action: () => {
+                                            setFilters(() => {
+                                                if (!(name in filters))
+                                                    filters[name] = {
+                                                        compMode: 'not include',
+                                                        val: '',
+                                                    };
+                                                filters[name].compMode = 'not include';
+                                                filterData(filters);
+                                                return filters;
+                                            });
+                                        },
+                                        text: 'Не включает',
+                                        theme: 'danger',
                                     },
-                                    text: 'Не включает',
-                                    theme: 'danger',
-                                },
-                            ],
-                            [
-                                {
-                                    iconStart: (
-                                        <Icon
-                                            data={
-                                                filters[name]
-                                                    ? filters[name].compMode == 'equal'
-                                                        ? CirclePlusFill
+                                ],
+                                [
+                                    {
+                                        iconStart: (
+                                            <Icon
+                                                data={
+                                                    filters[name]
+                                                        ? filters[name].compMode == 'equal'
+                                                            ? CirclePlusFill
+                                                            : CirclePlus
                                                         : CirclePlus
-                                                    : CirclePlus
-                                            }
-                                        />
-                                    ),
-                                    action: () => {
-                                        setFilters(() => {
-                                            if (!(name in filters))
-                                                filters[name] = {
-                                                    compMode: 'equal',
-                                                    val: '',
-                                                };
-                                            filters[name].compMode = 'equal';
-                                            filterData(filters);
-                                            return filters;
-                                        });
+                                                }
+                                            />
+                                        ),
+                                        action: () => {
+                                            setFilters(() => {
+                                                if (!(name in filters))
+                                                    filters[name] = {
+                                                        compMode: 'equal',
+                                                        val: '',
+                                                    };
+                                                filters[name].compMode = 'equal';
+                                                filterData(filters);
+                                                return filters;
+                                            });
+                                        },
+                                        text: 'Равно',
                                     },
-                                    text: 'Равно',
-                                },
-                                {
-                                    iconStart: (
-                                        <Icon
-                                            data={
-                                                filters[name]
-                                                    ? filters[name].compMode == 'not equal'
-                                                        ? CircleMinusFill
+                                    {
+                                        iconStart: (
+                                            <Icon
+                                                data={
+                                                    filters[name]
+                                                        ? filters[name].compMode == 'not equal'
+                                                            ? CircleMinusFill
+                                                            : CircleMinus
                                                         : CircleMinus
-                                                    : CircleMinus
-                                            }
-                                        />
-                                    ),
-                                    action: () => {
-                                        setFilters(() => {
-                                            if (!(name in filters))
-                                                filters[name] = {
-                                                    compMode: 'not equal',
-                                                    val: '',
-                                                };
-                                            filters[name].compMode = 'not equal';
-                                            filterData(filters);
-                                            return filters;
-                                        });
+                                                }
+                                            />
+                                        ),
+                                        action: () => {
+                                            setFilters(() => {
+                                                if (!(name in filters))
+                                                    filters[name] = {
+                                                        compMode: 'not equal',
+                                                        val: '',
+                                                    };
+                                                filters[name].compMode = 'not equal';
+                                                filterData(filters);
+                                                return filters;
+                                            });
+                                        },
+                                        text: 'Не равно',
+                                        theme: 'danger',
                                     },
-                                    text: 'Не равно',
-                                    theme: 'danger',
-                                },
-                            ],
-                            valueType != 'text'
-                                ? [
-                                      {
-                                          iconStart: (
-                                              <Icon
-                                                  data={
-                                                      filters[name]
-                                                          ? filters[name].compMode == 'bigger'
-                                                              ? CirclePlusFill
+                                ],
+                                valueType != 'text'
+                                    ? [
+                                          {
+                                              iconStart: (
+                                                  <Icon
+                                                      data={
+                                                          filters[name]
+                                                              ? filters[name].compMode == 'bigger'
+                                                                  ? CirclePlusFill
+                                                                  : CirclePlus
                                                               : CirclePlus
-                                                          : CirclePlus
-                                                  }
-                                              />
-                                          ),
-                                          action: () => {
-                                              setFilters(() => {
-                                                  if (!(name in filters))
-                                                      filters[name] = {
-                                                          compMode: 'bigger',
-                                                          val: '',
-                                                      };
-                                                  filters[name].compMode = 'bigger';
-                                                  filterData(filters);
-                                                  return filters;
-                                              });
+                                                      }
+                                                  />
+                                              ),
+                                              action: () => {
+                                                  setFilters(() => {
+                                                      if (!(name in filters))
+                                                          filters[name] = {
+                                                              compMode: 'bigger',
+                                                              val: '',
+                                                          };
+                                                      filters[name].compMode = 'bigger';
+                                                      filterData(filters);
+                                                      return filters;
+                                                  });
+                                              },
+                                              text: 'Больше',
                                           },
-                                          text: 'Больше',
-                                      },
-                                      {
-                                          iconStart: (
-                                              <Icon
-                                                  data={
-                                                      filters[name]
-                                                          ? filters[name].compMode == 'not bigger'
-                                                              ? CircleMinusFill
+                                          {
+                                              iconStart: (
+                                                  <Icon
+                                                      data={
+                                                          filters[name]
+                                                              ? filters[name].compMode ==
+                                                                'not bigger'
+                                                                  ? CircleMinusFill
+                                                                  : CircleMinus
                                                               : CircleMinus
-                                                          : CircleMinus
-                                                  }
-                                              />
-                                          ),
-                                          action: () => {
-                                              setFilters(() => {
-                                                  if (!(name in filters))
-                                                      filters[name] = {
-                                                          compMode: 'not bigger',
-                                                          val: '',
-                                                      };
-                                                  filters[name].compMode = 'not bigger';
-                                                  filterData(filters);
-                                                  return filters;
-                                              });
+                                                      }
+                                                  />
+                                              ),
+                                              action: () => {
+                                                  setFilters(() => {
+                                                      if (!(name in filters))
+                                                          filters[name] = {
+                                                              compMode: 'not bigger',
+                                                              val: '',
+                                                          };
+                                                      filters[name].compMode = 'not bigger';
+                                                      filterData(filters);
+                                                      return filters;
+                                                  });
+                                              },
+                                              text: 'Меньше',
+                                              theme: 'danger',
                                           },
-                                          text: 'Меньше',
-                                          theme: 'danger',
-                                      },
-                                  ]
-                                : [],
-                        ]}
-                    />
-                }
-            />
+                                      ]
+                                    : [],
+                            ]}
+                        />
+                    }
+                />
+            </div>
+            {additionalNodes ?? <></>}
         </div>
     );
 };
