@@ -843,8 +843,8 @@ export const MassAdvertPage = () => {
                                             <Text variant="caption-2">{`Баланс: ${
                                                 curBudget !== undefined ? curBudget : 'Нет инф.'
                                             } / ${
-                                                budgetToKeep !== undefined
-                                                    ? budgetToKeep
+                                                budgetToKeep[advertId] !== undefined
+                                                    ? budgetToKeep[advertId]
                                                     : 'Бюджет не задан.'
                                             }`}</Text>
                                         </Button>
@@ -1447,11 +1447,8 @@ export const MassAdvertPage = () => {
             sum_sales: 0,
         };
 
-        const campaignData = doc
-            ? doc.campaigns
-                ? doc.campaigns[selected == '' ? selectValue[0] : selected]
-                : {}
-            : {};
+        const _selectedCampaignName = selected == '' ? selectValue[0] : selected;
+        const campaignData = doc ? (doc.campaigns ? doc.campaigns[_selectedCampaignName] : {}) : {};
         const temp = {};
         for (const [art, artData] of Object.entries(campaignData)) {
             if (!art || !artData) continue;
@@ -1476,7 +1473,7 @@ export const MassAdvertPage = () => {
                 budget: {},
                 bid: {},
                 bidLog: {},
-                budgetToKeep: 0,
+                budgetToKeep: {},
                 orders: 0,
                 sum_orders: 0,
                 sum: 0,
@@ -1508,7 +1505,6 @@ export const MassAdvertPage = () => {
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
             artInfo.advertsSelectedPhrases = artData['advertsSelectedPhrases'];
             artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
-            artInfo.budgetToKeep = artData['budgetToKeep'];
 
             // console.log(artInfo);
 
@@ -1526,6 +1522,8 @@ export const MassAdvertPage = () => {
                         artInfo.bid[advertType] = advertData['cpm'];
 
                         artInfo.semantics[advertType] = advertData['words'];
+                        artInfo.budgetToKeep[advertId] =
+                            doc.advertsBudgetsToKeep[_selectedCampaignName][advertId];
                         artInfo.bidLog[advertType] = advertData['bidLog'];
                     }
                 }
@@ -1705,7 +1703,6 @@ export const MassAdvertPage = () => {
             adverts: null,
             semantics: null,
             budget: 0,
-            budgetToKeep: 0,
         };
         for (let i = 0; i < temp.length; i++) {
             const row = temp[i];
@@ -1717,16 +1714,14 @@ export const MassAdvertPage = () => {
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
             filteredSummaryTemp.budget += row['budget'] ?? 0;
-            filteredSummaryTemp.budgetToKeep += row['budgetToKeep'] ?? 0;
         }
         filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
         filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
-        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks / 3);
+        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks);
         filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
         filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
         filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
         filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
-        filteredSummaryTemp.budgetToKeep = Math.round(filteredSummaryTemp.budgetToKeep);
 
         filteredSummaryTemp.drr = getRoundValue(
             filteredSummaryTemp.sum,
@@ -2573,7 +2568,7 @@ export const MassAdvertPage = () => {
                                                 },
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
-                                                const {art, adverts} = filteredData[i];
+                                                const {adverts} = filteredData[i];
                                                 if (adverts) {
                                                     for (const [
                                                         advertsType,
@@ -2600,21 +2595,19 @@ export const MassAdvertPage = () => {
                                                                 advertId: advertsData.advertId,
                                                                 budget: budgetModalBudgetInputValue,
                                                             };
+
+                                                            if (
+                                                                budgetModalSwitchValue ==
+                                                                'Установить лимит'
+                                                            ) {
+                                                                doc.advertsBudgetsToKeep[
+                                                                    selectValue[0]
+                                                                ][advertsData.advertId] =
+                                                                    budgetModalBudgetInputValue
+                                                                        ? budgetModalBudgetInputValue
+                                                                        : undefined;
+                                                            }
                                                         }
-                                                    }
-                                                }
-
-                                                if (budgetModalSwitchValue == 'Установить лимит') {
-                                                    for (const [
-                                                        advertsType,
-                                                        value,
-                                                    ] of Object.entries(advertsTypesInput)) {
-                                                        if (!advertsType || !value) continue;
-
-                                                        doc.campaigns[selectValue[0]][
-                                                            art
-                                                        ].budgetToKeep =
-                                                            budgetModalBudgetInputValue;
                                                     }
                                                 }
                                             }
