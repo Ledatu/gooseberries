@@ -92,6 +92,8 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['advertsPlusPhrasesTemplates'][selectValue] =
                 docum['advertsPlusPhrasesTemplates'][selectValue];
             doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
+            doc['advertsSelectedPhrases'][selectValue] =
+                docum['advertsSelectedPhrases'][selectValue];
         }
         setDocument(docum);
     }
@@ -664,7 +666,6 @@ export const MassAdvertPage = () => {
             render: ({value, row}) => {
                 if (value === null || value === undefined) return;
                 const {bid, budget, budgetToKeep, art, semantics} = row;
-                const advertsSelectedPhrases = row.advertsSelectedPhrases;
 
                 const mapp = {
                     search: {name: 'Поиск', icon: Magnifier},
@@ -681,6 +682,9 @@ export const MassAdvertPage = () => {
                         const curCpm = bid[advertsType];
                         if (![4, 9, 11].includes(status)) continue;
 
+                        const advertsSelectedPhrases = row.advertsSelectedPhrases
+                            ? row.advertsSelectedPhrases[advertId]
+                            : undefined;
                         const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][
                             advertId
                         ]
@@ -1469,7 +1473,7 @@ export const MassAdvertPage = () => {
                 placementsValue: undefined,
                 drrAI: undefined,
                 plusPhrasesTemplate: undefined,
-                advertsSelectedPhrases: undefined,
+                advertsSelectedPhrases: {},
                 semantics: {},
                 budget: {},
                 bid: {},
@@ -1504,7 +1508,6 @@ export const MassAdvertPage = () => {
             artInfo.placementsValue = artData['placements'];
             artInfo.drrAI = artData['drrAI'];
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
-            artInfo.advertsSelectedPhrases = artData['advertsSelectedPhrases'];
             artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
 
             // console.log(artInfo);
@@ -1525,6 +1528,8 @@ export const MassAdvertPage = () => {
                         artInfo.semantics[advertType] = advertData['words'];
                         artInfo.budgetToKeep[advertId] =
                             doc.advertsBudgetsToKeep[_selectedCampaignName][advertId];
+                        artInfo.advertsSelectedPhrases[advertId] =
+                            doc.advertsSelectedPhrases[_selectedCampaignName][advertId];
                         artInfo.bidLog[advertType] = advertData['bidLog'];
                     }
                 }
@@ -1868,23 +1873,24 @@ export const MassAdvertPage = () => {
                                 onClick={(event) => {
                                     event.stopPropagation();
                                     if (
-                                        !doc['campaigns'][selectValue[0]][semanticsModalOpenFromArt]
-                                            .advertsSelectedPhrases
+                                        !doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ]
                                     )
-                                        doc['campaigns'][selectValue[0]][
-                                            semanticsModalOpenFromArt
-                                        ].advertsSelectedPhrases = {
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ] = {
                                             phrase: '',
                                         };
 
                                     if (selectedSearchPhrase == value) {
-                                        doc['campaigns'][selectValue[0]][
-                                            semanticsModalOpenFromArt
-                                        ].advertsSelectedPhrases = undefined;
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ] = undefined;
                                     } else {
-                                        doc['campaigns'][selectValue[0]][
-                                            semanticsModalOpenFromArt
-                                        ].advertsSelectedPhrases.phrase = value;
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ].phrase = value;
                                     }
 
                                     setChangedDoc(doc);
@@ -1897,11 +1903,11 @@ export const MassAdvertPage = () => {
                                                 selectedSearchPhrase == value
                                                     ? 'Удалить'
                                                     : 'Установить',
-                                            arts: {},
+                                            advertsIds: {},
                                         },
                                     };
-                                    params.data.arts[semanticsModalOpenFromArt] = {};
-                                    params.data.arts[semanticsModalOpenFromArt].phrase = value;
+                                    params.data.advertsIds[modalOpenFromAdvertId] = {};
+                                    params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
                                     console.log(params);
 
                                     setSelectedSearchPhrase(
@@ -3127,7 +3133,6 @@ export const MassAdvertPage = () => {
                                                     uid: getUid(),
                                                     campaignName: selectValue[0],
                                                     data: {
-                                                        arts: {},
                                                         advertsIds: {},
                                                         mode: bidModalDeleteModeSelected
                                                             ? 'Удалить правила'
@@ -3140,7 +3145,7 @@ export const MassAdvertPage = () => {
                                                     },
                                                 };
                                                 for (let i = 0; i < filteredData.length; i++) {
-                                                    const {art, adverts} = filteredData[i];
+                                                    const {adverts} = filteredData[i];
                                                     if (adverts) {
                                                         for (const [
                                                             advertsType,
@@ -3167,74 +3172,69 @@ export const MassAdvertPage = () => {
                                                                     advertId: advertsData.advertId,
                                                                     bid: bidModalBidInputValue,
                                                                 };
+                                                                if (
+                                                                    bidModalSwitchValue ==
+                                                                    'Установить'
+                                                                ) {
+                                                                    params.data.advertsIds[
+                                                                        advertId
+                                                                    ] = {
+                                                                        bid: bidModalBidInputValue,
+                                                                        advertId:
+                                                                            advertsData.advertId,
+                                                                    };
+                                                                } else if (
+                                                                    bidModalSwitchValue ==
+                                                                    'Автоставки'
+                                                                ) {
+                                                                    if (
+                                                                        !bidModalDeleteModeSelected
+                                                                    ) {
+                                                                        params.data.advertsIds[
+                                                                            advertId
+                                                                        ] = {
+                                                                            desiredDRR:
+                                                                                bidModalDRRInputValue,
+                                                                            bidStep:
+                                                                                bidModalBidStepInputValue,
+
+                                                                            advertId:
+                                                                                advertsData.advertId,
+                                                                        };
+                                                                    } else {
+                                                                        params.data.advertsIds[
+                                                                            advertId
+                                                                        ] = {
+                                                                            advertId:
+                                                                                advertsData.advertId,
+                                                                        };
+                                                                    }
+
+                                                                    if (
+                                                                        !doc.advertsAutoBidsRules[
+                                                                            selectValue[0]
+                                                                        ][advertId]
+                                                                    )
+                                                                        doc.advertsAutoBidsRules[
+                                                                            selectValue[0]
+                                                                        ][advertId] = {};
+                                                                    doc.advertsAutoBidsRules[
+                                                                        selectValue[0]
+                                                                    ][advertId] =
+                                                                        bidModalDeleteModeSelected
+                                                                            ? undefined
+                                                                            : {
+                                                                                  desiredDRR:
+                                                                                      bidModalDeleteModeSelected
+                                                                                          ? undefined
+                                                                                          : bidModalDRRInputValue,
+                                                                                  placementsRange:
+                                                                                      bidModalRange,
+                                                                                  maxBid: bidModalMaxBid,
+                                                                              };
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    if (!art) continue;
-                                                    if (!doc.campaigns[selectValue[0]][art]) {
-                                                        console.log(
-                                                            art,
-                                                            doc,
-                                                            doc.campaigns,
-                                                            doc.campaigns[selectValue[0]],
-                                                            selectValue[0],
-                                                        );
-
-                                                        continue;
-                                                    }
-                                                    if (bidModalSwitchValue == 'Установить') {
-                                                        params.data.arts[art] = {
-                                                            bid: bidModalBidInputValue,
-                                                            art: art,
-                                                        };
-                                                    } else if (
-                                                        bidModalSwitchValue == 'Автоставки'
-                                                    ) {
-                                                        if (!bidModalDeleteModeSelected) {
-                                                            params.data.arts[art] = {
-                                                                desiredDRR: bidModalDRRInputValue,
-                                                                bidStep: bidModalBidStepInputValue,
-
-                                                                advertId: art,
-                                                            };
-                                                        } else {
-                                                            params.data.arts[art] = {
-                                                                art: art,
-                                                            };
-                                                        }
-
-                                                        if (
-                                                            !doc.campaigns[selectValue[0]][art]
-                                                                .drrAI
-                                                        )
-                                                            doc.campaigns[selectValue[0]][
-                                                                art
-                                                            ].drrAI = {};
-                                                        doc.campaigns[selectValue[0]][art].drrAI =
-                                                            bidModalDeleteModeSelected
-                                                                ? undefined
-                                                                : {
-                                                                      desiredDRR:
-                                                                          bidModalDeleteModeSelected
-                                                                              ? undefined
-                                                                              : bidModalDRRInputValue,
-                                                                      placementsRange:
-                                                                          bidModalRange,
-                                                                      maxBid: bidModalMaxBid,
-                                                                  };
-                                                        if (
-                                                            !doc.campaigns[selectValue[0]][art]
-                                                                .advertsStocksThreshold
-                                                        )
-                                                            doc.campaigns[selectValue[0]][
-                                                                art
-                                                            ].advertsStocksThreshold = {};
-                                                        doc.campaigns[selectValue[0]][
-                                                            art
-                                                        ].advertsStocksThreshold.stocksThreshold =
-                                                            bidModalDeleteModeSelected
-                                                                ? undefined
-                                                                : bidModalStocksThresholdInputValue;
                                                     }
                                                 }
 
@@ -4259,6 +4259,8 @@ export const MassAdvertPage = () => {
                                             resData['advertsPlusPhrasesTemplates'][nextValue[0]];
                                         doc['advertsBudgetsToKeep'][nextValue[0]] =
                                             resData['advertsBudgetsToKeep'][nextValue[0]];
+                                        doc['advertsSelectedPhrases'][nextValue[0]] =
+                                            resData['advertsSelectedPhrases'][nextValue[0]];
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
                                         // recalc(dateRange, nextValue[0]);
