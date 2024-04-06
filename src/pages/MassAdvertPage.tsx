@@ -91,6 +91,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
             doc['advertsPlusPhrasesTemplates'][selectValue] =
                 docum['advertsPlusPhrasesTemplates'][selectValue];
+            doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
         }
         setDocument(docum);
     }
@@ -4256,6 +4257,8 @@ export const MassAdvertPage = () => {
                                             resData['plusPhrasesTemplates'][nextValue[0]];
                                         doc['advertsPlusPhrasesTemplates'][nextValue[0]] =
                                             resData['advertsPlusPhrasesTemplates'][nextValue[0]];
+                                        doc['advertsBudgetsToKeep'][nextValue[0]] =
+                                            resData['advertsBudgetsToKeep'][nextValue[0]];
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
                                         // recalc(dateRange, nextValue[0]);
