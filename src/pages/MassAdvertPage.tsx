@@ -261,11 +261,46 @@ export const MassAdvertPage = () => {
     // ];
     // const [semanticsModalSwitchValue, setSemanticsModalSwitchValue] = React.useState('Пополнить');
 
+    const [semanticsFilteredSummary, setSemanticsFilteredSummary] = useState({
+        active: {
+            cluster: {summary: 0},
+            cpc: 0,
+            sum: 0,
+            count: 0,
+            ctr: 0,
+            clicks: 0,
+            freq: 0,
+            placements: null,
+        },
+        minus: {
+            cluster: {summary: 0},
+            freq: 0,
+            count: 0,
+            clicks: 0,
+            sum: 0,
+            cpc: 0,
+            ctr: 0,
+            placements: null,
+        },
+        template: {cluster: {summary: 0}},
+    });
+
     const [clustersFiltersActive, setClustersFiltersActive] = useState({undef: false});
     const clustersFilterDataActive = (withfFilters: any, clusters: any[]) => {
         const _clustersFilters = withfFilters ?? clustersFiltersActive;
         const _clusters = clusters ?? semanticsModalSemanticsItemsValue;
         console.log(_clustersFilters, _clusters);
+
+        semanticsFilteredSummary.active = {
+            cluster: {summary: 0},
+            cpc: 0,
+            sum: 0,
+            count: 0,
+            ctr: 0,
+            clicks: 0,
+            freq: 0,
+            placements: null,
+        };
 
         setSemanticsModalSemanticsItemsFiltratedValue(
             _clusters.filter((cluster) => {
@@ -277,9 +312,20 @@ export const MassAdvertPage = () => {
                     }
                 }
 
+                for (const [key, val] of Object.entries(cluster)) {
+                    if (['sum', 'count', 'clicks', 'freq'].includes(key))
+                        semanticsFilteredSummary.active[key] += val;
+                }
+                semanticsFilteredSummary.active.cluster.summary++;
+
                 return true;
             }),
         );
+
+        const {sum, count, clicks} = semanticsFilteredSummary.active;
+        semanticsFilteredSummary.active.cpc = getRoundValue(sum, clicks);
+        semanticsFilteredSummary.active.ctr = getRoundValue(clicks, count, true);
+        setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
     const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
     const clustersFilterDataMinus = (withfFilters: any, clusters: any[]) => {
@@ -287,6 +333,17 @@ export const MassAdvertPage = () => {
         const _clusters = clusters ?? semanticsModalSemanticsMinusItemsValue;
         console.log(_clustersFilters, _clusters);
 
+        semanticsFilteredSummary.minus = {
+            cluster: {summary: 0},
+            cpc: 0,
+            sum: 0,
+            count: 0,
+            ctr: 0,
+            clicks: 0,
+            freq: 0,
+            placements: null,
+        };
+
         const temp = [] as any[];
         for (const cluster of _clusters) {
             let addFlag = true;
@@ -300,12 +357,22 @@ export const MassAdvertPage = () => {
             }
 
             if (addFlag) {
+                for (const [key, val] of Object.entries(cluster)) {
+                    if (['sum', 'count', 'clicks', 'freq'].includes(key))
+                        semanticsFilteredSummary.minus[key] += val;
+                }
+                semanticsFilteredSummary.minus.cluster.summary++;
                 temp.push(cluster);
             }
         }
         console.log(temp);
 
         setSemanticsModalSemanticsMinusItemsFiltratedValue([...temp]);
+
+        const {sum, count, clicks} = semanticsFilteredSummary.minus;
+        semanticsFilteredSummary.minus.cpc = getRoundValue(sum, clicks);
+        semanticsFilteredSummary.minus.ctr = getRoundValue(clicks, count, true);
+        setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
     const [clustersFiltersTemplate, setClustersFiltersTemplate] = useState({undef: false});
     const clustersFilterDataTemplate = (withfFilters: any, clusters: any[]) => {
@@ -313,6 +380,10 @@ export const MassAdvertPage = () => {
         const _clusters = clusters ?? semanticsModalSemanticsTemplateItemsValue;
         console.log(_clustersFilters, _clusters);
 
+        semanticsFilteredSummary.template = {
+            cluster: {summary: 0},
+        };
+
         const temp = [] as any[];
         for (const cluster of _clusters) {
             let addFlag = true;
@@ -326,6 +397,7 @@ export const MassAdvertPage = () => {
             }
 
             if (addFlag) {
+                semanticsFilteredSummary.template.cluster.summary++;
                 temp.push(cluster);
             }
         }
@@ -776,6 +848,22 @@ export const MassAdvertPage = () => {
                             },
                         };
 
+                        const manageAdvertsActivityCallFunc = async (mode) => {
+                            const params = {
+                                uid: getUid(),
+                                campaignName: selectValue[0],
+                                data: {
+                                    advertsIds: {},
+                                    mode: mode,
+                                },
+                            };
+                            params.data.advertsIds[advertId] = {advertId: advertId};
+
+                            //////////////////////////////////
+                            await callApi('manageAdvertsActivity', params);
+                            //////////////////////////////////
+                        };
+
                         switches.push(
                             <Card
                             // style={{overflowY: 'hidden'}}
@@ -837,7 +925,15 @@ export const MassAdvertPage = () => {
                                                     borderBottomRightRadius: 9,
                                                     overflow: 'hidden',
                                                 }}
-                                                // onClick={() => filterByButton(advertId, 'adverts')}
+                                                onClick={() => {
+                                                    manageAdvertsActivityCallFunc(
+                                                        status
+                                                            ? status == 9
+                                                                ? 'pause'
+                                                                : 'start'
+                                                            : 'start',
+                                                    );
+                                                }}
                                                 // style={{position: 'relative', top: -2}}
                                                 disabled={status === undefined}
                                                 // disabled
@@ -1285,7 +1381,14 @@ export const MassAdvertPage = () => {
                                                 flexDirection: 'row',
                                             }}
                                         >
-                                            <Button view={'outlined-danger'}>Удалить</Button>
+                                            <Button
+                                                view={'outlined-danger'}
+                                                onClick={() => {
+                                                    manageAdvertsActivityCallFunc('stop');
+                                                }}
+                                            >
+                                                Удалить
+                                            </Button>
                                             <div style={{minWidth: 8}} />
                                             <Button
                                                 view={'outlined'}
@@ -2050,6 +2153,10 @@ export const MassAdvertPage = () => {
             placeholder: 'Кластер',
             valueType: 'text',
             render: ({value}) => {
+                if (value.summary !== undefined) {
+                    return <Text>{`Всего: ${value.summary}`}</Text>;
+                }
+
                 let valueWrapped = value;
                 let curStrLen = 0;
                 if (value.length > 30) {
@@ -2206,7 +2313,8 @@ export const MassAdvertPage = () => {
         {
             name: 'placements',
             placeholder: 'Позиция, №',
-            render: ({row}) => {
+            render: ({value, row}) => {
+                if (value === null) return;
                 const {cluster} = row;
                 return (
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
@@ -2311,6 +2419,7 @@ export const MassAdvertPage = () => {
             },
         },
     ];
+
     const renameFirstColumn = (newName: string, additionalNodes = [] as any[]) => {
         const columnDataSemanticsCopy = Array.from(columnDataSemantics);
         columnDataSemanticsCopy[0].placeholder = newName;
@@ -3543,6 +3652,14 @@ export const MassAdvertPage = () => {
                                     {cluster: {val: '', mode: 'include'}},
                                     semanticsModalSemanticsItemsValue,
                                 );
+                                clustersFilterDataMinus(
+                                    {cluster: {val: '', mode: 'include'}},
+                                    semanticsModalSemanticsMinusItemsValue,
+                                );
+                                clustersFilterDataTemplate(
+                                    {cluster: {val: '', mode: 'include'}},
+                                    semanticsModalSemanticsTemplateItemsValue,
+                                );
                             }}
                             animate={{width: semanticsModalFormOpen ? '80vw' : 0}}
                             style={{
@@ -3569,6 +3686,7 @@ export const MassAdvertPage = () => {
                                         displayIndices: false,
                                         highlightRows: true,
                                     }}
+                                    footerData={[semanticsFilteredSummary.active]}
                                     theme="yandex-cloud"
                                     onRowClick={(row, index, event) => {
                                         console.log(row, index, event);
@@ -3605,6 +3723,7 @@ export const MassAdvertPage = () => {
                                             displayIndices: false,
                                             highlightRows: true,
                                         }}
+                                        footerData={[semanticsFilteredSummary.template]}
                                         theme="yandex-cloud"
                                         onRowClick={(row, index, event) => {
                                             console.log(row, index, event);
@@ -4177,6 +4296,7 @@ export const MassAdvertPage = () => {
                                         displayIndices: false,
                                         highlightRows: true,
                                     }}
+                                    footerData={[semanticsFilteredSummary.minus]}
                                     theme="yandex-cloud"
                                     onRowClick={(row, index, event) => {
                                         console.log(row, index, event);
