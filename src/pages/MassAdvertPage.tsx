@@ -46,6 +46,8 @@ import {
     ArrowShapeUp,
     Plus,
     CircleMinus,
+    Play,
+    Pause,
     CirclePlusFill,
     ArrowRight,
     CirclePlus,
@@ -194,6 +196,9 @@ export const MassAdvertPage = () => {
         semanticsAutoPhrasesModalNotIncludesListInput,
         setSemanticsAutoPhrasesModalNotIncludesListInput,
     ] = useState('');
+
+    const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
+    const [warningBeforeDeleteConfirmationRow, setWarningBeforeDeleteConfirmationRow] = useState(0);
 
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
@@ -553,7 +558,7 @@ export const MassAdvertPage = () => {
                                     justifyContent: 'center',
                                 }}
                             >
-                                {Math.floor((pagesCurrent - 1) * 200 + index + 1)}
+                                {Math.floor((pagesCurrent - 1) * 600 + index + 1)}
                             </div>
                             <div
                                 style={{
@@ -663,9 +668,9 @@ export const MassAdvertPage = () => {
             name: 'adverts',
             placeholder: 'Реклама',
             valueType: 'text',
-            render: ({value, row}) => {
+            render: ({value, row, index}) => {
                 if (value === null || value === undefined) return;
-                const {bid, budget, budgetToKeep, art, semantics} = row;
+                const {bid, budget, budgetToKeep, drrAI, art, semantics} = row;
 
                 const mapp = {
                     search: {name: 'Поиск', icon: Magnifier},
@@ -720,9 +725,13 @@ export const MassAdvertPage = () => {
                                 : [],
                         };
 
+                        const isWarningBeforeDeleteConfirmationRow =
+                            index == warningBeforeDeleteConfirmationRow &&
+                            warningBeforeDeleteConfirmation;
+
                         switches.push(
                             <Card
-                            // style={{overflow: 'hidden'}}
+                            // style={{overflowY: 'hidden'}}
                             // view="raised"
                             >
                                 <div
@@ -739,42 +748,123 @@ export const MassAdvertPage = () => {
                                             justifyContent: 'space-between',
                                         }}
                                     >
-                                        <Button
-                                            selected
-                                            style={{
-                                                borderTopLeftRadius: 7,
-                                                borderBottomRightRadius: 9,
-                                                overflow: 'hidden',
-                                            }}
-                                            onClick={() => filterByButton(advertId, 'adverts')}
-                                            // style={{position: 'relative', top: -2}}
-                                            size="xs"
-                                            pin="brick-brick"
-                                            view={
-                                                status
-                                                    ? status == 9
-                                                        ? 'flat-success'
-                                                        : status == 11
-                                                        ? 'flat-danger'
-                                                        : 'flat-warning'
-                                                    : 'flat'
-                                            }
-                                        >
-                                            <div
+                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                            <Button
+                                                selected
                                                 style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
+                                                    borderTopLeftRadius: 7,
+                                                    overflow: 'hidden',
                                                 }}
+                                                onClick={() => filterByButton(advertId, 'adverts')}
+                                                // style={{position: 'relative', top: -2}}
+                                                size="xs"
+                                                pin="brick-brick"
+                                                view={
+                                                    status
+                                                        ? status == 9
+                                                            ? 'flat-success'
+                                                            : status == 11
+                                                            ? 'flat-danger'
+                                                            : 'flat-warning'
+                                                        : 'flat'
+                                                }
+                                            >
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
+                                                    <Icon
+                                                        data={advertsTypeDisplayData.icon}
+                                                        size={11}
+                                                    />
+                                                    <div style={{width: 2}} />
+                                                    {advertId}
+                                                </div>
+                                            </Button>
+                                            <Button
+                                                selected
+                                                style={{
+                                                    borderBottomRightRadius: 9,
+                                                    overflow: 'hidden',
+                                                }}
+                                                // onClick={() => filterByButton(advertId, 'adverts')}
+                                                // style={{position: 'relative', top: -2}}
+                                                disabled={status === undefined}
+                                                // disabled
+                                                size="xs"
+                                                pin="brick-brick"
+                                                view={
+                                                    status
+                                                        ? status == 9
+                                                            ? 'flat-success'
+                                                            : status == 11
+                                                            ? 'flat-danger'
+                                                            : 'flat-warning'
+                                                        : 'flat'
+                                                }
                                             >
                                                 <Icon
-                                                    data={advertsTypeDisplayData.icon}
+                                                    data={
+                                                        status ? (status == 9 ? Pause : Play) : Play
+                                                    }
                                                     size={11}
                                                 />
-                                                <div style={{width: 2}} />
-                                                {advertId}
-                                            </div>
-                                        </Button>
+                                            </Button>
+                                            <div style={{width: 8}} />
+                                            <Button
+                                                selected={isWarningBeforeDeleteConfirmationRow}
+                                                style={{
+                                                    display: warningBeforeDeleteConfirmation
+                                                        ? isWarningBeforeDeleteConfirmationRow
+                                                            ? 'flex'
+                                                            : 'none'
+                                                        : 'flex',
+                                                    borderBottomRightRadius: 9,
+                                                    borderBottomLeftRadius: 9,
+                                                    overflow: 'hidden',
+                                                }}
+                                                onClick={async () => {
+                                                    setWarningBeforeDeleteConfirmation(() => {
+                                                        setWarningBeforeDeleteConfirmationRow(
+                                                            warningBeforeDeleteConfirmation
+                                                                ? 0
+                                                                : index,
+                                                        );
+                                                        return !warningBeforeDeleteConfirmation;
+                                                    });
+
+                                                    if (!warningBeforeDeleteConfirmation) {
+                                                        await new Promise((resolve) => {
+                                                            setTimeout(() => {
+                                                                setWarningBeforeDeleteConfirmationRow(
+                                                                    0,
+                                                                );
+                                                                setWarningBeforeDeleteConfirmation(
+                                                                    false,
+                                                                );
+
+                                                                resolve(1);
+                                                            }, 5 * 1000);
+                                                        });
+                                                    }
+                                                }}
+                                                // style={{position: 'relative', top: -2}}
+                                                disabled={status === undefined}
+                                                size="xs"
+                                                pin="brick-brick"
+                                                view={
+                                                    isWarningBeforeDeleteConfirmationRow
+                                                        ? 'flat-danger'
+                                                        : 'flat'
+                                                }
+                                            >
+                                                <Icon data={TrashBin} size={11} />
+                                            </Button>
+                                            <div style={{width: 8}} />
+                                        </div>
 
                                         {status !== undefined ? (
                                             <Button
@@ -810,260 +900,352 @@ export const MassAdvertPage = () => {
                                             <></>
                                         )}
                                     </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
+                                    <motion.div
+                                        animate={{
+                                            opacity: isWarningBeforeDeleteConfirmationRow ? 0 : 1,
+                                            pointerEvents: isWarningBeforeDeleteConfirmationRow
+                                                ? 'none'
+                                                : 'auto',
                                         }}
-                                    >
-                                        <Button
-                                            pin="brick-round"
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => {
-                                                openBidModalForm();
-                                                setModalOpenFromAdvertId(advertId);
-                                            }}
-                                        >
-                                            <Text variant="caption-2">{`CPM: ${curCpm}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
+                                        transition={{
+                                            duration: 0.2,
+                                            delay: isWarningBeforeDeleteConfirmationRow ? 0 : 0.2,
                                         }}
+                                        style={{height: 76}}
                                     >
-                                        <Button
-                                            pin="brick-round"
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => {
-                                                openBudgetModalForm();
-                                                setModalOpenFromAdvertId(advertId);
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
                                             }}
                                         >
-                                            <Text variant="caption-2">{`Баланс: ${
-                                                curBudget !== undefined ? curBudget : 'Нет инф.'
-                                            } / ${
-                                                budgetToKeep[advertId] !== undefined
-                                                    ? budgetToKeep[advertId]
-                                                    : 'Бюджет не задан.'
-                                            }`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                                        <Button
-                                            size="xs"
-                                            pin="brick-round"
-                                            // style={{
-                                            //     borderTopRightRadius: 7,
-                                            //     borderBottomRightRadius: 7,
-                                            //     overflow: 'hidden',
-                                            // }}
-                                            selected={themeToUse != 'normal'}
-                                            view={themeToUse}
-                                            onClick={() => {
-                                                setSemanticsModalFormOpen(true);
-
-                                                setSelectedSearchPhrase(
-                                                    advertsSelectedPhrases
-                                                        ? advertsSelectedPhrases.phrase
-                                                        : '',
-                                                );
-
-                                                setSemanticsModalOpenFromArt(art);
-                                                setModalOpenFromAdvertId(advertId);
-
-                                                if (autoPhrasesTemplate) {
-                                                    setSemanticsAutoPhrasesModalIncludesList(
-                                                        autoPhrasesTemplate.includes ?? [],
-                                                    );
-                                                    setSemanticsAutoPhrasesModalNotIncludesList(
-                                                        autoPhrasesTemplate.notIncludes ?? [],
-                                                    );
-                                                } else {
-                                                    setSemanticsAutoPhrasesModalIncludesList([]);
-                                                    setSemanticsAutoPhrasesModalNotIncludesList([]);
-                                                }
-                                                setSemanticsAutoPhrasesModalIncludesListInput('');
-                                                setSemanticsAutoPhrasesModalNotIncludesListInput(
-                                                    '',
-                                                );
-
-                                                setSemanticsModalSemanticsItemsValue(() => {
-                                                    const temp = advertSemantics.clusters;
-                                                    temp.sort((a, b) => {
-                                                        const freqA = a.freq ? a.freq : 0;
-                                                        const freqB = b.freq ? b.freq : 0;
-                                                        return freqB - freqA;
-                                                    });
-                                                    setSemanticsModalSemanticsItemsFiltratedValue(
-                                                        temp,
-                                                    );
-                                                    return temp;
-                                                });
-                                                setSemanticsModalSemanticsMinusItemsValue(() => {
-                                                    const temp = advertSemantics.excluded;
-                                                    temp.sort((a, b) => {
-                                                        const freqA = a.freq ? a.freq : 0;
-                                                        const freqB = b.freq ? b.freq : 0;
-                                                        return freqB - freqA;
-                                                    });
-                                                    setSemanticsModalSemanticsMinusItemsFiltratedValue(
-                                                        temp,
-                                                    );
-                                                    return temp;
-                                                });
-                                                setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                                    plusPhrasesTemplate ?? 'Не установлен',
-                                                );
-
-                                                const plusThreshold = doc.plusPhrasesTemplates[
-                                                    selectValue[0]
-                                                ][plusPhrasesTemplate]
-                                                    ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                          plusPhrasesTemplate
-                                                      ].threshold
-                                                    : 1;
-                                                setSemanticsModalSemanticsThresholdValue(
-                                                    plusThreshold,
-                                                );
-
-                                                const plusCTRThreshold = doc.plusPhrasesTemplates[
-                                                    selectValue[0]
-                                                ][plusPhrasesTemplate]
-                                                    ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                          plusPhrasesTemplate
-                                                      ].ctrThreshold
-                                                    : 0;
-                                                setSemanticsModalSemanticsCTRThresholdValue(
-                                                    plusCTRThreshold,
-                                                );
-
-                                                const plusSecondThreshold = doc
-                                                    .plusPhrasesTemplates[selectValue[0]][
-                                                    plusPhrasesTemplate
-                                                ]
-                                                    ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                          plusPhrasesTemplate
-                                                      ].secondThreshold
-                                                    : 0;
-                                                setSemanticsModalSemanticsSecondThresholdValue(
-                                                    plusSecondThreshold,
-                                                );
-
-                                                const plusSecondCTRThreshold = doc
-                                                    .plusPhrasesTemplates[selectValue[0]][
-                                                    plusPhrasesTemplate
-                                                ]
-                                                    ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                          plusPhrasesTemplate
-                                                      ].secondCtrThreshold
-                                                    : 0;
-                                                setSemanticsModalSemanticsSecondCTRThresholdValue(
-                                                    plusSecondCTRThreshold,
-                                                );
-
-                                                const isFixed = doc.plusPhrasesTemplates[
-                                                    selectValue[0]
-                                                ][plusPhrasesTemplate]
-                                                    ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                          plusPhrasesTemplate
-                                                      ].isFixed ?? false
-                                                    : false;
-                                                setSemanticsModalIsFixed(isFixed);
-
-                                                setClustersFiltersActive({undef: false});
-                                                setClustersFiltersMinus({undef: false});
-                                                setClustersFiltersTemplate({undef: false});
-
-                                                // // console.log(value.plus);
-                                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                                    plusPhrasesTemplate ?? `Новый шаблон`,
-                                                );
-                                                const plusItems = doc.plusPhrasesTemplates[
-                                                    selectValue[0]
-                                                ][plusPhrasesTemplate]
-                                                    ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                          plusPhrasesTemplate
-                                                      ].clusters
-                                                    : [];
-                                                setSemanticsModalSemanticsPlusItemsValue(plusItems);
-
-                                                setSemanticsModalSemanticsTemplateItemsValue(() => {
-                                                    const plusItemsTable = [] as any[];
-                                                    for (const phrase of plusItems) {
-                                                        plusItemsTable.push({cluster: phrase});
-                                                    }
-                                                    setSemanticsModalSemanticsTemplateItemsFiltratedValue(
-                                                        plusItemsTable,
-                                                    );
-                                                    return plusItemsTable;
-                                                });
-                                                // setSemanticsModalTextAreaValue('');
-                                                // setSemanticsModalTextAreaAddMode(false);
-                                            }}
-                                        >
-                                            <Text variant="caption-2">
-                                                {themeToUse != 'normal'
-                                                    ? plusPhrasesTemplate
-                                                    : 'Фразы'}
-                                            </Text>
-                                        </Button>
-                                        <div style={{height: 4}} />
-                                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                                            {advertSemantics.clusters.length ? (
-                                                <>
-                                                    <div style={{width: 5}} />
-                                                    <Label theme="clear">
-                                                        <div
-                                                            style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'row',
-                                                                justifyContent: 'center',
-                                                                alignItems: 'center',
-                                                            }}
-                                                        >
-                                                            <Text variant="caption-2">
-                                                                {advertSemantics.clusters.length}
-                                                            </Text>
-                                                            <div style={{width: 3}} />
-                                                            <Icon size={11} data={Eye} />
-                                                        </div>
-                                                    </Label>
-                                                </>
-                                            ) : (
-                                                <></>
-                                            )}
-                                            {advertSemantics.excluded.length ? (
-                                                <>
-                                                    <div style={{width: 5}} />
-                                                    <Label theme="clear">
-                                                        <div
-                                                            style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'row',
-                                                                justifyContent: 'center',
-                                                                alignItems: 'center',
-                                                            }}
-                                                        >
-                                                            <Text variant="caption-2">
-                                                                {advertSemantics.excluded.length}
-                                                            </Text>
-                                                            <div style={{width: 3}} />
-                                                            <Icon size={11} data={EyeSlash} />
-                                                        </div>
-                                                    </Label>
-                                                </>
-                                            ) : (
-                                                <></>
-                                            )}
-                                            <div style={{width: 5}} />
+                                            <Button
+                                                pin="brick-round"
+                                                size="xs"
+                                                view="flat"
+                                                onClick={() => {
+                                                    openBidModalForm();
+                                                    setModalOpenFromAdvertId(advertId);
+                                                }}
+                                            >
+                                                <Text variant="caption-2">{`CPM: ${curCpm} / ${
+                                                    drrAI[advertId] !== undefined
+                                                        ? `${drrAI[advertId].maxBid}`
+                                                        : 'Автоставки выкл.'
+                                                }`}</Text>
+                                                {drrAI[advertId] !== undefined ? (
+                                                    <Text
+                                                        style={{marginLeft: 4}}
+                                                        variant="caption-2"
+                                                    >
+                                                        {`План ДРР: ${drrAI[advertId].desiredDRR}`}
+                                                    </Text>
+                                                ) : (
+                                                    <></>
+                                                )}
+                                                {/* {drrAI[advertId] !== undefined &&
+                                                drrAI[advertId].placementsRange ? (
+                                                    <Text
+                                                        style={{marginLeft: 4}}
+                                                        variant="caption-2"
+                                                    >
+                                                        {`План ДРР: ${drrAI[advertId].desiredDRR}`}
+                                                    </Text>
+                                                ) : (
+                                                    <></>
+                                                )} */}
+                                            </Button>
                                         </div>
-                                    </div>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <Button
+                                                pin="brick-round"
+                                                size="xs"
+                                                view="flat"
+                                                onClick={() => {
+                                                    openBudgetModalForm();
+                                                    setModalOpenFromAdvertId(advertId);
+                                                }}
+                                            >
+                                                <Text variant="caption-2">{`Баланс: ${
+                                                    curBudget !== undefined ? curBudget : 'Нет инф.'
+                                                } / ${
+                                                    budgetToKeep[advertId] !== undefined
+                                                        ? budgetToKeep[advertId]
+                                                        : 'Бюджет не задан.'
+                                                }`}</Text>
+                                            </Button>
+                                        </div>
+                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                            <Button
+                                                size="xs"
+                                                pin="brick-round"
+                                                // style={{
+                                                //     borderTopRightRadius: 7,
+                                                //     borderBottomRightRadius: 7,
+                                                //     overflow: 'hidden',
+                                                // }}
+                                                selected={themeToUse != 'normal'}
+                                                view={themeToUse}
+                                                onClick={() => {
+                                                    setSemanticsModalFormOpen(true);
+
+                                                    setSelectedSearchPhrase(
+                                                        advertsSelectedPhrases
+                                                            ? advertsSelectedPhrases.phrase
+                                                            : '',
+                                                    );
+
+                                                    setSemanticsModalOpenFromArt(art);
+                                                    setModalOpenFromAdvertId(advertId);
+
+                                                    if (autoPhrasesTemplate) {
+                                                        setSemanticsAutoPhrasesModalIncludesList(
+                                                            autoPhrasesTemplate.includes ?? [],
+                                                        );
+                                                        setSemanticsAutoPhrasesModalNotIncludesList(
+                                                            autoPhrasesTemplate.notIncludes ?? [],
+                                                        );
+                                                    } else {
+                                                        setSemanticsAutoPhrasesModalIncludesList(
+                                                            [],
+                                                        );
+                                                        setSemanticsAutoPhrasesModalNotIncludesList(
+                                                            [],
+                                                        );
+                                                    }
+                                                    setSemanticsAutoPhrasesModalIncludesListInput(
+                                                        '',
+                                                    );
+                                                    setSemanticsAutoPhrasesModalNotIncludesListInput(
+                                                        '',
+                                                    );
+
+                                                    setSemanticsModalSemanticsItemsValue(() => {
+                                                        const temp = advertSemantics.clusters;
+                                                        temp.sort((a, b) => {
+                                                            const freqA = a.freq ? a.freq : 0;
+                                                            const freqB = b.freq ? b.freq : 0;
+                                                            return freqB - freqA;
+                                                        });
+                                                        setSemanticsModalSemanticsItemsFiltratedValue(
+                                                            temp,
+                                                        );
+                                                        return temp;
+                                                    });
+                                                    setSemanticsModalSemanticsMinusItemsValue(
+                                                        () => {
+                                                            const temp = advertSemantics.excluded;
+                                                            temp.sort((a, b) => {
+                                                                const freqA = a.freq ? a.freq : 0;
+                                                                const freqB = b.freq ? b.freq : 0;
+                                                                return freqB - freqA;
+                                                            });
+                                                            setSemanticsModalSemanticsMinusItemsFiltratedValue(
+                                                                temp,
+                                                            );
+                                                            return temp;
+                                                        },
+                                                    );
+                                                    setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                                        plusPhrasesTemplate ?? 'Не установлен',
+                                                    );
+
+                                                    const plusThreshold = doc.plusPhrasesTemplates[
+                                                        selectValue[0]
+                                                    ][plusPhrasesTemplate]
+                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                              plusPhrasesTemplate
+                                                          ].threshold
+                                                        : 1;
+                                                    setSemanticsModalSemanticsThresholdValue(
+                                                        plusThreshold,
+                                                    );
+
+                                                    const plusCTRThreshold = doc
+                                                        .plusPhrasesTemplates[selectValue[0]][
+                                                        plusPhrasesTemplate
+                                                    ]
+                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                              plusPhrasesTemplate
+                                                          ].ctrThreshold
+                                                        : 0;
+                                                    setSemanticsModalSemanticsCTRThresholdValue(
+                                                        plusCTRThreshold,
+                                                    );
+
+                                                    const plusSecondThreshold = doc
+                                                        .plusPhrasesTemplates[selectValue[0]][
+                                                        plusPhrasesTemplate
+                                                    ]
+                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                              plusPhrasesTemplate
+                                                          ].secondThreshold
+                                                        : 0;
+                                                    setSemanticsModalSemanticsSecondThresholdValue(
+                                                        plusSecondThreshold,
+                                                    );
+
+                                                    const plusSecondCTRThreshold = doc
+                                                        .plusPhrasesTemplates[selectValue[0]][
+                                                        plusPhrasesTemplate
+                                                    ]
+                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                              plusPhrasesTemplate
+                                                          ].secondCtrThreshold
+                                                        : 0;
+                                                    setSemanticsModalSemanticsSecondCTRThresholdValue(
+                                                        plusSecondCTRThreshold,
+                                                    );
+
+                                                    const isFixed = doc.plusPhrasesTemplates[
+                                                        selectValue[0]
+                                                    ][plusPhrasesTemplate]
+                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                              plusPhrasesTemplate
+                                                          ].isFixed ?? false
+                                                        : false;
+                                                    setSemanticsModalIsFixed(isFixed);
+
+                                                    setClustersFiltersActive({undef: false});
+                                                    setClustersFiltersMinus({undef: false});
+                                                    setClustersFiltersTemplate({undef: false});
+
+                                                    // // console.log(value.plus);
+                                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                                        plusPhrasesTemplate ?? `Новый шаблон`,
+                                                    );
+                                                    const plusItems = doc.plusPhrasesTemplates[
+                                                        selectValue[0]
+                                                    ][plusPhrasesTemplate]
+                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                                              plusPhrasesTemplate
+                                                          ].clusters
+                                                        : [];
+                                                    setSemanticsModalSemanticsPlusItemsValue(
+                                                        plusItems,
+                                                    );
+
+                                                    setSemanticsModalSemanticsTemplateItemsValue(
+                                                        () => {
+                                                            const plusItemsTable = [] as any[];
+                                                            for (const phrase of plusItems) {
+                                                                plusItemsTable.push({
+                                                                    cluster: phrase,
+                                                                });
+                                                            }
+                                                            setSemanticsModalSemanticsTemplateItemsFiltratedValue(
+                                                                plusItemsTable,
+                                                            );
+                                                            return plusItemsTable;
+                                                        },
+                                                    );
+                                                    // setSemanticsModalTextAreaValue('');
+                                                    // setSemanticsModalTextAreaAddMode(false);
+                                                }}
+                                            >
+                                                <Text variant="caption-2">
+                                                    {themeToUse != 'normal'
+                                                        ? plusPhrasesTemplate
+                                                        : 'Фразы'}
+                                                </Text>
+                                            </Button>
+                                            <div style={{height: 4}} />
+                                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                                {advertSemantics.clusters.length ? (
+                                                    <>
+                                                        <div style={{width: 5}} />
+                                                        <Label theme="clear">
+                                                            <Text
+                                                                variant="caption-2"
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    flexDirection: 'row',
+                                                                    justifyContent: 'center',
+                                                                    alignItems: 'center',
+                                                                }}
+                                                            >
+                                                                {advertSemantics.clusters.length}
+                                                                <div style={{width: 3}} />
+                                                                <Icon size={11} data={Eye} />
+                                                            </Text>
+                                                        </Label>
+                                                    </>
+                                                ) : (
+                                                    <></>
+                                                )}
+                                                {advertSemantics.excluded.length ? (
+                                                    <>
+                                                        <div style={{width: 5}} />
+                                                        <Label theme="clear">
+                                                            <Text
+                                                                variant="caption-2"
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    flexDirection: 'row',
+                                                                    justifyContent: 'center',
+                                                                    alignItems: 'center',
+                                                                }}
+                                                            >
+                                                                {advertSemantics.excluded.length}
+                                                                <div style={{width: 3}} />
+                                                                <Icon size={11} data={EyeSlash} />
+                                                            </Text>
+                                                        </Label>
+                                                    </>
+                                                ) : (
+                                                    <></>
+                                                )}
+                                                <div style={{width: 5}} />
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                    <motion.div
+                                        style={{
+                                            height: 70,
+                                            width: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                        }}
+                                        animate={{
+                                            opacity: !isWarningBeforeDeleteConfirmationRow ? 0 : 1,
+                                            y: !isWarningBeforeDeleteConfirmationRow ? 0 : -76 + 4,
+                                        }}
+                                        transition={{
+                                            duration: 0.1,
+                                            delay: isWarningBeforeDeleteConfirmationRow ? 0.05 : 0,
+                                        }}
+                                    >
+                                        <Text variant="subheader-1">{'Удалить РК?'}</Text>
+                                        <div style={{minHeight: 4}} />
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                            }}
+                                        >
+                                            <Button view={'outlined-danger'}>Удалить</Button>
+                                            <div style={{minWidth: 8}} />
+                                            <Button
+                                                view={'outlined'}
+                                                onClick={() => {
+                                                    setWarningBeforeDeleteConfirmation(() => {
+                                                        setWarningBeforeDeleteConfirmationRow(0);
+                                                        return false;
+                                                    });
+                                                }}
+                                            >
+                                                Отмена
+                                            </Button>
+                                        </div>
+                                    </motion.div>
                                 </div>
                             </Card>,
                         );
@@ -1078,7 +1260,8 @@ export const MassAdvertPage = () => {
                             display: 'flex',
                             flexDirection: 'row',
                             height: 96,
-                            overflow: 'scroll',
+                            overflowX: 'scroll',
+                            overflowY: 'hidden',
                             // justifyContent: 'space-between',
                         }}
                     >
@@ -1279,7 +1462,11 @@ export const MassAdvertPage = () => {
             name: 'drr',
             placeholder: 'ДРР, %',
             render: ({value, row}) => {
-                const desiredDRR = row.drrAI ? row.drrAI.desiredDRR ?? undefined : undefined;
+                const desiredDRR = row.drrAI
+                    ? row.drrAI[Object.keys(row.drrAI)[0]]
+                        ? row.drrAI[Object.keys(row.drrAI)[0]].desiredDRR ?? undefined
+                        : undefined
+                    : undefined;
 
                 return (
                     <Text
@@ -1300,26 +1487,6 @@ export const MassAdvertPage = () => {
                 );
             },
         },
-        {
-            name: 'drrAI',
-            placeholder: 'План ДРР, %',
-            render: ({value}) => {
-                if (!value) return;
-                const {desiredDRR} = value;
-                if (desiredDRR === undefined) return;
-
-                return (
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Text>{desiredDRR} </Text>
-                            {/* <div style={{width: 2}} />₽ */}
-                        </div>
-                        <div style={{width: 8}} />
-                    </div>
-                );
-            },
-        },
-
         {
             name: 'cpo',
             placeholder: 'CPO, ₽',
@@ -1471,7 +1638,7 @@ export const MassAdvertPage = () => {
                 advertsStocksThreshold: undefined,
                 placements: undefined,
                 placementsValue: undefined,
-                drrAI: undefined,
+                drrAI: {},
                 plusPhrasesTemplate: undefined,
                 advertsSelectedPhrases: {},
                 semantics: {},
@@ -1506,7 +1673,6 @@ export const MassAdvertPage = () => {
             artInfo.advertsManagerRules = artData['advertsManagerRules'];
             artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
             artInfo.placementsValue = artData['placements'];
-            artInfo.drrAI = artData['drrAI'];
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
             artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
 
@@ -1526,6 +1692,9 @@ export const MassAdvertPage = () => {
                         artInfo.bid[advertType] = advertData['cpm'];
 
                         artInfo.semantics[advertType] = advertData['words'];
+
+                        artInfo.drrAI[advertId] =
+                            doc.advertsAutoBidsRules[_selectedCampaignName][advertId];
                         artInfo.budgetToKeep[advertId] =
                             doc.advertsBudgetsToKeep[_selectedCampaignName][advertId];
                         artInfo.advertsSelectedPhrases[advertId] =
@@ -4261,9 +4430,13 @@ export const MassAdvertPage = () => {
                                             resData['advertsBudgetsToKeep'][nextValue[0]];
                                         doc['advertsSelectedPhrases'][nextValue[0]] =
                                             resData['advertsSelectedPhrases'][nextValue[0]];
+                                        doc['advertsAutoBidsRules'][nextValue[0]] =
+                                            resData['advertsAutoBidsRules'][nextValue[0]];
+
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
                                         // recalc(dateRange, nextValue[0]);
+
                                         setSwitchingCampaignsFlag(false);
                                         console.log(doc);
                                     });
@@ -4271,6 +4444,8 @@ export const MassAdvertPage = () => {
                                     setSelectValue(nextValue);
                                     setSwitchingCampaignsFlag(false);
                                 }
+                                setWarningBeforeDeleteConfirmationRow(0);
+                                setWarningBeforeDeleteConfirmation(false);
                                 recalc(dateRange, nextValue[0], filters);
                                 setPagesCurrent(1);
                             }}
@@ -4741,9 +4916,7 @@ export const MassAdvertPage = () => {
                         const paginatedDataTemp = filteredData.slice((page - 1) * 600, page * 600);
                         setFilteredSummary((row) => {
                             const temp = row;
-                            temp.art = `На странице: ${paginatedDataTemp.length / 3} Всего: ${
-                                filteredData.length / 3
-                            }`;
+                            temp.art = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;
 
                             return temp;
                         });
