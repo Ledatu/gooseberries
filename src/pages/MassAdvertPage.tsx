@@ -64,10 +64,10 @@ import {
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 import {motion} from 'framer-motion';
 
-// import ChartKit, {settings} from '@gravity-ui/chartkit';
-// import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
-// import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
-// settings.set({plugins: [YagrPlugin]});
+import ChartKit, {settings} from '@gravity-ui/chartkit';
+import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
+import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
+settings.set({plugins: [YagrPlugin]});
 import callApi from 'src/utilities/callApi';
 import axios from 'axios';
 
@@ -670,7 +670,7 @@ export const MassAdvertPage = () => {
             valueType: 'text',
             render: ({value, row, index}) => {
                 if (value === null || value === undefined) return;
-                const {bid, budget, budgetToKeep, drrAI, art, semantics} = row;
+                const {bid, budget, budgetToKeep, drrAI, art, semantics, bidLog} = row;
 
                 const mapp = {
                     search: {name: 'Поиск', icon: Magnifier},
@@ -728,6 +728,53 @@ export const MassAdvertPage = () => {
                         const isWarningBeforeDeleteConfirmationRow =
                             index == warningBeforeDeleteConfirmationRow &&
                             warningBeforeDeleteConfirmation;
+
+                        const timeline: any[] = [];
+                        const graphsData: any[] = [];
+                        const bidLogType = bidLog[advertId];
+                        if (bidLogType) {
+                            for (let i = 0; i < bidLogType.bids.length; i++) {
+                                const {time, val} = bidLogType.bids[i];
+                                if (!time || !val) continue;
+
+                                timeline.push(new Date(time).getTime());
+                                graphsData.push(val);
+                            }
+                        }
+                        const yagrData: YagrWidgetData = {
+                            data: {
+                                timeline: timeline,
+                                graphs: [
+                                    {
+                                        id: '0',
+                                        name: 'Ставка',
+                                        color: '#5fb8a5',
+                                        data: graphsData,
+                                    },
+                                ],
+                            },
+                            libraryConfig: {
+                                chart: {
+                                    series: {
+                                        type: 'line',
+                                        interpolation: 'smooth',
+                                    },
+                                },
+                                axes: {
+                                    y: {
+                                        precision: 'auto',
+                                        show: true,
+                                    },
+                                    x: {
+                                        precision: 'auto',
+                                        show: true,
+                                    },
+                                },
+                                title: {
+                                    text: 'Изменение ставки',
+                                },
+                            },
+                        };
 
                         switches.push(
                             <Card
@@ -913,38 +960,43 @@ export const MassAdvertPage = () => {
                                         }}
                                         style={{height: 76}}
                                     >
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}
+                                        <Popover
+                                            behavior={'delayed' as PopoverBehavior}
+                                            disabled={value === undefined}
+                                            content={<ChartKit type="yagr" data={yagrData} />}
                                         >
-                                            <Button
-                                                pin="brick-round"
-                                                size="xs"
-                                                view="flat"
-                                                onClick={() => {
-                                                    openBidModalForm();
-                                                    setModalOpenFromAdvertId(advertId);
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
                                                 }}
                                             >
-                                                <Text variant="caption-2">{`CPM: ${curCpm} / ${
-                                                    drrAI[advertId] !== undefined
-                                                        ? `${drrAI[advertId].maxBid}`
-                                                        : 'Автоставки выкл.'
-                                                }`}</Text>
-                                                {drrAI[advertId] !== undefined ? (
-                                                    <Text
-                                                        style={{marginLeft: 4}}
-                                                        variant="caption-2"
-                                                    >
-                                                        {`План ДРР: ${drrAI[advertId].desiredDRR}`}
-                                                    </Text>
-                                                ) : (
-                                                    <></>
-                                                )}
-                                                {/* {drrAI[advertId] !== undefined &&
+                                                <Button
+                                                    pin="brick-round"
+                                                    size="xs"
+                                                    view="flat"
+                                                    onClick={() => {
+                                                        openBidModalForm();
+                                                        setModalOpenFromAdvertId(advertId);
+                                                    }}
+                                                >
+                                                    <Text variant="caption-2">{`CPM: ${curCpm} / ${
+                                                        drrAI[advertId] !== undefined
+                                                            ? `${drrAI[advertId].maxBid}`
+                                                            : 'Автоставки выкл.'
+                                                    }`}</Text>
+                                                    {drrAI[advertId] !== undefined ? (
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="caption-2"
+                                                        >
+                                                            {`План ДРР: ${drrAI[advertId].desiredDRR}`}
+                                                        </Text>
+                                                    ) : (
+                                                        <></>
+                                                    )}
+                                                    {/* {drrAI[advertId] !== undefined &&
                                                 drrAI[advertId].placementsRange ? (
                                                     <Text
                                                         style={{marginLeft: 4}}
@@ -955,8 +1007,10 @@ export const MassAdvertPage = () => {
                                                 ) : (
                                                     <></>
                                                 )} */}
-                                            </Button>
-                                        </div>
+                                                </Button>
+                                            </div>
+                                        </Popover>
+
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -1443,7 +1497,7 @@ export const MassAdvertPage = () => {
         //                 <Popover
         //                     behavior={'delayed' as PopoverBehavior}
         //                     disabled={value === undefined}
-        //                     content={<>{charts}</>}
+        //                     content={<ChartKit type="yagr" data={yagrData} />}
         //                 >
         //                     {/* <Label onClick={()=>} ref={ref}>{value}</Label> */}
         //                     <Text>
@@ -1699,7 +1753,7 @@ export const MassAdvertPage = () => {
                             doc.advertsBudgetsToKeep[_selectedCampaignName][advertId];
                         artInfo.advertsSelectedPhrases[advertId] =
                             doc.advertsSelectedPhrases[_selectedCampaignName][advertId];
-                        artInfo.bidLog[advertType] = advertData['bidLog'];
+                        artInfo.bidLog[advertId] = advertData['bidLog'];
                     }
                 }
             }
