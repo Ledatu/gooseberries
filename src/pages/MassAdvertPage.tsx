@@ -1385,6 +1385,10 @@ export const MassAdvertPage = () => {
                                                 view={'outlined-danger'}
                                                 onClick={() => {
                                                     manageAdvertsActivityCallFunc('stop');
+                                                    setWarningBeforeDeleteConfirmation(() => {
+                                                        setWarningBeforeDeleteConfirmationRow(0);
+                                                        return false;
+                                                    });
                                                 }}
                                             >
                                                 Удалить
@@ -1516,16 +1520,16 @@ export const MassAdvertPage = () => {
             name: 'stocks',
             placeholder: 'Остаток',
             group: true,
-            render: ({value, row}) => {
-                const {advertsStocksThreshold} = row;
+            render: ({value}) => {
+                // const {advertsStocksThreshold} = row;
 
-                if (!advertsStocksThreshold) return value;
-                const {stocksThreshold} = advertsStocksThreshold ?? {};
+                // if (!advertsStocksThreshold) return value;
+                // const {stocksThreshold} = advertsStocksThreshold ?? {};
 
-                if (!stocksThreshold) return value;
+                // if (!stocksThreshold) return value;
                 return (
                     <div>
-                        <Text>{`${value} (${stocksThreshold})`}</Text>
+                        <Text>{`${value}`}</Text>
                     </div>
                 );
             },
@@ -3352,6 +3356,8 @@ export const MassAdvertPage = () => {
 
                                                 <TextInput
                                                     style={{
+                                                        opacity: 0,
+                                                        pointerEvents: 'none',
                                                         maxWidth: '70%',
                                                         margin: '4px 0',
                                                     }}
