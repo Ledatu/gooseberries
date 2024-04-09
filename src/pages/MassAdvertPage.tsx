@@ -1092,17 +1092,18 @@ export const MassAdvertPage = () => {
                                                     ) : (
                                                         <></>
                                                     )}
-                                                    {/* {drrAI[advertId] !== undefined &&
-                                                drrAI[advertId].placementsRange ? (
-                                                    <Text
-                                                        style={{marginLeft: 4}}
-                                                        variant="caption-2"
-                                                    >
-                                                        {`План ДРР: ${drrAI[advertId].desiredDRR}`}
-                                                    </Text>
-                                                ) : (
-                                                    <></>
-                                                )} */}
+                                                    {drrAI[advertId] !== undefined &&
+                                                    drrAI[advertId].placementsRange.from != 0 &&
+                                                    drrAI[advertId].placementsRange.tp != 0 ? (
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="caption-2"
+                                                        >
+                                                            {`План №: ${drrAI[advertId].placementsRange.from}`}
+                                                        </Text>
+                                                    ) : (
+                                                        <></>
+                                                    )}
                                                 </Button>
                                             </div>
                                         </Popover>
