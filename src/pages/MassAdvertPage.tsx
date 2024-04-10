@@ -861,7 +861,7 @@ export const MassAdvertPage = () => {
                             params.data.advertsIds[advertId] = {advertId: advertId};
 
                             //////////////////////////////////
-                            await callApi('manageAdvertsActivity', params);
+                            return await callApi('manageAdvertsActivity', params);
                             //////////////////////////////////
                         };
 
@@ -926,14 +926,29 @@ export const MassAdvertPage = () => {
                                                     borderBottomRightRadius: 9,
                                                     overflow: 'hidden',
                                                 }}
-                                                onClick={() => {
-                                                    manageAdvertsActivityCallFunc(
+                                                onClick={async () => {
+                                                    const res = await manageAdvertsActivityCallFunc(
                                                         status
                                                             ? status == 9
                                                                 ? 'pause'
                                                                 : 'start'
                                                             : 'start',
                                                     );
+                                                    console.log(res);
+                                                    if (!res || res['data'] === undefined) {
+                                                        return;
+                                                    }
+
+                                                    if (res['data']['status'] == 'ok') {
+                                                        doc.adverts[selectValue[0]][
+                                                            advertId
+                                                        ].status = status == 9 ? 11 : 9;
+                                                    } else if (res['data']['status'] == 'bad') {
+                                                        doc.adverts[selectValue[0]][
+                                                            advertId
+                                                        ].status = status == 11 ? 9 : 11;
+                                                    }
+                                                    setChangedDoc(doc);
                                                 }}
                                                 // style={{position: 'relative', top: -2}}
                                                 disabled={status === undefined}
@@ -1385,12 +1400,25 @@ export const MassAdvertPage = () => {
                                         >
                                             <Button
                                                 view={'outlined-danger'}
-                                                onClick={() => {
-                                                    manageAdvertsActivityCallFunc('stop');
+                                                onClick={async () => {
                                                     setWarningBeforeDeleteConfirmation(() => {
                                                         setWarningBeforeDeleteConfirmationRow(0);
                                                         return false;
                                                     });
+
+                                                    const res = await manageAdvertsActivityCallFunc(
+                                                        'stop',
+                                                    );
+                                                    console.log(res);
+                                                    if (!res || res['data'] === undefined) {
+                                                        return;
+                                                    }
+
+                                                    if (res['data']['status'] == 'ok') {
+                                                        doc.adverts[selectValue[0]][advertId] =
+                                                            undefined;
+                                                    }
+                                                    setChangedDoc(doc);
                                                 }}
                                             >
                                                 Удалить
