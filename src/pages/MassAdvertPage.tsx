@@ -756,8 +756,8 @@ export const MassAdvertPage = () => {
                     for (const [advertId, _] of Object.entries(advertsTypeData)) {
                         const {status, daysInWork}: {status: number; daysInWork: number} =
                             doc.adverts[selectValue[0]][advertId];
-                        const curBudget = budget[advertsType];
-                        const curCpm = bid[advertsType];
+                        const curBudget = budget[advertId];
+                        const curCpm = bid[advertId];
                         if (![4, 9, 11].includes(status)) continue;
 
                         const advertsSelectedPhrases = row.advertsSelectedPhrases
@@ -787,20 +787,21 @@ export const MassAdvertPage = () => {
 
                         const advertSemantics = {
                             clusters: semantics
-                                ? semantics[advertsType]
-                                    ? semantics[advertsType].clusters ?? []
+                                ? semantics[advertId]
+                                    ? semantics[advertId].clusters ?? []
                                     : []
                                 : [],
                             excluded: semantics
-                                ? semantics[advertsType]
-                                    ? semantics[advertsType].excluded ?? []
+                                ? semantics[advertId]
+                                    ? semantics[advertId].excluded ?? []
                                     : []
                                 : [],
                         };
 
                         const isWarningBeforeDeleteConfirmationRow =
                             index == warningBeforeDeleteConfirmationRow &&
-                            warningBeforeDeleteConfirmation;
+                            warningBeforeDeleteConfirmation &&
+                            advertId == modalOpenFromAdvertId;
 
                         const timeline: any[] = [];
                         const graphsData: any[] = [];
@@ -992,6 +993,11 @@ export const MassAdvertPage = () => {
                                                                 ? 0
                                                                 : index,
                                                         );
+                                                        setModalOpenFromAdvertId(
+                                                            warningBeforeDeleteConfirmation
+                                                                ? ''
+                                                                : advertId,
+                                                        );
                                                         return !warningBeforeDeleteConfirmation;
                                                     });
 
@@ -1004,6 +1010,7 @@ export const MassAdvertPage = () => {
                                                                 setWarningBeforeDeleteConfirmation(
                                                                     false,
                                                                 );
+                                                                setModalOpenFromAdvertId('');
 
                                                                 resolve(1);
                                                             }, 5 * 1000);
@@ -1876,14 +1883,15 @@ export const MassAdvertPage = () => {
                     for (const [advertId, _] of Object.entries(advertsOfType)) {
                         if (!advertId) continue;
                         const advertData = doc.adverts[_selectedCampaignName][advertId];
+                        if (!advertData['status']) continue;
                         const status = advertData['status'];
                         if (![4, 9, 11].includes(status)) continue;
 
-                        artInfo.budget[advertType] = advertData['budget'];
+                        artInfo.budget[advertId] = advertData['budget'];
 
-                        artInfo.bid[advertType] = advertData['cpm'];
+                        artInfo.bid[advertId] = advertData['cpm'];
 
-                        artInfo.semantics[advertType] = advertData['words'];
+                        artInfo.semantics[advertId] = advertData['words'];
 
                         artInfo.drrAI[advertId] =
                             doc.advertsAutoBidsRules[_selectedCampaignName][advertId];
