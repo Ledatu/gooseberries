@@ -94,6 +94,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['advertsPlusPhrasesTemplates'][selectValue] =
                 docum['advertsPlusPhrasesTemplates'][selectValue];
             doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
+            doc['adverts'][selectValue] = docum['adverts'][selectValue];
             doc['advertsSelectedPhrases'][selectValue] =
                 docum['advertsSelectedPhrases'][selectValue];
         }
@@ -752,9 +753,9 @@ export const MassAdvertPage = () => {
                 for (const [advertsType, advertsTypeData] of Object.entries(value)) {
                     if (!advertsType || !advertsTypeData) continue;
                     const advertsTypeDisplayData = mapp[advertsType];
-                    for (const [advertId, advertData] of Object.entries(advertsTypeData)) {
+                    for (const [advertId, _] of Object.entries(advertsTypeData)) {
                         const {status, daysInWork}: {status: number; daysInWork: number} =
-                            advertData;
+                            doc.adverts[selectValue[0]][advertId];
                         const curBudget = budget[advertsType];
                         const curCpm = bid[advertsType];
                         if (![4, 9, 11].includes(status)) continue;
@@ -1844,12 +1845,13 @@ export const MassAdvertPage = () => {
                 for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
                     if (!advertType || advertType == 'none' || !advertsOfType) continue;
 
-                    for (const [advertId, advertData] of Object.entries(advertsOfType)) {
-                        if (!advertId || !advertData) continue;
+                    for (const [advertId, _] of Object.entries(advertsOfType)) {
+                        if (!advertId) continue;
+                        const advertData = doc.adverts[_selectedCampaignName][advertId];
                         const status = advertData['status'];
                         if (![4, 9, 11].includes(status)) continue;
-                        const budget = advertData['budget'];
-                        artInfo.budget[advertType] = budget;
+
+                        artInfo.budget[advertType] = advertData['budget'];
 
                         artInfo.bid[advertType] = advertData['cpm'];
 
@@ -4613,6 +4615,8 @@ export const MassAdvertPage = () => {
                                             resData['advertsSelectedPhrases'][nextValue[0]];
                                         doc['advertsAutoBidsRules'][nextValue[0]] =
                                             resData['advertsAutoBidsRules'][nextValue[0]];
+                                        doc['adverts'][nextValue[0]] =
+                                            resData['adverts'][nextValue[0]];
 
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
