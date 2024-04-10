@@ -201,6 +201,9 @@ export const MassAdvertPage = () => {
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
     const [warningBeforeDeleteConfirmationRow, setWarningBeforeDeleteConfirmationRow] = useState(0);
 
+    const [advertsArtsListModalFromOpen, setAdvertsArtsListModalFromOpen] = useState(false);
+    const [rkList, setRkList] = useState(false);
+
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [modalOpenFromAdvertId, setModalOpenFromAdvertId] = useState('');
@@ -640,23 +643,63 @@ export const MassAdvertPage = () => {
                                     alignItems: 'center',
                                 }}
                             >
-                                <Popover
-                                    behavior={'delayed' as PopoverBehavior}
-                                    disabled={value === undefined}
-                                    content={
-                                        <div style={{width: 200}}>
+                                {' '}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Popover
+                                        behavior={'delayed' as PopoverBehavior}
+                                        disabled={value === undefined}
+                                        content={
+                                            <div style={{width: 200}}>
+                                                <img
+                                                    style={{width: '100%', height: 'auto'}}
+                                                    src={imgUrl}
+                                                />
+                                                <></>
+                                            </div>
+                                        }
+                                    >
+                                        <div style={{width: 40}}>
                                             <img
                                                 style={{width: '100%', height: 'auto'}}
                                                 src={imgUrl}
                                             />
-                                            <></>
                                         </div>
-                                    }
-                                >
-                                    <div style={{width: 40}}>
-                                        <img style={{width: '100%', height: 'auto'}} src={imgUrl} />
+                                    </Popover>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            pin="round-clear"
+                                            view="outlined"
+                                            onClick={() => {
+                                                setAdvertsArtsListModalFromOpen(true);
+                                                setRkList(doc.adverts[selectValue[0]] ?? []);
+                                            }}
+                                            disabled
+                                        >
+                                            <Icon data={Plus} />
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            pin="brick-round"
+                                            view="outlined"
+                                            disabled
+                                        >
+                                            <Icon data={Xmark} />
+                                        </Button>
                                     </div>
-                                </Popover>
+                                </div>
                                 <div style={{width: 4}} />
                                 <div style={{display: 'flex', flexDirection: 'column'}}>
                                     <div style={{marginLeft: 6}}>
@@ -754,6 +797,7 @@ export const MassAdvertPage = () => {
                     if (!advertsType || !advertsTypeData) continue;
                     const advertsTypeDisplayData = mapp[advertsType];
                     for (const [advertId, _] of Object.entries(advertsTypeData)) {
+                        if (!doc.adverts[selectValue[0]][advertId]) continue;
                         const {status, daysInWork}: {status: number; daysInWork: number} =
                             doc.adverts[selectValue[0]][advertId];
                         const curBudget = budget[advertId];
@@ -1883,7 +1927,7 @@ export const MassAdvertPage = () => {
                     for (const [advertId, _] of Object.entries(advertsOfType)) {
                         if (!advertId) continue;
                         const advertData = doc.adverts[_selectedCampaignName][advertId];
-                        if (!advertData['status']) continue;
+                        if (!advertData) continue;
                         const status = advertData['status'];
                         if (![4, 9, 11].includes(status)) continue;
 
@@ -2463,6 +2507,15 @@ export const MassAdvertPage = () => {
         },
     ];
 
+    const generateCardList = () => {
+        const temp = [] as any[];
+        for (const [_, advertData] of Object.entries(rkList)) {
+            if (!advertData) continue;
+            temp.push(<div>{advertData['status']}</div>);
+        }
+        return temp;
+    };
+
     const renameFirstColumn = (newName: string, additionalNodes = [] as any[]) => {
         const columnDataSemanticsCopy = Array.from(columnDataSemantics);
         columnDataSemanticsCopy[0].placeholder = newName;
@@ -3008,6 +3061,14 @@ export const MassAdvertPage = () => {
                                 )}
                             </div>
                         </Card>
+                    </Modal>
+                    <Modal
+                        open={advertsArtsListModalFromOpen}
+                        onClose={() => {
+                            setAdvertsArtsListModalFromOpen(false);
+                        }}
+                    >
+                        <div>{generateCardList()}</div>
                     </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
