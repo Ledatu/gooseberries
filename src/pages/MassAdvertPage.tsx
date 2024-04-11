@@ -3114,6 +3114,8 @@ export const MassAdvertPage = () => {
                                                                 setRkList(temp);
                                                             }
                                                         }
+
+                                                        setAdvertsArtsListModalFromOpen(false);
                                                     }
                                                     setChangedDoc(doc);
                                                 }}
