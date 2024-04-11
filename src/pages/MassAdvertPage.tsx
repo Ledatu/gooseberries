@@ -2999,7 +2999,7 @@ export const MassAdvertPage = () => {
                         <div
                             style={{
                                 margin: 20,
-                                width: '60vw',
+                                width: '30vw',
                                 height: '60vh',
                                 overflow: 'auto',
                                 display: 'flex',
