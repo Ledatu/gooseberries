@@ -572,6 +572,7 @@ export const MassAdvertPage = () => {
         const advertData = doc.adverts[selectValue[0]][id];
         const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
         const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
+        if (!advertData) return <></>;
         const {advertId, status, words, budget, bidLog, daysInWork, type, cpm} = advertData;
         if (![4, 9, 11].includes(status)) return <></>;
 
