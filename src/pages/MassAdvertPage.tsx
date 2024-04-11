@@ -3041,6 +3041,11 @@ export const MassAdvertPage = () => {
                                             {generateAdvertCard(advertId, -1, '')}
                                             <div style={{minWidth: 8}} />
                                             <Button
+                                                view={
+                                                    rkListMode == 'add'
+                                                        ? 'outlined-success'
+                                                        : 'outlined-danger'
+                                                }
                                                 disabled={
                                                     !doc.adverts[selectValue[0]][advertId] ||
                                                     doc.adverts[selectValue[0]][advertId].type != 8
