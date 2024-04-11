@@ -196,7 +196,8 @@ export const MassAdvertPage = () => {
     const [warningBeforeDeleteConfirmationRow, setWarningBeforeDeleteConfirmationRow] = useState(0);
 
     const [advertsArtsListModalFromOpen, setAdvertsArtsListModalFromOpen] = useState(false);
-    const [rkList, setRkList] = useState(false);
+    const [rkList, setRkList] = useState<any[]>([]);
+    const [rkListMode, setRkListMode] = useState('add');
 
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
@@ -675,8 +676,8 @@ export const MassAdvertPage = () => {
 
         return (
             <Card
-            // style={{overflowY: 'hidden'}}
-            // view="raised"
+                style={{height: 96, width: 'fit-content', overflowY: 'hidden'}}
+                // view="raised"
             >
                 <div
                     style={{
@@ -857,7 +858,12 @@ export const MassAdvertPage = () => {
                             duration: 0.2,
                             delay: isWarningBeforeDeleteConfirmationRow ? 0 : 0.2,
                         }}
-                        style={{height: 76}}
+                        style={{
+                            height: 76,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'start',
+                        }}
                     >
                         <Popover
                             behavior={'delayed' as PopoverBehavior}
@@ -868,6 +874,7 @@ export const MassAdvertPage = () => {
                                     display: 'flex',
                                     flexDirection: 'row',
                                     alignItems: 'center',
+                                    width: '100%',
                                 }}
                             >
                                 <Button
@@ -1193,7 +1200,7 @@ export const MassAdvertPage = () => {
             placeholder: 'Артикул',
             width: 200,
             render: ({value, row, footer, index}) => {
-                const {title, brand, object, nmId, photos, imtId} = row;
+                const {title, brand, object, nmId, photos, imtId, art} = row;
 
                 if (title === undefined) return <div style={{height: 28}}>{value}</div>;
 
@@ -1256,7 +1263,6 @@ export const MassAdvertPage = () => {
                                     alignItems: 'center',
                                 }}
                             >
-                                {' '}
                                 <div
                                     style={{
                                         display: 'flex',
@@ -1292,13 +1298,24 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <Button
-                                            disabled
                                             size="xs"
                                             pin="round-clear"
                                             view="outlined"
                                             onClick={() => {
                                                 setAdvertsArtsListModalFromOpen(true);
-                                                setRkList(doc.adverts[selectValue[0]] ?? []);
+                                                const adverts = doc.adverts[selectValue[0]];
+                                                const temp = [] as any[];
+                                                if (adverts) {
+                                                    for (const [_, advertData] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        if (!advertData) continue;
+                                                        temp.push(advertData['advertId']);
+                                                    }
+                                                }
+                                                setSemanticsModalOpenFromArt(art);
+                                                setRkList(temp ?? []);
+                                                setRkListMode('add');
                                             }}
                                         >
                                             <Icon data={Plus} />
@@ -1307,7 +1324,22 @@ export const MassAdvertPage = () => {
                                             size="xs"
                                             pin="brick-round"
                                             view="outlined"
-                                            disabled
+                                            onClick={() => {
+                                                setAdvertsArtsListModalFromOpen(true);
+                                                const adverts = row.adverts;
+                                                const temp = [] as any[];
+                                                if (adverts) {
+                                                    for (const [_, advertData] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        if (!advertData) continue;
+                                                        temp.push(advertData['advertId']);
+                                                    }
+                                                }
+                                                setSemanticsModalOpenFromArt(art);
+                                                setRkList(temp ?? []);
+                                                setRkListMode('delete');
+                                            }}
                                         >
                                             <Icon data={Xmark} />
                                         </Button>
@@ -2418,16 +2450,6 @@ export const MassAdvertPage = () => {
         },
     ];
 
-    const generateAdvertsCardsList = () => {
-        const temp = [] as any[];
-        for (const [_, advertData] of Object.entries(rkList)) {
-            if (!advertData) continue;
-            const {advertId} = advertData;
-            temp.push(<div>{generateAdvertCard(advertId, -1, '')}</div>);
-        }
-        return temp;
-    };
-
     const renameFirstColumn = (newName: string, additionalNodes = [] as any[]) => {
         const columnDataSemanticsCopy = Array.from(columnDataSemantics);
         columnDataSemanticsCopy[0].placeholder = newName;
@@ -2971,9 +2993,133 @@ export const MassAdvertPage = () => {
                         open={advertsArtsListModalFromOpen}
                         onClose={() => {
                             setAdvertsArtsListModalFromOpen(false);
+                            setSemanticsModalOpenFromArt('');
                         }}
                     >
-                        <div>{generateAdvertsCardsList()}</div>
+                        <div
+                            style={{
+                                margin: 20,
+                                width: '60vw',
+                                height: '60vh',
+                                overflow: 'auto',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    margin: '8px 0',
+                                }}
+                                variant="display-2"
+                            >
+                                {rkListMode == 'add'
+                                    ? 'Добавить артикул в РК'
+                                    : 'Удалить артикул из РК'}
+                            </Text>
+                            <List
+                                filterPlaceholder={`Поиск по Id кампании среди ${rkList.length} шт.`}
+                                items={rkList}
+                                itemHeight={112}
+                                renderItem={(advertId) => {
+                                    return (
+                                        <div
+                                            style={{
+                                                padding: '0 8px',
+                                                display: 'flex',
+                                                margin: '4px 0',
+                                                flexDirection: 'row',
+                                                height: 96,
+                                                width: '100%',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                            }}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                            }}
+                                        >
+                                            {generateAdvertCard(advertId, -1, '')}
+                                            <div style={{minWidth: 8}} />
+                                            <Button
+                                                disabled={
+                                                    !doc.adverts[selectValue[0]][advertId] ||
+                                                    doc.adverts[selectValue[0]][advertId].type != 8
+                                                }
+                                                onClick={async () => {
+                                                    const params = {
+                                                        uid: getUid(),
+                                                        campaignName: selectValue[0],
+                                                        data: {
+                                                            advertsIds: {},
+                                                            mode: rkListMode,
+                                                        },
+                                                    };
+                                                    params.data.advertsIds[advertId] = {
+                                                        advertId: advertId,
+                                                        art: semanticsModalOpenFromArt,
+                                                    };
+
+                                                    console.log(params);
+
+                                                    const res = await callApi(
+                                                        'manageAdvertsNMs',
+                                                        params,
+                                                    );
+                                                    console.log(res);
+                                                    if (!res || res['data'] === undefined) {
+                                                        return;
+                                                    }
+
+                                                    if (res['data']['status'] == 'ok') {
+                                                        if (
+                                                            !doc.campaigns[selectValue[0]][
+                                                                semanticsModalOpenFromArt
+                                                            ].adverts
+                                                        )
+                                                            doc.campaigns[selectValue[0]][
+                                                                semanticsModalOpenFromArt
+                                                            ].adverts = {};
+
+                                                        doc.campaigns[selectValue[0]][
+                                                            semanticsModalOpenFromArt
+                                                        ].adverts[advertId] =
+                                                            rkListMode == 'add'
+                                                                ? {advertId: advertId}
+                                                                : undefined;
+
+                                                        if (rkListMode == 'delete') {
+                                                            delete doc.campaigns[selectValue[0]][
+                                                                semanticsModalOpenFromArt
+                                                            ].adverts[advertId];
+                                                            const adverts =
+                                                                doc.campaigns[selectValue[0]][
+                                                                    semanticsModalOpenFromArt
+                                                                ].adverts;
+                                                            if (adverts) {
+                                                                const temp = [] as any[];
+                                                                for (const [
+                                                                    _,
+                                                                    advertData,
+                                                                ] of Object.entries(adverts)) {
+                                                                    if (!advertData) continue;
+                                                                    temp.push(
+                                                                        advertData['advertId'],
+                                                                    );
+                                                                }
+                                                                setRkList(temp);
+                                                            }
+                                                        }
+                                                    }
+                                                    setChangedDoc(doc);
+                                                }}
+                                            >
+                                                <Icon data={rkListMode == 'add' ? Plus : Xmark} />
+                                            </Button>
+                                        </div>
+                                    );
+                                }}
+                            />
+                        </div>
                     </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
