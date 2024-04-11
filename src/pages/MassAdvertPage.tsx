@@ -136,12 +136,6 @@ export const MassAdvertPage = () => {
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
-    const [advertsTypesInput, setAdvertsTypesInput] = useState({
-        search: false,
-        booster: false,
-        carousel: false,
-    });
-
     const [filters, setFilters] = useState({undef: false});
 
     // const [manageModalOpen, setManageModalOpen] = useState(false);
@@ -574,6 +568,624 @@ export const MassAdvertPage = () => {
         setFilters(filters);
     };
 
+    const generateAdvertCard = (id, index, art) => {
+        const advertData = doc.adverts[selectValue[0]][id];
+        const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
+        const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
+        const {advertId, status, words, budget, bidLog, daysInWork, type, cpm} = advertData;
+        if (![4, 9, 11].includes(status)) return <></>;
+
+        const semantics = words;
+
+        const curBudget = budget;
+        const curCpm = cpm;
+
+        // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
+
+        const advertsSelectedPhrases = doc.advertsSelectedPhrases[advertId];
+
+        const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
+            ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
+            : undefined;
+        const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].autoPhrasesTemplate
+            : undefined;
+
+        const themeToUse = plusPhrasesTemplate
+            ? autoPhrasesTemplate &&
+              ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
+                  (autoPhrasesTemplate.notIncludes && autoPhrasesTemplate.notIncludes.length))
+                ? 'flat-success'
+                : 'flat-info'
+            : 'normal';
+
+        const advertSemantics = {
+            clusters: semantics ? semantics.clusters ?? [] : [],
+            excluded: semantics ? semantics.excluded ?? [] : [],
+        };
+
+        const isWarningBeforeDeleteConfirmationRow =
+            index == warningBeforeDeleteConfirmationRow &&
+            warningBeforeDeleteConfirmation &&
+            advertId == modalOpenFromAdvertId;
+
+        const timeline: any[] = [];
+        const graphsData: any[] = [];
+        const bidLogType = bidLog;
+        if (bidLogType) {
+            for (let i = 0; i < bidLogType.bids.length; i++) {
+                const {time, val} = bidLogType.bids[i];
+                if (!time || !val) continue;
+
+                timeline.push(new Date(time).getTime());
+                graphsData.push(val);
+            }
+        }
+        const yagrData: YagrWidgetData = {
+            data: {
+                timeline: timeline,
+                graphs: [
+                    {
+                        id: '0',
+                        name: 'Ставка',
+                        color: '#5fb8a5',
+                        data: graphsData,
+                    },
+                ],
+            },
+            libraryConfig: {
+                chart: {
+                    series: {
+                        type: 'line',
+                        interpolation: 'smooth',
+                    },
+                },
+                axes: {
+                    y: {
+                        precision: 'auto',
+                        show: true,
+                    },
+                    x: {
+                        precision: 'auto',
+                        show: true,
+                    },
+                },
+                title: {
+                    text: 'Изменение ставки',
+                },
+            },
+        };
+
+        const manageAdvertsActivityCallFunc = async (mode) => {
+            const params = {
+                uid: getUid(),
+                campaignName: selectValue[0],
+                data: {
+                    advertsIds: {},
+                    mode: mode,
+                },
+            };
+            params.data.advertsIds[advertId] = {advertId: advertId};
+
+            //////////////////////////////////
+            return await callApi('manageAdvertsActivity', params);
+            //////////////////////////////////
+        };
+
+        return (
+            <Card
+            // style={{overflowY: 'hidden'}}
+            // view="raised"
+            >
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Button
+                                selected
+                                style={{
+                                    borderTopLeftRadius: 7,
+                                    overflow: 'hidden',
+                                }}
+                                onClick={() => filterByButton(advertId, 'adverts')}
+                                // style={{position: 'relative', top: -2}}
+                                size="xs"
+                                pin="brick-brick"
+                                view={
+                                    status
+                                        ? status == 9
+                                            ? 'flat-success'
+                                            : status == 11
+                                            ? 'flat-danger'
+                                            : 'flat-warning'
+                                        : 'flat'
+                                }
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Icon data={type == 8 ? Rocket : Magnifier} size={11} />
+                                    <div style={{width: 2}} />
+                                    {advertId}
+                                </div>
+                            </Button>
+                            <Button
+                                selected
+                                style={{
+                                    borderBottomRightRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                                onClick={async () => {
+                                    const res = await manageAdvertsActivityCallFunc(
+                                        status ? (status == 9 ? 'pause' : 'start') : 'start',
+                                    );
+                                    console.log(res);
+                                    if (!res || res['data'] === undefined) {
+                                        return;
+                                    }
+
+                                    if (res['data']['status'] == 'ok') {
+                                        doc.adverts[selectValue[0]][advertId].status =
+                                            status == 9 ? 11 : 9;
+                                    } else if (res['data']['status'] == 'bad') {
+                                        doc.adverts[selectValue[0]][advertId].status =
+                                            status == 11 ? 9 : 11;
+                                    }
+                                    setChangedDoc(doc);
+                                }}
+                                // style={{position: 'relative', top: -2}}
+                                disabled={status === undefined}
+                                // disabled
+                                size="xs"
+                                pin="brick-brick"
+                                view={
+                                    status
+                                        ? status == 9
+                                            ? 'flat-success'
+                                            : status == 11
+                                            ? 'flat-danger'
+                                            : 'flat-warning'
+                                        : 'flat'
+                                }
+                            >
+                                <Icon
+                                    data={status ? (status == 9 ? Pause : Play) : Play}
+                                    size={11}
+                                />
+                            </Button>
+                            <div style={{width: 8}} />
+                            <Button
+                                selected={isWarningBeforeDeleteConfirmationRow}
+                                style={{
+                                    display:
+                                        index != -1
+                                            ? warningBeforeDeleteConfirmation
+                                                ? isWarningBeforeDeleteConfirmationRow
+                                                    ? 'flex'
+                                                    : 'none'
+                                                : 'flex'
+                                            : 'none',
+                                    borderBottomRightRadius: 9,
+                                    borderBottomLeftRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                                onClick={async () => {
+                                    setWarningBeforeDeleteConfirmation(() => {
+                                        setWarningBeforeDeleteConfirmationRow(
+                                            warningBeforeDeleteConfirmation ? 0 : index,
+                                        );
+                                        setModalOpenFromAdvertId(
+                                            warningBeforeDeleteConfirmation ? '' : advertId,
+                                        );
+                                        return !warningBeforeDeleteConfirmation;
+                                    });
+
+                                    if (!warningBeforeDeleteConfirmation) {
+                                        await new Promise((resolve) => {
+                                            setTimeout(() => {
+                                                setWarningBeforeDeleteConfirmationRow(0);
+                                                setWarningBeforeDeleteConfirmation(false);
+                                                setModalOpenFromAdvertId('');
+
+                                                resolve(1);
+                                            }, 5 * 1000);
+                                        });
+                                    }
+                                }}
+                                // style={{position: 'relative', top: -2}}
+                                disabled={status === undefined}
+                                size="xs"
+                                pin="brick-brick"
+                                view={isWarningBeforeDeleteConfirmationRow ? 'flat-danger' : 'flat'}
+                            >
+                                <Icon data={TrashBin} size={11} />
+                            </Button>
+                            <div style={{width: 8}} />
+                        </div>
+
+                        {status !== undefined ? (
+                            <Button
+                                pin="clear-clear"
+                                style={{
+                                    borderTopRightRadius: 7,
+                                    borderBottomLeftRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                                size="xs"
+                                // selected
+                                view="flat"
+                                onClick={() => {
+                                    const nDaysAgo = new Date(today);
+
+                                    nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
+
+                                    const range = [nDaysAgo, today];
+                                    recalc(range);
+                                    setDateRange(range);
+                                }}
+                            >
+                                {daysInWork + 1}
+                                <div style={{width: 2}} />
+                                <Icon size={12} data={status ? Calendar : Ban}></Icon>
+                            </Button>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+                    <motion.div
+                        animate={{
+                            opacity: isWarningBeforeDeleteConfirmationRow ? 0 : 1,
+                            pointerEvents: isWarningBeforeDeleteConfirmationRow ? 'none' : 'auto',
+                        }}
+                        transition={{
+                            duration: 0.2,
+                            delay: isWarningBeforeDeleteConfirmationRow ? 0 : 0.2,
+                        }}
+                        style={{height: 76}}
+                    >
+                        <Popover
+                            behavior={'delayed' as PopoverBehavior}
+                            content={<ChartKit type="yagr" data={yagrData} />}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Button
+                                    pin="brick-round"
+                                    size="xs"
+                                    view="flat"
+                                    onClick={() => {
+                                        openBidModalForm();
+                                        setModalOpenFromAdvertId(advertId);
+                                    }}
+                                >
+                                    <Text variant="caption-2">{`CPM: ${curCpm} / ${
+                                        drrAI !== undefined ? `${drrAI.maxBid}` : 'Автоставки выкл.'
+                                    }`}</Text>
+                                    {drrAI !== undefined ? (
+                                        <Text style={{marginLeft: 4}} variant="caption-2">
+                                            {`План ДРР: ${drrAI.desiredDRR}`}
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    {drrAI !== undefined &&
+                                    drrAI.placementsRange.from != 0 &&
+                                    drrAI.placementsRange.tp != 0 ? (
+                                        <Text style={{marginLeft: 4}} variant="caption-2">
+                                            {`План №: ${drrAI.placementsRange.from}`}
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
+                                </Button>
+                            </div>
+                        </Popover>
+
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Button
+                                pin="brick-round"
+                                size="xs"
+                                view="flat"
+                                onClick={() => {
+                                    openBudgetModalForm();
+                                    setModalOpenFromAdvertId(advertId);
+                                }}
+                            >
+                                <Text variant="caption-2">{`Баланс: ${
+                                    curBudget !== undefined ? curBudget : 'Нет инф.'
+                                } / ${
+                                    budgetToKeep !== undefined ? budgetToKeep : 'Бюджет не задан.'
+                                }`}</Text>
+                            </Button>
+                        </div>
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Button
+                                size="xs"
+                                pin="brick-round"
+                                // style={{
+                                //     borderTopRightRadius: 7,
+                                //     borderBottomRightRadius: 7,
+                                //     overflow: 'hidden',
+                                // }}
+                                selected={themeToUse != 'normal'}
+                                view={themeToUse}
+                                onClick={() => {
+                                    setSemanticsModalFormOpen(true);
+
+                                    setSelectedSearchPhrase(
+                                        advertsSelectedPhrases ? advertsSelectedPhrases.phrase : '',
+                                    );
+
+                                    setSemanticsModalOpenFromArt(art);
+                                    setModalOpenFromAdvertId(advertId);
+
+                                    if (autoPhrasesTemplate) {
+                                        setSemanticsAutoPhrasesModalIncludesList(
+                                            autoPhrasesTemplate.includes ?? [],
+                                        );
+                                        setSemanticsAutoPhrasesModalNotIncludesList(
+                                            autoPhrasesTemplate.notIncludes ?? [],
+                                        );
+                                    } else {
+                                        setSemanticsAutoPhrasesModalIncludesList([]);
+                                        setSemanticsAutoPhrasesModalNotIncludesList([]);
+                                    }
+                                    setSemanticsAutoPhrasesModalIncludesListInput('');
+                                    setSemanticsAutoPhrasesModalNotIncludesListInput('');
+
+                                    setSemanticsModalSemanticsItemsValue(() => {
+                                        const temp = advertSemantics.clusters;
+                                        temp.sort((a, b) => {
+                                            const freqA = a.freq ? a.freq : 0;
+                                            const freqB = b.freq ? b.freq : 0;
+                                            return freqB - freqA;
+                                        });
+                                        setSemanticsModalSemanticsItemsFiltratedValue(temp);
+                                        return temp;
+                                    });
+                                    setSemanticsModalSemanticsMinusItemsValue(() => {
+                                        const temp = advertSemantics.excluded;
+                                        temp.sort((a, b) => {
+                                            const freqA = a.freq ? a.freq : 0;
+                                            const freqB = b.freq ? b.freq : 0;
+                                            return freqB - freqA;
+                                        });
+                                        setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
+                                        return temp;
+                                    });
+                                    setSemanticsModalSemanticsPlusItemsTemplateNameValue(
+                                        plusPhrasesTemplate ?? 'Не установлен',
+                                    );
+
+                                    const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][
+                                        plusPhrasesTemplate
+                                    ]
+                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                              plusPhrasesTemplate
+                                          ].threshold
+                                        : 1;
+                                    setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+                                    const plusCTRThreshold = doc.plusPhrasesTemplates[
+                                        selectValue[0]
+                                    ][plusPhrasesTemplate]
+                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                              plusPhrasesTemplate
+                                          ].ctrThreshold
+                                        : 0;
+                                    setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
+
+                                    const plusSecondThreshold = doc.plusPhrasesTemplates[
+                                        selectValue[0]
+                                    ][plusPhrasesTemplate]
+                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                              plusPhrasesTemplate
+                                          ].secondThreshold
+                                        : 0;
+                                    setSemanticsModalSemanticsSecondThresholdValue(
+                                        plusSecondThreshold,
+                                    );
+
+                                    const plusSecondCTRThreshold = doc.plusPhrasesTemplates[
+                                        selectValue[0]
+                                    ][plusPhrasesTemplate]
+                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                              plusPhrasesTemplate
+                                          ].secondCtrThreshold
+                                        : 0;
+                                    setSemanticsModalSemanticsSecondCTRThresholdValue(
+                                        plusSecondCTRThreshold,
+                                    );
+
+                                    const isFixed = doc.plusPhrasesTemplates[selectValue[0]][
+                                        plusPhrasesTemplate
+                                    ]
+                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                              plusPhrasesTemplate
+                                          ].isFixed ?? false
+                                        : false;
+                                    setSemanticsModalIsFixed(isFixed);
+
+                                    setClustersFiltersActive({undef: false});
+                                    setClustersFiltersMinus({undef: false});
+                                    setClustersFiltersTemplate({undef: false});
+
+                                    // // console.log(value.plus);
+                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                        plusPhrasesTemplate ?? `Новый шаблон`,
+                                    );
+                                    const plusItems = doc.plusPhrasesTemplates[selectValue[0]][
+                                        plusPhrasesTemplate
+                                    ]
+                                        ? doc.plusPhrasesTemplates[selectValue[0]][
+                                              plusPhrasesTemplate
+                                          ].clusters
+                                        : [];
+                                    setSemanticsModalSemanticsPlusItemsValue(plusItems);
+
+                                    setSemanticsModalSemanticsTemplateItemsValue(() => {
+                                        const plusItemsTable = [] as any[];
+                                        for (const phrase of plusItems) {
+                                            plusItemsTable.push({
+                                                cluster: phrase,
+                                            });
+                                        }
+                                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(
+                                            plusItemsTable,
+                                        );
+                                        return plusItemsTable;
+                                    });
+                                    // setSemanticsModalTextAreaValue('');
+                                    // setSemanticsModalTextAreaAddMode(false);
+                                }}
+                            >
+                                <Text variant="caption-2">
+                                    {themeToUse != 'normal' ? plusPhrasesTemplate : 'Фразы'}
+                                </Text>
+                            </Button>
+                            <div style={{height: 4}} />
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                {advertSemantics.clusters.length ? (
+                                    <>
+                                        <div style={{width: 5}} />
+                                        <Label theme="clear">
+                                            <Text
+                                                variant="caption-2"
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                {advertSemantics.clusters.length}
+                                                <div style={{width: 3}} />
+                                                <Icon size={11} data={Eye} />
+                                            </Text>
+                                        </Label>
+                                    </>
+                                ) : (
+                                    <></>
+                                )}
+                                {advertSemantics.excluded.length ? (
+                                    <>
+                                        <div style={{width: 5}} />
+                                        <Label theme="clear">
+                                            <Text
+                                                variant="caption-2"
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                {advertSemantics.excluded.length}
+                                                <div style={{width: 3}} />
+                                                <Icon size={11} data={EyeSlash} />
+                                            </Text>
+                                        </Label>
+                                    </>
+                                ) : (
+                                    <></>
+                                )}
+                                <div style={{width: 5}} />
+                            </div>
+                        </div>
+                    </motion.div>
+                    <motion.div
+                        style={{
+                            height: 70,
+                            width: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
+                        animate={{
+                            opacity: !isWarningBeforeDeleteConfirmationRow ? 0 : 1,
+                            pointerEvents: !isWarningBeforeDeleteConfirmationRow ? 'none' : 'auto',
+                            y: !isWarningBeforeDeleteConfirmationRow ? 0 : -76 + 4,
+                        }}
+                        transition={{
+                            duration: 0.1,
+                            delay: isWarningBeforeDeleteConfirmationRow ? 0.05 : 0,
+                        }}
+                    >
+                        <Text variant="subheader-1">{'Удалить РК?'}</Text>
+                        <div style={{minHeight: 4}} />
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                            }}
+                        >
+                            <Button
+                                view={'outlined-danger'}
+                                onClick={async () => {
+                                    setWarningBeforeDeleteConfirmation(() => {
+                                        setWarningBeforeDeleteConfirmationRow(0);
+                                        return false;
+                                    });
+
+                                    const res = await manageAdvertsActivityCallFunc('stop');
+                                    console.log(res);
+                                    if (!res || res['data'] === undefined) {
+                                        return;
+                                    }
+
+                                    if (res['data']['status'] == 'ok') {
+                                        doc.adverts[selectValue[0]][advertId] = undefined;
+                                    }
+                                    setChangedDoc(doc);
+                                }}
+                            >
+                                Удалить
+                            </Button>
+                            <div style={{minWidth: 8}} />
+                            <Button
+                                view={'outlined'}
+                                onClick={() => {
+                                    setWarningBeforeDeleteConfirmation(() => {
+                                        setWarningBeforeDeleteConfirmationRow(0);
+                                        return false;
+                                    });
+                                }}
+                            >
+                                Отмена
+                            </Button>
+                        </div>
+                    </motion.div>
+                </div>
+            </Card>
+        );
+    };
+
     const columnData = [
         {
             name: 'art',
@@ -679,6 +1291,7 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <Button
+                                        disabled
                                             size="xs"
                                             pin="round-clear"
                                             view="outlined"
@@ -686,16 +1299,10 @@ export const MassAdvertPage = () => {
                                                 setAdvertsArtsListModalFromOpen(true);
                                                 setRkList(doc.adverts[selectValue[0]] ?? []);
                                             }}
-                                            disabled
                                         >
                                             <Icon data={Plus} />
                                         </Button>
-                                        <Button
-                                            size="xs"
-                                            pin="brick-round"
-                                            view="outlined"
-                                            disabled
-                                        >
+                                        <Button size="xs" pin="brick-round" view="outlined" disabled>
                                             <Icon data={Xmark} />
                                         </Button>
                                     </div>
@@ -786,713 +1393,16 @@ export const MassAdvertPage = () => {
             valueType: 'text',
             render: ({value, row, index}) => {
                 if (value === null || value === undefined) return;
-                const {bid, budget, budgetToKeep, drrAI, art, semantics, bidLog} = row;
 
-                const mapp = {
-                    search: {name: 'Поиск', icon: Magnifier},
-                    booster: {name: 'Бустер', icon: Rocket},
-                };
+                const {art} = row;
+
                 const switches: any[] = [];
-                for (const [advertsType, advertsTypeData] of Object.entries(value)) {
-                    if (!advertsType || !advertsTypeData) continue;
-                    const advertsTypeDisplayData = mapp[advertsType];
-                    for (const [advertId, _] of Object.entries(advertsTypeData)) {
-                        if (!doc.adverts[selectValue[0]][advertId]) continue;
-                        const {status, daysInWork}: {status: number; daysInWork: number} =
-                            doc.adverts[selectValue[0]][advertId];
-                        const curBudget = budget[advertId];
-                        const curCpm = bid[advertId];
-                        if (![4, 9, 11].includes(status)) continue;
+                for (const [advertId, _] of Object.entries(value)) {
+                    const advertData = doc.adverts[selectValue[0]][advertId];
+                    if (!advertData) continue;
 
-                        const advertsSelectedPhrases = row.advertsSelectedPhrases
-                            ? row.advertsSelectedPhrases[advertId]
-                            : undefined;
-                        const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                            advertId
-                        ]
-                            ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
-                            : undefined;
-                        const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][
-                            plusPhrasesTemplate
-                        ]
-                            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                                  .autoPhrasesTemplate
-                            : undefined;
-
-                        const themeToUse = plusPhrasesTemplate
-                            ? autoPhrasesTemplate &&
-                              ((autoPhrasesTemplate.includes &&
-                                  autoPhrasesTemplate.includes.length) ||
-                                  (autoPhrasesTemplate.notIncludes &&
-                                      autoPhrasesTemplate.notIncludes.length))
-                                ? 'flat-success'
-                                : 'flat-info'
-                            : 'normal';
-
-                        const advertSemantics = {
-                            clusters: semantics
-                                ? semantics[advertId]
-                                    ? semantics[advertId].clusters ?? []
-                                    : []
-                                : [],
-                            excluded: semantics
-                                ? semantics[advertId]
-                                    ? semantics[advertId].excluded ?? []
-                                    : []
-                                : [],
-                        };
-
-                        const isWarningBeforeDeleteConfirmationRow =
-                            index == warningBeforeDeleteConfirmationRow &&
-                            warningBeforeDeleteConfirmation &&
-                            advertId == modalOpenFromAdvertId;
-
-                        const timeline: any[] = [];
-                        const graphsData: any[] = [];
-                        const bidLogType = bidLog[advertId];
-                        if (bidLogType) {
-                            for (let i = 0; i < bidLogType.bids.length; i++) {
-                                const {time, val} = bidLogType.bids[i];
-                                if (!time || !val) continue;
-
-                                timeline.push(new Date(time).getTime());
-                                graphsData.push(val);
-                            }
-                        }
-                        const yagrData: YagrWidgetData = {
-                            data: {
-                                timeline: timeline,
-                                graphs: [
-                                    {
-                                        id: '0',
-                                        name: 'Ставка',
-                                        color: '#5fb8a5',
-                                        data: graphsData,
-                                    },
-                                ],
-                            },
-                            libraryConfig: {
-                                chart: {
-                                    series: {
-                                        type: 'line',
-                                        interpolation: 'smooth',
-                                    },
-                                },
-                                axes: {
-                                    y: {
-                                        precision: 'auto',
-                                        show: true,
-                                    },
-                                    x: {
-                                        precision: 'auto',
-                                        show: true,
-                                    },
-                                },
-                                title: {
-                                    text: 'Изменение ставки',
-                                },
-                            },
-                        };
-
-                        const manageAdvertsActivityCallFunc = async (mode) => {
-                            const params = {
-                                uid: getUid(),
-                                campaignName: selectValue[0],
-                                data: {
-                                    advertsIds: {},
-                                    mode: mode,
-                                },
-                            };
-                            params.data.advertsIds[advertId] = {advertId: advertId};
-
-                            //////////////////////////////////
-                            return await callApi('manageAdvertsActivity', params);
-                            //////////////////////////////////
-                        };
-
-                        switches.push(
-                            <Card
-                            // style={{overflowY: 'hidden'}}
-                            // view="raised"
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                        }}
-                                    >
-                                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                                            <Button
-                                                selected
-                                                style={{
-                                                    borderTopLeftRadius: 7,
-                                                    overflow: 'hidden',
-                                                }}
-                                                onClick={() => filterByButton(advertId, 'adverts')}
-                                                // style={{position: 'relative', top: -2}}
-                                                size="xs"
-                                                pin="brick-brick"
-                                                view={
-                                                    status
-                                                        ? status == 9
-                                                            ? 'flat-success'
-                                                            : status == 11
-                                                            ? 'flat-danger'
-                                                            : 'flat-warning'
-                                                        : 'flat'
-                                                }
-                                            >
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                    }}
-                                                >
-                                                    <Icon
-                                                        data={advertsTypeDisplayData.icon}
-                                                        size={11}
-                                                    />
-                                                    <div style={{width: 2}} />
-                                                    {advertId}
-                                                </div>
-                                            </Button>
-                                            <Button
-                                                selected
-                                                style={{
-                                                    borderBottomRightRadius: 9,
-                                                    overflow: 'hidden',
-                                                }}
-                                                onClick={async () => {
-                                                    const res = await manageAdvertsActivityCallFunc(
-                                                        status
-                                                            ? status == 9
-                                                                ? 'pause'
-                                                                : 'start'
-                                                            : 'start',
-                                                    );
-                                                    console.log(res);
-                                                    if (!res || res['data'] === undefined) {
-                                                        return;
-                                                    }
-
-                                                    if (res['data']['status'] == 'ok') {
-                                                        doc.adverts[selectValue[0]][
-                                                            advertId
-                                                        ].status = status == 9 ? 11 : 9;
-                                                    } else if (res['data']['status'] == 'bad') {
-                                                        doc.adverts[selectValue[0]][
-                                                            advertId
-                                                        ].status = status == 11 ? 9 : 11;
-                                                    }
-                                                    setChangedDoc(doc);
-                                                }}
-                                                // style={{position: 'relative', top: -2}}
-                                                disabled={status === undefined}
-                                                // disabled
-                                                size="xs"
-                                                pin="brick-brick"
-                                                view={
-                                                    status
-                                                        ? status == 9
-                                                            ? 'flat-success'
-                                                            : status == 11
-                                                            ? 'flat-danger'
-                                                            : 'flat-warning'
-                                                        : 'flat'
-                                                }
-                                            >
-                                                <Icon
-                                                    data={
-                                                        status ? (status == 9 ? Pause : Play) : Play
-                                                    }
-                                                    size={11}
-                                                />
-                                            </Button>
-                                            <div style={{width: 8}} />
-                                            <Button
-                                                selected={isWarningBeforeDeleteConfirmationRow}
-                                                style={{
-                                                    display: warningBeforeDeleteConfirmation
-                                                        ? isWarningBeforeDeleteConfirmationRow
-                                                            ? 'flex'
-                                                            : 'none'
-                                                        : 'flex',
-                                                    borderBottomRightRadius: 9,
-                                                    borderBottomLeftRadius: 9,
-                                                    overflow: 'hidden',
-                                                }}
-                                                onClick={async () => {
-                                                    setWarningBeforeDeleteConfirmation(() => {
-                                                        setWarningBeforeDeleteConfirmationRow(
-                                                            warningBeforeDeleteConfirmation
-                                                                ? 0
-                                                                : index,
-                                                        );
-                                                        setModalOpenFromAdvertId(
-                                                            warningBeforeDeleteConfirmation
-                                                                ? ''
-                                                                : advertId,
-                                                        );
-                                                        return !warningBeforeDeleteConfirmation;
-                                                    });
-
-                                                    if (!warningBeforeDeleteConfirmation) {
-                                                        await new Promise((resolve) => {
-                                                            setTimeout(() => {
-                                                                setWarningBeforeDeleteConfirmationRow(
-                                                                    0,
-                                                                );
-                                                                setWarningBeforeDeleteConfirmation(
-                                                                    false,
-                                                                );
-                                                                setModalOpenFromAdvertId('');
-
-                                                                resolve(1);
-                                                            }, 5 * 1000);
-                                                        });
-                                                    }
-                                                }}
-                                                // style={{position: 'relative', top: -2}}
-                                                disabled={status === undefined}
-                                                size="xs"
-                                                pin="brick-brick"
-                                                view={
-                                                    isWarningBeforeDeleteConfirmationRow
-                                                        ? 'flat-danger'
-                                                        : 'flat'
-                                                }
-                                            >
-                                                <Icon data={TrashBin} size={11} />
-                                            </Button>
-                                            <div style={{width: 8}} />
-                                        </div>
-
-                                        {status !== undefined ? (
-                                            <Button
-                                                pin="clear-clear"
-                                                style={{
-                                                    borderTopRightRadius: 7,
-                                                    borderBottomLeftRadius: 9,
-                                                    overflow: 'hidden',
-                                                }}
-                                                size="xs"
-                                                // selected
-                                                view="flat"
-                                                onClick={() => {
-                                                    const nDaysAgo = new Date(today);
-
-                                                    nDaysAgo.setDate(
-                                                        nDaysAgo.getDate() - daysInWork,
-                                                    );
-
-                                                    const range = [nDaysAgo, today];
-                                                    recalc(range);
-                                                    setDateRange(range);
-                                                }}
-                                            >
-                                                {daysInWork + 1}
-                                                <div style={{width: 2}} />
-                                                <Icon
-                                                    size={12}
-                                                    data={status ? Calendar : Ban}
-                                                ></Icon>
-                                            </Button>
-                                        ) : (
-                                            <></>
-                                        )}
-                                    </div>
-                                    <motion.div
-                                        animate={{
-                                            opacity: isWarningBeforeDeleteConfirmationRow ? 0 : 1,
-                                            pointerEvents: isWarningBeforeDeleteConfirmationRow
-                                                ? 'none'
-                                                : 'auto',
-                                        }}
-                                        transition={{
-                                            duration: 0.2,
-                                            delay: isWarningBeforeDeleteConfirmationRow ? 0 : 0.2,
-                                        }}
-                                        style={{height: 76}}
-                                    >
-                                        <Popover
-                                            behavior={'delayed' as PopoverBehavior}
-                                            disabled={value === undefined}
-                                            content={<ChartKit type="yagr" data={yagrData} />}
-                                        >
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                <Button
-                                                    pin="brick-round"
-                                                    size="xs"
-                                                    view="flat"
-                                                    onClick={() => {
-                                                        openBidModalForm();
-                                                        setModalOpenFromAdvertId(advertId);
-                                                    }}
-                                                >
-                                                    <Text variant="caption-2">{`CPM: ${curCpm} / ${
-                                                        drrAI[advertId] !== undefined
-                                                            ? `${drrAI[advertId].maxBid}`
-                                                            : 'Автоставки выкл.'
-                                                    }`}</Text>
-                                                    {drrAI[advertId] !== undefined ? (
-                                                        <Text
-                                                            style={{marginLeft: 4}}
-                                                            variant="caption-2"
-                                                        >
-                                                            {`План ДРР: ${drrAI[advertId].desiredDRR}`}
-                                                        </Text>
-                                                    ) : (
-                                                        <></>
-                                                    )}
-                                                    {drrAI[advertId] !== undefined &&
-                                                    drrAI[advertId].placementsRange.from != 0 &&
-                                                    drrAI[advertId].placementsRange.tp != 0 ? (
-                                                        <Text
-                                                            style={{marginLeft: 4}}
-                                                            variant="caption-2"
-                                                        >
-                                                            {`План №: ${drrAI[advertId].placementsRange.from}`}
-                                                        </Text>
-                                                    ) : (
-                                                        <></>
-                                                    )}
-                                                </Button>
-                                            </div>
-                                        </Popover>
-
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <Button
-                                                pin="brick-round"
-                                                size="xs"
-                                                view="flat"
-                                                onClick={() => {
-                                                    openBudgetModalForm();
-                                                    setModalOpenFromAdvertId(advertId);
-                                                }}
-                                            >
-                                                <Text variant="caption-2">{`Баланс: ${
-                                                    curBudget !== undefined ? curBudget : 'Нет инф.'
-                                                } / ${
-                                                    budgetToKeep[advertId] !== undefined
-                                                        ? budgetToKeep[advertId]
-                                                        : 'Бюджет не задан.'
-                                                }`}</Text>
-                                            </Button>
-                                        </div>
-                                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                                            <Button
-                                                size="xs"
-                                                pin="brick-round"
-                                                // style={{
-                                                //     borderTopRightRadius: 7,
-                                                //     borderBottomRightRadius: 7,
-                                                //     overflow: 'hidden',
-                                                // }}
-                                                selected={themeToUse != 'normal'}
-                                                view={themeToUse}
-                                                onClick={() => {
-                                                    setSemanticsModalFormOpen(true);
-
-                                                    setSelectedSearchPhrase(
-                                                        advertsSelectedPhrases
-                                                            ? advertsSelectedPhrases.phrase
-                                                            : '',
-                                                    );
-
-                                                    setSemanticsModalOpenFromArt(art);
-                                                    setModalOpenFromAdvertId(advertId);
-
-                                                    if (autoPhrasesTemplate) {
-                                                        setSemanticsAutoPhrasesModalIncludesList(
-                                                            autoPhrasesTemplate.includes ?? [],
-                                                        );
-                                                        setSemanticsAutoPhrasesModalNotIncludesList(
-                                                            autoPhrasesTemplate.notIncludes ?? [],
-                                                        );
-                                                    } else {
-                                                        setSemanticsAutoPhrasesModalIncludesList(
-                                                            [],
-                                                        );
-                                                        setSemanticsAutoPhrasesModalNotIncludesList(
-                                                            [],
-                                                        );
-                                                    }
-                                                    setSemanticsAutoPhrasesModalIncludesListInput(
-                                                        '',
-                                                    );
-                                                    setSemanticsAutoPhrasesModalNotIncludesListInput(
-                                                        '',
-                                                    );
-
-                                                    setSemanticsModalSemanticsItemsValue(() => {
-                                                        const temp = advertSemantics.clusters;
-                                                        temp.sort((a, b) => {
-                                                            const freqA = a.freq ? a.freq : 0;
-                                                            const freqB = b.freq ? b.freq : 0;
-                                                            return freqB - freqA;
-                                                        });
-                                                        setSemanticsModalSemanticsItemsFiltratedValue(
-                                                            temp,
-                                                        );
-                                                        return temp;
-                                                    });
-                                                    setSemanticsModalSemanticsMinusItemsValue(
-                                                        () => {
-                                                            const temp = advertSemantics.excluded;
-                                                            temp.sort((a, b) => {
-                                                                const freqA = a.freq ? a.freq : 0;
-                                                                const freqB = b.freq ? b.freq : 0;
-                                                                return freqB - freqA;
-                                                            });
-                                                            setSemanticsModalSemanticsMinusItemsFiltratedValue(
-                                                                temp,
-                                                            );
-                                                            return temp;
-                                                        },
-                                                    );
-                                                    setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                                        plusPhrasesTemplate ?? 'Не установлен',
-                                                    );
-
-                                                    const plusThreshold = doc.plusPhrasesTemplates[
-                                                        selectValue[0]
-                                                    ][plusPhrasesTemplate]
-                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                              plusPhrasesTemplate
-                                                          ].threshold
-                                                        : 1;
-                                                    setSemanticsModalSemanticsThresholdValue(
-                                                        plusThreshold,
-                                                    );
-
-                                                    const plusCTRThreshold = doc
-                                                        .plusPhrasesTemplates[selectValue[0]][
-                                                        plusPhrasesTemplate
-                                                    ]
-                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                              plusPhrasesTemplate
-                                                          ].ctrThreshold
-                                                        : 0;
-                                                    setSemanticsModalSemanticsCTRThresholdValue(
-                                                        plusCTRThreshold,
-                                                    );
-
-                                                    const plusSecondThreshold = doc
-                                                        .plusPhrasesTemplates[selectValue[0]][
-                                                        plusPhrasesTemplate
-                                                    ]
-                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                              plusPhrasesTemplate
-                                                          ].secondThreshold
-                                                        : 0;
-                                                    setSemanticsModalSemanticsSecondThresholdValue(
-                                                        plusSecondThreshold,
-                                                    );
-
-                                                    const plusSecondCTRThreshold = doc
-                                                        .plusPhrasesTemplates[selectValue[0]][
-                                                        plusPhrasesTemplate
-                                                    ]
-                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                              plusPhrasesTemplate
-                                                          ].secondCtrThreshold
-                                                        : 0;
-                                                    setSemanticsModalSemanticsSecondCTRThresholdValue(
-                                                        plusSecondCTRThreshold,
-                                                    );
-
-                                                    const isFixed = doc.plusPhrasesTemplates[
-                                                        selectValue[0]
-                                                    ][plusPhrasesTemplate]
-                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                              plusPhrasesTemplate
-                                                          ].isFixed ?? false
-                                                        : false;
-                                                    setSemanticsModalIsFixed(isFixed);
-
-                                                    setClustersFiltersActive({undef: false});
-                                                    setClustersFiltersMinus({undef: false});
-                                                    setClustersFiltersTemplate({undef: false});
-
-                                                    // // console.log(value.plus);
-                                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                                        plusPhrasesTemplate ?? `Новый шаблон`,
-                                                    );
-                                                    const plusItems = doc.plusPhrasesTemplates[
-                                                        selectValue[0]
-                                                    ][plusPhrasesTemplate]
-                                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                                              plusPhrasesTemplate
-                                                          ].clusters
-                                                        : [];
-                                                    setSemanticsModalSemanticsPlusItemsValue(
-                                                        plusItems,
-                                                    );
-
-                                                    setSemanticsModalSemanticsTemplateItemsValue(
-                                                        () => {
-                                                            const plusItemsTable = [] as any[];
-                                                            for (const phrase of plusItems) {
-                                                                plusItemsTable.push({
-                                                                    cluster: phrase,
-                                                                });
-                                                            }
-                                                            setSemanticsModalSemanticsTemplateItemsFiltratedValue(
-                                                                plusItemsTable,
-                                                            );
-                                                            return plusItemsTable;
-                                                        },
-                                                    );
-                                                    // setSemanticsModalTextAreaValue('');
-                                                    // setSemanticsModalTextAreaAddMode(false);
-                                                }}
-                                            >
-                                                <Text variant="caption-2">
-                                                    {themeToUse != 'normal'
-                                                        ? plusPhrasesTemplate
-                                                        : 'Фразы'}
-                                                </Text>
-                                            </Button>
-                                            <div style={{height: 4}} />
-                                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                                {advertSemantics.clusters.length ? (
-                                                    <>
-                                                        <div style={{width: 5}} />
-                                                        <Label theme="clear">
-                                                            <Text
-                                                                variant="caption-2"
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    flexDirection: 'row',
-                                                                    justifyContent: 'center',
-                                                                    alignItems: 'center',
-                                                                }}
-                                                            >
-                                                                {advertSemantics.clusters.length}
-                                                                <div style={{width: 3}} />
-                                                                <Icon size={11} data={Eye} />
-                                                            </Text>
-                                                        </Label>
-                                                    </>
-                                                ) : (
-                                                    <></>
-                                                )}
-                                                {advertSemantics.excluded.length ? (
-                                                    <>
-                                                        <div style={{width: 5}} />
-                                                        <Label theme="clear">
-                                                            <Text
-                                                                variant="caption-2"
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    flexDirection: 'row',
-                                                                    justifyContent: 'center',
-                                                                    alignItems: 'center',
-                                                                }}
-                                                            >
-                                                                {advertSemantics.excluded.length}
-                                                                <div style={{width: 3}} />
-                                                                <Icon size={11} data={EyeSlash} />
-                                                            </Text>
-                                                        </Label>
-                                                    </>
-                                                ) : (
-                                                    <></>
-                                                )}
-                                                <div style={{width: 5}} />
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                    <motion.div
-                                        style={{
-                                            height: 70,
-                                            width: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                        }}
-                                        animate={{
-                                            opacity: !isWarningBeforeDeleteConfirmationRow ? 0 : 1,
-                                            y: !isWarningBeforeDeleteConfirmationRow ? 0 : -76 + 4,
-                                        }}
-                                        transition={{
-                                            duration: 0.1,
-                                            delay: isWarningBeforeDeleteConfirmationRow ? 0.05 : 0,
-                                        }}
-                                    >
-                                        <Text variant="subheader-1">{'Удалить РК?'}</Text>
-                                        <div style={{minHeight: 4}} />
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                            }}
-                                        >
-                                            <Button
-                                                view={'outlined-danger'}
-                                                onClick={async () => {
-                                                    setWarningBeforeDeleteConfirmation(() => {
-                                                        setWarningBeforeDeleteConfirmationRow(0);
-                                                        return false;
-                                                    });
-
-                                                    const res = await manageAdvertsActivityCallFunc(
-                                                        'stop',
-                                                    );
-                                                    console.log(res);
-                                                    if (!res || res['data'] === undefined) {
-                                                        return;
-                                                    }
-
-                                                    if (res['data']['status'] == 'ok') {
-                                                        doc.adverts[selectValue[0]][advertId] =
-                                                            undefined;
-                                                    }
-                                                    setChangedDoc(doc);
-                                                }}
-                                            >
-                                                Удалить
-                                            </Button>
-                                            <div style={{minWidth: 8}} />
-                                            <Button
-                                                view={'outlined'}
-                                                onClick={() => {
-                                                    setWarningBeforeDeleteConfirmation(() => {
-                                                        setWarningBeforeDeleteConfirmationRow(0);
-                                                        return false;
-                                                    });
-                                                }}
-                                            >
-                                                Отмена
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                </div>
-                            </Card>,
-                        );
-                        switches.push(<div style={{minWidth: 8}} />);
-                    }
+                    switches.push(generateAdvertCard(advertId, index, art));
+                    switches.push(<div style={{minWidth: 8}} />);
                 }
                 switches.pop();
 
@@ -2058,11 +1968,8 @@ export const MassAdvertPage = () => {
                     let wholeText = '';
                     const adverts = tempTypeRow[filterArg];
                     if (adverts)
-                        for (const [advertsTypes, advertsTypesData] of Object.entries(adverts)) {
-                            if (!advertsTypes || !advertsTypesData) continue;
-                            for (const [id, _] of Object.entries(advertsTypesData)) {
-                                wholeText += id + ' ';
-                            }
+                        for (const [id, _] of Object.entries(adverts)) {
+                            wholeText += id + ' ';
                         }
 
                     let tempFlagInc = 0;
@@ -2200,7 +2107,6 @@ export const MassAdvertPage = () => {
 
     const openBudgetModalForm = () => {
         setSelectedButton('');
-        setAdvertsTypesInput({search: false, booster: false, carousel: false});
         setBudgetModalBudgetInputValue(500);
         setBudgetModalSwitchValue('Пополнить');
         setBudgetModalBudgetInputValidationValue(true);
@@ -2209,7 +2115,6 @@ export const MassAdvertPage = () => {
     };
     const openBidModalForm = () => {
         setSelectedButton('');
-        setAdvertsTypesInput({search: false, booster: false, carousel: false});
         setBidModalBidInputValue(125);
         setBidModalSwitchValue('Установить');
         setBidModalBidInputValidationValue(true);
@@ -2507,11 +2412,12 @@ export const MassAdvertPage = () => {
         },
     ];
 
-    const generateCardList = () => {
+    const generateAdvertsCardsList = () => {
         const temp = [] as any[];
         for (const [_, advertData] of Object.entries(rkList)) {
             if (!advertData) continue;
-            temp.push(<div>{advertData['status']}</div>);
+            const {advertId} = advertData;
+            temp.push(<div>{generateAdvertCard(advertId, -1, '')}</div>);
         }
         return temp;
     };
@@ -2999,49 +2905,42 @@ export const MassAdvertPage = () => {
                                                 data: {
                                                     mode: budgetModalSwitchValue,
                                                     advertsIds: {},
-                                                    advertsTypes: advertsTypesInput,
                                                 },
                                             };
                                             for (let i = 0; i < filteredData.length; i++) {
                                                 const {adverts} = filteredData[i];
                                                 if (adverts) {
-                                                    for (const [
-                                                        advertsType,
-                                                        advertsTypeData,
-                                                    ] of Object.entries(adverts)) {
-                                                        if (!advertsType || !advertsTypeData)
-                                                            continue;
-                                                        for (const [
-                                                            advertId,
-                                                            advertsData,
-                                                        ] of Object.entries(advertsTypeData)) {
-                                                            if (
-                                                                modalOpenFromAdvertId != '' &&
-                                                                modalOpenFromAdvertId
-                                                            ) {
-                                                                if (
-                                                                    advertId !=
-                                                                    modalOpenFromAdvertId
-                                                                )
-                                                                    continue;
-                                                            }
+                                                    for (const [id, advertsData] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        if (!id || !advertsData) continue;
+                                                        const {advertId} = advertsData as {
+                                                            advertId: number;
+                                                        };
+                                                        if (!advertId) continue;
+                                                        if (
+                                                            modalOpenFromAdvertId != '' &&
+                                                            modalOpenFromAdvertId
+                                                        ) {
+                                                            if (id != modalOpenFromAdvertId)
+                                                                continue;
+                                                        }
 
-                                                            params.data.advertsIds[advertId] = {
-                                                                advertId: advertsData.advertId,
-                                                                budget: budgetModalBudgetInputValue,
-                                                            };
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                            budget: budgetModalBudgetInputValue,
+                                                        };
 
-                                                            if (
-                                                                budgetModalSwitchValue ==
-                                                                'Установить лимит'
-                                                            ) {
-                                                                doc.advertsBudgetsToKeep[
-                                                                    selectValue[0]
-                                                                ][advertsData.advertId] =
-                                                                    budgetModalBudgetInputValue
-                                                                        ? budgetModalBudgetInputValue
-                                                                        : undefined;
-                                                            }
+                                                        if (
+                                                            budgetModalSwitchValue ==
+                                                            'Установить лимит'
+                                                        ) {
+                                                            doc.advertsBudgetsToKeep[
+                                                                selectValue[0]
+                                                            ][advertId] =
+                                                                budgetModalBudgetInputValue
+                                                                    ? budgetModalBudgetInputValue
+                                                                    : undefined;
                                                         }
                                                     }
                                                 }
@@ -3068,7 +2967,7 @@ export const MassAdvertPage = () => {
                             setAdvertsArtsListModalFromOpen(false);
                         }}
                     >
-                        <div>{generateCardList()}</div>
+                        <div>{generateAdvertsCardsList()}</div>
                     </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
@@ -3577,7 +3476,6 @@ export const MassAdvertPage = () => {
                                                             : bidModalSwitchValue,
                                                         stocksThreshold:
                                                             bidModalStocksThresholdInputValue,
-                                                        advertsTypes: advertsTypesInput,
                                                         placementsRange: bidModalRange,
                                                         maxBid: bidModalMaxBid,
                                                     },
@@ -3586,91 +3484,76 @@ export const MassAdvertPage = () => {
                                                     const {adverts} = filteredData[i];
                                                     if (adverts) {
                                                         for (const [
-                                                            advertsType,
-                                                            advertsTypeData,
+                                                            id,
+                                                            advertsData,
                                                         ] of Object.entries(adverts)) {
-                                                            if (!advertsType || !advertsTypeData)
-                                                                continue;
-                                                            for (const [
-                                                                advertId,
-                                                                advertsData,
-                                                            ] of Object.entries(advertsTypeData)) {
-                                                                if (
-                                                                    modalOpenFromAdvertId != '' &&
-                                                                    modalOpenFromAdvertId
-                                                                ) {
-                                                                    if (
-                                                                        advertId !=
-                                                                        modalOpenFromAdvertId
-                                                                    )
-                                                                        continue;
-                                                                }
+                                                            if (!id || !advertsData) continue;
+                                                            const {advertId} = advertsData as {
+                                                                advertId: number;
+                                                            };
+                                                            if (
+                                                                modalOpenFromAdvertId != '' &&
+                                                                modalOpenFromAdvertId
+                                                            ) {
+                                                                if (id != modalOpenFromAdvertId)
+                                                                    continue;
+                                                            }
 
+                                                            params.data.advertsIds[advertId] = {
+                                                                advertId: advertId,
+                                                                bid: bidModalBidInputValue,
+                                                            };
+                                                            if (
+                                                                bidModalSwitchValue == 'Установить'
+                                                            ) {
                                                                 params.data.advertsIds[advertId] = {
-                                                                    advertId: advertsData.advertId,
                                                                     bid: bidModalBidInputValue,
+                                                                    advertId: advertId,
                                                                 };
-                                                                if (
-                                                                    bidModalSwitchValue ==
-                                                                    'Установить'
-                                                                ) {
+                                                            } else if (
+                                                                bidModalSwitchValue == 'Автоставки'
+                                                            ) {
+                                                                if (!bidModalDeleteModeSelected) {
                                                                     params.data.advertsIds[
                                                                         advertId
                                                                     ] = {
-                                                                        bid: bidModalBidInputValue,
-                                                                        advertId:
-                                                                            advertsData.advertId,
+                                                                        desiredDRR:
+                                                                            bidModalDRRInputValue,
+                                                                        bidStep:
+                                                                            bidModalBidStepInputValue,
+
+                                                                        advertId: advertId,
                                                                     };
-                                                                } else if (
-                                                                    bidModalSwitchValue ==
-                                                                    'Автоставки'
-                                                                ) {
-                                                                    if (
-                                                                        !bidModalDeleteModeSelected
-                                                                    ) {
-                                                                        params.data.advertsIds[
-                                                                            advertId
-                                                                        ] = {
-                                                                            desiredDRR:
-                                                                                bidModalDRRInputValue,
-                                                                            bidStep:
-                                                                                bidModalBidStepInputValue,
+                                                                } else {
+                                                                    params.data.advertsIds[
+                                                                        advertId
+                                                                    ] = {
+                                                                        advertId: advertId,
+                                                                    };
+                                                                }
 
-                                                                            advertId:
-                                                                                advertsData.advertId,
-                                                                        };
-                                                                    } else {
-                                                                        params.data.advertsIds[
-                                                                            advertId
-                                                                        ] = {
-                                                                            advertId:
-                                                                                advertsData.advertId,
-                                                                        };
-                                                                    }
-
-                                                                    if (
-                                                                        !doc.advertsAutoBidsRules[
-                                                                            selectValue[0]
-                                                                        ][advertId]
-                                                                    )
-                                                                        doc.advertsAutoBidsRules[
-                                                                            selectValue[0]
-                                                                        ][advertId] = {};
+                                                                if (
+                                                                    !doc.advertsAutoBidsRules[
+                                                                        selectValue[0]
+                                                                    ][advertId]
+                                                                )
                                                                     doc.advertsAutoBidsRules[
                                                                         selectValue[0]
-                                                                    ][advertId] =
-                                                                        bidModalDeleteModeSelected
-                                                                            ? undefined
-                                                                            : {
-                                                                                  desiredDRR:
-                                                                                      bidModalDeleteModeSelected
-                                                                                          ? undefined
-                                                                                          : bidModalDRRInputValue,
-                                                                                  placementsRange:
-                                                                                      bidModalRange,
-                                                                                  maxBid: bidModalMaxBid,
-                                                                              };
-                                                                }
+                                                                    ][advertId] = {};
+                                                                doc.advertsAutoBidsRules[
+                                                                    selectValue[0]
+                                                                ][advertId] =
+                                                                    bidModalDeleteModeSelected
+                                                                        ? undefined
+                                                                        : {
+                                                                              desiredDRR:
+                                                                                  bidModalDeleteModeSelected
+                                                                                      ? undefined
+                                                                                      : bidModalDRRInputValue,
+                                                                              placementsRange:
+                                                                                  bidModalRange,
+                                                                              maxBid: bidModalMaxBid,
+                                                                          };
                                                             }
                                                         }
                                                     }
@@ -3729,7 +3612,6 @@ export const MassAdvertPage = () => {
                             // setSemanticsModalSemanticsInputValue(500);
                             // setSemanticsModalSwitchValue('Пополнить');
                             // setSemanticsModalSemanticsInputValidationValue(true);
-                            setAdvertsTypesInput({search: false, booster: false, carousel: false});
                             setPlusPhrasesModalFormOpen(true);
                             const plusPhrasesTemplatesTemp: any[] = [];
                             for (const [name, _] of Object.entries(
@@ -4475,37 +4357,35 @@ export const MassAdvertPage = () => {
                                             for (let i = 0; i < filteredData.length; i++) {
                                                 const {adverts} = filteredData[i];
                                                 if (adverts) {
-                                                    for (const [
-                                                        advertsType,
-                                                        advertsTypeData,
-                                                    ] of Object.entries(adverts)) {
-                                                        if (!advertsType || !advertsTypeData)
-                                                            continue;
-                                                        for (const [
-                                                            advertId,
-                                                            advertsData,
-                                                        ] of Object.entries(advertsTypeData)) {
-                                                            params.data.advertsIds[advertId] = {
-                                                                advertId: advertsData.advertId,
-                                                                mode: 'Установить',
-                                                                templateName: item,
-                                                            };
+                                                    for (const [id, advertsData] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        if (!id || !advertsData) continue;
+                                                        const {advertId} = advertsData as {
+                                                            advertId: number;
+                                                        };
+                                                        if (!advertId) continue;
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                            mode: 'Установить',
+                                                            templateName: item,
+                                                        };
 
-                                                            if (
-                                                                !doc.advertsPlusPhrasesTemplates[
-                                                                    selectValue[0]
-                                                                ][advertId]
-                                                            )
-                                                                doc.advertsPlusPhrasesTemplates[
-                                                                    selectValue[0]
-                                                                ][advertId] = {};
+                                                        if (
+                                                            !doc.advertsPlusPhrasesTemplates[
+                                                                selectValue[0]
+                                                            ][advertId]
+                                                        )
                                                             doc.advertsPlusPhrasesTemplates[
                                                                 selectValue[0]
-                                                            ][advertId].templateName = item;
-                                                        }
+                                                            ][advertId] = {};
+                                                        doc.advertsPlusPhrasesTemplates[
+                                                            selectValue[0]
+                                                        ][advertId].templateName = item;
                                                     }
                                                 }
                                             }
+
                                             console.log(params);
 
                                             /////////////////////////
@@ -4626,25 +4506,22 @@ export const MassAdvertPage = () => {
                                             for (let i = 0; i < filteredData.length; i++) {
                                                 const {adverts} = filteredData[i];
                                                 if (adverts) {
-                                                    for (const [
-                                                        advertsType,
-                                                        advertsTypeData,
-                                                    ] of Object.entries(adverts)) {
-                                                        if (!advertsType || !advertsTypeData)
-                                                            continue;
-                                                        for (const [
-                                                            advertId,
-                                                            advertsData,
-                                                        ] of Object.entries(advertsTypeData)) {
-                                                            params.data.advertsIds[advertId] = {
-                                                                advertId: advertsData.advertId,
-                                                                mode: 'Удалить',
-                                                            };
+                                                    for (const [id, advertsData] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        if (!id || !advertsData) continue;
+                                                        const {advertId} = advertsData as {
+                                                            advertId: number;
+                                                        };
+                                                        if (!advertId) continue;
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                            mode: 'Удалить',
+                                                        };
 
-                                                            doc.advertsPlusPhrasesTemplates[
-                                                                selectValue[0]
-                                                            ][advertId] = undefined;
-                                                        }
+                                                        doc.advertsPlusPhrasesTemplates[
+                                                            selectValue[0]
+                                                        ][advertId] = undefined;
                                                     }
                                                 }
                                             }
