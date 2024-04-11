@@ -1291,7 +1291,7 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <Button
-                                        disabled
+                                            disabled
                                             size="xs"
                                             pin="round-clear"
                                             view="outlined"
@@ -1302,7 +1302,12 @@ export const MassAdvertPage = () => {
                                         >
                                             <Icon data={Plus} />
                                         </Button>
-                                        <Button size="xs" pin="brick-round" view="outlined" disabled>
+                                        <Button
+                                            size="xs"
+                                            pin="brick-round"
+                                            view="outlined"
+                                            disabled
+                                        >
                                             <Icon data={Xmark} />
                                         </Button>
                                     </div>
