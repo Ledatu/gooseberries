@@ -3025,7 +3025,7 @@ export const MassAdvertPage = () => {
                                     return (
                                         <div
                                             style={{
-                                                padding: '0 8px',
+                                                padding: '0 16px',
                                                 display: 'flex',
                                                 margin: '4px 0',
                                                 flexDirection: 'row',
