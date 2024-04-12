@@ -208,6 +208,12 @@ export const MassAdvertPage = () => {
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
         any[]
     >([]);
+    const [semanticsModalSemanticsItemsValuePresets, setSemanticsModalSemanticsItemsValuePresets] =
+        useState<any[]>([]);
+    const [
+        semanticsModalSemanticsMinusItemsValuePresets,
+        setSemanticsModalSemanticsMinusItemsValuePresets,
+    ] = useState<any[]>([]);
     const [
         semanticsModalSemanticsItemsFiltratedValue,
         setSemanticsModalSemanticsItemsFiltratedValue,
@@ -975,6 +981,19 @@ export const MassAdvertPage = () => {
                                             const freqB = b.freq ? b.freq : 0;
                                             return freqB - freqA;
                                         });
+
+                                        const tempPresets = [] as any[];
+                                        for (const [_cluster, clusterData] of Object.entries(
+                                            temp,
+                                        )) {
+                                            const {preset} = (clusterData as {preset: string}) ?? {
+                                                preset: undefined,
+                                            };
+                                            if (preset && !tempPresets.includes(preset))
+                                                tempPresets.push(preset);
+                                        }
+                                        setSemanticsModalSemanticsItemsValuePresets(tempPresets);
+
                                         setSemanticsModalSemanticsItemsFiltratedValue(temp);
                                         return temp;
                                     });
@@ -985,6 +1004,21 @@ export const MassAdvertPage = () => {
                                             const freqB = b.freq ? b.freq : 0;
                                             return freqB - freqA;
                                         });
+
+                                        const tempPresets = [] as any[];
+                                        for (const [_cluster, clusterData] of Object.entries(
+                                            temp,
+                                        )) {
+                                            const {preset} = (clusterData as {preset: string}) ?? {
+                                                preset: undefined,
+                                            };
+                                            if (preset && !tempPresets.includes(preset))
+                                                tempPresets.push(preset);
+                                        }
+                                        setSemanticsModalSemanticsMinusItemsValuePresets(
+                                            tempPresets,
+                                        );
+
                                         setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
                                         return temp;
                                     });
@@ -2180,6 +2214,22 @@ export const MassAdvertPage = () => {
         {
             name: 'preset',
             placeholder: 'Пресет',
+            render: ({value}) => {
+                return (
+                    <div>
+                        <Text
+                            color={
+                                semanticsModalSemanticsItemsValuePresets.includes(value) &&
+                                semanticsModalSemanticsMinusItemsValuePresets.includes(value)
+                                    ? 'danger'
+                                    : 'primary'
+                            }
+                        >
+                            {value}
+                        </Text>
+                    </div>
+                );
+            },
         },
         {
             additionalNodes: [] as any[],
