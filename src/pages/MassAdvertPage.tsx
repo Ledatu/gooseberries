@@ -591,7 +591,7 @@ export const MassAdvertPage = () => {
 
         // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
-        const advertsSelectedPhrases = doc.advertsSelectedPhrases[advertId];
+        const advertsSelectedPhrases = doc.advertsSelectedPhrases[selectValue[0]][advertId];
 
         const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
             ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
