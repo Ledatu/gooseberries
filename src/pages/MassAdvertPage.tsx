@@ -2178,6 +2178,10 @@ export const MassAdvertPage = () => {
 
     const columnDataSemantics = [
         {
+            name: 'preset',
+            placeholder: 'Пресет',
+        },
+        {
             additionalNodes: [] as any[],
             width: 200,
             name: 'cluster',
@@ -2452,9 +2456,10 @@ export const MassAdvertPage = () => {
     ];
 
     const renameFirstColumn = (newName: string, additionalNodes = [] as any[]) => {
+        const index = 1;
         const columnDataSemanticsCopy = Array.from(columnDataSemantics);
-        columnDataSemanticsCopy[0].placeholder = newName;
-        columnDataSemanticsCopy[0].additionalNodes = additionalNodes;
+        columnDataSemanticsCopy[index].placeholder = newName;
+        columnDataSemanticsCopy[index].additionalNodes = additionalNodes;
         return columnDataSemanticsCopy;
     };
     const generateMassAddDelButton = ({placeholder, array, mode}) => {
@@ -2538,7 +2543,7 @@ export const MassAdvertPage = () => {
                 array: semanticsModalSemanticsTemplateItemsFiltratedValue,
                 mode: 'del',
             }),
-        ]).slice(0, 1),
+        ]).slice(1, 2),
         clustersFiltersTemplate,
         setClustersFiltersTemplate,
         clustersFilterDataTemplate,
