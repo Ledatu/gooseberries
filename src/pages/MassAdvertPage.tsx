@@ -918,11 +918,13 @@ export const MassAdvertPage = () => {
                                     ) : (
                                         <></>
                                     )}
-                                    {drrAI !== undefined &&
-                                    drrAI.placementsRange.from != 0 &&
-                                    drrAI.placementsRange.tp != 0 ? (
+                                    {drrAI !== undefined && drrAI.autoBidsMode != 'drr' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
-                                            {`План №: ${drrAI.placementsRange.from}`}
+                                            {`План №: ${drrAI.placementsRange.from} (${
+                                                drrAI.autoBidsMode == 'auction'
+                                                    ? 'Аукцион'
+                                                    : 'Выдача'
+                                            })`}
                                         </Text>
                                     ) : (
                                         <></>
@@ -1518,7 +1520,8 @@ export const MassAdvertPage = () => {
                 const {drrAI, placementsValue} = row;
 
                 if (!placementsValue) return undefined;
-                const {updateTime, index, phrase, log, firstAdvertIndex} = placementsValue;
+                const {updateTime, index, phrase, log, firstAdvertIndex, cpmIndex} =
+                    placementsValue;
                 const {placementsRange} = drrAI ?? {};
                 if (phrase == '') return undefined;
 
@@ -1563,7 +1566,9 @@ export const MassAdvertPage = () => {
                                             : 'primary'
                                         : 'danger'
                                 }
-                            >{`${!index || index == -1 ? 'Нет в выдаче' : index}`}</Text>
+                            >{`${
+                                !index || index == -1 ? 'Нет в выдаче' : index + ` (${cpmIndex})`
+                            } `}</Text>
                             <div style={{width: 4}} />
                         </div>
                         <Link
