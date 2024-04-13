@@ -1567,7 +1567,9 @@ export const MassAdvertPage = () => {
                                         : 'danger'
                                 }
                             >{`${
-                                !index || index == -1 ? 'Нет в выдаче' : index + ` (${cpmIndex})`
+                                !index || index == -1
+                                    ? 'Нет в выдаче'
+                                    : index + ` (${cpmIndex ?? 'Не в аукционе'})`
                             } `}</Text>
                             <div style={{width: 4}} />
                         </div>
