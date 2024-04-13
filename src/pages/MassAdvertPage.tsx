@@ -50,6 +50,7 @@ import {
     Pause,
     CirclePlusFill,
     ArrowRight,
+    Clock,
     CirclePlus,
     Funnel,
     Ban,
@@ -333,6 +334,8 @@ export const MassAdvertPage = () => {
         semanticsFilteredSummary.active.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
+    const [showScheduleModalOpen, setShowScheduleModalOpen] = useState(false);
+    const [scheduleInput, setScheduleInput] = useState({});
     const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
     const clustersFilterDataMinus = (withfFilters: any, clusters: any[]) => {
         const _clustersFilters = withfFilters ?? clustersFiltersMinus;
@@ -827,12 +830,26 @@ export const MassAdvertPage = () => {
                             <div style={{width: 8}} />
                         </div>
 
-                        {status !== undefined ? (
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Button
+                                pin="clear-clear"
+                                style={{
+                                    borderBottomLeftRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                                size="xs"
+                                // selected
+                                view="flat"
+                                onClick={() => {
+                                    setShowScheduleModalOpen(true);
+                                }}
+                            >
+                                <Icon size={11} data={Clock}></Icon>
+                            </Button>
                             <Button
                                 pin="clear-clear"
                                 style={{
                                     borderTopRightRadius: 7,
-                                    borderBottomLeftRadius: 9,
                                     overflow: 'hidden',
                                 }}
                                 size="xs"
@@ -850,11 +867,9 @@ export const MassAdvertPage = () => {
                             >
                                 {daysInWork + 1}
                                 <div style={{width: 2}} />
-                                <Icon size={12} data={status ? Calendar : Ban}></Icon>
+                                <Icon size={11} data={status ? Calendar : Ban}></Icon>
                             </Button>
-                        ) : (
-                            <></>
-                        )}
+                        </div>
                     </div>
                     <motion.div
                         animate={{
@@ -2165,15 +2180,19 @@ export const MassAdvertPage = () => {
     const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = React.useState(false);
     const [selectedValueMethodOptions] = React.useState<SelectOption<any>[]>([
         {
-            value: 'Под Позицию',
-            content: 'Под Позицию',
+            value: 'placements',
+            content: 'Место в выдаче',
         },
         {
-            value: 'По ДРР',
-            content: 'По ДРР',
+            value: 'auction',
+            content: 'Позиция в аукционе',
+        },
+        {
+            value: 'drr',
+            content: 'Целевой ДРР',
         },
     ]);
-    const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['Под Позицию']);
+    const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['placements']);
 
     const [firstRecalc, setFirstRecalc] = useState(false);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
@@ -2213,6 +2232,7 @@ export const MassAdvertPage = () => {
     const columnDataSemantics = [
         {
             name: 'preset',
+            valueType: 'text',
             placeholder: 'Пресет',
             render: ({value}) => {
                 return (
@@ -2673,6 +2693,16 @@ export const MassAdvertPage = () => {
         setFilters(filters);
 
         recalc(dateRange, selected);
+
+        const tempScheduleInput = {};
+        for (let i = 0; i < 7; i++) {
+            tempScheduleInput[i] = {};
+            for (let j = 0; j < 24; j++) {
+                tempScheduleInput[i][j] = {selected: true};
+            }
+        }
+        setScheduleInput(tempScheduleInput);
+
         setFirstRecalc(true);
     }
     // if (firstRecalc && !secondRecalcForSticky) {
@@ -3191,6 +3221,12 @@ export const MassAdvertPage = () => {
                             />
                         </div>
                     </Modal>
+                    <Modal
+                        open={showScheduleModalOpen}
+                        onClose={() => setShowScheduleModalOpen(false)}
+                    >
+                        {generateScheduleInput({scheduleInput, setScheduleInput})}
+                    </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="action"
@@ -3212,7 +3248,7 @@ export const MassAdvertPage = () => {
                                 // view="raised"
                                 view="clear"
                                 style={{
-                                    width: 350,
+                                    width: 400,
                                     // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
                                     // animation: '3s linear 1s slidein',
                                     // maxWidth: '15vw',
@@ -3419,6 +3455,19 @@ export const MassAdvertPage = () => {
                                                                 onKeyDown,
                                                                 ref,
                                                             }) => {
+                                                                const temp = {};
+                                                                for (
+                                                                    let i = 0;
+                                                                    i <
+                                                                    selectedValueMethodOptions.length;
+                                                                    i++
+                                                                ) {
+                                                                    const {value, content} =
+                                                                        selectedValueMethodOptions[
+                                                                            i
+                                                                        ];
+                                                                    temp[value] = content;
+                                                                }
                                                                 return (
                                                                     <Button
                                                                         style={{width: '100%'}}
@@ -3430,7 +3479,11 @@ export const MassAdvertPage = () => {
                                                                             onKeyDown,
                                                                         }}
                                                                     >
-                                                                        {selectedValueMethod[0]}
+                                                                        {
+                                                                            temp[
+                                                                                selectedValueMethod[0]
+                                                                            ]
+                                                                        }
                                                                         <Icon data={ChevronDown} />
                                                                     </Button>
                                                                 );
@@ -3548,8 +3601,8 @@ export const MassAdvertPage = () => {
                                                         </Text>
                                                         <TextInput
                                                             disabled={
-                                                                selectedValueMethod[0] !=
-                                                                'Под Позицию'
+                                                                selectedValueMethod[0] ==
+                                                                'Целевой ДРР'
                                                             }
                                                             type="number"
                                                             value={String(bidModalRange.to)}
@@ -3700,6 +3753,7 @@ export const MassAdvertPage = () => {
                                                             bidModalStocksThresholdInputValue,
                                                         placementsRange: bidModalRange,
                                                         maxBid: bidModalMaxBid,
+                                                        autoBidsMode: selectedValueMethod[0],
                                                     },
                                                 };
                                                 for (let i = 0; i < filteredData.length; i++) {
@@ -3775,6 +3829,9 @@ export const MassAdvertPage = () => {
                                                                               placementsRange:
                                                                                   bidModalRange,
                                                                               maxBid: bidModalMaxBid,
+
+                                                                              autoBidsMode:
+                                                                                  selectedValueMethod[0],
                                                                           };
                                                             }
                                                         }
@@ -6122,6 +6179,143 @@ const compare = (a, filterData) => {
         return Number(a) < Number(val);
     }
     return false;
+};
+
+const generateScheduleInput = (args) => {
+    const {scheduleInput, setScheduleInput} = args;
+    const weekDayNamesTemp = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const weekInputDayNames = [] as any[];
+    const weekInput = [] as any[];
+
+    const tempHours = [] as any[];
+    for (let j = 0; j < 24; j++) {
+        const isCheckboxChecked = (() => {
+            for (let i = 0; i < 7; i++) {
+                if (!scheduleInput[i]) return false;
+                if (!scheduleInput[i][j]) return false;
+                if (!scheduleInput[i][j].selected) return false;
+            }
+            return true;
+        })();
+        tempHours.push(
+            <div
+                style={{
+                    width: 25,
+                    margin: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <Text variant="subheader-1">{j}</Text>
+                <Button
+                    style={{
+                        width: 16,
+                        height: 16,
+                    }}
+                    view={isCheckboxChecked ? 'action' : 'outlined'}
+                    onClick={() => {
+                        const tempScheduleInput = Object.assign({}, scheduleInput);
+                        for (let i = 0; i < 7; i++) {
+                            if (!tempScheduleInput[i]) tempScheduleInput[i] = {};
+                            if (!tempScheduleInput[i][j]) tempScheduleInput[i][j] = {};
+                            tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
+                        }
+
+                        console.log(tempScheduleInput);
+
+                        setScheduleInput(tempScheduleInput);
+                    }}
+                >
+                    {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
+                </Button>
+            </div>,
+        );
+    }
+    weekInput.push(<div style={{display: 'flex', flexDirection: 'row'}}>{tempHours}</div>);
+
+    for (let i = 0; i < 7; i++) {
+        const isCheckboxChecked =
+            scheduleInput[i] &&
+            (() => {
+                for (let j = 0; j < 24; j++) {
+                    if (!scheduleInput[i][j]) return false;
+                    if (!scheduleInput[i][j].selected) return false;
+                }
+                return true;
+            })();
+        weekInputDayNames.push(
+            <div
+                style={{
+                    height: 25,
+                    margin: 2,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <Text variant="subheader-1">{weekDayNamesTemp[i]}</Text>
+                <div style={{minWidth: 4}} />
+                <Button
+                    style={{
+                        width: 16,
+                        height: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                    view={isCheckboxChecked ? 'action' : 'outlined'}
+                    onClick={() => {
+                        const tempScheduleInput = Object.assign({}, scheduleInput);
+                        for (let j = 0; j < 24; j++) {
+                            if (!tempScheduleInput[i]) tempScheduleInput[i] = {};
+                            if (!tempScheduleInput[i][j]) tempScheduleInput[i][j] = {};
+                            tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
+                        }
+                        console.log(tempScheduleInput);
+
+                        setScheduleInput(tempScheduleInput);
+                    }}
+                >
+                    {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
+                </Button>
+            </div>,
+        );
+        const temp = [] as any[];
+        for (let j = 0; j < 24; j++) {
+            temp.push(
+                <Button
+                    style={{width: 25, height: 25, margin: 2}}
+                    view={
+                        scheduleInput[i]
+                            ? scheduleInput[i][j]
+                                ? scheduleInput[i][j].selected
+                                    ? 'action'
+                                    : 'outlined'
+                                : 'outlined'
+                            : 'outlined'
+                    }
+                    onClick={() => {
+                        const val = Object.assign({}, scheduleInput);
+                        if (!val[i]) val[i] = {};
+                        if (!val[i][j]) val[i][j] = {selected: false};
+                        val[i][j].selected = !val[i][j].selected;
+                        console.log(val[i][j]);
+                        setScheduleInput(val);
+                    }}
+                />,
+            );
+        }
+        weekInput.push(<div style={{display: 'flex', flexDirection: 'row'}}>{temp}</div>);
+    }
+    return (
+        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'end'}}>
+            <div style={{display: 'flex', flexDirection: 'column'}}>{weekInputDayNames}</div>
+            <div style={{display: 'flex', flexDirection: 'column'}}>{weekInput}</div>
+        </div>
+    );
 };
 
 const generateCard = (args) => {
