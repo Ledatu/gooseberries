@@ -631,14 +631,27 @@ export const MassAdvertPage = () => {
 
         const timeline: any[] = [];
         const graphsData: any[] = [];
+        const graphsDataPosition: any[] = [];
+        const graphsDataPositionAuction: any[] = [];
         const bidLogType = bidLog;
         if (bidLogType) {
             for (let i = 0; i < bidLogType.bids.length; i++) {
-                const {time, val} = bidLogType.bids[i];
+                const {time, val, index, cpmIndex} = bidLogType.bids[i];
                 if (!time || !val) continue;
 
-                timeline.push(new Date(time).getTime());
+                const timeObj = new Date(time);
+                const rbd = new Date(dateRange[1]);
+                rbd.setHours(23, 59, 59);
+                if (timeObj < dateRange[0] || timeObj > rbd) continue;
+                timeline.push(timeObj.getTime());
                 graphsData.push(val);
+
+                if (index == -1 || index > 100 || !index) graphsDataPosition.push(null);
+                else graphsDataPosition.push(index);
+
+                if (cpmIndex == -1 || cpmIndex > 100 || !index)
+                    graphsDataPositionAuction.push(null);
+                else graphsDataPositionAuction.push(cpmIndex);
             }
         }
         const yagrData: YagrWidgetData = {
@@ -651,24 +664,51 @@ export const MassAdvertPage = () => {
                         color: '#5fb8a5',
                         data: graphsData,
                     },
+                    {
+                        id: '1',
+                        name: 'Позиция в выдаче',
+                        color: '#4aa1f2',
+                        scale: 'r',
+                        data: graphsDataPosition,
+                    },
+                    {
+                        id: '2',
+                        name: 'Позиция в аукционе',
+                        color: '#9a63d1',
+                        scale: 'r',
+                        data: graphsDataPositionAuction,
+                    },
                 ],
             },
+
             libraryConfig: {
                 chart: {
                     series: {
+                        spanGaps: false,
                         type: 'line',
                         interpolation: 'smooth',
                     },
                 },
                 axes: {
                     y: {
+                        label: 'Ставка',
+                        precision: 'auto',
+                        show: true,
+                    },
+                    r: {
+                        label: 'Позиция',
+                        side: 'right',
                         precision: 'auto',
                         show: true,
                     },
                     x: {
+                        label: 'Время',
                         precision: 'auto',
                         show: true,
                     },
+                },
+                scales: {
+                    r: {min: 1, max: 100},
                 },
                 title: {
                     text: 'Изменение ставки',
@@ -897,8 +937,24 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Popover
-                            behavior={'delayed' as PopoverBehavior}
-                            content={<ChartKit type="yagr" data={yagrData} />}
+                            placement="bottom"
+                            content={
+                                <Card
+                                    view="outlined"
+                                    theme="warning"
+                                    style={{
+                                        position: 'absolute',
+                                        height: '30em',
+                                        width: '40em',
+                                        overflow: 'auto',
+                                        top: -10,
+                                        left: -10,
+                                        display: 'flex',
+                                    }}
+                                >
+                                    <ChartKit type="yagr" data={yagrData} />
+                                </Card>
+                            }
                         >
                             <div
                                 style={{
