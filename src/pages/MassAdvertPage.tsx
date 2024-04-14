@@ -97,6 +97,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
                 docum['advertsPlusPhrasesTemplates'][selectValue];
             doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
             doc['adverts'][selectValue] = docum['adverts'][selectValue];
+            doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
             doc['advertsSelectedPhrases'][selectValue] =
                 docum['advertsSelectedPhrases'][selectValue];
         }
@@ -246,7 +247,11 @@ export const MassAdvertPage = () => {
     const [semanticsModalSemanticsThresholdValue, setSemanticsModalSemanticsThresholdValue] =
         useState(1);
     const [semanticsModalSemanticsCTRThresholdValue, setSemanticsModalSemanticsCTRThresholdValue] =
-        useState(0);
+        useState('0');
+    const [
+        semanticsModalSemanticsCTRThresholdValueValid,
+        setSemanticsModalSemanticsCTRThresholdValueValid,
+    ] = useState(true);
     const [
         semanticsModalSemanticsSecondThresholdValue,
         setSemanticsModalSemanticsSecondThresholdValue,
@@ -254,7 +259,11 @@ export const MassAdvertPage = () => {
     const [
         semanticsModalSemanticsSecondCTRThresholdValue,
         setSemanticsModalSemanticsSecondCTRThresholdValue,
-    ] = useState(0);
+    ] = useState('0');
+    const [
+        semanticsModalSemanticsSecondCTRThresholdValueValid,
+        setSemanticsModalSemanticsSecondCTRThresholdValueValid,
+    ] = useState(true);
 
     const [semanticsModalIsFixed, setSemanticsModalIsFixed] = useState(false);
 
@@ -591,7 +600,6 @@ export const MassAdvertPage = () => {
 
         const curBudget = budget;
         const curCpm = cpm;
-
         // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
         const advertsSelectedPhrases = doc.advertsSelectedPhrases[selectValue[0]][advertId];
@@ -839,6 +847,7 @@ export const MassAdvertPage = () => {
                                 }}
                                 size="xs"
                                 // selected
+                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
                                 view="flat"
                                 onClick={() => {
                                     setShowScheduleModalOpen(true);
@@ -1517,7 +1526,7 @@ export const MassAdvertPage = () => {
             placeholder: 'Позиция',
             render: ({value, row}) => {
                 if (!value) return undefined;
-                const {drrAI, placementsValue} = row;
+                const {drrAI, placementsValue, adverts} = row;
 
                 if (!placementsValue) return undefined;
                 const {updateTime, index, phrase, log, firstAdvertIndex, cpmIndex} =
@@ -1526,6 +1535,16 @@ export const MassAdvertPage = () => {
                 if (phrase == '') return undefined;
 
                 const {position} = log ?? {};
+
+                const advertType = adverts
+                    ? adverts[Object.keys(adverts)[0]].type == 9
+                        ? 'search'
+                        : 'auto'
+                    : 'search';
+
+                const auction = doc.placementsAuctions[selectValue[0]][phrase]
+                    ? doc.placementsAuctions[selectValue[0]][phrase][advertType] ?? []
+                    : [];
 
                 const updateTimeObj = new Date(updateTime);
                 const moreThatHour =
@@ -1569,15 +1588,56 @@ export const MassAdvertPage = () => {
                             >{`${
                                 !index || index == -1
                                     ? 'Нет в выдаче'
-                                    : index + ` (${cpmIndex ?? 'Не в аукционе'})`
+                                    : index +
+                                      ` (${
+                                          !cpmIndex || cpmIndex == -1 ? 'Не в аукционе' : cpmIndex
+                                      })`
                             } `}</Text>
                             <div style={{width: 4}} />
                         </div>
-                        <Link
-                            href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${phrase}`}
-                            target="_blank"
-                            // view="primary"
-                        >{`${phrase}`}</Link>
+                        <Popover
+                            placement="bottom"
+                            content={
+                                <Card
+                                    view="raised"
+                                    style={{
+                                        position: 'absolute',
+                                        maxHeight: '30em',
+                                        maxWidth: '60em',
+                                        overflow: 'auto',
+                                        top: -10,
+                                        left: '-15em',
+                                    }}
+                                >
+                                    <DataTable
+                                        startIndex={1}
+                                        settings={{
+                                            stickyHead: MOVING,
+                                            // stickyFooter: MOVING,
+                                            highlightRows: true,
+                                        }}
+                                        // footerData={[semanticsFilteredSummary.active]}
+                                        theme="yandex-cloud"
+                                        onRowClick={(row, index, event) => {
+                                            console.log(row, index, event);
+                                        }}
+                                        rowClassName={(_row, index, isFooterData) =>
+                                            isFooterData
+                                                ? b('tableRow_footer')
+                                                : b('tableRow_' + index)
+                                        }
+                                        columns={columnDataAuction}
+                                        data={auction}
+                                    />
+                                </Card>
+                            }
+                        >
+                            <Link
+                                href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${phrase}`}
+                                target="_blank"
+                                // view="primary"
+                            >{`${phrase}`}</Link>
+                        </Popover>
                         <Text
                             color={moreThatHour ? 'danger' : 'primary'}
                         >{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
@@ -2531,6 +2591,58 @@ export const MassAdvertPage = () => {
             },
         },
     ];
+
+    // const [auctionFilters, setAuctionFilters] = useState({undef: false});
+    // const [auctionTableData, setAuctionTableData] = useState<any[]>([]);
+    // const [auctionFiltratedTableData, setAuctionFiltratedTableData] = useState<any[]>([]);
+    // const filterAuctionData = (withfFilters = {}, tableData = {}) => {};
+    const columnDataAuction = [
+        {
+            header: 'Ставка',
+            name: 'cpm',
+        },
+        {
+            header: 'Позиция',
+            name: 'promoPosition',
+            render: ({value, row}) => {
+                if (value === undefined) return;
+                const {position} = row;
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text color="secondary">{`${position + 1}`}</Text>
+                        <div style={{width: 3}} />
+                        <Icon data={ArrowRight} size={13}></Icon>
+                        <div style={{width: 3}} />
+                        <Text>{`${(value as number) + 1}`}</Text>
+                    </div>
+                );
+            },
+        },
+        {
+            header: 'Бренд',
+            name: 'brand',
+        },
+        // {
+        //     header: 'Наименование',
+        //     name: 'name',
+        // },
+        // {
+        //     header: 'Поставщик',
+        //     name: 'supplier',
+        // },
+    ] as Column<any>[];
+    // const auctionColumns = generateColumns(
+    //     columnDataAuction,
+    //     auctionFilters,
+    //     setAuctionFilters,
+    //     filterAuctionData,
+    // );
 
     const renameFirstColumn = (newName: string, additionalNodes = [] as any[]) => {
         const index = 1;
@@ -4362,13 +4474,23 @@ export const MassAdvertPage = () => {
                                             style={{marginLeft: 4}}
                                             label="CTR"
                                             hasClear
-                                            value={String(semanticsModalSemanticsCTRThresholdValue)}
+                                            value={semanticsModalSemanticsCTRThresholdValue}
                                             onUpdate={(val) => {
-                                                setSemanticsModalSemanticsCTRThresholdValue(
-                                                    Number(val),
+                                                val = val.replace(',', '.');
+
+                                                const numberVal = Number(val);
+                                                const valid = !isNaN(numberVal);
+
+                                                setSemanticsModalSemanticsCTRThresholdValueValid(
+                                                    valid,
                                                 );
+                                                setSemanticsModalSemanticsCTRThresholdValue(val);
                                             }}
-                                            type="number"
+                                            validationState={
+                                                !semanticsModalSemanticsCTRThresholdValueValid
+                                                    ? 'invalid'
+                                                    : undefined
+                                            }
                                         />
                                     </div>
                                     <div
@@ -4399,15 +4521,25 @@ export const MassAdvertPage = () => {
                                             style={{marginLeft: 4}}
                                             label="CTR"
                                             hasClear
-                                            value={String(
-                                                semanticsModalSemanticsSecondCTRThresholdValue,
-                                            )}
+                                            value={semanticsModalSemanticsSecondCTRThresholdValue}
                                             onUpdate={(val) => {
+                                                val = val.replace(',', '.');
+
+                                                const numberVal = Number(val);
+                                                const valid = !isNaN(numberVal);
+
+                                                setSemanticsModalSemanticsSecondCTRThresholdValueValid(
+                                                    valid,
+                                                );
                                                 setSemanticsModalSemanticsSecondCTRThresholdValue(
-                                                    Number(val),
+                                                    val,
                                                 );
                                             }}
-                                            type="number"
+                                            validationState={
+                                                !semanticsModalSemanticsSecondCTRThresholdValueValid
+                                                    ? 'invalid'
+                                                    : undefined
+                                            }
                                         />
                                     </div>
 
@@ -4449,8 +4581,9 @@ export const MassAdvertPage = () => {
                                                             semanticsModalSemanticsPlusItemsValue,
                                                         threshold:
                                                             semanticsModalSemanticsThresholdValue,
-                                                        ctrThreshold:
+                                                        ctrThreshold: Number(
                                                             semanticsModalSemanticsCTRThresholdValue,
+                                                        ),
                                                         secondThreshold:
                                                             semanticsModalSemanticsSecondThresholdValue,
                                                         secondCtrThreshold:
@@ -4470,8 +4603,9 @@ export const MassAdvertPage = () => {
                                                     clusters: semanticsModalSemanticsPlusItemsValue,
                                                     threshold:
                                                         semanticsModalSemanticsThresholdValue,
-                                                    ctrThreshold:
+                                                    ctrThreshold: Number(
                                                         semanticsModalSemanticsCTRThresholdValue,
+                                                    ),
                                                     secondThreshold:
                                                         semanticsModalSemanticsSecondThresholdValue,
                                                     secondCtrThreshold:
@@ -4529,6 +4663,10 @@ export const MassAdvertPage = () => {
 
                                                 setSemanticsModalFormOpen(false);
                                             }}
+                                            disabled={
+                                                !semanticsModalSemanticsCTRThresholdValueValid ||
+                                                !semanticsModalSemanticsSecondCTRThresholdValueValid
+                                            }
                                         >
                                             Сохранить
                                         </Button>
@@ -4877,6 +5015,8 @@ export const MassAdvertPage = () => {
                                             resData['advertsAutoBidsRules'][nextValue[0]];
                                         doc['adverts'][nextValue[0]] =
                                             resData['adverts'][nextValue[0]];
+                                        doc['placementsAuctions'][nextValue[0]] =
+                                            resData['placementsAuctions'][nextValue[0]];
 
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
