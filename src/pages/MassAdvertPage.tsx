@@ -370,6 +370,16 @@ export const MassAdvertPage = () => {
 
     const [showScheduleModalOpen, setShowScheduleModalOpen] = useState(false);
     const [scheduleInput, setScheduleInput] = useState({});
+    const genTempSchedule = () => {
+        const tempScheduleInput = {};
+        for (let i = 0; i < 7; i++) {
+            tempScheduleInput[i] = {};
+            for (let j = 0; j < 24; j++) {
+                tempScheduleInput[i][j] = {selected: true};
+            }
+        }
+        return tempScheduleInput;
+    };
 
     const [semanticsFilteredSummary, setSemanticsFilteredSummary] = useState({
         active: {
@@ -1038,16 +1048,6 @@ export const MassAdvertPage = () => {
                                     setShowScheduleModalOpen(true);
                                     setModalOpenFromAdvertId(advertId);
 
-                                    const genTempSchedule = () => {
-                                        const tempScheduleInput = {};
-                                        for (let i = 0; i < 7; i++) {
-                                            tempScheduleInput[i] = {};
-                                            for (let j = 0; j < 24; j++) {
-                                                tempScheduleInput[i][j] = {selected: true};
-                                            }
-                                        }
-                                        return tempScheduleInput;
-                                    };
                                     const schedule = doc.advertsSchedules[selectValue[0]][advertId]
                                         ? doc.advertsSchedules[selectValue[0]][advertId].schedule
                                         : undefined;
@@ -3660,7 +3660,10 @@ export const MassAdvertPage = () => {
                     </Modal>
                     <Modal
                         open={showScheduleModalOpen}
-                        onClose={() => setShowScheduleModalOpen(false)}
+                        onClose={() => {
+                            setShowScheduleModalOpen(false);
+                            setModalOpenFromAdvertId('');
+                        }}
                     >
                         <div
                             style={{
@@ -4417,6 +4420,19 @@ export const MassAdvertPage = () => {
                     >
                         <Icon data={Magnifier} />
                         <Text variant="subheader-1">Фразы</Text>
+                    </Button>
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        view="action"
+                        size="l"
+                        onClick={() => {
+                            setShowScheduleModalOpen(true);
+                            setModalOpenFromAdvertId('');
+                            setScheduleInput(genTempSchedule());
+                        }}
+                    >
+                        <Icon data={Clock} />
+                        <Text variant="subheader-1">График</Text>
                     </Button>
                     <Modal
                         open={semanticsModalFormOpen}
