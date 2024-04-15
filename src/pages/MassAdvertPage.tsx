@@ -101,6 +101,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
             doc['advertsSelectedPhrases'][selectValue] =
                 docum['advertsSelectedPhrases'][selectValue];
+            doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
         }
         setDocument(docum);
     }
@@ -278,6 +279,94 @@ export const MassAdvertPage = () => {
     // ];
     // const [semanticsModalSwitchValue, setSemanticsModalSwitchValue] = React.useState('Пополнить');
 
+    const [showArtStatsModalOpen, setShowArtStatsModalOpen] = useState(false);
+    const [artsStatsByDayData, setArtsStatsByDayData] = useState<any[]>([]);
+    const [artsStatsByDayFilteredData, setArtsStatsByDayFilteredData] = useState<any[]>([]);
+    const [artsStatsByDayFilters, setArtsStatsByDayFilters] = useState({undef: false});
+
+    const [artsStatsByDayFilteredSummary, setArtsStatsByDayFilteredSummary] = useState({
+        orders: 0,
+        sum_orders: 0,
+        sum: 0,
+        views: 0,
+        clicks: 0,
+        drr: 0,
+        ctr: 0,
+        cpc: 0,
+        cpm: 0,
+        cr: 0,
+        cpo: 0,
+    });
+    const artsStatsByDayDataFilter = (withfFilters: any, stats: any[]) => {
+        const _filters = withfFilters ?? artsStatsByDayFilters;
+        const _stats = stats ?? artsStatsByDayData;
+
+        const artsStatsByDayFilteredSummaryTemp = {
+            orders: 0,
+            sum_orders: 0,
+            sum: 0,
+            views: 0,
+            clicks: 0,
+            drr: 0,
+            ctr: 0,
+            cpc: 0,
+            cpm: 0,
+            cr: 0,
+            cpo: 0,
+        };
+
+        setArtsStatsByDayFilteredData(
+            _stats.filter((stat) => {
+                for (const [filterArg, filterData] of Object.entries(_filters)) {
+                    if (filterArg == 'undef' || !filterData) continue;
+                    if (filterData['val'] == '') continue;
+                    else if (!compare(stat[filterArg], filterData)) {
+                        return false;
+                    }
+                }
+
+                for (const [key, val] of Object.entries(stat)) {
+                    if (['sum', 'clicks', 'views', 'orders', 'sum_orders'].includes(key))
+                        artsStatsByDayFilteredSummaryTemp[key] += val;
+                }
+
+                return true;
+            }),
+        );
+
+        artsStatsByDayFilteredSummaryTemp.sum_orders = Math.round(
+            artsStatsByDayFilteredSummaryTemp.sum_orders,
+        );
+        artsStatsByDayFilteredSummaryTemp.orders = Math.round(
+            artsStatsByDayFilteredSummaryTemp.orders,
+        );
+        artsStatsByDayFilteredSummaryTemp.sum = Math.round(artsStatsByDayFilteredSummaryTemp.sum);
+        artsStatsByDayFilteredSummaryTemp.views = Math.round(
+            artsStatsByDayFilteredSummaryTemp.views,
+        );
+        artsStatsByDayFilteredSummaryTemp.clicks = Math.round(
+            artsStatsByDayFilteredSummaryTemp.clicks,
+        );
+        const {orders, sum, views, clicks} = artsStatsByDayFilteredSummaryTemp;
+
+        artsStatsByDayFilteredSummaryTemp.drr = getRoundValue(
+            artsStatsByDayFilteredSummaryTemp.sum,
+            artsStatsByDayFilteredSummaryTemp.sum_orders,
+            true,
+            1,
+        );
+        artsStatsByDayFilteredSummaryTemp.ctr = getRoundValue(clicks, views, true);
+        artsStatsByDayFilteredSummaryTemp.cpc = getRoundValue(sum, clicks);
+        artsStatsByDayFilteredSummaryTemp.cpm = getRoundValue(sum * 1000, views);
+        artsStatsByDayFilteredSummaryTemp.cr = getRoundValue(orders, views, true);
+        artsStatsByDayFilteredSummaryTemp.cpo = getRoundValue(sum, orders, false, sum);
+
+        setArtsStatsByDayFilteredSummary(artsStatsByDayFilteredSummaryTemp);
+    };
+
+    const [showScheduleModalOpen, setShowScheduleModalOpen] = useState(false);
+    const [scheduleInput, setScheduleInput] = useState({});
+
     const [semanticsFilteredSummary, setSemanticsFilteredSummary] = useState({
         active: {
             cluster: {summary: 0},
@@ -306,7 +395,7 @@ export const MassAdvertPage = () => {
     const clustersFilterDataActive = (withfFilters: any, clusters: any[]) => {
         const _clustersFilters = withfFilters ?? clustersFiltersActive;
         const _clusters = clusters ?? semanticsModalSemanticsItemsValue;
-        console.log(_clustersFilters, _clusters);
+        // console.log(_clustersFilters, _clusters);
 
         semanticsFilteredSummary.active = {
             cluster: {summary: 0},
@@ -344,15 +433,12 @@ export const MassAdvertPage = () => {
         semanticsFilteredSummary.active.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
-    const [showArtStatsModalOpen, setShowArtStatsModalOpen] = useState(false);
 
-    const [showScheduleModalOpen, setShowScheduleModalOpen] = useState(false);
-    const [scheduleInput, setScheduleInput] = useState({});
     const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
     const clustersFilterDataMinus = (withfFilters: any, clusters: any[]) => {
         const _clustersFilters = withfFilters ?? clustersFiltersMinus;
         const _clusters = clusters ?? semanticsModalSemanticsMinusItemsValue;
-        console.log(_clustersFilters, _clusters);
+        // console.log(_clustersFilters, _clusters);
 
         semanticsFilteredSummary.minus = {
             cluster: {summary: 0},
@@ -399,7 +485,7 @@ export const MassAdvertPage = () => {
     const clustersFilterDataTemplate = (withfFilters: any, clusters: any[]) => {
         const _clustersFilters = withfFilters ?? clustersFiltersTemplate;
         const _clusters = clusters ?? semanticsModalSemanticsTemplateItemsValue;
-        console.log(_clustersFilters, _clusters);
+        // console.log(_clustersFilters, _clusters);
 
         semanticsFilteredSummary.template = {
             cluster: {summary: 0},
@@ -894,6 +980,40 @@ export const MassAdvertPage = () => {
                                 view="flat"
                                 onClick={() => {
                                     setShowArtStatsModalOpen(true);
+
+                                    const {advertsStats} = doc.campaigns[selectValue[0]][art];
+                                    const temp = [] as any[];
+
+                                    for (const [strDate, dateData] of Object.entries(
+                                        advertsStats ?? {},
+                                    )) {
+                                        if (strDate == 'updateTime' || !dateData) continue;
+
+                                        if (!dateData) continue;
+                                        const date = new Date(strDate);
+                                        date.setHours(0, 0, 0, 0);
+                                        if (date < dateRange[0] || date > dateRange[1]) continue;
+
+                                        dateData['date'] = date;
+
+                                        const {orders, sum, views, clicks} = dateData as any;
+
+                                        dateData['drr'] = getRoundValue(
+                                            dateData['sum'],
+                                            dateData['sum_orders'],
+                                            true,
+                                            1,
+                                        );
+                                        dateData['ctr'] = getRoundValue(clicks, views, true);
+                                        dateData['cpc'] = getRoundValue(sum, clicks);
+                                        dateData['cpm'] = getRoundValue(sum * 1000, views);
+                                        dateData['cr'] = getRoundValue(orders, views, true);
+                                        dateData['cpo'] = getRoundValue(sum, orders, false, sum);
+
+                                        temp.push(dateData);
+                                    }
+
+                                    setArtsStatsByDayData(temp);
                                 }}
                             >
                                 <Icon size={11} data={LayoutList}></Icon>
@@ -905,13 +1025,33 @@ export const MassAdvertPage = () => {
                                 }}
                                 size="xs"
                                 // selected
-                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
-                                view="flat"
+                                view={
+                                    doc.advertsSchedules[selectValue[0]][advertId]
+                                        ? 'flat-action'
+                                        : 'flat'
+                                }
                                 onClick={() => {
                                     setShowScheduleModalOpen(true);
+                                    setModalOpenFromAdvertId(advertId);
+
+                                    const genTempSchedule = () => {
+                                        const tempScheduleInput = {};
+                                        for (let i = 0; i < 7; i++) {
+                                            tempScheduleInput[i] = {};
+                                            for (let j = 0; j < 24; j++) {
+                                                tempScheduleInput[i][j] = {selected: true};
+                                            }
+                                        }
+                                        return tempScheduleInput;
+                                    };
+                                    const schedule = doc.advertsSchedules[selectValue[0]][advertId]
+                                        ? doc.advertsSchedules[selectValue[0]][advertId].schedule
+                                        : undefined;
+
+                                    setScheduleInput(schedule ?? genTempSchedule());
                                 }}
                             >
-                                <Icon size={11} data={Clock}></Icon>
+                                <Icon size={11} data={Clock} />
                             </Button>
                             <Button
                                 pin="clear-clear"
@@ -955,7 +1095,7 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Popover
-                            placement="bottom"
+                            placement="right"
                             content={
                                 <Card
                                     view="outlined"
@@ -1873,7 +2013,6 @@ export const MassAdvertPage = () => {
                 const drrAI = fistActiveAdvert
                     ? doc.advertsAutoBidsRules[selectValue[0]][fistActiveAdvert.advertId]
                     : undefined;
-                console.log(fistActiveAdvert, drrAI, row.drrAI);
                 const {desiredDRR} = drrAI ?? {};
 
                 return (
@@ -2008,12 +2147,8 @@ export const MassAdvertPage = () => {
     };
     const recalc = (daterng, selected = '', withfFilters = {}) => {
         const [startDate, endDate] = daterng;
-        startDate.setHours(0);
-        startDate.setMinutes(0);
-        startDate.setSeconds(0);
-        endDate.setHours(0);
-        endDate.setMinutes(0);
-        endDate.setSeconds(0);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
 
         const summaryTemp = {
             views: 0,
@@ -2119,9 +2254,7 @@ export const MassAdvertPage = () => {
 
                     if (!dateData) continue;
                     const date = new Date(strDate);
-                    date.setHours(0);
-                    date.setMinutes(0);
-                    date.setSeconds(0);
+                    date.setHours(0, 0, 0, 0);
                     if (date < startDate || date > endDate) continue;
 
                     artInfo.sum_orders += dateData['sum_orders'];
@@ -2697,6 +2830,40 @@ export const MassAdvertPage = () => {
     // const [auctionTableData, setAuctionTableData] = useState<any[]>([]);
     // const [auctionFiltratedTableData, setAuctionFiltratedTableData] = useState<any[]>([]);
     // const filterAuctionData = (withfFilters = {}, tableData = {}) => {};
+    const columnDataArtByDayStats = [
+        {
+            name: 'date',
+            placeholder: 'Дата',
+            render: ({value}) => {
+                if (!value) return;
+                return <Text>{(value as Date).toLocaleDateString('ru-RU').slice(0, 10)}</Text>;
+            },
+        },
+        {name: 'sum', placeholder: 'Расход, ₽'},
+        {name: 'orders', placeholder: 'Заказов, шт.'},
+        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
+        {
+            name: 'drr',
+            placeholder: 'ДРР, %',
+        },
+        {
+            name: 'cpo',
+            placeholder: 'CPO, ₽',
+        },
+        {name: 'views', placeholder: 'Показов, шт.'},
+        {name: 'clicks', placeholder: 'Кликов, шт.'},
+        {name: 'ctr', placeholder: 'CTR, %'},
+        {name: 'cpc', placeholder: 'CPC, ₽'},
+        {name: 'cpm', placeholder: 'CPM, ₽'},
+        {name: 'cr', placeholder: 'CR, %'},
+    ];
+    const columnsArtByDayStats = generateColumns(
+        columnDataArtByDayStats,
+        artsStatsByDayFilters,
+        setArtsStatsByDayFilters,
+        artsStatsByDayDataFilter,
+    );
+
     const columnDataAuction = [
         {
             header: 'Ставка',
@@ -2913,15 +3080,6 @@ export const MassAdvertPage = () => {
         setFilters(filters);
 
         recalc(dateRange, selected);
-
-        const tempScheduleInput = {};
-        for (let i = 0; i < 7; i++) {
-            tempScheduleInput[i] = {};
-            for (let j = 0; j < 24; j++) {
-                tempScheduleInput[i][j] = {selected: true};
-            }
-        }
-        setScheduleInput(tempScheduleInput);
 
         setFirstRecalc(true);
     }
@@ -3445,14 +3603,42 @@ export const MassAdvertPage = () => {
                         open={showArtStatsModalOpen}
                         onClose={() => setShowArtStatsModalOpen(false)}
                     >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                padding: 20,
+                        <motion.div
+                            onAnimationStart={async () => {
+                                await new Promise((resolve) => setTimeout(resolve, 300));
+                                artsStatsByDayDataFilter(
+                                    {sum: {val: '', mode: 'include'}},
+                                    artsStatsByDayData,
+                                );
                             }}
-                        ></div>
+                            animate={{maxHeight: showArtStatsModalOpen ? '60em' : 0}}
+                            style={{
+                                margin: 20,
+                                maxWidth: '80em',
+                                // maxHeight: '60em',
+                                overflow: 'auto',
+                            }}
+                        >
+                            <DataTable
+                                startIndex={1}
+                                settings={{
+                                    stickyHead: MOVING,
+                                    stickyFooter: MOVING,
+                                    displayIndices: false,
+                                    highlightRows: true,
+                                }}
+                                footerData={[artsStatsByDayFilteredSummary]}
+                                theme="yandex-cloud"
+                                onRowClick={(row, index, event) => {
+                                    console.log(row, index, event);
+                                }}
+                                rowClassName={(_row, index, isFooterData) =>
+                                    isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
+                                }
+                                columns={columnsArtByDayStats}
+                                data={artsStatsByDayFilteredData}
+                            />
+                        </motion.div>
                     </Modal>
                     <Modal
                         open={showScheduleModalOpen}
@@ -3479,6 +3665,7 @@ export const MassAdvertPage = () => {
                             <div style={{minHeight: 16}} />
                             {generateModalButtonWithActions(
                                 {
+                                    style: {margin: '8px 0'},
                                     placeholder: 'Установить',
                                     icon: CloudArrowUpIn,
                                     view: 'outlined-success',
@@ -3487,23 +3674,47 @@ export const MassAdvertPage = () => {
                                             uid: getUid(),
                                             campaignName: selectValue[0],
                                             data: {
-                                                arts: {},
-                                                budget: budgetInputValue,
-                                                bid: bidInputValue,
-                                                type: advertTypeSwitchValue[0],
+                                                schedule: scheduleInput,
+                                                advertsIds: {},
                                             },
                                         };
                                         for (let i = 0; i < filteredData.length; i++) {
-                                            const {art, nmId} = filteredData[i];
-                                            if (art === undefined || nmId === undefined) continue;
-                                            params.data.arts[art] = {art, nmId};
+                                            const {adverts} = filteredData[i];
+                                            if (adverts) {
+                                                for (const [id, advertsData] of Object.entries(
+                                                    adverts,
+                                                )) {
+                                                    if (!id || !advertsData) continue;
+                                                    const {advertId} = advertsData as {
+                                                        advertId: number;
+                                                    };
+                                                    if (!advertId) continue;
+                                                    if (
+                                                        modalOpenFromAdvertId != '' &&
+                                                        modalOpenFromAdvertId
+                                                    ) {
+                                                        if (id != modalOpenFromAdvertId) continue;
+                                                    }
+
+                                                    params.data.advertsIds[advertId] = {
+                                                        advertId: advertId,
+                                                    };
+
+                                                    doc.advertsSchedules[selectValue[0]][advertId] =
+                                                        {};
+                                                    doc.advertsSchedules[selectValue[0]][advertId] =
+                                                        {schedule: scheduleInput};
+                                                }
+                                            }
                                         }
                                         console.log(params);
 
                                         //////////////////////////////////
+                                        callApi('setAdvertsSchedules', params);
+                                        setChangedDoc(doc);
                                         //////////////////////////////////
 
-                                        setModalFormOpen(false);
+                                        setShowScheduleModalOpen(false);
                                     },
                                 },
                                 selectedButton,
@@ -5192,6 +5403,8 @@ export const MassAdvertPage = () => {
                                             resData['adverts'][nextValue[0]];
                                         doc['placementsAuctions'][nextValue[0]] =
                                             resData['placementsAuctions'][nextValue[0]];
+                                        doc['advertsSchedules'][nextValue[0]] =
+                                            resData['advertsSchedules'][nextValue[0]];
 
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
