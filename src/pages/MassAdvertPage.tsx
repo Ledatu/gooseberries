@@ -50,6 +50,7 @@ import {
     Pause,
     CirclePlusFill,
     ArrowRight,
+    LayoutList,
     Clock,
     CirclePlus,
     Funnel,
@@ -343,6 +344,8 @@ export const MassAdvertPage = () => {
         semanticsFilteredSummary.active.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
+    const [showArtStatsModalOpen, setShowArtStatsModalOpen] = useState(false);
+
     const [showScheduleModalOpen, setShowScheduleModalOpen] = useState(false);
     const [scheduleInput, setScheduleInput] = useState({});
     const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
@@ -883,6 +886,21 @@ export const MassAdvertPage = () => {
                                 pin="clear-clear"
                                 style={{
                                     borderBottomLeftRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                                size="xs"
+                                // selected
+                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
+                                view="flat"
+                                onClick={() => {
+                                    setShowArtStatsModalOpen(true);
+                                }}
+                            >
+                                <Icon size={11} data={LayoutList}></Icon>
+                            </Button>
+                            <Button
+                                pin="clear-clear"
+                                style={{
                                     overflow: 'hidden',
                                 }}
                                 size="xs"
@@ -1592,8 +1610,17 @@ export const MassAdvertPage = () => {
 
                 const {position} = log ?? {};
 
-                const advertType = adverts
-                    ? adverts[Object.keys(adverts)[0]].type == 9
+                const findFirstActive = (adverts) => {
+                    for (const [id, _] of Object.entries(adverts ?? {})) {
+                        const advert = doc.adverts[selectValue[0]][id];
+                        if (!advert) continue;
+                        if ([9, 11].includes(advert.status)) return advert;
+                    }
+                    return undefined;
+                };
+                const fistActiveAdvert = findFirstActive(adverts);
+                const advertType = fistActiveAdvert
+                    ? fistActiveAdvert.type == 9
                         ? 'search'
                         : 'auto'
                     : 'search';
@@ -1669,10 +1696,17 @@ export const MassAdvertPage = () => {
                                         startIndex={1}
                                         settings={{
                                             stickyHead: MOVING,
-                                            // stickyFooter: MOVING,
+                                            stickyFooter: MOVING,
                                             highlightRows: true,
                                         }}
-                                        // footerData={[semanticsFilteredSummary.active]}
+                                        footerData={[
+                                            {
+                                                cpm:
+                                                    advertType == 'search'
+                                                        ? `Аукцион Поиска, ${auction.length} шт.`
+                                                        : `Аукцион Авто, ${auction.length} шт.`,
+                                            },
+                                        ]}
                                         theme="yandex-cloud"
                                         onRowClick={(row, index, event) => {
                                             console.log(row, index, event);
@@ -1825,11 +1859,22 @@ export const MassAdvertPage = () => {
             name: 'drr',
             placeholder: 'ДРР, %',
             render: ({value, row}) => {
-                const desiredDRR = row.drrAI
-                    ? row.drrAI[Object.keys(row.drrAI)[0]]
-                        ? row.drrAI[Object.keys(row.drrAI)[0]].desiredDRR ?? undefined
-                        : undefined
+                const findFirstActive = (adverts) => {
+                    for (const [id, _] of Object.entries(adverts ?? {})) {
+                        const advert = doc.adverts[selectValue[0]][id];
+                        if (!advert) continue;
+                        if ([9, 11].includes(advert.status)) return advert;
+                    }
+                    return undefined;
+                };
+                const {adverts} = row;
+                const fistActiveAdvert = findFirstActive(adverts);
+
+                const drrAI = fistActiveAdvert
+                    ? doc.advertsAutoBidsRules[selectValue[0]][fistActiveAdvert.advertId]
                     : undefined;
+                console.log(fistActiveAdvert, drrAI, row.drrAI);
+                const {desiredDRR} = drrAI ?? {};
 
                 return (
                     <Text
@@ -3397,10 +3442,74 @@ export const MassAdvertPage = () => {
                         </div>
                     </Modal>
                     <Modal
+                        open={showArtStatsModalOpen}
+                        onClose={() => setShowArtStatsModalOpen(false)}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                padding: 20,
+                            }}
+                        ></div>
+                    </Modal>
+                    <Modal
                         open={showScheduleModalOpen}
                         onClose={() => setShowScheduleModalOpen(false)}
                     >
-                        {generateScheduleInput({scheduleInput, setScheduleInput})}
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                padding: 20,
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    margin: '8px 0',
+                                }}
+                                variant="display-2"
+                            >
+                                График работы
+                            </Text>
+                            <div style={{minHeight: 8}} />
+                            {generateScheduleInput({scheduleInput, setScheduleInput})}
+                            <div style={{minHeight: 16}} />
+                            {generateModalButtonWithActions(
+                                {
+                                    placeholder: 'Установить',
+                                    icon: CloudArrowUpIn,
+                                    view: 'outlined-success',
+                                    onClick: () => {
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            data: {
+                                                arts: {},
+                                                budget: budgetInputValue,
+                                                bid: bidInputValue,
+                                                type: advertTypeSwitchValue[0],
+                                            },
+                                        };
+                                        for (let i = 0; i < filteredData.length; i++) {
+                                            const {art, nmId} = filteredData[i];
+                                            if (art === undefined || nmId === undefined) continue;
+                                            params.data.arts[art] = {art, nmId};
+                                        }
+                                        console.log(params);
+
+                                        //////////////////////////////////
+                                        //////////////////////////////////
+
+                                        setModalFormOpen(false);
+                                    },
+                                },
+                                selectedButton,
+                                setSelectedButton,
+                            )}
+                        </div>
                     </Modal>
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
@@ -4907,9 +5016,19 @@ export const MassAdvertPage = () => {
                                                                     data: {advertsIds: {}},
                                                                 };
 
-                                                                doc.plusPhrasesTemplates[
+                                                                delete doc.plusPhrasesTemplates[
                                                                     selectValue[0]
-                                                                ][item] = undefined;
+                                                                ][item];
+                                                                setPlusPhrasesTemplatesLabels(
+                                                                    (val) => {
+                                                                        return val.filter(
+                                                                            (name) => {
+                                                                                return name != item;
+                                                                            },
+                                                                        );
+                                                                    },
+                                                                );
+
                                                                 if (
                                                                     doc.advertsPlusPhrasesTemplates[
                                                                         selectValue[0]
