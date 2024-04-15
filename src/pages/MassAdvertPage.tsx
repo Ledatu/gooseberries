@@ -285,6 +285,7 @@ export const MassAdvertPage = () => {
     const [artsStatsByDayFilters, setArtsStatsByDayFilters] = useState({undef: false});
 
     const [artsStatsByDayFilteredSummary, setArtsStatsByDayFilteredSummary] = useState({
+        date: 0,
         orders: 0,
         sum_orders: 0,
         sum: 0,
@@ -302,6 +303,7 @@ export const MassAdvertPage = () => {
         const _stats = stats ?? artsStatsByDayData;
 
         const artsStatsByDayFilteredSummaryTemp = {
+            date: 0,
             orders: 0,
             sum_orders: 0,
             sum: 0,
@@ -329,6 +331,8 @@ export const MassAdvertPage = () => {
                     if (['sum', 'clicks', 'views', 'orders', 'sum_orders'].includes(key))
                         artsStatsByDayFilteredSummaryTemp[key] += val;
                 }
+
+                artsStatsByDayFilteredSummaryTemp['date']++;
 
                 return true;
             }),
@@ -2836,6 +2840,7 @@ export const MassAdvertPage = () => {
             placeholder: 'Дата',
             render: ({value}) => {
                 if (!value) return;
+                if (typeof value === 'number') return `Всего: ${value}`;
                 return <Text>{(value as Date).toLocaleDateString('ru-RU').slice(0, 10)}</Text>;
             },
         },
@@ -3616,28 +3621,41 @@ export const MassAdvertPage = () => {
                                 margin: 20,
                                 maxWidth: '80em',
                                 // maxHeight: '60em',
-                                overflow: 'auto',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
                             }}
                         >
-                            <DataTable
-                                startIndex={1}
-                                settings={{
-                                    stickyHead: MOVING,
-                                    stickyFooter: MOVING,
-                                    displayIndices: false,
-                                    highlightRows: true,
+                            <Text
+                                style={{
+                                    margin: '8px 0',
                                 }}
-                                footerData={[artsStatsByDayFilteredSummary]}
-                                theme="yandex-cloud"
-                                onRowClick={(row, index, event) => {
-                                    console.log(row, index, event);
-                                }}
-                                rowClassName={(_row, index, isFooterData) =>
-                                    isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
-                                }
-                                columns={columnsArtByDayStats}
-                                data={artsStatsByDayFilteredData}
-                            />
+                                variant="display-2"
+                            >
+                                Статистика по дням
+                            </Text>
+                            <div style={{minHeight: 8}} />
+                            <div style={{overflow: 'auto', width: '100%', height: '100%'}}>
+                                <DataTable
+                                    startIndex={1}
+                                    settings={{
+                                        stickyHead: MOVING,
+                                        stickyFooter: MOVING,
+                                        displayIndices: false,
+                                        highlightRows: true,
+                                    }}
+                                    footerData={[artsStatsByDayFilteredSummary]}
+                                    theme="yandex-cloud"
+                                    onRowClick={(row, index, event) => {
+                                        console.log(row, index, event);
+                                    }}
+                                    rowClassName={(_row, index, isFooterData) =>
+                                        isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
+                                    }
+                                    columns={columnsArtByDayStats}
+                                    data={artsStatsByDayFilteredData}
+                                />
+                            </div>
                         </motion.div>
                     </Modal>
                     <Modal
