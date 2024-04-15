@@ -995,22 +995,72 @@ export const MassAdvertPage = () => {
                                 onClick={() => {
                                     setShowArtStatsModalOpen(true);
 
-                                    const {advertsStats} = doc.campaigns[selectValue[0]][art];
+                                    const arts = [] as any[];
+                                    for (const [_art, artData] of Object.entries(
+                                        doc.campaigns[selectValue[0]],
+                                    )) {
+                                        if (!_art || !artData) continue;
+                                        const advertsArt = artData['adverts'];
+                                        if (!advertsArt) continue;
+                                        const keys = Object.keys(advertsArt ?? {});
+                                        if (keys.includes(String(advertId))) {
+                                            if (!arts.includes(_art)) arts.push(_art);
+                                        }
+                                    }
+
+                                    const tempJson = {};
+                                    for (const _art of arts) {
+                                        const {advertsStats} = doc.campaigns[selectValue[0]][_art];
+
+                                        for (const [strDate, dateData] of Object.entries(
+                                            advertsStats ?? {},
+                                        )) {
+                                            if (strDate == 'updateTime' || !dateData) continue;
+
+                                            if (!dateData) continue;
+                                            const date = new Date(strDate);
+                                            date.setHours(0, 0, 0, 0);
+                                            if (date < dateRange[0] || date > dateRange[1])
+                                                continue;
+
+                                            if (!tempJson[strDate])
+                                                tempJson[strDate] = {
+                                                    date: date,
+                                                    orders: 0,
+                                                    sum_orders: 0,
+                                                    sum: 0,
+                                                    views: 0,
+                                                    clicks: 0,
+                                                    drr: 0,
+                                                    ctr: 0,
+                                                    cpc: 0,
+                                                    cpm: 0,
+                                                    cr: 0,
+                                                    cpo: 0,
+                                                };
+
+                                            console.log(dateData);
+
+                                            tempJson[strDate].orders += dateData['orders'];
+                                            tempJson[strDate].sum_orders += dateData['sum_orders'];
+                                            tempJson[strDate].sum += dateData['sum'];
+                                            tempJson[strDate].views += dateData['views'];
+                                            tempJson[strDate].clicks += dateData['clicks'];
+                                        }
+                                    }
+
                                     const temp = [] as any[];
 
-                                    for (const [strDate, dateData] of Object.entries(
-                                        advertsStats ?? {},
-                                    )) {
-                                        if (strDate == 'updateTime' || !dateData) continue;
+                                    for (const [strDate, dateData] of Object.entries(tempJson)) {
+                                        if (!strDate || !dateData) continue;
 
-                                        if (!dateData) continue;
-                                        const date = new Date(strDate);
-                                        date.setHours(0, 0, 0, 0);
-                                        if (date < dateRange[0] || date > dateRange[1]) continue;
+                                        dateData['orders'] = Math.round(dateData['orders']);
+                                        dateData['sum_orders'] = Math.round(dateData['sum_orders']);
+                                        dateData['sum'] = Math.round(dateData['sum']);
+                                        dateData['views'] = Math.round(dateData['views']);
+                                        dateData['clicks'] = Math.round(dateData['clicks']);
 
-                                        dateData['date'] = date;
-
-                                        const {orders, sum, views, clicks} = dateData as any;
+                                        const {orders, sum, clicks, views} = dateData as any;
 
                                         dateData['drr'] = getRoundValue(
                                             dateData['sum'],
@@ -1023,7 +1073,6 @@ export const MassAdvertPage = () => {
                                         dateData['cpm'] = getRoundValue(sum * 1000, views);
                                         dateData['cr'] = getRoundValue(orders, views, true);
                                         dateData['cpo'] = getRoundValue(sum, orders, false, sum);
-
                                         temp.push(dateData);
                                     }
 
@@ -1140,12 +1189,16 @@ export const MassAdvertPage = () => {
                                     }`}</Text>
                                     {drrAI !== undefined ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
-                                            {`План ДРР: ${drrAI.desiredDRR}`}
+                                            {`План ${
+                                                drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'
+                                            }: ${drrAI.desiredDRR}`}
                                         </Text>
                                     ) : (
                                         <></>
                                     )}
-                                    {drrAI !== undefined && drrAI.autoBidsMode != 'drr' ? (
+                                    {drrAI !== undefined &&
+                                    drrAI.autoBidsMode != 'drr' &&
+                                    drrAI.autoBidsMode != 'cpo' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
                                             {`План №: ${drrAI.placementsRange.from} (${
                                                 drrAI.autoBidsMode == 'auction'
@@ -1601,7 +1654,7 @@ export const MassAdvertPage = () => {
                                         </Button>
                                         <Button
                                             size="xs"
-                                            pin="brick-round"
+                                            pin="brick-clear"
                                             view="outlined"
                                             onClick={() => {
                                                 setAdvertsArtsListModalFromOpen(true);
@@ -1621,6 +1674,72 @@ export const MassAdvertPage = () => {
                                             }}
                                         >
                                             <Icon data={Xmark} />
+                                        </Button>
+                                        <Button
+                                            pin="brick-round"
+                                            view="outlined"
+                                            size="xs"
+                                            // selected
+                                            // view={index % 2 == 0 ? 'flat' : 'flat-action'}
+                                            onClick={() => {
+                                                setShowArtStatsModalOpen(true);
+
+                                                const {advertsStats} =
+                                                    doc.campaigns[selectValue[0]][art];
+                                                const temp = [] as any[];
+
+                                                for (const [strDate, dateData] of Object.entries(
+                                                    advertsStats ?? {},
+                                                )) {
+                                                    if (strDate == 'updateTime' || !dateData)
+                                                        continue;
+
+                                                    if (!dateData) continue;
+                                                    const date = new Date(strDate);
+                                                    date.setHours(0, 0, 0, 0);
+                                                    if (date < dateRange[0] || date > dateRange[1])
+                                                        continue;
+
+                                                    dateData['date'] = date;
+
+                                                    const {orders, sum, views, clicks} =
+                                                        dateData as any;
+
+                                                    dateData['drr'] = getRoundValue(
+                                                        dateData['sum'],
+                                                        dateData['sum_orders'],
+                                                        true,
+                                                        1,
+                                                    );
+                                                    dateData['ctr'] = getRoundValue(
+                                                        clicks,
+                                                        views,
+                                                        true,
+                                                    );
+                                                    dateData['cpc'] = getRoundValue(sum, clicks);
+                                                    dateData['cpm'] = getRoundValue(
+                                                        sum * 1000,
+                                                        views,
+                                                    );
+                                                    dateData['cr'] = getRoundValue(
+                                                        orders,
+                                                        views,
+                                                        true,
+                                                    );
+                                                    dateData['cpo'] = getRoundValue(
+                                                        sum,
+                                                        orders,
+                                                        false,
+                                                        sum,
+                                                    );
+
+                                                    temp.push(dateData);
+                                                }
+
+                                                setArtsStatsByDayData(temp);
+                                            }}
+                                        >
+                                            <Icon data={LayoutList}></Icon>
                                         </Button>
                                     </div>
                                 </div>
@@ -2017,19 +2136,21 @@ export const MassAdvertPage = () => {
                 const drrAI = fistActiveAdvert
                     ? doc.advertsAutoBidsRules[selectValue[0]][fistActiveAdvert.advertId]
                     : undefined;
-                const {desiredDRR} = drrAI ?? {};
+                const {desiredDRR, autoBidsMode} = drrAI ?? {};
 
                 return (
                     <Text
                         color={
                             desiredDRR
-                                ? value <= desiredDRR
-                                    ? value == 0
-                                        ? 'primary'
-                                        : 'positive'
-                                    : value / desiredDRR - 1 < 0.5
-                                    ? 'warning'
-                                    : 'danger'
+                                ? autoBidsMode == 'drr'
+                                    ? value <= desiredDRR
+                                        ? value == 0
+                                            ? 'primary'
+                                            : 'positive'
+                                        : value / desiredDRR - 1 < 0.5
+                                        ? 'warning'
+                                        : 'danger'
+                                    : 'primary'
                                 : 'primary'
                         }
                     >
@@ -2041,6 +2162,43 @@ export const MassAdvertPage = () => {
         {
             name: 'cpo',
             placeholder: 'CPO, ₽',
+            render: ({value, row}) => {
+                const findFirstActive = (adverts) => {
+                    for (const [id, _] of Object.entries(adverts ?? {})) {
+                        const advert = doc.adverts[selectValue[0]][id];
+                        if (!advert) continue;
+                        if ([9, 11].includes(advert.status)) return advert;
+                    }
+                    return undefined;
+                };
+                const {adverts} = row;
+                const fistActiveAdvert = findFirstActive(adverts);
+
+                const drrAI = fistActiveAdvert
+                    ? doc.advertsAutoBidsRules[selectValue[0]][fistActiveAdvert.advertId]
+                    : undefined;
+                const {desiredDRR, autoBidsMode} = drrAI ?? {};
+
+                return (
+                    <Text
+                        color={
+                            desiredDRR
+                                ? autoBidsMode == 'cpo'
+                                    ? value <= desiredDRR
+                                        ? value == 0
+                                            ? 'primary'
+                                            : 'positive'
+                                        : value / desiredDRR - 1 < 0.5
+                                        ? 'warning'
+                                        : 'danger'
+                                    : 'primary'
+                                : 'primary'
+                        }
+                    >
+                        {value}
+                    </Text>
+                );
+            },
         },
         {name: 'views', placeholder: 'Показов, шт.'},
         {name: 'clicks', placeholder: 'Кликов, шт.'},
@@ -2495,6 +2653,10 @@ export const MassAdvertPage = () => {
         {
             value: 'drr',
             content: 'Целевой ДРР',
+        },
+        {
+            value: 'cpo',
+            content: 'Целевой CPO',
         },
     ]);
     const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['placements']);
@@ -4067,7 +4229,9 @@ export const MassAdvertPage = () => {
                                                             style={{marginLeft: 4}}
                                                             variant="subheader-1"
                                                         >
-                                                            {'Целевой ДРР'}
+                                                            {selectedValueMethod[0] == 'cpo'
+                                                                ? 'Целевой CPO'
+                                                                : 'Целевой ДРР'}
                                                         </Text>
                                                         <TextInput
                                                             type="number"
@@ -4117,8 +4281,8 @@ export const MassAdvertPage = () => {
                                                         </Text>
                                                         <TextInput
                                                             disabled={
-                                                                selectedValueMethod[0] ==
-                                                                'Целевой ДРР'
+                                                                selectedValueMethod[0] == 'drr' ||
+                                                                selectedValueMethod[0] == 'cpo'
                                                             }
                                                             type="number"
                                                             value={String(bidModalRange.to)}
@@ -4339,13 +4503,10 @@ export const MassAdvertPage = () => {
                                                                         ? undefined
                                                                         : {
                                                                               desiredDRR:
-                                                                                  bidModalDeleteModeSelected
-                                                                                      ? undefined
-                                                                                      : bidModalDRRInputValue,
+                                                                                  bidModalDRRInputValue,
                                                                               placementsRange:
                                                                                   bidModalRange,
                                                                               maxBid: bidModalMaxBid,
-
                                                                               autoBidsMode:
                                                                                   selectedValueMethod[0],
                                                                           };
