@@ -744,8 +744,8 @@ export const MassAdvertPage = () => {
         const bidLogType = bidLog;
         if (bidLogType) {
             for (let i = 1; i < bidLogType.bids.length; i++) {
-                const {time, val} = bidLogType.bids[i - 1];
-                const {index, cpmIndex, position} = bidLogType.bids[i];
+                const {val} = bidLogType.bids[i - 1];
+                const {time, index, cpmIndex, position} = bidLogType.bids[i];
                 if (!time || !val) continue;
 
                 const timeObj = new Date(time);
