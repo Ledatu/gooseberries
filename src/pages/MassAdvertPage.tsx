@@ -2146,7 +2146,7 @@ export const MassAdvertPage = () => {
                     <Text
                         color={
                             desiredDRR
-                                ? autoBidsMode == 'drr'
+                                ? autoBidsMode != 'cpo'
                                     ? value <= desiredDRR
                                         ? value == 0
                                             ? 'primary'
@@ -3794,7 +3794,7 @@ export const MassAdvertPage = () => {
                             animate={{maxHeight: showArtStatsModalOpen ? '60em' : 0}}
                             style={{
                                 margin: 20,
-                                maxWidth: '80em',
+                                maxWidth: '90vw',
                                 // maxHeight: '60em',
                                 display: 'flex',
                                 flexDirection: 'column',
