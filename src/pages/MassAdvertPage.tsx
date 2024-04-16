@@ -18,6 +18,7 @@ import {
     Pagination,
     RadioButton,
     List,
+    Checkbox,
 } from '@gravity-ui/uikit';
 import {RangeCalendar} from '@gravity-ui/date-components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
@@ -150,6 +151,9 @@ export const MassAdvertPage = () => {
     // const [semanticsModalTextAreaValue, setSemanticsModalTextAreaValue] = useState('');
 
     const [modalFormOpen, setModalFormOpen] = useState(false);
+
+    const [createAdvertsMode, setCreateAdvertsMode] = useState(false);
+
     const [budgetInputValue, setBudgetInputValue] = useState(500);
     const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
     const [bidInputValue, setBidInputValue] = useState(125);
@@ -3305,6 +3309,7 @@ export const MassAdvertPage = () => {
                         onClick={() => {
                             setModalFormOpen(true);
                             setSelectedButton('');
+                            setCreateAdvertsMode(false);
                         }}
                     >
                         <Icon data={SlidersVertical} />
@@ -3419,6 +3424,13 @@ export const MassAdvertPage = () => {
                                         />
                                     </div>
                                 </div>
+                                <Checkbox
+                                    style={{margin: '8px 0'}}
+                                    checked={createAdvertsMode}
+                                    onUpdate={(val) => setCreateAdvertsMode(val)}
+                                >
+                                    Создание РК 1к1
+                                </Checkbox>
                                 {generateModalButtonWithActions(
                                     {
                                         placeholder: 'Запуск',
@@ -3430,6 +3442,7 @@ export const MassAdvertPage = () => {
                                                 campaignName: selectValue[0],
                                                 data: {
                                                     arts: {},
+                                                    mode: createAdvertsMode, // true -- one to one false -- one to many
                                                     budget: budgetInputValue,
                                                     bid: bidInputValue,
                                                     type: advertTypeSwitchValue[0],
