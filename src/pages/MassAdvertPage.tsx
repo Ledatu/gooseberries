@@ -743,8 +743,9 @@ export const MassAdvertPage = () => {
         const graphsDataPositionOrganic: any[] = [];
         const bidLogType = bidLog;
         if (bidLogType) {
-            for (let i = 0; i < bidLogType.bids.length; i++) {
-                const {time, val, index, cpmIndex, position} = bidLogType.bids[i];
+            for (let i = 1; i < bidLogType.bids.length; i++) {
+                const {time, val} = bidLogType.bids[i - 1];
+                const {index, cpmIndex, position} = bidLogType.bids[i];
                 if (!time || !val) continue;
 
                 const timeObj = new Date(time);
