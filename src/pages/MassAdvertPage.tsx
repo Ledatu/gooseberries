@@ -740,10 +740,11 @@ export const MassAdvertPage = () => {
         const graphsData: any[] = [];
         const graphsDataPosition: any[] = [];
         const graphsDataPositionAuction: any[] = [];
+        const graphsDataPositionOrganic: any[] = [];
         const bidLogType = bidLog;
         if (bidLogType) {
             for (let i = 0; i < bidLogType.bids.length; i++) {
-                const {time, val, index, cpmIndex} = bidLogType.bids[i];
+                const {time, val, index, cpmIndex, position} = bidLogType.bids[i];
                 if (!time || !val) continue;
 
                 const timeObj = new Date(time);
@@ -753,12 +754,14 @@ export const MassAdvertPage = () => {
                 timeline.push(timeObj.getTime());
                 graphsData.push(val);
 
-                if (index == -1 || index > 100 || !index) graphsDataPosition.push(null);
+                if (index == -1 || !index) graphsDataPosition.push(null);
                 else graphsDataPosition.push(index);
 
-                if (cpmIndex == -1 || cpmIndex > 100 || !index)
-                    graphsDataPositionAuction.push(null);
+                if (cpmIndex == -1 || !index) graphsDataPositionAuction.push(null);
                 else graphsDataPositionAuction.push(cpmIndex);
+
+                if (position == -1 || !position) graphsDataPositionOrganic.push(null);
+                else graphsDataPositionOrganic.push(position);
             }
         }
         const yagrData: YagrWidgetData = {
@@ -773,7 +776,7 @@ export const MassAdvertPage = () => {
                     },
                     {
                         id: '1',
-                        name: 'Позиция в выдаче',
+                        name: 'Позиция',
                         color: '#4aa1f2',
                         scale: 'r',
                         data: graphsDataPosition,
@@ -784,6 +787,13 @@ export const MassAdvertPage = () => {
                         color: '#9a63d1',
                         scale: 'r',
                         data: graphsDataPositionAuction,
+                    },
+                    {
+                        id: '3',
+                        name: 'Органическая позиция',
+                        color: '#708da6',
+                        scale: 'r2',
+                        data: graphsDataPositionOrganic,
                     },
                 ],
             },
@@ -803,7 +813,19 @@ export const MassAdvertPage = () => {
                         show: true,
                     },
                     r: {
-                        label: 'Позиция',
+                        label: 'Выдача',
+                        side: 'right',
+                        precision: 'auto',
+                        show: true,
+                    },
+                    r1: {
+                        label: 'Аукцион',
+                        side: 'right',
+                        precision: 'auto',
+                        show: true,
+                    },
+                    r2: {
+                        label: 'Органика',
                         side: 'right',
                         precision: 'auto',
                         show: true,
@@ -814,9 +836,7 @@ export const MassAdvertPage = () => {
                         show: true,
                     },
                 },
-                scales: {
-                    r: {min: 1, max: 100},
-                },
+                scales: {},
                 title: {
                     text: 'Изменение ставки',
                 },
@@ -1043,7 +1063,7 @@ export const MassAdvertPage = () => {
                                                     cpo: 0,
                                                 };
 
-                                            console.log(dateData);
+                                            // console.log(dateData);
 
                                             tempJson[strDate].orders += dateData['orders'];
                                             tempJson[strDate].sum_orders += dateData['sum_orders'];
@@ -1160,7 +1180,7 @@ export const MassAdvertPage = () => {
                                     style={{
                                         position: 'absolute',
                                         height: '30em',
-                                        width: '40em',
+                                        width: '50em',
                                         overflow: 'auto',
                                         top: -10,
                                         left: -10,
