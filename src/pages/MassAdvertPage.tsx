@@ -180,7 +180,7 @@ export const MassAdvertPage = () => {
 
     const artsStatsByDayModeSwitchValues: any[] = [
         {value: 'Статистика по дням', content: 'Статистика по дням'},
-        {value: 'Статистика по дням недели', content: 'Статистика по дням недели'},
+        {value: 'Статистика по дням недели', content: 'Статистика по дням недели', disabled: true},
     ];
     const [artsStatsByDayModeSwitchValue, setArtsStatsByDayModeSwitchValue] = React.useState([
         'Статистика по дням',
