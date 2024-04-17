@@ -708,7 +708,8 @@ export const MassAdvertPage = () => {
         const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
         const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
         if (!advertData) return <></>;
-        const {advertId, status, words, budget, bidLog, daysInWork, type, cpm} = advertData;
+        const {advertId, status, words, budget, bidLog, daysInWork, type, cpm, budgetLog} =
+            advertData;
         if (![4, 9, 11].includes(status)) return <></>;
 
         const semantics = words;
@@ -848,6 +849,62 @@ export const MassAdvertPage = () => {
                 scales: {},
                 title: {
                     text: 'Изменение ставки',
+                },
+            },
+        };
+
+        const timelineBudget: any[] = [];
+        const graphsDataBudgets: any[] = [];
+        if (budgetLog) {
+            for (let i = 0; i < budgetLog.length; i++) {
+                const {budget, time} = budgetLog[i];
+                if (!time || !budget) continue;
+
+                const timeObj = new Date(time);
+                const rbd = new Date(dateRange[1]);
+                rbd.setHours(23, 59, 59);
+                if (timeObj < dateRange[0] || timeObj > rbd) continue;
+                timelineBudget.push(timeObj.getTime());
+                graphsDataBudgets.push(budget);
+            }
+        }
+        const yagrBudgetData: YagrWidgetData = {
+            data: {
+                timeline: timelineBudget,
+                graphs: [
+                    {
+                        id: '0',
+                        name: 'Баланс',
+                        scale: 'y',
+                        color: '#ffbe5c',
+                        data: graphsDataBudgets,
+                    },
+                ],
+            },
+
+            libraryConfig: {
+                chart: {
+                    series: {
+                        spanGaps: false,
+                        type: 'line',
+                        interpolation: 'smooth',
+                    },
+                },
+                axes: {
+                    y: {
+                        label: 'Баланс',
+                        precision: 'auto',
+                        show: true,
+                    },
+                    x: {
+                        label: 'Время',
+                        precision: 'auto',
+                        show: true,
+                    },
+                },
+                scales: {},
+                title: {
+                    text: 'Изменение баланса',
                 },
             },
         };
@@ -1245,30 +1302,52 @@ export const MassAdvertPage = () => {
                                 </Button>
                             </div>
                         </Popover>
-
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
+                        <Popover
+                            placement="right"
+                            content={
+                                <Card
+                                    view="outlined"
+                                    theme="warning"
+                                    style={{
+                                        position: 'absolute',
+                                        height: '30em',
+                                        width: '50em',
+                                        overflow: 'auto',
+                                        top: -10,
+                                        left: -10,
+                                        display: 'flex',
+                                    }}
+                                >
+                                    <ChartKit type="yagr" data={yagrBudgetData} />
+                                </Card>
+                            }
                         >
-                            <Button
-                                pin="brick-round"
-                                size="xs"
-                                view="flat"
-                                onClick={() => {
-                                    openBudgetModalForm();
-                                    setModalOpenFromAdvertId(advertId);
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
                                 }}
                             >
-                                <Text variant="caption-2">{`Баланс: ${
-                                    curBudget !== undefined ? curBudget : 'Нет инф.'
-                                } / ${
-                                    budgetToKeep !== undefined ? budgetToKeep : 'Бюджет не задан.'
-                                }`}</Text>
-                            </Button>
-                        </div>
+                                <Button
+                                    pin="brick-round"
+                                    size="xs"
+                                    view="flat"
+                                    onClick={() => {
+                                        openBudgetModalForm();
+                                        setModalOpenFromAdvertId(advertId);
+                                    }}
+                                >
+                                    <Text variant="caption-2">{`Баланс: ${
+                                        curBudget !== undefined ? curBudget : 'Нет инф.'
+                                    } / ${
+                                        budgetToKeep !== undefined
+                                            ? budgetToKeep
+                                            : 'Бюджет не задан.'
+                                    }`}</Text>
+                                </Button>
+                            </div>
+                        </Popover>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <Button
                                 size="xs"
