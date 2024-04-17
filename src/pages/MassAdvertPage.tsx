@@ -178,6 +178,14 @@ export const MassAdvertPage = () => {
     ];
     const [budgetModalSwitchValue, setBudgetModalSwitchValue] = React.useState('Пополнить');
 
+    const artsStatsByDayModeSwitchValues: any[] = [
+        {value: 'Статистика по дням', content: 'Статистика по дням'},
+        {value: 'Статистика по дням недели', content: 'Статистика по дням недели'},
+    ];
+    const [artsStatsByDayModeSwitchValue, setArtsStatsByDayModeSwitchValue] = React.useState([
+        'Статистика по дням',
+    ]);
+
     const [semanticsAutoPhrasesModalFormOpen, setSemanticsAutoPhrasesModalFormOpen] =
         useState(false);
     const [semanticsAutoPhrasesModalIncludesList, setSemanticsAutoPhrasesModalIncludesList] =
@@ -3214,7 +3222,11 @@ export const MassAdvertPage = () => {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['campaigns'])) {
             if (Userfront.user.userUuid == 'ce86aeb0-30b7-45ba-9234-a6765df7a479') {
-                if (['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана'].includes(campaignName)) {
+                if (
+                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
+                        campaignName,
+                    )
+                ) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,
@@ -3822,14 +3834,58 @@ export const MassAdvertPage = () => {
                                 alignItems: 'center',
                             }}
                         >
-                            <Text
+                            <div
                                 style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
                                     margin: '8px 0',
+                                    alignItems: 'center',
                                 }}
-                                variant="display-2"
                             >
-                                Статистика по дням
-                            </Text>
+                                {/* <Text variant="display-2">Статистика по</Text> */}
+                                <Select
+                                    className={b('selectCampaign')}
+                                    value={artsStatsByDayModeSwitchValue}
+                                    placeholder="Values"
+                                    options={artsStatsByDayModeSwitchValues}
+                                    renderControl={({onClick, onKeyDown, ref}) => {
+                                        return (
+                                            <Button
+                                                style={{
+                                                    marginTop: 12,
+                                                }}
+                                                ref={ref}
+                                                size="xl"
+                                                view="outlined"
+                                                onClick={onClick}
+                                                extraProps={{
+                                                    onKeyDown,
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
+                                                    <Text
+                                                        variant="display-2"
+                                                        style={{marginBottom: 8}}
+                                                    >
+                                                        {artsStatsByDayModeSwitchValue[0]}
+                                                    </Text>
+                                                    <div style={{width: 4}} />
+                                                    <Icon size={26} data={ChevronDown} />
+                                                </div>
+                                            </Button>
+                                        );
+                                    }}
+                                    onUpdate={(nextValue) => {
+                                        setArtsStatsByDayModeSwitchValue(nextValue);
+                                    }}
+                                />
+                            </div>
                             <div style={{minHeight: 8}} />
                             <div style={{overflow: 'auto', width: '100%', height: '100%'}}>
                                 <DataTable
