@@ -1283,23 +1283,31 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Popover
-                            placement="right"
                             content={
-                                <Card
-                                    view="outlined"
-                                    theme="warning"
+                                <div
                                     style={{
-                                        position: 'absolute',
-                                        height: '30em',
+                                        height: 'calc(30em - 60px)',
                                         width: '50em',
                                         overflow: 'auto',
-                                        top: -10,
-                                        left: -10,
                                         display: 'flex',
                                     }}
                                 >
-                                    <ChartKit type="yagr" data={yagrData} />
-                                </Card>
+                                    <Card
+                                        view="outlined"
+                                        theme="warning"
+                                        style={{
+                                            position: 'absolute',
+                                            height: '30em',
+                                            width: '50em',
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <ChartKit type="yagr" data={yagrData} />
+                                    </Card>
+                                </div>
                             }
                         >
                             <div
@@ -1348,23 +1356,31 @@ export const MassAdvertPage = () => {
                             </div>
                         </Popover>
                         <Popover
-                            placement="right"
                             content={
-                                <Card
-                                    view="outlined"
-                                    theme="warning"
+                                <div
                                     style={{
-                                        position: 'absolute',
-                                        height: '30em',
+                                        height: 'calc(30em - 60px)',
                                         width: '50em',
                                         overflow: 'auto',
-                                        top: -10,
-                                        left: -10,
                                         display: 'flex',
                                     }}
                                 >
-                                    <ChartKit type="yagr" data={yagrBudgetData} />
-                                </Card>
+                                    <Card
+                                        view="outlined"
+                                        theme="warning"
+                                        style={{
+                                            position: 'absolute',
+                                            height: '30em',
+                                            width: '50em',
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <ChartKit type="yagr" data={yagrBudgetData} />
+                                    </Card>
+                                </div>
                             }
                         >
                             <div
@@ -2159,46 +2175,55 @@ export const MassAdvertPage = () => {
                             <div style={{width: 4}} />
                         </div>
                         <Popover
-                            placement="bottom"
                             content={
                                 <Card
-                                    view="raised"
+                                    view="outlined"
+                                    theme="warning"
                                     style={{
-                                        position: 'absolute',
-                                        maxHeight: '30em',
-                                        maxWidth: '60em',
+                                        height: 'fit-content',
                                         overflow: 'auto',
-                                        top: -10,
-                                        left: '-15em',
+                                        display: 'flex',
                                     }}
                                 >
-                                    <DataTable
-                                        startIndex={1}
-                                        settings={{
-                                            stickyHead: MOVING,
-                                            stickyFooter: MOVING,
-                                            highlightRows: true,
+                                    <Card
+                                        view="raised"
+                                        style={{
+                                            position: 'absolute',
+                                            maxHeight: '30em',
+                                            maxWidth: '60em',
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
                                         }}
-                                        footerData={[
-                                            {
-                                                cpm:
-                                                    advertType == 'search'
-                                                        ? `Аукцион Поиска, ${auction.length} шт.`
-                                                        : `Аукцион Авто, ${auction.length} шт.`,
-                                            },
-                                        ]}
-                                        theme="yandex-cloud"
-                                        onRowClick={(row, index, event) => {
-                                            console.log(row, index, event);
-                                        }}
-                                        rowClassName={(_row, index, isFooterData) =>
-                                            isFooterData
-                                                ? b('tableRow_footer')
-                                                : b('tableRow_' + index)
-                                        }
-                                        columns={columnDataAuction}
-                                        data={auction}
-                                    />
+                                    >
+                                        <DataTable
+                                            startIndex={1}
+                                            settings={{
+                                                stickyHead: MOVING,
+                                                stickyFooter: MOVING,
+                                                highlightRows: true,
+                                            }}
+                                            footerData={[
+                                                {
+                                                    cpm:
+                                                        advertType == 'search'
+                                                            ? `Аукцион Поиска, ${auction.length} шт.`
+                                                            : `Аукцион Авто, ${auction.length} шт.`,
+                                                },
+                                            ]}
+                                            theme="yandex-cloud"
+                                            onRowClick={(row, index, event) => {
+                                                console.log(row, index, event);
+                                            }}
+                                            rowClassName={(_row, index, isFooterData) =>
+                                                isFooterData
+                                                    ? b('tableRow_footer')
+                                                    : b('tableRow_' + index)
+                                            }
+                                            columns={columnDataAuction}
+                                            data={auction}
+                                        />
+                                    </Card>
                                 </Card>
                             }
                         >
