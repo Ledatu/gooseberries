@@ -21,6 +21,7 @@ import {
     Checkbox,
 } from '@gravity-ui/uikit';
 import {RangeCalendar} from '@gravity-ui/date-components';
+import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
@@ -45,6 +46,7 @@ import {
     ChevronDown,
     CircleMinusFill,
     ArrowShapeUp,
+    Minus,
     Plus,
     CircleMinus,
     Play,
@@ -855,19 +857,47 @@ export const MassAdvertPage = () => {
 
         const timelineBudget: any[] = [];
         const graphsDataBudgets: any[] = [];
+        const graphsDataBudgetsDiv: any[] = [];
+        const graphsDataBudgetsDivHours = {};
         if (budgetLog) {
             for (let i = 0; i < budgetLog.length; i++) {
                 const {budget, time} = budgetLog[i];
                 if (!time || !budget) continue;
 
                 const timeObj = new Date(time);
+
+                timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
+
                 const rbd = new Date(dateRange[1]);
                 rbd.setHours(23, 59, 59);
                 if (timeObj < dateRange[0] || timeObj > rbd) continue;
                 timelineBudget.push(timeObj.getTime());
                 graphsDataBudgets.push(budget);
+
+                const hour = time.slice(0, 13);
+                if (!graphsDataBudgetsDivHours[hour]) {
+                    graphsDataBudgetsDivHours[hour] = budget;
+
+                    if (Object.keys(graphsDataBudgetsDivHours).length > 1) {
+                        // console.log(
+                        //     timeObj,
+                        //     graphsDataBudgetsDivHours[
+                        //         Object.keys(graphsDataBudgetsDivHours).slice(-2, -1)[0]
+                        //     ] - budget,
+                        // );
+
+                        graphsDataBudgetsDiv.push(
+                            graphsDataBudgetsDivHours[
+                                Object.keys(graphsDataBudgetsDivHours).slice(-2, -1)[0]
+                            ] - budget,
+                        );
+                    }
+                } else if (graphsDataBudgetsDiv.length > 1) {
+                    graphsDataBudgetsDiv.push(null);
+                }
             }
         }
+
         const yagrBudgetData: YagrWidgetData = {
             data: {
                 timeline: timelineBudget,
@@ -878,6 +908,13 @@ export const MassAdvertPage = () => {
                         scale: 'y',
                         color: '#ffbe5c',
                         data: graphsDataBudgets,
+                    },
+                    {
+                        type: 'column',
+                        data: graphsDataBudgetsDiv,
+                        id: '1',
+                        name: 'Расход',
+                        scale: 'r',
                     },
                 ],
             },
@@ -896,13 +933,20 @@ export const MassAdvertPage = () => {
                         precision: 'auto',
                         show: true,
                     },
+                    r: {
+                        label: 'Расход',
+                        precision: 'auto',
+                        side: 'right',
+                        show: true,
+                    },
                     x: {
                         label: 'Время',
                         precision: 'auto',
                         show: true,
                     },
                 },
-                scales: {},
+                series: [],
+                scales: {y: {min: 0}, r: {min: 0}},
                 title: {
                     text: 'Изменение баланса',
                 },
@@ -1798,7 +1842,10 @@ export const MassAdvertPage = () => {
 
                                                 const {advertsStats} =
                                                     doc.campaigns[selectValue[0]][art];
-                                                const temp = [] as any[];
+                                                const temp = {
+                                                    day: [] as any[],
+                                                    weekday: [Array<any>(7)] as any[],
+                                                };
 
                                                 for (const [strDate, dateData] of Object.entries(
                                                     advertsStats ?? {},
@@ -1845,10 +1892,10 @@ export const MassAdvertPage = () => {
                                                         sum,
                                                     );
 
-                                                    temp.push(dateData);
+                                                    temp.day.push(dateData);
                                                 }
 
-                                                setArtsStatsByDayData(temp);
+                                                setArtsStatsByDayData(temp.day);
                                             }}
                                         >
                                             <Icon data={LayoutList}></Icon>
@@ -1939,8 +1986,63 @@ export const MassAdvertPage = () => {
             name: 'adverts',
             placeholder: 'Реклама',
             valueType: 'text',
+            additionalNodes: [
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        marginBottom: 4,
+                        marginLeft: 4,
+                    }}
+                >
+                    <HelpPopover
+                        size="l"
+                        content={
+                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <Text variant="subheader-1">
+                                    Для поиска введите
+                                    <Text
+                                        style={{margin: '0 3px'}}
+                                        color="brand"
+                                        variant="subheader-1"
+                                    >
+                                        Id РК
+                                    </Text>
+                                </Text>
+                                <div style={{height: 4}} />
+                                <Text variant="subheader-1">
+                                    Введите
+                                    <Text
+                                        style={{margin: '0 3px'}}
+                                        color="brand"
+                                        variant="subheader-1"
+                                    >
+                                        <Icon data={Plus} />
+                                    </Text>
+                                    чтобы показать артикулы с РК
+                                </Text>
+                                <div style={{height: 4}} />
+                                <Text variant="subheader-1">
+                                    Введите
+                                    <Text
+                                        style={{margin: '0 3px'}}
+                                        color="brand"
+                                        variant="subheader-1"
+                                    >
+                                        <Icon data={Minus} />
+                                    </Text>
+                                    чтобы показать артикулы без РК
+                                </Text>
+                            </div>
+                        }
+                    />
+                </div>,
+            ],
             render: ({value, row, index}) => {
                 if (value === null || value === undefined) return;
+                if (typeof value === 'number') {
+                    return <Text>{`Уникальных Id: ${value}`}</Text>;
+                }
 
                 const {art} = row;
 
@@ -2330,7 +2432,7 @@ export const MassAdvertPage = () => {
         orders: 0,
         stocks: 0,
         sum_orders: 0,
-        adverts: null,
+        adverts: 0,
         semantics: null,
     });
 
@@ -2625,11 +2727,19 @@ export const MassAdvertPage = () => {
                         break;
                     }
                 } else if (filterArg == 'adverts') {
-                    const rulesForAnd = filterData['val'].split('+');
+                    const fldata = filterData['val'];
+                    const adverts = tempTypeRow[filterArg];
+
+                    if (fldata == '+') {
+                        if (adverts) break;
+                    } else if (fldata == '-') {
+                        if (!adverts) break;
+                    }
+
+                    const rulesForAnd = [fldata];
                     // console.log(rulesForAnd);
 
                     let wholeText = '';
-                    const adverts = tempTypeRow[filterArg];
                     if (adverts)
                         for (const [id, _] of Object.entries(adverts)) {
                             wholeText += id + ' ';
@@ -2689,13 +2799,20 @@ export const MassAdvertPage = () => {
             cr: 0,
             stocks: 0,
             cpo: 0,
-            adverts: null,
+            adverts: 0,
             semantics: null,
             budget: 0,
         };
+        const uniqueAdvertsIds: any[] = [];
         for (let i = 0; i < temp.length; i++) {
             const row = temp[i];
             // const art = row['art'];
+            const adverts = row['adverts'];
+            if (adverts) {
+                for (const id of Object.keys(adverts)) {
+                    if (!uniqueAdvertsIds.includes(id)) uniqueAdvertsIds.push(id);
+                }
+            }
             filteredSummaryTemp.sum_orders += row['sum_orders'];
             filteredSummaryTemp.orders += row['orders'];
             filteredSummaryTemp.stocks += row['stocks'];
@@ -2711,6 +2828,7 @@ export const MassAdvertPage = () => {
         filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
         filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
         filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
+        filteredSummaryTemp.adverts = uniqueAdvertsIds.length;
 
         filteredSummaryTemp.drr = getRoundValue(
             filteredSummaryTemp.sum,
@@ -4955,13 +5073,13 @@ export const MassAdvertPage = () => {
                                             width="max"
                                             view={
                                                 semanticsAutoPhrasesModalIncludesList.length ||
-                                                semanticsAutoPhrasesModalNotIncludesListInput.length
+                                                semanticsAutoPhrasesModalNotIncludesList.length
                                                     ? 'flat-success'
                                                     : 'normal'
                                             }
                                             selected={
                                                 semanticsAutoPhrasesModalIncludesList.length ||
-                                                semanticsAutoPhrasesModalNotIncludesListInput.length
+                                                semanticsAutoPhrasesModalNotIncludesList.length
                                                     ? true
                                                     : undefined
                                             }

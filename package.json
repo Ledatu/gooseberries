@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@gravity-ui/chartkit": "^4.19.0",
-    "@gravity-ui/components": "^2.11.0",
+    "@gravity-ui/components": "^2.12.1",
     "@gravity-ui/date-components": "^1.1.1",
     "@gravity-ui/eslint-config": "^1.0.2",
     "@gravity-ui/prettier-config": "^1.1.0",
