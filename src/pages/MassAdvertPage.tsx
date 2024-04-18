@@ -875,26 +875,27 @@ export const MassAdvertPage = () => {
                 graphsDataBudgets.push(budget);
 
                 const hour = time.slice(0, 13);
-                if (!graphsDataBudgetsDivHours[hour]) {
-                    graphsDataBudgetsDivHours[hour] = budget;
-
-                    if (Object.keys(graphsDataBudgetsDivHours).length > 1) {
-                        // console.log(
-                        //     timeObj,
-                        //     graphsDataBudgetsDivHours[
-                        //         Object.keys(graphsDataBudgetsDivHours).slice(-2, -1)[0]
-                        //     ] - budget,
-                        // );
-
-                        graphsDataBudgetsDiv.push(
-                            graphsDataBudgetsDivHours[
-                                Object.keys(graphsDataBudgetsDivHours).slice(-2, -1)[0]
-                            ] - budget,
-                        );
-                    }
-                } else if (graphsDataBudgetsDiv.length > 1) {
+                if (!graphsDataBudgetsDivHours[hour]) graphsDataBudgetsDivHours[hour] = budget;
+            }
+            let prevHour = '';
+            for (let i = 0; i < timelineBudget.length; i++) {
+                const dateObj = new Date(timelineBudget[i]);
+                const time = dateObj.toISOString();
+                if (dateObj.getMinutes() != 0) {
                     graphsDataBudgetsDiv.push(null);
+                    continue;
                 }
+                const hour = time.slice(0, 13);
+                if (prevHour == '') {
+                    graphsDataBudgetsDiv.push(null);
+                    prevHour = hour;
+                    continue;
+                }
+
+                const spent = graphsDataBudgetsDivHours[prevHour] - graphsDataBudgetsDivHours[hour];
+                graphsDataBudgetsDiv.push(spent);
+
+                prevHour = hour;
             }
         }
 
@@ -1991,7 +1992,7 @@ export const MassAdvertPage = () => {
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        marginBottom: 4,
+                        marginBottom: 5,
                         marginLeft: 4,
                     }}
                 >
@@ -2012,25 +2013,27 @@ export const MassAdvertPage = () => {
                                 <div style={{height: 4}} />
                                 <Text variant="subheader-1">
                                     Введите
-                                    <Text
+                                    <Button
+                                        size="s"
                                         style={{margin: '0 3px'}}
-                                        color="brand"
-                                        variant="subheader-1"
+                                        view="outlined-action"
+                                        onClick={() => filterByButton('+', 'adverts')}
                                     >
-                                        <Icon data={Plus} />
-                                    </Text>
+                                        <Icon data={Plus} size={14} />
+                                    </Button>
                                     чтобы показать артикулы с РК
                                 </Text>
                                 <div style={{height: 4}} />
                                 <Text variant="subheader-1">
                                     Введите
-                                    <Text
+                                    <Button
+                                        size="s"
                                         style={{margin: '0 3px'}}
-                                        color="brand"
-                                        variant="subheader-1"
+                                        view="outlined-action"
+                                        onClick={() => filterByButton('-', 'adverts')}
                                     >
-                                        <Icon data={Minus} />
-                                    </Text>
+                                        <Icon data={Minus} size={14} />
+                                    </Button>
                                     чтобы показать артикулы без РК
                                 </Text>
                             </div>
@@ -2730,9 +2733,9 @@ export const MassAdvertPage = () => {
                     const fldata = filterData['val'];
                     const adverts = tempTypeRow[filterArg];
 
-                    if (fldata == '+') {
+                    if (fldata == '+' || fldata == '+ ') {
                         if (adverts) break;
-                    } else if (fldata == '-') {
+                    } else if (fldata == '-' || fldata == '- ') {
                         if (!adverts) break;
                     }
 
