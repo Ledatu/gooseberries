@@ -75,6 +75,7 @@ import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 settings.set({plugins: [YagrPlugin]});
 import callApi from 'src/utilities/callApi';
 import axios from 'axios';
+import {getLocaleDateString} from 'src/utilities/getRoundValue';
 
 const getUid = () => {
     return [
@@ -1144,14 +1145,22 @@ export const MassAdvertPage = () => {
                                     }
 
                                     const tempJson = {};
-                                    for (const _art of arts) {
-                                        const {advertsStats} = doc.campaigns[selectValue[0]][_art];
 
-                                        for (const [strDate, dateData] of Object.entries(
-                                            advertsStats ?? {},
-                                        )) {
-                                            if (strDate == 'updateTime' || !dateData) continue;
+                                    const daysBetween =
+                                        dateRange[1].getTime() / 86400 / 1000 -
+                                        dateRange[0].getTime() / 86400 / 1000;
 
+                                    for (let i = 0; i <= daysBetween; i++) {
+                                        const dateIter = new Date(dateRange[1]);
+                                        dateIter.setDate(dateIter.getDate() - i);
+
+                                        const strDate = getLocaleDateString(dateIter);
+
+                                        for (const _art of arts) {
+                                            const {advertsStats} =
+                                                doc.campaigns[selectValue[0]][_art];
+                                            if (!advertsStats) continue;
+                                            const dateData = advertsStats[strDate];
                                             if (!dateData) continue;
                                             const date = new Date(strDate);
                                             date.setHours(0, 0, 0, 0);
@@ -1857,28 +1866,86 @@ export const MassAdvertPage = () => {
                                             onClick={() => {
                                                 setShowArtStatsModalOpen(true);
 
-                                                const {advertsStats} =
-                                                    doc.campaigns[selectValue[0]][art];
-                                                const temp = {
-                                                    day: [] as any[],
-                                                    weekday: [Array<any>(7)] as any[],
-                                                };
+                                                const arts = [art];
+
+                                                const tempJson = {};
+
+                                                const daysBetween =
+                                                    dateRange[1].getTime() / 86400 / 1000 -
+                                                    dateRange[0].getTime() / 86400 / 1000;
+
+                                                for (let i = 0; i <= daysBetween; i++) {
+                                                    const dateIter = new Date(dateRange[1]);
+                                                    dateIter.setDate(dateIter.getDate() - i);
+
+                                                    const strDate = getLocaleDateString(dateIter);
+
+                                                    for (const _art of arts) {
+                                                        const {advertsStats} =
+                                                            doc.campaigns[selectValue[0]][_art];
+                                                        if (!advertsStats) continue;
+                                                        const dateData = advertsStats[strDate];
+                                                        if (!dateData) continue;
+                                                        const date = new Date(strDate);
+                                                        date.setHours(0, 0, 0, 0);
+                                                        if (
+                                                            date < dateRange[0] ||
+                                                            date > dateRange[1]
+                                                        )
+                                                            continue;
+
+                                                        if (!tempJson[strDate])
+                                                            tempJson[strDate] = {
+                                                                date: date,
+                                                                orders: 0,
+                                                                sum_orders: 0,
+                                                                sum: 0,
+                                                                views: 0,
+                                                                clicks: 0,
+                                                                drr: 0,
+                                                                ctr: 0,
+                                                                cpc: 0,
+                                                                cpm: 0,
+                                                                cr: 0,
+                                                                cpo: 0,
+                                                            };
+
+                                                        // console.log(dateData);
+
+                                                        tempJson[strDate].orders +=
+                                                            dateData['orders'];
+                                                        tempJson[strDate].sum_orders +=
+                                                            dateData['sum_orders'];
+                                                        tempJson[strDate].sum += dateData['sum'];
+                                                        tempJson[strDate].views +=
+                                                            dateData['views'];
+                                                        tempJson[strDate].clicks +=
+                                                            dateData['clicks'];
+                                                    }
+                                                }
+
+                                                const temp = [] as any[];
 
                                                 for (const [strDate, dateData] of Object.entries(
-                                                    advertsStats ?? {},
+                                                    tempJson,
                                                 )) {
-                                                    if (strDate == 'updateTime' || !dateData)
-                                                        continue;
+                                                    if (!strDate || !dateData) continue;
 
-                                                    if (!dateData) continue;
-                                                    const date = new Date(strDate);
-                                                    date.setHours(0, 0, 0, 0);
-                                                    if (date < dateRange[0] || date > dateRange[1])
-                                                        continue;
+                                                    dateData['orders'] = Math.round(
+                                                        dateData['orders'],
+                                                    );
+                                                    dateData['sum_orders'] = Math.round(
+                                                        dateData['sum_orders'],
+                                                    );
+                                                    dateData['sum'] = Math.round(dateData['sum']);
+                                                    dateData['views'] = Math.round(
+                                                        dateData['views'],
+                                                    );
+                                                    dateData['clicks'] = Math.round(
+                                                        dateData['clicks'],
+                                                    );
 
-                                                    dateData['date'] = date;
-
-                                                    const {orders, sum, views, clicks} =
+                                                    const {orders, sum, clicks, views} =
                                                         dateData as any;
 
                                                     dateData['drr'] = getRoundValue(
@@ -1908,11 +1975,10 @@ export const MassAdvertPage = () => {
                                                         false,
                                                         sum,
                                                     );
-
-                                                    temp.day.push(dateData);
+                                                    temp.push(dateData);
                                                 }
 
-                                                setArtsStatsByDayData(temp.day);
+                                                setArtsStatsByDayData(temp);
                                             }}
                                         >
                                             <Icon data={LayoutList}></Icon>
