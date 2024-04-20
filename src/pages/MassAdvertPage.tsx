@@ -940,9 +940,11 @@ export const MassAdvertPage = () => {
 
                 timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
 
+                const lbd = new Date(dateRange[0]);
+                lbd.setHours(0, 0, 0, 0);
                 const rbd = new Date(dateRange[1]);
                 rbd.setHours(23, 59, 59);
-                if (timeObj < dateRange[0] || timeObj > rbd) continue;
+                if (timeObj < lbd || timeObj > rbd) continue;
                 timelineBudget.push(timeObj.getTime());
                 graphsDataBudgets.push(budget);
 
@@ -2654,6 +2656,134 @@ export const MassAdvertPage = () => {
         setTableData(temp);
 
         filterTableData(withfFilters, temp);
+    };
+
+    const getBalanceYagrData = () => {
+        const balanceLog = doc.balances[selectValue[0]] ? doc.balances[selectValue[0]].data : {};
+        console.log(balanceLog);
+
+        const timelineBudget: any[] = [];
+        const graphsDataBonus: any[] = [];
+        const graphsDataBalance: any[] = [];
+        const graphsDataNet: any[] = [];
+        // const graphsDataBudgetsDiv: any[] = [];
+        // const graphsDataBudgetsDivHours = {};
+        if (balanceLog) {
+            for (let i = 0; i < balanceLog.length; i++) {
+                const time = balanceLog[i].time;
+                const balanceData = balanceLog[i].balance;
+                if (!time || !balanceData) continue;
+
+                const {net, balance, bonus} = balanceData;
+
+                const timeObj = new Date(time);
+
+                timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
+
+                const lbd = new Date(dateRange[0]);
+                lbd.setHours(0, 0, 0, 0);
+                const rbd = new Date(dateRange[1]);
+                rbd.setHours(23, 59, 59);
+                if (timeObj < lbd || timeObj > rbd) continue;
+                timelineBudget.push(timeObj.getTime());
+                graphsDataBalance.push(balance ?? 0);
+                graphsDataBonus.push(bonus ?? 0);
+                graphsDataNet.push(net ?? 0);
+
+                // const hour = time.slice(0, 13);
+                // if (!graphsDataBudgetsDivHours[hour]) graphsDataBudgetsDivHours[hour] = budget;
+            }
+            // let prevHour = '';
+            // for (let i = 0; i < timelineBudget.length; i++) {
+            //     const dateObj = new Date(timelineBudget[i]);
+            //     const time = dateObj.toISOString();
+            //     if (dateObj.getMinutes() != 0) {
+            //         graphsDataBudgetsDiv.push(null);
+            //         continue;
+            //     }
+            //     const hour = time.slice(0, 13);
+            //     if (prevHour == '') {
+            //         graphsDataBudgetsDiv.push(null);
+            //         prevHour = hour;
+            //         continue;
+            //     }
+
+            //     const spent = graphsDataBudgetsDivHours[prevHour] - graphsDataBudgetsDivHours[hour];
+            //     graphsDataBudgetsDiv.push(spent);
+
+            //     prevHour = hour;
+            // }
+        }
+
+        const yagrBalanceData: YagrWidgetData = {
+            data: {
+                timeline: timelineBudget,
+                graphs: [
+                    {
+                        id: '0',
+                        name: 'Баланс',
+                        scale: 'y',
+                        color: '#ffbe5c',
+                        data: graphsDataNet,
+                    },
+                    {
+                        id: '1',
+                        name: 'Бонусы',
+                        scale: 'y',
+                        color: '#4aa1f2',
+                        data: graphsDataBonus,
+                    },
+                    {
+                        id: '2',
+                        name: 'Счет',
+                        scale: 'y',
+                        color: '#5fb8a5',
+                        data: graphsDataBalance,
+                    },
+                ],
+            },
+
+            libraryConfig: {
+                chart: {
+                    series: {
+                        spanGaps: false,
+                        type: 'line',
+                        interpolation: 'smooth',
+                    },
+                },
+                axes: {
+                    y: {
+                        label: 'Баланс',
+                        precision: 'auto',
+                        show: true,
+                    },
+                    // r: {
+                    //     label: 'Бонусы',
+                    //     precision: 'auto',
+                    //     side: 'right',
+                    //     show: true,
+                    // },
+                    // l: {
+                    //     label: 'Счет',
+                    //     precision: 'auto',
+                    //     side: 'right',
+                    //     show: true,
+                    // },
+                    x: {
+                        label: 'Время',
+                        precision: 'auto',
+                        show: true,
+                    },
+                },
+                series: [],
+                scales: {y: {min: 0}},
+                title: {
+                    text: 'Изменение баланса',
+                },
+            },
+        };
+
+        return yagrBalanceData;
     };
 
     const filterTableData = (withfFilters = {}, tableData = {}) => {
@@ -5888,22 +6018,63 @@ export const MassAdvertPage = () => {
                         <></>
                     )}
                     <div style={{marginRight: 8, marginBottom: '8px'}}>
-                        <Button view="outlined-success" size="l">
-                            <Text variant="subheader-1">
-                                {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
-                                    doc
-                                        ? doc.balances
-                                            ? doc.balances[selectValue[0]]
-                                                ? doc.balances[selectValue[0]].net ?? 0
+                        <Popover
+                            content={
+                                <div
+                                    style={{
+                                        height: 'calc(30em - 60px)',
+                                        width: '50em',
+                                        overflow: 'auto',
+                                        display: 'flex',
+                                    }}
+                                >
+                                    <Card
+                                        view="outlined"
+                                        theme="warning"
+                                        style={{
+                                            position: 'absolute',
+                                            height: '30em',
+                                            width: '40em',
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <ChartKit type="yagr" data={getBalanceYagrData()} />
+                                    </Card>
+                                </div>
+                            }
+                        >
+                            <Button view="outlined-success" size="l">
+                                <Text variant="subheader-1">
+                                    {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
+                                        doc
+                                            ? doc.balances
+                                                ? doc.balances[selectValue[0]]
+                                                    ? doc.balances[selectValue[0]].data
+                                                        ? doc.balances[selectValue[0]].data.slice(
+                                                              -1,
+                                                          )[0]
+                                                            ? doc.balances[
+                                                                  selectValue[0]
+                                                              ].data.slice(-1)[0].balance.net ?? 0
+                                                            : 0
+                                                        : 0
+                                                    : 0
                                                 : 0
-                                            : 0
-                                        : 0,
-                                )}
+                                            : 0,
+                                    )}
                             Бонусы: ${new Intl.NumberFormat('ru-RU').format(
                                 doc
                                     ? doc.balances
                                         ? doc.balances[selectValue[0]]
-                                            ? doc.balances[selectValue[0]].bonus ?? 0
+                                            ? doc.balances[selectValue[0]].data
+                                                ? doc.balances[selectValue[0]].data.slice(-1)[0]
+                                                    ? doc.balances[selectValue[0]].data.slice(-1)[0]
+                                                          .balance.bonus ?? 0
+                                                    : 0
+                                                : 0
                                             : 0
                                         : 0
                                     : 0,
@@ -5912,13 +6083,19 @@ export const MassAdvertPage = () => {
                                 doc
                                     ? doc.balances
                                         ? doc.balances[selectValue[0]]
-                                            ? doc.balances[selectValue[0]].balance ?? 0
+                                            ? doc.balances[selectValue[0]].data
+                                                ? doc.balances[selectValue[0]].data.slice(-1)[0]
+                                                    ? doc.balances[selectValue[0]].data.slice(-1)[0]
+                                                          .balance.balance ?? 0
+                                                    : 0
+                                                : 0
                                             : 0
                                         : 0
                                     : 0,
                             )}`}
-                            </Text>
-                        </Button>
+                                </Text>
+                            </Button>
+                        </Popover>
                     </div>
                 </div>
                 <div style={{display: 'flex', flexDirection: 'row', marginBottom: 8}}>
