@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
     Spin,
-    DropdownMenu,
     Button,
     Text,
     Card,
@@ -44,19 +43,14 @@ import {
     CircleRuble,
     SlidersVertical,
     ChevronDown,
-    CircleMinusFill,
     ArrowShapeUp,
     Minus,
     Plus,
-    CircleMinus,
     Play,
     Pause,
-    CirclePlusFill,
     ArrowRight,
     LayoutList,
     Clock,
-    CirclePlus,
-    Funnel,
     Ban,
     Calendar,
     Eye,
@@ -66,7 +60,6 @@ import {
     CloudArrowUpIn,
     Xmark,
 } from '@gravity-ui/icons';
-import useWindowDimensions from 'src/hooks/useWindowDimensions';
 import {motion} from 'framer-motion';
 
 import ChartKit, {settings} from '@gravity-ui/chartkit';
@@ -76,6 +69,7 @@ settings.set({plugins: [YagrPlugin]});
 import callApi from 'src/utilities/callApi';
 import axios from 'axios';
 import {getLocaleDateString} from 'src/utilities/getRoundValue';
+import TheTable from 'src/components/TheTable';
 
 const getUid = () => {
     return [
@@ -147,7 +141,7 @@ export const MassAdvertPage = () => {
 
     const [filters, setFilters] = useState({undef: false});
 
-    // const [manageModalOpen, setManageModalOpen] = useState(false);
+    const [manageModalOpen, setManageModalOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
 
     // const [semanticsModalTextAreaAddMode, setSemanticsModalTextAreaAddMode] = useState(false);
@@ -166,7 +160,6 @@ export const MassAdvertPage = () => {
         {value: 'Поиск', content: 'Поиск'},
     ];
     const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState(['Авто']);
-    const [groupingEnabledState, setGroupingEnabledState] = useState(true);
 
     const [plusPhrasesModalFormOpen, setPlusPhrasesModalFormOpen] = useState(false);
     const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState<any[]>([]);
@@ -642,44 +635,6 @@ export const MassAdvertPage = () => {
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
-    const generateColumns = (columnsInfo, filters, setFilters, filterData) => {
-        const columns: Column<any>[] = [];
-        if (!columnsInfo && !columnsInfo.length) return columns;
-        const viewportSize = useWindowDimensions();
-
-        for (let i = 0; i < columnsInfo.length; i++) {
-            const column = columnsInfo[i];
-            if (!column) continue;
-            const {name, placeholder, width, render, className, valueType, group, additionalNodes} =
-                column;
-
-            columns.push({
-                name: name,
-                className: b(className ?? (i < 1 ? `td_fixed td_fixed_${name}` : 'td_body')),
-                header: generateFilterTextInput({
-                    filters,
-                    setFilters,
-                    filterData: filterData,
-                    name,
-                    placeholder,
-                    valueType,
-                    width,
-                    viewportSize,
-                    additionalNodes,
-                }),
-                group: group && groupingEnabledState && false,
-                render: render
-                    ? (args) => render(args)
-                    : ({value}) => {
-                          return typeof value === 'number'
-                              ? new Intl.NumberFormat('ru-RU').format(value)
-                              : value;
-                      },
-            });
-        }
-
-        return columns;
-    };
 
     // const paramMap = {
     //     status: {
@@ -700,10 +655,31 @@ export const MassAdvertPage = () => {
     //         9: 'Поиск + Каталог',
     //     },
     // };
+    const manageAdvertsActivityCallFunc = async (mode, advertId) => {
+        const params = {
+            uid: getUid(),
+            campaignName: selectValue[0],
+            data: {
+                advertsIds: {},
+                mode: mode,
+            },
+        };
+        params.data.advertsIds[advertId] = {advertId: advertId};
+
+        //////////////////////////////////
+        return await callApi('manageAdvertsActivity', params);
+        //////////////////////////////////
+    };
+
     const filterByButton = (val, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val) + ' ', compMode: compMode};
-        filterTableData(filters);
         setFilters(filters);
+        filterTableData(filters);
+    };
+    const filterByButtonClusters = (val, key = 'art', compMode = 'include') => {
+        clustersFiltersMinus[key] = {val: String(val) + ' ', compMode: compMode};
+        setClustersFiltersMinus(clustersFiltersMinus);
+        clustersFilterDataMinus(clustersFiltersMinus, semanticsModalSemanticsMinusItemsValue);
     };
 
     const calcByDayStats = (arts) => {
@@ -1028,22 +1004,6 @@ export const MassAdvertPage = () => {
             },
         };
 
-        const manageAdvertsActivityCallFunc = async (mode) => {
-            const params = {
-                uid: getUid(),
-                campaignName: selectValue[0],
-                data: {
-                    advertsIds: {},
-                    mode: mode,
-                },
-            };
-            params.data.advertsIds[advertId] = {advertId: advertId};
-
-            //////////////////////////////////
-            return await callApi('manageAdvertsActivity', params);
-            //////////////////////////////////
-        };
-
         return (
             <Card
                 style={{height: 96, width: 'fit-content', overflowY: 'hidden'}}
@@ -1105,6 +1065,7 @@ export const MassAdvertPage = () => {
                                 onClick={async () => {
                                     const res = await manageAdvertsActivityCallFunc(
                                         status ? (status == 9 ? 'pause' : 'start') : 'start',
+                                        advertId,
                                     );
                                     console.log(res);
                                     if (!res || res['data'] === undefined) {
@@ -1672,7 +1633,10 @@ export const MassAdvertPage = () => {
                                         return false;
                                     });
 
-                                    const res = await manageAdvertsActivityCallFunc('stop');
+                                    const res = await manageAdvertsActivityCallFunc(
+                                        'stop',
+                                        advertId,
+                                    );
                                     console.log(res);
                                     if (!res || res['data'] === undefined) {
                                         return;
@@ -3030,7 +2994,6 @@ export const MassAdvertPage = () => {
     };
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
-    const columns = generateColumns(columnData, filters, setFilters, filterTableData);
 
     const columnDataSemantics = [
         {
@@ -3038,18 +3001,22 @@ export const MassAdvertPage = () => {
             valueType: 'text',
             placeholder: 'Пресет',
             render: ({value}) => {
+                const bad =
+                    semanticsModalSemanticsItemsValuePresets.includes(value) &&
+                    semanticsModalSemanticsMinusItemsValuePresets.includes(value);
                 return (
                     <div>
-                        <Text
-                            color={
-                                semanticsModalSemanticsItemsValuePresets.includes(value) &&
-                                semanticsModalSemanticsMinusItemsValuePresets.includes(value)
-                                    ? 'danger'
-                                    : 'primary'
-                            }
-                        >
-                            {value}
-                        </Text>
+                        {bad ? (
+                            <Button
+                                size="xs"
+                                view={'flat-danger'}
+                                onClick={() => filterByButtonClusters(value, 'preset', 'include')}
+                            >
+                                {value}
+                            </Button>
+                        ) : (
+                            <Text>{value}</Text>
+                        )}
                     </div>
                 );
             },
@@ -3360,12 +3327,6 @@ export const MassAdvertPage = () => {
         {name: 'cpm', placeholder: 'CPM, ₽'},
         {name: 'cr', placeholder: 'CR, %'},
     ];
-    const columnsArtByDayStats = generateColumns(
-        columnDataArtByDayStats,
-        artsStatsByDayFilters,
-        setArtsStatsByDayFilters,
-        artsStatsByDayDataFilter,
-    );
 
     const columnDataAuction = [
         {
@@ -3462,52 +3423,6 @@ export const MassAdvertPage = () => {
             </Button>
         );
     };
-    const columnsSemanticsActive = generateColumns(
-        renameFirstColumn('Кластеры в показах', [
-            generateMassAddDelButton({
-                placeholder: 'Добавить все',
-                array: semanticsModalSemanticsItemsFiltratedValue,
-                mode: 'add',
-            }),
-            generateMassAddDelButton({
-                placeholder: 'Удалить все',
-                array: semanticsModalSemanticsItemsFiltratedValue,
-                mode: 'del',
-            }),
-        ]),
-        clustersFiltersActive,
-        setClustersFiltersActive,
-        clustersFilterDataActive,
-    );
-    const columnsSemanticsMinus = generateColumns(
-        renameFirstColumn('Исключенные кластеры', [
-            generateMassAddDelButton({
-                placeholder: 'Добавить все',
-                array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                mode: 'add',
-            }),
-            generateMassAddDelButton({
-                placeholder: 'Удалить все',
-                array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                mode: 'del',
-            }),
-        ]),
-        clustersFiltersMinus,
-        setClustersFiltersMinus,
-        clustersFilterDataMinus,
-    );
-    const columnsSemanticsTemplate = generateColumns(
-        renameFirstColumn('Кластеры в шаблоне', [
-            generateMassAddDelButton({
-                placeholder: 'Удалить все',
-                array: semanticsModalSemanticsTemplateItemsFiltratedValue,
-                mode: 'del',
-            }),
-        ]).slice(1, 2),
-        clustersFiltersTemplate,
-        setClustersFiltersTemplate,
-        clustersFilterDataTemplate,
-    );
     // console.log(columnsSemanticsTemplate);
 
     if (changedDoc) {
@@ -3638,6 +3553,172 @@ export const MassAdvertPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
+                    <Button
+                        view="action"
+                        size="l"
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        onClick={() => {
+                            setManageModalOpen(true);
+                            setSelectedButton('');
+                        }}
+                    >
+                        <Icon data={Play} />
+                        <Text variant="subheader-1">Управление</Text>
+                    </Button>
+                    <Modal
+                        open={manageModalOpen}
+                        onClose={() => {
+                            setManageModalOpen(false);
+                            setSelectedButton('');
+                        }}
+                    >
+                        <Card
+                            view="clear"
+                            style={{
+                                width: 300,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                backgroundColor: 'none',
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    margin: '8px 0',
+                                }}
+                                variant="display-2"
+                            >
+                                Управление
+                            </Text>
+                            {generateModalButtonWithActions(
+                                {
+                                    placeholder: 'Запуск',
+                                    icon: Play,
+                                    view: 'outlined-success',
+                                    onClick: async () => {
+                                        for (let i = 0; i < filteredData.length; i++) {
+                                            const {adverts} = filteredData[i];
+                                            if (setManageModalOpen === undefined) continue;
+
+                                            for (const [id, _] of Object.entries(adverts)) {
+                                                if (!id) continue;
+                                                const advertData = doc.adverts[selectValue[0]][id];
+                                                if (!advertData) continue;
+                                                const {advertId} = advertData;
+                                                if (!advertId) continue;
+                                                const res = await manageAdvertsActivityCallFunc(
+                                                    'start',
+                                                    advertId,
+                                                );
+                                                console.log(res);
+                                                if (!res || res['data'] === undefined) {
+                                                    return;
+                                                }
+
+                                                if (res['data']['status'] == 'ok') {
+                                                    doc.adverts[selectValue[0]][
+                                                        advertId
+                                                    ].status = 9;
+                                                }
+                                            }
+                                            await new Promise((resolve) =>
+                                                setTimeout(resolve, 500),
+                                            );
+                                        }
+                                        setChangedDoc(doc);
+                                        setManageModalOpen(false);
+                                    },
+                                },
+                                selectedButton,
+                                setSelectedButton,
+                            )}
+                            {generateModalButtonWithActions(
+                                {
+                                    placeholder: 'Приостановить',
+                                    icon: Pause,
+                                    view: 'outlined-warning',
+                                    onClick: async () => {
+                                        for (let i = 0; i < filteredData.length; i++) {
+                                            const {adverts} = filteredData[i];
+                                            if (setManageModalOpen === undefined) continue;
+
+                                            for (const [id, _] of Object.entries(adverts)) {
+                                                if (!id) continue;
+                                                const advertData = doc.adverts[selectValue[0]][id];
+                                                if (!advertData) continue;
+                                                const {advertId} = advertData;
+                                                if (!advertId) continue;
+                                                const res = await manageAdvertsActivityCallFunc(
+                                                    'pause',
+                                                    advertId,
+                                                );
+                                                console.log(res);
+                                                if (!res || res['data'] === undefined) {
+                                                    return;
+                                                }
+
+                                                if (res['data']['status'] == 'ok') {
+                                                    doc.adverts[selectValue[0]][
+                                                        advertId
+                                                    ].status = 11;
+                                                }
+                                            }
+                                            await new Promise((resolve) =>
+                                                setTimeout(resolve, 500),
+                                            );
+                                        }
+                                        setChangedDoc(doc);
+                                        setManageModalOpen(false);
+                                    },
+                                },
+                                selectedButton,
+                                setSelectedButton,
+                            )}
+                            {generateModalButtonWithActions(
+                                {
+                                    placeholder: 'Завершить',
+                                    icon: Pause,
+                                    view: 'outlined-danger',
+                                    onClick: async () => {
+                                        for (let i = 0; i < filteredData.length; i++) {
+                                            const {adverts} = filteredData[i];
+                                            if (setManageModalOpen === undefined) continue;
+
+                                            for (const [id, _] of Object.entries(adverts)) {
+                                                if (!id) continue;
+                                                const advertData = doc.adverts[selectValue[0]][id];
+                                                if (!advertData) continue;
+                                                const {advertId} = advertData;
+                                                if (!advertId) continue;
+                                                const res = await manageAdvertsActivityCallFunc(
+                                                    'stop',
+                                                    advertId,
+                                                );
+                                                console.log(res);
+                                                if (!res || res['data'] === undefined) {
+                                                    return;
+                                                }
+
+                                                if (res['data']['status'] == 'ok') {
+                                                    doc.adverts[selectValue[0]][advertId] =
+                                                        undefined;
+                                                }
+                                            }
+                                            await new Promise((resolve) =>
+                                                setTimeout(resolve, 500),
+                                            );
+                                        }
+                                        setChangedDoc(doc);
+                                        setManageModalOpen(false);
+                                    },
+                                },
+                                selectedButton,
+                                setSelectedButton,
+                            )}
+                            <div style={{height: 16}} />
+                        </Card>
+                    </Modal>
                     <Button
                         view="action"
                         size="l"
@@ -4191,24 +4272,13 @@ export const MassAdvertPage = () => {
                             </div>
                             <div style={{minHeight: 8}} />
                             <div style={{overflow: 'auto', width: '100%', height: '100%'}}>
-                                <DataTable
-                                    startIndex={1}
-                                    settings={{
-                                        stickyHead: MOVING,
-                                        stickyFooter: MOVING,
-                                        displayIndices: false,
-                                        highlightRows: true,
-                                    }}
-                                    footerData={[artsStatsByDayFilteredSummary]}
-                                    theme="yandex-cloud"
-                                    onRowClick={(row, index, event) => {
-                                        console.log(row, index, event);
-                                    }}
-                                    rowClassName={(_row, index, isFooterData) =>
-                                        isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
-                                    }
-                                    columns={columnsArtByDayStats}
+                                <TheTable
+                                    columnData={columnDataArtByDayStats}
                                     data={artsStatsByDayFilteredData}
+                                    filters={artsStatsByDayFilters}
+                                    setFilters={setArtsStatsByDayFilters}
+                                    filterData={artsStatsByDayDataFilter}
+                                    footerData={[artsStatsByDayFilteredSummary]}
                                 />
                             </div>
                         </motion.div>
@@ -5028,24 +5098,24 @@ export const MassAdvertPage = () => {
                                     overflow: 'auto',
                                 }}
                             >
-                                <DataTable
-                                    startIndex={1}
-                                    settings={{
-                                        stickyHead: MOVING,
-                                        stickyFooter: MOVING,
-                                        displayIndices: false,
-                                        highlightRows: true,
-                                    }}
-                                    footerData={[semanticsFilteredSummary.active]}
-                                    theme="yandex-cloud"
-                                    onRowClick={(row, index, event) => {
-                                        console.log(row, index, event);
-                                    }}
-                                    rowClassName={(_row, index, isFooterData) =>
-                                        isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
-                                    }
+                                <TheTable
+                                    columnData={renameFirstColumn('Кластеры в показах', [
+                                        generateMassAddDelButton({
+                                            placeholder: 'Добавить все',
+                                            array: semanticsModalSemanticsItemsFiltratedValue,
+                                            mode: 'add',
+                                        }),
+                                        generateMassAddDelButton({
+                                            placeholder: 'Удалить все',
+                                            array: semanticsModalSemanticsItemsFiltratedValue,
+                                            mode: 'del',
+                                        }),
+                                    ])}
                                     data={semanticsModalSemanticsItemsFiltratedValue}
-                                    columns={columnsSemanticsActive}
+                                    filters={clustersFiltersActive}
+                                    setFilters={setClustersFiltersActive}
+                                    filterData={clustersFilterDataActive}
+                                    footerData={[semanticsFilteredSummary.active]}
                                 />
                             </div>
                             <div
@@ -5065,56 +5135,20 @@ export const MassAdvertPage = () => {
                                         flexDirection: 'column',
                                     }}
                                 >
-                                    <DataTable
-                                        startIndex={1}
-                                        settings={{
-                                            stickyHead: MOVING,
-                                            stickyFooter: MOVING,
-                                            displayIndices: false,
-                                            highlightRows: true,
-                                        }}
-                                        footerData={[semanticsFilteredSummary.template]}
-                                        theme="yandex-cloud"
-                                        onRowClick={(row, index, event) => {
-                                            console.log(row, index, event);
-                                        }}
-                                        rowClassName={(_row, index, isFooterData) =>
-                                            isFooterData
-                                                ? b('tableRow_footer')
-                                                : b('tableRow_' + index)
-                                        }
+                                    <TheTable
+                                        columnData={renameFirstColumn('Кластеры в шаблоне', [
+                                            generateMassAddDelButton({
+                                                placeholder: 'Удалить все',
+                                                array: semanticsModalSemanticsTemplateItemsFiltratedValue,
+                                                mode: 'del',
+                                            }),
+                                        ]).slice(1, 2)}
                                         data={semanticsModalSemanticsTemplateItemsFiltratedValue}
-                                        columns={columnsSemanticsTemplate}
+                                        filters={clustersFiltersTemplate}
+                                        setFilters={setClustersFiltersTemplate}
+                                        filterData={clustersFilterDataTemplate}
+                                        footerData={[semanticsFilteredSummary.template]}
                                     />
-                                    {/* <List
-                                        itemHeight={(item) => {
-                                            return 20 * Math.ceil(item.length / 45) + 20;
-                                        }}
-                                        items={}
-                                        filterPlaceholder={`Поиск в ${semanticsModalSemanticsPlusItemsValue.length} фразах`}
-                                        onItemClick={(cluster) => {
-                                            let val = Array.from(
-                                                semanticsModalSemanticsPlusItemsValue,
-                                            );
-                                            val = val.filter((value) => value != cluster);
-                                            setSemanticsModalSemanticsPlusItemsValue(val);
-                                        }}
-                                        renderItem={(item) => {
-                                            if (!item) return;
-                                            return (
-                                                <div
-                                                    style={{
-                                                        textOverflow: 'ellipsis',
-                                                        overflow: 'hidden',
-                                                        whiteSpace: 'nowrap',
-                                                    }}
-                                                    title={item}
-                                                >
-                                                    <Text>{item}</Text>
-                                                </div>
-                                            );
-                                        }}
-                                    /> */}
                                 </div>
                                 <div
                                     style={{
@@ -5664,24 +5698,24 @@ export const MassAdvertPage = () => {
                                 </div>
                             </div>
                             <div style={{height: '28vh', overflow: 'auto', width: '100%'}}>
-                                <DataTable
-                                    startIndex={1}
-                                    settings={{
-                                        stickyHead: MOVING,
-                                        stickyFooter: MOVING,
-                                        displayIndices: false,
-                                        highlightRows: true,
-                                    }}
-                                    footerData={[semanticsFilteredSummary.minus]}
-                                    theme="yandex-cloud"
-                                    onRowClick={(row, index, event) => {
-                                        console.log(row, index, event);
-                                    }}
-                                    rowClassName={(_row, index, isFooterData) =>
-                                        isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
-                                    }
+                                <TheTable
+                                    columnData={renameFirstColumn('Исключенные кластеры', [
+                                        generateMassAddDelButton({
+                                            placeholder: 'Добавить все',
+                                            array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                            mode: 'add',
+                                        }),
+                                        generateMassAddDelButton({
+                                            placeholder: 'Удалить все',
+                                            array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                            mode: 'del',
+                                        }),
+                                    ])}
                                     data={semanticsModalSemanticsMinusItemsFiltratedValue}
-                                    columns={columnsSemanticsMinus}
+                                    filters={clustersFiltersMinus}
+                                    setFilters={setClustersFiltersMinus}
+                                    filterData={clustersFilterDataMinus}
+                                    footerData={[semanticsFilteredSummary.minus]}
                                 />
                             </div>
                         </motion.div>
@@ -6479,37 +6513,12 @@ export const MassAdvertPage = () => {
                         overflow: 'auto',
                     }}
                 >
-                    <DataTable
-                        startIndex={1}
-                        settings={{
-                            stickyHead: MOVING,
-                            stickyFooter: MOVING,
-                            displayIndices: false,
-                            highlightRows: true,
-                        }}
-                        theme="yandex-cloud"
-                        onRowClick={(row, index, event) => {
-                            console.log(row, index, event);
-                        }}
-                        rowClassName={(_row, index, isFooterData) =>
-                            isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
-                        }
-                        // defaultSortState={sort}
-                        // sortState={sort}
-                        onSort={(sortOrder) => {
-                            if (!sortOrder) {
-                                setGroupingEnabledState(true);
-                                return;
-                            }
-                            if (sortOrder['length']) {
-                                setGroupingEnabledState(false);
-                            } else {
-                                setGroupingEnabledState(true);
-                            }
-                        }}
-                        // className={b('tableStats')}
+                    <TheTable
+                        columnData={columnData}
                         data={paginatedData}
-                        columns={columns}
+                        filters={filters}
+                        setFilters={setFilters}
+                        filterData={filterTableData}
                         footerData={[filteredSummary]}
                     />
                 </div>
@@ -6612,721 +6621,6 @@ const generateModalButtonWithActions = (
         </motion.div>
     );
 };
-
-// const renderPhrasesStatListItem = (
-//     item,
-//     semanticsModalSemanticsPlusItemsValue,
-//     setFetchedPlacements,
-//     doc,
-//     setChangedDoc,
-//     selectValue,
-//     isDisplayedClusters,
-//     art,
-//     selectedSearchPhrase,
-//     setSelectedSearchPhrase,
-//     currentParsingProgress,
-//     setCurrentParsingProgress,
-// ) => {
-//     const {cluster, count, sum, ctr, clicks, freq} = item;
-//     const cpc = sum / clicks;
-//     const colorToUse = semanticsModalSemanticsPlusItemsValue.includes(cluster)
-//         ? selectedSearchPhrase == cluster
-//             ? 'positive'
-//             : 'warning'
-//         : 'primary';
-//     return (
-//         <div
-//             style={{
-//                 padding: '0 4px',
-//                 display: 'flex',
-//                 flexDirection: 'column',
-//                 justifyContent: 'space-between',
-//                 width: '100%',
-//             }}
-//             title={cluster}
-//         >
-//             <div
-//                 style={{
-//                     display: 'flex',
-//                     flexDirection: 'row',
-//                     alignItems: 'center',
-//                 }}
-//             >
-//                 {isDisplayedClusters ? (
-//                     <div
-//                         style={{
-//                             display: 'flex',
-//                             flexDirection: 'row',
-//                             alignItems: 'center',
-//                             justifyContent: 'center',
-//                         }}
-//                     >
-//                         <Button
-//                             // selected={selectedSearchPhrase == cluster}
-//                             view={selectedSearchPhrase == cluster ? 'flat-success' : 'flat'}
-//                             size="xs"
-//                             onClick={(event) => {
-//                                 event.stopPropagation();
-//                                 if (!doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases)
-//                                     doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases = {
-//                                         phrase: '',
-//                                     };
-
-//                                 if (selectedSearchPhrase == cluster) {
-//                                     doc['campaigns'][selectValue[0]][art].advertsSelectedPhrases =
-//                                         undefined;
-//                                 } else {
-//                                     doc['campaigns'][selectValue[0]][
-//                                         art
-//                                     ].advertsSelectedPhrases.phrase = cluster;
-//                                 }
-
-//                                 setChangedDoc(doc);
-
-//                                 const params = {
-//                                     uid: getUid(),
-//                                     campaignName: selectValue[0],
-//                                     data: {
-//                                         mode:
-//                                             selectedSearchPhrase == cluster
-//                                                 ? 'Удалить'
-//                                                 : 'Установить',
-//                                         arts: {},
-//                                     },
-//                                 };
-//                                 params.data.arts[art] = {};
-//                                 params.data.arts[art].phrase = cluster;
-//                                 console.log(params);
-
-//                                 setSelectedSearchPhrase(
-//                                     selectedSearchPhrase == cluster ? '' : cluster,
-//                                 );
-
-//                                 callApi('updateAdvertsSelectedPhrases', params);
-//                             }}
-//                         >
-//                             <Icon data={ArrowShapeUp} />
-//                         </Button>
-//                         <div style={{width: 8}} />
-//                     </div>
-//                 ) : (
-//                     <></>
-//                 )}
-//                 <div
-//                     style={{
-//                         textWrap: 'wrap',
-//                     }}
-//                 >
-//                     <Text color={colorToUse}>{cluster}</Text>
-//                 </div>
-//             </div>
-
-//             <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-//                 <div
-//                     style={{
-//                         display: 'flex',
-//                         flexDirection: 'row',
-//                         alignItems: 'center',
-//                         justifyContent: 'center',
-//                     }}
-//                 >
-//                     <Text color="secondary">{Math.round(sum ?? 0)}</Text>
-//                     <div style={{width: 3}} />
-//                     <Text
-//                         color="secondary"
-//                         style={{
-//                             display: 'flex',
-//                             flexDirection: 'row',
-//                             alignItems: 'center',
-//                             justifyContent: 'center',
-//                         }}
-//                     >
-//                         ₽
-//                     </Text>
-//                 </div>
-
-//                 <div style={{width: 8}} />
-//                 <div
-//                     style={{
-//                         display: 'flex',
-//                         flexDirection: 'row',
-//                         alignItems: 'center',
-//                         justifyContent: 'center',
-//                     }}
-//                 >
-//                     <Text color="secondary">{Math.round(count ?? 0)}</Text>
-//                     <div style={{width: 3}} />
-//                     <Text
-//                         color="secondary"
-//                         style={{
-//                             display: 'flex',
-//                             flexDirection: 'row',
-//                             alignItems: 'center',
-//                             justifyContent: 'center',
-//                         }}
-//                     >
-//                         <Icon size={12} data={Eye} />
-//                     </Text>
-//                 </div>
-//                 <div style={{width: 8}} />
-//                 <div
-//                     style={{
-//                         display: 'flex',
-//                         flexDirection: 'row',
-//                         alignItems: 'center',
-//                         justifyContent: 'center',
-//                     }}
-//                 >
-//                     <Text color="secondary">{Math.round(clicks ?? 0)}</Text>
-//                     <div style={{width: 3}} />
-//                     <Text
-//                         color="secondary"
-//                         style={{
-//                             display: 'flex',
-//                             flexDirection: 'row',
-//                             alignItems: 'center',
-//                             justifyContent: 'center',
-//                         }}
-//                     >
-//                         <Icon size={12} data={LayoutHeaderCursor} />
-//                     </Text>
-//                 </div>
-//                 {!isFinite(cpc) || isNaN(cpc) ? (
-//                     <></>
-//                 ) : (
-//                     <>
-//                         <div style={{width: 8}} />
-//                         <div
-//                             style={{
-//                                 display: 'flex',
-//                                 flexDirection: 'row',
-//                                 alignItems: 'center',
-//                                 justifyContent: 'center',
-//                             }}
-//                         >
-//                             <Text color="secondary">{Math.round(cpc ?? 0)}</Text>
-//                             <div style={{width: 3}} />
-//                             <Text
-//                                 color="secondary"
-//                                 style={{
-//                                     display: 'flex',
-//                                     flexDirection: 'row',
-//                                     alignItems: 'center',
-//                                     justifyContent: 'center',
-//                                 }}
-//                             >
-//                                 ₽/ <Icon size={12} data={LayoutHeaderCursor} />
-//                             </Text>
-//                         </div>
-//                     </>
-//                 )}
-//                 <div style={{width: 8}} />
-//                 <div
-//                     style={{
-//                         display: 'flex',
-//                         flexDirection: 'row',
-//                         alignItems: 'center',
-//                         justifyContent: 'center',
-//                     }}
-//                 >
-//                     <Text color="secondary">{ctr ?? 0}</Text>
-//                     <div style={{width: 3}} />
-//                     <Text
-//                         color="secondary"
-//                         style={{
-//                             display: 'flex',
-//                             flexDirection: 'row',
-//                             alignItems: 'center',
-//                             justifyContent: 'center',
-//                         }}
-//                     >
-//                         %
-//                     </Text>
-//                 </div>
-//                 <div style={{width: 8}} />
-//                 <div
-//                     style={{
-//                         display: 'flex',
-//                         flexDirection: 'row',
-//                         alignItems: 'center',
-//                         justifyContent: 'center',
-//                     }}
-//                 >
-//                     <Text color="secondary">{freq ?? 0}</Text>
-//                     <div style={{width: 3}} />
-//                     <Text
-//                         color="secondary"
-//                         style={{
-//                             display: 'flex',
-//                             flexDirection: 'row',
-//                             alignItems: 'center',
-//                             justifyContent: 'center',
-//                         }}
-//                     >
-//                         <Icon size={12} data={Magnifier} />
-//                     </Text>
-//                 </div>
-//                 <div style={{width: 8}} />
-//                 <div
-//                     style={{
-//                         display: 'flex',
-//                         flexDirection: 'row',
-//                         alignItems: 'center',
-//                         justifyContent: 'center',
-//                     }}
-//                 >
-//                     {/* <Text color="secondary">{'Найти '}</Text> */}
-//                     {/* <div style={{width: 3}} /> */}
-//                     <Button
-//                         size="xs"
-//                         view="flat"
-//                         onClick={(event) => {
-//                             event.stopPropagation();
-//                             parseFirst10Pages(
-//                                 cluster,
-//                                 setFetchedPlacements,
-//                                 setCurrentParsingProgress,
-//                             );
-//                         }}
-//                     >
-//                         {doc.fetchedPlacements[cluster] && doc.campaigns[selectValue[0]][art] ? (
-//                             doc.fetchedPlacements[cluster].data[
-//                                 doc.campaigns[selectValue[0]][art].nmId
-//                             ] ? (
-//                                 doc.fetchedPlacements[cluster].data[
-//                                     doc.campaigns[selectValue[0]][art].nmId
-//                                 ].log &&
-//                                 doc.fetchedPlacements[cluster].data[
-//                                     doc.campaigns[selectValue[0]][art].nmId
-//                                 ].log.position !== undefined ? (
-//                                     <div
-//                                         style={{
-//                                             display: 'flex',
-//                                             flexDirection: 'row',
-//                                             alignItems: 'center',
-//                                         }}
-//                                     >
-//                                         <Text color="secondary">{`${
-//                                             doc.fetchedPlacements[cluster].data[
-//                                                 doc.campaigns[selectValue[0]][art].nmId
-//                                             ].log.position + 1
-//                                         }`}</Text>
-//                                         <div style={{width: 3}} />
-//                                         <Icon data={ArrowRight} size={13}></Icon>
-//                                         <div style={{width: 3}} />
-//                                         {
-//                                             doc.fetchedPlacements[cluster].data[
-//                                                 doc.campaigns[selectValue[0]][art].nmId
-//                                             ].index
-//                                         }
-//                                     </div>
-//                                 ) : (
-//                                     <>
-//                                         {
-//                                             doc.fetchedPlacements[cluster].data[
-//                                                 doc.campaigns[selectValue[0]][art].nmId
-//                                             ].index
-//                                         }
-//                                     </>
-//                                 )
-//                             ) : (
-//                                 'Нет в выдаче'
-//                             )
-//                         ) : (
-//                             '№'
-//                         )}
-//                         <Icon size={12} data={LayoutHeader} />
-//                     </Button>
-//                 </div>
-//             </div>
-//             <div>
-//                 {currentParsingProgress[cluster] ? (
-//                     <Progress
-//                         size="xs"
-//                         theme={
-//                             currentParsingProgress[cluster].error
-//                                 ? 'danger'
-//                                 : currentParsingProgress[cluster].warning
-//                                 ? 'warning'
-//                                 : (currentParsingProgress[cluster].progress /
-//                                       currentParsingProgress[cluster].max) *
-//                                       100 ==
-//                                   100
-//                                 ? 'success'
-//                                 : 'default'
-//                         }
-//                         value={
-//                             (currentParsingProgress[cluster].progress /
-//                                 currentParsingProgress[cluster].max) *
-//                             100
-//                             // currentParsingProgress ? 100 : 100
-//                         }
-//                     />
-//                 ) : (
-//                     <></>
-//                 )}
-//             </div>
-//         </div>
-//     );
-// };
-
-const generateFilterTextInput = (args) => {
-    const {
-        filters,
-        setFilters,
-        filterData,
-        name,
-        placeholder,
-        valueType,
-        width,
-        viewportSize,
-        additionalNodes,
-    } = args;
-    let minWidth = viewportSize ? viewportSize.width / 20 : 60;
-    if (minWidth < 40) minWidth = 60;
-    if (minWidth > 100) minWidth = 100;
-
-    return (
-        <div
-            style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'end',
-                minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
-
-                maxWidth: '30vw',
-            }}
-            onClick={(event) => {
-                event.stopPropagation();
-            }}
-        >
-            <div style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
-                <Text style={{marginLeft: 4}} variant="subheader-1">
-                    {placeholder}
-                </Text>
-                <TextInput
-                    hasClear
-                    value={filters[name] ? filters[name].val : ''}
-                    onChange={(val) => {
-                        setFilters(() => {
-                            if (!(name in filters))
-                                filters[name] = {
-                                    compMode: valueType != 'text' ? 'bigger' : 'include',
-                                    val: '',
-                                };
-                            filters[name].val = val.target.value;
-                            filterData(filters);
-                            return filters;
-                        });
-                    }}
-                    // placeholder={'Фильтр'}
-                    rightContent={
-                        <DropdownMenu
-                            renderSwitcher={(props) => (
-                                <Button
-                                    {...props}
-                                    view={
-                                        filters[name]
-                                            ? filters[name].val != ''
-                                                ? !filters[name].compMode.includes('not')
-                                                    ? 'flat-success'
-                                                    : 'flat-danger'
-                                                : 'flat'
-                                            : 'flat'
-                                    }
-                                    size="xs"
-                                >
-                                    <Icon data={Funnel} />
-                                </Button>
-                            )}
-                            items={[
-                                [
-                                    {
-                                        iconStart: (
-                                            <Icon
-                                                data={
-                                                    filters[name]
-                                                        ? filters[name].compMode == 'include'
-                                                            ? CirclePlusFill
-                                                            : CirclePlus
-                                                        : CirclePlusFill
-                                                }
-                                            />
-                                        ),
-                                        action: () => {
-                                            setFilters(() => {
-                                                if (!(name in filters))
-                                                    filters[name] = {
-                                                        compMode: 'include',
-                                                        val: '',
-                                                    };
-                                                filters[name].compMode = 'include';
-                                                filterData(filters);
-                                                return filters;
-                                            });
-                                        },
-                                        text: 'Включает',
-                                    },
-                                    {
-                                        iconStart: (
-                                            <Icon
-                                                data={
-                                                    filters[name]
-                                                        ? filters[name].compMode == 'not include'
-                                                            ? CircleMinusFill
-                                                            : CircleMinus
-                                                        : CircleMinus
-                                                }
-                                            />
-                                        ),
-                                        action: () => {
-                                            setFilters(() => {
-                                                if (!(name in filters))
-                                                    filters[name] = {
-                                                        compMode: 'not include',
-                                                        val: '',
-                                                    };
-                                                filters[name].compMode = 'not include';
-                                                filterData(filters);
-                                                return filters;
-                                            });
-                                        },
-                                        text: 'Не включает',
-                                        theme: 'danger',
-                                    },
-                                ],
-                                [
-                                    {
-                                        iconStart: (
-                                            <Icon
-                                                data={
-                                                    filters[name]
-                                                        ? filters[name].compMode == 'equal'
-                                                            ? CirclePlusFill
-                                                            : CirclePlus
-                                                        : CirclePlus
-                                                }
-                                            />
-                                        ),
-                                        action: () => {
-                                            setFilters(() => {
-                                                if (!(name in filters))
-                                                    filters[name] = {
-                                                        compMode: 'equal',
-                                                        val: '',
-                                                    };
-                                                filters[name].compMode = 'equal';
-                                                filterData(filters);
-                                                return filters;
-                                            });
-                                        },
-                                        text: 'Равно',
-                                    },
-                                    {
-                                        iconStart: (
-                                            <Icon
-                                                data={
-                                                    filters[name]
-                                                        ? filters[name].compMode == 'not equal'
-                                                            ? CircleMinusFill
-                                                            : CircleMinus
-                                                        : CircleMinus
-                                                }
-                                            />
-                                        ),
-                                        action: () => {
-                                            setFilters(() => {
-                                                if (!(name in filters))
-                                                    filters[name] = {
-                                                        compMode: 'not equal',
-                                                        val: '',
-                                                    };
-                                                filters[name].compMode = 'not equal';
-                                                filterData(filters);
-                                                return filters;
-                                            });
-                                        },
-                                        text: 'Не равно',
-                                        theme: 'danger',
-                                    },
-                                ],
-                                valueType != 'text'
-                                    ? [
-                                          {
-                                              iconStart: (
-                                                  <Icon
-                                                      data={
-                                                          filters[name]
-                                                              ? filters[name].compMode == 'bigger'
-                                                                  ? CirclePlusFill
-                                                                  : CirclePlus
-                                                              : CirclePlus
-                                                      }
-                                                  />
-                                              ),
-                                              action: () => {
-                                                  setFilters(() => {
-                                                      if (!(name in filters))
-                                                          filters[name] = {
-                                                              compMode: 'bigger',
-                                                              val: '',
-                                                          };
-                                                      filters[name].compMode = 'bigger';
-                                                      filterData(filters);
-                                                      return filters;
-                                                  });
-                                              },
-                                              text: 'Больше',
-                                          },
-                                          {
-                                              iconStart: (
-                                                  <Icon
-                                                      data={
-                                                          filters[name]
-                                                              ? filters[name].compMode ==
-                                                                'not bigger'
-                                                                  ? CircleMinusFill
-                                                                  : CircleMinus
-                                                              : CircleMinus
-                                                      }
-                                                  />
-                                              ),
-                                              action: () => {
-                                                  setFilters(() => {
-                                                      if (!(name in filters))
-                                                          filters[name] = {
-                                                              compMode: 'not bigger',
-                                                              val: '',
-                                                          };
-                                                      filters[name].compMode = 'not bigger';
-                                                      filterData(filters);
-                                                      return filters;
-                                                  });
-                                              },
-                                              text: 'Меньше',
-                                              theme: 'danger',
-                                          },
-                                      ]
-                                    : [],
-                            ]}
-                        />
-                    }
-                />
-            </div>
-            {additionalNodes ?? <></>}
-        </div>
-    );
-};
-
-// const generateFilterTextInputsForClusterStats = (args) => {
-//     const {filters, setFilters, filterData, sortBy, setSortBy, sortData} = args;
-//     const clusterStatsParams = {
-//         cluster: {
-//             name: 'cluster',
-//             placeholder: 'Кластер',
-//             filters,
-//             setFilters,
-//             filterData,
-//             valueType: 'text',
-//             sortBy,
-//             setSortBy,
-//             sortData,
-//         },
-//         sum: {
-//             name: 'sum',
-//             placeholder: 'Расход',
-//             filters,
-//             setFilters,
-//             filterData,
-//             valueType: 'number',
-//             sortBy,
-//             setSortBy,
-//             sortData,
-//         },
-//         count: {
-//             name: 'count',
-//             placeholder: 'Показов',
-//             filters,
-//             setFilters,
-//             filterData,
-//             valueType: 'number',
-//             sortBy,
-//             setSortBy,
-//             sortData,
-//         },
-//         cpc: {
-//             name: 'cpc',
-//             placeholder: 'CPC',
-//             filters,
-//             setFilters,
-//             filterData,
-//             valueType: 'number',
-//             sortBy,
-//             setSortBy,
-//             sortData,
-//         },
-//         ctr: {
-//             name: 'ctr',
-//             placeholder: 'CTR',
-//             filters,
-//             setFilters,
-//             filterData,
-//             valueType: 'number',
-//             sortBy,
-//             setSortBy,
-//             sortData,
-//         },
-//         clicks: {
-//             name: 'clicks',
-//             placeholder: 'Кликов',
-//             filters,
-//             setFilters,
-//             filterData,
-//             valueType: 'number',
-//             sortBy,
-//             setSortBy,
-//             sortData,
-//         },
-//         freq: {
-//             name: 'freq',
-//             placeholder: 'Частота',
-//             filters,
-//             setFilters,
-//             filterData,
-//             valueType: 'number',
-//             sortBy,
-//             setSortBy,
-//             sortData,
-//         },
-//     };
-//     const textInputsArray = [] as any[];
-//     for (const [name, data] of Object.entries(clusterStatsParams)) {
-//         if (!name || !data) continue;
-//         textInputsArray.push(generateFilterTextInput(data));
-//     }
-//     return (
-//         <div style={{display: 'flex', flexDirection: 'column'}}>
-//             {generateFilterTextInput(clusterStatsParams['cluster'])}
-//             <div style={{height: 8}} />
-//             <div style={{display: 'flex', flexDirection: 'row'}}>
-//                 {generateFilterTextInput(clusterStatsParams['freq'])}
-//                 <div style={{width: 24}} />
-//                 {generateFilterTextInput(clusterStatsParams['count'])}
-//                 <div style={{width: 24}} />
-//                 {generateFilterTextInput(clusterStatsParams['ctr'])}
-//             </div>
-//             <div style={{height: 8}} />
-//             <div style={{display: 'flex', flexDirection: 'row'}}>
-//                 {generateFilterTextInput(clusterStatsParams['sum'])}
-//                 <div style={{width: 24}} />
-//                 {generateFilterTextInput(clusterStatsParams['clicks'])}
-//                 <div style={{width: 24}} />
-//                 {generateFilterTextInput(clusterStatsParams['cpc'])}
-//             </div>
-//             <div style={{height: 8}} />
-//         </div>
-//     );
-// };
 
 const compare = (a, filterData) => {
     const {val, compMode} = filterData;
