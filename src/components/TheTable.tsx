@@ -338,3 +338,26 @@ const generateFilterTextInput = (args) => {
         </div>
     );
 };
+
+export const compare = (a, filterData) => {
+    const {val, compMode} = filterData;
+    if (compMode == 'include') {
+        return String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
+    }
+    if (compMode == 'not include') {
+        return !String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
+    }
+    if (compMode == 'equal') {
+        return String(a).toLocaleLowerCase() == String(val).toLocaleLowerCase();
+    }
+    if (compMode == 'not equal') {
+        return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
+    }
+    if (compMode == 'bigger') {
+        return Number(a) > Number(val);
+    }
+    if (compMode == 'not bigger') {
+        return Number(a) < Number(val);
+    }
+    return false;
+};

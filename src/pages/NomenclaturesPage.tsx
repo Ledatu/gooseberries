@@ -1,7 +1,6 @@
 import React, {useEffect, useId, useState} from 'react';
 import {
     Spin,
-    DropdownMenu,
     Select,
     SelectOption,
     TextInput,
@@ -12,6 +11,9 @@ import {
     Text,
     Card,
     Label,
+    Pagination,
+    Popover,
+    PopoverBehavior,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -21,39 +23,56 @@ const {ipAddress} = require('../ipAddress');
 import block from 'bem-cn-lite';
 
 import Userfront from '@userfront/toolkit';
-import DataTable, {Column} from '@gravity-ui/react-data-table';
-import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
-import {
-    CircleMinusFill,
-    CircleMinus,
-    CirclePlusFill,
-    CirclePlus,
-    Funnel,
-    FileArrowUp,
-    FileArrowDown,
-} from '@gravity-ui/icons';
-import useWindowDimensions from 'src/hooks/useWindowDimensions';
+import {FileArrowUp, FileArrowDown} from '@gravity-ui/icons';
 
 import callApi from 'src/utilities/callApi';
 import {getRoundValue} from 'src/utilities/getRoundValue';
 import axios from 'axios';
+import TheTable, {compare} from 'src/components/TheTable';
 
-const getUserDoc = () => {
-    const [documentData, setDocument] = useState<any>();
+const getUid = () => {
+    return [
+        '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+        '46431a09-85c3-4703-8246-d1b5c9e52594',
+        'ce86aeb0-30b7-45ba-9234-a6765df7a479',
+        // '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
+    ].includes(Userfront.user.userUuid ?? '')
+        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
+        : '';
+};
+
+const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
+    const [doc, setDocument] = useState<any>();
+
+    if (docum) {
+        console.log(docum, mode, selectValue);
+
+        if (mode) {
+            // doc['campaigns'][selectValue] = docum['campaigns'][selectValue];
+            // doc['balances'][selectValue] = docum['balances'][selectValue];
+            // doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
+            // doc['advertsPlusPhrasesTemplates'][selectValue] =
+            //     docum['advertsPlusPhrasesTemplates'][selectValue];
+            // doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
+            // doc['adverts'][selectValue] = docum['adverts'][selectValue];
+            // doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
+            // doc['advertsSelectedPhrases'][selectValue] =
+            //     docum['advertsSelectedPhrases'][selectValue];
+            // doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
+        }
+        setDocument(docum);
+    }
+
     useEffect(() => {
         callApi('getNomenclatures', {
-            uid:
-                (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
-                Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                    ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                    : '') ?? '',
+            uid: getUid(),
         })
-            .then((res: any) => setDocument(res.data))
+            .then((response) => setDocument(response ? response['data'] : undefined))
             .catch((error) => console.error(error));
     }, []);
-    return documentData;
+    return doc;
 };
 
 export const NomenclaturesPage = () => {
@@ -72,13 +91,7 @@ export const NomenclaturesPage = () => {
         const formData = new FormData();
         if (!file) return;
         formData.append('file', file);
-        formData.append(
-            'uid',
-            (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
-            Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                : '') ?? '',
-        );
+        formData.append('uid', getUid());
         formData.append('campaignName', selectValue[0]);
 
         const token =
@@ -111,306 +124,216 @@ export const NomenclaturesPage = () => {
 
     const [modalOpen, setModalOpen] = useState(false);
 
-    const [data, setTableData] = useState<any[]>([]);
-    const generateColumns = (columnsInfo) => {
-        const columns: Column<any>[] = [];
-        if (!columnsInfo && !columnsInfo.length) return columns;
-        const viewportSize = useWindowDimensions();
-        for (let i = 0; i < columnsInfo.length; i++) {
-            const column = columnsInfo[i];
-            if (!column) continue;
-            const {name, placeholder, width, render, className, valueType} = column;
-            let minWidth = viewportSize.width / 20;
-            if (minWidth < 40) minWidth = 60;
-            if (minWidth > 100) minWidth = 100;
-            columns.push({
-                name: name,
-                className: b(className ?? (i == 0 ? 'td_fixed' : 'td_body')),
-                header: (
-                    <div
-                        title={placeholder}
-                        style={{
-                            minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
-                            display: 'flex',
-                            maxWidth: '30vw',
-                            // marginLeft:
-                            //     name == 'art' ? `${String(data.length).length * 6 + 32}px` : 0,
-                        }}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <TextInput
-                            onChange={(val) => {
-                                setFilters(() => {
-                                    if (!(name in filters))
-                                        filters[name] = {compMode: 'include', val: ''};
-                                    filters[name].val = val.target.value;
-                                    recalc('', filters);
-                                    return filters;
-                                });
-                            }}
-                            hasClear
-                            placeholder={placeholder}
-                            rightContent={
-                                <DropdownMenu
-                                    renderSwitcher={(props) => (
-                                        <Button
-                                            {...props}
-                                            view={
-                                                filters[name]
-                                                    ? filters[name].val != ''
-                                                        ? !filters[name].compMode.includes('not')
-                                                            ? 'flat-success'
-                                                            : 'flat-danger'
-                                                        : 'flat'
-                                                    : 'flat'
-                                            }
-                                            size="xs"
-                                        >
-                                            <Icon data={Funnel} />
-                                        </Button>
-                                    )}
-                                    items={[
-                                        [
-                                            {
-                                                iconStart: (
-                                                    <Icon
-                                                        data={
-                                                            filters[name]
-                                                                ? filters[name].compMode ==
-                                                                  'include'
-                                                                    ? CirclePlusFill
-                                                                    : CirclePlus
-                                                                : CirclePlusFill
-                                                        }
-                                                    />
-                                                ),
-                                                action: () => {
-                                                    setFilters(() => {
-                                                        if (!(name in filters))
-                                                            filters[name] = {
-                                                                compMode: 'include',
-                                                                val: '',
-                                                            };
-                                                        filters[name].compMode = 'include';
-                                                        recalc('', filters);
-                                                        return filters;
-                                                    });
-                                                },
-                                                text: 'Включает',
-                                            },
-                                            {
-                                                iconStart: (
-                                                    <Icon
-                                                        data={
-                                                            filters[name]
-                                                                ? filters[name].compMode ==
-                                                                  'not include'
-                                                                    ? CircleMinusFill
-                                                                    : CircleMinus
-                                                                : CircleMinus
-                                                        }
-                                                    />
-                                                ),
-                                                action: () => {
-                                                    setFilters(() => {
-                                                        if (!(name in filters))
-                                                            filters[name] = {
-                                                                compMode: 'not include',
-                                                                val: '',
-                                                            };
-                                                        filters[name].compMode = 'not include';
-                                                        recalc('', filters);
-                                                        return filters;
-                                                    });
-                                                },
-                                                text: 'Не включает',
-                                                theme: 'danger',
-                                            },
-                                        ],
-                                        [
-                                            {
-                                                iconStart: (
-                                                    <Icon
-                                                        data={
-                                                            filters[name]
-                                                                ? filters[name].compMode == 'equal'
-                                                                    ? CirclePlusFill
-                                                                    : CirclePlus
-                                                                : CirclePlus
-                                                        }
-                                                    />
-                                                ),
-                                                action: () => {
-                                                    setFilters(() => {
-                                                        if (!(name in filters))
-                                                            filters[name] = {
-                                                                compMode: 'equal',
-                                                                val: '',
-                                                            };
-                                                        filters[name].compMode = 'equal';
-                                                        recalc('', filters);
-                                                        return filters;
-                                                    });
-                                                },
-                                                text: 'Равно',
-                                            },
-                                            {
-                                                iconStart: (
-                                                    <Icon
-                                                        data={
-                                                            filters[name]
-                                                                ? filters[name].compMode ==
-                                                                  'not equal'
-                                                                    ? CircleMinusFill
-                                                                    : CircleMinus
-                                                                : CircleMinus
-                                                        }
-                                                    />
-                                                ),
-                                                action: () => {
-                                                    setFilters(() => {
-                                                        if (!(name in filters))
-                                                            filters[name] = {
-                                                                compMode: 'not equal',
-                                                                val: '',
-                                                            };
-                                                        filters[name].compMode = 'not equal';
-                                                        recalc('', filters);
-                                                        return filters;
-                                                    });
-                                                },
-                                                text: 'Не равно',
-                                                theme: 'danger',
-                                            },
-                                        ],
-                                        valueType != 'text'
-                                            ? [
-                                                  {
-                                                      iconStart: (
-                                                          <Icon
-                                                              data={
-                                                                  filters[name]
-                                                                      ? filters[name].compMode ==
-                                                                        'bigger'
-                                                                          ? CirclePlusFill
-                                                                          : CirclePlus
-                                                                      : CirclePlus
-                                                              }
-                                                          />
-                                                      ),
-                                                      action: () => {
-                                                          setFilters(() => {
-                                                              if (!(name in filters))
-                                                                  filters[name] = {
-                                                                      compMode: 'bigger',
-                                                                      val: '',
-                                                                  };
-                                                              filters[name].compMode = 'bigger';
-                                                              recalc('', filters);
-                                                              return filters;
-                                                          });
-                                                      },
-                                                      text: 'Больше',
-                                                  },
-                                                  {
-                                                      iconStart: (
-                                                          <Icon
-                                                              data={
-                                                                  filters[name]
-                                                                      ? filters[name].compMode ==
-                                                                        'not bigger'
-                                                                          ? CircleMinusFill
-                                                                          : CircleMinus
-                                                                      : CircleMinus
-                                                              }
-                                                          />
-                                                      ),
-                                                      action: () => {
-                                                          setFilters(() => {
-                                                              if (!(name in filters))
-                                                                  filters[name] = {
-                                                                      compMode: 'not bigger',
-                                                                      val: '',
-                                                                  };
-                                                              filters[name].compMode = 'not bigger';
-                                                              recalc('', filters);
-                                                              return filters;
-                                                          });
-                                                      },
-                                                      text: 'Меньше',
-                                                      theme: 'danger',
-                                                  },
-                                              ]
-                                            : [],
-                                    ]}
-                                />
-                            }
-                        />
-                    </div>
-                ),
-                render: render
-                    ? (args) => render(args)
-                    : ({value}) => {
-                          return typeof value === 'number' && valueType != 'text'
-                              ? new Intl.NumberFormat('ru-RU').format(value)
-                              : value;
-                      },
-            });
-        }
+    const [pagesTotal, setPagesTotal] = useState(1);
+    const [pagesCurrent, setPagesCurrent] = useState(1);
+    const [data, setTableData] = useState({});
+    const [filteredData, setFilteredData] = useState<any[]>([]);
+    const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
-        return columns;
+    const filterByButton = (val, key = 'art', compMode = 'include') => {
+        filters[key] = {val: String(val) + ' ', compMode: compMode};
+        setFilters(filters);
+        filterTableData(filters);
     };
-
     const columnData = [
         {
             name: 'art',
             placeholder: 'Артикул',
             width: 200,
             render: ({value, row, footer, index}) => {
+                const {title, brand, object, nmId, photos, imtId, size, barcode} = row;
+
+                if (title === undefined) return <div style={{height: 28}}>{value}</div>;
+
+                const imgUrl = photos ? (photos[0] ? photos[0].big : undefined) : undefined;
+
+                let titleWrapped = title;
+                if (title.length > 30) {
+                    let wrapped = false;
+                    titleWrapped = '';
+                    const titleArr = title.split(' ');
+                    for (const word of titleArr) {
+                        titleWrapped += word;
+                        if (titleWrapped.length > 25 && !wrapped) {
+                            titleWrapped += '\n';
+                            wrapped = true;
+                        } else {
+                            titleWrapped += ' ';
+                        }
+                    }
+                }
+
                 return footer ? (
                     <div style={{height: 28}}>{value}</div>
                 ) : (
                     <div
-                        title={value}
+                        // title={value}
                         style={{
+                            maxWidth: '20vw',
                             display: 'flex',
                             flexDirection: 'row',
                             zIndex: 40,
+                            justifyContent: 'space-between',
                         }}
                     >
                         <div
                             style={{
-                                width: `${String(data.length).length * 6}px`,
-                                margin: '0 16px',
-                                display: 'flex',
-                                justifyContent: 'right',
-                            }}
-                        >
-                            <div>{index + 1}</div>
-                        </div>
-                        <Link
-                            style={{
-                                textOverflow: 'ellipsis',
+                                justifyContent: 'space-between',
                                 overflow: 'hidden',
-                                whiteSpace: 'nowrap',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                marginRight: 8,
+                                alignItems: 'center',
                             }}
-                            href={`https://www.wildberries.ru/catalog/${row.nmId}/detail.aspx?targetUrl=BP`}
-                            target="_blank"
                         >
-                            {value}
-                        </Link>
+                            <div
+                                style={{
+                                    width: `${String(filteredData.length).length * 6}px`,
+                                    // width: 20,
+                                    margin: '0 16px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                {Math.floor((pagesCurrent - 1) * 600 + index + 1)}
+                            </div>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Popover
+                                        behavior={'delayed' as PopoverBehavior}
+                                        disabled={value === undefined}
+                                        content={
+                                            <div style={{width: 200}}>
+                                                <img
+                                                    style={{width: '100%', height: 'auto'}}
+                                                    src={imgUrl}
+                                                />
+                                                <></>
+                                            </div>
+                                        }
+                                    >
+                                        <div style={{width: 40}}>
+                                            <img
+                                                style={{width: '100%', height: 'auto'}}
+                                                src={imgUrl}
+                                            />
+                                        </div>
+                                    </Popover>
+                                </div>
+                                <div style={{width: 4}} />
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    <div style={{marginLeft: 6}}>
+                                        <Link
+                                            view="primary"
+                                            style={{whiteSpace: 'pre-wrap'}}
+                                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                                            target="_blank"
+                                        >
+                                            <Text variant="subheader-1">{titleWrapped}</Text>
+                                        </Link>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(object)}
+                                        >
+                                            <Text variant="caption-2">{`${object}`}</Text>
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(brand)}
+                                        >
+                                            <Text variant="caption-2">{`${brand}`}</Text>
+                                        </Button>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(nmId)}
+                                        >
+                                            <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(imtId)}
+                                        >
+                                            <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
+                                        </Button>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(value)}
+                                        >
+                                            <Text variant="caption-2">{`Артикул: ${value}`}</Text>
+                                        </Button>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(size)}
+                                        >
+                                            <Text variant="caption-2">{`Размер: ${size}`}</Text>
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(barcode)}
+                                        >
+                                            <Text variant="caption-2">{`Баркод: ${barcode}`}</Text>
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 );
             },
             valueType: 'text',
+            group: true,
         },
-        {name: 'size', placeholder: 'Размер', valueType: 'text'},
-        {name: 'object', placeholder: 'Предмет', valueType: 'text'},
-        {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
-        {name: 'nmId', placeholder: 'Артикул ВБ', valueType: 'text'},
-        {name: 'barcode', placeholder: 'Штрихкод', valueType: 'text'},
         {name: 'factoryArt', placeholder: 'Фабричный артикул', valueType: 'text'},
         {name: 'prices', placeholder: 'Цены', valueType: 'text'},
         {name: 'commision', placeholder: 'Коммисия'},
@@ -436,29 +359,13 @@ export const NomenclaturesPage = () => {
         {name: 'spp', placeholder: 'СПП'},
         {name: 'primeCost', placeholder: 'Себестоимость'},
     ];
-    const columns = generateColumns(columnData);
 
-    // const [filteredSummary, setFilteredSummary] = useState({
-    //     art: '',
-    //     views: 0,
-    //     clicks: 0,
-    //     sum: 0,
-    //     ctr: 0,
-    //     drr: 0,
-    //     orders: 0,
-    //     sum_orders: 0,
-    //     adverts: null,
-    //     semantics: null,
-    // });
-
-    const documentData = getUserDoc();
+    const doc = getUserDoc();
 
     const recalc = (selected = '', withfFilters = {}) => {
-        const campaignData = documentData
-            ? documentData[selected == '' ? selectValue[0] : selected]
-            : {};
+        const campaignData = doc ? doc[selected == '' ? selectValue[0] : selected] : {};
 
-        const temp: any[] = [];
+        const temp = {};
         for (const [art, artData] of Object.entries(campaignData)) {
             if (!art || !artData) continue;
             const artInfo = {
@@ -466,12 +373,15 @@ export const NomenclaturesPage = () => {
                 size: 0,
                 object: '',
                 brand: '',
+                title: '',
+                imtId: '',
                 nmId: 0,
                 barcode: 0,
                 commision: 0,
                 tax: 0,
                 expences: 0,
                 logistics: 0,
+                photos: undefined,
                 spp: 0,
                 primeCost: 0,
             };
@@ -480,6 +390,9 @@ export const NomenclaturesPage = () => {
             artInfo.object = artData['object'];
             artInfo.brand = artData['brand'];
             artInfo.nmId = artData['nmId'];
+            artInfo.title = artData['title'];
+            artInfo.photos = artData['photos'];
+            artInfo.imtId = artData['imtId'];
             artInfo.barcode = artData['barcode'];
             artInfo.commision = artData['commision'];
             artInfo.tax = artData['tax'];
@@ -488,144 +401,104 @@ export const NomenclaturesPage = () => {
             artInfo.spp = artData['spp'];
             artInfo.primeCost = artData['primeCost'];
 
-            if (artData['byWarehouses']) {
-                for (const [warehouseName, warehouseData] of Object.entries(
-                    artData['byWarehouses'],
-                )) {
-                    if (!warehouseName || !warehouseData) continue;
-                    for (const [key, value] of Object.entries(warehouseData)) {
-                        if (!(key in artInfo)) artInfo[key] = {};
-                        if (!(warehouseName in artInfo[key])) artInfo[key][warehouseName] = value;
-                    }
-                }
-            }
+            temp[art] = artInfo;
+        }
 
-            const compare = (a, filterData) => {
-                const {val, compMode} = filterData;
-                if (compMode == 'include') {
-                    return String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
-                }
-                if (compMode == 'not include') {
-                    return !String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
-                }
-                if (compMode == 'equal') {
-                    return String(a).toLocaleLowerCase() == String(val).toLocaleLowerCase();
-                }
-                if (compMode == 'not equal') {
-                    return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
-                }
-                if (compMode == 'bigger') {
-                    return Number(a) > Number(val);
-                }
-                if (compMode == 'not bigger') {
-                    return Number(a) < Number(val);
-                }
-                return false;
-            };
+        setTableData(temp);
+
+        filterTableData(withfFilters, temp);
+    };
+
+    const filterTableData = (withfFilters = {}, tableData = {}) => {
+        const temp = [] as any;
+
+        for (const [art, artInfo] of Object.entries(
+            Object.keys(tableData).length ? tableData : data,
+        )) {
+            if (!art || !artInfo) continue;
+
+            const tempTypeRow = artInfo;
 
             let addFlag = true;
             const useFilters = withfFilters['undef'] ? withfFilters : filters;
             for (const [filterArg, filterData] of Object.entries(useFilters)) {
                 if (filterArg == 'undef' || !filterData) continue;
                 if (filterData['val'] == '') continue;
-                // if (filterArg == 'adverts') {}
-                if (!compare(artInfo[filterArg], filterData)) {
+                if (filterArg == 'art') {
+                    const rulesForAnd = filterData['val'].split('+');
+                    // console.log(rulesForAnd);
+
+                    let wholeText = '';
+                    for (const key of [
+                        'art',
+                        'title',
+                        'brand',
+                        'nmId',
+                        'imtId',
+                        'object',
+                        'size',
+                        'barcode',
+                    ]) {
+                        wholeText += tempTypeRow[key] + ' ';
+                    }
+
+                    let tempFlagInc = 0;
+                    for (let k = 0; k < rulesForAnd.length; k++) {
+                        const ruleForAdd = rulesForAnd[k];
+                        if (ruleForAdd == '') {
+                            tempFlagInc++;
+                            continue;
+                        }
+                        if (
+                            compare(wholeText, {
+                                val: ruleForAdd,
+                                compMode: filterData['compMode'],
+                            })
+                        ) {
+                            tempFlagInc++;
+                        }
+                    }
+                    if (tempFlagInc != rulesForAnd.length) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (!compare(tempTypeRow[filterArg], filterData)) {
                     addFlag = false;
                     break;
                 }
             }
-            if (addFlag) temp.push(artInfo);
 
-            // data.push(advertStats);
+            if (addFlag) {
+                temp.push(tempTypeRow);
+            }
         }
 
-        // console.log(temp);
-        // const filteredSummaryTemp = {
-        //     art: `Показано артикулов: ${temp.length}`,
-        //     orders: 0,
-        //     sum_orders: 0,
-        //     sum: 0,
-        //     views: 0,
-        //     clicks: 0,
-        //     drr: 0,
-        //     ctr: 0,
-        //     cpc: 0,
-        //     cpm: 0,
-        //     cr: 0,
-        //     cpo: 0,
-        //     adverts: null,
-        //     semantics: null,
-        //     budget: 0,
-        //     budgetToKeep: 0,
-        // };
-        // for (let i = 0; i < temp.length; i++) {
-        //     const row = temp[i];
-        //     filteredSummaryTemp.sum_orders += row['sum_orders'];
-        //     filteredSummaryTemp.orders += row['orders'];
-        //     filteredSummaryTemp.sum += row['sum'];
-        //     filteredSummaryTemp.views += row['views'];
-        //     filteredSummaryTemp.clicks += row['clicks'];
-        //     filteredSummaryTemp.budget += row['budget'] ?? 0;
-        //     filteredSummaryTemp.budgetToKeep += row['budgetToKeep'] ?? 0;
-        // }
-        // filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
-        // filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
-        // filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
-        // filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
-        // filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
-        // filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
-        // filteredSummaryTemp.budgetToKeep = Math.round(filteredSummaryTemp.budgetToKeep);
+        temp.sort((a, b) => {
+            return a.art.localeCompare(b.art, 'ru-RU');
+        });
+        const paginatedDataTemp = temp.slice(0, 600);
 
-        // filteredSummaryTemp.drr = getRoundValue(
-        //     filteredSummaryTemp.sum,
-        //     filteredSummaryTemp.sum_orders,
-        //     true,
-        //     1,
-        // );
-        // filteredSummaryTemp.ctr = getRoundValue(
-        //     filteredSummaryTemp.clicks,
-        //     filteredSummaryTemp.views,
-        //     true,
-        // );
-        // filteredSummaryTemp.cpc = getRoundValue(
-        //     filteredSummaryTemp.sum,
-        //     filteredSummaryTemp.clicks,
-        // );
-        // filteredSummaryTemp.cpm = getRoundValue(
-        //     filteredSummaryTemp.sum * 1000,
-        //     filteredSummaryTemp.views,
-        // );
-        // filteredSummaryTemp.cr = getRoundValue(
-        //     filteredSummaryTemp.orders,
-        //     filteredSummaryTemp.views,
-        //     true,
-        // );
-        // filteredSummaryTemp.cpo = getRoundValue(
-        //     filteredSummaryTemp.sum,
-        //     filteredSummaryTemp.orders,
-        //     false,
-        //     filteredSummaryTemp.sum,
-        // );
-        // setFilteredSummary(filteredSummaryTemp);
-        // if (!temp.length) temp.push({});
-        temp.sort((a, b) => a.art.localeCompare(b.art));
-        setTableData(temp);
+        setFilteredData(temp);
+
+        setPaginatedData(paginatedDataTemp);
+        setPagesCurrent(1);
+        setPagesTotal(Math.ceil(temp.length));
     };
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
 
     const [firstRecalc, setFirstRecalc] = useState(false);
-    if (!documentData) return <Spin />;
+    if (!doc) return <Spin />;
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(documentData)) {
+        for (const [campaignName, _] of Object.entries(doc)) {
             campaignsNames.push({value: campaignName, content: campaignName});
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected = campaignsNames[0]['value'];
         setSelectValue([selected]);
-        console.log(documentData);
+        console.log(doc);
 
         recalc(selected);
         setFirstRecalc(true);
@@ -652,16 +525,17 @@ export const NomenclaturesPage = () => {
                 >
                     <div>
                         <Button
+                            view="action"
+                            size="l"
                             style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                            view="outlined"
                             onClick={() => {
                                 setModalOpen(true);
                             }}
                         >
-                            Оборачиваемость
+                            <Text variant="subheader-1">Оборачиваемость</Text>
                         </Button>
                         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-                            {generateModalForm('prefObor', documentData, selectValue[0], data)}
+                            {generateModalForm('prefObor', doc, selectValue[0], data)}
                         </Modal>
                     </div>
                     <Select
@@ -757,29 +631,38 @@ export const NomenclaturesPage = () => {
             <div
                 style={{
                     width: '100%',
-                    maxHeight: '80vh',
-                    overflow: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                 }}
             >
-                <DataTable
-                    startIndex={1}
-                    settings={{
-                        stickyHead: MOVING,
-                        stickyFooter: MOVING,
-                        displayIndices: false,
-                        highlightRows: true,
+                <div
+                    style={{
+                        width: '100%',
+                        maxHeight: '80vh',
+                        overflow: 'auto',
                     }}
-                    theme="yandex-cloud"
-                    onRowClick={(row, index, event) => {
-                        console.log(row, index, event);
+                >
+                    <TheTable
+                        columnData={columnData}
+                        data={paginatedData}
+                        filters={filters}
+                        setFilters={setFilters}
+                        filterData={filterTableData}
+                    />
+                </div>
+                <div style={{height: 8}} />
+                <Pagination
+                    showInput
+                    total={pagesTotal}
+                    page={pagesCurrent}
+                    pageSize={600}
+                    onUpdate={(page) => {
+                        setPagesCurrent(page);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 600, page * 600);
+
+                        setPaginatedData(paginatedDataTemp);
                     }}
-                    rowClassName={(_row, index, isFooterData) =>
-                        isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
-                    }
-                    data={data}
-                    columns={columns}
-                    // footerData={[filteredSummary]}
-                    footerData={[{}]}
                 />
             </div>
         </div>

@@ -69,7 +69,7 @@ settings.set({plugins: [YagrPlugin]});
 import callApi from 'src/utilities/callApi';
 import axios from 'axios';
 import {getLocaleDateString} from 'src/utilities/getRoundValue';
-import TheTable from 'src/components/TheTable';
+import TheTable, {compare} from 'src/components/TheTable';
 
 const getUid = () => {
     return [
@@ -6620,29 +6620,6 @@ const generateModalButtonWithActions = (
             </motion.div>
         </motion.div>
     );
-};
-
-const compare = (a, filterData) => {
-    const {val, compMode} = filterData;
-    if (compMode == 'include') {
-        return String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
-    }
-    if (compMode == 'not include') {
-        return !String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
-    }
-    if (compMode == 'equal') {
-        return String(a).toLocaleLowerCase() == String(val).toLocaleLowerCase();
-    }
-    if (compMode == 'not equal') {
-        return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
-    }
-    if (compMode == 'bigger') {
-        return Number(a) > Number(val);
-    }
-    if (compMode == 'not bigger') {
-        return Number(a) < Number(val);
-    }
-    return false;
 };
 
 const generateScheduleInput = (args) => {
