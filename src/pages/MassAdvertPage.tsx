@@ -141,6 +141,7 @@ export const MassAdvertPage = () => {
     const [filters, setFilters] = useState({undef: false});
 
     const [manageModalOpen, setManageModalOpen] = useState(false);
+    const [manageModalInProgress, setManageModalInProgress] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
 
     // const [semanticsModalTextAreaAddMode, setSemanticsModalTextAreaAddMode] = useState(false);
@@ -1253,7 +1254,7 @@ export const MassAdvertPage = () => {
                                 <div
                                     style={{
                                         height: 'calc(30em - 60px)',
-                                        width: '50em',
+                                        width: '60em',
                                         overflow: 'auto',
                                         display: 'flex',
                                     }}
@@ -1264,7 +1265,7 @@ export const MassAdvertPage = () => {
                                         style={{
                                             position: 'absolute',
                                             height: '30em',
-                                            width: '50em',
+                                            width: '60em',
                                             overflow: 'auto',
                                             top: -10,
                                             left: -10,
@@ -1326,7 +1327,7 @@ export const MassAdvertPage = () => {
                                 <div
                                     style={{
                                         height: 'calc(30em - 60px)',
-                                        width: '50em',
+                                        width: '600em',
                                         overflow: 'auto',
                                         display: 'flex',
                                     }}
@@ -1337,7 +1338,7 @@ export const MassAdvertPage = () => {
                                         style={{
                                             position: 'absolute',
                                             height: '30em',
-                                            width: '50em',
+                                            width: '60em',
                                             overflow: 'auto',
                                             top: -10,
                                             left: -10,
@@ -3512,6 +3513,50 @@ export const MassAdvertPage = () => {
     //     myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
     // }
 
+    const getUniqueAdvertIdsFromThePage = () => {
+        const uniqueAdverts = {};
+        for (let i = 0; i < filteredData.length; i++) {
+            const {adverts} = filteredData[i];
+            if (setManageModalOpen === undefined) continue;
+
+            for (const [id, _] of Object.entries(adverts)) {
+                if (!id) continue;
+                const advertData = doc.adverts[selectValue[0]][id];
+                if (!advertData) continue;
+                const {advertId} = advertData;
+                if (!advertId) continue;
+                uniqueAdverts[advertId] = {advertId: advertId};
+            }
+        }
+        return uniqueAdverts;
+    };
+
+    const manageAdvertsActivityOnClick = async (mode, newStatus) => {
+        setManageModalOpen(false);
+        setManageModalInProgress(true);
+        const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+        for (const [id, advertData] of Object.entries(uniqueAdverts)) {
+            if (!id || !advertData) continue;
+            const {advertId} = advertData as any;
+            const res = await manageAdvertsActivityCallFunc(mode, advertId);
+            console.log(res);
+            if (!res || res['data'] === undefined) {
+                return;
+            }
+
+            if (res['data']['status'] == 'ok') {
+                if (newStatus) {
+                    doc.adverts[selectValue[0]][advertId].status = newStatus;
+                } else {
+                    doc.adverts[selectValue[0]][advertId] = undefined;
+                }
+            }
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            setChangedDoc(doc);
+        }
+        setManageModalInProgress(false);
+    };
+
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
             {/* <DatePicker></DatePicker>
@@ -3552,18 +3597,30 @@ export const MassAdvertPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <Button
-                        view="action"
-                        size="l"
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        onClick={() => {
-                            setManageModalOpen(true);
-                            setSelectedButton('');
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginBottom: 8,
                         }}
                     >
-                        <Icon data={Play} />
-                        <Text variant="subheader-1">Управление</Text>
-                    </Button>
+                        <Button
+                            loading={manageModalInProgress}
+                            view="action"
+                            size="l"
+                            style={{cursor: 'pointer'}}
+                            onClick={() => {
+                                setManageModalOpen(true);
+                                setSelectedButton('');
+                            }}
+                        >
+                            <Icon data={Play} />
+                            <Text variant="subheader-1">Управление</Text>
+                        </Button>
+                        <div style={{width: 8}} />
+                        {manageModalInProgress ? <Spin style={{marginRight: 8}} /> : <></>}
+                    </div>
                     <Modal
                         open={manageModalOpen}
                         onClose={() => {
@@ -3595,38 +3652,8 @@ export const MassAdvertPage = () => {
                                     placeholder: 'Запуск',
                                     icon: Play,
                                     view: 'outlined-success',
-                                    onClick: async () => {
-                                        for (let i = 0; i < filteredData.length; i++) {
-                                            const {adverts} = filteredData[i];
-                                            if (setManageModalOpen === undefined) continue;
-
-                                            for (const [id, _] of Object.entries(adverts)) {
-                                                if (!id) continue;
-                                                const advertData = doc.adverts[selectValue[0]][id];
-                                                if (!advertData) continue;
-                                                const {advertId} = advertData;
-                                                if (!advertId) continue;
-                                                const res = await manageAdvertsActivityCallFunc(
-                                                    'start',
-                                                    advertId,
-                                                );
-                                                console.log(res);
-                                                if (!res || res['data'] === undefined) {
-                                                    return;
-                                                }
-
-                                                if (res['data']['status'] == 'ok') {
-                                                    doc.adverts[selectValue[0]][
-                                                        advertId
-                                                    ].status = 9;
-                                                }
-                                            }
-                                            await new Promise((resolve) =>
-                                                setTimeout(resolve, 500),
-                                            );
-                                        }
-                                        setChangedDoc(doc);
-                                        setManageModalOpen(false);
+                                    onClick: () => {
+                                        manageAdvertsActivityOnClick('start', 9);
                                     },
                                 },
                                 selectedButton,
@@ -3637,38 +3664,8 @@ export const MassAdvertPage = () => {
                                     placeholder: 'Приостановить',
                                     icon: Pause,
                                     view: 'outlined-warning',
-                                    onClick: async () => {
-                                        for (let i = 0; i < filteredData.length; i++) {
-                                            const {adverts} = filteredData[i];
-                                            if (setManageModalOpen === undefined) continue;
-
-                                            for (const [id, _] of Object.entries(adverts)) {
-                                                if (!id) continue;
-                                                const advertData = doc.adverts[selectValue[0]][id];
-                                                if (!advertData) continue;
-                                                const {advertId} = advertData;
-                                                if (!advertId) continue;
-                                                const res = await manageAdvertsActivityCallFunc(
-                                                    'pause',
-                                                    advertId,
-                                                );
-                                                console.log(res);
-                                                if (!res || res['data'] === undefined) {
-                                                    return;
-                                                }
-
-                                                if (res['data']['status'] == 'ok') {
-                                                    doc.adverts[selectValue[0]][
-                                                        advertId
-                                                    ].status = 11;
-                                                }
-                                            }
-                                            await new Promise((resolve) =>
-                                                setTimeout(resolve, 500),
-                                            );
-                                        }
-                                        setChangedDoc(doc);
-                                        setManageModalOpen(false);
+                                    onClick: () => {
+                                        manageAdvertsActivityOnClick('pause', 11);
                                     },
                                 },
                                 selectedButton,
@@ -3679,37 +3676,8 @@ export const MassAdvertPage = () => {
                                     placeholder: 'Завершить',
                                     icon: Pause,
                                     view: 'outlined-danger',
-                                    onClick: async () => {
-                                        for (let i = 0; i < filteredData.length; i++) {
-                                            const {adverts} = filteredData[i];
-                                            if (setManageModalOpen === undefined) continue;
-
-                                            for (const [id, _] of Object.entries(adverts)) {
-                                                if (!id) continue;
-                                                const advertData = doc.adverts[selectValue[0]][id];
-                                                if (!advertData) continue;
-                                                const {advertId} = advertData;
-                                                if (!advertId) continue;
-                                                const res = await manageAdvertsActivityCallFunc(
-                                                    'stop',
-                                                    advertId,
-                                                );
-                                                console.log(res);
-                                                if (!res || res['data'] === undefined) {
-                                                    return;
-                                                }
-
-                                                if (res['data']['status'] == 'ok') {
-                                                    doc.adverts[selectValue[0]][advertId] =
-                                                        undefined;
-                                                }
-                                            }
-                                            await new Promise((resolve) =>
-                                                setTimeout(resolve, 500),
-                                            );
-                                        }
-                                        setChangedDoc(doc);
-                                        setManageModalOpen(false);
+                                    onClick: () => {
+                                        manageAdvertsActivityOnClick('stop', undefined);
                                     },
                                 },
                                 selectedButton,
@@ -6052,11 +6020,12 @@ export const MassAdvertPage = () => {
                     )}
                     <div style={{marginRight: 8, marginBottom: '8px'}}>
                         <Popover
+                            placement={'bottom'}
                             content={
                                 <div
                                     style={{
                                         height: 'calc(30em - 60px)',
-                                        width: '50em',
+                                        width: '60em',
                                         overflow: 'auto',
                                         display: 'flex',
                                     }}
@@ -6067,10 +6036,10 @@ export const MassAdvertPage = () => {
                                         style={{
                                             position: 'absolute',
                                             height: '30em',
-                                            width: '40em',
+                                            width: '60em',
                                             overflow: 'auto',
                                             top: -10,
-                                            left: -10,
+                                            left: -200,
                                             display: 'flex',
                                         }}
                                     >
