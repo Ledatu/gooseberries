@@ -10,7 +10,6 @@ import {
     Modal,
     Text,
     Card,
-    Label,
     Pagination,
     Popover,
     PopoverBehavior,
@@ -25,23 +24,12 @@ import block from 'bem-cn-lite';
 import Userfront from '@userfront/toolkit';
 const b = block('app');
 
-import {FileArrowUp, FileArrowDown} from '@gravity-ui/icons';
+import {FileArrowUp, FileArrowDown, ChevronDown, Key} from '@gravity-ui/icons';
 
-import callApi from 'src/utilities/callApi';
+import callApi, {getUid} from 'src/utilities/callApi';
 import {getRoundValue} from 'src/utilities/getRoundValue';
 import axios from 'axios';
 import TheTable, {compare} from 'src/components/TheTable';
-
-const getUid = () => {
-    return [
-        '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-        '46431a09-85c3-4703-8246-d1b5c9e52594',
-        'ce86aeb0-30b7-45ba-9234-a6765df7a479',
-        // '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-    ].includes(Userfront.user.userUuid ?? '')
-        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-        : '';
-};
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -50,17 +38,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
         console.log(docum, mode, selectValue);
 
         if (mode) {
-            // doc['campaigns'][selectValue] = docum['campaigns'][selectValue];
-            // doc['balances'][selectValue] = docum['balances'][selectValue];
-            // doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
-            // doc['advertsPlusPhrasesTemplates'][selectValue] =
-            //     docum['advertsPlusPhrasesTemplates'][selectValue];
-            // doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
-            // doc['adverts'][selectValue] = docum['adverts'][selectValue];
-            // doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
-            // doc['advertsSelectedPhrases'][selectValue] =
-            //     docum['advertsSelectedPhrases'][selectValue];
-            // doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
+            doc['nomenclatures'][selectValue] = docum['nomenclatures'][selectValue];
         }
         setDocument(docum);
     }
@@ -82,7 +60,7 @@ export const NomenclaturesPage = () => {
 
     function handleChange(event) {
         const file = event.target.files[0];
-        if (file.name != 'pricesTemplate.xlsx') {
+        if (!file || file.name != 'pricesTemplate.xlsx') {
             setUploadProgress(-1);
             return;
         }
@@ -138,7 +116,7 @@ export const NomenclaturesPage = () => {
     const columnData = [
         {
             name: 'art',
-            placeholder: 'Артикул',
+            placeholder: 'Артикул WB',
             width: 200,
             render: ({value, row, footer, index}) => {
                 const {title, brand, object, nmId, photos, imtId, size, barcode} = row;
@@ -334,11 +312,15 @@ export const NomenclaturesPage = () => {
             valueType: 'text',
             group: true,
         },
-        {name: 'factoryArt', placeholder: 'Фабричный артикул', valueType: 'text'},
-        {name: 'prices', placeholder: 'Цены', valueType: 'text'},
-        {name: 'commision', placeholder: 'Коммисия'},
-        {name: 'tax', placeholder: 'Ставка налога'},
-        {name: 'expences', placeholder: 'Дополнительные расходы'},
+        {name: 'factoryArt', placeholder: 'Артикул фабрики', valueType: 'text'},
+        {name: 'multiplicity', placeholder: 'Кратность короба, шт.'},
+        {name: 'length', placeholder: 'Длина, см.'},
+        {name: 'width', placeholder: 'Ширина, см.'},
+        {name: 'height', placeholder: 'Высота, см.'},
+        {name: 'weight', placeholder: 'Вес, кг.'},
+        {name: 'commision', placeholder: 'Коммисия, ₽'},
+        {name: 'tax', placeholder: 'Ставка налога, %'},
+        {name: 'expences', placeholder: 'Дополнительные расходы, ₽'},
         {
             name: 'prefObor',
             placeholder: 'Оборачиваемость',
@@ -355,15 +337,24 @@ export const NomenclaturesPage = () => {
                 return val;
             },
         },
-        {name: 'logistics', placeholder: 'Логистика ВБ'},
-        {name: 'spp', placeholder: 'СПП'},
-        {name: 'primeCost', placeholder: 'Себестоимость'},
+        {name: 'logistics', placeholder: 'Логистика ВБ, ₽'},
+        {name: 'spp', placeholder: 'СПП, %'},
+        {name: 'primeCost', placeholder: 'Себестоимость, ₽'},
+        {name: 'prices', placeholder: 'Цены', valueType: 'text'},
     ];
 
-    const doc = getUserDoc();
+    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
+    const [changedDoc, setChangedDoc] = useState<any>(undefined);
+    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 
     const recalc = (selected = '', withfFilters = {}) => {
-        const campaignData = doc ? doc[selected == '' ? selectValue[0] : selected] : {};
+        const campaignData = doc
+            ? doc.nomenclatures[selected == '' ? selectValue[0] : selected]
+            : {};
 
         const temp = {};
         for (const [art, artData] of Object.entries(campaignData)) {
@@ -408,6 +399,8 @@ export const NomenclaturesPage = () => {
 
         filterTableData(withfFilters, temp);
     };
+
+    const [filteredSummary, setFilteredSummary] = useState({});
 
     const filterTableData = (withfFilters = {}, tableData = {}) => {
         const temp = [] as any;
@@ -478,6 +471,13 @@ export const NomenclaturesPage = () => {
         });
         const paginatedDataTemp = temp.slice(0, 600);
 
+        setFilteredSummary((row) => {
+            const fstemp = row;
+            fstemp['art'] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
+
+            return fstemp;
+        });
+
         setFilteredData(temp);
 
         setPaginatedData(paginatedDataTemp);
@@ -485,14 +485,18 @@ export const NomenclaturesPage = () => {
         setPagesTotal(Math.ceil(temp.length));
     };
 
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
-
     const [firstRecalc, setFirstRecalc] = useState(false);
+
+    if (changedDoc) {
+        setChangedDoc(undefined);
+        setChangedDocUpdateType(false);
+        recalc();
+    }
+
     if (!doc) return <Spin />;
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(doc)) {
+        for (const [campaignName, _] of Object.entries(doc.nomenclatures)) {
             campaignsNames.push({value: campaignName, content: campaignName});
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
@@ -538,16 +542,70 @@ export const NomenclaturesPage = () => {
                             {generateModalForm('prefObor', doc, selectValue[0], data)}
                         </Modal>
                     </div>
-                    <Select
-                        className={b('selectCampaign')}
-                        value={selectValue}
-                        placeholder="Values"
-                        options={selectOptions}
-                        onUpdate={(nextValue) => {
-                            setSelectValue(nextValue);
-                            recalc(nextValue[0]);
+                    <div
+                        style={{
+                            marginRight: 8,
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
                         }}
-                    />
+                    >
+                        <Select
+                            className={b('selectCampaign')}
+                            value={selectValue}
+                            placeholder="Values"
+                            options={selectOptions}
+                            renderControl={({onClick, onKeyDown, ref}) => {
+                                return (
+                                    <Button
+                                        loading={switchingCampaignsFlag}
+                                        ref={ref}
+                                        size="l"
+                                        view="action"
+                                        onClick={onClick}
+                                        extraProps={{
+                                            onKeyDown,
+                                        }}
+                                    >
+                                        <Icon data={Key} />
+                                        <Text variant="subheader-1">{selectValue[0]}</Text>
+                                        <Icon data={ChevronDown} />
+                                    </Button>
+                                );
+                            }}
+                            onUpdate={(nextValue) => {
+                                setSwitchingCampaignsFlag(true);
+
+                                if (!Object.keys(doc['nomenclatures'][nextValue[0]]).length) {
+                                    callApi('getNomenclatures', {
+                                        uid: getUid(),
+                                        campaignName: nextValue,
+                                    }).then((res) => {
+                                        if (!res) return;
+                                        const resData = res['data'];
+                                        doc['nomenclatures'][nextValue[0]] =
+                                            resData['nomenclatures'][nextValue[0]];
+
+                                        setChangedDoc(doc);
+                                        setSelectValue(nextValue);
+
+                                        setSwitchingCampaignsFlag(false);
+                                        console.log(doc);
+                                    });
+                                } else {
+                                    setSelectValue(nextValue);
+                                    setSwitchingCampaignsFlag(false);
+                                }
+                                recalc(nextValue[0], filters);
+                                setPagesCurrent(1);
+                            }}
+                        />
+                        {switchingCampaignsFlag ? (
+                            <Spin style={{marginLeft: 8, marginBottom: 8}} />
+                        ) : (
+                            <></>
+                        )}
+                    </div>
                 </div>
                 <div
                     style={{
@@ -559,20 +617,13 @@ export const NomenclaturesPage = () => {
                     }}
                 >
                     <div style={{marginRight: 4}}>
-                        <Label
-                            size="m"
-                            icon={<Icon data={FileArrowDown} size={20} />}
-                            theme={'clear'}
+                        <Button
+                            size="l"
+                            view={'outlined'}
                             onClick={() => {
                                 setUploadProgress(0);
                                 callApi('downloadPricesTemplate', {
-                                    uid:
-                                        (Userfront.user.userUuid ==
-                                            '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
-                                        Userfront.user.userUuid ==
-                                            '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                            ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                            : '') ?? '',
+                                    uid: getUid(),
                                     campaignName: selectValue[0],
                                 })
                                     .then((res: any) => {
@@ -588,35 +639,46 @@ export const NomenclaturesPage = () => {
                                     });
                             }}
                         >
+                            <Icon data={FileArrowDown} size={20} />
                             Скачать
-                        </Label>
+                        </Button>
                     </div>
                     <div>
                         <div style={{marginLeft: 4}}>
                             <label htmlFor={uploadId}>
-                                <Label
-                                    size="m"
-                                    icon={<Icon data={FileArrowUp} size={20} />}
+                                <Button
+                                    size="l"
                                     onClick={() => {
                                         setUploadProgress(0);
                                     }}
-                                    theme={
+                                    style={{
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                    }}
+                                    selected={uploadProgress === 100 || uploadProgress === -1}
+                                    view={
                                         uploadProgress === 100
-                                            ? 'success'
+                                            ? 'flat-success'
                                             : uploadProgress === -1
-                                            ? 'danger'
-                                            : 'clear'
+                                            ? 'flat-danger'
+                                            : 'outlined'
                                     }
                                 >
+                                    <Icon data={FileArrowUp} size={20} />
                                     Загрузить
-                                </Label>
-
-                                <input
-                                    id={uploadId}
-                                    style={{width: 0}}
-                                    type="file"
-                                    onChange={handleChange}
-                                ></input>
+                                    <input
+                                        id={uploadId}
+                                        style={{
+                                            opacity: 0,
+                                            position: 'absolute',
+                                            height: 40,
+                                            left: 0,
+                                        }}
+                                        type="file"
+                                        onChange={handleChange}
+                                    />
+                                </Button>
                             </label>
                         </div>
                         {/* {uploadProgress ? (
@@ -649,6 +711,7 @@ export const NomenclaturesPage = () => {
                         filters={filters}
                         setFilters={setFilters}
                         filterData={filterTableData}
+                        footerData={[filteredSummary]}
                     />
                 </div>
                 <div style={{height: 8}} />
@@ -660,7 +723,14 @@ export const NomenclaturesPage = () => {
                     onUpdate={(page) => {
                         setPagesCurrent(page);
                         const paginatedDataTemp = filteredData.slice((page - 1) * 600, page * 600);
+                        setFilteredSummary((row) => {
+                            const fstemp = row;
+                            fstemp[
+                                'art'
+                            ] = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;
 
+                            return fstemp;
+                        });
                         setPaginatedData(paginatedDataTemp);
                     }}
                 />
@@ -669,10 +739,10 @@ export const NomenclaturesPage = () => {
     );
 };
 
-const generatePrefOborModalForm = (documentData, selectedCampaign, tableData) => {
-    if (!documentData || !tableData || !selectedCampaign) return <></>;
+const generatePrefOborModalForm = (doc, selectedCampaign, tableData) => {
+    if (!doc || !tableData || !selectedCampaign) return <></>;
     const getAllWarehouses = () => {
-        for (const [art, artData] of Object.entries(documentData[selectedCampaign])) {
+        for (const [art, artData] of Object.entries(doc.nomenclatures[selectedCampaign])) {
             if (!art || !artData) continue;
             const warehouses = artData['byWarehouses'];
             if (!warehouses) continue;

@@ -66,20 +66,10 @@ import ChartKit, {settings} from '@gravity-ui/chartkit';
 import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
 import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 settings.set({plugins: [YagrPlugin]});
-import callApi from 'src/utilities/callApi';
+import callApi, {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
 import {getLocaleDateString} from 'src/utilities/getRoundValue';
 import TheTable, {compare} from 'src/components/TheTable';
-
-const getUid = () => {
-    return [
-        '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-        '46431a09-85c3-4703-8246-d1b5c9e52594',
-        // '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
-    ].includes(Userfront.user.userUuid ?? '')
-        ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806_1'
-        : '';
-};
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
