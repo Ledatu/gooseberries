@@ -3508,7 +3508,7 @@ export const MassAdvertPage = () => {
         for (let i = 0; i < filteredData.length; i++) {
             const {adverts} = filteredData[i];
             if (setManageModalOpen === undefined) continue;
-
+            if (!adverts) continue;
             for (const [id, _] of Object.entries(adverts)) {
                 if (!id) continue;
                 const advertData = doc.adverts[selectValue[0]][id];
