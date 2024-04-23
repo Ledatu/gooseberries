@@ -2155,7 +2155,7 @@ export const MassAdvertPage = () => {
                                     ? 'danger'
                                     : 'primary'
                             }
-                        >{`Позиция первой карточки с РК: ${firstAdvertIndex}`}</Text>
+                        >{`Позиция первой карточки с РК: ${firstAdvertIndex[advertType]}`}</Text>
                     </div>
                 );
             },
