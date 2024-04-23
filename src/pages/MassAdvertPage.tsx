@@ -1243,8 +1243,8 @@ export const MassAdvertPage = () => {
                             content={
                                 <div
                                     style={{
-                                        height: 'calc(30em - 60px)',
-                                        width: '60em',
+                                        height: 'calc(48em - 60px)',
+                                        width: '72em',
                                         overflow: 'auto',
                                         display: 'flex',
                                     }}
@@ -1254,8 +1254,8 @@ export const MassAdvertPage = () => {
                                         theme="warning"
                                         style={{
                                             position: 'absolute',
-                                            height: '30em',
-                                            width: '60em',
+                                            height: '48em',
+                                            width: '72em',
                                             overflow: 'auto',
                                             top: -10,
                                             left: -10,
