@@ -2614,7 +2614,7 @@ export const MassAdvertPage = () => {
 
     const getBalanceYagrData = () => {
         const balanceLog = doc.balances[selectValue[0]] ? doc.balances[selectValue[0]].data : {};
-        console.log(balanceLog);
+        // console.log(balanceLog);
 
         const timelineBudget: any[] = [];
         const graphsDataBonus: any[] = [];
@@ -5685,7 +5685,7 @@ export const MassAdvertPage = () => {
                             // view="raised"
                             view="clear"
                             style={{
-                                width: 400,
+                                width: '80em',
                                 // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
                                 // animation: '3s linear 1s slidein',
                                 // maxWidth: '15vw',
@@ -5842,17 +5842,21 @@ export const MassAdvertPage = () => {
                                                                             advertData[
                                                                                 'templateName'
                                                                             ] == item
-                                                                        )
+                                                                        ) {
                                                                             doc.advertsPlusPhrasesTemplates[
                                                                                 selectValue[0]
                                                                             ][advertId] = undefined;
-                                                                        paramsAddToArt.data.advertsIds[
-                                                                            advertId
-                                                                        ] = {
-                                                                            mode: 'Удалить',
-                                                                            templateName: item,
-                                                                        };
+                                                                            paramsAddToArt.data.advertsIds[
+                                                                                advertId
+                                                                            ] = {
+                                                                                mode: 'Удалить',
+                                                                                templateName: item,
+                                                                            };
+                                                                        }
                                                                     }
+                                                                console.log(paramsAddToArt);
+                                                                console.log(params);
+
                                                                 callApi(
                                                                     'setAdvertsPlusPhrasesTemplates',
                                                                     paramsAddToArt,
