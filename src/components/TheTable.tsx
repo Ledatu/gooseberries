@@ -56,7 +56,7 @@ export default function TheTable({
                 render: render
                     ? (args) => render(args)
                     : ({value}) => {
-                          return typeof value === 'number'
+                          return typeof value === 'number' && valueType != 'text'
                               ? new Intl.NumberFormat('ru-RU').format(value)
                               : value;
                       },

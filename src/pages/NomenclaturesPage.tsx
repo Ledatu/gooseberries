@@ -1,19 +1,5 @@
 import React, {useEffect, useId, useState} from 'react';
-import {
-    Spin,
-    Select,
-    SelectOption,
-    TextInput,
-    Link,
-    Icon,
-    Button,
-    Modal,
-    Text,
-    Card,
-    Pagination,
-    Popover,
-    PopoverBehavior,
-} from '@gravity-ui/uikit';
+import {Spin, Select, SelectOption, Icon, Button, Text, Pagination} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
@@ -21,13 +7,11 @@ const {ipAddress} = require('../ipAddress');
 
 import block from 'bem-cn-lite';
 
-import Userfront from '@userfront/toolkit';
 const b = block('app');
 
 import {FileArrowUp, FileArrowDown, ChevronDown, Key} from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
-import {getRoundValue} from 'src/utilities/getRoundValue';
 import axios from 'axios';
 import TheTable, {compare} from 'src/components/TheTable';
 
@@ -39,6 +23,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 
         if (mode) {
             doc['nomenclatures'][selectValue] = docum['nomenclatures'][selectValue];
+            doc['artsData'][selectValue] = docum['artsData'][selectValue];
         }
         setDocument(docum);
     }
@@ -58,10 +43,84 @@ export const NomenclaturesPage = () => {
 
     const [uploadProgress, setUploadProgress] = useState(0);
 
+    const [filters, setFilters] = useState({undef: false});
+
+    const [pagesTotal, setPagesTotal] = useState(1);
+    const [pagesCurrent, setPagesCurrent] = useState(1);
+    const [data, setTableData] = useState({});
+    const [filteredData, setFilteredData] = useState<any[]>([]);
+    const [paginatedData, setPaginatedData] = useState<any[]>([]);
+
+    const columnData = [
+        {
+            name: 'art',
+            placeholder: 'Артикул',
+            width: 200,
+            render: ({value, footer, index}) => {
+                if (footer) return <div style={{height: 28}}>{value}</div>;
+
+                return (
+                    <div
+                        style={{
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            marginRight: 8,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: `${String(filteredData.length).length * 6}px`,
+                                // width: 20,
+                                margin: '0 16px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            {Math.floor((pagesCurrent - 1) * 600 + index + 1)}
+                        </div>
+                        {value}
+                    </div>
+                );
+            },
+            valueType: 'text',
+            group: true,
+        },
+        {name: 'size', placeholder: 'Размер', valueType: 'text'},
+        {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
+        {name: 'title', placeholder: 'Наименование', valueType: 'text'},
+        {name: 'nmId', placeholder: 'Артикул WB', valueType: 'text'},
+        {name: 'barcode', placeholder: 'Баркод', valueType: 'text'},
+        {name: 'factoryArt', placeholder: 'Артикул фабрики', valueType: 'text'},
+        {name: 'multiplicity', placeholder: 'Кратность короба, шт.'},
+        {name: 'length', placeholder: 'Длина, см.'},
+        {name: 'width', placeholder: 'Ширина, см.'},
+        {name: 'height', placeholder: 'Высота, см.'},
+        {name: 'weight', placeholder: 'Вес, кг.'},
+        {name: 'commision', placeholder: 'Коммисия, ₽'},
+        {name: 'tax', placeholder: 'Ставка налога, %'},
+        {name: 'expences', placeholder: 'Дополнительные расходы, ₽'},
+        {name: 'logistics', placeholder: 'Логистика ВБ, ₽'},
+        {name: 'spp', placeholder: 'СПП, %'},
+        {name: 'primeCost1', placeholder: 'Себестоимость 1, ₽'},
+        {name: 'primeCost2', placeholder: 'Себестоимость 2, ₽'},
+        {name: 'primeCost3', placeholder: 'Себестоимость 3, ₽'},
+    ];
+
+    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
+    const [changedDoc, setChangedDoc] = useState<any>(undefined);
+    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
+
     function handleChange(event) {
         const file = event.target.files[0];
-        if (!file || file.name != 'pricesTemplate.xlsx') {
+        if (!file || !file.name.includes('.xlsx')) {
             setUploadProgress(-1);
+
             return;
         }
         event.preventDefault();
@@ -92,273 +151,29 @@ export const NomenclaturesPage = () => {
             .post(url, formData, config)
             .then((response) => {
                 console.log(response.data);
+                const artsData = response.data;
+                doc.artsData[selectValue[0]] = artsData;
+                setChangedDoc(doc);
             })
             .catch((error) => {
                 console.error('Error uploading file: ', error);
             });
     }
 
-    const [filters, setFilters] = useState({undef: false});
-
-    const [modalOpen, setModalOpen] = useState(false);
-
-    const [pagesTotal, setPagesTotal] = useState(1);
-    const [pagesCurrent, setPagesCurrent] = useState(1);
-    const [data, setTableData] = useState({});
-    const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [paginatedData, setPaginatedData] = useState<any[]>([]);
-
-    const filterByButton = (val, key = 'art', compMode = 'include') => {
-        filters[key] = {val: String(val) + ' ', compMode: compMode};
-        setFilters(filters);
-        filterTableData(filters);
-    };
-    const columnData = [
-        {
-            name: 'art',
-            placeholder: 'Артикул WB',
-            width: 200,
-            render: ({value, row, footer, index}) => {
-                const {title, brand, object, nmId, photos, imtId, size, barcode} = row;
-
-                if (title === undefined) return <div style={{height: 28}}>{value}</div>;
-
-                const imgUrl = photos ? (photos[0] ? photos[0].big : undefined) : undefined;
-
-                let titleWrapped = title;
-                if (title.length > 30) {
-                    let wrapped = false;
-                    titleWrapped = '';
-                    const titleArr = title.split(' ');
-                    for (const word of titleArr) {
-                        titleWrapped += word;
-                        if (titleWrapped.length > 25 && !wrapped) {
-                            titleWrapped += '\n';
-                            wrapped = true;
-                        } else {
-                            titleWrapped += ' ';
-                        }
-                    }
-                }
-
-                return footer ? (
-                    <div style={{height: 28}}>{value}</div>
-                ) : (
-                    <div
-                        // title={value}
-                        style={{
-                            maxWidth: '20vw',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            zIndex: 40,
-                            justifyContent: 'space-between',
-                        }}
-                    >
-                        <div
-                            style={{
-                                justifyContent: 'space-between',
-                                overflow: 'hidden',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                marginRight: 8,
-                                alignItems: 'center',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: `${String(filteredData.length).length * 6}px`,
-                                    // width: 20,
-                                    margin: '0 16px',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                {Math.floor((pagesCurrent - 1) * 600 + index + 1)}
-                            </div>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <Popover
-                                        behavior={'delayed' as PopoverBehavior}
-                                        disabled={value === undefined}
-                                        content={
-                                            <div style={{width: 200}}>
-                                                <img
-                                                    style={{width: '100%', height: 'auto'}}
-                                                    src={imgUrl}
-                                                />
-                                                <></>
-                                            </div>
-                                        }
-                                    >
-                                        <div style={{width: 40}}>
-                                            <img
-                                                style={{width: '100%', height: 'auto'}}
-                                                src={imgUrl}
-                                            />
-                                        </div>
-                                    </Popover>
-                                </div>
-                                <div style={{width: 4}} />
-                                <div style={{display: 'flex', flexDirection: 'column'}}>
-                                    <div style={{marginLeft: 6}}>
-                                        <Link
-                                            view="primary"
-                                            style={{whiteSpace: 'pre-wrap'}}
-                                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
-                                            target="_blank"
-                                        >
-                                            <Text variant="subheader-1">{titleWrapped}</Text>
-                                        </Link>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(object)}
-                                        >
-                                            <Text variant="caption-2">{`${object}`}</Text>
-                                        </Button>
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(brand)}
-                                        >
-                                            <Text variant="caption-2">{`${brand}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(nmId)}
-                                        >
-                                            <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
-                                        </Button>
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(imtId)}
-                                        >
-                                            <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(value)}
-                                        >
-                                            <Text variant="caption-2">{`Артикул: ${value}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(size)}
-                                        >
-                                            <Text variant="caption-2">{`Размер: ${size}`}</Text>
-                                        </Button>
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(barcode)}
-                                        >
-                                            <Text variant="caption-2">{`Баркод: ${barcode}`}</Text>
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-            },
-            valueType: 'text',
-            group: true,
-        },
-        {name: 'factoryArt', placeholder: 'Артикул фабрики', valueType: 'text'},
-        {name: 'multiplicity', placeholder: 'Кратность короба, шт.'},
-        {name: 'length', placeholder: 'Длина, см.'},
-        {name: 'width', placeholder: 'Ширина, см.'},
-        {name: 'height', placeholder: 'Высота, см.'},
-        {name: 'weight', placeholder: 'Вес, кг.'},
-        {name: 'commision', placeholder: 'Коммисия, ₽'},
-        {name: 'tax', placeholder: 'Ставка налога, %'},
-        {name: 'expences', placeholder: 'Дополнительные расходы, ₽'},
-        {
-            name: 'prefObor',
-            placeholder: 'Оборачиваемость',
-            render: ({value}) => {
-                if (!value) return;
-
-                const avg = {count: 0, sum: 0};
-                for (const [_warehouseName, warehouseData] of Object.entries(value)) {
-                    if (!warehouseData) continue;
-                    avg.count++;
-                    avg.sum += warehouseData as number;
-                }
-                const val = getRoundValue(avg.sum, avg.count);
-                return val;
-            },
-        },
-        {name: 'logistics', placeholder: 'Логистика ВБ, ₽'},
-        {name: 'spp', placeholder: 'СПП, %'},
-        {name: 'primeCost', placeholder: 'Себестоимость, ₽'},
-        {name: 'prices', placeholder: 'Цены', valueType: 'text'},
-    ];
-
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
-    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
-    const [changedDoc, setChangedDoc] = useState<any>(undefined);
-    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
-
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
-
     const recalc = (selected = '', withfFilters = {}) => {
         const campaignData = doc
             ? doc.nomenclatures[selected == '' ? selectValue[0] : selected]
+            : {};
+        const campaignDataUploaded = doc
+            ? doc.artsData[selected == '' ? selectValue[0] : selected]
             : {};
 
         const temp = {};
         for (const [art, artData] of Object.entries(campaignData)) {
             if (!art || !artData) continue;
+
+            const artDataUploaded = campaignDataUploaded[art] ?? {};
+
             const artInfo = {
                 art: '',
                 size: 0,
@@ -368,13 +183,22 @@ export const NomenclaturesPage = () => {
                 imtId: '',
                 nmId: 0,
                 barcode: 0,
-                commision: 0,
-                tax: 0,
-                expences: 0,
+                commision: undefined,
+                tax: undefined,
+                expences: undefined,
                 logistics: 0,
                 photos: undefined,
                 spp: 0,
-                primeCost: 0,
+                prices: 0,
+                factoryArt: undefined,
+                multiplicity: undefined,
+                length: undefined,
+                width: undefined,
+                height: undefined,
+                weight: undefined,
+                primeCost1: undefined,
+                primeCost2: undefined,
+                primeCost3: undefined,
             };
             artInfo.art = artData['art'];
             artInfo.size = artData['size'];
@@ -390,7 +214,25 @@ export const NomenclaturesPage = () => {
             artInfo.expences = artData['expences'];
             artInfo.logistics = artData['logistics'];
             artInfo.spp = artData['spp'];
-            artInfo.primeCost = artData['primeCost'];
+            artInfo.prices = artDataUploaded['prices'];
+            artInfo.factoryArt = artDataUploaded['factoryArt'];
+            artInfo.multiplicity = artDataUploaded['multiplicity'];
+            artInfo.length = artDataUploaded['length'];
+            artInfo.width = artDataUploaded['width'];
+            artInfo.height = artDataUploaded['height'];
+            artInfo.weight = artDataUploaded['weight'];
+            artInfo.commision = artDataUploaded['commision'];
+            artInfo.tax = artDataUploaded['tax'];
+            artInfo.expences = artDataUploaded['expences'];
+            artInfo.primeCost1 = artDataUploaded['prices']
+                ? artDataUploaded['prices']['Себестоимость 1']
+                : undefined;
+            artInfo.primeCost2 = artDataUploaded['prices']
+                ? artDataUploaded['prices']['Себестоимость 2']
+                : undefined;
+            artInfo.primeCost3 = artDataUploaded['prices']
+                ? artDataUploaded['prices']['Себестоимость 3']
+                : undefined;
 
             temp[art] = artInfo;
         }
@@ -527,21 +369,6 @@ export const NomenclaturesPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <div>
-                        <Button
-                            view="action"
-                            size="l"
-                            style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                            onClick={() => {
-                                setModalOpen(true);
-                            }}
-                        >
-                            <Text variant="subheader-1">Оборачиваемость</Text>
-                        </Button>
-                        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-                            {generateModalForm('prefObor', doc, selectValue[0], data)}
-                        </Modal>
-                    </div>
                     <div
                         style={{
                             marginRight: 8,
@@ -585,6 +412,8 @@ export const NomenclaturesPage = () => {
                                         const resData = res['data'];
                                         doc['nomenclatures'][nextValue[0]] =
                                             resData['nomenclatures'][nextValue[0]];
+                                        doc['artsData'][nextValue[0]] =
+                                            resData['artsData'][nextValue[0]];
 
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
@@ -737,151 +566,4 @@ export const NomenclaturesPage = () => {
             </div>
         </div>
     );
-};
-
-const generatePrefOborModalForm = (doc, selectedCampaign, tableData) => {
-    if (!doc || !tableData || !selectedCampaign) return <></>;
-    const getAllWarehouses = () => {
-        for (const [art, artData] of Object.entries(doc.nomenclatures[selectedCampaign])) {
-            if (!art || !artData) continue;
-            const warehouses = artData['byWarehouses'];
-            if (!warehouses) continue;
-            return warehouses;
-        }
-        return {};
-    };
-    const warehouses = getAllWarehouses();
-    warehouses['Все склады'] = {};
-    if (!warehouses) return <></>;
-
-    const warehousesInputs: any[] = [];
-    for (const [warehouseName, _] of Object.entries(warehouses)) {
-        warehouses[warehouseName] = {val: 30};
-        warehousesInputs.push({
-            val: warehouseName,
-            elem: (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        marginBottom: 8,
-                    }}
-                >
-                    <Card
-                        view="clear"
-                        style={{
-                            width: '80%',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            margin: '4px 16px',
-                        }}
-                    >
-                        <div style={{margin: 4}}>
-                            <Text variant="subheader-1">{warehouseName}</Text>
-                        </div>
-                        <TextInput
-                            type="number"
-                            defaultValue={warehouses[warehouseName].val}
-                            style={{margin: 0, width: 80}}
-                            hasClear
-                            onUpdate={(value) => {
-                                if (warehouseName === 'Все склады') {
-                                    for (const [innerWarehouseName, _] of Object.entries(
-                                        warehouses,
-                                    )) {
-                                        warehouses[innerWarehouseName].val = Number(value);
-                                    }
-                                } else {
-                                    warehouses[warehouseName].val = Number(value);
-                                }
-                                return;
-                            }}
-                        />
-                    </Card>
-                    <Card style={{height: 0.5, width: '80%'}}>
-                        <></>
-                    </Card>
-                </div>
-            ),
-        });
-    }
-
-    warehousesInputs.reverse();
-    const allWarehouses = warehousesInputs.shift();
-    warehousesInputs.sort((a, b) => a.val.localeCompare(b.val));
-    const form = [allWarehouses].concat(warehousesInputs);
-    const formElems: any[] = [];
-    for (let i = 0; i < form.length; i++) {
-        const {elem} = form[i];
-        formElems.push(elem);
-    }
-
-    return (
-        <div
-            style={{
-                alignItems: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                height: '60vh',
-                // padding: 40,
-            }}
-        >
-            <Text
-                style={{
-                    margin: '8px 0',
-                }}
-                variant="display-2"
-            >
-                Оборачиваемость
-            </Text>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflow: 'auto',
-                }}
-            >
-                {formElems}
-            </div>
-            <Button
-                size="l"
-                pin="circle-circle"
-                view="action"
-                style={{margin: 16}}
-                onClick={() => {
-                    // console.log(warehouses);
-                    const data = {values: warehouses, key: 'prefObor', barcodes: [] as any[]};
-                    for (let i = 0; i < tableData.length; i++) {
-                        const row = tableData[i];
-
-                        if (!row) continue;
-
-                        data.barcodes.push(row['barcode']);
-                    }
-                    console.log(data);
-
-                    callApi('setByWarehousesInfo', {
-                        uid:
-                            (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806' ||
-                            Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a'
-                                ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
-                                : '') ?? '',
-                        campaignName: selectedCampaign,
-                        data: data,
-                    });
-                }}
-            >
-                Установить
-            </Button>
-        </div>
-    );
-};
-
-const generateModalForm = (mode, documentData, selectedCampaign, tableData) => {
-    if (mode == 'prefObor')
-        return generatePrefOborModalForm(documentData, selectedCampaign, tableData);
-    return <></>;
 };

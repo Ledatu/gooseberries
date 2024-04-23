@@ -667,7 +667,7 @@ export const MassAdvertPage = () => {
         filterTableData(filters);
     };
     const filterByButtonClusters = (val, key = 'art', compMode = 'include') => {
-        clustersFiltersMinus[key] = {val: String(val) + ' ', compMode: compMode};
+        clustersFiltersMinus[key] = {val: String(val), compMode: compMode};
         setClustersFiltersMinus(clustersFiltersMinus);
         clustersFilterDataMinus(clustersFiltersMinus, semanticsModalSemanticsMinusItemsValue);
     };
