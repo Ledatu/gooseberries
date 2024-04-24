@@ -194,6 +194,7 @@ export const NomenclaturesPage = () => {
                 length: undefined,
                 width: undefined,
                 height: undefined,
+                ktr: undefined,
                 weight: undefined,
                 primeCost1: undefined,
                 primeCost2: undefined,
@@ -213,6 +214,7 @@ export const NomenclaturesPage = () => {
             artInfo.expences = artData['expences'];
             artInfo.logistics = artData['logistics'];
             artInfo.spp = artData['spp'];
+            artInfo.ktr = artDataUploaded['ktr'];
             artInfo.prices = artDataUploaded['prices'];
             artInfo.factoryArt = artDataUploaded['factoryArt'];
             artInfo.multiplicity = artDataUploaded['multiplicity'];
