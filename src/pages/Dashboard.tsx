@@ -46,17 +46,17 @@ export const Dashboard = () => {
         {
             value: 'stats_rk',
             content: 'Статистика',
-            disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+            disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
         },
         {
             value: 'deliveryOrders',
             content: 'Поставки',
-            disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+            disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
         },
         {
             value: 'nomenclatures',
             content: 'Товары',
-            disabled: Userfront.user.userUuid == '0e1fc05a-deda-4e90-88d5-be5f8e13ce6a',
+            disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
         },
     ];
     // const [page, setPage] = React.useState('nomenclatures');
