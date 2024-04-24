@@ -97,7 +97,7 @@ export const NomenclaturesPage = () => {
         {name: 'length', placeholder: 'Длина, см.'},
         {name: 'width', placeholder: 'Ширина, см.'},
         {name: 'height', placeholder: 'Высота, см.'},
-        {name: 'ktr', placeholder: 'KTR WB, %'},
+        {name: 'ktr', placeholder: 'КТР WB, %'},
         {name: 'weight', placeholder: 'Вес, кг.'},
         {name: 'commision', placeholder: 'Коммисия WB, %'},
         {name: 'tax', placeholder: 'Ставка налога, %'},
@@ -460,7 +460,7 @@ export const NomenclaturesPage = () => {
                                     .then((blob) => {
                                         const element = document.createElement('a');
                                         element.href = URL.createObjectURL(blob);
-                                        element.download = 'pricesTemplate.xlsx';
+                                        element.download = `Информация о товарах ${selectValue[0]}.xlsx`;
                                         // simulate link click
                                         document.body.appendChild(element);
                                         element.click();
