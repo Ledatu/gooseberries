@@ -137,6 +137,8 @@ export const MassAdvertPage = () => {
     // const [semanticsModalTextAreaAddMode, setSemanticsModalTextAreaAddMode] = useState(false);
     // const [semanticsModalTextAreaValue, setSemanticsModalTextAreaValue] = useState('');
 
+    const [placementsDisplayPhrase, setPlacementsDisplayPhrase] = useState('');
+
     const [modalFormOpen, setModalFormOpen] = useState(false);
 
     const [createAdvertsMode, setCreateAdvertsMode] = useState(false);
@@ -2004,6 +2006,46 @@ export const MassAdvertPage = () => {
             name: 'placements',
             placeholder: 'Позиция',
             render: ({value, row}) => {
+                if (placementsDisplayPhrase != '') {
+                    const phrase = placementsDisplayPhrase;
+                    const {nmId} = row;
+                    const {log, index} = doc.fetchedPlacements[phrase]
+                        ? doc.fetchedPlacements[phrase].data[nmId] ?? ({} as any)
+                        : ({} as any);
+                    const {updateTime} = doc.fetchedPlacements[phrase] ?? ({} as any);
+                    const updateTimeObj = new Date(updateTime);
+                    // console.log(phrase, doc.fetchedPlacements[phrase], doc.fetchedPlacements, doc);
+
+                    if (!index || index == -1) return undefined;
+                    const {position} = log ?? {};
+                    return (
+                        <Card view="outlined" style={{display: 'flex', flexDirection: 'column'}}>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                {position !== undefined ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Text color="secondary">{`${position + 1}`}</Text>
+                                        <div style={{width: 3}} />
+                                        <Icon data={ArrowRight} size={13}></Icon>
+                                        <div style={{width: 3}} />
+                                    </div>
+                                ) : (
+                                    <></>
+                                )}
+
+                                <Text>{`${!index || index == -1 ? 'Нет в выдаче' : index} `}</Text>
+                                <div style={{width: 4}} />
+                            </div>
+                            <Text>{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
+                        </Card>
+                    );
+                }
+
                 if (!value) return undefined;
                 const {drrAI, placementsValue, adverts} = row;
 
@@ -2414,11 +2456,11 @@ export const MassAdvertPage = () => {
     // }, []);
 
     if (fetchedPlacements) {
-        Object.assign(doc.fetchedPlacements, fetchedPlacements);
+        doc.fetchedPlacements = {...doc.fetchedPlacements, ...fetchedPlacements};
         console.log(doc);
+        setChangedDoc(doc);
 
         setFetchedPlacements(undefined);
-        setChangedDoc(doc);
     }
 
     // const doc = {};
@@ -2763,7 +2805,7 @@ export const MassAdvertPage = () => {
             const useFilters = withfFilters['undef'] ? withfFilters : filters;
             for (const [filterArg, filterData] of Object.entries(useFilters)) {
                 if (filterArg == 'undef' || !filterData) continue;
-                if (filterData['val'] == '') continue;
+                if (filterData['val'] == '' && filterArg != 'placements') continue;
                 if (filterArg == 'art') {
                     const rulesForAnd = filterData['val'].split('+');
                     // console.log(rulesForAnd);
@@ -2792,6 +2834,17 @@ export const MassAdvertPage = () => {
                     if (tempFlagInc != rulesForAnd.length) {
                         addFlag = false;
                         break;
+                    }
+                } else if (filterArg == 'placements') {
+                    if (filterData['val'] == '') {
+                        setPlacementsDisplayPhrase('');
+                        break;
+                    }
+                    const temp = isNaN(parseInt(filterData['val']));
+                    console.log(temp);
+
+                    if (temp) {
+                        setPlacementsDisplayPhrase(filterData['val']);
                     }
                 } else if (filterArg == 'adverts') {
                     const fldata = filterData['val'];
