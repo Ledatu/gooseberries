@@ -2793,9 +2793,9 @@ export const MassAdvertPage = () => {
                     const adverts = tempTypeRow[filterArg];
 
                     if (fldata == '+' || fldata == '+ ') {
-                        if (adverts) break;
+                        if (adverts) continue;
                     } else if (fldata == '-' || fldata == '- ') {
-                        if (!adverts) break;
+                        if (!adverts) continue;
                     }
 
                     const rulesForAnd = [fldata];
