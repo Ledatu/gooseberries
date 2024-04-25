@@ -141,7 +141,7 @@ export const MassAdvertPage = () => {
 
     const [createAdvertsMode, setCreateAdvertsMode] = useState(false);
 
-    const [budgetInputValue, setBudgetInputValue] = useState(500);
+    const [budgetInputValue, setBudgetInputValue] = useState(1000);
     const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
     const [bidInputValue, setBidInputValue] = useState(125);
     const [bidInputValidationValue, setBidInputValidationValue] = useState(true);
@@ -155,7 +155,7 @@ export const MassAdvertPage = () => {
     const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState<any[]>([]);
 
     const [budgetModalFormOpen, setBudgetModalFormOpen] = useState(false);
-    const [budgetModalBudgetInputValue, setBudgetModalBudgetInputValue] = useState(500);
+    const [budgetModalBudgetInputValue, setBudgetModalBudgetInputValue] = useState(1000);
     const [budgetModalBudgetInputValidationValue, setBudgetModalBudgetInputValidationValue] =
         useState(true);
     const budgetModalSwitchValues: any[] = [
@@ -996,7 +996,12 @@ export const MassAdvertPage = () => {
 
         return (
             <Card
-                style={{height: 96, width: 'fit-content', overflowY: 'hidden'}}
+                style={{
+                    height: 96,
+                    width: 'fit-content',
+                    overflowY: 'hidden',
+                    overflowX: 'visible',
+                }}
                 // view="raised"
             >
                 <div
@@ -1021,7 +1026,7 @@ export const MassAdvertPage = () => {
                                     overflow: 'hidden',
                                 }}
                                 onClick={() => filterByButton(advertId, 'adverts')}
-                                // style={{position: 'relative', top: -2}}
+                                // style=x{{position: 'relative', top: -2}}
                                 size="xs"
                                 pin="brick-brick"
                                 view={
@@ -2958,7 +2963,7 @@ export const MassAdvertPage = () => {
 
     const openBudgetModalForm = () => {
         setSelectedButton('');
-        setBudgetModalBudgetInputValue(500);
+        setBudgetModalBudgetInputValue(1000);
         setBudgetModalSwitchValue('Пополнить');
         setBudgetModalBudgetInputValidationValue(true);
         setModalOpenFromAdvertId('');
@@ -3695,7 +3700,7 @@ export const MassAdvertPage = () => {
                         open={modalFormOpen}
                         onClose={() => {
                             setAdvertTypeSwitchValue(['Авто']);
-                            setBudgetInputValue(500);
+                            setBudgetInputValue(1000);
                             setBudgetInputValidationValue(true);
                             setBidInputValue(125);
                             setBidInputValidationValue(true);
@@ -3762,7 +3767,7 @@ export const MassAdvertPage = () => {
                                             value={String(budgetInputValue)}
                                             onChange={(val) => {
                                                 const budget = Number(val.target.value);
-                                                if (budget < 500)
+                                                if (budget < 1000)
                                                     setBudgetInputValidationValue(false);
                                                 else setBudgetInputValidationValue(true);
                                                 setBudgetInputValue(budget);
@@ -3894,7 +3899,7 @@ export const MassAdvertPage = () => {
                                     options={budgetModalSwitchValues}
                                     onUpdate={(val) => {
                                         setBudgetModalSwitchValue(val);
-                                        setBudgetModalBudgetInputValue(500);
+                                        setBudgetModalBudgetInputValue(1000);
                                         setBudgetModalBudgetInputValidationValue(true);
                                         setSelectedButton('');
                                     }}
@@ -3915,7 +3920,7 @@ export const MassAdvertPage = () => {
                                             budgetModalSwitchValue == 'Установить лимит'
                                         )
                                             setBudgetModalBudgetInputValidationValue(true);
-                                        else if (budget < 500) {
+                                        else if (budget < 1000) {
                                             setBudgetModalBudgetInputValidationValue(false);
                                         } else {
                                             setBudgetModalBudgetInputValidationValue(true);
