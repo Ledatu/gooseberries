@@ -3181,7 +3181,9 @@ export const MassAdvertPage = () => {
                                 {value}
                             </Button>
                         ) : (
-                            <Text>{value}</Text>
+                            <Button size="xs" view={'flat'} disabled>
+                                <Text color="primary">{value}</Text>
+                            </Button>
                         )}
                     </div>
                 );
