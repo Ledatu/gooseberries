@@ -3246,6 +3246,7 @@ export const MassAdvertPage = () => {
                 );
             },
         },
+
         {
             additionalNodes: [] as any[],
             width: 200,
@@ -3385,6 +3386,10 @@ export const MassAdvertPage = () => {
                     </div>
                 );
             },
+        },
+        {
+            name: 'normquery',
+            placeholder: 'Нормализованный запрос',
         },
         {
             name: 'freq',
@@ -3686,6 +3691,10 @@ export const MassAdvertPage = () => {
             },
         },
         {
+            name: 'normquery',
+            placeholder: 'Нормализованный запрос',
+        },
+        {
             name: 'freq',
             placeholder: 'Частота',
         },
@@ -3983,6 +3992,10 @@ export const MassAdvertPage = () => {
                     </div>
                 );
             },
+        },
+        {
+            name: 'normquery',
+            placeholder: 'Нормализованный запрос',
         },
         {
             name: 'freq',
