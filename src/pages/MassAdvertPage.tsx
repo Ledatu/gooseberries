@@ -2004,7 +2004,13 @@ export const MassAdvertPage = () => {
         },
         {
             name: 'placements',
-            placeholder: 'Позиция',
+            placeholder:
+                'Позиция' +
+                (placementsDisplayPhrase != '' && currentParsingProgress[placementsDisplayPhrase]
+                    ? ` / Cпарсил: ${
+                          currentParsingProgress[placementsDisplayPhrase].progress / 100
+                      } стр.`
+                    : ''),
             width: placementsDisplayPhrase != '' ? '15vw' : undefined,
             additionalNodes: [
                 <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
@@ -2027,13 +2033,7 @@ export const MassAdvertPage = () => {
                                 100,
                             );
                             parseFirst10Pages(
-                                'поискке',
-                                setFetchedPlacements,
-                                setCurrentParsingProgress,
-                                10,
-                            );
-                            parseFirst10Pages(
-                                'автопо',
+                                'фраза для поиска',
                                 setFetchedPlacements,
                                 setCurrentParsingProgress,
                                 10,
@@ -2098,11 +2098,6 @@ export const MassAdvertPage = () => {
                                 <div style={{width: 4}} />
                             </div>
                             <Text>{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
-                            <div>
-                                {`Спарсил: ${
-                                    currentParsingProgress[placementsDisplayPhrase].progress / 100
-                                } стр.`}
-                            </div>
                         </Card>
                     );
                 }
