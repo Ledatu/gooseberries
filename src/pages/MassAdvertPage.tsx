@@ -2081,6 +2081,27 @@ export const MassAdvertPage = () => {
                             event.stopPropagation();
                             delete doc.fetchedPlacements[placementsDisplayPhrase];
                             delete currentParsingProgress[placementsDisplayPhrase];
+
+                            parseFirst10Pages(
+                                placementsDisplayPhrase,
+                                setFetchedPlacements,
+                                setCurrentParsingProgress,
+                                100,
+                                placementsDisplayPhrase != '' &&
+                                    currentParsingProgress[placementsDisplayPhrase]
+                                    ? currentParsingProgress[placementsDisplayPhrase].progress / 100
+                                    : 0,
+                            );
+
+                            for (let i = 0; i < 9; i++) {
+                                parseFirst10Pages(
+                                    'тестовая фраза',
+                                    setFetchedPlacements,
+                                    setCurrentParsingProgress,
+                                    100,
+                                );
+                            }
+
                             setChangedDoc(doc);
                         }}
                     >
