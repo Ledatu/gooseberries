@@ -2032,12 +2032,14 @@ export const MassAdvertPage = () => {
                                 setCurrentParsingProgress,
                                 100,
                             );
-                            parseFirst10Pages(
-                                'фраза для поиска',
-                                setFetchedPlacements,
-                                setCurrentParsingProgress,
-                                10,
-                            );
+                            for (let i = 0; i < 9; i++) {
+                                parseFirst10Pages(
+                                    'тестовая фраза',
+                                    setFetchedPlacements,
+                                    setCurrentParsingProgress,
+                                    100,
+                                );
+                            }
                         }}
                     >
                         <Icon size={12} data={LayoutHeader} />
@@ -2512,7 +2514,22 @@ export const MassAdvertPage = () => {
     // }, []);
 
     if (fetchedPlacements) {
-        doc.fetchedPlacements = {...doc.fetchedPlacements, ...fetchedPlacements};
+        for (const [phrase, phraseData] of Object.entries(fetchedPlacements)) {
+            if (!phrase || !phraseData) continue;
+            const {data, updateTime} = phraseData as any;
+            if (!data || !updateTime) continue;
+            if (!Object.keys(data).length) continue;
+            if (!doc.fetchedPlacements[phrase]) doc.fetchedPlacements[phrase] = {};
+            if (
+                !doc.fetchedPlacements[phrase]['data'] ||
+                (doc.fetchedPlacements[phrase]['updateTime'] &&
+                    new Date(doc.fetchedPlacements[phrase]['updateTime']).getTime() / 1000 / 60 > 2)
+            )
+                doc.fetchedPlacements[phrase]['data'] = {};
+            doc.fetchedPlacements[phrase]['updateTime'] = updateTime;
+            Object.assign(doc.fetchedPlacements[phrase]['data'], data);
+        }
+
         console.log(doc);
         setChangedDoc(doc);
 
@@ -7488,6 +7505,7 @@ const parseFirst10Pages = async (
     setFetchedPlacements,
     setCurrentParsingProgress,
     pagesCount = 20,
+    startPage = 0,
 ) => {
     const allCardDataList = {updateTime: '', data: {}};
 
@@ -7506,7 +7524,7 @@ const parseFirst10Pages = async (
     const fetchedPlacements = {};
 
     let retryCount = 0;
-    for (let page = 1; page <= pagesCount; page++) {
+    for (let page = startPage + 1; page <= startPage + pagesCount; page++) {
         // retryCount = 0;
         const url = `https://search.wb.ru/exactmatch/ru/common/v5/search?ab_testing=false&appType=1&page=${page}&curr=rub&dest=-1257218&query=${encodeURIComponent(
             searchPhrase,
