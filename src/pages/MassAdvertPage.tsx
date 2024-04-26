@@ -2894,7 +2894,7 @@ export const MassAdvertPage = () => {
                 } else if (filterArg == 'placements') {
                     if (filterData['val'] == '') {
                         setPlacementsDisplayPhrase('');
-                        break;
+                        continue;
                     }
                     const temp = isNaN(parseInt(filterData['val']));
 
@@ -6216,9 +6216,12 @@ export const MassAdvertPage = () => {
                         onClick={() => {
                             setFilters(() => {
                                 const newFilters = {undef: true};
-                                for (const [key, _] of Object.entries(filters as any)) {
-                                    if (key == 'undef' || !key) continue;
-                                    newFilters[key] = {val: '', compMode: 'include'};
+                                for (const [key, filterData] of Object.entries(filters as any)) {
+                                    if (key == 'undef' || !key || !filterData) continue;
+                                    newFilters[key] = {
+                                        val: '',
+                                        compMode: filterData['compMode'] ?? 'include',
+                                    };
                                 }
                                 filterTableData(newFilters);
                                 return newFilters;
