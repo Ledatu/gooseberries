@@ -101,7 +101,7 @@ export const NomenclaturesPage = () => {
         {name: 'weight', placeholder: 'Вес, кг.'},
         {name: 'commision', placeholder: 'Коммисия WB, %'},
         {name: 'tax', placeholder: 'Ставка налога, %'},
-        {name: 'expences', placeholder: 'Дополнительные расходы, ₽'},
+        {name: 'expences', placeholder: 'Дополнительные расходы, %'},
         {name: 'primeCost1', placeholder: 'Себестоимость 1, ₽'},
         {name: 'primeCost2', placeholder: 'Себестоимость 2, ₽'},
         {name: 'primeCost3', placeholder: 'Себестоимость 3, ₽'},
