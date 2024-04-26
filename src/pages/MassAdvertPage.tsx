@@ -2005,6 +2005,54 @@ export const MassAdvertPage = () => {
         {
             name: 'placements',
             placeholder: 'Позиция',
+            width: placementsDisplayPhrase != '' ? '15vw' : undefined,
+            additionalNodes: [
+                <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                    <Button
+                        loading={
+                            currentParsingProgress[placementsDisplayPhrase] &&
+                            currentParsingProgress[placementsDisplayPhrase].isParsing
+                        }
+                        style={{
+                            marginLeft: 5,
+                            display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
+                        }}
+                        view="outlined"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            parseFirst10Pages(
+                                placementsDisplayPhrase,
+                                setFetchedPlacements,
+                                setCurrentParsingProgress,
+                                100,
+                            );
+                            parseFirst10Pages(
+                                'поискке',
+                                setFetchedPlacements,
+                                setCurrentParsingProgress,
+                                10,
+                            );
+                            parseFirst10Pages(
+                                'автопо',
+                                setFetchedPlacements,
+                                setCurrentParsingProgress,
+                                10,
+                            );
+                        }}
+                    >
+                        <Icon size={12} data={LayoutHeader} />
+                    </Button>
+                    {currentParsingProgress[placementsDisplayPhrase] &&
+                    currentParsingProgress[placementsDisplayPhrase].isParsing ? (
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{width: 5}} />
+                            <Spin size="s" />
+                        </div>
+                    ) : (
+                        <></>
+                    )}
+                </div>,
+            ],
             render: ({value, row}) => {
                 if (placementsDisplayPhrase != '') {
                     const phrase = placementsDisplayPhrase;
@@ -2019,7 +2067,15 @@ export const MassAdvertPage = () => {
                     if (!index || index == -1) return undefined;
                     const {position} = log ?? {};
                     return (
-                        <Card view="outlined" style={{display: 'flex', flexDirection: 'column'}}>
+                        <Card
+                            view="clear"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: 96,
+                                width: 'max',
+                            }}
+                        >
                             <div style={{display: 'flex', flexDirection: 'row'}}>
                                 {position !== undefined ? (
                                     <div
@@ -2042,6 +2098,11 @@ export const MassAdvertPage = () => {
                                 <div style={{width: 4}} />
                             </div>
                             <Text>{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
+                            <div>
+                                {`Спарсил: ${
+                                    currentParsingProgress[placementsDisplayPhrase].progress / 100
+                                } стр.`}
+                            </div>
                         </Card>
                     );
                 }
@@ -2841,7 +2902,6 @@ export const MassAdvertPage = () => {
                         break;
                     }
                     const temp = isNaN(parseInt(filterData['val']));
-                    console.log(temp);
 
                     if (temp) {
                         setPlacementsDisplayPhrase(filterData['val']);
@@ -6161,6 +6221,10 @@ export const MassAdvertPage = () => {
                         onClick={() => {
                             setFilters(() => {
                                 const newFilters = {undef: true};
+                                for (const [key, _] of Object.entries(filters as any)) {
+                                    if (key == 'undef' || !key) continue;
+                                    newFilters[key] = {val: '', compMode: 'include'};
+                                }
                                 filterTableData(newFilters);
                                 return newFilters;
                             });
@@ -6811,19 +6875,30 @@ const generateCard = (args) => {
     );
 };
 
-const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentParsingProgress) => {
+const parseFirst10Pages = async (
+    searchPhrase,
+    setFetchedPlacements,
+    setCurrentParsingProgress,
+    pagesCount = 20,
+) => {
     const allCardDataList = {updateTime: '', data: {}};
 
     setCurrentParsingProgress((obj) => {
         const curVal = Object.assign({}, obj);
-        curVal[searchPhrase] = {max: 20 * 100, progress: 0, warnong: false, error: false};
+        curVal[searchPhrase] = {
+            max: pagesCount * 100,
+            progress: 0,
+            warnong: false,
+            error: false,
+            isParsing: false,
+        };
         return curVal;
     });
 
     const fetchedPlacements = {};
 
     let retryCount = 0;
-    for (let page = 1; page <= 20; page++) {
+    for (let page = 1; page <= pagesCount; page++) {
         // retryCount = 0;
         const url = `https://search.wb.ru/exactmatch/ru/common/v5/search?ab_testing=false&appType=1&page=${page}&curr=rub&dest=-1257218&query=${encodeURIComponent(
             searchPhrase,
@@ -6839,11 +6914,14 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
 
                     setCurrentParsingProgress((obj) => {
                         const curVal = Object.assign({}, obj);
-                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 20 * 100};
-                        if (index == 20 * 100) curVal[searchPhrase].warning = false;
+                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: pagesCount * 100};
+                        if (index == pagesCount * 100) curVal[searchPhrase].warning = false;
                         if (index % 100 == 0) {
                             curVal[searchPhrase].progress = index;
                         }
+                        curVal[searchPhrase].isParsing =
+                            curVal[searchPhrase].progress != curVal[searchPhrase].max &&
+                            !curVal[searchPhrase].error;
                         return curVal;
                     });
 
@@ -6865,8 +6943,11 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
                     console.log(searchPhrase, retryCount);
                     setCurrentParsingProgress((curVal) => {
                         if (!curVal[searchPhrase])
-                            curVal[searchPhrase] = {max: 20 * 100, progress: 0};
+                            curVal[searchPhrase] = {max: pagesCount * 100, progress: 0};
                         curVal[searchPhrase].warning = true;
+                        curVal[searchPhrase].isParsing =
+                            curVal[searchPhrase].progress != curVal[searchPhrase].max &&
+                            !curVal[searchPhrase].error;
                         return curVal;
                     });
                     // await new Promise((resolve) => setTimeout(resolve, 100));
@@ -6874,11 +6955,14 @@ const parseFirst10Pages = async (searchPhrase, setFetchedPlacements, setCurrentP
                 if (retryCount == 200) {
                     retryCount = 0;
                     setCurrentParsingProgress((curVal) => {
-                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: 20 * 100};
+                        if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: pagesCount * 100};
                         if (curVal[searchPhrase].progress < 100) {
                             curVal[searchPhrase].progress = curVal[searchPhrase].max;
                         }
                         curVal[searchPhrase].error = true;
+                        curVal[searchPhrase].isParsing =
+                            curVal[searchPhrase].progress != curVal[searchPhrase].max &&
+                            !curVal[searchPhrase].error;
                         return curVal;
                     });
                     break;
