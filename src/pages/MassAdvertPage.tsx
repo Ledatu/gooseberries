@@ -3399,6 +3399,604 @@ export const MassAdvertPage = () => {
             },
         },
     ];
+    const columnDataSemantics1 = [
+        {
+            name: 'preset',
+            valueType: 'text',
+            placeholder: 'Пресет',
+            render: ({value}) => {
+                const bad =
+                    semanticsModalSemanticsItemsValuePresets.includes(value) &&
+                    semanticsModalSemanticsMinusItemsValuePresets.includes(value);
+                return (
+                    <div>
+                        {bad ? (
+                            <Button
+                                size="xs"
+                                view={'flat-danger'}
+                                onClick={() => filterByButtonClusters(value, 'preset', 'include')}
+                            >
+                                {value}
+                            </Button>
+                        ) : (
+                            <Text>{value}</Text>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            additionalNodes: [] as any[],
+            width: 200,
+            name: 'cluster',
+            placeholder: 'Кластер',
+            valueType: 'text',
+            render: ({value}) => {
+                if (value.summary !== undefined) {
+                    return <Text>{`Всего: ${value.summary}`}</Text>;
+                }
+
+                let valueWrapped = value;
+                let curStrLen = 0;
+                if (value.length > 30) {
+                    valueWrapped = '';
+                    const titleArr = value.split(' ');
+                    for (const word of titleArr) {
+                        valueWrapped += word;
+                        curStrLen += word.length;
+                        if (curStrLen > 40) {
+                            valueWrapped += '\n';
+                            curStrLen = 0;
+                        } else {
+                            valueWrapped += ' ';
+                            curStrLen++;
+                        }
+                    }
+                }
+
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Text style={{whiteSpace: 'pre-wrap'}}>{valueWrapped}</Text>
+                        <div style={{width: 8}} />
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Button
+                                size="xs"
+                                view="outlined"
+                                href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${value}`}
+                                target="_blank"
+                            >
+                                <Icon data={Magnifier} />
+                            </Button>
+                            <div style={{width: 4}} />
+                            <Button
+                                size="xs"
+                                view={
+                                    selectedSearchPhrase == value ? 'outlined-success' : 'outlined'
+                                }
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    if (
+                                        !doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ]
+                                    )
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ] = {
+                                            phrase: '',
+                                        };
+
+                                    if (selectedSearchPhrase == value) {
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ] = undefined;
+                                    } else {
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ].phrase = value;
+                                    }
+
+                                    setChangedDoc(doc);
+
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {
+                                            mode:
+                                                selectedSearchPhrase == value
+                                                    ? 'Удалить'
+                                                    : 'Установить',
+                                            advertsIds: {},
+                                        },
+                                    };
+                                    params.data.advertsIds[modalOpenFromAdvertId] = {};
+                                    params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
+                                    console.log(params);
+
+                                    setSelectedSearchPhrase(
+                                        selectedSearchPhrase == value ? '' : value,
+                                    );
+
+                                    callApi('updateAdvertsSelectedPhrases', params);
+                                }}
+                            >
+                                <Icon data={ArrowShapeUp} />
+                            </Button>
+                            <div style={{width: 4}} />
+                            <Button
+                                size="xs"
+                                view={
+                                    semanticsModalSemanticsPlusItemsValue.includes(value)
+                                        ? 'outlined-warning'
+                                        : 'outlined'
+                                }
+                                onClick={() => {
+                                    let val = Array.from(semanticsModalSemanticsPlusItemsValue);
+                                    const cluster = value;
+                                    if (!val.includes(cluster)) {
+                                        val.push(cluster);
+                                    } else {
+                                        val = val.filter((value) => value != cluster);
+                                    }
+
+                                    setSemanticsModalSemanticsPlusItemsValue(val);
+                                    setSemanticsModalSemanticsTemplateItemsValue(() => {
+                                        const plusItemsTable = [] as any[];
+                                        for (const phrase of val) {
+                                            plusItemsTable.push({cluster: phrase});
+                                        }
+                                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(
+                                            plusItemsTable,
+                                        );
+                                        return plusItemsTable;
+                                    });
+                                }}
+                            >
+                                <Icon data={Plus} />
+                            </Button>
+                        </div>
+                    </div>
+                );
+            },
+        },
+        {
+            name: 'freq',
+            placeholder: 'Частота',
+        },
+        {
+            name: 'count',
+            placeholder: 'Показов, шт',
+        },
+        {
+            name: 'clicks',
+            placeholder: 'Кликов, шт',
+        },
+        {
+            name: 'ctr',
+            placeholder: 'CTR, %',
+        },
+        {
+            name: 'sum',
+            placeholder: 'Расход, ₽',
+        },
+        {
+            name: 'cpc',
+            placeholder: 'CPC, ₽',
+        },
+        {
+            name: 'placements',
+            placeholder: 'Позиция, №',
+            render: ({value, row}) => {
+                if (value === null) return;
+                const {cluster} = row;
+                return (
+                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                        <Button
+                            size="xs"
+                            view="flat"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                parseFirst10Pages(
+                                    cluster,
+                                    setFetchedPlacements,
+                                    setCurrentParsingProgress,
+                                );
+                            }}
+                        >
+                            {doc.fetchedPlacements[cluster] &&
+                            doc.campaigns[selectValue[0]][semanticsModalOpenFromArt] ? (
+                                doc.fetchedPlacements[cluster].data[
+                                    doc.campaigns[selectValue[0]][semanticsModalOpenFromArt].nmId
+                                ] ? (
+                                    doc.fetchedPlacements[cluster].data[
+                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
+                                            .nmId
+                                    ].log &&
+                                    doc.fetchedPlacements[cluster].data[
+                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
+                                            .nmId
+                                    ].log.position !== undefined ? (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <Text color="secondary">{`${
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][
+                                                        semanticsModalOpenFromArt
+                                                    ].nmId
+                                                ].log.position + 1
+                                            }`}</Text>
+                                            <div style={{width: 3}} />
+                                            <Icon data={ArrowRight} size={13}></Icon>
+                                            <div style={{width: 3}} />
+                                            {
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][
+                                                        semanticsModalOpenFromArt
+                                                    ].nmId
+                                                ].index
+                                            }
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][
+                                                        semanticsModalOpenFromArt
+                                                    ].nmId
+                                                ].index
+                                            }
+                                        </>
+                                    )
+                                ) : (
+                                    'Нет в выдаче'
+                                )
+                            ) : (
+                                '№'
+                            )}
+                            <Icon size={12} data={LayoutHeader} />
+                        </Button>
+                        {currentParsingProgress[cluster] &&
+                        currentParsingProgress[cluster].progress !== undefined &&
+                        currentParsingProgress[cluster].progress !=
+                            currentParsingProgress[cluster].max ? (
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <div style={{width: 4}} />
+                                {currentParsingProgress[cluster].error ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        {`${
+                                            currentParsingProgress[cluster].progress / 100
+                                        }/20 стр.`}
+                                        <div style={{width: 3}} />
+                                        <Icon size={12} data={TriangleExclamation} />
+                                    </div>
+                                ) : (
+                                    <Spin size="xs" />
+                                )}
+                            </div>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+                );
+            },
+        },
+    ];
+    const columnDataSemantics2 = [
+        {
+            name: 'preset',
+            valueType: 'text',
+            placeholder: 'Пресет',
+            render: ({value}) => {
+                const bad =
+                    semanticsModalSemanticsItemsValuePresets.includes(value) &&
+                    semanticsModalSemanticsMinusItemsValuePresets.includes(value);
+                return (
+                    <div>
+                        {bad ? (
+                            <Button
+                                size="xs"
+                                view={'flat-danger'}
+                                onClick={() => filterByButtonClusters(value, 'preset', 'include')}
+                            >
+                                {value}
+                            </Button>
+                        ) : (
+                            <Text>{value}</Text>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            additionalNodes: [] as any[],
+            width: 200,
+            name: 'cluster',
+            placeholder: 'Кластер',
+            valueType: 'text',
+            render: ({value}) => {
+                if (value.summary !== undefined) {
+                    return <Text>{`Всего: ${value.summary}`}</Text>;
+                }
+
+                let valueWrapped = value;
+                let curStrLen = 0;
+                if (value.length > 30) {
+                    valueWrapped = '';
+                    const titleArr = value.split(' ');
+                    for (const word of titleArr) {
+                        valueWrapped += word;
+                        curStrLen += word.length;
+                        if (curStrLen > 40) {
+                            valueWrapped += '\n';
+                            curStrLen = 0;
+                        } else {
+                            valueWrapped += ' ';
+                            curStrLen++;
+                        }
+                    }
+                }
+
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Text style={{whiteSpace: 'pre-wrap'}}>{valueWrapped}</Text>
+                        <div style={{width: 8}} />
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Button
+                                size="xs"
+                                view="outlined"
+                                href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${value}`}
+                                target="_blank"
+                            >
+                                <Icon data={Magnifier} />
+                            </Button>
+                            <div style={{width: 4}} />
+                            <Button
+                                size="xs"
+                                view={
+                                    selectedSearchPhrase == value ? 'outlined-success' : 'outlined'
+                                }
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    if (
+                                        !doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ]
+                                    )
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ] = {
+                                            phrase: '',
+                                        };
+
+                                    if (selectedSearchPhrase == value) {
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ] = undefined;
+                                    } else {
+                                        doc['advertsSelectedPhrases'][selectValue[0]][
+                                            modalOpenFromAdvertId
+                                        ].phrase = value;
+                                    }
+
+                                    setChangedDoc(doc);
+
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {
+                                            mode:
+                                                selectedSearchPhrase == value
+                                                    ? 'Удалить'
+                                                    : 'Установить',
+                                            advertsIds: {},
+                                        },
+                                    };
+                                    params.data.advertsIds[modalOpenFromAdvertId] = {};
+                                    params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
+                                    console.log(params);
+
+                                    setSelectedSearchPhrase(
+                                        selectedSearchPhrase == value ? '' : value,
+                                    );
+
+                                    callApi('updateAdvertsSelectedPhrases', params);
+                                }}
+                            >
+                                <Icon data={ArrowShapeUp} />
+                            </Button>
+                            <div style={{width: 4}} />
+                            <Button
+                                size="xs"
+                                view={
+                                    semanticsModalSemanticsPlusItemsValue.includes(value)
+                                        ? 'outlined-warning'
+                                        : 'outlined'
+                                }
+                                onClick={() => {
+                                    let val = Array.from(semanticsModalSemanticsPlusItemsValue);
+                                    const cluster = value;
+                                    if (!val.includes(cluster)) {
+                                        val.push(cluster);
+                                    } else {
+                                        val = val.filter((value) => value != cluster);
+                                    }
+
+                                    setSemanticsModalSemanticsPlusItemsValue(val);
+                                    setSemanticsModalSemanticsTemplateItemsValue(() => {
+                                        const plusItemsTable = [] as any[];
+                                        for (const phrase of val) {
+                                            plusItemsTable.push({cluster: phrase});
+                                        }
+                                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(
+                                            plusItemsTable,
+                                        );
+                                        return plusItemsTable;
+                                    });
+                                }}
+                            >
+                                <Icon data={Plus} />
+                            </Button>
+                        </div>
+                    </div>
+                );
+            },
+        },
+        {
+            name: 'freq',
+            placeholder: 'Частота',
+        },
+        {
+            name: 'count',
+            placeholder: 'Показов, шт',
+        },
+        {
+            name: 'clicks',
+            placeholder: 'Кликов, шт',
+        },
+        {
+            name: 'ctr',
+            placeholder: 'CTR, %',
+        },
+        {
+            name: 'sum',
+            placeholder: 'Расход, ₽',
+        },
+        {
+            name: 'cpc',
+            placeholder: 'CPC, ₽',
+        },
+        {
+            name: 'placements',
+            placeholder: 'Позиция, №',
+            render: ({value, row}) => {
+                if (value === null) return;
+                const {cluster} = row;
+                return (
+                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                        <Button
+                            size="xs"
+                            view="flat"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                parseFirst10Pages(
+                                    cluster,
+                                    setFetchedPlacements,
+                                    setCurrentParsingProgress,
+                                );
+                            }}
+                        >
+                            {doc.fetchedPlacements[cluster] &&
+                            doc.campaigns[selectValue[0]][semanticsModalOpenFromArt] ? (
+                                doc.fetchedPlacements[cluster].data[
+                                    doc.campaigns[selectValue[0]][semanticsModalOpenFromArt].nmId
+                                ] ? (
+                                    doc.fetchedPlacements[cluster].data[
+                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
+                                            .nmId
+                                    ].log &&
+                                    doc.fetchedPlacements[cluster].data[
+                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
+                                            .nmId
+                                    ].log.position !== undefined ? (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <Text color="secondary">{`${
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][
+                                                        semanticsModalOpenFromArt
+                                                    ].nmId
+                                                ].log.position + 1
+                                            }`}</Text>
+                                            <div style={{width: 3}} />
+                                            <Icon data={ArrowRight} size={13}></Icon>
+                                            <div style={{width: 3}} />
+                                            {
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][
+                                                        semanticsModalOpenFromArt
+                                                    ].nmId
+                                                ].index
+                                            }
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {
+                                                doc.fetchedPlacements[cluster].data[
+                                                    doc.campaigns[selectValue[0]][
+                                                        semanticsModalOpenFromArt
+                                                    ].nmId
+                                                ].index
+                                            }
+                                        </>
+                                    )
+                                ) : (
+                                    'Нет в выдаче'
+                                )
+                            ) : (
+                                '№'
+                            )}
+                            <Icon size={12} data={LayoutHeader} />
+                        </Button>
+                        {currentParsingProgress[cluster] &&
+                        currentParsingProgress[cluster].progress !== undefined &&
+                        currentParsingProgress[cluster].progress !=
+                            currentParsingProgress[cluster].max ? (
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <div style={{width: 4}} />
+                                {currentParsingProgress[cluster].error ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        {`${
+                                            currentParsingProgress[cluster].progress / 100
+                                        }/20 стр.`}
+                                        <div style={{width: 3}} />
+                                        <Icon size={12} data={TriangleExclamation} />
+                                    </div>
+                                ) : (
+                                    <Spin size="xs" />
+                                )}
+                            </div>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+                );
+            },
+        },
+    ];
 
     // const [auctionFilters, setAuctionFilters] = useState({undef: false});
     // const [auctionTableData, setAuctionTableData] = useState<any[]>([]);
@@ -3481,9 +4079,9 @@ export const MassAdvertPage = () => {
     //     filterAuctionData,
     // );
 
-    const renameFirstColumn = (newName: string, additionalNodes = [] as any[]) => {
+    const renameFirstColumn = (colss, newName: string, additionalNodes = [] as any[]) => {
         const index = 1;
-        const columnDataSemanticsCopy = Array.from(columnDataSemantics);
+        const columnDataSemanticsCopy = Array.from(colss) as any[];
         columnDataSemanticsCopy[index].placeholder = newName;
         columnDataSemanticsCopy[index].additionalNodes = additionalNodes;
         return columnDataSemanticsCopy;
@@ -5171,18 +5769,22 @@ export const MassAdvertPage = () => {
                                 }}
                             >
                                 <TheTable
-                                    columnData={renameFirstColumn('Кластеры в показах', [
-                                        generateMassAddDelButton({
-                                            placeholder: 'Добавить все',
-                                            array: semanticsModalSemanticsItemsFiltratedValue,
-                                            mode: 'add',
-                                        }),
-                                        generateMassAddDelButton({
-                                            placeholder: 'Удалить все',
-                                            array: semanticsModalSemanticsItemsFiltratedValue,
-                                            mode: 'del',
-                                        }),
-                                    ])}
+                                    columnData={renameFirstColumn(
+                                        columnDataSemantics,
+                                        'Кластеры в показах',
+                                        [
+                                            generateMassAddDelButton({
+                                                placeholder: 'Добавить все',
+                                                array: semanticsModalSemanticsItemsFiltratedValue,
+                                                mode: 'add',
+                                            }),
+                                            generateMassAddDelButton({
+                                                placeholder: 'Удалить все',
+                                                array: semanticsModalSemanticsItemsFiltratedValue,
+                                                mode: 'del',
+                                            }),
+                                        ],
+                                    )}
                                     data={semanticsModalSemanticsItemsFiltratedValue}
                                     filters={clustersFiltersActive}
                                     setFilters={setClustersFiltersActive}
@@ -5208,13 +5810,17 @@ export const MassAdvertPage = () => {
                                     }}
                                 >
                                     <TheTable
-                                        columnData={renameFirstColumn('Кластеры в шаблоне', [
-                                            generateMassAddDelButton({
-                                                placeholder: 'Удалить все',
-                                                array: semanticsModalSemanticsTemplateItemsFiltratedValue,
-                                                mode: 'del',
-                                            }),
-                                        ]).slice(1, 2)}
+                                        columnData={renameFirstColumn(
+                                            columnDataSemantics1,
+                                            'Кластеры в шаблоне',
+                                            [
+                                                generateMassAddDelButton({
+                                                    placeholder: 'Удалить все',
+                                                    array: semanticsModalSemanticsTemplateItemsFiltratedValue,
+                                                    mode: 'del',
+                                                }),
+                                            ],
+                                        ).slice(1, 2)}
                                         data={semanticsModalSemanticsTemplateItemsFiltratedValue}
                                         filters={clustersFiltersTemplate}
                                         setFilters={setClustersFiltersTemplate}
@@ -5771,18 +6377,22 @@ export const MassAdvertPage = () => {
                             </div>
                             <div style={{height: '28vh', overflow: 'auto', width: '100%'}}>
                                 <TheTable
-                                    columnData={renameFirstColumn('Исключенные кластеры', [
-                                        generateMassAddDelButton({
-                                            placeholder: 'Добавить все',
-                                            array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                                            mode: 'add',
-                                        }),
-                                        generateMassAddDelButton({
-                                            placeholder: 'Удалить все',
-                                            array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                                            mode: 'del',
-                                        }),
-                                    ])}
+                                    columnData={renameFirstColumn(
+                                        columnDataSemantics2,
+                                        'Исключенные кластеры',
+                                        [
+                                            generateMassAddDelButton({
+                                                placeholder: 'Добавить все',
+                                                array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                                mode: 'add',
+                                            }),
+                                            generateMassAddDelButton({
+                                                placeholder: 'Удалить все',
+                                                array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                                mode: 'del',
+                                            }),
+                                        ],
+                                    )}
                                     data={semanticsModalSemanticsMinusItemsFiltratedValue}
                                     filters={clustersFiltersMinus}
                                     setFilters={setClustersFiltersMinus}
