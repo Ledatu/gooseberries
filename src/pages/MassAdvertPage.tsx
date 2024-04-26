@@ -626,10 +626,16 @@ export const MassAdvertPage = () => {
         setFilters(filters);
         filterTableData(filters);
     };
-    const filterByButtonClusters = (val, key = 'art', compMode = 'include') => {
-        clustersFiltersMinus[key] = {val: String(val), compMode: compMode};
-        setClustersFiltersMinus(clustersFiltersMinus);
-        clustersFilterDataMinus(clustersFiltersMinus, semanticsModalSemanticsMinusItemsValue);
+    const filterByButtonClusters = (val, activeFlag, key = 'art', compMode = 'include') => {
+        if (activeFlag) {
+            clustersFiltersActive[key] = {val: String(val), compMode: compMode};
+            setClustersFiltersActive(clustersFiltersActive);
+            clustersFilterDataActive(clustersFiltersActive, semanticsModalSemanticsItemsValue);
+        } else {
+            clustersFiltersMinus[key] = {val: String(val), compMode: compMode};
+            setClustersFiltersMinus(clustersFiltersMinus);
+            clustersFilterDataMinus(clustersFiltersMinus, semanticsModalSemanticsMinusItemsValue);
+        }
     };
 
     const calcByDayStats = (arts) => {
@@ -3171,17 +3177,32 @@ export const MassAdvertPage = () => {
                     semanticsModalSemanticsItemsValuePresets.includes(value) &&
                     semanticsModalSemanticsMinusItemsValuePresets.includes(value);
                 return (
-                    <div style={{maxWidth: 100, overflow: 'hidden'}}>
+                    <div
+                        style={{
+                            maxWidth: 100,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
                         {bad ? (
                             <Button
                                 size="xs"
                                 view={'flat-danger'}
-                                onClick={() => filterByButtonClusters(value, 'preset', 'include')}
+                                onClick={() =>
+                                    filterByButtonClusters(value, false, 'preset', 'include')
+                                }
                             >
                                 {value}
                             </Button>
                         ) : (
-                            <Button size="xs" view={'flat'} disabled>
+                            <Button
+                                size="xs"
+                                view={'flat'}
+                                onClick={() =>
+                                    filterByButtonClusters(value, true, 'preset', 'include')
+                                }
+                            >
                                 <Text color="primary">{value}</Text>
                             </Button>
                         )}
@@ -3189,7 +3210,6 @@ export const MassAdvertPage = () => {
                 );
             },
         },
-
         {
             additionalNodes: [] as any[],
             width: 200,
@@ -3463,17 +3483,34 @@ export const MassAdvertPage = () => {
                     semanticsModalSemanticsItemsValuePresets.includes(value) &&
                     semanticsModalSemanticsMinusItemsValuePresets.includes(value);
                 return (
-                    <div style={{maxWidth: 100, overflow: 'hidden'}}>
+                    <div
+                        style={{
+                            maxWidth: 100,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
                         {bad ? (
                             <Button
                                 size="xs"
                                 view={'flat-danger'}
-                                onClick={() => filterByButtonClusters(value, 'preset', 'include')}
+                                onClick={() =>
+                                    filterByButtonClusters(value, true, 'preset', 'include')
+                                }
                             >
                                 {value}
                             </Button>
                         ) : (
-                            <Text>{value}</Text>
+                            <Button
+                                size="xs"
+                                view={'flat'}
+                                onClick={() =>
+                                    filterByButtonClusters(value, false, 'preset', 'include')
+                                }
+                            >
+                                <Text color="primary">{value}</Text>
+                            </Button>
                         )}
                     </div>
                 );
