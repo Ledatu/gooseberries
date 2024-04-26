@@ -40,6 +40,7 @@ import {
     ArrowsRotateLeft,
     TriangleExclamation,
     ChartLine,
+    ArrowRotateLeft,
     CircleRuble,
     SlidersVertical,
     ChevronDown,
@@ -2051,9 +2052,13 @@ export const MassAdvertPage = () => {
                                         : placementsDisplayPhrase,
                                 );
 
-                                doc.advertsSelectedPhrases[selectValue[0]][advertId] = {
-                                    phrase: placementsDisplayPhrase,
-                                };
+                                if (selectedSearchPhrase == placementsDisplayPhrase) {
+                                    delete doc.advertsSelectedPhrases[selectValue[0]][advertId];
+                                } else {
+                                    doc.advertsSelectedPhrases[selectValue[0]][advertId] = {
+                                        phrase: placementsDisplayPhrase,
+                                    };
+                                }
                             }
                             console.log(params);
                             setChangedDoc(doc);
@@ -2061,6 +2066,25 @@ export const MassAdvertPage = () => {
                         }}
                     >
                         <Icon size={12} data={ArrowShapeUp} />
+                    </Button>
+                    <Button
+                        disabled={
+                            currentParsingProgress[placementsDisplayPhrase] &&
+                            currentParsingProgress[placementsDisplayPhrase].isParsing
+                        }
+                        style={{
+                            marginLeft: 5,
+                            display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
+                        }}
+                        view="outlined"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            delete doc.fetchedPlacements[placementsDisplayPhrase];
+                            delete currentParsingProgress[placementsDisplayPhrase];
+                            setChangedDoc(doc);
+                        }}
+                    >
+                        <Icon size={12} data={ArrowRotateLeft} />
                     </Button>
                     <Button
                         loading={
@@ -2079,7 +2103,14 @@ export const MassAdvertPage = () => {
                                 setFetchedPlacements,
                                 setCurrentParsingProgress,
                                 100,
+                                placementsDisplayPhrase != '' &&
+                                    currentParsingProgress[placementsDisplayPhrase]
+                                    ? currentParsingProgress[placementsDisplayPhrase].progress / 100
+                                    : 0,
+                                doc.fetchedPlacements[placementsDisplayPhrase],
+                                currentParsingProgress[placementsDisplayPhrase],
                             );
+
                             for (let i = 0; i < 9; i++) {
                                 parseFirst10Pages(
                                     'тестовая фраза',
@@ -7557,15 +7588,27 @@ const parseFirst10Pages = async (
     setCurrentParsingProgress,
     pagesCount = 20,
     startPage = 0,
+    startValuesList = {updateTime: '', data: {}},
+    startValuesProg = {
+        max: pagesCount * 100,
+        progress: 0,
+        warning: false,
+        error: false,
+        isParsing: false,
+    },
 ) => {
-    const allCardDataList = {updateTime: '', data: {}};
+    const allCardDataList = startValuesList ?? {updateTime: '', data: {}};
 
     setCurrentParsingProgress((obj) => {
         const curVal = Object.assign({}, obj);
-        curVal[searchPhrase] = {
+        if (startValuesProg) {
+            startValuesProg.error = false;
+            startValuesProg.warning = false;
+        }
+        curVal[searchPhrase] = startValuesProg ?? {
             max: pagesCount * 100,
             progress: 0,
-            warnong: false,
+            warning: false,
             error: false,
             isParsing: false,
         };
@@ -7575,7 +7618,7 @@ const parseFirst10Pages = async (
     const fetchedPlacements = {};
 
     let retryCount = 0;
-    for (let page = startPage + 1; page <= startPage + pagesCount; page++) {
+    for (let page = startPage + 1; page <= pagesCount; page++) {
         // retryCount = 0;
         const url = `https://search.wb.ru/exactmatch/ru/common/v5/search?ab_testing=false&appType=1&page=${page}&curr=rub&dest=-1257218&query=${encodeURIComponent(
             searchPhrase,
