@@ -229,20 +229,8 @@ export const MassAdvertPage = () => {
     ] = useState<any[]>([]);
     const [semanticsModalSemanticsMinusItemsValue, setSemanticsModalSemanticsMinusItemsValue] =
         useState<any[]>([]);
-    const [
-        semanticsModalSemanticsTemplateItemsFiltratedValue,
-        setSemanticsModalSemanticsTemplateItemsFiltratedValue,
-    ] = useState<any[]>([]);
-    const [
-        semanticsModalSemanticsTemplateItemsValue,
-        setSemanticsModalSemanticsTemplateItemsValue,
-    ] = useState<any[]>([]);
     const [semanticsModalSemanticsPlusItemsValue, setSemanticsModalSemanticsPlusItemsValue] =
         useState<any[]>([]);
-    const [
-        semanticsModalSemanticsPlusItemsTemplateNameValue,
-        setSemanticsModalSemanticsPlusItemsTemplateNameValue,
-    ] = useState('Не установлен');
     const [
         semanticsModalSemanticsPlusItemsTemplateNameSaveValue,
         setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue,
@@ -495,37 +483,6 @@ export const MassAdvertPage = () => {
         semanticsFilteredSummary.minus.cpc = getRoundValue(sum, clicks);
         semanticsFilteredSummary.minus.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
-    };
-    const [clustersFiltersTemplate, setClustersFiltersTemplate] = useState({undef: false});
-    const clustersFilterDataTemplate = (withfFilters: any, clusters: any[]) => {
-        const _clustersFilters = withfFilters ?? clustersFiltersTemplate;
-        const _clusters = clusters ?? semanticsModalSemanticsTemplateItemsValue;
-        // console.log(_clustersFilters, _clusters);
-
-        semanticsFilteredSummary.template = {
-            cluster: {summary: 0},
-        };
-
-        const temp = [] as any[];
-        for (const cluster of _clusters) {
-            let addFlag = true;
-            for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
-                if (filterArg == 'undef' || !filterData) continue;
-                if (filterData['val'] == '') continue;
-                else if (!compare(cluster[filterArg], filterData)) {
-                    addFlag = false;
-                    break;
-                }
-            }
-
-            if (addFlag) {
-                semanticsFilteredSummary.template.cluster.summary++;
-                temp.push(cluster);
-            }
-        }
-        // console.log(temp);
-
-        setSemanticsModalSemanticsTemplateItemsFiltratedValue([...temp]);
     };
 
     const [pagesTotal, setPagesTotal] = useState(1);
@@ -1457,9 +1414,6 @@ export const MassAdvertPage = () => {
                                         setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
                                         return temp;
                                     });
-                                    setSemanticsModalSemanticsPlusItemsTemplateNameValue(
-                                        plusPhrasesTemplate ?? 'Не установлен',
-                                    );
 
                                     const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][
                                         plusPhrasesTemplate
@@ -1512,7 +1466,6 @@ export const MassAdvertPage = () => {
 
                                     setClustersFiltersActive({undef: false});
                                     setClustersFiltersMinus({undef: false});
-                                    setClustersFiltersTemplate({undef: false});
 
                                     // // console.log(value.plus);
                                     setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
@@ -1527,18 +1480,6 @@ export const MassAdvertPage = () => {
                                         : [];
                                     setSemanticsModalSemanticsPlusItemsValue(plusItems);
 
-                                    setSemanticsModalSemanticsTemplateItemsValue(() => {
-                                        const plusItemsTable = [] as any[];
-                                        for (const phrase of plusItems) {
-                                            plusItemsTable.push({
-                                                cluster: phrase,
-                                            });
-                                        }
-                                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(
-                                            plusItemsTable,
-                                        );
-                                        return plusItemsTable;
-                                    });
                                     // setSemanticsModalTextAreaValue('');
                                     // setSemanticsModalTextAreaAddMode(false);
                                 }}
@@ -3230,7 +3171,7 @@ export const MassAdvertPage = () => {
                     semanticsModalSemanticsItemsValuePresets.includes(value) &&
                     semanticsModalSemanticsMinusItemsValuePresets.includes(value);
                 return (
-                    <div>
+                    <div style={{maxWidth: 100, overflow: 'hidden'}}>
                         {bad ? (
                             <Button
                                 size="xs"
@@ -3368,16 +3309,6 @@ export const MassAdvertPage = () => {
                                     }
 
                                     setSemanticsModalSemanticsPlusItemsValue(val);
-                                    setSemanticsModalSemanticsTemplateItemsValue(() => {
-                                        const plusItemsTable = [] as any[];
-                                        for (const phrase of val) {
-                                            plusItemsTable.push({cluster: phrase});
-                                        }
-                                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(
-                                            plusItemsTable,
-                                        );
-                                        return plusItemsTable;
-                                    });
                                 }}
                             >
                                 <Icon data={Plus} />
@@ -3386,313 +3317,6 @@ export const MassAdvertPage = () => {
                     </div>
                 );
             },
-        },
-        {
-            name: 'normquery',
-            placeholder: 'Нормализованный запрос',
-        },
-        {
-            name: 'freq',
-            placeholder: 'Частота',
-        },
-        {
-            name: 'count',
-            placeholder: 'Показов, шт',
-        },
-        {
-            name: 'clicks',
-            placeholder: 'Кликов, шт',
-        },
-        {
-            name: 'ctr',
-            placeholder: 'CTR, %',
-        },
-        {
-            name: 'sum',
-            placeholder: 'Расход, ₽',
-        },
-        {
-            name: 'cpc',
-            placeholder: 'CPC, ₽',
-        },
-        {
-            name: 'placements',
-            placeholder: 'Позиция, №',
-            render: ({value, row}) => {
-                if (value === null) return;
-                const {cluster} = row;
-                return (
-                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                        <Button
-                            size="xs"
-                            view="flat"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                parseFirst10Pages(
-                                    cluster,
-                                    setFetchedPlacements,
-                                    setCurrentParsingProgress,
-                                );
-                            }}
-                        >
-                            {doc.fetchedPlacements[cluster] &&
-                            doc.campaigns[selectValue[0]][semanticsModalOpenFromArt] ? (
-                                doc.fetchedPlacements[cluster].data[
-                                    doc.campaigns[selectValue[0]][semanticsModalOpenFromArt].nmId
-                                ] ? (
-                                    doc.fetchedPlacements[cluster].data[
-                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
-                                            .nmId
-                                    ].log &&
-                                    doc.fetchedPlacements[cluster].data[
-                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
-                                            .nmId
-                                    ].log.position !== undefined ? (
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <Text color="secondary">{`${
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].log.position + 1
-                                            }`}</Text>
-                                            <div style={{width: 3}} />
-                                            <Icon data={ArrowRight} size={13}></Icon>
-                                            <div style={{width: 3}} />
-                                            {
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].index
-                                            }
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].index
-                                            }
-                                        </>
-                                    )
-                                ) : (
-                                    'Нет в выдаче'
-                                )
-                            ) : (
-                                '№'
-                            )}
-                            <Icon size={12} data={LayoutHeader} />
-                        </Button>
-                        {currentParsingProgress[cluster] &&
-                        currentParsingProgress[cluster].progress !== undefined &&
-                        currentParsingProgress[cluster].progress !=
-                            currentParsingProgress[cluster].max ? (
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <div style={{width: 4}} />
-                                {currentParsingProgress[cluster].error ? (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        {`${
-                                            currentParsingProgress[cluster].progress / 100
-                                        }/20 стр.`}
-                                        <div style={{width: 3}} />
-                                        <Icon size={12} data={TriangleExclamation} />
-                                    </div>
-                                ) : (
-                                    <Spin size="xs" />
-                                )}
-                            </div>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-                );
-            },
-        },
-    ];
-    const columnDataSemantics1 = [
-        {
-            name: 'preset',
-            valueType: 'text',
-            placeholder: 'Пресет',
-            render: ({value}) => {
-                const bad =
-                    semanticsModalSemanticsItemsValuePresets.includes(value) &&
-                    semanticsModalSemanticsMinusItemsValuePresets.includes(value);
-                return (
-                    <div>
-                        {bad ? (
-                            <Button
-                                size="xs"
-                                view={'flat-danger'}
-                                onClick={() => filterByButtonClusters(value, 'preset', 'include')}
-                            >
-                                {value}
-                            </Button>
-                        ) : (
-                            <Text>{value}</Text>
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
-            additionalNodes: [] as any[],
-            width: 200,
-            name: 'cluster',
-            placeholder: 'Кластер',
-            valueType: 'text',
-            render: ({value}) => {
-                if (value.summary !== undefined) {
-                    return <Text>{`Всего: ${value.summary}`}</Text>;
-                }
-
-                let valueWrapped = value;
-                let curStrLen = 0;
-                if (value.length > 30) {
-                    valueWrapped = '';
-                    const titleArr = value.split(' ');
-                    for (const word of titleArr) {
-                        valueWrapped += word;
-                        curStrLen += word.length;
-                        if (curStrLen > 40) {
-                            valueWrapped += '\n';
-                            curStrLen = 0;
-                        } else {
-                            valueWrapped += ' ';
-                            curStrLen++;
-                        }
-                    }
-                }
-
-                return (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                        }}
-                    >
-                        <Text style={{whiteSpace: 'pre-wrap'}}>{valueWrapped}</Text>
-                        <div style={{width: 8}} />
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button
-                                size="xs"
-                                view="outlined"
-                                href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${value}`}
-                                target="_blank"
-                            >
-                                <Icon data={Magnifier} />
-                            </Button>
-                            <div style={{width: 4}} />
-                            <Button
-                                size="xs"
-                                view={
-                                    selectedSearchPhrase == value ? 'outlined-success' : 'outlined'
-                                }
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    if (
-                                        !doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ]
-                                    )
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = {
-                                            phrase: '',
-                                        };
-
-                                    if (selectedSearchPhrase == value) {
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = undefined;
-                                    } else {
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ].phrase = value;
-                                    }
-
-                                    setChangedDoc(doc);
-
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            mode:
-                                                selectedSearchPhrase == value
-                                                    ? 'Удалить'
-                                                    : 'Установить',
-                                            advertsIds: {},
-                                        },
-                                    };
-                                    params.data.advertsIds[modalOpenFromAdvertId] = {};
-                                    params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
-                                    console.log(params);
-
-                                    setSelectedSearchPhrase(
-                                        selectedSearchPhrase == value ? '' : value,
-                                    );
-
-                                    callApi('updateAdvertsSelectedPhrases', params);
-                                }}
-                            >
-                                <Icon data={ArrowShapeUp} />
-                            </Button>
-                            <div style={{width: 4}} />
-                            <Button
-                                size="xs"
-                                view={
-                                    semanticsModalSemanticsPlusItemsValue.includes(value)
-                                        ? 'outlined-warning'
-                                        : 'outlined'
-                                }
-                                onClick={() => {
-                                    let val = Array.from(semanticsModalSemanticsPlusItemsValue);
-                                    const cluster = value;
-                                    if (!val.includes(cluster)) {
-                                        val.push(cluster);
-                                    } else {
-                                        val = val.filter((value) => value != cluster);
-                                    }
-
-                                    setSemanticsModalSemanticsPlusItemsValue(val);
-                                    setSemanticsModalSemanticsTemplateItemsValue(() => {
-                                        const plusItemsTable = [] as any[];
-                                        for (const phrase of val) {
-                                            plusItemsTable.push({cluster: phrase});
-                                        }
-                                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(
-                                            plusItemsTable,
-                                        );
-                                        return plusItemsTable;
-                                    });
-                                }}
-                            >
-                                <Icon data={Plus} />
-                            </Button>
-                        </div>
-                    </div>
-                );
-            },
-        },
-        {
-            name: 'normquery',
-            placeholder: 'Нормализованный запрос',
         },
         {
             name: 'freq',
@@ -3837,7 +3461,7 @@ export const MassAdvertPage = () => {
                     semanticsModalSemanticsItemsValuePresets.includes(value) &&
                     semanticsModalSemanticsMinusItemsValuePresets.includes(value);
                 return (
-                    <div>
+                    <div style={{maxWidth: 100, overflow: 'hidden'}}>
                         {bad ? (
                             <Button
                                 size="xs"
@@ -3974,16 +3598,6 @@ export const MassAdvertPage = () => {
                                     }
 
                                     setSemanticsModalSemanticsPlusItemsValue(val);
-                                    setSemanticsModalSemanticsTemplateItemsValue(() => {
-                                        const plusItemsTable = [] as any[];
-                                        for (const phrase of val) {
-                                            plusItemsTable.push({cluster: phrase});
-                                        }
-                                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(
-                                            plusItemsTable,
-                                        );
-                                        return plusItemsTable;
-                                    });
                                 }}
                             >
                                 <Icon data={Plus} />
@@ -3992,10 +3606,6 @@ export const MassAdvertPage = () => {
                     </div>
                 );
             },
-        },
-        {
-            name: 'normquery',
-            placeholder: 'Нормализованный запрос',
         },
         {
             name: 'freq',
@@ -4245,14 +3855,6 @@ export const MassAdvertPage = () => {
                     }
 
                     setSemanticsModalSemanticsPlusItemsValue(val);
-                    setSemanticsModalSemanticsTemplateItemsValue(() => {
-                        const plusItemsTable = [] as any[];
-                        for (const phrase of val) {
-                            plusItemsTable.push({cluster: phrase});
-                        }
-                        setSemanticsModalSemanticsTemplateItemsFiltratedValue(plusItemsTable);
-                        return plusItemsTable;
-                    });
                 }}
             >
                 {placeholder}
@@ -5879,10 +5481,6 @@ export const MassAdvertPage = () => {
                                     {cluster: {val: '', mode: 'include'}},
                                     semanticsModalSemanticsMinusItemsValue,
                                 );
-                                clustersFilterDataTemplate(
-                                    {cluster: {val: '', mode: 'include'}},
-                                    semanticsModalSemanticsTemplateItemsValue,
-                                );
                             }}
                             animate={{width: semanticsModalFormOpen ? '80vw' : 0}}
                             style={{
@@ -5896,38 +5494,6 @@ export const MassAdvertPage = () => {
                         >
                             <div
                                 style={{
-                                    height: '28vh',
-                                    width: '100%',
-                                    overflow: 'auto',
-                                }}
-                            >
-                                <TheTable
-                                    columnData={renameFirstColumn(
-                                        columnDataSemantics,
-                                        'Фразы в показах',
-                                        [
-                                            generateMassAddDelButton({
-                                                placeholder: 'Добавить все',
-                                                array: semanticsModalSemanticsItemsFiltratedValue,
-                                                mode: 'add',
-                                            }),
-                                            generateMassAddDelButton({
-                                                placeholder: 'Удалить все',
-                                                array: semanticsModalSemanticsItemsFiltratedValue,
-                                                mode: 'del',
-                                            }),
-                                        ],
-                                    )}
-                                    data={semanticsModalSemanticsItemsFiltratedValue}
-                                    filters={clustersFiltersActive}
-                                    setFilters={setClustersFiltersActive}
-                                    filterData={clustersFilterDataActive}
-                                    footerData={[semanticsFilteredSummary.active]}
-                                />
-                            </div>
-                            <div
-                                style={{
-                                    height: '28vh',
                                     width: '100%',
                                     display: 'flex',
                                     flexDirection: 'row',
@@ -5936,340 +5502,36 @@ export const MassAdvertPage = () => {
                             >
                                 <div
                                     style={{
-                                        width: '50%',
-                                        overflow: 'auto',
+                                        marginRight: 8,
                                         display: 'flex',
+                                        width: '100%',
                                         flexDirection: 'column',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
                                     }}
                                 >
-                                    <TheTable
-                                        columnData={renameFirstColumn(
-                                            columnDataSemantics1,
-                                            'Фразы в шаблоне',
-                                            [
-                                                generateMassAddDelButton({
-                                                    placeholder: 'Удалить все',
-                                                    array: semanticsModalSemanticsTemplateItemsFiltratedValue,
-                                                    mode: 'del',
-                                                }),
-                                            ],
-                                        ).slice(1, 2)}
-                                        data={semanticsModalSemanticsTemplateItemsFiltratedValue}
-                                        filters={clustersFiltersTemplate}
-                                        setFilters={setClustersFiltersTemplate}
-                                        filterData={clustersFilterDataTemplate}
-                                        footerData={[semanticsFilteredSummary.template]}
+                                    <TextInput
+                                        placeholder="Имя"
+                                        hasClear
+                                        value={
+                                            semanticsModalSemanticsPlusItemsTemplateNameSaveValue
+                                        }
+                                        onUpdate={(val) => {
+                                            setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                                                val,
+                                            );
+                                        }}
                                     />
-                                </div>
-                                <div
-                                    style={{
-                                        width: 32,
-                                    }}
-                                />
-                                <div
-                                    style={{
-                                        width: '50%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                    }}
-                                >
                                     <div
                                         style={{
-                                            marginBottom: 8,
-                                            width: '100%',
                                             display: 'flex',
                                             flexDirection: 'row',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            width="max"
-                                            size="m"
-                                            view={
-                                                semanticsModalSemanticsPlusItemsTemplateNameValue ==
-                                                'Не установлен'
-                                                    ? 'normal'
-                                                    : 'flat-info'
-                                            }
-                                            selected={
-                                                semanticsModalSemanticsPlusItemsTemplateNameValue !=
-                                                'Не установлен'
-                                            }
-                                        >
-                                            {semanticsModalSemanticsPlusItemsTemplateNameValue}
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            marginBottom: 8,
+                                            marginTop: 8,
                                             width: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            width="max"
-                                            selected={semanticsModalIsFixed}
-                                            onClick={() =>
-                                                setSemanticsModalIsFixed(!semanticsModalIsFixed)
-                                            }
-                                        >
-                                            {`Фикс. ${!semanticsModalIsFixed ? 'выкл.' : 'вкл.'}`}
-                                        </Button>
-                                        <div style={{width: 16}} />
-                                        <Button
-                                            width="max"
-                                            view={
-                                                semanticsAutoPhrasesModalIncludesList.length ||
-                                                semanticsAutoPhrasesModalNotIncludesList.length
-                                                    ? 'flat-success'
-                                                    : 'normal'
-                                            }
-                                            selected={
-                                                semanticsAutoPhrasesModalIncludesList.length ||
-                                                semanticsAutoPhrasesModalNotIncludesList.length
-                                                    ? true
-                                                    : undefined
-                                            }
-                                            onClick={() => {
-                                                setSemanticsAutoPhrasesModalFormOpen(
-                                                    !semanticsAutoPhrasesModalFormOpen,
-                                                );
-                                            }}
-                                        >
-                                            {`Автофразы`}
-                                        </Button>
-                                    </div>
-                                    <Modal
-                                        open={semanticsAutoPhrasesModalFormOpen}
-                                        onClose={() => {
-                                            setSemanticsAutoPhrasesModalFormOpen(false);
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                height: '70vh',
-                                                width: '60vw',
-                                                justifyContent: 'space-between',
-                                                margin: '30px 30px',
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'space-between',
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        height: '68vh',
-                                                        width: '48%',
-                                                    }}
-                                                >
-                                                    <Text variant="header-1">
-                                                        Фразы должны содержать
-                                                    </Text>
-                                                    <div style={{height: 8}} />
-                                                    <TextInput
-                                                        value={
-                                                            semanticsAutoPhrasesModalIncludesListInput
-                                                        }
-                                                        onKeyPress={(e) => {
-                                                            if (e.key === 'Enter') {
-                                                                if (
-                                                                    !semanticsAutoPhrasesModalIncludesList.includes(
-                                                                        semanticsAutoPhrasesModalIncludesListInput,
-                                                                    ) &&
-                                                                    semanticsAutoPhrasesModalIncludesListInput !=
-                                                                        ''
-                                                                )
-                                                                    semanticsAutoPhrasesModalIncludesList.push(
-                                                                        semanticsAutoPhrasesModalIncludesListInput,
-                                                                    );
-                                                                setSemanticsAutoPhrasesModalIncludesListInput(
-                                                                    '',
-                                                                );
-                                                            }
-                                                        }}
-                                                        onUpdate={(value) => {
-                                                            setSemanticsAutoPhrasesModalIncludesListInput(
-                                                                value,
-                                                            );
-                                                        }}
-                                                        placeholder={' Вводите правила сюда'}
-                                                    />
-                                                    <div style={{height: 8}} />
-                                                    <List
-                                                        itemHeight={(item) => {
-                                                            return (
-                                                                20 * Math.ceil(item.length / 60) +
-                                                                20
-                                                            );
-                                                        }}
-                                                        renderItem={(item) => {
-                                                            if (!item) return;
-                                                            return (
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'row',
-                                                                        justifyContent:
-                                                                            'space-between',
-                                                                        margin: '0 8px',
-                                                                        width: '100%',
-                                                                    }}
-                                                                    title={item}
-                                                                >
-                                                                    <div
-                                                                        style={{
-                                                                            textWrap: 'wrap',
-                                                                        }}
-                                                                    >
-                                                                        <Text>{item}</Text>
-                                                                    </div>
-                                                                    <div
-                                                                        style={{
-                                                                            display: 'flex',
-                                                                            flexDirection: 'row',
-                                                                        }}
-                                                                    >
-                                                                        <Button
-                                                                            size="xs"
-                                                                            view="flat"
-                                                                            onClick={() => {
-                                                                                setSemanticsAutoPhrasesModalIncludesListInput(
-                                                                                    item,
-                                                                                );
-                                                                            }}
-                                                                        >
-                                                                            <Icon
-                                                                                data={Pencil}
-                                                                                size={14}
-                                                                            ></Icon>
-                                                                        </Button>
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        }}
-                                                        filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalIncludesList.length} фразах`}
-                                                        onItemClick={(rule) => {
-                                                            let val = Array.from(
-                                                                semanticsAutoPhrasesModalIncludesList,
-                                                            );
-                                                            val = val.filter(
-                                                                (value) => value != rule,
-                                                            );
-                                                            setSemanticsAutoPhrasesModalIncludesList(
-                                                                val,
-                                                            );
-                                                        }}
-                                                        items={
-                                                            semanticsAutoPhrasesModalIncludesList
-                                                        }
-                                                    />
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        height: '68vh',
-                                                        width: '48%',
-                                                    }}
-                                                >
-                                                    <Text variant="header-1">
-                                                        Фразы не должны содержать
-                                                    </Text>
-                                                    <div style={{height: 8}} />
-                                                    <TextInput
-                                                        value={
-                                                            semanticsAutoPhrasesModalNotIncludesListInput
-                                                        }
-                                                        onKeyPress={(e) => {
-                                                            if (e.key === 'Enter') {
-                                                                const arr = Array.from(
-                                                                    semanticsAutoPhrasesModalNotIncludesList as any[],
-                                                                );
-                                                                if (
-                                                                    !arr.includes(
-                                                                        semanticsAutoPhrasesModalNotIncludesListInput,
-                                                                    ) &&
-                                                                    semanticsAutoPhrasesModalNotIncludesListInput !=
-                                                                        ''
-                                                                ) {
-                                                                    arr.push(
-                                                                        semanticsAutoPhrasesModalNotIncludesListInput,
-                                                                    );
-                                                                    setSemanticsAutoPhrasesModalNotIncludesList(
-                                                                        arr,
-                                                                    );
-                                                                }
-                                                                setSemanticsAutoPhrasesModalNotIncludesListInput(
-                                                                    '',
-                                                                );
-                                                                console.log(
-                                                                    semanticsAutoPhrasesModalNotIncludesList,
-                                                                );
-                                                            }
-                                                        }}
-                                                        onUpdate={(value) => {
-                                                            setSemanticsAutoPhrasesModalNotIncludesListInput(
-                                                                value,
-                                                            );
-                                                        }}
-                                                        placeholder={' Вводите правила сюда'}
-                                                    />
-                                                    <div style={{height: 8}} />
-                                                    <List
-                                                        filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalNotIncludesList.length} фразах`}
-                                                        onItemClick={(rule) => {
-                                                            let val = Array.from(
-                                                                semanticsAutoPhrasesModalNotIncludesList,
-                                                            );
-                                                            val = val.filter(
-                                                                (value) => value != rule,
-                                                            );
-                                                            setSemanticsAutoPhrasesModalNotIncludesList(
-                                                                val,
-                                                            );
-                                                        }}
-                                                        items={
-                                                            semanticsAutoPhrasesModalNotIncludesList
-                                                        }
-                                                    />
-                                                </div>
-                                            </div>
-                                            <Button
-                                                pin="circle-circle"
-                                                view="action"
-                                                onClick={() =>
-                                                    setSemanticsAutoPhrasesModalFormOpen(false)
-                                                }
-                                            >
-                                                Закрыть
-                                            </Button>
-                                        </div>
-                                    </Modal>
-                                    <div
-                                        style={{
-                                            marginBottom: 8,
-                                            width: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
                                         }}
                                     >
                                         <TextInput
-                                            style={{marginRight: 4}}
-                                            label="Показы"
+                                            label="Показы перв."
                                             hasClear
                                             value={String(semanticsModalSemanticsThresholdValue)}
                                             onUpdate={(val) => {
@@ -6279,9 +5541,9 @@ export const MassAdvertPage = () => {
                                             }}
                                             type="number"
                                         />
+                                        <div style={{minWidth: 8}} />
                                         <TextInput
-                                            style={{marginLeft: 4}}
-                                            label="CTR"
+                                            label="CTR перв."
                                             hasClear
                                             value={semanticsModalSemanticsCTRThresholdValue}
                                             onUpdate={(val) => {
@@ -6301,20 +5563,9 @@ export const MassAdvertPage = () => {
                                                     : undefined
                                             }
                                         />
-                                    </div>
-                                    <div
-                                        style={{
-                                            marginBottom: 8,
-                                            width: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                        }}
-                                    >
+                                        <div style={{minWidth: 8}} />
                                         <TextInput
-                                            style={{marginRight: 4}}
-                                            label="Показы"
+                                            label="Показы втор."
                                             hasClear
                                             value={String(
                                                 semanticsModalSemanticsSecondThresholdValue,
@@ -6326,9 +5577,9 @@ export const MassAdvertPage = () => {
                                             }}
                                             type="number"
                                         />
+                                        <div style={{minWidth: 8}} />
                                         <TextInput
-                                            style={{marginLeft: 4}}
-                                            label="CTR"
+                                            label="CTR втор."
                                             hasClear
                                             value={semanticsModalSemanticsSecondCTRThresholdValue}
                                             onUpdate={(val) => {
@@ -6351,30 +5602,20 @@ export const MassAdvertPage = () => {
                                             }
                                         />
                                     </div>
-
+                                </div>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                    }}
+                                >
                                     <div
                                         style={{
-                                            marginBottom: 8,
-                                            width: '100%',
                                             display: 'flex',
                                             flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
+                                            marginBottom: 8,
                                         }}
                                     >
-                                        <TextInput
-                                            style={{marginRight: 8}}
-                                            placeholder="Имя"
-                                            hasClear
-                                            value={
-                                                semanticsModalSemanticsPlusItemsTemplateNameSaveValue
-                                            }
-                                            onUpdate={(val) => {
-                                                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                                    val,
-                                                );
-                                            }}
-                                        />
                                         <Button
                                             onClick={() => {
                                                 const name =
@@ -6479,36 +5720,322 @@ export const MassAdvertPage = () => {
                                         >
                                             Сохранить
                                         </Button>
-                                    </div>
-                                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                                        <div style={{minWidth: 8}} />
                                         <Button
-                                            width={'max'}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                for (
-                                                    let i = 0;
-                                                    i <
-                                                        semanticsModalSemanticsItemsFiltratedValue.length &&
-                                                    i < 10;
-                                                    i++
-                                                ) {
-                                                    parseFirst10Pages(
-                                                        semanticsModalSemanticsItemsFiltratedValue[
-                                                            i
-                                                        ].cluster,
-                                                        setFetchedPlacements,
-                                                        setCurrentParsingProgress,
-                                                    );
-                                                }
+                                            selected={semanticsModalIsFixed}
+                                            onClick={() =>
+                                                setSemanticsModalIsFixed(!semanticsModalIsFixed)
+                                            }
+                                        >
+                                            {`Фикс. ${!semanticsModalIsFixed ? 'выкл.' : 'вкл.'}`}
+                                        </Button>
+                                        <div style={{minWidth: 8}} />
+                                        <Button
+                                            view={
+                                                semanticsAutoPhrasesModalIncludesList.length ||
+                                                semanticsAutoPhrasesModalNotIncludesList.length
+                                                    ? 'flat-success'
+                                                    : 'normal'
+                                            }
+                                            selected={
+                                                semanticsAutoPhrasesModalIncludesList.length ||
+                                                semanticsAutoPhrasesModalNotIncludesList.length
+                                                    ? true
+                                                    : undefined
+                                            }
+                                            onClick={() => {
+                                                setSemanticsAutoPhrasesModalFormOpen(
+                                                    !semanticsAutoPhrasesModalFormOpen,
+                                                );
                                             }}
                                         >
-                                            Парсер выдачи первых 10 кластеров
-                                            <Icon size={12} data={LayoutHeader} />
+                                            {`Автофразы`}
                                         </Button>
+                                        <Modal
+                                            open={semanticsAutoPhrasesModalFormOpen}
+                                            onClose={() => {
+                                                setSemanticsAutoPhrasesModalFormOpen(false);
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    height: '70vh',
+                                                    width: '60vw',
+                                                    justifyContent: 'space-between',
+                                                    margin: '30px 30px',
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-between',
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            height: '68vh',
+                                                            width: '48%',
+                                                        }}
+                                                    >
+                                                        <Text variant="header-1">
+                                                            Фразы должны содержать
+                                                        </Text>
+                                                        <div style={{height: 8}} />
+                                                        <TextInput
+                                                            value={
+                                                                semanticsAutoPhrasesModalIncludesListInput
+                                                            }
+                                                            onKeyPress={(e) => {
+                                                                if (e.key === 'Enter') {
+                                                                    if (
+                                                                        !semanticsAutoPhrasesModalIncludesList.includes(
+                                                                            semanticsAutoPhrasesModalIncludesListInput,
+                                                                        ) &&
+                                                                        semanticsAutoPhrasesModalIncludesListInput !=
+                                                                            ''
+                                                                    )
+                                                                        semanticsAutoPhrasesModalIncludesList.push(
+                                                                            semanticsAutoPhrasesModalIncludesListInput,
+                                                                        );
+                                                                    setSemanticsAutoPhrasesModalIncludesListInput(
+                                                                        '',
+                                                                    );
+                                                                }
+                                                            }}
+                                                            onUpdate={(value) => {
+                                                                setSemanticsAutoPhrasesModalIncludesListInput(
+                                                                    value,
+                                                                );
+                                                            }}
+                                                            placeholder={' Вводите правила сюда'}
+                                                        />
+                                                        <div style={{height: 8}} />
+                                                        <List
+                                                            itemHeight={(item) => {
+                                                                return (
+                                                                    20 *
+                                                                        Math.ceil(
+                                                                            item.length / 60,
+                                                                        ) +
+                                                                    20
+                                                                );
+                                                            }}
+                                                            renderItem={(item) => {
+                                                                if (!item) return;
+                                                                return (
+                                                                    <div
+                                                                        style={{
+                                                                            display: 'flex',
+                                                                            flexDirection: 'row',
+                                                                            justifyContent:
+                                                                                'space-between',
+                                                                            margin: '0 8px',
+                                                                            width: '100%',
+                                                                        }}
+                                                                        title={item}
+                                                                    >
+                                                                        <div
+                                                                            style={{
+                                                                                textWrap: 'wrap',
+                                                                            }}
+                                                                        >
+                                                                            <Text>{item}</Text>
+                                                                        </div>
+                                                                        <div
+                                                                            style={{
+                                                                                display: 'flex',
+                                                                                flexDirection:
+                                                                                    'row',
+                                                                            }}
+                                                                        >
+                                                                            <Button
+                                                                                size="xs"
+                                                                                view="flat"
+                                                                                onClick={() => {
+                                                                                    setSemanticsAutoPhrasesModalIncludesListInput(
+                                                                                        item,
+                                                                                    );
+                                                                                }}
+                                                                            >
+                                                                                <Icon
+                                                                                    data={Pencil}
+                                                                                    size={14}
+                                                                                ></Icon>
+                                                                            </Button>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            }}
+                                                            filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalIncludesList.length} фразах`}
+                                                            onItemClick={(rule) => {
+                                                                let val = Array.from(
+                                                                    semanticsAutoPhrasesModalIncludesList,
+                                                                );
+                                                                val = val.filter(
+                                                                    (value) => value != rule,
+                                                                );
+                                                                setSemanticsAutoPhrasesModalIncludesList(
+                                                                    val,
+                                                                );
+                                                            }}
+                                                            items={
+                                                                semanticsAutoPhrasesModalIncludesList
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            height: '68vh',
+                                                            width: '48%',
+                                                        }}
+                                                    >
+                                                        <Text variant="header-1">
+                                                            Фразы не должны содержать
+                                                        </Text>
+                                                        <div style={{height: 8}} />
+                                                        <TextInput
+                                                            value={
+                                                                semanticsAutoPhrasesModalNotIncludesListInput
+                                                            }
+                                                            onKeyPress={(e) => {
+                                                                if (e.key === 'Enter') {
+                                                                    const arr = Array.from(
+                                                                        semanticsAutoPhrasesModalNotIncludesList as any[],
+                                                                    );
+                                                                    if (
+                                                                        !arr.includes(
+                                                                            semanticsAutoPhrasesModalNotIncludesListInput,
+                                                                        ) &&
+                                                                        semanticsAutoPhrasesModalNotIncludesListInput !=
+                                                                            ''
+                                                                    ) {
+                                                                        arr.push(
+                                                                            semanticsAutoPhrasesModalNotIncludesListInput,
+                                                                        );
+                                                                        setSemanticsAutoPhrasesModalNotIncludesList(
+                                                                            arr,
+                                                                        );
+                                                                    }
+                                                                    setSemanticsAutoPhrasesModalNotIncludesListInput(
+                                                                        '',
+                                                                    );
+                                                                    console.log(
+                                                                        semanticsAutoPhrasesModalNotIncludesList,
+                                                                    );
+                                                                }
+                                                            }}
+                                                            onUpdate={(value) => {
+                                                                setSemanticsAutoPhrasesModalNotIncludesListInput(
+                                                                    value,
+                                                                );
+                                                            }}
+                                                            placeholder={' Вводите правила сюда'}
+                                                        />
+                                                        <div style={{height: 8}} />
+                                                        <List
+                                                            filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalNotIncludesList.length} фразах`}
+                                                            onItemClick={(rule) => {
+                                                                let val = Array.from(
+                                                                    semanticsAutoPhrasesModalNotIncludesList,
+                                                                );
+                                                                val = val.filter(
+                                                                    (value) => value != rule,
+                                                                );
+                                                                setSemanticsAutoPhrasesModalNotIncludesList(
+                                                                    val,
+                                                                );
+                                                            }}
+                                                            items={
+                                                                semanticsAutoPhrasesModalNotIncludesList
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    pin="circle-circle"
+                                                    view="action"
+                                                    onClick={() =>
+                                                        setSemanticsAutoPhrasesModalFormOpen(false)
+                                                    }
+                                                >
+                                                    Закрыть
+                                                </Button>
+                                            </div>
+                                        </Modal>
                                     </div>
+
+                                    <Button
+                                        width={'max'}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            for (
+                                                let i = 0;
+                                                i <
+                                                    semanticsModalSemanticsItemsFiltratedValue.length &&
+                                                i < 10;
+                                                i++
+                                            ) {
+                                                parseFirst10Pages(
+                                                    semanticsModalSemanticsItemsFiltratedValue[i]
+                                                        .cluster,
+                                                    setFetchedPlacements,
+                                                    setCurrentParsingProgress,
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        Парсер выдачи первых 10 фраз
+                                        <Icon size={12} data={LayoutHeader} />
+                                    </Button>
                                 </div>
                             </div>
-                            <div style={{height: '28vh', overflow: 'auto', width: '100%'}}>
+                            <Card
+                                theme="success"
+                                style={{
+                                    height: 'calc(60vh - 96px)',
+                                    width: '100%',
+                                    overflow: 'auto',
+                                }}
+                            >
+                                <TheTable
+                                    columnData={renameFirstColumn(
+                                        columnDataSemantics,
+                                        'Фразы в показах',
+                                        [
+                                            generateMassAddDelButton({
+                                                placeholder: 'Добавить все',
+                                                array: semanticsModalSemanticsItemsFiltratedValue,
+                                                mode: 'add',
+                                            }),
+                                            generateMassAddDelButton({
+                                                placeholder: 'Удалить все',
+                                                array: semanticsModalSemanticsItemsFiltratedValue,
+                                                mode: 'del',
+                                            }),
+                                        ],
+                                    )}
+                                    data={semanticsModalSemanticsItemsFiltratedValue}
+                                    filters={clustersFiltersActive}
+                                    setFilters={setClustersFiltersActive}
+                                    filterData={clustersFilterDataActive}
+                                    footerData={[semanticsFilteredSummary.active]}
+                                />
+                            </Card>
+                            <Card
+                                theme="danger"
+                                style={{
+                                    height: 'calc(40vh - 96px)',
+                                    overflow: 'auto',
+                                    width: '100%',
+                                }}
+                            >
                                 <TheTable
                                     columnData={renameFirstColumn(
                                         columnDataSemantics2,
@@ -6532,7 +6059,7 @@ export const MassAdvertPage = () => {
                                     filterData={clustersFilterDataMinus}
                                     footerData={[semanticsFilteredSummary.minus]}
                                 />
-                            </div>
+                            </Card>
                         </motion.div>
                     </Modal>
                     <Modal
