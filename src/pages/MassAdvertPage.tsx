@@ -522,7 +522,7 @@ export const MassAdvertPage = () => {
                 temp.push(cluster);
             }
         }
-        console.log(temp);
+        // console.log(temp);
 
         setSemanticsModalSemanticsTemplateItemsFiltratedValue([...temp]);
     };
@@ -2015,6 +2015,54 @@ export const MassAdvertPage = () => {
             additionalNodes: [
                 <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                     <Button
+                        style={{
+                            marginLeft: 5,
+                            display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
+                        }}
+                        view={
+                            placementsDisplayPhrase != '' &&
+                            selectedSearchPhrase == placementsDisplayPhrase
+                                ? 'outlined-success'
+                                : 'outlined'
+                        }
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                            const params = {
+                                uid: getUid(),
+                                campaignName: selectValue[0],
+                                data: {
+                                    mode:
+                                        selectedSearchPhrase == placementsDisplayPhrase
+                                            ? 'Удалить'
+                                            : 'Установить',
+                                    advertsIds: {},
+                                },
+                            };
+                            for (const [id, advertData] of Object.entries(uniqueAdverts)) {
+                                if (!id || !advertData) continue;
+                                const {advertId} = advertData as any;
+                                params.data.advertsIds[advertId] = {};
+                                params.data.advertsIds[advertId].phrase = placementsDisplayPhrase;
+
+                                setSelectedSearchPhrase(
+                                    selectedSearchPhrase == placementsDisplayPhrase
+                                        ? ''
+                                        : placementsDisplayPhrase,
+                                );
+
+                                doc.advertsSelectedPhrases[selectValue[0]][advertId] = {
+                                    phrase: placementsDisplayPhrase,
+                                };
+                            }
+                            console.log(params);
+                            setChangedDoc(doc);
+                            callApi('updateAdvertsSelectedPhrases', params);
+                        }}
+                    >
+                        <Icon size={12} data={ArrowShapeUp} />
+                    </Button>
+                    <Button
                         loading={
                             currentParsingProgress[placementsDisplayPhrase] &&
                             currentParsingProgress[placementsDisplayPhrase].isParsing
@@ -2911,12 +2959,15 @@ export const MassAdvertPage = () => {
                 } else if (filterArg == 'placements') {
                     if (filterData['val'] == '') {
                         setPlacementsDisplayPhrase('');
+                        setSelectedSearchPhrase('');
                         continue;
                     }
                     const temp = isNaN(parseInt(filterData['val']));
 
                     if (temp) {
                         setPlacementsDisplayPhrase(filterData['val']);
+                        if (placementsDisplayPhrase != filterData['val'])
+                            setSelectedSearchPhrase('');
                     }
                 } else if (filterArg == 'adverts') {
                     const fldata = filterData['val'];
@@ -5788,7 +5839,7 @@ export const MassAdvertPage = () => {
                                 <TheTable
                                     columnData={renameFirstColumn(
                                         columnDataSemantics,
-                                        'Кластеры в показах',
+                                        'Фразы в показах',
                                         [
                                             generateMassAddDelButton({
                                                 placeholder: 'Добавить все',
@@ -5829,7 +5880,7 @@ export const MassAdvertPage = () => {
                                     <TheTable
                                         columnData={renameFirstColumn(
                                             columnDataSemantics1,
-                                            'Кластеры в шаблоне',
+                                            'Фразы в шаблоне',
                                             [
                                                 generateMassAddDelButton({
                                                     placeholder: 'Удалить все',
@@ -6396,7 +6447,7 @@ export const MassAdvertPage = () => {
                                 <TheTable
                                     columnData={renameFirstColumn(
                                         columnDataSemantics2,
-                                        'Исключенные кластеры',
+                                        'Исключенные фразы',
                                         [
                                             generateMassAddDelButton({
                                                 placeholder: 'Добавить все',
