@@ -1955,7 +1955,7 @@ export const MassAdvertPage = () => {
             placeholder:
                 'Позиция' +
                 (placementsDisplayPhrase != '' && currentParsingProgress[placementsDisplayPhrase]
-                    ? ` / Cпарсил: ${
+                    ? ` / Проверка: ${
                           currentParsingProgress[placementsDisplayPhrase].progress / 100
                       } стр.`
                     : ''),
