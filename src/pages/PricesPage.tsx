@@ -6,6 +6,7 @@ import {
     Icon,
     Button,
     Text,
+    Link,
     Pagination,
     Popup,
     Modal,
@@ -84,6 +85,8 @@ export const PricesPage = () => {
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
     const [selectedButton, setSelectedButton] = useState('');
+    const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
+    const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
     const columnData = [
         {
@@ -126,9 +129,62 @@ export const PricesPage = () => {
         {name: 'title', placeholder: 'Наименование', valueType: 'text'},
         {name: 'nmId', placeholder: 'Артикул WB', valueType: 'text'},
         {name: 'barcode', placeholder: 'Баркод', valueType: 'text'},
-        {name: 'rozPrice', placeholder: 'Розничная цена, ₽'},
-        {name: 'sppPrice', placeholder: 'Цена с СПП, ₽'},
-        {name: 'wbWalletPrice', placeholder: 'Цена с кошельком WB, ₽'},
+        {
+            name: 'rozPrice',
+            placeholder: (
+                <Link
+                    onClick={() => {
+                        if (currentPricesCalculatedBasedOn == 'rozPrice') setDateChangeRecalc(true);
+                    }}
+                >
+                    <Text
+                        variant="subheader-1"
+                        color={currentPricesCalculatedBasedOn == 'rozPrice' ? undefined : 'primary'}
+                    >
+                        Розничная цена, ₽
+                    </Text>
+                </Link>
+            ),
+        },
+        {
+            name: 'sppPrice',
+            placeholder: (
+                <Link
+                    onClick={() => {
+                        if (currentPricesCalculatedBasedOn == 'sppPrice') setDateChangeRecalc(true);
+                    }}
+                >
+                    <Text
+                        variant="subheader-1"
+                        color={currentPricesCalculatedBasedOn == 'sppPrice' ? undefined : 'primary'}
+                    >
+                        Цена с СПП, ₽
+                    </Text>
+                </Link>
+            ),
+        },
+        {
+            name: 'wbWalletPrice',
+            placeholder: (
+                <Link
+                    onClick={() => {
+                        if (currentPricesCalculatedBasedOn == 'wbWalletPrice')
+                            setDateChangeRecalc(true);
+                    }}
+                >
+                    <Text
+                        variant="subheader-1"
+                        color={
+                            currentPricesCalculatedBasedOn == 'wbWalletPrice'
+                                ? undefined
+                                : 'primary'
+                        }
+                    >
+                        Цена с кошельком WB, ₽
+                    </Text>
+                </Link>
+            ),
+        },
         {name: 'wbPrice', placeholder: 'Цена для WB, ₽'},
         // {name: 'priceInfo', placeholder: 'Себестоимость, ₽'},
         {name: 'stock', placeholder: 'Остаток, шт.'},
@@ -195,9 +251,9 @@ export const PricesPage = () => {
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
-    const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     if (dateChangeRecalc) {
         setDateChangeRecalc(false);
+        setCurrentPricesCalculatedBasedOn('');
 
         callApi('getPricesMM', {
             uid: getUid(),
@@ -583,8 +639,10 @@ export const PricesPage = () => {
                                                     'Цена с СПП': 'sppPrice',
                                                     'Цена с кошельком WB': 'wbWalletPrice',
                                                 };
-                                                params.enteredValue[keys[selectValueEntered[0]]] =
-                                                    parseInt(enteredValue);
+
+                                                const key = keys[selectValueEntered[0]];
+                                                params.enteredValue[key] = parseInt(enteredValue);
+                                                setCurrentPricesCalculatedBasedOn(key);
 
                                                 console.log(params);
 
@@ -604,6 +662,7 @@ export const PricesPage = () => {
 
                                                 setPagesCurrent(1);
                                                 /////////////////////////
+
                                                 setEnteredValuesModalOpen(false);
                                             },
                                         },
