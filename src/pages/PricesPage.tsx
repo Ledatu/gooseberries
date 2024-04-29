@@ -20,14 +20,28 @@ import block from 'bem-cn-lite';
 
 const b = block('app');
 
-import {ChevronDown, Key, ArrowsRotateLeft, Calculator, CloudArrowUpIn} from '@gravity-ui/icons';
+import {
+    ChevronDown,
+    Key,
+    ArrowsRotateLeft,
+    Calculator,
+    CloudArrowUpIn,
+    TrashBin,
+} from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare} from 'src/components/TheTable';
 import {RangeCalendar} from '@gravity-ui/date-components';
 import Userfront from '@userfront/toolkit';
-import {getRoundValue} from 'src/utilities/getRoundValue';
+import {getLocaleDateString, getRoundValue} from 'src/utilities/getRoundValue';
 import {generateModalButtonWithActions} from './MassAdvertPage';
+
+const getNormalDateRange = (dateRange) => {
+    const res = {};
+    res['lbd'] = getLocaleDateString(dateRange[0]);
+    res['rbd'] = getLocaleDateString(dateRange[1]);
+    return res;
+};
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -45,10 +59,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     useEffect(() => {
         callApi('getPricesMM', {
             uid: getUid(),
-            dateRange: {
-                lbd: dateRange[0].toISOString().slice(0, 10),
-                rbd: dateRange[1].toISOString().slice(0, 10),
-            },
+            dateRange: getNormalDateRange(dateRange),
             campaignName:
                 Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифов М.С.'
@@ -71,7 +82,7 @@ export const PricesPage = () => {
     yesterday.setDate(yesterday.getDate() - 1);
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const [dateRange, setDateRange] = useState([yesterday, weekAgo]);
+    const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
     const [startDate, endDate] = dateRange;
     const fieldRef = useRef(null);
     const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -87,6 +98,37 @@ export const PricesPage = () => {
     const [selectedButton, setSelectedButton] = useState('');
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
+
+    const renderSlashPercent = ({value, row}) => {
+        const {rozPrice} = row;
+        if (value === undefined) return undefined;
+        return (
+            <Text>{`${value} / ${getRoundValue(
+                getRoundValue(value, rozPrice, true) * 10,
+                10,
+            )}%`}</Text>
+        );
+    };
+
+    const filterByClick = (val, key = 'art', compMode = 'include') => {
+        filters[key] = {val: String(val), compMode: compMode};
+        setFilters(filters);
+        filterTableData(filters);
+    };
+
+    const renderFilterByClickButton = ({value}, key) => {
+        return (
+            <Button
+                size="xs"
+                view="flat"
+                onClick={() => {
+                    filterByClick(value, key, 'equal');
+                }}
+            >
+                {value}
+            </Button>
+        );
+    };
 
     const columnData = [
         {
@@ -117,18 +159,52 @@ export const PricesPage = () => {
                         >
                             {Math.floor((pagesCurrent - 1) * 600 + index + 1)}
                         </div>
-                        {value}
+                        {renderFilterByClickButton({value}, 'art')}
                     </div>
                 );
             },
             valueType: 'text',
             group: true,
         },
-        {name: 'size', placeholder: 'Размер', valueType: 'text'},
-        {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
-        {name: 'title', placeholder: 'Наименование', valueType: 'text'},
-        {name: 'nmId', placeholder: 'Артикул WB', valueType: 'text'},
-        {name: 'barcode', placeholder: 'Баркод', valueType: 'text'},
+        {
+            name: 'size',
+            placeholder: 'Размер',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'size'),
+        },
+        {
+            name: 'brand',
+            placeholder: 'Бренд',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'brand'),
+        },
+        {
+            name: 'title',
+            placeholder: 'Наименование',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'title'),
+        },
+        {
+            name: 'nmId',
+            placeholder: 'Артикул WB',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'nmId'),
+        },
+        {
+            name: 'barcode',
+            placeholder: 'Баркод',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'barcode'),
+        },
+        {name: 'wbPrice', placeholder: 'Цена до, ₽'},
+        {
+            name: 'discount',
+            placeholder: 'Скидка, %',
+            render: ({value}) => {
+                if (value === undefined) return undefined;
+                return <Text>{value}%</Text>;
+            },
+        },
         {
             name: 'rozPrice',
             placeholder: (
@@ -141,10 +217,18 @@ export const PricesPage = () => {
                         variant="subheader-1"
                         color={currentPricesCalculatedBasedOn == 'rozPrice' ? undefined : 'primary'}
                     >
-                        Розничная цена, ₽
+                        Цена после, ₽
                     </Text>
                 </Link>
             ),
+        },
+        {
+            name: 'spp',
+            placeholder: 'СПП, %',
+            render: ({value}) => {
+                if (value === undefined) return undefined;
+                return <Text>{value}%</Text>;
+            },
         },
         {
             name: 'sppPrice',
@@ -164,69 +248,37 @@ export const PricesPage = () => {
             ),
         },
         {
-            name: 'wbWalletPrice',
-            placeholder: (
-                <Link
-                    onClick={() => {
-                        if (currentPricesCalculatedBasedOn == 'wbWalletPrice')
-                            setDateChangeRecalc(true);
-                    }}
-                >
-                    <Text
-                        variant="subheader-1"
-                        color={
-                            currentPricesCalculatedBasedOn == 'wbWalletPrice'
-                                ? undefined
-                                : 'primary'
-                        }
-                    >
-                        Цена с кошельком WB, ₽
-                    </Text>
-                </Link>
-            ),
-        },
-        {name: 'wbPrice', placeholder: 'Цена для WB, ₽'},
-        // {name: 'priceInfo', placeholder: 'Себестоимость, ₽'},
-        {name: 'stock', placeholder: 'Остаток, шт.'},
-        {
             name: 'profit',
             placeholder: 'Профит, ₽',
-            render: ({value}) => {
-                if (value === undefined) return undefined;
-                return <Text color={value < 0 ? 'danger' : 'primary'}>{value}</Text>;
-            },
-        },
-        {
-            name: 'rentabelnost',
-            placeholder: 'Рентабельность, %',
-            render: ({value}) => {
+            render: ({value, row}) => {
+                const {rozPrice} = row;
                 if (value === undefined) return undefined;
                 return (
-                    <Text color={value < 0 ? 'danger' : 'primary'}>
-                        {getRoundValue(value, 1, true)}
+                    <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
+                        {`${value} / ${getRoundValue(
+                            getRoundValue(value, rozPrice, true) * 10,
+                            10,
+                        )}%`}
                     </Text>
                 );
             },
         },
+        {name: 'primeCost', placeholder: 'Себестоимость, ₽', render: renderSlashPercent},
+        {name: 'comissionSum', placeholder: 'Комиссия, ₽', render: renderSlashPercent},
+        {name: 'deliverySum', placeholder: 'Логистика, ₽', render: renderSlashPercent},
+        {name: 'taxSum', placeholder: 'Налог, ₽', render: renderSlashPercent},
+        {name: 'expences', placeholder: 'Доп. расходы, ₽', render: renderSlashPercent},
+        {name: 'storageCostForArt', placeholder: 'Хранение, ₽', render: renderSlashPercent},
+        {name: 'ad', placeholder: 'Реклама / CPS, ₽', render: renderSlashPercent},
+        {name: 'cpo', placeholder: 'CPO, ₽', render: renderSlashPercent},
         {
-            name: 'roi',
-            placeholder: 'РОИ, %',
+            name: 'buyoutPercent',
+            placeholder: 'Процент выкупа, %',
             render: ({value}) => {
                 if (value === undefined) return undefined;
-                return (
-                    <Text color={value < 0 ? 'danger' : 'primary'}>
-                        {getRoundValue(value, 1, true)}
-                    </Text>
-                );
+                return <Text>{value}%</Text>;
             },
         },
-        {name: 'primeCost', placeholder: 'Себестоимость, ₽'},
-        {name: 'ad', placeholder: 'Реклама, ₽'},
-        {name: 'comissionSum', placeholder: 'Комиссия, ₽'},
-        {name: 'deliverySum', placeholder: 'Логистика, ₽'},
-        {name: 'storageCostForArt', placeholder: 'Хранение, ₽'},
-        {name: 'taxSum', placeholder: 'Налог, ₽'},
-        {name: 'expences', placeholder: 'Доп. расходы, ₽'},
     ];
 
     const selectOptionsEntered = [
@@ -258,10 +310,7 @@ export const PricesPage = () => {
         callApi('getPricesMM', {
             uid: getUid(),
             campaignName: selectValue[0],
-            dateRange: {
-                lbd: dateRange[0].toISOString().slice(0, 10),
-                rbd: dateRange[1].toISOString().slice(0, 10),
-            },
+            dateRange: getNormalDateRange(dateRange),
         }).then((res) => {
             if (!res) return;
             const resData = res['data'];
@@ -297,11 +346,12 @@ export const PricesPage = () => {
                 sppPrice: undefined,
                 wbWalletPrice: undefined,
                 wbPrice: undefined,
-                priceInfo: undefined,
+                discount: undefined,
+                spp: 0,
                 profit: 0,
                 stock: undefined,
-                rentabelnost: undefined,
-                roi: undefined,
+                rentabelnost: 0,
+                roi: 0,
                 primeCost: undefined,
                 ad: 0,
                 comissionSum: 0,
@@ -323,17 +373,18 @@ export const PricesPage = () => {
             artInfo.wbWalletPrice = artData['wbWalletPrice'];
             artInfo.wbPrice = artData['wbPrice'];
             // artInfo.priceInfo = artData['priceInfo'];
+            artInfo.discount = artData['priceInfo'].discount;
+            artInfo.spp = Math.round(artData['priceInfo'].spp);
             artInfo.profit = Math.round(artData['profit']);
             artInfo.stock = artData['stock'];
-            artInfo.rentabelnost = artData['rentabelnost'];
-            artInfo.roi = artData['roi'];
+            artInfo.rentabelnost = getRoundValue(artData['rentabelnost'], 1, true);
             artInfo.primeCost = artData['primeCost'];
             artInfo.ad = Math.round(artData['ad']);
             artInfo.comissionSum = Math.round(artData['comissionSum']);
             artInfo.deliverySum = Math.round(artData['deliverySum']);
             artInfo.storageCostForArt = artData['storageCostForArt'];
             artInfo.taxSum = Math.round(artData['taxSum']);
-            artInfo.expences = Math.round(artData['expences']);
+            artInfo.expences = Math.round(artData['expencesSum']);
 
             temp[art] = artInfo;
         }
@@ -347,6 +398,7 @@ export const PricesPage = () => {
 
     const filterTableData = (withfFilters = {}, tableData = {}) => {
         const temp = [] as any;
+        const filteredSummaryTemp = {};
 
         for (const [art, artInfo] of Object.entries(
             Object.keys(tableData).length ? tableData : data,
@@ -360,45 +412,7 @@ export const PricesPage = () => {
             for (const [filterArg, filterData] of Object.entries(useFilters)) {
                 if (filterArg == 'undef' || !filterData) continue;
                 if (filterData['val'] == '') continue;
-                if (filterArg == 'art') {
-                    const rulesForAnd = filterData['val'].split('+');
-                    // console.log(rulesForAnd);
-
-                    let wholeText = '';
-                    for (const key of [
-                        'art',
-                        'title',
-                        'brand',
-                        'nmId',
-                        'imtId',
-                        'object',
-                        'size',
-                        'barcode',
-                    ]) {
-                        wholeText += tempTypeRow[key] + ' ';
-                    }
-
-                    let tempFlagInc = 0;
-                    for (let k = 0; k < rulesForAnd.length; k++) {
-                        const ruleForAdd = rulesForAnd[k];
-                        if (ruleForAdd == '') {
-                            tempFlagInc++;
-                            continue;
-                        }
-                        if (
-                            compare(wholeText, {
-                                val: ruleForAdd,
-                                compMode: filterData['compMode'],
-                            })
-                        ) {
-                            tempFlagInc++;
-                        }
-                    }
-                    if (tempFlagInc != rulesForAnd.length) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                else if (!compare(tempTypeRow[filterArg], filterData)) {
                     addFlag = false;
                     break;
                 }
@@ -406,6 +420,14 @@ export const PricesPage = () => {
 
             if (addFlag) {
                 temp.push(tempTypeRow);
+
+                for (const [key, val] of Object.entries(tempTypeRow)) {
+                    if (['art', 'nmId', 'barcode', 'size', 'brand', 'title'].includes(key))
+                        continue;
+
+                    if (!filteredSummaryTemp[key]) filteredSummaryTemp[key] = 0;
+                    filteredSummaryTemp[key] += val;
+                }
             }
         }
 
@@ -414,12 +436,15 @@ export const PricesPage = () => {
         });
         const paginatedDataTemp = temp.slice(0, 600);
 
-        setFilteredSummary((row) => {
-            const fstemp = row;
-            fstemp['art'] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
+        for (const [key, val] of Object.entries(filteredSummaryTemp)) {
+            if (key === undefined || val === undefined) continue;
+            filteredSummaryTemp[key] = getRoundValue(val, temp.length);
+        }
 
-            return fstemp;
-        });
+        filteredSummaryTemp[
+            'art'
+        ] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
+        setFilteredSummary(filteredSummaryTemp);
 
         setFilteredData(temp);
 
@@ -508,10 +533,7 @@ export const PricesPage = () => {
                                     callApi('getPricesMM', {
                                         uid: getUid(),
                                         campaignName: nextValue,
-                                        dateRange: {
-                                            lbd: dateRange[0].toISOString().slice(0, 10),
-                                            rbd: dateRange[1].toISOString().slice(0, 10),
-                                        },
+                                        dateRange: getNormalDateRange(dateRange),
                                     }).then((res) => {
                                         if (!res) return;
                                         const resData = res['data'];
@@ -623,14 +645,7 @@ export const PricesPage = () => {
                                                 const params = {
                                                     uid: getUid(),
                                                     campaignName: selectValue[0],
-                                                    dateRange: {
-                                                        lbd: dateRange[0]
-                                                            .toISOString()
-                                                            .slice(0, 10),
-                                                        rbd: dateRange[1]
-                                                            .toISOString()
-                                                            .slice(0, 10),
-                                                    },
+                                                    dateRange: getNormalDateRange(dateRange),
                                                     enteredValue: {},
                                                 };
 
@@ -742,7 +757,7 @@ export const PricesPage = () => {
                                                         byNmId[nmId] = {
                                                             nmID: nmId,
                                                             price: wbPrice,
-                                                            discount: 50,
+                                                            discount: 55,
                                                         };
                                                     }
                                                 }
@@ -783,6 +798,28 @@ export const PricesPage = () => {
                         marginBottom: 8,
                     }}
                 >
+                    <Button
+                        size="l"
+                        view="action"
+                        onClick={() => {
+                            setFilters(() => {
+                                const newFilters = {undef: true};
+                                for (const [key, filterData] of Object.entries(filters as any)) {
+                                    if (key == 'undef' || !key || !filterData) continue;
+                                    newFilters[key] = {
+                                        val: '',
+                                        compMode: filterData['compMode'] ?? 'include',
+                                    };
+                                }
+                                filterTableData(newFilters);
+                                return newFilters;
+                            });
+                        }}
+                    >
+                        <Icon data={TrashBin} />
+                        <Text variant="subheader-1">Очистить фильтры</Text>
+                    </Button>
+                    <div style={{minWidth: 8}} />
                     <div ref={fieldRef}>
                         <Button
                             view="outlined-warning"
