@@ -1133,7 +1133,8 @@ export const PricesPage = () => {
                     alignItems: 'center',
                 }}
             >
-                <div
+                <Card
+                    theme={currentPricesCalculatedBasedOn != '' ? 'warning' : undefined}
                     style={{
                         width: '100%',
                         maxHeight: '80vh',
@@ -1148,7 +1149,7 @@ export const PricesPage = () => {
                         filterData={filterTableData}
                         footerData={[filteredSummary]}
                     />
-                </div>
+                </Card>
                 <div style={{height: 8}} />
                 <Pagination
                     showInput
