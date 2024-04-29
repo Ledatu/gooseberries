@@ -22,6 +22,7 @@ import {MassAdvertPage} from './MassAdvertPage';
 // import { Editable } from 'src/components/Editable';
 import {Sun, Moon} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
+import {PricesPage} from './PricesPage';
 
 const b = block('app');
 
@@ -44,10 +45,15 @@ export const Dashboard = () => {
             content: 'Реклама',
         },
         {
-            value: 'stats_rk',
-            content: 'Статистика',
+            value: 'prices',
+            content: 'Цены',
             disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
         },
+        // {
+        //     value: 'stats_rk',
+        //     content: 'Статистика',
+        //     disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+        // },
         {
             value: 'deliveryOrders',
             content: 'Поставки',
@@ -132,6 +138,7 @@ function PageElem({page}) {
         stats_rk: <AdvertStatsPage />,
         deliveryOrders: <DeliveryOrdersPage />,
         massAdvert: <MassAdvertPage />,
+        prices: <PricesPage />,
         nomenclatures: <NomenclaturesPage />,
     };
     return pages[page] ?? <div></div>;

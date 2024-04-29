@@ -208,7 +208,7 @@ export const MassAdvertPage = () => {
     const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [modalOpenFromAdvertId, setModalOpenFromAdvertId] = useState('');
-    const [selectedSearchPhrase, setSelectedSearchPhrase] = useState('');
+    const [selectedSearchPhrase, setSelectedSearchPhrase] = useState<string>('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
         any[]
@@ -3266,6 +3266,11 @@ export const MassAdvertPage = () => {
                                 }
                                 onClick={(event) => {
                                     event.stopPropagation();
+                                    const curSelected = selectedSearchPhrase == value ? '' : value;
+                                    console.log(`<${selectedSearchPhrase}>`, `<${curSelected}>`);
+
+                                    setSelectedSearchPhrase(() => curSelected);
+
                                     if (
                                         !doc['advertsSelectedPhrases'][selectValue[0]][
                                             modalOpenFromAdvertId
@@ -3303,10 +3308,6 @@ export const MassAdvertPage = () => {
                                     params.data.advertsIds[modalOpenFromAdvertId] = {};
                                     params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
                                     console.log(params);
-
-                                    setSelectedSearchPhrase(
-                                        selectedSearchPhrase == value ? '' : value,
-                                    );
 
                                     callApi('updateAdvertsSelectedPhrases', params);
                                 }}
@@ -6938,7 +6939,7 @@ export const MassAdvertPage = () => {
     );
 };
 
-const generateModalButtonWithActions = (
+export const generateModalButtonWithActions = (
     params: {
         disabled?;
         pin?;
