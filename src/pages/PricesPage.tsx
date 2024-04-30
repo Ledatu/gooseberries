@@ -277,6 +277,7 @@ export const PricesPage = () => {
                 return <Text>{value}%</Text>;
             },
         },
+        {name: 'allExpences', placeholder: 'Итого расходы, ₽', render: renderSlashPercent},
     ];
 
     const selectOptionsEntered = [
@@ -362,6 +363,7 @@ export const PricesPage = () => {
                 expences: 0,
                 cpo: 0,
                 buyoutsPercent: 0,
+                allExpences: 0,
             };
             artInfo.art = artData['art'];
             artInfo.size = artData['size'];
@@ -390,6 +392,7 @@ export const PricesPage = () => {
             artInfo.expences = Math.round(artData['expencesSum']);
             artInfo.cpo = Math.round(artData['cpo']);
             artInfo.buyoutsPercent = Math.round(artData['buyoutsPercent']);
+            artInfo.allExpences = Math.round(artData['allExpences']);
 
             temp[art] = artInfo;
         }
