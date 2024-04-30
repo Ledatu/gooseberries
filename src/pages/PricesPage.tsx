@@ -12,6 +12,7 @@ import {
     Modal,
     Card,
     TextInput,
+    Checkbox,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -269,7 +270,7 @@ export const PricesPage = () => {
         {name: 'ad', placeholder: 'Реклама / CPS, ₽', render: renderSlashPercent},
         {name: 'cpo', placeholder: 'CPO, ₽', render: renderSlashPercent},
         {
-            name: 'buyoutPercent',
+            name: 'buyoutsPercent',
             placeholder: 'Процент выкупа, %',
             render: ({value}) => {
                 if (value === undefined) return undefined;
@@ -288,6 +289,10 @@ export const PricesPage = () => {
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
     const [enteredValue, setEnteredValue] = useState('');
     const [enteredValueValid, setEnteredValueValid] = useState(false);
+
+    const [changeDiscount, setChangeDiscount] = useState(false);
+    const [enteredDiscountValue, setEnteredDiscountValue] = useState('');
+    const [enteredDiscountValueValid, setEnteredDiscountValueValid] = useState(false);
 
     const [updatePricesModalOpen, setUpdatePricesModalOpen] = useState(false);
 
@@ -355,6 +360,8 @@ export const PricesPage = () => {
                 storageCostForArt: 0,
                 taxSum: 0,
                 expences: 0,
+                cpo: 0,
+                buyoutsPercent: 0,
             };
             artInfo.art = artData['art'];
             artInfo.size = artData['size'];
@@ -381,6 +388,8 @@ export const PricesPage = () => {
             artInfo.storageCostForArt = artData['storageCostForArt'];
             artInfo.taxSum = Math.round(artData['taxSum']);
             artInfo.expences = Math.round(artData['expencesSum']);
+            artInfo.cpo = Math.round(artData['cpo']);
+            artInfo.buyoutsPercent = Math.round(artData['buyoutsPercent']);
 
             temp[art] = artInfo;
         }
@@ -578,8 +587,11 @@ export const PricesPage = () => {
                             onClick={() => {
                                 setEnteredValuesModalOpen(true);
                                 setEnteredValue('');
+                                setEnteredDiscountValue('');
                                 setSelectedButton('');
                                 setEnteredValueValid(false);
+                                setChangeDiscount(false);
+                                setEnteredDiscountValueValid(false);
                             }}
                         >
                             <Icon data={Calculator} />
@@ -621,7 +633,7 @@ export const PricesPage = () => {
                                     />
                                     <div style={{minHeight: 8}} />
                                     <TextInput
-                                        placeholder={'Введите значение'}
+                                        placeholder={'Введите цену'}
                                         value={enteredValue}
                                         validationState={enteredValueValid ? undefined : 'invalid'}
                                         onUpdate={(val) => {
@@ -631,8 +643,37 @@ export const PricesPage = () => {
                                         }}
                                     />
                                     <div style={{minHeight: 8}} />
+                                    <Checkbox
+                                        content={'Изменить скидку'}
+                                        checked={changeDiscount}
+                                        onUpdate={(val) => {
+                                            setChangeDiscount(val);
+                                        }}
+                                    />
+                                    <div style={{minHeight: 8}} />
+                                    <TextInput
+                                        disabled={!changeDiscount}
+                                        placeholder={'Введите скидку'}
+                                        value={enteredDiscountValue}
+                                        validationState={
+                                            changeDiscount
+                                                ? enteredDiscountValueValid
+                                                    ? undefined
+                                                    : 'invalid'
+                                                : undefined
+                                        }
+                                        onUpdate={(val) => {
+                                            const temp = parseInt(enteredDiscountValue);
+                                            setEnteredDiscountValueValid(!isNaN(temp));
+                                            setEnteredDiscountValue(val);
+                                        }}
+                                    />
+                                    <div style={{minHeight: 8}} />
                                     <Button
-                                        disabled={!enteredValueValid}
+                                        disabled={
+                                            !enteredValueValid ||
+                                            (changeDiscount && !enteredDiscountValueValid)
+                                        }
                                         size="l"
                                         view="action"
                                         onClick={() => {
@@ -651,6 +692,11 @@ export const PricesPage = () => {
                                             const key = keys[selectValueEntered[0]];
                                             params.enteredValue[key] = parseInt(enteredValue);
                                             setCurrentPricesCalculatedBasedOn(key);
+
+                                            if (changeDiscount) {
+                                                params.enteredValue['discount'] =
+                                                    parseInt(enteredDiscountValue);
+                                            }
 
                                             console.log(params);
 
@@ -744,13 +790,13 @@ export const PricesPage = () => {
 
                                                 const byNmId = {};
                                                 for (let i = 0; i < filteredData.length; i++) {
-                                                    const {nmId, wbPrice, primeCost} =
+                                                    const {nmId, wbPrice, primeCost, discount} =
                                                         filteredData[i];
                                                     if (nmId && wbPrice && wbPrice > primeCost) {
                                                         byNmId[nmId] = {
                                                             nmID: nmId,
                                                             price: wbPrice,
-                                                            discount: 55,
+                                                            discount: discount,
                                                         };
                                                     }
                                                 }
