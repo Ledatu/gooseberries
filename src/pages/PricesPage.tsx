@@ -119,7 +119,7 @@ export const PricesPage = () => {
                 size="xs"
                 view="flat"
                 onClick={() => {
-                    filterByClick(value, key, 'equal');
+                    filterByClick(value, key);
                 }}
             >
                 {value}
