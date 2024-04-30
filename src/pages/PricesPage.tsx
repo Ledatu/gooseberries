@@ -103,10 +103,7 @@ export const PricesPage = () => {
         const {rozPrice} = row;
         if (value === undefined) return undefined;
         return (
-            <Text>{`${value} / ${getRoundValue(
-                getRoundValue(value, rozPrice, true) * 10,
-                10,
-            )}%`}</Text>
+            <Text>{`${value} / ${Math.round(((value as number) / rozPrice) * 1000) / 10}%`}</Text>
         );
     };
 
@@ -284,7 +281,6 @@ export const PricesPage = () => {
     const selectOptionsEntered = [
         {value: 'Розничная цена', content: 'Розничная цена'},
         {value: 'Цена с СПП', content: 'Цена с СПП'},
-        {value: 'Цена с кошельком WB', content: 'Цена с кошельком WB'},
     ];
     const [selectValueEntered, setSelectValueEntered] = React.useState<string[]>([
         'Розничная цена',
@@ -634,56 +630,53 @@ export const PricesPage = () => {
                                             setEnteredValue(val);
                                         }}
                                     />
-                                    <div style={{minHeight: 4}} />
-                                    {generateModalButtonWithActions(
-                                        {
-                                            disabled: !enteredValueValid,
-                                            view: 'flat-action',
-                                            icon: Calculator,
-                                            placeholder: 'Рассчитать',
-                                            onClick: () => {
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    dateRange: getNormalDateRange(dateRange),
-                                                    enteredValue: {},
-                                                };
+                                    <div style={{minHeight: 8}} />
+                                    <Button
+                                        disabled={!enteredValueValid}
+                                        size="l"
+                                        view="action"
+                                        onClick={() => {
+                                            const params = {
+                                                uid: getUid(),
+                                                campaignName: selectValue[0],
+                                                dateRange: getNormalDateRange(dateRange),
+                                                enteredValue: {},
+                                            };
 
-                                                const keys = {
-                                                    'Розничная цена': 'rozPrice',
-                                                    'Цена с СПП': 'sppPrice',
-                                                    'Цена с кошельком WB': 'wbWalletPrice',
-                                                };
+                                            const keys = {
+                                                'Розничная цена': 'rozPrice',
+                                                'Цена с СПП': 'sppPrice',
+                                            };
 
-                                                const key = keys[selectValueEntered[0]];
-                                                params.enteredValue[key] = parseInt(enteredValue);
-                                                setCurrentPricesCalculatedBasedOn(key);
+                                            const key = keys[selectValueEntered[0]];
+                                            params.enteredValue[key] = parseInt(enteredValue);
+                                            setCurrentPricesCalculatedBasedOn(key);
 
-                                                console.log(params);
+                                            console.log(params);
 
-                                                /////////////////////////
-                                                callApi('getPricesMM', params).then((res) => {
-                                                    if (!res) return;
-                                                    const resData = res['data'];
-                                                    doc['pricesData'][selectValue[0]] =
-                                                        resData['pricesData'][selectValue[0]];
-                                                    doc['artsData'][selectValue[0]] =
-                                                        resData['artsData'][selectValue[0]];
+                                            /////////////////////////
+                                            callApi('getPricesMM', params).then((res) => {
+                                                if (!res) return;
+                                                const resData = res['data'];
+                                                doc['pricesData'][selectValue[0]] =
+                                                    resData['pricesData'][selectValue[0]];
+                                                doc['artsData'][selectValue[0]] =
+                                                    resData['artsData'][selectValue[0]];
 
-                                                    setChangedDoc(doc);
+                                                setChangedDoc(doc);
 
-                                                    console.log(doc);
-                                                });
+                                                console.log(doc);
+                                            });
 
-                                                setPagesCurrent(1);
-                                                /////////////////////////
+                                            setPagesCurrent(1);
+                                            /////////////////////////
 
-                                                setEnteredValuesModalOpen(false);
-                                            },
-                                        },
-                                        selectedButton,
-                                        setSelectedButton,
-                                    )}
+                                            setEnteredValuesModalOpen(false);
+                                        }}
+                                    >
+                                        <Icon data={Calculator}></Icon>
+                                        Рассчитать
+                                    </Button>
                                 </div>
                             </Card>
                         </Modal>
