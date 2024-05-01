@@ -217,7 +217,7 @@ export const PricesPage = () => {
                         variant="subheader-1"
                         color={currentPricesCalculatedBasedOn == 'rozPrice' ? undefined : 'primary'}
                     >
-                        Цена после, ₽
+                        Цена после скидки, ₽
                     </Text>
                 </Link>
             ),
@@ -291,11 +291,11 @@ export const PricesPage = () => {
     ];
 
     const selectOptionsEntered = [
-        {value: 'Розничная цена', content: 'Розничная цена'},
+        {value: 'Цена после скидки', content: 'Цена после скидки'},
         {value: 'Цена с СПП', content: 'Цена с СПП'},
     ];
     const [selectValueEntered, setSelectValueEntered] = React.useState<string[]>([
-        'Розничная цена',
+        'Цена после скидки',
     ]);
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
     const [enteredValue, setEnteredValue] = useState('');
