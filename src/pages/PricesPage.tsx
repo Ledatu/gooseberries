@@ -698,7 +698,7 @@ export const PricesPage = () => {
                                             };
 
                                             const keys = {
-                                                'Розничная цена': 'rozPrice',
+                                                'Цена после скидки': 'rozPrice',
                                                 'Цена с СПП': 'sppPrice',
                                             };
 
