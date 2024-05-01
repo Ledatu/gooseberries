@@ -100,11 +100,13 @@ export const PricesPage = () => {
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
-    const renderSlashPercent = ({value, row}) => {
+    const renderSlashPercent = ({value, row}, round = false) => {
         const {rozPrice} = row;
         if (value === undefined) return undefined;
         return (
-            <Text>{`${value} / ${Math.round(((value as number) / rozPrice) * 1000) / 10}%`}</Text>
+            <Text>{`${value} / ${
+                Math.round(((value as number) / rozPrice) * (round ? 100 : 1000)) / (round ? 1 : 10)
+            }%`}</Text>
         );
     };
 
@@ -264,8 +266,16 @@ export const PricesPage = () => {
         {name: 'primeCost', placeholder: 'Себестоимость, ₽', render: renderSlashPercent},
         {name: 'comissionSum', placeholder: 'Комиссия, ₽', render: renderSlashPercent},
         {name: 'deliverySum', placeholder: 'Логистика, ₽', render: renderSlashPercent},
-        {name: 'taxSum', placeholder: 'Налог, ₽', render: renderSlashPercent},
-        {name: 'expences', placeholder: 'Доп. расходы, ₽', render: renderSlashPercent},
+        {
+            name: 'taxSum',
+            placeholder: 'Налог, ₽',
+            render: (args) => renderSlashPercent(args, true),
+        },
+        {
+            name: 'expences',
+            placeholder: 'Доп. расходы, ₽',
+            render: (args) => renderSlashPercent(args, true),
+        },
         {name: 'storageCostForArt', placeholder: 'Хранение, ₽', render: renderSlashPercent},
         {name: 'ad', placeholder: 'Реклама / CPS, ₽', render: renderSlashPercent},
         {name: 'cpo', placeholder: 'CPO, ₽', render: renderSlashPercent},
