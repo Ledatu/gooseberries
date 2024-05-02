@@ -1375,9 +1375,10 @@ export const MassAdvertPage = () => {
                                     setSemanticsModalSemanticsItemsValue(() => {
                                         const temp = advertSemantics.clusters;
                                         temp.sort((a, b) => {
-                                            const freqA = a.freq ? a.freq : 0;
-                                            const freqB = b.freq ? b.freq : 0;
-                                            return freqB - freqA;
+                                            const key = 'count';
+                                            const valA = a[key] ?? 0;
+                                            const valB = b[key] ?? 0;
+                                            return valB - valA;
                                         });
 
                                         const tempPresets = [] as any[];
