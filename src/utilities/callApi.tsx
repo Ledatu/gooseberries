@@ -24,6 +24,7 @@ export const getUid = () => {
         '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
         '46431a09-85c3-4703-8246-d1b5c9e52594',
         // '1c5a0344-31ea-469e-945e-1dfc4b964ecd',
+        '453a2da6-9458-44bd-b756-0282fbb7557d',
     ].includes(Userfront.user.userUuid ?? '')
         ? '4a1f2828-9a1e-4bbf-8e07-208ba676a806_1'
         : '';
