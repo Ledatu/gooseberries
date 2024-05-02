@@ -1,5 +1,16 @@
 import React, {useEffect, useId, useState} from 'react';
-import {Spin, Select, SelectOption, Icon, Button, Text, Pagination} from '@gravity-ui/uikit';
+import {
+    Spin,
+    Select,
+    SelectOption,
+    Icon,
+    Button,
+    Text,
+    Pagination,
+    Modal,
+    Card,
+    TextInput,
+} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
@@ -9,11 +20,19 @@ import block from 'bem-cn-lite';
 
 const b = block('app');
 
-import {FileArrowUp, FileArrowDown, ChevronDown, Key} from '@gravity-ui/icons';
+import {
+    FileArrowUp,
+    FileArrowDown,
+    ChevronDown,
+    Key,
+    Pencil,
+    CloudArrowUpIn,
+} from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
 import TheTable, {compare} from 'src/components/TheTable';
+import {generateModalButtonWithActions} from './MassAdvertPage';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -45,11 +64,35 @@ export const NomenclaturesPage = () => {
 
     const [filters, setFilters] = useState({undef: false});
 
+    const [enteredValueModalOpen, setEnteredValueModalOpen] = useState(false);
+    const [selectedButton, setSelectedButton] = useState('');
+
+    const [enteredValueKey, setEnteredValueKey] = useState('');
+    const [enteredValue, setEnteredValue] = useState('');
+
     const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
+
+    const generateEditButton = (key) => {
+        return (
+            <Button
+                style={{marginLeft: 5}}
+                view="outlined"
+                onClick={(event) => {
+                    event.stopPropagation();
+                    setEnteredValueModalOpen(true);
+                    setEnteredValue('');
+                    setSelectedButton('');
+                    setEnteredValueKey(key);
+                }}
+            >
+                <Icon data={Pencil} />
+            </Button>
+        );
+    };
 
     const columnData = [
         {
@@ -92,19 +135,64 @@ export const NomenclaturesPage = () => {
         {name: 'title', placeholder: 'Наименование', valueType: 'text'},
         {name: 'nmId', placeholder: 'Артикул WB', valueType: 'text'},
         {name: 'barcode', placeholder: 'Баркод', valueType: 'text'},
-        {name: 'factoryArt', placeholder: 'Артикул фабрики', valueType: 'text'},
-        {name: 'multiplicity', placeholder: 'Кратность короба, шт.'},
-        {name: 'length', placeholder: 'Длина, см.'},
-        {name: 'width', placeholder: 'Ширина, см.'},
-        {name: 'height', placeholder: 'Высота, см.'},
-        {name: 'weight', placeholder: 'Вес, кг.'},
-        {name: 'ktr', placeholder: 'КТР WB, %'},
-        {name: 'commision', placeholder: 'Коммисия WB, %'},
-        {name: 'tax', placeholder: 'Ставка налога, %'},
-        {name: 'expences', placeholder: 'Дополнительные расходы, %'},
-        {name: 'primeCost1', placeholder: 'Себестоимость 1, ₽'},
-        {name: 'primeCost2', placeholder: 'Себестоимость 2, ₽'},
-        {name: 'primeCost3', placeholder: 'Себестоимость 3, ₽'},
+        {
+            name: 'factoryArt',
+            placeholder: 'Артикул фабрики',
+            valueType: 'text',
+            additionalNodes: [generateEditButton('factoryArt')],
+        },
+        {
+            name: 'multiplicity',
+            placeholder: 'Кратность короба, шт.',
+            additionalNodes: [generateEditButton('multiplicity')],
+        },
+        {
+            name: 'length',
+            placeholder: 'Длина, см.',
+            additionalNodes: [generateEditButton('length')],
+        },
+        {
+            name: 'width',
+            placeholder: 'Ширина, см.',
+            additionalNodes: [generateEditButton('width')],
+        },
+        {
+            name: 'height',
+            placeholder: 'Высота, см.',
+            additionalNodes: [generateEditButton('height')],
+        },
+        {name: 'weight', placeholder: 'Вес, кг.', additionalNodes: [generateEditButton('weight')]},
+        {name: 'ktr', placeholder: 'КТР WB, %', additionalNodes: [generateEditButton('ktr')]},
+        {
+            name: 'commision',
+            placeholder: 'Коммисия WB, %',
+            additionalNodes: [generateEditButton('commision')],
+        },
+        {
+            name: 'tax',
+            placeholder: 'Ставка налога, %',
+            additionalNodes: [generateEditButton('tax')],
+        },
+        {
+            name: 'expences',
+            placeholder: 'Дополнительные расходы, %',
+            additionalNodes: [generateEditButton('expences')],
+        },
+        {
+            name: 'primeCost1',
+            placeholder: 'Себестоимость 1, ₽',
+            additionalNodes: [generateEditButton('primeCost1')],
+        },
+        {
+            name: 'primeCost2',
+            placeholder: 'Себестоимость 2, ₽',
+            additionalNodes: [generateEditButton('primeCost2')],
+        },
+        {
+            name: 'primeCost3',
+            placeholder: 'Себестоимость 3, ₽',
+            additionalNodes: [generateEditButton('primeCost3')],
+        },
     ];
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
@@ -351,6 +439,22 @@ export const NomenclaturesPage = () => {
         setFirstRecalc(true);
     }
 
+    const keys = {
+        factoryArt: {name: 'Артикул фабрики', type: 'text'},
+        multiplicity: {name: 'Кратность короба, шт.', type: 'number'},
+        length: {name: 'Длина, см.', type: 'number'},
+        width: {name: 'Ширина, см.', type: 'number'},
+        height: {name: 'Высота, см.', type: 'number'},
+        weight: {name: 'Вес, кг.', type: 'number'},
+        ktr: {name: 'КТР WB, %', type: 'number'},
+        commision: {name: 'Коммисия WB, %', type: 'number'},
+        tax: {name: 'Ставка налога, %', type: 'number'},
+        expences: {name: 'Дополнительные расходы, %', type: 'number'},
+        primeCost1: {name: 'Себестоимость 1, ₽', type: 'number'},
+        primeCost2: {name: 'Себестоимость 2, ₽', type: 'number'},
+        primeCost3: {name: 'Себестоимость 3, ₽', type: 'number'},
+    };
+
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
             <div
@@ -378,6 +482,111 @@ export const NomenclaturesPage = () => {
                             alignItems: 'center',
                         }}
                     >
+                        <Modal
+                            open={enteredValueModalOpen}
+                            onClose={() => {
+                                setEnteredValueModalOpen(false);
+                            }}
+                        >
+                            <Card
+                                view="clear"
+                                style={{
+                                    padding: 20,
+                                    minWidth: 300,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    backgroundColor: 'none',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        height: '50%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        margin: '16px 0',
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            margin: '8px 0',
+                                        }}
+                                        variant="header-2"
+                                    >
+                                        {keys[enteredValueKey] ? keys[enteredValueKey].name : ''}
+                                    </Text>
+                                    <TextInput
+                                        placeholder={'Введите значение'}
+                                        value={enteredValue}
+                                        onUpdate={(val) => {
+                                            setEnteredValue(val);
+                                        }}
+                                    />
+                                    <div style={{minHeight: 8}} />
+                                    {generateModalButtonWithActions(
+                                        {
+                                            view: 'action',
+                                            icon: CloudArrowUpIn,
+                                            placeholder: 'Сохранить',
+                                            onClick: async () => {
+                                                const params = {
+                                                    uid: getUid(),
+                                                    campaignName: selectValue[0],
+                                                    data: {
+                                                        enteredValue: {},
+                                                        barcodes: [] as any[],
+                                                    },
+                                                };
+
+                                                for (let i = 0; i < filteredData.length; i++) {
+                                                    const row = filteredData[i];
+                                                    const {barcode} = row ?? {};
+                                                    if (barcode === undefined) continue;
+                                                    if (!params.data.barcodes.includes(barcode))
+                                                        params.data.barcodes.push(barcode);
+                                                }
+
+                                                params.data.enteredValue = {
+                                                    key: enteredValueKey,
+                                                    val: enteredValue,
+                                                    type: keys[enteredValueKey].type,
+                                                };
+                                                console.log(params);
+                                                /////////////////////////
+                                                await callApi(
+                                                    'changeUploadedArtsDataForKey',
+                                                    params,
+                                                );
+                                                await callApi('getNomenclatures', {
+                                                    uid: getUid(),
+                                                    campaignName: selectValue[0],
+                                                }).then((res) => {
+                                                    if (!res) return;
+                                                    const resData = res['data'];
+                                                    doc['nomenclatures'][selectValue[0]] =
+                                                        resData['nomenclatures'][selectValue[0]];
+                                                    doc['artsData'][selectValue[0]] =
+                                                        resData['artsData'][selectValue[0]];
+
+                                                    setChangedDoc(doc);
+
+                                                    console.log(doc);
+                                                });
+
+                                                setPagesCurrent(1);
+                                                /////////////////////////
+                                                setEnteredValueModalOpen(false);
+                                                setEnteredValueKey('');
+                                            },
+                                        },
+                                        selectedButton,
+                                        setSelectedButton,
+                                    )}
+                                </div>
+                            </Card>
+                        </Modal>
                         <Select
                             className={b('selectCampaign')}
                             value={selectValue}

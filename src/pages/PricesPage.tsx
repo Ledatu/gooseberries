@@ -264,7 +264,11 @@ export const PricesPage = () => {
             },
         },
         {name: 'primeCost', placeholder: 'Себестоимость, ₽', render: renderSlashPercent},
-        {name: 'comissionSum', placeholder: 'Комиссия, ₽', render: renderSlashPercent},
+        {
+            name: 'comissionSum',
+            placeholder: 'Комиссия, ₽',
+            render: (args) => renderSlashPercent(args, true),
+        },
         {name: 'deliverySum', placeholder: 'Логистика, ₽', render: renderSlashPercent},
         {
             name: 'taxSum',
