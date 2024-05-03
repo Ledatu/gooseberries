@@ -739,8 +739,12 @@ export const PricesPage = () => {
                                             callApi('getPricesMM', params).then((res) => {
                                                 if (!res) return;
                                                 const resData = res['data'];
-                                                doc['pricesData'][selectValue[0]] =
-                                                    resData['pricesData'][selectValue[0]];
+                                                for (const [art, artData] of Object.entries(
+                                                    resData['pricesData'][selectValue[0]],
+                                                )) {
+                                                    doc['pricesData'][selectValue[0]][art] =
+                                                        artData;
+                                                }
                                                 doc['artsData'][selectValue[0]] =
                                                     resData['artsData'][selectValue[0]];
 
