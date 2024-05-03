@@ -36,6 +36,7 @@ import {RangeCalendar} from '@gravity-ui/date-components';
 import Userfront from '@userfront/toolkit';
 import {getLocaleDateString, getRoundValue} from 'src/utilities/getRoundValue';
 import {generateModalButtonWithActions} from './MassAdvertPage';
+import {motion} from 'framer-motion';
 
 const getNormalDateRange = (dateRange) => {
     const res = {};
@@ -320,13 +321,18 @@ export const PricesPage = () => {
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
+
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
+    const [updatingFlag, setUpdatingFlag] = useState(false);
+    const [calculatingFlag, setCalculatingFlag] = useState(false);
+
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
     if (dateChangeRecalc) {
+        setUpdatingFlag(true);
         setDateChangeRecalc(false);
         setCurrentPricesCalculatedBasedOn('');
 
@@ -343,6 +349,7 @@ export const PricesPage = () => {
             setChangedDoc(doc);
 
             setDateChangeRecalc(false);
+            setUpdatingFlag(false);
             console.log(doc);
         });
 
@@ -524,76 +531,83 @@ export const PricesPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
+                    <Select
+                        className={b('selectCampaign')}
+                        value={selectValue}
+                        placeholder="Values"
+                        options={selectOptions}
+                        renderControl={({onClick, onKeyDown, ref}) => {
+                            return (
+                                <Button
+                                    loading={switchingCampaignsFlag}
+                                    ref={ref}
+                                    size="l"
+                                    view="action"
+                                    onClick={onClick}
+                                    extraProps={{
+                                        onKeyDown,
+                                    }}
+                                >
+                                    <Icon data={Key} />
+                                    <Text variant="subheader-1">{selectValue[0]}</Text>
+                                    <Icon data={ChevronDown} />
+                                </Button>
+                            );
+                        }}
+                        onUpdate={(nextValue) => {
+                            setSwitchingCampaignsFlag(true);
+
+                            if (!Object.keys(doc['pricesData'][nextValue[0]]).length) {
+                                callApi('getPricesMM', {
+                                    uid: getUid(),
+                                    campaignName: nextValue,
+                                    dateRange: getNormalDateRange(dateRange),
+                                }).then((res) => {
+                                    if (!res) return;
+                                    const resData = res['data'];
+                                    doc['pricesData'][nextValue[0]] =
+                                        resData['pricesData'][nextValue[0]];
+                                    doc['artsData'][nextValue[0]] =
+                                        resData['artsData'][nextValue[0]];
+
+                                    setChangedDoc(doc);
+                                    setSelectValue(nextValue);
+
+                                    setSwitchingCampaignsFlag(false);
+                                    console.log(doc);
+                                });
+                            } else {
+                                setSelectValue(nextValue);
+                                setSwitchingCampaignsFlag(false);
+                            }
+                            recalc(nextValue[0], filters);
+                            setPagesCurrent(1);
+                        }}
+                    />
+
                     <div
                         style={{
-                            marginRight: 8,
+                            marginBottom: 8,
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
                         }}
                     >
-                        <Select
-                            className={b('selectCampaign')}
-                            value={selectValue}
-                            placeholder="Values"
-                            options={selectOptions}
-                            renderControl={({onClick, onKeyDown, ref}) => {
-                                return (
-                                    <Button
-                                        loading={switchingCampaignsFlag}
-                                        ref={ref}
-                                        size="l"
-                                        view="action"
-                                        onClick={onClick}
-                                        extraProps={{
-                                            onKeyDown,
-                                        }}
-                                    >
-                                        <Icon data={Key} />
-                                        <Text variant="subheader-1">{selectValue[0]}</Text>
-                                        <Icon data={ChevronDown} />
-                                    </Button>
-                                );
+                        <motion.div
+                            style={{
+                                overflow: 'hidden',
+                                marginTop: 4,
                             }}
-                            onUpdate={(nextValue) => {
-                                setSwitchingCampaignsFlag(true);
-
-                                if (!Object.keys(doc['pricesData'][nextValue[0]]).length) {
-                                    callApi('getPricesMM', {
-                                        uid: getUid(),
-                                        campaignName: nextValue,
-                                        dateRange: getNormalDateRange(dateRange),
-                                    }).then((res) => {
-                                        if (!res) return;
-                                        const resData = res['data'];
-                                        doc['pricesData'][nextValue[0]] =
-                                            resData['pricesData'][nextValue[0]];
-                                        doc['artsData'][nextValue[0]] =
-                                            resData['artsData'][nextValue[0]];
-
-                                        setChangedDoc(doc);
-                                        setSelectValue(nextValue);
-
-                                        setSwitchingCampaignsFlag(false);
-                                        console.log(doc);
-                                    });
-                                } else {
-                                    setSelectValue(nextValue);
-                                    setSwitchingCampaignsFlag(false);
-                                }
-                                recalc(nextValue[0], filters);
-                                setPagesCurrent(1);
+                            animate={{
+                                maxWidth: switchingCampaignsFlag ? 40 : 0,
+                                opacity: switchingCampaignsFlag ? 1 : 0,
                             }}
-                        />
-                        {switchingCampaignsFlag ? (
-                            <Spin style={{marginLeft: 8, marginBottom: 8}} />
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-                    <div style={{marginBottom: 8, display: 'flex', flexDirection: 'row'}}>
+                        >
+                            <Spin style={{marginLeft: 8}} />
+                        </motion.div>
+                        <div style={{minWidth: 8}} />
                         <Button
-                            // loading={fetchingDataFromServerFlag}
+                            loading={updatingFlag}
                             size="l"
                             view="action"
                             onClick={() => {
@@ -603,9 +617,21 @@ export const PricesPage = () => {
                             <Icon data={ArrowsRotateLeft} />
                             <Text variant="subheader-1">Обновить</Text>
                         </Button>
+                        <motion.div
+                            style={{
+                                overflow: 'hidden',
+                                marginTop: 4,
+                            }}
+                            animate={{
+                                maxWidth: updatingFlag ? 40 : 0,
+                                opacity: updatingFlag ? 1 : 0,
+                            }}
+                        >
+                            <Spin style={{marginLeft: 8}} />
+                        </motion.div>
                         <div style={{minWidth: 8}} />
                         <Button
-                            // loading={fetchingDataFromServerFlag}
+                            loading={calculatingFlag}
                             size="l"
                             view="action"
                             onClick={() => {
@@ -621,6 +647,18 @@ export const PricesPage = () => {
                             <Icon data={Calculator} />
                             <Text variant="subheader-1">Рассчитать</Text>
                         </Button>
+                        <motion.div
+                            style={{
+                                overflow: 'hidden',
+                                marginTop: 4,
+                            }}
+                            animate={{
+                                maxWidth: calculatingFlag ? 40 : 0,
+                                opacity: calculatingFlag ? 1 : 0,
+                            }}
+                        >
+                            <Spin style={{marginLeft: 8}} />
+                        </motion.div>
                         <Modal
                             open={enteredValuesModalOpen}
                             onClose={() => {
@@ -701,6 +739,7 @@ export const PricesPage = () => {
                                         size="l"
                                         view="action"
                                         onClick={() => {
+                                            setCalculatingFlag(true);
                                             const params = {
                                                 uid: getUid(),
                                                 campaignName: selectValue[0],
@@ -756,7 +795,7 @@ export const PricesPage = () => {
                                                     resData['artsData'][selectValue[0]];
 
                                                 setChangedDoc(doc);
-
+                                                setCalculatingFlag(false);
                                                 console.log(doc);
                                             });
 
