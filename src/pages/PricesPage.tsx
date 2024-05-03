@@ -715,6 +715,24 @@ export const PricesPage = () => {
                                                     parseInt(enteredDiscountValue);
                                             }
 
+                                            const filters = {
+                                                brands: [] as string[],
+                                                objects: [] as string[],
+                                                arts: [] as string[],
+                                            };
+                                            for (let i = 0; i < filteredData.length; i++) {
+                                                const row = filteredData[i];
+                                                const {brand, object, art} = row ?? {};
+
+                                                if (!filters.brands.includes(brand))
+                                                    filters.brands.push(brand);
+                                                if (!filters.objects.includes(object))
+                                                    filters.objects.push(object);
+                                                if (!filters.arts.includes(art))
+                                                    filters.arts.push(art);
+                                            }
+                                            params.enteredValue['filters'] = filters;
+
                                             console.log(params);
 
                                             /////////////////////////
