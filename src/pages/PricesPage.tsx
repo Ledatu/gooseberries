@@ -135,9 +135,9 @@ export const PricesPage = () => {
             name: 'art',
             placeholder: 'Артикул',
             width: 200,
-            render: ({value, footer, index}) => {
+            render: ({value, footer, index, row}) => {
                 if (footer) return <div style={{height: 28}}>{value}</div>;
-
+                const {nmId} = row;
                 return (
                     <div
                         style={{
@@ -159,7 +159,14 @@ export const PricesPage = () => {
                         >
                             {Math.floor((pagesCurrent - 1) * 600 + index + 1)}
                         </div>
-                        {renderFilterByClickButton({value}, 'art')}
+                        <Link
+                            view="primary"
+                            style={{whiteSpace: 'pre-wrap'}}
+                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                            target="_blank"
+                        >
+                            <Text variant="subheader-1">{value}</Text>
+                        </Link>
                     </div>
                 );
             },
