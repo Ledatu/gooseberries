@@ -368,7 +368,7 @@ export const PricesPage = () => {
                 rozPrice: undefined,
                 sppPrice: undefined,
                 wbWalletPrice: undefined,
-                wbPrice: undefined,
+                wbPrice: 0,
                 discount: undefined,
                 spp: 0,
                 profit: 0,
@@ -397,7 +397,7 @@ export const PricesPage = () => {
             artInfo.rozPrice = artData['rozPrice'];
             artInfo.sppPrice = artData['sppPrice'];
             artInfo.wbWalletPrice = artData['wbWalletPrice'];
-            artInfo.wbPrice = artData['wbPrice'];
+            artInfo.wbPrice = Math.round(artData['wbPrice']);
             // artInfo.priceInfo = artData['priceInfo'];
             artInfo.discount = artData['priceInfo'].discount;
             artInfo.spp = Math.round(artData['priceInfo'].spp);
