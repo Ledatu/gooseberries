@@ -729,14 +729,15 @@ export const MassAdvertPage = () => {
         const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
             ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
             : undefined;
-        const autoPhrasesTemplate = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].autoPhrasesTemplate
-            : undefined;
+        const {isFixed, autoPhrasesTemplate} =
+            doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate] ?? {};
 
         const themeToUse = plusPhrasesTemplate
-            ? autoPhrasesTemplate &&
-              ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
-                  (autoPhrasesTemplate.notIncludes && autoPhrasesTemplate.notIncludes.length))
+            ? isFixed
+                ? 'flat-warning'
+                : autoPhrasesTemplate &&
+                  ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
+                      (autoPhrasesTemplate.notIncludes && autoPhrasesTemplate.notIncludes.length))
                 ? 'flat-success'
                 : 'flat-info'
             : 'normal';

@@ -101,10 +101,10 @@ export const PricesPage = () => {
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
-    const renderSlashPercent = ({value, row}) => {
-        const {rozPrice} = row;
+    const renderSlashPercent = ({value, row}, priceKey = 'rozPrice') => {
+        const price = row[priceKey];
         if (value === undefined) return undefined;
-        return <Text>{`${value} / ${Math.round(((value as number) / rozPrice) * 100)}%`}</Text>;
+        return <Text>{`${value} / ${Math.round(((value as number) / price) * 100)}%`}</Text>;
     };
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
@@ -274,12 +274,12 @@ export const PricesPage = () => {
         {
             name: 'taxSum',
             placeholder: 'Налог, ₽',
-            render: (args) => renderSlashPercent(args),
+            render: (args) => renderSlashPercent(args, 'sppPrice'),
         },
         {
             name: 'expences',
             placeholder: 'Доп. расходы, ₽',
-            render: (args) => renderSlashPercent(args),
+            render: (args) => renderSlashPercent(args, 'sppPrice'),
         },
         {name: 'storageCostForArt', placeholder: 'Хранение, ₽', render: renderSlashPercent},
         {name: 'ad', placeholder: 'Реклама / CPS, ₽', render: renderSlashPercent},
