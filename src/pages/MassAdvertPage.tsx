@@ -4743,63 +4743,133 @@ export const MassAdvertPage = () => {
                             <div style={{minHeight: 8}} />
                             {generateScheduleInput({scheduleInput, setScheduleInput})}
                             <div style={{minHeight: 16}} />
-                            {generateModalButtonWithActions(
-                                {
-                                    style: {margin: '8px 0'},
-                                    placeholder: 'Установить',
-                                    icon: CloudArrowUpIn,
-                                    view: 'outlined-success',
-                                    onClick: () => {
-                                        const params = {
-                                            uid: getUid(),
-                                            campaignName: selectValue[0],
-                                            data: {
-                                                schedule: scheduleInput,
-                                                advertsIds: {},
-                                            },
-                                        };
-                                        for (let i = 0; i < filteredData.length; i++) {
-                                            const {adverts} = filteredData[i];
-                                            if (adverts) {
-                                                for (const [id, advertsData] of Object.entries(
-                                                    adverts,
-                                                )) {
-                                                    if (!id || !advertsData) continue;
-                                                    const {advertId} = advertsData as {
-                                                        advertId: number;
-                                                    };
-                                                    if (!advertId) continue;
-                                                    if (
-                                                        modalOpenFromAdvertId != '' &&
-                                                        modalOpenFromAdvertId
-                                                    ) {
-                                                        if (id != modalOpenFromAdvertId) continue;
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    width: '100%',
+                                    justifyContent: 'space-around',
+                                }}
+                            >
+                                {generateModalButtonWithActions(
+                                    {
+                                        style: {margin: '8px 0'},
+                                        placeholder: 'Установить',
+                                        icon: CloudArrowUpIn,
+                                        view: 'outlined-success',
+                                        onClick: () => {
+                                            const params = {
+                                                uid: getUid(),
+                                                campaignName: selectValue[0],
+                                                data: {
+                                                    schedule: scheduleInput,
+                                                    mode: 'Установить',
+                                                    advertsIds: {},
+                                                },
+                                            };
+                                            for (let i = 0; i < filteredData.length; i++) {
+                                                const {adverts} = filteredData[i];
+                                                if (adverts) {
+                                                    for (const [id, advertsData] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        if (!id || !advertsData) continue;
+                                                        const {advertId} = advertsData as {
+                                                            advertId: number;
+                                                        };
+                                                        if (!advertId) continue;
+                                                        if (
+                                                            modalOpenFromAdvertId != '' &&
+                                                            modalOpenFromAdvertId
+                                                        ) {
+                                                            if (id != modalOpenFromAdvertId)
+                                                                continue;
+                                                        }
+
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                        };
+
+                                                        doc.advertsSchedules[selectValue[0]][
+                                                            advertId
+                                                        ] = {};
+                                                        doc.advertsSchedules[selectValue[0]][
+                                                            advertId
+                                                        ] = {schedule: scheduleInput};
                                                     }
-
-                                                    params.data.advertsIds[advertId] = {
-                                                        advertId: advertId,
-                                                    };
-
-                                                    doc.advertsSchedules[selectValue[0]][advertId] =
-                                                        {};
-                                                    doc.advertsSchedules[selectValue[0]][advertId] =
-                                                        {schedule: scheduleInput};
                                                 }
                                             }
-                                        }
-                                        console.log(params);
+                                            console.log(params);
 
-                                        //////////////////////////////////
-                                        callApi('setAdvertsSchedules', params);
-                                        setChangedDoc(doc);
-                                        //////////////////////////////////
+                                            //////////////////////////////////
+                                            callApi('setAdvertsSchedules', params);
+                                            setChangedDoc(doc);
+                                            //////////////////////////////////
 
-                                        setShowScheduleModalOpen(false);
+                                            setShowScheduleModalOpen(false);
+                                        },
                                     },
-                                },
-                                selectedButton,
-                                setSelectedButton,
-                            )}
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                {generateModalButtonWithActions(
+                                    {
+                                        style: {margin: '8px 0'},
+                                        placeholder: 'Удалить',
+                                        icon: TrashBin,
+                                        view: 'outlined-danger',
+                                        onClick: () => {
+                                            const params = {
+                                                uid: getUid(),
+                                                campaignName: selectValue[0],
+                                                data: {
+                                                    mode: 'Удалить',
+                                                    advertsIds: {},
+                                                },
+                                            };
+                                            for (let i = 0; i < filteredData.length; i++) {
+                                                const {adverts} = filteredData[i];
+                                                if (adverts) {
+                                                    for (const [id, advertsData] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        if (!id || !advertsData) continue;
+                                                        const {advertId} = advertsData as {
+                                                            advertId: number;
+                                                        };
+                                                        if (!advertId) continue;
+                                                        if (
+                                                            modalOpenFromAdvertId != '' &&
+                                                            modalOpenFromAdvertId
+                                                        ) {
+                                                            if (id != modalOpenFromAdvertId)
+                                                                continue;
+                                                        }
+
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                        };
+
+                                                        delete doc.advertsSchedules[selectValue[0]][
+                                                            advertId
+                                                        ];
+                                                    }
+                                                }
+                                            }
+                                            console.log(params);
+
+                                            //////////////////////////////////
+                                            callApi('setAdvertsSchedules', params);
+                                            setChangedDoc(doc);
+                                            //////////////////////////////////
+
+                                            setShowScheduleModalOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                            </div>
                         </div>
                     </Modal>
                     <Button

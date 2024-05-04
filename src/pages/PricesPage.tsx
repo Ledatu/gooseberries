@@ -298,6 +298,7 @@ export const PricesPage = () => {
     const selectOptionsEntered = [
         {value: 'Цена после скидки', content: 'Цена после скидки'},
         {value: 'Цена с СПП', content: 'Цена с СПП'},
+        {value: 'Наценка к себестоимости', content: 'Наценка к себестоимости'},
     ];
     const [selectValueEntered, setSelectValueEntered] = React.useState<string[]>([
         'Цена после скидки',
@@ -688,7 +689,11 @@ export const PricesPage = () => {
                                     />
                                     <div style={{minHeight: 8}} />
                                     <TextInput
-                                        placeholder={'Введите цену'}
+                                        placeholder={
+                                            selectValueEntered[0] == 'Наценка к себестоимости'
+                                                ? 'Введите наценку, %'
+                                                : 'Введите цену, ₽'
+                                        }
                                         value={enteredValue}
                                         validationState={enteredValueValid ? undefined : 'invalid'}
                                         onUpdate={(val) => {
@@ -708,7 +713,7 @@ export const PricesPage = () => {
                                     <div style={{minHeight: 8}} />
                                     <TextInput
                                         disabled={!changeDiscount}
-                                        placeholder={'Введите скидку'}
+                                        placeholder={'Введите скидку, %'}
                                         value={enteredDiscountValue}
                                         validationState={
                                             changeDiscount
@@ -743,11 +748,14 @@ export const PricesPage = () => {
                                             const keys = {
                                                 'Цена после скидки': 'rozPrice',
                                                 'Цена с СПП': 'sppPrice',
+                                                'Наценка к себестоимости': 'primeCostMarkup',
                                             };
 
                                             const key = keys[selectValueEntered[0]];
                                             params.enteredValue[key] = parseInt(enteredValue);
-                                            setCurrentPricesCalculatedBasedOn(key);
+                                            setCurrentPricesCalculatedBasedOn(
+                                                key == 'primeCostMarkup' ? 'rozPrice' : key,
+                                            );
 
                                             if (changeDiscount) {
                                                 params.enteredValue['discount'] =
