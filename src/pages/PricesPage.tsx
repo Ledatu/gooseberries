@@ -101,14 +101,10 @@ export const PricesPage = () => {
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
-    const renderSlashPercent = ({value, row}, round = false) => {
+    const renderSlashPercent = ({value, row}) => {
         const {rozPrice} = row;
         if (value === undefined) return undefined;
-        return (
-            <Text>{`${value} / ${
-                Math.round(((value as number) / rozPrice) * (round ? 100 : 1000)) / (round ? 1 : 10)
-            }%`}</Text>
-        );
+        return <Text>{`${value} / ${Math.round(((value as number) / rozPrice) * 100)}%`}</Text>;
     };
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
@@ -263,10 +259,7 @@ export const PricesPage = () => {
                 if (value === undefined) return undefined;
                 return (
                     <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
-                        {`${value} / ${getRoundValue(
-                            getRoundValue(value, rozPrice, true) * 10,
-                            10,
-                        )}%`}
+                        {`${value} / ${getRoundValue(value * 100, rozPrice)}%`}
                     </Text>
                 );
             },
@@ -275,18 +268,18 @@ export const PricesPage = () => {
         {
             name: 'comissionSum',
             placeholder: 'Комиссия, ₽',
-            render: (args) => renderSlashPercent(args, true),
+            render: (args) => renderSlashPercent(args),
         },
         {name: 'deliverySum', placeholder: 'Логистика, ₽', render: renderSlashPercent},
         {
             name: 'taxSum',
             placeholder: 'Налог, ₽',
-            render: (args) => renderSlashPercent(args, true),
+            render: (args) => renderSlashPercent(args),
         },
         {
             name: 'expences',
             placeholder: 'Доп. расходы, ₽',
-            render: (args) => renderSlashPercent(args, true),
+            render: (args) => renderSlashPercent(args),
         },
         {name: 'storageCostForArt', placeholder: 'Хранение, ₽', render: renderSlashPercent},
         {name: 'ad', placeholder: 'Реклама / CPS, ₽', render: renderSlashPercent},
