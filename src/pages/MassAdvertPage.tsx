@@ -724,8 +724,6 @@ export const MassAdvertPage = () => {
         const curCpm = cpm;
         // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
-        const advertsSelectedPhrases = doc.advertsSelectedPhrases[selectValue[0]][advertId];
-
         const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
             ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
             : undefined;
@@ -1351,10 +1349,6 @@ export const MassAdvertPage = () => {
                                 view={themeToUse}
                                 onClick={() => {
                                     setSemanticsModalFormOpen(true);
-
-                                    setSelectedSearchPhrase(
-                                        advertsSelectedPhrases ? advertsSelectedPhrases.phrase : '',
-                                    );
 
                                     setSemanticsModalOpenFromArt(art);
                                     setModalOpenFromAdvertId(advertId);
@@ -3241,6 +3235,12 @@ export const MassAdvertPage = () => {
                     }
                 }
 
+                const isSelected =
+                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
+                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
+                              .phrase
+                        : '') == value;
+
                 return (
                     <div
                         style={{
@@ -3263,16 +3263,9 @@ export const MassAdvertPage = () => {
                             <div style={{width: 4}} />
                             <Button
                                 size="xs"
-                                view={
-                                    selectedSearchPhrase == value ? 'outlined-success' : 'outlined'
-                                }
+                                view={isSelected ? 'outlined-success' : 'outlined'}
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    const curSelected = selectedSearchPhrase == value ? '' : value;
-                                    console.log(`<${selectedSearchPhrase}>`, `<${curSelected}>`);
-
-                                    setSelectedSearchPhrase(() => curSelected);
-
                                     if (
                                         !doc['advertsSelectedPhrases'][selectValue[0]][
                                             modalOpenFromAdvertId
@@ -3284,7 +3277,7 @@ export const MassAdvertPage = () => {
                                             phrase: '',
                                         };
 
-                                    if (selectedSearchPhrase == value) {
+                                    if (isSelected) {
                                         doc['advertsSelectedPhrases'][selectValue[0]][
                                             modalOpenFromAdvertId
                                         ] = undefined;
@@ -3300,10 +3293,7 @@ export const MassAdvertPage = () => {
                                         uid: getUid(),
                                         campaignName: selectValue[0],
                                         data: {
-                                            mode:
-                                                selectedSearchPhrase == value
-                                                    ? 'Удалить'
-                                                    : 'Установить',
+                                            mode: isSelected ? 'Удалить' : 'Установить',
                                             advertsIds: {},
                                         },
                                     };
@@ -3548,6 +3538,12 @@ export const MassAdvertPage = () => {
                     }
                 }
 
+                const isSelected =
+                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
+                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
+                              .phrase
+                        : '') == value;
+
                 return (
                     <div
                         style={{
@@ -3570,9 +3566,7 @@ export const MassAdvertPage = () => {
                             <div style={{width: 4}} />
                             <Button
                                 size="xs"
-                                view={
-                                    selectedSearchPhrase == value ? 'outlined-success' : 'outlined'
-                                }
+                                view={isSelected ? 'outlined-success' : 'outlined'}
                                 onClick={(event) => {
                                     event.stopPropagation();
                                     if (
@@ -3586,7 +3580,7 @@ export const MassAdvertPage = () => {
                                             phrase: '',
                                         };
 
-                                    if (selectedSearchPhrase == value) {
+                                    if (isSelected) {
                                         doc['advertsSelectedPhrases'][selectValue[0]][
                                             modalOpenFromAdvertId
                                         ] = undefined;
@@ -3602,20 +3596,13 @@ export const MassAdvertPage = () => {
                                         uid: getUid(),
                                         campaignName: selectValue[0],
                                         data: {
-                                            mode:
-                                                selectedSearchPhrase == value
-                                                    ? 'Удалить'
-                                                    : 'Установить',
+                                            mode: isSelected ? 'Удалить' : 'Установить',
                                             advertsIds: {},
                                         },
                                     };
                                     params.data.advertsIds[modalOpenFromAdvertId] = {};
                                     params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
                                     console.log(params);
-
-                                    setSelectedSearchPhrase(
-                                        selectedSearchPhrase == value ? '' : value,
-                                    );
 
                                     callApi('updateAdvertsSelectedPhrases', params);
                                 }}
