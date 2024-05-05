@@ -4170,7 +4170,9 @@ export const MassAdvertPage = () => {
             header: 'Ставка',
             name: 'cpm',
             render: ({value, footer}) => {
-                return footer ? undefined : (
+                return footer ? (
+                    value
+                ) : (
                     <Button
                         size="xs"
                         view="flat"
