@@ -823,7 +823,7 @@ export const PricesPage = () => {
                             }}
                         >
                             <Icon data={CloudArrowUpIn} />
-                            <Text variant="subheader-1">Обновить цены на WB</Text>
+                            <Text variant="subheader-1">Отправить цены на WB</Text>
                         </Button>
                         <Modal
                             open={updatePricesModalOpen}
