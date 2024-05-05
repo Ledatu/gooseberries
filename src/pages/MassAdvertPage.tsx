@@ -2180,6 +2180,9 @@ export const MassAdvertPage = () => {
                 const updateTimeObj = new Date(updateTime);
                 const moreThatHour =
                     new Date().getTime() / 1000 / 3600 - updateTimeObj.getTime() / 1000 / 3600 > 1;
+
+                const {advertId, type, status} = fistActiveAdvert ?? {};
+
                 return (
                     <div style={{display: 'flex', flexDirection: 'column'}}>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
@@ -2227,10 +2230,13 @@ export const MassAdvertPage = () => {
                             <div style={{width: 4}} />
                         </div>
                         <Popover
+                            onOpenChange={(open) => {
+                                if (open) resetBidModalFormInputs();
+                            }}
+                            placement={'bottom-start'}
                             content={
                                 <Card
-                                    view="outlined"
-                                    theme="warning"
+                                    view="clear"
                                     style={{
                                         height: 'fit-content',
                                         overflow: 'auto',
@@ -2238,43 +2244,371 @@ export const MassAdvertPage = () => {
                                     }}
                                 >
                                     <Card
-                                        view="raised"
+                                        view="clear"
                                         style={{
                                             position: 'absolute',
                                             maxHeight: '30em',
-                                            maxWidth: '60em',
-                                            overflow: 'auto',
+                                            display: 'flex',
+                                            flexDirection: 'row',
                                             top: -10,
                                             left: -10,
                                         }}
                                     >
-                                        <DataTable
-                                            startIndex={1}
-                                            settings={{
-                                                stickyHead: MOVING,
-                                                stickyFooter: MOVING,
-                                                highlightRows: true,
+                                        <Card
+                                            view="outlined"
+                                            theme="warning"
+                                            style={{
+                                                maxWidth: '60em',
+                                                maxHeight: '30em',
+                                                height: 'fit-content',
+                                                overflow: 'auto',
                                             }}
-                                            footerData={[
-                                                {
-                                                    cpm:
-                                                        advertType == 'search'
-                                                            ? `Аукцион Поиска, ${auction.length} шт.`
-                                                            : `Аукцион Авто, ${auction.length} шт.`,
-                                                },
-                                            ]}
-                                            theme="yandex-cloud"
-                                            onRowClick={(row, index, event) => {
-                                                console.log(row, index, event);
-                                            }}
-                                            rowClassName={(_row, index, isFooterData) =>
-                                                isFooterData
-                                                    ? b('tableRow_footer')
-                                                    : b('tableRow_' + index)
-                                            }
-                                            columns={columnDataAuction}
-                                            data={auction}
-                                        />
+                                        >
+                                            <Card
+                                                style={{
+                                                    background: 'var(--g-color-base-background)',
+                                                }}
+                                            >
+                                                <DataTable
+                                                    settings={{
+                                                        displayIndices: false,
+                                                        stickyHead: MOVING,
+                                                        stickyFooter: MOVING,
+                                                        highlightRows: true,
+                                                    }}
+                                                    footerData={[
+                                                        {
+                                                            cpm:
+                                                                advertType == 'search'
+                                                                    ? `Аукцион Поиска, ${auction.length} шт.`
+                                                                    : `Аукцион Авто, ${auction.length} шт.`,
+                                                        },
+                                                    ]}
+                                                    theme="yandex-cloud"
+                                                    onRowClick={(row, index, event) => {
+                                                        console.log(row, index, event);
+                                                    }}
+                                                    rowClassName={(_row, index, isFooterData) =>
+                                                        isFooterData
+                                                            ? b('tableRow_footer')
+                                                            : b('tableRow_' + index)
+                                                    }
+                                                    columns={columnDataAuction}
+                                                    data={auction}
+                                                />
+                                            </Card>
+                                        </Card>
+                                        <div style={{minWidth: 16}} />
+                                        <Card
+                                            view="outlined"
+                                            theme="warning"
+                                            style={{height: 'fit-content'}}
+                                        >
+                                            <Card
+                                                style={{
+                                                    background: 'var(--yc-color-base-background)',
+                                                    // height: '100%',
+                                                    width: 240,
+                                                    overflow: 'auto',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'space-between',
+                                                    paddingTop: 20,
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        width: '100%',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="subheader-1"
+                                                        >
+                                                            {'Метод'}
+                                                        </Text>
+                                                        <Select
+                                                            onUpdate={(nextValue) => {
+                                                                setSelectedValueMethod(nextValue);
+                                                                if (nextValue[0] == 'По ДРР') {
+                                                                    setBidModalRange({
+                                                                        from: 0,
+                                                                        to: 0,
+                                                                    });
+                                                                } else {
+                                                                    setBidModalRange({
+                                                                        from: 50,
+                                                                        to: 50,
+                                                                    });
+                                                                }
+                                                            }}
+                                                            options={selectedValueMethodOptions}
+                                                            renderControl={({
+                                                                onClick,
+                                                                onKeyDown,
+                                                                ref,
+                                                            }) => {
+                                                                const temp = {};
+                                                                for (
+                                                                    let i = 0;
+                                                                    i <
+                                                                    selectedValueMethodOptions.length;
+                                                                    i++
+                                                                ) {
+                                                                    const {value, content} =
+                                                                        selectedValueMethodOptions[
+                                                                            i
+                                                                        ];
+                                                                    temp[value] = content;
+                                                                }
+                                                                return (
+                                                                    <Button
+                                                                        style={{width: '100%'}}
+                                                                        ref={ref}
+                                                                        view="outlined"
+                                                                        onClick={onClick}
+                                                                        extraProps={{
+                                                                            onKeyDown,
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            temp[
+                                                                                selectedValueMethod[0]
+                                                                            ]
+                                                                        }
+                                                                        <Icon data={ChevronDown} />
+                                                                    </Button>
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div style={{minHeight: 4}} />
+
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="subheader-1"
+                                                        >
+                                                            {'Макс. ставка'}
+                                                        </Text>
+                                                        <TextInput
+                                                            type="number"
+                                                            value={String(bidModalMaxBid)}
+                                                            onUpdate={(val) => {
+                                                                const intVal = Number(val);
+
+                                                                setBidModalMaxBidValid(
+                                                                    intVal >= 125,
+                                                                );
+
+                                                                setBidModalMaxBid(intVal);
+                                                            }}
+                                                            validationState={
+                                                                bidModalMaxBidValid
+                                                                    ? undefined
+                                                                    : 'invalid'
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div style={{minHeight: 4}} />
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="subheader-1"
+                                                        >
+                                                            {'Позиция'}
+                                                        </Text>
+                                                        <TextInput
+                                                            disabled={
+                                                                selectedValueMethod[0] == 'drr' ||
+                                                                selectedValueMethod[0] == 'cpo'
+                                                            }
+                                                            type="number"
+                                                            value={String(bidModalRange.to)}
+                                                            onUpdate={(val) => {
+                                                                const intVal = Number(val);
+
+                                                                setBidModalRange(() => {
+                                                                    setBidModalRangeValid(
+                                                                        intVal > 0,
+                                                                    );
+                                                                    return {
+                                                                        from: intVal,
+                                                                        to: intVal,
+                                                                    };
+                                                                });
+                                                            }}
+                                                            validationState={
+                                                                bidModalRangeValid
+                                                                    ? undefined
+                                                                    : 'invalid'
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div style={{minHeight: 4}} />
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{marginLeft: 4}}
+                                                            variant="subheader-1"
+                                                        >
+                                                            {selectedValueMethod[0] == 'cpo'
+                                                                ? 'Целевой CPO'
+                                                                : 'Целевой ДРР'}
+                                                        </Text>
+                                                        <TextInput
+                                                            type="number"
+                                                            value={String(bidModalDRRInputValue)}
+                                                            onChange={(val) => {
+                                                                const cpo = Number(
+                                                                    val.target.value,
+                                                                );
+                                                                if (cpo < 0)
+                                                                    setBidModalDRRInputValidationValue(
+                                                                        false,
+                                                                    );
+                                                                else
+                                                                    setBidModalDRRInputValidationValue(
+                                                                        true,
+                                                                    );
+                                                                setBidModalDRRInputValue(cpo);
+                                                            }}
+                                                            errorMessage={'Введите не менее 0'}
+                                                            validationState={
+                                                                bidModalDRRInputValidationValue
+                                                                    ? undefined
+                                                                    : 'invalid'
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div style={{minHeight: 8}} />
+                                                    {generateModalButtonWithActions(
+                                                        {
+                                                            disabled: !advertId,
+                                                            placeholder: 'Установить',
+                                                            icon: CloudArrowUpIn,
+                                                            view: 'outlined-success',
+                                                            onClick: () => {
+                                                                const params = {
+                                                                    uid: getUid(),
+                                                                    campaignName: selectValue[0],
+                                                                    data: {
+                                                                        advertsIds: {},
+                                                                        mode: 'Автоставки',
+                                                                        stocksThreshold:
+                                                                            bidModalStocksThresholdInputValue,
+                                                                        placementsRange:
+                                                                            bidModalRange,
+                                                                        maxBid: bidModalMaxBid,
+                                                                        autoBidsMode:
+                                                                            selectedValueMethod[0],
+                                                                    },
+                                                                };
+
+                                                                params.data.advertsIds[advertId] = {
+                                                                    desiredDRR:
+                                                                        bidModalDRRInputValue,
+                                                                    bidStep:
+                                                                        bidModalBidStepInputValue,
+
+                                                                    advertId: advertId,
+                                                                };
+
+                                                                if (
+                                                                    !doc.advertsAutoBidsRules[
+                                                                        selectValue[0]
+                                                                    ][advertId]
+                                                                )
+                                                                    doc.advertsAutoBidsRules[
+                                                                        selectValue[0]
+                                                                    ][advertId] = {};
+                                                                doc.advertsAutoBidsRules[
+                                                                    selectValue[0]
+                                                                ][advertId] =
+                                                                    bidModalDeleteModeSelected
+                                                                        ? undefined
+                                                                        : {
+                                                                              desiredDRR:
+                                                                                  bidModalDRRInputValue,
+                                                                              placementsRange:
+                                                                                  bidModalRange,
+                                                                              maxBid: bidModalMaxBid,
+                                                                              autoBidsMode:
+                                                                                  selectedValueMethod[0],
+                                                                          };
+
+                                                                console.log(params);
+
+                                                                //////////////////////////////////
+                                                                callApi('setAdvertsCPMs', params);
+                                                                setChangedDoc(doc);
+                                                                //////////////////////////////////
+                                                            },
+                                                        },
+                                                        selectedButton,
+                                                        setSelectedButton,
+                                                    )}
+                                                </div>
+                                                <div style={{minHeight: 16}} />
+                                                <Button
+                                                    selected
+                                                    onClick={() =>
+                                                        filterByButton(advertId, 'adverts')
+                                                    }
+                                                    // style=x{{position: 'relative', top: -2}}
+                                                    width="max"
+                                                    pin="brick-brick"
+                                                    view={
+                                                        status
+                                                            ? status == 9
+                                                                ? 'flat-success'
+                                                                : status == 11
+                                                                ? 'flat-danger'
+                                                                : 'flat-warning'
+                                                            : 'flat'
+                                                    }
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                        }}
+                                                    >
+                                                        <Icon
+                                                            data={type == 8 ? Rocket : Magnifier}
+                                                            size={11}
+                                                        />
+                                                        <div style={{width: 2}} />
+                                                        {advertId}
+                                                    </div>
+                                                </Button>
+                                            </Card>
+                                        </Card>
                                     </Card>
                                 </Card>
                             }
@@ -3140,13 +3474,12 @@ export const MassAdvertPage = () => {
         setModalOpenFromAdvertId('');
         setBudgetModalFormOpen(true);
     };
-    const openBidModalForm = () => {
+    const resetBidModalFormInputs = () => {
         setSelectedButton('');
         setBidModalBidInputValue(125);
         setBidModalSwitchValue('Установить');
         setBidModalBidInputValidationValue(true);
         setBidModalDeleteModeSelected(false);
-        setBidModalFormOpen(true);
         setBidModalBidStepInputValue(5);
         setModalOpenFromAdvertId('');
         setBidModalRange({from: 50, to: 50});
@@ -3159,6 +3492,10 @@ export const MassAdvertPage = () => {
         setBidModalStocksThresholdInputValidationValue(true);
         setBidModalDRRInputValue(10);
         setBidModalDRRInputValidationValue(true);
+    };
+    const openBidModalForm = () => {
+        resetBidModalFormInputs();
+        setBidModalFormOpen(true);
     };
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
@@ -3805,8 +4142,48 @@ export const MassAdvertPage = () => {
 
     const columnDataAuction = [
         {
+            header: '#',
+            name: 'index',
+            sortable: false,
+            render: ({index, footer}) => {
+                const displayIndex = index + 1;
+                return footer ? undefined : (
+                    <Button
+                        width="max"
+                        size="xs"
+                        view="flat"
+                        onClick={() => {
+                            setSelectedValueMethod(['auction']);
+                            setBidModalRangeValid(displayIndex > 0);
+                            setBidModalRange({
+                                from: displayIndex,
+                                to: displayIndex,
+                            });
+                        }}
+                    >
+                        {displayIndex}
+                    </Button>
+                );
+            },
+        },
+        {
             header: 'Ставка',
             name: 'cpm',
+            render: ({value, footer}) => {
+                return footer ? undefined : (
+                    <Button
+                        size="xs"
+                        view="flat"
+                        onClick={() => {
+                            const maxBid = (value as number) + 1;
+                            setBidModalMaxBidValid(maxBid >= 125);
+                            setBidModalMaxBid(maxBid);
+                        }}
+                    >
+                        {value as number}
+                    </Button>
+                );
+            },
         },
         {
             header: 'Позиция',
@@ -3814,20 +4191,34 @@ export const MassAdvertPage = () => {
             render: ({value, row}) => {
                 if (value === undefined) return;
                 const {position} = row;
+                const displayIndex = (value as number) + 1;
                 return (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
+                    <Button
+                        size="xs"
+                        view="flat"
+                        onClick={() => {
+                            setSelectedValueMethod(['placements']);
+                            setBidModalRangeValid(displayIndex > 0);
+                            setBidModalRange({
+                                from: displayIndex,
+                                to: displayIndex,
+                            });
                         }}
                     >
-                        <Text color="secondary">{`${position + 1}`}</Text>
-                        <div style={{width: 3}} />
-                        <Icon data={ArrowRight} size={13}></Icon>
-                        <div style={{width: 3}} />
-                        <Text>{`${(value as number) + 1}`}</Text>
-                    </div>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text color="secondary">{`${position + 1}`}</Text>
+                            <div style={{width: 3}} />
+                            <Icon data={ArrowRight} size={13}></Icon>
+                            <div style={{width: 3}} />
+                            <Text>{`${displayIndex}`}</Text>
+                        </div>
+                    </Button>
                 );
             },
         },
