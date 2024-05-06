@@ -1610,6 +1610,19 @@ export const MassAdvertPage = () => {
         );
     };
 
+    const renderSlashPercent = ({value, row}, key) => {
+        const keyVal = row[key];
+        if (value === undefined) return undefined;
+        const percent = Math.round(((value as number) / keyVal) * 100);
+        return (
+            <Text>{`${value} ${
+                isNaN(percent) || !isFinite(percent) || !value || !keyVal
+                    ? ''
+                    : '/ ' + percent + '%'
+            }`}</Text>
+        );
+    };
+
     const columnData = [
         {
             name: 'art',
@@ -2752,88 +2765,6 @@ export const MassAdvertPage = () => {
                 );
             },
         },
-        // {name: 'budgetToKeep', placeholder: 'Бюджет, ₽'},
-        // {name: 'budget', placeholder: 'Баланс, ₽'},
-        // {
-        //     name: 'bid',
-        //     placeholder: 'Ставка, ₽',
-        //     render: ({value, row}) => {
-        //         if (!value) return;
-
-        //         const cpm = value;
-        //         if (!cpm) return;
-
-        //         const {bidLog, drrAI} = row;
-
-        //         const charts: any[] = [];
-        //         for (const advertsType of ['search, booster']) {
-        //             const timeline: any[] = [];
-        //             const graphsData: any[] = [];
-        //             const bidLogType = bidLog[advertsType];
-        //             if (bidLogType) {
-        //                 for (let i = 0; i < bidLogType.bids.length; i++) {
-        //                     const {time, val} = bidLogType.bids[i];
-        //                     if (!time || !val) continue;
-
-        //                     timeline.push(new Date(time).getTime());
-        //                     graphsData.push(val);
-        //                 }
-        //             }
-        //             const yagrData: YagrWidgetData = {
-        //                 data: {
-        //                     timeline: timeline,
-        //                     graphs: [
-        //                         {
-        //                             id: '0',
-        //                             name: 'Ставка',
-        //                             color: '#5fb8a5',
-        //                             data: graphsData,
-        //                         },
-        //                     ],
-        //                 },
-        //                 libraryConfig: {
-        //                     chart: {
-        //                         series: {
-        //                             type: 'line',
-        //                             interpolation: 'smooth',
-        //                         },
-        //                     },
-        //                     axes: {
-        //                         y: {
-        //                             precision: 'auto',
-        //                             show: true,
-        //                         },
-        //                         x: {
-        //                             precision: 'auto',
-        //                             show: true,
-        //                         },
-        //                     },
-        //                     title: {
-        //                         text: 'Изменение ставки',
-        //                     },
-        //                 },
-        //             };
-
-        //             charts.push(<ChartKit type="yagr" data={yagrData} />);
-        //         }
-
-        //         return (
-        //             <div>
-        //                 <Popover
-        //                     behavior={'delayed' as PopoverBehavior}
-        //                     disabled={value === undefined}
-        //                     content={<ChartKit type="yagr" data={yagrData} />}
-        //                 >
-        //                     {/* <Label onClick={()=>} ref={ref}>{value}</Label> */}
-        //                     <Text>
-        //                         {`${cpm}` +
-        //                             (drrAI ? (drrAI.maxBid ? ` (${drrAI.maxBid})` : '') : '')}
-        //                     </Text>
-        //                 </Popover>
-        //             </div>
-        //         );
-        //     },
-        // },
         {name: 'sum', placeholder: 'Расход, ₽'},
         {name: 'orders', placeholder: 'Заказов, шт.'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
@@ -2920,11 +2851,23 @@ export const MassAdvertPage = () => {
             },
         },
         {name: 'views', placeholder: 'Показов, шт.'},
-        {name: 'clicks', placeholder: 'Кликов, шт.'},
+        {
+            name: 'clicks',
+            placeholder: 'Кликов, шт.',
+            render: (args) => renderSlashPercent(args, 'openCardCount'),
+        },
         {name: 'ctr', placeholder: 'CTR, %'},
         {name: 'cpc', placeholder: 'CPC, ₽'},
         {name: 'cpm', placeholder: 'CPM, ₽'},
         {name: 'cr', placeholder: 'CR, %'},
+        {
+            name: 'organicClicks',
+            placeholder: 'Органических кликов, шт.',
+            render: (args) => renderSlashPercent(args, 'openCardCount'),
+        },
+        {name: 'openCardCount', placeholder: 'Всего кликов, шт.'},
+        {name: 'addToCartPercent', placeholder: 'Конверсия в корзину, %'},
+        {name: 'cartToOrderPercent', placeholder: 'Конверсия в заказ, %'},
     ];
 
     const [filteredSummary, setFilteredSummary] = useState({
@@ -3098,6 +3041,10 @@ export const MassAdvertPage = () => {
                 cpo: 0,
                 sales: 0,
                 sum_sales: 0,
+                openCardCount: 0,
+                addToCartPercent: 0,
+                cartToOrderPercent: 0,
+                organicClicks: 0,
             };
 
             artInfo.art = artData['art'];
@@ -3160,7 +3107,32 @@ export const MassAdvertPage = () => {
                     artInfo.sum += dateData['sum'];
                     artInfo.views += dateData['views'];
                     artInfo.clicks += dateData['clicks'];
+
+                    const {openCardCount, addToCartPercent, cartToOrderPercent} = artData[
+                        'nmFullDetailReport'
+                    ]
+                        ? artData['nmFullDetailReport'].statistics[strDate] ?? {
+                              openCardCount: 0,
+                              addToCartPercent: 0,
+                              cartToOrderPercent: 0,
+                          }
+                        : {
+                              openCardCount: 0,
+                              addToCartPercent: 0,
+                              cartToOrderPercent: 0,
+                          };
+
+                    artInfo.openCardCount += openCardCount;
+                    artInfo.addToCartPercent += addToCartPercent;
+                    artInfo.cartToOrderPercent += cartToOrderPercent;
                 }
+                artInfo.openCardCount = Math.round(artInfo.openCardCount);
+                artInfo.organicClicks = artInfo.openCardCount - artInfo.clicks;
+                artInfo.organicClicks = Math.round(artInfo.organicClicks);
+
+                const daysBetween = (endDate.getTime() - startDate.getTime()) / 86400 / 1000 + 1;
+                artInfo.addToCartPercent = getRoundValue(artInfo.addToCartPercent, daysBetween);
+                artInfo.cartToOrderPercent = getRoundValue(artInfo.cartToOrderPercent, daysBetween);
 
                 artInfo.sum_orders = Math.round(artInfo.sum_orders);
                 artInfo.orders = Math.round(artInfo.orders * 100) / 100;
