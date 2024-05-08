@@ -154,7 +154,7 @@ export const PricesPage = () => {
                                 justifyContent: 'center',
                             }}
                         >
-                            {Math.floor((pagesCurrent - 1) * 600 + index + 1)}
+                            {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
                         </div>
                         <Link
                             view="primary"
@@ -464,7 +464,7 @@ export const PricesPage = () => {
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 600);
+        const paginatedDataTemp = temp.slice(0, 100);
 
         for (const [key, val] of Object.entries(filteredSummaryTemp)) {
             if (key === undefined || val === undefined) continue;
@@ -1361,10 +1361,10 @@ export const PricesPage = () => {
                     showInput
                     total={pagesTotal}
                     page={pagesCurrent}
-                    pageSize={600}
+                    pageSize={100}
                     onUpdate={(page) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 600, page * 600);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 100, page * 100);
                         setFilteredSummary((row) => {
                             const fstemp = row;
                             fstemp[

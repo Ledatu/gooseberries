@@ -1715,7 +1715,7 @@ export const MassAdvertPage = () => {
                                     justifyContent: 'center',
                                 }}
                             >
-                                {Math.floor((pagesCurrent - 1) * 600 + index + 1)}
+                                {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
                             </div>
                             <div
                                 style={{
@@ -2002,7 +2002,7 @@ export const MassAdvertPage = () => {
                 const {price} = sizes ? sizes[0] ?? {price: undefined} : {price: undefined};
                 const {total} = price ?? {total: 0};
                 const priceRub = Math.round(total / 100);
-                console.log(placementsValue);
+                // console.log(placementsValue);
 
                 // const timelineBudget: any[] = [];
                 // const graphsDataBudgets: any[] = [];
@@ -3624,7 +3624,7 @@ export const MassAdvertPage = () => {
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 600);
+        const paginatedDataTemp = temp.slice(0, 100);
         const filteredSummaryTemp = {
             art: `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`,
             orders: 0,
@@ -3642,6 +3642,9 @@ export const MassAdvertPage = () => {
             adverts: 0,
             semantics: null,
             budget: 0,
+            openCardCount: 0,
+            addToCartPercent: 0,
+            cartToOrderPercent: 0,
         };
         const uniqueAdvertsIds: any[] = [];
         for (let i = 0; i < temp.length; i++) {
@@ -3660,6 +3663,9 @@ export const MassAdvertPage = () => {
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
             filteredSummaryTemp.budget += row['budget'] ?? 0;
+            filteredSummaryTemp.openCardCount += row['openCardCount'];
+            filteredSummaryTemp.addToCartPercent += row['addToCartPercent'];
+            filteredSummaryTemp.cartToOrderPercent += row['cartToOrderPercent'];
         }
         filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
         filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
@@ -3669,6 +3675,16 @@ export const MassAdvertPage = () => {
         filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
         filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
         filteredSummaryTemp.adverts = uniqueAdvertsIds.length;
+
+        filteredSummaryTemp.openCardCount = Math.round(filteredSummaryTemp.openCardCount);
+        filteredSummaryTemp.addToCartPercent = getRoundValue(
+            filteredSummaryTemp.addToCartPercent,
+            temp.length,
+        );
+        filteredSummaryTemp.addToCartPercent = getRoundValue(
+            filteredSummaryTemp.addToCartPercent,
+            temp.length,
+        );
 
         filteredSummaryTemp.drr = getRoundValue(
             filteredSummaryTemp.sum,
@@ -7644,10 +7660,10 @@ export const MassAdvertPage = () => {
                     showInput
                     total={pagesTotal}
                     page={pagesCurrent}
-                    pageSize={600}
+                    pageSize={100}
                     onUpdate={(page) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 600, page * 600);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 100, page * 100);
                         setFilteredSummary((row) => {
                             const temp = row;
                             temp.art = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;
