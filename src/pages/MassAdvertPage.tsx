@@ -325,8 +325,20 @@ export const MassAdvertPage = () => {
                 }
 
                 for (const [key, val] of Object.entries(stat)) {
-                    if (['sum', 'clicks', 'views', 'orders', 'sum_orders'].includes(key))
-                        artsStatsByDayFilteredSummaryTemp[key] += val;
+                    if (
+                        [
+                            'sum',
+                            'clicks',
+                            'views',
+                            'orders',
+                            'sum_orders',
+                            'openCardCount',
+                            'addToCartPercent',
+                            'cartToOrderPercent',
+                        ].includes(key)
+                    )
+                        artsStatsByDayFilteredSummaryTemp[key] +=
+                            isFinite(val as number) && !isNaN(val as number) ? val : 0;
                 }
 
                 artsStatsByDayFilteredSummaryTemp['date']++;
@@ -347,6 +359,17 @@ export const MassAdvertPage = () => {
         );
         artsStatsByDayFilteredSummaryTemp.clicks = Math.round(
             artsStatsByDayFilteredSummaryTemp.clicks,
+        );
+        artsStatsByDayFilteredSummaryTemp.openCardCount = Math.round(
+            artsStatsByDayFilteredSummaryTemp.openCardCount,
+        );
+        artsStatsByDayFilteredSummaryTemp.addToCartPercent = getRoundValue(
+            artsStatsByDayFilteredSummaryTemp.addToCartPercent,
+            artsStatsByDayFilteredSummaryTemp['date'],
+        );
+        artsStatsByDayFilteredSummaryTemp.cartToOrderPercent = getRoundValue(
+            artsStatsByDayFilteredSummaryTemp.cartToOrderPercent,
+            artsStatsByDayFilteredSummaryTemp['date'],
         );
         const {orders, sum, views, clicks} = artsStatsByDayFilteredSummaryTemp;
 
@@ -693,12 +716,12 @@ export const MassAdvertPage = () => {
                 tempJson[strDate].views += dateData['views'];
                 tempJson[strDate].clicks += dateData['clicks'];
 
-                const {openCardCount, addToCartPercent, cartToOrderPercent} =
-                    nmFullDetailReport ?? {
-                        openCardCount: 0,
-                        addToCartPercent: 0,
-                        cartToOrderPercent: 0,
-                    };
+                const {openCardCount, addToCartPercent, cartToOrderPercent} = nmFullDetailReport
+                    .statistics[strDate] ?? {
+                    openCardCount: 0,
+                    addToCartPercent: 0,
+                    cartToOrderPercent: 0,
+                };
 
                 tempJson[strDate].openCardCount += openCardCount;
                 tempJson[strDate].addToCartPercent += addToCartPercent;
@@ -996,8 +1019,6 @@ export const MassAdvertPage = () => {
                 style={{
                     height: 96,
                     width: 'fit-content',
-                    overflowY: 'hidden',
-                    overflowX: 'visible',
                 }}
                 // view="raised"
             >
@@ -1980,7 +2001,6 @@ export const MassAdvertPage = () => {
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
-                            height: 96,
                             overflowX: 'scroll',
                             overflowY: 'hidden',
                             // justifyContent: 'space-between',
@@ -3681,8 +3701,8 @@ export const MassAdvertPage = () => {
             filteredSummaryTemp.addToCartPercent,
             temp.length,
         );
-        filteredSummaryTemp.addToCartPercent = getRoundValue(
-            filteredSummaryTemp.addToCartPercent,
+        filteredSummaryTemp.cartToOrderPercent = getRoundValue(
+            filteredSummaryTemp.cartToOrderPercent,
             temp.length,
         );
 
