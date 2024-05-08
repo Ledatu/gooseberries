@@ -36,6 +36,7 @@ import {
     Key,
     Rocket,
     Magnifier,
+    Star,
     LayoutHeader,
     ArrowsRotateLeft,
     TriangleExclamation,
@@ -1960,6 +1961,52 @@ export const MassAdvertPage = () => {
             },
         },
         {
+            name: 'analytics',
+            placeholder: 'Аналитика',
+            render: ({row}) => {
+                const {placementsValue} = row ?? {};
+                if (!placementsValue) return undefined;
+                const {reviewRating, sizes} = placementsValue;
+                if (!reviewRating) return undefined;
+                const {price} = sizes ? sizes[0] ?? {price: undefined} : {price: undefined};
+                const {total} = price ?? {total: 0};
+                const priceRub = Math.round(total / 100);
+                console.log(placementsValue);
+
+                return (
+                    <Card style={{height: 96, display: 'flex', flexDirection: 'column'}}>
+                        <Button
+                            style={{
+                                overflow: 'hidden',
+                                borderTopLeftRadius: 7,
+                                borderTopRightRadius: 7,
+                            }}
+                            width="max"
+                            size="xs"
+                            view="flat"
+                            pin="brick-brick"
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text>{reviewRating}</Text>
+                                <div style={{minWidth: 3}} />
+                                <Icon data={Star} size={11} />
+                            </div>
+                        </Button>
+                        <Button view="outlined" width="max" size="xs" pin="clear-clear">
+                            {`${priceRub} ₽`}
+                        </Button>
+                    </Card>
+                );
+            },
+        },
+        {
             name: 'placements',
             placeholder:
                 'Позиция' +
@@ -2196,13 +2243,13 @@ export const MassAdvertPage = () => {
 
                 const {advertId, type, status} = fistActiveAdvert ?? {};
 
-                console.log(
-                    advertId,
-                    doc.advertsSelectedPhrases[selectValue[0]][advertId]
-                        ? doc.advertsSelectedPhrases[selectValue[0]][advertId].phrase == phrase
-                        : false,
-                    phrase,
-                );
+                // console.log(
+                //     advertId,
+                //     doc.advertsSelectedPhrases[selectValue[0]][advertId]
+                //         ? doc.advertsSelectedPhrases[selectValue[0]][advertId].phrase == phrase
+                //         : false,
+                //     phrase,
+                // );
 
                 const isSelectedPhrase = doc.advertsSelectedPhrases[selectValue[0]][advertId]
                     ? doc.advertsSelectedPhrases[selectValue[0]][advertId].phrase == phrase
@@ -4957,7 +5004,7 @@ export const MassAdvertPage = () => {
                                 margin: 20,
                                 width: '30vw',
                                 height: '60vh',
-                                overflow: 'auto',
+                                overflow: 'scroll',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
