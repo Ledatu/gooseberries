@@ -35,6 +35,7 @@ import {
     Pencil,
     Key,
     Rocket,
+    Comment,
     Magnifier,
     Star,
     LayoutHeader,
@@ -287,6 +288,9 @@ export const MassAdvertPage = () => {
         cpm: 0,
         cr: 0,
         cpo: 0,
+        openCardCount: 0,
+        addToCartPercent: 0,
+        cartToOrderPercent: 0,
     });
     const artsStatsByDayDataFilter = (withfFilters: any, stats: any[]) => {
         const _filters = withfFilters ?? artsStatsByDayFilters;
@@ -305,6 +309,9 @@ export const MassAdvertPage = () => {
             cpm: 0,
             cr: 0,
             cpo: 0,
+            openCardCount: 0,
+            addToCartPercent: 0,
+            cartToOrderPercent: 0,
         };
 
         setArtsStatsByDayFilteredData(
@@ -667,10 +674,13 @@ export const MassAdvertPage = () => {
                     cpm: 0,
                     cr: 0,
                     cpo: 0,
+                    openCardCount: 0,
+                    addToCartPercent: 0,
+                    cartToOrderPercent: 0,
                 };
 
             for (const _art of arts) {
-                const {advertsStats} = doc.campaigns[selectValue[0]][_art];
+                const {advertsStats, nmFullDetailReport} = doc.campaigns[selectValue[0]][_art];
                 if (!advertsStats) continue;
                 const dateData = advertsStats[strDate];
                 if (!dateData) continue;
@@ -682,7 +692,28 @@ export const MassAdvertPage = () => {
                 tempJson[strDate].sum += dateData['sum'];
                 tempJson[strDate].views += dateData['views'];
                 tempJson[strDate].clicks += dateData['clicks'];
+
+                const {openCardCount, addToCartPercent, cartToOrderPercent} =
+                    nmFullDetailReport ?? {
+                        openCardCount: 0,
+                        addToCartPercent: 0,
+                        cartToOrderPercent: 0,
+                    };
+
+                tempJson[strDate].openCardCount += openCardCount;
+                tempJson[strDate].addToCartPercent += addToCartPercent;
+                tempJson[strDate].cartToOrderPercent += cartToOrderPercent;
             }
+            tempJson[strDate].openCardCount = Math.round(tempJson[strDate].openCardCount);
+
+            tempJson[strDate].addToCartPercent = getRoundValue(
+                tempJson[strDate].addToCartPercent,
+                daysBetween,
+            );
+            tempJson[strDate].cartToOrderPercent = getRoundValue(
+                tempJson[strDate].cartToOrderPercent,
+                daysBetween,
+            );
         }
 
         const temp = [] as any[];
@@ -1966,25 +1997,138 @@ export const MassAdvertPage = () => {
             render: ({row}) => {
                 const {placementsValue} = row ?? {};
                 if (!placementsValue) return undefined;
-                const {reviewRating, sizes} = placementsValue;
+                const {reviewRating, sizes, feedbacks} = placementsValue;
                 if (!reviewRating) return undefined;
                 const {price} = sizes ? sizes[0] ?? {price: undefined} : {price: undefined};
                 const {total} = price ?? {total: 0};
                 const priceRub = Math.round(total / 100);
                 console.log(placementsValue);
 
+                // const timelineBudget: any[] = [];
+                // const graphsDataBudgets: any[] = [];
+                // const graphsDataBudgetsDiv: any[] = [];
+                // const graphsDataBudgetsDivHours = {};
+                // if (budgetLog) {
+                //     for (let i = 0; i < budgetLog.length; i++) {
+                //         const {budget, time} = budgetLog[i];
+                //         if (!time || !budget) continue;
+
+                //         const timeObj = new Date(time);
+
+                //         timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
+
+                //         const lbd = new Date(dateRange[0]);
+                //         lbd.setHours(0, 0, 0, 0);
+                //         const rbd = new Date(dateRange[1]);
+                //         rbd.setHours(23, 59, 59);
+                //         if (timeObj < lbd || timeObj > rbd) continue;
+                //         timelineBudget.push(timeObj.getTime());
+                //         graphsDataBudgets.push(budget);
+
+                //         const hour = time.slice(0, 13);
+                //         if (!graphsDataBudgetsDivHours[hour])
+                //             graphsDataBudgetsDivHours[hour] = budget;
+                //     }
+                //     let prevHour = '';
+                //     for (let i = 0; i < timelineBudget.length; i++) {
+                //         const dateObj = new Date(timelineBudget[i]);
+                //         const time = dateObj.toISOString();
+                //         if (dateObj.getMinutes() != 0) {
+                //             graphsDataBudgetsDiv.push(null);
+                //             continue;
+                //         }
+                //         const hour = time.slice(0, 13);
+                //         if (prevHour == '') {
+                //             graphsDataBudgetsDiv.push(null);
+                //             prevHour = hour;
+                //             continue;
+                //         }
+
+                //         const spent =
+                //             graphsDataBudgetsDivHours[prevHour] - graphsDataBudgetsDivHours[hour];
+                //         graphsDataBudgetsDiv.push(spent);
+
+                //         prevHour = hour;
+                //     }
+                // }
+
+                // const yagrBudgetData: YagrWidgetData = {
+                //     data: {
+                //         timeline: timelineBudget,
+                //         graphs: [
+                //             {
+                //                 id: '0',
+                //                 name: 'Баланс',
+                //                 scale: 'y',
+                //                 color: '#ffbe5c',
+                //                 data: graphsDataBudgets,
+                //             },
+                //             {
+                //                 type: 'column',
+                //                 data: graphsDataBudgetsDiv,
+                //                 id: '1',
+                //                 name: 'Расход',
+                //                 scale: 'r',
+                //             },
+                //         ],
+                //     },
+
+                //     libraryConfig: {
+                //         chart: {
+                //             series: {
+                //                 spanGaps: false,
+                //                 type: 'line',
+                //                 interpolation: 'smooth',
+                //             },
+                //         },
+                //         axes: {
+                //             y: {
+                //                 label: 'Баланс',
+                //                 precision: 'auto',
+                //                 show: true,
+                //             },
+                //             r: {
+                //                 label: 'Расход',
+                //                 precision: 'auto',
+                //                 side: 'right',
+                //                 show: true,
+                //             },
+                //             x: {
+                //                 label: 'Время',
+                //                 precision: 'auto',
+                //                 show: true,
+                //             },
+                //         },
+                //         series: [],
+                //         scales: {y: {min: 0}, r: {min: 0}},
+                //         title: {
+                //             text: 'Изменение баланса',
+                //         },
+                //     },
+                // };
+
                 return (
                     <Card style={{height: 96, display: 'flex', flexDirection: 'column'}}>
                         <Button
+                            view="flat"
+                            width="max"
+                            size="xs"
+                            pin="clear-clear"
                             style={{
                                 overflow: 'hidden',
                                 borderTopLeftRadius: 7,
                                 borderTopRightRadius: 7,
                             }}
+                            // pin="brick-brick"
+                        >
+                            {`${priceRub} ₽`}
+                        </Button>
+                        <Button
                             width="max"
                             size="xs"
-                            view="flat"
-                            pin="brick-brick"
+                            view="outlined"
+                            pin="clear-clear"
+                            // pin="brick-brick"
                         >
                             <div
                                 style={{
@@ -1996,11 +2140,35 @@ export const MassAdvertPage = () => {
                             >
                                 <Text>{reviewRating}</Text>
                                 <div style={{minWidth: 3}} />
-                                <Icon data={Star} size={11} />
+                                <Text
+                                    color="warning"
+                                    style={{display: 'flex', alignItems: 'center'}}
+                                >
+                                    <Icon data={Star} size={11} />
+                                </Text>
                             </div>
                         </Button>
-                        <Button view="outlined" width="max" size="xs" pin="clear-clear">
-                            {`${priceRub} ₽`}
+                        <Button
+                            style={{
+                                overflow: 'hidden',
+                            }}
+                            width="max"
+                            size="xs"
+                            view="flat"
+                            pin="clear-clear"
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text>{feedbacks}</Text>
+                                <div style={{minWidth: 3}} />
+                                <Icon data={Comment} size={11} />
+                            </div>
                         </Button>
                     </Card>
                 );
@@ -2907,14 +3075,9 @@ export const MassAdvertPage = () => {
         {name: 'cpc', placeholder: 'CPC, ₽'},
         {name: 'cpm', placeholder: 'CPM, ₽'},
         {name: 'cr', placeholder: 'CR, %'},
-        {
-            name: 'organicClicks',
-            placeholder: 'Органических кликов, шт.',
-            render: (args) => renderSlashPercent(args, 'openCardCount'),
-        },
-        {name: 'openCardCount', placeholder: 'Всего кликов, шт.'},
-        {name: 'addToCartPercent', placeholder: 'Конверсия в корзину, %'},
-        {name: 'cartToOrderPercent', placeholder: 'Конверсия в заказ, %'},
+        {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
+        {name: 'addToCartPercent', placeholder: 'CR в корзину, %'},
+        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %'},
     ];
 
     const [filteredSummary, setFilteredSummary] = useState({
@@ -3091,7 +3254,6 @@ export const MassAdvertPage = () => {
                 openCardCount: 0,
                 addToCartPercent: 0,
                 cartToOrderPercent: 0,
-                organicClicks: 0,
             };
 
             artInfo.art = artData['art'];
@@ -3174,8 +3336,6 @@ export const MassAdvertPage = () => {
                     artInfo.cartToOrderPercent += cartToOrderPercent;
                 }
                 artInfo.openCardCount = Math.round(artInfo.openCardCount);
-                artInfo.organicClicks = artInfo.openCardCount - artInfo.clicks;
-                artInfo.organicClicks = Math.round(artInfo.organicClicks);
 
                 const daysBetween = (endDate.getTime() - startDate.getTime()) / 86400 / 1000 + 1;
                 artInfo.addToCartPercent = getRoundValue(artInfo.addToCartPercent, daysBetween);
@@ -4246,6 +4406,9 @@ export const MassAdvertPage = () => {
         {name: 'cpc', placeholder: 'CPC, ₽'},
         {name: 'cpm', placeholder: 'CPM, ₽'},
         {name: 'cr', placeholder: 'CR, %'},
+        {name: 'openCardCount', placeholder: 'Всего кликов, шт.'},
+        {name: 'addToCartPercent', placeholder: 'Конверсия в корзину, %'},
+        {name: 'cartToOrderPercent', placeholder: 'Конверсия в заказ, %'},
     ];
 
     const columnDataAuction = [

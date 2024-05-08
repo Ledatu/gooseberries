@@ -64,7 +64,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
             dateRange: getNormalDateRange(dateRange),
             campaignName:
                 Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
-                    ? 'ИП Иосифов М.С.'
+                    ? 'ИП Иосифова Р. И.'
                     : 'ИП Валерий',
         })
             .then((response) => setDocument(response ? response['data'] : undefined))
@@ -494,8 +494,52 @@ export const PricesPage = () => {
     if (!doc) return <Spin />;
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(doc.pricesData)) {
-            campaignsNames.push({value: campaignName, content: campaignName});
+        for (const [campaignName, _] of Object.entries(doc['pricesData'])) {
+            if (Userfront.user.userUuid == 'ce86aeb0-30b7-45ba-9234-a6765df7a479') {
+                if (
+                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
+                        campaignName,
+                    )
+                ) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else if (Userfront.user.userUuid == '1c5a0344-31ea-469e-945e-1dfc4b964ecd') {
+                if (
+                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
+                        campaignName,
+                    )
+                ) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else if (Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594') {
+                if (
+                    [
+                        'ИП Иосифова Р. И.',
+                        'ИП Иосифов А. М.',
+                        'ИП Иосифов М.С.',
+                        'ИП Иосифов С.М. (домашка)',
+                        'ООО Лаванда (18+)',
+                        'ИП Галилова',
+                        'ИП Мартыненко',
+                    ].includes(campaignName)
+                ) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else {
+                campaignsNames.push({
+                    value: campaignName,
+                    content: campaignName,
+                });
+            }
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected = campaignsNames[0]['value'];

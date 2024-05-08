@@ -47,22 +47,28 @@ export const Dashboard = () => {
         {
             value: 'prices',
             content: 'Цены',
-            disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+            disabled:
+                Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
+                Userfront.user.userUuid != '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
         // {
         //     value: 'stats_rk',
         //     content: 'Статистика',
-        //     disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+        //     disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806'  && Userfront.user.userUuid != '46431a09-85c3-4703-8246-d1b5c9e52594',
         // },
-        {
-            value: 'deliveryOrders',
-            content: 'Поставки',
-            disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-        },
+        // {
+        //     value: 'deliveryOrders',
+        //     content: 'Поставки',
+        //     disabled:
+        //         Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
+        //         Userfront.user.userUuid != '46431a09-85c3-4703-8246-d1b5c9e52594',
+        // },
         {
             value: 'nomenclatures',
             content: 'Товары',
-            disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+            disabled:
+                Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
+                Userfront.user.userUuid != '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
     ];
     // const [page, setPage] = React.useState('nomenclatures');
