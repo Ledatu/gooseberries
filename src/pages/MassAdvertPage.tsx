@@ -2116,9 +2116,7 @@ export const MassAdvertPage = () => {
                                 show: true,
                             },
                             x: {
-                                label: 'Время',
-                                precision: 'auto',
-                                show: false,
+                                show: true,
                             },
                         },
                         series: [],
@@ -2163,9 +2161,7 @@ export const MassAdvertPage = () => {
                                 show: true,
                             },
                             x: {
-                                label: 'Время',
-                                precision: 'auto',
-                                show: false,
+                                show: true,
                             },
                         },
                         series: [],
@@ -2210,9 +2206,7 @@ export const MassAdvertPage = () => {
                                 show: true,
                             },
                             x: {
-                                label: 'Время',
-                                precision: 'auto',
-                                show: false,
+                                show: true,
                             },
                         },
                         series: [],
@@ -2247,9 +2241,20 @@ export const MassAdvertPage = () => {
                                             top: -10,
                                             left: -10,
                                             display: 'flex',
+                                            flexDirection: 'column',
                                         }}
                                     >
                                         <ChartKit type="yagr" data={yagrPricesData} />
+                                        <div
+                                            style={{
+                                                // background: 'var(--g-color-base-background)',
+                                                background: '#2d2c33',
+                                                position: 'absolute',
+                                                height: 20,
+                                                width: '100%',
+                                                bottom: 0,
+                                            }}
+                                        ></div>
                                     </Card>
                                 </div>
                             }
@@ -2295,6 +2300,16 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <ChartKit type="yagr" data={yagrReviewRatingsData} />
+                                        <div
+                                            style={{
+                                                // background: 'var(--g-color-base-background)',
+                                                background: '#2d2c33',
+                                                position: 'absolute',
+                                                height: 20,
+                                                width: '100%',
+                                                bottom: 0,
+                                            }}
+                                        ></div>
                                     </Card>
                                 </div>
                             }
@@ -2336,7 +2351,6 @@ export const MassAdvertPage = () => {
                                         width: '60em',
                                         overflow: 'auto',
                                         display: 'flex',
-                                        paddingBottom: 8,
                                     }}
                                 >
                                     <Card
@@ -2353,6 +2367,16 @@ export const MassAdvertPage = () => {
                                         }}
                                     >
                                         <ChartKit type="yagr" data={yagrFeedbacksData} />
+                                        <div
+                                            style={{
+                                                // background: 'var(--g-color-base-background)',
+                                                background: '#2d2c33',
+                                                position: 'absolute',
+                                                height: 20,
+                                                width: '100%',
+                                                bottom: 0,
+                                            }}
+                                        ></div>
                                     </Card>
                                 </div>
                             }
