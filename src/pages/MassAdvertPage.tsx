@@ -2017,179 +2017,367 @@ export const MassAdvertPage = () => {
             render: ({row}) => {
                 const {placementsValue} = row ?? {};
                 if (!placementsValue) return undefined;
-                const {reviewRating, sizes, feedbacks} = placementsValue;
+                const {reviewRating, sizes, feedbacks, phrase} = placementsValue;
                 if (!reviewRating) return undefined;
                 const {price} = sizes ? sizes[0] ?? {price: undefined} : {price: undefined};
                 const {total} = price ?? {total: 0};
                 const priceRub = Math.round(total / 100);
-                // console.log(placementsValue);
+                console.log(placementsValue);
 
-                // const timelineBudget: any[] = [];
-                // const graphsDataBudgets: any[] = [];
-                // const graphsDataBudgetsDiv: any[] = [];
-                // const graphsDataBudgetsDivHours = {};
-                // if (budgetLog) {
-                //     for (let i = 0; i < budgetLog.length; i++) {
-                //         const {budget, time} = budgetLog[i];
-                //         if (!time || !budget) continue;
+                const {firstPage} = doc.placementsAuctions[selectValue[0]][phrase];
 
-                //         const timeObj = new Date(time);
+                const timeline: any[] = [];
+                const pricesData: any[] = [];
+                const pricesDataCur: any[] = [];
+                const reviewRatingsData: any[] = [];
+                const reviewRatingsDataCur: any[] = [];
+                const feedbacksData: any[] = [];
+                const feedbacksDataCur: any[] = [];
+                if (firstPage) {
+                    for (let i = 0; i < firstPage.length; i++) {
+                        timeline.push(i);
+                        const card = firstPage[i];
+                        // console.log(card);
 
-                //         timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
+                        const {reviewRating, sizes, feedbacks} = card;
+                        const {price} = sizes ? sizes[0] ?? {price: undefined} : {price: undefined};
+                        const {total} = price ?? {total: 0};
+                        const priceRub = Math.round(total / 100);
 
-                //         const lbd = new Date(dateRange[0]);
-                //         lbd.setHours(0, 0, 0, 0);
-                //         const rbd = new Date(dateRange[1]);
-                //         rbd.setHours(23, 59, 59);
-                //         if (timeObj < lbd || timeObj > rbd) continue;
-                //         timelineBudget.push(timeObj.getTime());
-                //         graphsDataBudgets.push(budget);
+                        pricesData.push(priceRub);
+                        reviewRatingsData.push(reviewRating);
+                        feedbacksData.push(feedbacks);
+                    }
+                }
+                pricesData.sort((a, b) => a - b);
+                for (let i = 0; i < pricesData.length; i++) {
+                    if (pricesData[i] == priceRub) {
+                        pricesDataCur.push(priceRub);
+                        break;
+                    } else {
+                        pricesDataCur.push(null);
+                    }
+                }
+                reviewRatingsData.sort((a, b) => a - b);
+                for (let i = 0; i < reviewRatingsData.length; i++) {
+                    if (reviewRatingsData[i] == reviewRating) {
+                        reviewRatingsDataCur.push(priceRub);
+                        break;
+                    } else {
+                        reviewRatingsDataCur.push(null);
+                    }
+                }
+                feedbacksData.sort((a, b) => a - b);
+                for (let i = 0; i < feedbacksData.length; i++) {
+                    if (feedbacksData[i] == feedbacks) {
+                        feedbacksDataCur.push(priceRub);
+                        break;
+                    } else {
+                        feedbacksDataCur.push(null);
+                    }
+                }
 
-                //         const hour = time.slice(0, 13);
-                //         if (!graphsDataBudgetsDivHours[hour])
-                //             graphsDataBudgetsDivHours[hour] = budget;
-                //     }
-                //     let prevHour = '';
-                //     for (let i = 0; i < timelineBudget.length; i++) {
-                //         const dateObj = new Date(timelineBudget[i]);
-                //         const time = dateObj.toISOString();
-                //         if (dateObj.getMinutes() != 0) {
-                //             graphsDataBudgetsDiv.push(null);
-                //             continue;
-                //         }
-                //         const hour = time.slice(0, 13);
-                //         if (prevHour == '') {
-                //             graphsDataBudgetsDiv.push(null);
-                //             prevHour = hour;
-                //             continue;
-                //         }
+                const yagrPricesData: YagrWidgetData = {
+                    data: {
+                        timeline: timeline,
+                        graphs: [
+                            {
+                                id: '0',
+                                name: 'Цена',
+                                scale: 'y',
+                                color: '#5fb8a5',
+                                data: pricesData,
+                            },
+                            {
+                                type: 'column',
+                                data: pricesDataCur,
+                                id: '1',
+                                name: 'Этот артикул',
+                                scale: 'r',
+                            },
+                        ],
+                    },
 
-                //         const spent =
-                //             graphsDataBudgetsDivHours[prevHour] - graphsDataBudgetsDivHours[hour];
-                //         graphsDataBudgetsDiv.push(spent);
+                    libraryConfig: {
+                        chart: {
+                            series: {
+                                spanGaps: false,
+                                type: 'line',
+                                interpolation: 'smooth',
+                            },
+                        },
+                        axes: {
+                            y: {
+                                label: 'Цены',
+                                precision: 'auto',
+                                show: true,
+                            },
+                            // x: {
+                            //     label: 'Время',
+                            //     precision: 'auto',
+                            //     show: true,
+                            // },
+                        },
+                        series: [],
+                        scales: {y: {min: 0}, r: {min: 0}},
+                        title: {
+                            text: 'Цены топ 100 артикулов по запросу',
+                        },
+                    },
+                };
+                const yagrReviewRatingsData: YagrWidgetData = {
+                    data: {
+                        timeline: timeline,
+                        graphs: [
+                            {
+                                id: '0',
+                                name: 'Рейтинг',
+                                scale: 'y',
+                                color: '#ffbe5c',
+                                data: reviewRatingsData,
+                            },
+                            {
+                                type: 'column',
+                                data: reviewRatingsDataCur,
+                                id: '1',
+                                name: 'Этот артикул',
+                                scale: 'r',
+                            },
+                        ],
+                    },
 
-                //         prevHour = hour;
-                //     }
-                // }
+                    libraryConfig: {
+                        chart: {
+                            series: {
+                                spanGaps: false,
+                                type: 'line',
+                                interpolation: 'smooth',
+                            },
+                        },
+                        axes: {
+                            y: {
+                                label: 'Рейтинг',
+                                precision: 'auto',
+                                show: true,
+                            },
+                            // x: {
+                            //     label: 'Время',
+                            //     precision: 'auto',
+                            //     show: true,
+                            // },
+                        },
+                        series: [],
+                        scales: {y: {min: 0}, r: {min: 0}},
+                        title: {
+                            text: 'Рейтинг топ 100 артикулов по запросу',
+                        },
+                    },
+                };
+                const yagrFeedbacksData: YagrWidgetData = {
+                    data: {
+                        timeline: timeline,
+                        graphs: [
+                            {
+                                id: '0',
+                                name: 'Отзывы',
+                                scale: 'y',
+                                color: '#4aa1f2',
+                                data: feedbacksData,
+                            },
+                            {
+                                type: 'column',
+                                data: feedbacksDataCur,
+                                id: '1',
+                                name: 'Этот артикул',
+                                scale: 'r',
+                            },
+                        ],
+                    },
 
-                // const yagrBudgetData: YagrWidgetData = {
-                //     data: {
-                //         timeline: timelineBudget,
-                //         graphs: [
-                //             {
-                //                 id: '0',
-                //                 name: 'Баланс',
-                //                 scale: 'y',
-                //                 color: '#ffbe5c',
-                //                 data: graphsDataBudgets,
-                //             },
-                //             {
-                //                 type: 'column',
-                //                 data: graphsDataBudgetsDiv,
-                //                 id: '1',
-                //                 name: 'Расход',
-                //                 scale: 'r',
-                //             },
-                //         ],
-                //     },
-
-                //     libraryConfig: {
-                //         chart: {
-                //             series: {
-                //                 spanGaps: false,
-                //                 type: 'line',
-                //                 interpolation: 'smooth',
-                //             },
-                //         },
-                //         axes: {
-                //             y: {
-                //                 label: 'Баланс',
-                //                 precision: 'auto',
-                //                 show: true,
-                //             },
-                //             r: {
-                //                 label: 'Расход',
-                //                 precision: 'auto',
-                //                 side: 'right',
-                //                 show: true,
-                //             },
-                //             x: {
-                //                 label: 'Время',
-                //                 precision: 'auto',
-                //                 show: true,
-                //             },
-                //         },
-                //         series: [],
-                //         scales: {y: {min: 0}, r: {min: 0}},
-                //         title: {
-                //             text: 'Изменение баланса',
-                //         },
-                //     },
-                // };
+                    libraryConfig: {
+                        chart: {
+                            series: {
+                                spanGaps: false,
+                                type: 'line',
+                                interpolation: 'smooth',
+                            },
+                        },
+                        axes: {
+                            y: {
+                                label: 'Отзывы',
+                                precision: 'auto',
+                                show: true,
+                            },
+                            // x: {
+                            //     label: 'Время',
+                            //     precision: 'auto',
+                            //     show: true,
+                            // },
+                        },
+                        series: [],
+                        scales: {y: {min: 0}, r: {min: 0}},
+                        title: {
+                            text: 'Количество отзывов топ 100 артикулов по запросу',
+                        },
+                    },
+                };
 
                 return (
-                    <Card style={{height: 96, display: 'flex', flexDirection: 'column'}}>
-                        <Button
-                            view="flat"
-                            width="max"
-                            size="xs"
-                            pin="clear-clear"
-                            style={{
-                                overflow: 'hidden',
-                                borderTopLeftRadius: 7,
-                                borderTopRightRadius: 7,
-                            }}
-                            // pin="brick-brick"
-                        >
-                            {`${priceRub} ₽`}
-                        </Button>
-                        <Button
-                            width="max"
-                            size="xs"
-                            view="outlined"
-                            pin="clear-clear"
-                            // pin="brick-brick"
-                        >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Text>{reviewRating}</Text>
-                                <div style={{minWidth: 3}} />
-                                <Text
-                                    color="warning"
-                                    style={{display: 'flex', alignItems: 'center'}}
+                    <Card style={{width: 96, height: 96, display: 'flex', flexDirection: 'column'}}>
+                        <Popover
+                            content={
+                                <div
+                                    style={{
+                                        height: 'calc(30em - 60px)',
+                                        width: '60em',
+                                        overflow: 'auto',
+                                        display: 'flex',
+                                    }}
                                 >
-                                    <Icon data={Star} size={11} />
-                                </Text>
-                            </div>
-                        </Button>
-                        <Button
-                            style={{
-                                overflow: 'hidden',
-                            }}
-                            width="max"
-                            size="xs"
-                            view="flat"
-                            pin="clear-clear"
+                                    <Card
+                                        view="outlined"
+                                        theme="warning"
+                                        style={{
+                                            position: 'absolute',
+                                            height: '30em',
+                                            width: '60em',
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <ChartKit type="yagr" data={yagrPricesData} />
+                                    </Card>
+                                </div>
+                            }
                         >
-                            <div
+                            <Button
+                                view="flat"
+                                width="max"
+                                size="xs"
+                                pin="clear-clear"
                                 style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
+                                    width: 94,
+                                    overflow: 'hidden',
+                                    borderTopLeftRadius: 7,
+                                    borderTopRightRadius: 7,
                                 }}
+                                // pin="brick-brick"
                             >
-                                <Text>{feedbacks}</Text>
-                                <div style={{minWidth: 3}} />
-                                <Icon data={Comment} size={11} />
-                            </div>
-                        </Button>
+                                {`${priceRub} ₽`}
+                            </Button>
+                        </Popover>
+                        <Popover
+                            content={
+                                <div
+                                    style={{
+                                        height: 'calc(30em - 60px)',
+                                        width: '60em',
+                                        overflow: 'auto',
+                                        display: 'flex',
+                                    }}
+                                >
+                                    <Card
+                                        view="outlined"
+                                        theme="warning"
+                                        style={{
+                                            position: 'absolute',
+                                            height: '30em',
+                                            width: '60em',
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <ChartKit type="yagr" data={yagrReviewRatingsData} />
+                                    </Card>
+                                </div>
+                            }
+                        >
+                            <Button
+                                width="max"
+                                size="xs"
+                                view="outlined"
+                                pin="clear-clear"
+                                style={{
+                                    width: 94,
+                                }}
+                                // pin="brick-brick"
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text>{reviewRating}</Text>
+                                    <div style={{minWidth: 3}} />
+                                    <Text
+                                        color="warning"
+                                        style={{display: 'flex', alignItems: 'center'}}
+                                    >
+                                        <Icon data={Star} size={11} />
+                                    </Text>
+                                </div>
+                            </Button>
+                        </Popover>
+                        <Popover
+                            content={
+                                <div
+                                    style={{
+                                        height: 'calc(30em - 60px)',
+                                        width: '60em',
+                                        overflow: 'auto',
+                                        display: 'flex',
+                                    }}
+                                >
+                                    <Card
+                                        view="outlined"
+                                        theme="warning"
+                                        style={{
+                                            position: 'absolute',
+                                            height: '30em',
+                                            width: '60em',
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <ChartKit type="yagr" data={yagrFeedbacksData} />
+                                    </Card>
+                                </div>
+                            }
+                        >
+                            <Button
+                                style={{
+                                    width: 94,
+
+                                    overflow: 'hidden',
+                                }}
+                                width="max"
+                                size="xs"
+                                view="flat"
+                                pin="clear-clear"
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text>{feedbacks}</Text>
+                                    <div style={{minWidth: 3}} />
+                                    <Icon data={Comment} size={11} />
+                                </div>
+                            </Button>
+                        </Popover>
                     </Card>
                 );
             },

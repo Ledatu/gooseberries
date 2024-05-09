@@ -946,7 +946,7 @@ export const PricesPage = () => {
                                                 /////////////////////////
                                                 callApi('updatePricesMM', params);
                                                 /////////////////////////
-                                                setDateChangeRecalc(true);
+                                                setCurrentPricesCalculatedBasedOn('');
                                                 setUpdatePricesModalOpen(false);
                                             },
                                         },
