@@ -2081,141 +2081,92 @@ export const MassAdvertPage = () => {
                     }
                 }
 
-                const yagrPricesData: YagrWidgetData = {
-                    data: {
-                        timeline: timeline,
-                        graphs: [
-                            {
-                                color: '#ffbe5c',
-                                type: 'column',
-                                data: pricesDataCur,
-                                id: '1',
-                                name: 'Этот артикул',
-                                scale: 'y',
-                            },
-                            {
-                                id: '0',
-                                name: 'Цена',
-                                color: '#5fb8a5',
-                                scale: 'y',
-                                data: pricesData,
-                            },
-                        ],
-                    },
+                const genYagrData = (
+                    all,
+                    cur,
+                    colorAll,
+                    title,
+                    axisName,
+                    cursorName,
+                    min = -1,
+                    colorCur = '#ffbe5c',
+                ) => {
+                    return {
+                        data: {
+                            timeline: timeline,
+                            graphs: [
+                                {
+                                    color: colorCur,
+                                    type: 'column',
+                                    data: cur,
+                                    id: '1',
+                                    name: 'Этот артикул',
+                                    scale: 'y',
+                                },
+                                {
+                                    id: '0',
+                                    name: cursorName,
+                                    data: all,
+                                    color: colorAll,
+                                    scale: 'y',
+                                },
+                            ],
+                        },
 
-                    libraryConfig: {
-                        chart: {
-                            series: {
-                                type: 'column',
+                        libraryConfig: {
+                            chart: {
+                                series: {
+                                    type: 'column',
+                                },
+                            },
+                            axes: {
+                                y: {
+                                    label: axisName,
+                                    precision: 'auto',
+                                    show: true,
+                                },
+                                x: {
+                                    show: true,
+                                },
+                            },
+                            series: [],
+                            scales: {
+                                y: {
+                                    min: min == -1 ? Math.floor(all[0]) : min,
+                                },
+                            },
+                            title: {
+                                text: title,
                             },
                         },
-                        axes: {
-                            y: {
-                                label: 'Цены',
-                                precision: 'auto',
-                                show: true,
-                            },
-                            x: {
-                                show: true,
-                            },
-                        },
-                        series: [],
-                        scales: {y: {min: 0}, r: {min: 0}},
-                        title: {
-                            text: 'Цены топ 100 артикулов по запросу',
-                        },
-                    },
+                    } as YagrWidgetData;
                 };
-                const yagrReviewRatingsData: YagrWidgetData = {
-                    data: {
-                        timeline: timeline,
-                        graphs: [
-                            {
-                                color: '#ffbe5c',
-                                type: 'column',
-                                data: reviewRatingsDataCur,
-                                id: '1',
-                                name: 'Этот артикул',
-                                scale: 'y',
-                            },
-                            {
-                                id: '0',
-                                name: 'Рейтинг',
-                                scale: 'y',
-                                color: '#9a63d1',
-                                data: reviewRatingsData,
-                            },
-                        ],
-                    },
 
-                    libraryConfig: {
-                        chart: {
-                            series: {
-                                type: 'column',
-                            },
-                        },
-                        axes: {
-                            y: {
-                                label: 'Рейтинг',
-                                precision: 'auto',
-                                show: true,
-                            },
-                            x: {
-                                show: true,
-                            },
-                        },
-                        series: [],
-                        scales: {y: {min: 0}, r: {min: 0}},
-                        title: {
-                            text: 'Рейтинг топ 100 артикулов по запросу',
-                        },
-                    },
-                };
-                const yagrFeedbacksData: YagrWidgetData = {
-                    data: {
-                        timeline: timeline,
-                        graphs: [
-                            {
-                                color: '#ffbe5c',
-                                type: 'column',
-                                data: feedbacksDataCur,
-                                id: '1',
-                                name: 'Этот артикул',
-                                scale: 'y',
-                            },
-                            {
-                                id: '0',
-                                name: 'Отзывы',
-                                scale: 'y',
-                                color: '#4aa1f2',
-                                data: feedbacksData,
-                            },
-                        ],
-                    },
-
-                    libraryConfig: {
-                        chart: {
-                            series: {
-                                type: 'column',
-                            },
-                        },
-                        axes: {
-                            y: {
-                                label: 'Отзывы',
-                                precision: 'auto',
-                                show: true,
-                            },
-                            x: {
-                                show: true,
-                            },
-                        },
-                        series: [],
-                        scales: {y: {min: 0}, r: {min: 0}},
-                        title: {
-                            text: 'Количество отзывов топ 100 артикулов по запросу',
-                        },
-                    },
-                };
+                const yagrPricesData = genYagrData(
+                    pricesData,
+                    pricesDataCur,
+                    '#5fb8a5',
+                    'Цены топ 100 артикулов по запросу',
+                    'Цены',
+                    'Цена',
+                );
+                const yagrReviewRatingsData = genYagrData(
+                    reviewRatingsData,
+                    reviewRatingsDataCur,
+                    '#9a63d1',
+                    'Рейтинг топ 100 артикулов по запросу',
+                    'Рейтинг',
+                    'Рейтинг',
+                );
+                const yagrFeedbacksData = genYagrData(
+                    feedbacksData,
+                    feedbacksDataCur,
+                    '#4aa1f2',
+                    'Количество отзывов топ 100 артикулов по запросу',
+                    'Отзывы',
+                    'Отзывов',
+                    0,
+                );
 
                 return (
                     <Card style={{width: 96, height: 96, display: 'flex', flexDirection: 'column'}}>
