@@ -1675,6 +1675,10 @@ export const MassAdvertPage = () => {
             }`}</Text>
         );
     };
+    const renderAsPercent = ({value}) => {
+        if (value === undefined) return undefined;
+        return <Text>{value}%</Text>;
+    };
 
     const columnData = [
         {
@@ -2061,7 +2065,7 @@ export const MassAdvertPage = () => {
                 reviewRatingsData.sort((a, b) => a - b);
                 for (let i = 0; i < reviewRatingsData.length; i++) {
                     if (reviewRatingsData[i] == reviewRating) {
-                        reviewRatingsDataCur.push(priceRub);
+                        reviewRatingsDataCur.push(reviewRating);
                         break;
                     } else {
                         reviewRatingsDataCur.push(null);
@@ -2070,7 +2074,7 @@ export const MassAdvertPage = () => {
                 feedbacksData.sort((a, b) => a - b);
                 for (let i = 0; i < feedbacksData.length; i++) {
                     if (feedbacksData[i] == feedbacks) {
-                        feedbacksDataCur.push(priceRub);
+                        feedbacksDataCur.push(feedbacks);
                         break;
                     } else {
                         feedbacksDataCur.push(null);
@@ -2082,18 +2086,19 @@ export const MassAdvertPage = () => {
                         timeline: timeline,
                         graphs: [
                             {
-                                id: '0',
-                                name: 'Цена',
-                                scale: 'y',
-                                color: '#5fb8a5',
-                                data: pricesData,
-                            },
-                            {
+                                color: '#ffbe5c',
                                 type: 'column',
                                 data: pricesDataCur,
                                 id: '1',
                                 name: 'Этот артикул',
-                                scale: 'r',
+                                scale: 'y',
+                            },
+                            {
+                                id: '0',
+                                name: 'Цена',
+                                color: '#5fb8a5',
+                                scale: 'y',
+                                data: pricesData,
                             },
                         ],
                     },
@@ -2101,9 +2106,7 @@ export const MassAdvertPage = () => {
                     libraryConfig: {
                         chart: {
                             series: {
-                                spanGaps: false,
-                                type: 'line',
-                                interpolation: 'smooth',
+                                type: 'column',
                             },
                         },
                         axes: {
@@ -2112,11 +2115,11 @@ export const MassAdvertPage = () => {
                                 precision: 'auto',
                                 show: true,
                             },
-                            // x: {
-                            //     label: 'Время',
-                            //     precision: 'auto',
-                            //     show: true,
-                            // },
+                            x: {
+                                label: 'Время',
+                                precision: 'auto',
+                                show: false,
+                            },
                         },
                         series: [],
                         scales: {y: {min: 0}, r: {min: 0}},
@@ -2130,18 +2133,19 @@ export const MassAdvertPage = () => {
                         timeline: timeline,
                         graphs: [
                             {
-                                id: '0',
-                                name: 'Рейтинг',
-                                scale: 'y',
                                 color: '#ffbe5c',
-                                data: reviewRatingsData,
-                            },
-                            {
                                 type: 'column',
                                 data: reviewRatingsDataCur,
                                 id: '1',
                                 name: 'Этот артикул',
-                                scale: 'r',
+                                scale: 'y',
+                            },
+                            {
+                                id: '0',
+                                name: 'Рейтинг',
+                                scale: 'y',
+                                color: '#9a63d1',
+                                data: reviewRatingsData,
                             },
                         ],
                     },
@@ -2149,9 +2153,7 @@ export const MassAdvertPage = () => {
                     libraryConfig: {
                         chart: {
                             series: {
-                                spanGaps: false,
-                                type: 'line',
-                                interpolation: 'smooth',
+                                type: 'column',
                             },
                         },
                         axes: {
@@ -2160,11 +2162,11 @@ export const MassAdvertPage = () => {
                                 precision: 'auto',
                                 show: true,
                             },
-                            // x: {
-                            //     label: 'Время',
-                            //     precision: 'auto',
-                            //     show: true,
-                            // },
+                            x: {
+                                label: 'Время',
+                                precision: 'auto',
+                                show: false,
+                            },
                         },
                         series: [],
                         scales: {y: {min: 0}, r: {min: 0}},
@@ -2178,18 +2180,19 @@ export const MassAdvertPage = () => {
                         timeline: timeline,
                         graphs: [
                             {
+                                color: '#ffbe5c',
+                                type: 'column',
+                                data: feedbacksDataCur,
+                                id: '1',
+                                name: 'Этот артикул',
+                                scale: 'y',
+                            },
+                            {
                                 id: '0',
                                 name: 'Отзывы',
                                 scale: 'y',
                                 color: '#4aa1f2',
                                 data: feedbacksData,
-                            },
-                            {
-                                type: 'column',
-                                data: feedbacksDataCur,
-                                id: '1',
-                                name: 'Этот артикул',
-                                scale: 'r',
                             },
                         ],
                     },
@@ -2197,9 +2200,7 @@ export const MassAdvertPage = () => {
                     libraryConfig: {
                         chart: {
                             series: {
-                                spanGaps: false,
-                                type: 'line',
-                                interpolation: 'smooth',
+                                type: 'column',
                             },
                         },
                         axes: {
@@ -2208,11 +2209,11 @@ export const MassAdvertPage = () => {
                                 precision: 'auto',
                                 show: true,
                             },
-                            // x: {
-                            //     label: 'Время',
-                            //     precision: 'auto',
-                            //     show: true,
-                            // },
+                            x: {
+                                label: 'Время',
+                                precision: 'auto',
+                                show: false,
+                            },
                         },
                         series: [],
                         scales: {y: {min: 0}, r: {min: 0}},
@@ -2231,6 +2232,7 @@ export const MassAdvertPage = () => {
                                         height: 'calc(30em - 60px)',
                                         width: '60em',
                                         overflow: 'auto',
+                                        paddingBottom: 8,
                                         display: 'flex',
                                     }}
                                 >
@@ -2275,6 +2277,7 @@ export const MassAdvertPage = () => {
                                         height: 'calc(30em - 60px)',
                                         width: '60em',
                                         overflow: 'auto',
+                                        paddingBottom: 8,
                                         display: 'flex',
                                     }}
                                 >
@@ -2333,6 +2336,7 @@ export const MassAdvertPage = () => {
                                         width: '60em',
                                         overflow: 'auto',
                                         display: 'flex',
+                                        paddingBottom: 8,
                                     }}
                                 >
                                     <Card
@@ -3227,7 +3231,7 @@ export const MassAdvertPage = () => {
                                 : 'primary'
                         }
                     >
-                        {value}
+                        {value}%
                     </Text>
                 );
             },
@@ -3279,13 +3283,13 @@ export const MassAdvertPage = () => {
             placeholder: 'Кликов, шт.',
             render: (args) => renderSlashPercent(args, 'openCardCount'),
         },
-        {name: 'ctr', placeholder: 'CTR, %'},
+        {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},
         {name: 'cpc', placeholder: 'CPC, ₽'},
         {name: 'cpm', placeholder: 'CPM, ₽'},
-        {name: 'cr', placeholder: 'CR, %'},
+        {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
         {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
-        {name: 'addToCartPercent', placeholder: 'CR в корзину, %'},
-        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %'},
+        {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
+        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
     ];
 
     const [filteredSummary, setFilteredSummary] = useState({
@@ -4177,6 +4181,7 @@ export const MassAdvertPage = () => {
         {
             name: 'ctr',
             placeholder: 'CTR, %',
+            render: renderAsPercent,
         },
         {
             name: 'sum',
@@ -4480,6 +4485,7 @@ export const MassAdvertPage = () => {
         {
             name: 'ctr',
             placeholder: 'CTR, %',
+            render: renderAsPercent,
         },
         {
             name: 'sum',
