@@ -727,15 +727,16 @@ export const MassAdvertPage = () => {
                 tempJson[strDate].addToCartPercent += addToCartPercent;
                 tempJson[strDate].cartToOrderPercent += cartToOrderPercent;
             }
+            console.log(strDate, tempJson[strDate]);
             tempJson[strDate].openCardCount = Math.round(tempJson[strDate].openCardCount);
 
             tempJson[strDate].addToCartPercent = getRoundValue(
                 tempJson[strDate].addToCartPercent,
-                daysBetween,
+                arts.length,
             );
             tempJson[strDate].cartToOrderPercent = getRoundValue(
                 tempJson[strDate].cartToOrderPercent,
-                daysBetween,
+                arts.length,
             );
         }
 
