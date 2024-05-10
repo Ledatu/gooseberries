@@ -8106,8 +8106,9 @@ const generateCard = (args) => {
                     }}
                 >
                     {new Intl.NumberFormat('ru-RU').format(summary[key])}
+                    {placeholder.includes(', %') ? '%' : ''}
                 </Text>
-                <Text>{placeholder}</Text>
+                <Text>{`${placeholder}`}</Text>
             </div>
         </Card>
     );
