@@ -4601,6 +4601,7 @@ export const MassAdvertPage = () => {
         {
             name: 'drr',
             placeholder: 'ДРР, %',
+            render: renderAsPercent,
         },
         {
             name: 'cpo',
@@ -4608,13 +4609,13 @@ export const MassAdvertPage = () => {
         },
         {name: 'views', placeholder: 'Показов, шт.'},
         {name: 'clicks', placeholder: 'Кликов, шт.'},
-        {name: 'ctr', placeholder: 'CTR, %'},
+        {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},
         {name: 'cpc', placeholder: 'CPC, ₽'},
         {name: 'cpm', placeholder: 'CPM, ₽'},
-        {name: 'cr', placeholder: 'CR, %'},
+        {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
         {name: 'openCardCount', placeholder: 'Всего кликов, шт.'},
-        {name: 'addToCartPercent', placeholder: 'Конверсия в корзину, %'},
-        {name: 'cartToOrderPercent', placeholder: 'Конверсия в заказ, %'},
+        {name: 'addToCartPercent', placeholder: 'Конверсия в корзину, %', render: renderAsPercent},
+        {name: 'cartToOrderPercent', placeholder: 'Конверсия в заказ, %', render: renderAsPercent},
     ];
 
     const columnDataAuction = [
