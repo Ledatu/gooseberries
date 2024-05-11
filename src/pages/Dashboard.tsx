@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import block from 'bem-cn-lite';
 import {
     ThemeProvider,
@@ -23,6 +23,7 @@ import {MassAdvertPage} from './MassAdvertPage';
 import {Sun, Moon} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
+import {AnalyticsPage} from './AnalyticsPage';
 
 const b = block('app');
 
@@ -32,7 +33,17 @@ enum Theme {
 }
 
 export const Dashboard = () => {
-    const [theme, setTheme] = React.useState(Theme.Dark);
+    const themeVal = localStorage.getItem('theme');
+    const initialTheme =
+        themeVal !== 'undefined' && themeVal !== 'null' && themeVal
+            ? JSON.parse(themeVal)
+            : Theme.Dark;
+    const [theme, setTheme] = useState(initialTheme);
+
+    useEffect(() => {
+        localStorage.setItem('theme', JSON.stringify(theme));
+    }, [theme]);
+
     const optionsTheme: RadioButtonOption[] = [
         {value: 'dark', content: <Icon data={Moon}></Icon>},
         {value: 'light', content: <Icon data={Sun}></Icon>},
@@ -48,27 +59,32 @@ export const Dashboard = () => {
             value: 'prices',
             content: 'Цены',
             disabled:
-                Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
-                Userfront.user.userUuid != '46431a09-85c3-4703-8246-d1b5c9e52594',
+                Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
+                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
         // {
         //     value: 'stats_rk',
         //     content: 'Статистика',
-        //     disabled: Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806'  && Userfront.user.userUuid != '46431a09-85c3-4703-8246-d1b5c9e52594',
+        //     disabled: Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806'  && Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
+        // },
+        // {
+        //     value: 'analytics',
+        //     content: 'Аналитика',
+        //     disabled: Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
         // },
         // {
         //     value: 'deliveryOrders',
         //     content: 'Поставки',
         //     disabled:
-        //         Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
-        //         Userfront.user.userUuid != '46431a09-85c3-4703-8246-d1b5c9e52594',
+        //         Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
+        //         Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         // },
         {
             value: 'nomenclatures',
             content: 'Товары',
             disabled:
-                Userfront.user.userUuid != '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
-                Userfront.user.userUuid != '46431a09-85c3-4703-8246-d1b5c9e52594',
+                Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
+                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
     ];
     // const [page, setPage] = React.useState('nomenclatures');
@@ -112,7 +128,6 @@ export const Dashboard = () => {
                         defaultValue={theme}
                         options={optionsTheme}
                         onUpdate={async (val) => {
-                            // console.log(val);
                             setTheme(val === 'light' ? Theme.Light : Theme.Dark);
                         }}
                     />
@@ -146,6 +161,7 @@ function PageElem({page}) {
         massAdvert: <MassAdvertPage />,
         prices: <PricesPage />,
         nomenclatures: <NomenclaturesPage />,
+        analytics: <AnalyticsPage />,
     };
     return pages[page] ?? <div></div>;
 }

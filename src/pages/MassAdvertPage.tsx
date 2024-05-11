@@ -727,7 +727,6 @@ export const MassAdvertPage = () => {
                 tempJson[strDate].addToCartPercent += addToCartPercent;
                 tempJson[strDate].cartToOrderPercent += cartToOrderPercent;
             }
-            console.log(strDate, tempJson[strDate]);
             tempJson[strDate].openCardCount = Math.round(tempJson[strDate].openCardCount);
 
             tempJson[strDate].addToCartPercent = getRoundValue(
@@ -960,7 +959,7 @@ export const MassAdvertPage = () => {
             }
         }
 
-        const yagrBudgetData: YagrWidgetData = {
+        const yagrBudgetData = {
             data: {
                 timeline: timelineBudget,
                 graphs: [
@@ -972,9 +971,9 @@ export const MassAdvertPage = () => {
                         data: graphsDataBudgets,
                     },
                     {
+                        id: '1',
                         type: 'column',
                         data: graphsDataBudgetsDiv,
-                        id: '1',
                         name: 'Расход',
                         scale: 'r',
                     },
@@ -1007,13 +1006,12 @@ export const MassAdvertPage = () => {
                         show: true,
                     },
                 },
-                series: [],
                 scales: {y: {min: 0}, r: {min: 0}},
                 title: {
                     text: 'Изменение баланса',
                 },
             },
-        };
+        } as YagrWidgetData;
 
         return (
             <Card
@@ -2029,7 +2027,7 @@ export const MassAdvertPage = () => {
                 const priceRub = Math.round(total / 100);
                 console.log(placementsValue);
 
-                const {firstPage} = doc.placementsAuctions[selectValue[0]][phrase];
+                const {firstPage} = doc.placementsAuctions[selectValue[0]][phrase] ?? {};
 
                 const timeline: any[] = [];
                 const pricesData: any[] = [];
@@ -6731,7 +6729,7 @@ export const MassAdvertPage = () => {
                                                 style={{
                                                     display: 'flex',
                                                     flexDirection: 'column',
-                                                    height: '70vh',
+                                                    height: '60vh',
                                                     width: '60vw',
                                                     justifyContent: 'space-between',
                                                     margin: '30px 30px',
@@ -7833,7 +7831,7 @@ export const MassAdvertPage = () => {
                 <div
                     style={{
                         width: '100%',
-                        maxHeight: '60vh',
+                        maxHeight: '70vh',
                         overflow: 'auto',
                     }}
                 >
@@ -8086,14 +8084,15 @@ const generateScheduleInput = (args) => {
 const generateCard = (args) => {
     const {summary, key, placeholder} = args;
     const cardStyle = {
-        width: '18vh',
-        height: '18vh',
+        minWidth: '10em',
+        height: '10em',
         display: 'flex',
+        flex: '1 1 auto',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: '16px',
-        marginRight: '4px',
-        marginLeft: '4px',
+        marginRight: '8px',
+        marginLeft: '8px',
     };
     return (
         <Card style={cardStyle} theme="info" view="raised">
