@@ -2025,7 +2025,7 @@ export const MassAdvertPage = () => {
                 const {price} = sizes ? sizes[0] ?? {price: undefined} : {price: undefined};
                 const {total} = price ?? {total: 0};
                 const priceRub = Math.round(total / 100);
-                console.log(placementsValue);
+                // console.log(placementsValue);
 
                 const {firstPage} = doc.placementsAuctions[selectValue[0]][phrase] ?? {};
 
@@ -4606,12 +4606,16 @@ export const MassAdvertPage = () => {
             placeholder: 'CPO, ₽',
         },
         {name: 'views', placeholder: 'Показов, шт.'},
-        {name: 'clicks', placeholder: 'Кликов, шт.'},
+        {
+            name: 'clicks',
+            placeholder: 'Кликов, шт.',
+            render: (args) => renderSlashPercent(args, 'openCardCount'),
+        },
         {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},
         {name: 'cpc', placeholder: 'CPC, ₽'},
         {name: 'cpm', placeholder: 'CPM, ₽'},
         {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
-        {name: 'openCardCount', placeholder: 'Всего кликов, шт.'},
+        {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
         {name: 'addToCartPercent', placeholder: 'Конверсия в корзину, %', render: renderAsPercent},
         {name: 'cartToOrderPercent', placeholder: 'Конверсия в заказ, %', render: renderAsPercent},
     ];
@@ -4900,6 +4904,7 @@ export const MassAdvertPage = () => {
             <div
                 style={{
                     display: 'flex',
+                    flexDirection: 'row',
                     width: '100%',
                     justifyContent: 'space-around',
                     flexWrap: 'wrap',
@@ -4908,7 +4913,6 @@ export const MassAdvertPage = () => {
             >
                 {generateCard({summary, key: 'sum_orders', placeholder: 'Заказов, ₽'})}
                 {generateCard({summary, key: 'sum_sales', placeholder: 'Продаж, ₽'})}
-                {/* {generateCard({summary, key: 'sales', placeholder: 'Продаж, шт'})} */}
                 {generateCard({summary, key: 'sum', placeholder: 'Расход, ₽'})}
                 {generateCard({summary, key: 'drr_orders', placeholder: 'ДРР к заказам, %'})}
                 {generateCard({summary, key: 'drr_sales', placeholder: 'ДРР к продажам, %'})}

@@ -1,5 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {Spin, Select, SelectOption, Icon, Button, Text, Pagination, List} from '@gravity-ui/uikit';
+import {
+    Spin,
+    Select,
+    SelectOption,
+    Icon,
+    Button,
+    Text,
+    Pagination,
+    List,
+    Popover,
+    Card,
+} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
@@ -13,6 +24,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare} from 'src/components/TheTable';
 import Userfront from '@userfront/toolkit';
 import {motion} from 'framer-motion';
+import {RangePicker} from 'src/components/RangePicker';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -46,7 +58,7 @@ export const AnalyticsPage = () => {
         apiPageColumnsVal !== 'undefined' && apiPageColumnsVal && apiPageColumnsVal.length
             ? JSON.parse(apiPageColumnsVal)
             : ['entity', 'sum_orders', 'sum', 'drr'];
-    console.log(apiPageColumnsInitial);
+
     const [apiPageColumns, setApiPageColumns] = useState(apiPageColumnsInitial);
 
     useEffect(() => {
@@ -55,13 +67,43 @@ export const AnalyticsPage = () => {
 
     const [filters, setFilters] = useState({undef: false});
 
+    const today = new Date(
+        new Date()
+            .toLocaleDateString('ru-RU')
+            .replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
+            .slice(0, 10),
+    );
+    const [dateRange, setDateRange] = useState([today, today]);
+
     const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
-    const columnData = [];
+    const columnDataObj = {
+        entity: {
+            placeholder: 'Сущность',
+        },
+        sum_orders: {
+            placeholder: 'Заказов, ₽',
+        },
+        sum: {
+            placeholder: 'Расход, ₽',
+        },
+        drr: {
+            placeholder: 'ДРР, %',
+        },
+    };
+    const columnData = (() => {
+        const temp = [] as any[];
+        for (const key of apiPageColumns) {
+            const tempColumn = columnDataObj[key] ?? {};
+            tempColumn['name'] = key;
+            temp.push(tempColumn);
+        }
+        return temp;
+    })();
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
@@ -71,7 +113,10 @@ export const AnalyticsPage = () => {
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 
-    const recalc = (selected = '', withfFilters = {}) => {
+    const recalc = (dateRange, selected = '', withfFilters = {}) => {
+        const [startDate, endDate] = dateRange;
+        console.log(startDate, endDate);
+
         const campaignData = doc
             ? doc.nomenclatures[selected === '' ? selectValue[0] : selected]
             : {};
@@ -190,7 +235,7 @@ export const AnalyticsPage = () => {
     if (changedDoc) {
         setChangedDoc(undefined);
         setChangedDocUpdateType(false);
-        recalc();
+        recalc(dateRange);
     }
 
     if (!doc) return <Spin />;
@@ -248,20 +293,27 @@ export const AnalyticsPage = () => {
         setSelectValue([selected]);
         console.log(doc);
 
-        recalc(selected);
+        recalc(dateRange, selected);
         setFirstRecalc(true);
     }
 
     function arrayMove(arrayTemp, oldIndex, newIndex) {
-        const arr = Array.from(arrayTemp);
+        const arr = [...arrayTemp];
+        while (oldIndex < 0) {
+            oldIndex += arr.length;
+        }
+        while (newIndex < 0) {
+            newIndex += arr.length;
+        }
         if (newIndex >= arr.length) {
             let k = newIndex - arr.length + 1;
             while (k--) {
                 arr.push(undefined);
             }
         }
-        arr.splice(oldIndex, 0, arr.splice(oldIndex, 1)[0]);
-        return arr; // for testing
+        arr.splice(newIndex, 0, arr.splice(oldIndex, 1)[0]);
+
+        return arr;
     }
 
     return (
@@ -332,7 +384,7 @@ export const AnalyticsPage = () => {
                                 setSelectValue(nextValue);
                                 setButtonLoading('');
                             }
-                            recalc(nextValue[0], filters);
+                            recalc(dateRange, nextValue[0], filters);
                             setPagesCurrent(1);
                         }}
                     />
@@ -356,20 +408,72 @@ export const AnalyticsPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <div style={{display: 'flex', height: 300}}>
-                        <List
-                            sortable
-                            // filterable={false}
-                            itemHeight={28}
-                            items={['a'].concat(apiPageColumns)}
-                            renderItem={(item) => {
-                                return <Text>{item as string}</Text>;
-                            }}
-                            onSortEnd={({oldIndex, newIndex}) => {
-                                setApiPageColumns(arrayMove(apiPageColumns, oldIndex, newIndex));
-                            }}
-                        ></List>
-                    </div>
+                    <Popover
+                        content={
+                            <div
+                                style={{
+                                    height: 'calc(300px - 60px)',
+                                    width: 150,
+                                    overflow: 'auto',
+                                    display: 'flex',
+                                }}
+                            >
+                                <Card
+                                    view="outlined"
+                                    theme="warning"
+                                    style={{
+                                        position: 'absolute',
+                                        background: 'var(--g-color-base-background)',
+                                        height: 300,
+                                        width: 200,
+                                        padding: 8,
+                                        overflow: 'auto',
+                                        top: -10,
+                                        left: -9,
+                                        display: 'flex',
+                                    }}
+                                >
+                                    <List
+                                        sortable
+                                        filterable={false}
+                                        itemHeight={28}
+                                        items={apiPageColumns}
+                                        sortHandleAlign="right"
+                                        renderItem={(item) => {
+                                            return (
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
+                                                    {/* <Checkbox defaultChecked /> */}
+                                                    {/* <div style={{minWidth: 4}} /> */}
+                                                    <Text>
+                                                        {columnDataObj[item as string].placeholder}
+                                                    </Text>
+                                                </div>
+                                            );
+                                        }}
+                                        onSortEnd={({oldIndex, newIndex}) => {
+                                            setApiPageColumns(
+                                                arrayMove(apiPageColumns, oldIndex, newIndex),
+                                            );
+                                        }}
+                                    />
+                                </Card>
+                            </div>
+                        }
+                    >
+                        <Button size="l" view="action">
+                            Столбцы
+                        </Button>
+                    </Popover>
+                    <div style={{minWidth: 8}} />
+                    <RangePicker
+                        args={{recalc: recalc, dateRange: dateRange, setDateRange: setDateRange}}
+                    />
                 </div>
             </div>
 
