@@ -97,7 +97,7 @@ export const AnalyticsPage = () => {
         },
         drr: {
             placeholder: 'ДРР, %',
-            render: renderAsPercent
+            render: renderAsPercent,
         },
     };
     const columnData = (() => {
