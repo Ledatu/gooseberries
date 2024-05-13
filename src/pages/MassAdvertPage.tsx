@@ -7457,9 +7457,18 @@ export const MassAdvertPage = () => {
                         </Popover>
                     </div>
                 </div>
-                <div style={{display: 'flex', flexDirection: 'row', marginBottom: 8}}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                    }}
+                >
                     <Button
                         size="l"
+                        style={{
+                            marginBottom: 8,
+                        }}
                         view="action"
                         onClick={() => {
                             setFilters(() => {
@@ -7482,6 +7491,9 @@ export const MassAdvertPage = () => {
                     <div style={{width: 8}} />
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                         <Button
+                            style={{
+                                marginBottom: 8,
+                            }}
                             loading={fetchingDataFromServerFlag}
                             size="l"
                             view="action"
@@ -7495,6 +7507,9 @@ export const MassAdvertPage = () => {
                     </div>
                     <div ref={fieldRef}>
                         <Button
+                            style={{
+                                marginBottom: 8,
+                            }}
                             view="outlined-warning"
                             size="l"
                             onClick={() => {
