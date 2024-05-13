@@ -79,7 +79,10 @@ export default function TheTable({
                     highlightRows: true,
                 }}
                 theme="yandex-cloud"
-                onRowClick={onRowClick}
+                onRowClick={(row, index, event) => {
+                    if (onRowClick) onRowClick(row, index, event);
+                    else console.log(row);
+                }}
                 rowClassName={(_row, index, isFooterData) =>
                     isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
                 }

@@ -67,11 +67,11 @@ export const Dashboard = () => {
         //     content: 'Статистика',
         //     disabled: Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806'  && Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         // },
-        // {
-        //     value: 'analytics',
-        //     content: 'Аналитика',
-        //     disabled: Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-        // },
+        {
+            value: 'analytics',
+            content: 'Аналитика',
+            disabled: Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
+        },
         // {
         //     value: 'deliveryOrders',
         //     content: 'Поставки',

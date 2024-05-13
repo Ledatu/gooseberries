@@ -723,9 +723,9 @@ export const MassAdvertPage = () => {
                     cartToOrderPercent: 0,
                 };
 
-                tempJson[strDate].openCardCount += openCardCount;
-                tempJson[strDate].addToCartPercent += addToCartPercent;
-                tempJson[strDate].cartToOrderPercent += cartToOrderPercent;
+                tempJson[strDate].openCardCount += openCardCount ?? 0;
+                tempJson[strDate].addToCartPercent += addToCartPercent ?? 0;
+                tempJson[strDate].cartToOrderPercent += cartToOrderPercent ?? 0;
             }
             tempJson[strDate].openCardCount = Math.round(tempJson[strDate].openCardCount);
 
@@ -3503,6 +3503,18 @@ export const MassAdvertPage = () => {
                     artInfo.views += dateData['views'];
                     artInfo.clicks += dateData['clicks'];
 
+                    console.log(
+                        artData['nmFullDetailReport']
+                            ? artData['nmFullDetailReport'].statistics
+                            : undefined,
+                        strDate,
+                        artData['nmFullDetailReport']
+                            ? artData['nmFullDetailReport'].statistics
+                                ? artData['nmFullDetailReport'].statistics[strDate]
+                                : undefined
+                            : undefined,
+                    );
+
                     const {openCardCount, addToCartPercent, cartToOrderPercent} = artData[
                         'nmFullDetailReport'
                     ]
@@ -3517,13 +3529,14 @@ export const MassAdvertPage = () => {
                               cartToOrderPercent: 0,
                           };
 
-                    artInfo.openCardCount += openCardCount;
-                    artInfo.addToCartPercent += addToCartPercent;
-                    artInfo.cartToOrderPercent += cartToOrderPercent;
+                    artInfo.openCardCount += openCardCount ?? 0;
+                    artInfo.addToCartPercent += addToCartPercent ?? 0;
+                    artInfo.cartToOrderPercent += cartToOrderPercent ?? 0;
                 }
                 artInfo.openCardCount = Math.round(artInfo.openCardCount);
 
                 const daysBetween = (endDate.getTime() - startDate.getTime()) / 86400 / 1000 + 1;
+
                 artInfo.addToCartPercent = getRoundValue(artInfo.addToCartPercent, daysBetween);
                 artInfo.cartToOrderPercent = getRoundValue(artInfo.cartToOrderPercent, daysBetween);
 
@@ -5578,7 +5591,13 @@ export const MassAdvertPage = () => {
                                 />
                             </div>
                             <div style={{minHeight: 8}} />
-                            <div style={{overflow: 'auto', width: '100%', height: '100%'}}>
+                            <Card
+                                style={{
+                                    overflow: 'auto',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
                                 <TheTable
                                     columnData={columnDataArtByDayStats}
                                     data={artsStatsByDayFilteredData}
@@ -5587,7 +5606,7 @@ export const MassAdvertPage = () => {
                                     filterData={artsStatsByDayDataFilter}
                                     footerData={[artsStatsByDayFilteredSummary]}
                                 />
-                            </div>
+                            </Card>
                         </motion.div>
                     </Modal>
                     <Modal
@@ -7832,10 +7851,11 @@ export const MassAdvertPage = () => {
                     alignItems: 'center',
                 }}
             >
-                <div
+                <Card
                     style={{
                         width: '100%',
-                        maxHeight: '70vh',
+                        maxHeight: '68vh',
+                        boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
                         overflow: 'auto',
                     }}
                 >
@@ -7847,7 +7867,7 @@ export const MassAdvertPage = () => {
                         filterData={filterTableData}
                         footerData={[filteredSummary]}
                     />
-                </div>
+                </Card>
                 <div style={{height: 8}} />
                 <Pagination
                     showInput
@@ -8095,23 +8115,24 @@ const generateCard = (args) => {
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: '16px',
+        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
         marginRight: '8px',
         marginLeft: '8px',
     };
     return (
-        <Card style={cardStyle} theme="info" view="raised">
+        <Card style={cardStyle} view="outlined">
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <Text>{`${placeholder}`}</Text>
                 <Text
                     style={{
                         fontWeight: 'bold',
                         fontSize: '18pt',
-                        marginTop: '10px',
+                        marginBottom: 10,
                     }}
                 >
                     {new Intl.NumberFormat('ru-RU').format(summary[key])}
                     {placeholder.includes(', %') ? '%' : ''}
                 </Text>
-                <Text>{`${placeholder}`}</Text>
             </div>
         </Card>
     );

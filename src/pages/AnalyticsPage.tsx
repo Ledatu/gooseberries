@@ -38,7 +38,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     }
 
     useEffect(() => {
-        callApi('getNomenclatures', {
+        callApi('getAnalytics', {
             uid: getUid(),
             campaignName:
                 Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594'
@@ -363,7 +363,7 @@ export const AnalyticsPage = () => {
                             setButtonLoading('switchingCampaigns');
 
                             if (!Object.keys(doc['nomenclatures'][nextValue[0]]).length) {
-                                callApi('getNomenclatures', {
+                                callApi('getAnalytics', {
                                     uid: getUid(),
                                     campaignName: nextValue,
                                 }).then((res) => {
