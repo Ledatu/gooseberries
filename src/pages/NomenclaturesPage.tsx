@@ -34,6 +34,7 @@ import axios from 'axios';
 import TheTable, {compare} from 'src/components/TheTable';
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import Userfront from '@userfront/toolkit';
+import {renderAsPercent} from 'src/utilities/getRoundValue';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -167,21 +168,28 @@ export const NomenclaturesPage = () => {
             additionalNodes: [generateEditButton('height')],
         },
         {name: 'weight', placeholder: 'Вес, кг.', additionalNodes: [generateEditButton('weight')]},
-        {name: 'ktr', placeholder: 'КТР WB, %', additionalNodes: [generateEditButton('ktr')]},
+        {
+            name: 'ktr',
+            placeholder: 'КТР WB',
+            additionalNodes: [generateEditButton('ktr')],
+        },
         {
             name: 'commision',
             placeholder: 'Коммисия WB, %',
             additionalNodes: [generateEditButton('commision')],
+            render: renderAsPercent,
         },
         {
             name: 'tax',
             placeholder: 'Ставка налога, %',
             additionalNodes: [generateEditButton('tax')],
+            render: renderAsPercent,
         },
         {
             name: 'expences',
             placeholder: 'Дополнительные расходы, %',
             additionalNodes: [generateEditButton('expences')],
+            render: renderAsPercent,
         },
         {
             name: 'primeCost1',

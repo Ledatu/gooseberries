@@ -25,14 +25,17 @@ import TheTable, {compare} from 'src/components/TheTable';
 import Userfront from '@userfront/toolkit';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
+import {getNormalDateRange, renderAsPercent} from 'src/utilities/getRoundValue';
 
-const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
+const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
         console.log(docum, mode, selectValue);
+
         if (mode) {
-            doc['analytics'][selectValue] = docum['analytics'][selectValue];
+            doc['pricesData'][selectValue] = docum['pricesData'][selectValue];
+            doc['artsData'][selectValue] = docum['artsData'][selectValue];
         }
         setDocument(docum);
     }
@@ -40,8 +43,9 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     useEffect(() => {
         callApi('getAnalytics', {
             uid: getUid(),
+            dateRange: getNormalDateRange(dateRange),
             campaignName:
-                Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594'
+                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифова Р. И.'
                     : 'ИП Валерий',
         })
@@ -93,6 +97,7 @@ export const AnalyticsPage = () => {
         },
         drr: {
             placeholder: 'ДРР, %',
+            render: renderAsPercent
         },
     };
     const columnData = (() => {
@@ -111,7 +116,7 @@ export const AnalyticsPage = () => {
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
+    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
     const recalc = (dateRange, selected = '', withfFilters = {}) => {
         const [startDate, endDate] = dateRange;

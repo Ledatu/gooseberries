@@ -71,7 +71,11 @@ import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
-import {getLocaleDateString} from 'src/utilities/getRoundValue';
+import {
+    getLocaleDateString,
+    renderAsPercent,
+    renderSlashPercent,
+} from 'src/utilities/getRoundValue';
 import TheTable, {compare} from 'src/components/TheTable';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
@@ -1660,23 +1664,6 @@ export const MassAdvertPage = () => {
                 </div>
             </Card>
         );
-    };
-
-    const renderSlashPercent = ({value, row}, key) => {
-        const keyVal = row[key];
-        if (value === undefined) return undefined;
-        const percent = Math.round(((value as number) / keyVal) * 100);
-        return (
-            <Text>{`${value} ${
-                isNaN(percent) || !isFinite(percent) || !value || !keyVal
-                    ? ''
-                    : '/ ' + percent + '%'
-            }`}</Text>
-        );
-    };
-    const renderAsPercent = ({value}) => {
-        if (value === undefined) return undefined;
-        return <Text>{value}%</Text>;
     };
 
     const columnData = [

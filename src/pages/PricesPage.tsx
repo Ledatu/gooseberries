@@ -34,16 +34,14 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare} from 'src/components/TheTable';
 import {RangeCalendar} from '@gravity-ui/date-components';
 import Userfront from '@userfront/toolkit';
-import {getLocaleDateString, getRoundValue} from 'src/utilities/getRoundValue';
+import {
+    getNormalDateRange,
+    getRoundValue,
+    renderAsPercent,
+    renderSlashPercent,
+} from 'src/utilities/getRoundValue';
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import {motion} from 'framer-motion';
-
-const getNormalDateRange = (dateRange) => {
-    const res = {};
-    res['lbd'] = getLocaleDateString(dateRange[0]);
-    res['rbd'] = getLocaleDateString(dateRange[1]);
-    return res;
-};
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -100,12 +98,6 @@ export const PricesPage = () => {
     const [selectedButton, setSelectedButton] = useState('');
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
-
-    const renderSlashPercent = ({value, row}, priceKey = 'rozPrice') => {
-        const price = row[priceKey];
-        if (value === undefined) return undefined;
-        return <Text>{`${value} / ${Math.round(((value as number) / price) * 100)}%`}</Text>;
-    };
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
@@ -204,10 +196,7 @@ export const PricesPage = () => {
         {
             name: 'discount',
             placeholder: 'Скидка, %',
-            render: ({value}) => {
-                if (value === undefined) return undefined;
-                return <Text>{value}%</Text>;
-            },
+            render: renderAsPercent,
         },
         {
             name: 'rozPrice',
@@ -229,10 +218,7 @@ export const PricesPage = () => {
         {
             name: 'spp',
             placeholder: 'СПП, %',
-            render: ({value}) => {
-                if (value === undefined) return undefined;
-                return <Text>{value}%</Text>;
-            },
+            render: renderAsPercent,
         },
         {
             name: 'sppPrice',
@@ -264,13 +250,21 @@ export const PricesPage = () => {
                 );
             },
         },
-        {name: 'primeCost', placeholder: 'Себестоимость, ₽', render: renderSlashPercent},
+        {
+            name: 'primeCost',
+            placeholder: 'Себестоимость, ₽',
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
+        },
         {
             name: 'comissionSum',
             placeholder: 'Комиссия, ₽',
-            render: (args) => renderSlashPercent(args),
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
         },
-        {name: 'deliverySum', placeholder: 'Логистика, ₽', render: renderSlashPercent},
+        {
+            name: 'deliverySum',
+            placeholder: 'Логистика, ₽',
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
+        },
         {
             name: 'taxSum',
             placeholder: 'Налог, ₽',
@@ -281,18 +275,31 @@ export const PricesPage = () => {
             placeholder: 'Доп. расходы, ₽',
             render: (args) => renderSlashPercent(args, 'sppPrice'),
         },
-        {name: 'storageCostForArt', placeholder: 'Хранение, ₽', render: renderSlashPercent},
-        {name: 'ad', placeholder: 'Реклама / CPS, ₽', render: renderSlashPercent},
-        {name: 'cpo', placeholder: 'CPO, ₽', render: renderSlashPercent},
+        {
+            name: 'storageCostForArt',
+            placeholder: 'Хранение, ₽',
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
+        },
+        {
+            name: 'ad',
+            placeholder: 'Реклама / CPS, ₽',
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
+        },
+        {
+            name: 'cpo',
+            placeholder: 'CPO, ₽',
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
+        },
         {
             name: 'buyoutsPercent',
             placeholder: 'Процент выкупа, %',
-            render: ({value}) => {
-                if (value === undefined) return undefined;
-                return <Text>{value}%</Text>;
-            },
+            render: renderAsPercent,
         },
-        {name: 'allExpences', placeholder: 'Итого расходы, ₽', render: renderSlashPercent},
+        {
+            name: 'allExpences',
+            placeholder: 'Итого расходы, ₽',
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
+        },
     ];
 
     const selectOptionsEntered = [
