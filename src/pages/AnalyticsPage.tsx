@@ -133,7 +133,7 @@ export const AnalyticsPage = () => {
         },
         orders: {
             placeholder: 'Заказов, шт.',
-            render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, шт.'),
+            render: (args) => renderWithGraph(args, 'orders', 'Заказов, шт.'),
         },
         sum_sales: {
             placeholder: 'Продаж, ₽',
@@ -141,7 +141,7 @@ export const AnalyticsPage = () => {
         },
         sales: {
             placeholder: 'Продаж, шт.',
-            render: (args) => renderWithGraph(args, 'sum_orders', 'Продаж, шт.'),
+            render: (args) => renderWithGraph(args, 'sales', 'Продаж, шт.'),
         },
         drr_orders: {
             placeholder: 'ДРР к заказам, %',
