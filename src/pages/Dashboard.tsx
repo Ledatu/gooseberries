@@ -71,10 +71,6 @@ export const Dashboard = () => {
         {
             value: 'analytics',
             content: 'Аналитика',
-            disabled:
-                Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
-                Userfront.user.userUuid !== '674281bf-7a48-463a-825d-a5c4163b4819' &&
-                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
         // {
         //     value: 'deliveryOrders',
