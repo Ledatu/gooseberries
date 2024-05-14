@@ -118,17 +118,25 @@ export const AnalyticsPage = () => {
                 return new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
             },
         },
+        sum: {
+            placeholder: 'Расход, ₽',
+            render: (args) => renderWithGraph(args, 'sum', 'Расход, ₽'),
+        },
         sum_orders: {
             placeholder: 'Заказов, ₽',
             render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, ₽'),
+        },
+        orders: {
+            placeholder: 'Заказов, шт.',
+            render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, шт.'),
         },
         sum_sales: {
             placeholder: 'Продаж, ₽',
             render: (args) => renderWithGraph(args, 'sum_sales', 'Продаж, ₽'),
         },
-        sum: {
-            placeholder: 'Расход, ₽',
-            render: (args) => renderWithGraph(args, 'sum', 'Расход, ₽'),
+        sales: {
+            placeholder: 'Продаж, шт.',
+            render: (args) => renderWithGraph(args, 'sum_orders', 'Продаж, шт.'),
         },
         drr_orders: {
             placeholder: 'ДРР к заказам, %',
