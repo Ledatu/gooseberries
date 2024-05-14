@@ -318,7 +318,7 @@ export const RangePicker = ({args}) => {
                 </div>
             }
         >
-            <Button view="outlined-warning" size="l">
+            <Button view="outlined-warning" size="l" style={{marginBottom: 8}}>
                 <Text variant="subheader-1">
                     {`${startDate.toLocaleDateString('ru-RU')} - ${endDate.toLocaleDateString(
                         'ru-RU',

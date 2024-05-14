@@ -3490,17 +3490,17 @@ export const MassAdvertPage = () => {
                     artInfo.views += dateData['views'];
                     artInfo.clicks += dateData['clicks'];
 
-                    console.log(
-                        artData['nmFullDetailReport']
-                            ? artData['nmFullDetailReport'].statistics
-                            : undefined,
-                        strDate,
-                        artData['nmFullDetailReport']
-                            ? artData['nmFullDetailReport'].statistics
-                                ? artData['nmFullDetailReport'].statistics[strDate]
-                                : undefined
-                            : undefined,
-                    );
+                    // console.log(
+                    //     artData['nmFullDetailReport']
+                    //         ? artData['nmFullDetailReport'].statistics
+                    //         : undefined,
+                    //     strDate,
+                    //     artData['nmFullDetailReport']
+                    //         ? artData['nmFullDetailReport'].statistics
+                    //             ? artData['nmFullDetailReport'].statistics[strDate]
+                    //             : undefined
+                    //         : undefined,
+                    // );
 
                     const {openCardCount, addToCartPercent, cartToOrderPercent} = artData[
                         'nmFullDetailReport'

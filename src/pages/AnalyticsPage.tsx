@@ -10,6 +10,8 @@ import {
     List,
     Popover,
     Card,
+    Modal,
+    Checkbox,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -25,7 +27,7 @@ import TheTable, {compare} from 'src/components/TheTable';
 import Userfront from '@userfront/toolkit';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
-import {getNormalDateRange, renderAsPercent} from 'src/utilities/getRoundValue';
+import {getNormalDateRange, getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -34,8 +36,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
         console.log(docum, mode, selectValue);
 
         if (mode) {
-            doc['pricesData'][selectValue] = docum['pricesData'][selectValue];
-            doc['artsData'][selectValue] = docum['artsData'][selectValue];
+            doc['analyticsData'][selectValue] = docum['analyticsData'][selectValue];
         }
         setDocument(docum);
     }
@@ -58,10 +59,14 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
 export const AnalyticsPage = () => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
 
+    const columnTempState = ['entity', 'date', 'sum_orders', 'sum', 'drr'];
+
     const apiPageColumnsInitial =
-        apiPageColumnsVal !== 'undefined' && apiPageColumnsVal && apiPageColumnsVal.length
+        apiPageColumnsVal !== 'undefined' &&
+        apiPageColumnsVal &&
+        apiPageColumnsVal.length == columnTempState.length
             ? JSON.parse(apiPageColumnsVal)
-            : ['entity', 'sum_orders', 'sum', 'drr'];
+            : columnTempState;
 
     const [apiPageColumns, setApiPageColumns] = useState(apiPageColumnsInitial);
 
@@ -69,7 +74,43 @@ export const AnalyticsPage = () => {
         localStorage.setItem('apiPageColumns', JSON.stringify(apiPageColumns));
     }, [apiPageColumns]);
 
+    const [calculatingFlag, setCalculatingFlag] = useState(false);
+    const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
+    const [enteredKeysCheck, setEnteredKeysCheck] = useState({
+        brand: false,
+        object: false,
+        art: false,
+    });
+
+    const getEnteredKeys = () => {
+        const keys = [] as string[];
+        for (const [key, check] of Object.entries(enteredKeysCheck)) {
+            if (key && check) keys.push(key);
+        }
+        return keys;
+    };
+
     const [filters, setFilters] = useState({undef: false});
+
+    const filterByClick = (val, key, compMode = 'include') => {
+        filters[key] = {val: String(val), compMode: compMode};
+        setFilters(filters);
+        filterTableData(filters);
+    };
+
+    const renderFilterByClickButton = ({value}, key) => {
+        return (
+            <Button
+                size="xs"
+                view="flat"
+                onClick={() => {
+                    filterByClick(value, key);
+                }}
+            >
+                {value}
+            </Button>
+        );
+    };
 
     const today = new Date(
         new Date()
@@ -87,7 +128,21 @@ export const AnalyticsPage = () => {
 
     const columnDataObj = {
         entity: {
+            valueType: 'text',
             placeholder: 'Сущность',
+            render: ({value, row}) => {
+                if (value === undefined || row.isBlank) return undefined;
+                return renderFilterByClickButton({value}, 'entity');
+            },
+        },
+        date: {
+            valueType: 'text',
+            placeholder: 'Дата',
+            render: ({value, row}) => {
+                if (row.isBlank) return undefined;
+                if (value === undefined) return 'Итого';
+                return new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
+            },
         },
         sum_orders: {
             placeholder: 'Заказов, ₽',
@@ -123,31 +178,28 @@ export const AnalyticsPage = () => {
         console.log(startDate, endDate);
 
         const campaignData = doc
-            ? doc.nomenclatures[selected === '' ? selectValue[0] : selected]
+            ? doc.analyticsData[selected === '' ? selectValue[0] : selected]
             : {};
         // const campaignData = doc ? doc.analytics[selected === '' ? selectValue[0] : selected] : {};
 
-        const temp = {};
-        for (const [entity, entityData] of Object.entries(campaignData)) {
-            if (!entity || !entityData) continue;
+        // const temp = {};
+        // for (const [entity, entityData] of Object.entries(campaignData)) {
+        //     if (!entity || !entityData) continue;
 
-            const entityInfo = {
-                entity: '',
-                sum_orders: '',
-                // orders: '',
-                sum: '',
-            };
+        //     const entityInfo = {
+        //         entity: '',
+        //         sum_orders: '',
+        //         sum: '',
+        //     };
 
-            entityInfo.entity = entityData['entity'] ?? '';
-            entityInfo.sum_orders = entityData['sum_orders'];
-            entityInfo.sum = entityData['sum'];
+        //     entityInfo.entity = entity;
 
-            temp[entity] = entityInfo;
-        }
+        //     temp[entity] = entityInfo;
+        // }
 
-        setTableData(temp);
+        setTableData(campaignData);
 
-        filterTableData(withfFilters, temp);
+        filterTableData(withfFilters, campaignData);
     };
 
     const [filteredSummary, setFilteredSummary] = useState({});
@@ -160,70 +212,125 @@ export const AnalyticsPage = () => {
         )) {
             if (!entity || !entityInfo) continue;
 
-            const tempTypeRow = entityInfo as any[];
+            for (const [date, dateStats] of Object.entries(entityInfo)) {
+                if (date === undefined || dateStats === undefined) continue;
+                const tempTypeRow = {};
 
-            let addFlag = true;
-            const useFilters = withFilters['undef'] ? withFilters : filters;
-            for (const [filterArg, filterData] of Object.entries(useFilters)) {
-                if (filterArg === 'undef' || !filterData) continue;
-                if (filterData['val'] === '') continue;
-                if (filterArg === 'art') {
-                    const rulesForAnd = filterData['val'].split('+');
-                    // console.log(rulesForAnd);
+                tempTypeRow['isSummary'] = false;
+                tempTypeRow['entity'] = entity;
+                tempTypeRow['date'] = date;
+                tempTypeRow['orders'] = dateStats['orders'];
+                tempTypeRow['sum_orders'] = dateStats['sum_orders'];
+                tempTypeRow['sales'] = dateStats['sales'];
+                tempTypeRow['sum_sales'] = dateStats['sum_sales'];
+                tempTypeRow['sum'] = dateStats['sum'];
+                tempTypeRow['drr'] = getRoundValue(
+                    tempTypeRow['sum'],
+                    tempTypeRow['sum_orders'],
+                    true,
+                    1,
+                );
 
-                    let wholeText = '';
-                    for (const key of [
-                        'art',
-                        'title',
-                        'brand',
-                        'nmId',
-                        'imtId',
-                        'object',
-                        'size',
-                        'barcode',
-                    ]) {
-                        wholeText += tempTypeRow[key] + ' ';
-                    }
-
-                    let tempFlagInc = 0;
-                    for (let k = 0; k < rulesForAnd.length; k++) {
-                        const ruleForAdd = rulesForAnd[k];
-                        if (ruleForAdd === '') {
-                            tempFlagInc++;
-                            continue;
-                        }
-                        if (
-                            compare(wholeText, {
-                                val: ruleForAdd,
-                                compMode: filterData['compMode'],
-                            })
-                        ) {
-                            tempFlagInc++;
-                        }
-                    }
-                    if (tempFlagInc !== rulesForAnd.length) {
+                let addFlag = true;
+                const useFilters = withFilters['undef'] ? withFilters : filters;
+                for (const [filterArg, filterData] of Object.entries(useFilters)) {
+                    if (filterArg === 'undef' || !filterData) continue;
+                    if (filterData['val'] === '') continue;
+                    else if (!compare(tempTypeRow[filterArg], filterData)) {
                         addFlag = false;
                         break;
                     }
-                } else if (!compare(tempTypeRow[filterArg], filterData)) {
-                    addFlag = false;
-                    break;
+                }
+
+                if (addFlag) {
+                    temp.push(tempTypeRow);
                 }
             }
-
-            if (addFlag) {
-                temp.push(tempTypeRow);
-            }
         }
+
+        const summaries = {
+            filteredSummaryTemp: {orders: 0, sum_orders: 0, sales: 0, sum_sales: 0, sum: 0},
+        };
+        for (const row of temp) {
+            const {entity} = row;
+            if (!summaries[entity])
+                summaries[entity] = {
+                    orders: 0,
+                    sum_orders: 0,
+                    sales: 0,
+                    sum_sales: 0,
+                    sum: 0,
+                };
+
+            summaries[entity]['entity'] = entity;
+
+            summaries[entity]['isSummary'] = true;
+            summaries[entity]['orders'] += row['orders'];
+            summaries[entity]['sum_orders'] += row['sum_orders'];
+            summaries[entity]['sales'] += row['sales'];
+            summaries[entity]['sum_sales'] += row['sum_sales'];
+            summaries[entity]['sum'] += row['sum'];
+            summaries[entity]['drr'] = getRoundValue(
+                summaries[entity]['sum'],
+                summaries[entity]['sum_orders'],
+                true,
+                1,
+            );
+
+            summaries[entity]['isSummary'] = true;
+            summaries[entity]['orders'] += row['orders'];
+            summaries[entity]['sum_orders'] += row['sum_orders'];
+            summaries[entity]['sales'] += row['sales'];
+            summaries[entity]['sum_sales'] += row['sum_sales'];
+            summaries[entity]['sum'] += row['sum'];
+            summaries[entity]['drr'] = getRoundValue(
+                summaries[entity]['sum'],
+                summaries[entity]['sum_orders'],
+                true,
+                1,
+            );
+
+            summaries['filteredSummaryTemp']['isSummary'] = true;
+            summaries['filteredSummaryTemp']['orders'] += row['orders'];
+            summaries['filteredSummaryTemp']['sum_orders'] += row['sum_orders'];
+            summaries['filteredSummaryTemp']['sales'] += row['sales'];
+            summaries['filteredSummaryTemp']['sum_sales'] += row['sum_sales'];
+            summaries['filteredSummaryTemp']['sum'] += row['sum'];
+            summaries['filteredSummaryTemp']['drr'] = getRoundValue(
+                summaries['filteredSummaryTemp']['sum'],
+                summaries['filteredSummaryTemp']['sum_orders'],
+                true,
+                1,
+            );
+        }
+
+        setFilteredSummary(summaries['filteredSummaryTemp']);
+
+        for (const [entity, entitySummary] of Object.entries(summaries)) {
+            if (entity === 'filteredSummaryTemp') continue;
+            if (entity) temp.push(entitySummary);
+            temp.push({entity: entity, isSummary: false, isBlank: true});
+        }
+
+        temp.sort((rowA, rowB) => {
+            return rowB.isSummary - rowA.isSummary;
+        });
+
+        temp.sort((rowA, rowB) => {
+            return new Date(rowB.date).getTime() - new Date(rowA.date).getTime();
+        });
 
         temp.sort((rowA, rowB) => {
             return rowA.entity.localeCompare(rowB.entity, 'ru-RU');
         });
+
+        temp.pop();
+
         const paginatedDataTemp = temp.slice(0, 366);
 
         setFilteredSummary((row) => {
             const fstemp = row;
-            fstemp['art'] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
+            fstemp['entity'] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
 
             return fstemp;
         });
@@ -246,7 +353,7 @@ export const AnalyticsPage = () => {
     if (!doc) return <Spin />;
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(doc['nomenclatures'])) {
+        for (const [campaignName, _] of Object.entries(doc['analyticsData'])) {
             if (Userfront.user.userUuid === 'ce86aeb0-30b7-45ba-9234-a6765df7a479') {
                 if (
                     ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
@@ -367,17 +474,18 @@ export const AnalyticsPage = () => {
                         onUpdate={(nextValue) => {
                             setButtonLoading('switchingCampaigns');
 
-                            if (!Object.keys(doc['nomenclatures'][nextValue[0]]).length) {
-                                callApi('getAnalytics', {
-                                    uid: getUid(),
-                                    campaignName: nextValue,
-                                }).then((res) => {
+                            const params = {
+                                uid: getUid(),
+                                campaignName: nextValue[0],
+                                dateRange: getNormalDateRange(dateRange),
+                            };
+
+                            if (!Object.keys(doc['analyticsData'][nextValue[0]]).length) {
+                                callApi('getAnalytics', params).then((res) => {
                                     if (!res) return;
                                     const resData = res['data'];
-                                    doc['nomenclatures'][nextValue[0]] =
-                                        resData['nomenclatures'][nextValue[0]];
-                                    doc['artsData'][nextValue[0]] =
-                                        resData['artsData'][nextValue[0]];
+                                    doc['analyticsData'][nextValue[0]] =
+                                        resData['analyticsData'][nextValue[0]];
 
                                     setChangedDoc(doc);
                                     setSelectValue(nextValue);
@@ -404,6 +512,130 @@ export const AnalyticsPage = () => {
                     >
                         <Spin style={{marginTop: 4, marginLeft: 8}} />
                     </motion.div>
+                    <div style={{minWidth: 8}} />
+                    <Button
+                        loading={calculatingFlag}
+                        size="l"
+                        view="action"
+                        onClick={() => {
+                            setEnteredValuesModalOpen(true);
+                            setEnteredKeysCheck({brand: false, object: false, art: false});
+                        }}
+                    >
+                        {/* <Icon data={Calculator} /> */}
+                        <Text variant="subheader-1">Рассчитать</Text>
+                    </Button>
+                    <motion.div
+                        style={{
+                            overflow: 'hidden',
+                            marginTop: 4,
+                        }}
+                        animate={{
+                            maxWidth: calculatingFlag ? 40 : 0,
+                            opacity: calculatingFlag ? 1 : 0,
+                        }}
+                    >
+                        <Spin style={{marginLeft: 8}} />
+                    </motion.div>
+                    <Modal
+                        open={enteredValuesModalOpen}
+                        onClose={() => {
+                            setEnteredValuesModalOpen(false);
+                        }}
+                    >
+                        <Card
+                            view="clear"
+                            style={{
+                                width: 300,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                backgroundColor: 'none',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    height: '50%',
+                                    width: '70%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    margin: '16px 0',
+                                }}
+                            >
+                                <Checkbox
+                                    size="l"
+                                    content={'Бренд'}
+                                    checked={enteredKeysCheck.brand}
+                                    onUpdate={(val) => {
+                                        const temp = {...enteredKeysCheck};
+                                        temp.brand = val;
+                                        setEnteredKeysCheck(temp);
+                                    }}
+                                />
+                                <div style={{minHeight: 8}} />
+                                <Checkbox
+                                    size="l"
+                                    content={'Тип предмета'}
+                                    checked={enteredKeysCheck.object}
+                                    onUpdate={(val) => {
+                                        const temp = {...enteredKeysCheck};
+                                        temp.object = val;
+                                        setEnteredKeysCheck(temp);
+                                    }}
+                                />
+                                <div style={{minHeight: 8}} />
+                                <Checkbox
+                                    size="l"
+                                    content={'Артикул'}
+                                    checked={enteredKeysCheck.art}
+                                    onUpdate={(val) => {
+                                        const temp = {...enteredKeysCheck};
+                                        temp.art = val;
+                                        setEnteredKeysCheck(temp);
+                                    }}
+                                />
+                                <div style={{minHeight: 8}} />
+                                <Button
+                                    size="l"
+                                    view="action"
+                                    onClick={() => {
+                                        setCalculatingFlag(true);
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            dateRange: getNormalDateRange(dateRange),
+                                            enteredValues: {entityKeys: getEnteredKeys()},
+                                        };
+
+                                        console.log(params);
+
+                                        /////////////////////////
+                                        callApi('getAnalytics', params).then((res) => {
+                                            if (!res) return;
+                                            const resData = res['data'];
+
+                                            doc['analyticsData'][selectValue[0]] =
+                                                resData['analyticsData'][selectValue[0]];
+
+                                            setChangedDoc(doc);
+                                            setCalculatingFlag(false);
+                                            console.log(doc);
+                                        });
+
+                                        setPagesCurrent(1);
+                                        /////////////////////////
+
+                                        setEnteredValuesModalOpen(false);
+                                    }}
+                                >
+                                    Рассчитать
+                                </Button>
+                            </div>
+                        </Card>
+                    </Modal>
+                    <div style={{minWidth: 8}} />
                 </div>
                 <div
                     style={{
@@ -471,7 +703,7 @@ export const AnalyticsPage = () => {
                             </div>
                         }
                     >
-                        <Button size="l" view="action">
+                        <Button size="l" view="action" style={{marginBottom: 8}}>
                             Столбцы
                         </Button>
                     </Popover>
@@ -490,10 +722,11 @@ export const AnalyticsPage = () => {
                     alignItems: 'center',
                 }}
             >
-                <div
+                <Card
                     style={{
-                        width: '100%',
+                        maxWidth: '100%',
                         maxHeight: '80vh',
+                        boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
                         overflow: 'auto',
                     }}
                 >
@@ -505,7 +738,7 @@ export const AnalyticsPage = () => {
                         filterData={filterTableData}
                         footerData={[filteredSummary]}
                     />
-                </div>
+                </Card>
                 <div style={{height: 8}} />
                 <Pagination
                     showInput
