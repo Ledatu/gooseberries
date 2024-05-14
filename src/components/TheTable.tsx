@@ -19,6 +19,12 @@ interface TheTableProps {
     onRowClick?: (row: any, index: number, event: React.MouseEvent<HTMLTableRowElement>) => void;
 }
 
+export const defaultRender = ({value}: {value?: any}, valueType = 'number') => {
+    return typeof value === 'number' && valueType != 'text'
+        ? new Intl.NumberFormat('ru-RU').format(value)
+        : value;
+};
+
 export default function TheTable({
     columnData,
     data,
@@ -53,13 +59,7 @@ export default function TheTable({
                     viewportSize,
                     additionalNodes,
                 }),
-                render: render
-                    ? (args) => render(args)
-                    : ({value}) => {
-                          return typeof value === 'number' && valueType != 'text'
-                              ? new Intl.NumberFormat('ru-RU').format(value)
-                              : value;
-                      },
+                render: render ? (args) => render(args) : (args) => defaultRender(args, valueType),
             });
         }
 

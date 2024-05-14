@@ -20,14 +20,16 @@ import block from 'bem-cn-lite';
 
 const b = block('app');
 
-import {ChevronDown, Key} from '@gravity-ui/icons';
+import {ChevronDown, Key, Calculator, ChartAreaStacked} from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
-import TheTable, {compare} from 'src/components/TheTable';
+import TheTable, {compare, defaultRender} from 'src/components/TheTable';
 import Userfront from '@userfront/toolkit';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
 import {getNormalDateRange, getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
+import ChartKit from '@gravity-ui/chartkit';
+import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -59,7 +61,83 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
 export const AnalyticsPage = () => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
 
-    const columnTempState = ['entity', 'date', 'sum_orders', 'sum', 'drr'];
+    const [graphModalOpen, setGraphModalOpen] = useState(false);
+    const [graphModalData, setGraphModalData] = useState([] as any[]);
+    const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
+    const [graphModalTitle, setGraphModalTitle] = useState('');
+    const renderWithGraph = ({value, row}, key, title) => {
+        if (value === undefined) return undefined;
+        if (!row.isSummary) return defaultRender({value});
+
+        const {graphData} = row;
+
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                }}
+            >
+                {defaultRender({value})}
+                <div style={{minWidth: 8}} />
+                <Button
+                    disabled={!graphData}
+                    size="xs"
+                    onClick={() => {
+                        setGraphModalData(graphData[key]);
+                        setGraphModalTimeline(graphData['timeline']);
+                        setGraphModalTitle(title);
+                        setGraphModalOpen(true);
+                    }}
+                >
+                    <Icon data={ChartAreaStacked} />
+                </Button>
+            </div>
+        );
+    };
+
+    const columnDataObj = {
+        entity: {
+            valueType: 'text',
+            placeholder: 'Сущность',
+            render: ({value, row}) => {
+                if (value === undefined || row.isBlank) return undefined;
+                return renderFilterByClickButton({value}, 'entity');
+            },
+        },
+        date: {
+            valueType: 'text',
+            placeholder: 'Дата',
+            render: ({value, row}) => {
+                if (row.isBlank) return undefined;
+                if (value === undefined) return 'Итого';
+                return new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
+            },
+        },
+        sum_orders: {
+            placeholder: 'Заказов, ₽',
+            render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, ₽'),
+        },
+        sum_sales: {
+            placeholder: 'Продаж, ₽',
+            render: (args) => renderWithGraph(args, 'sum_sales', 'Продаж, ₽'),
+        },
+        sum: {
+            placeholder: 'Расход, ₽',
+            render: (args) => renderWithGraph(args, 'sum', 'Расход, ₽'),
+        },
+        drr_orders: {
+            placeholder: 'ДРР к заказам, %',
+            render: renderAsPercent,
+        },
+        drr_sales: {
+            placeholder: 'ДРР к продажам, %',
+            render: renderAsPercent,
+        },
+    };
+
+    const columnTempState = Object.keys(columnDataObj);
 
     const apiPageColumnsInitial =
         apiPageColumnsVal !== 'undefined' &&
@@ -126,35 +204,6 @@ export const AnalyticsPage = () => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
-    const columnDataObj = {
-        entity: {
-            valueType: 'text',
-            placeholder: 'Сущность',
-            render: ({value, row}) => {
-                if (value === undefined || row.isBlank) return undefined;
-                return renderFilterByClickButton({value}, 'entity');
-            },
-        },
-        date: {
-            valueType: 'text',
-            placeholder: 'Дата',
-            render: ({value, row}) => {
-                if (row.isBlank) return undefined;
-                if (value === undefined) return 'Итого';
-                return new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
-            },
-        },
-        sum_orders: {
-            placeholder: 'Заказов, ₽',
-        },
-        sum: {
-            placeholder: 'Расход, ₽',
-        },
-        drr: {
-            placeholder: 'ДРР, %',
-            render: renderAsPercent,
-        },
-    };
     const columnData = (() => {
         const temp = [] as any[];
         for (const key of apiPageColumns) {
@@ -224,11 +273,17 @@ export const AnalyticsPage = () => {
                 tempTypeRow['sales'] = dateStats['sales'];
                 tempTypeRow['sum_sales'] = dateStats['sum_sales'];
                 tempTypeRow['sum'] = dateStats['sum'];
-                tempTypeRow['drr'] = getRoundValue(
+                tempTypeRow['drr_orders'] = getRoundValue(
                     tempTypeRow['sum'],
                     tempTypeRow['sum_orders'],
                     true,
-                    1,
+                    tempTypeRow['sum'] ? 1 : 0,
+                );
+                tempTypeRow['drr_sales'] = getRoundValue(
+                    tempTypeRow['sum'],
+                    tempTypeRow['sum_sales'],
+                    true,
+                    tempTypeRow['sum'] ? 1 : 0,
                 );
 
                 let addFlag = true;
@@ -251,6 +306,16 @@ export const AnalyticsPage = () => {
         const summaries = {
             filteredSummaryTemp: {orders: 0, sum_orders: 0, sales: 0, sum_sales: 0, sum: 0},
         };
+
+        const summaryAdd = (row, key) => {
+            const {entity} = row;
+
+            const val = row[key];
+            summaries[entity][key] += val;
+            if (!summaries[entity]['graphData'][key]) summaries[entity]['graphData'][key] = [];
+            summaries[entity]['graphData'][key].push(val);
+        };
+
         for (const row of temp) {
             const {entity} = row;
             if (!summaries[entity])
@@ -260,47 +325,52 @@ export const AnalyticsPage = () => {
                     sales: 0,
                     sum_sales: 0,
                     sum: 0,
+                    graphData: {
+                        timeline: [],
+                    },
                 };
 
             summaries[entity]['entity'] = entity;
 
             summaries[entity]['isSummary'] = true;
-            summaries[entity]['orders'] += row['orders'];
-            summaries[entity]['sum_orders'] += row['sum_orders'];
-            summaries[entity]['sales'] += row['sales'];
-            summaries[entity]['sum_sales'] += row['sum_sales'];
-            summaries[entity]['sum'] += row['sum'];
-            summaries[entity]['drr'] = getRoundValue(
+            summaryAdd(row, 'orders');
+            summaryAdd(row, 'sum_orders');
+            summaryAdd(row, 'sales');
+            summaryAdd(row, 'sum_sales');
+            summaryAdd(row, 'sum');
+            const time = new Date(row['date']);
+            time.setHours(0);
+            summaries[entity]['graphData']['timeline'].push(time.getTime());
+
+            summaries[entity]['drr_orders'] = getRoundValue(
                 summaries[entity]['sum'],
                 summaries[entity]['sum_orders'],
                 true,
-                1,
+                summaries[entity]['sum'] ? 1 : 0,
             );
-
-            summaries[entity]['isSummary'] = true;
-            summaries[entity]['orders'] += row['orders'];
-            summaries[entity]['sum_orders'] += row['sum_orders'];
-            summaries[entity]['sales'] += row['sales'];
-            summaries[entity]['sum_sales'] += row['sum_sales'];
-            summaries[entity]['sum'] += row['sum'];
-            summaries[entity]['drr'] = getRoundValue(
+            summaries[entity]['drr_sales'] = getRoundValue(
                 summaries[entity]['sum'],
-                summaries[entity]['sum_orders'],
+                summaries[entity]['sum_sales'],
                 true,
-                1,
+                summaries[entity]['sum'] ? 1 : 0,
             );
 
-            summaries['filteredSummaryTemp']['isSummary'] = true;
             summaries['filteredSummaryTemp']['orders'] += row['orders'];
             summaries['filteredSummaryTemp']['sum_orders'] += row['sum_orders'];
             summaries['filteredSummaryTemp']['sales'] += row['sales'];
             summaries['filteredSummaryTemp']['sum_sales'] += row['sum_sales'];
             summaries['filteredSummaryTemp']['sum'] += row['sum'];
-            summaries['filteredSummaryTemp']['drr'] = getRoundValue(
+            summaries['filteredSummaryTemp']['drr_orders'] = getRoundValue(
                 summaries['filteredSummaryTemp']['sum'],
                 summaries['filteredSummaryTemp']['sum_orders'],
                 true,
-                1,
+                summaries['filteredSummaryTemp']['sum'] ? 1 : 0,
+            );
+            summaries['filteredSummaryTemp']['drr_sales'] = getRoundValue(
+                summaries['filteredSummaryTemp']['sum'],
+                summaries['filteredSummaryTemp']['sum_sales'],
+                true,
+                summaries['filteredSummaryTemp']['sum'] ? 1 : 0,
             );
         }
 
@@ -428,8 +498,73 @@ export const AnalyticsPage = () => {
         return arr;
     }
 
+    const genYagrData = () => {
+        return {
+            data: {
+                timeline: graphModalTimeline,
+                graphs: [
+                    {
+                        name: graphModalTitle,
+                        data: graphModalData,
+                        id: '1',
+                        color: '#9a63d1',
+                        scale: 'y',
+                    },
+                ],
+            },
+
+            libraryConfig: {
+                chart: {
+                    series: {
+                        type: 'line',
+                        interpolation: 'smooth',
+                    },
+                },
+                axes: {
+                    y: {
+                        label: graphModalTitle,
+                        precision: 'auto',
+                        show: true,
+                    },
+                    x: {
+                        show: true,
+                    },
+                },
+                tooltip: {
+                    precision: 0,
+                },
+                title: {
+                    text: 'График по дням',
+                },
+            },
+        } as YagrWidgetData;
+    };
+
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
+            <Modal
+                open={graphModalOpen}
+                onClose={() => {
+                    setGraphModalOpen(false);
+                    setGraphModalData([]);
+                    setGraphModalTimeline([]);
+                    setGraphModalTitle('');
+                }}
+            >
+                <Card
+                    view="outlined"
+                    theme="warning"
+                    style={{
+                        height: '30em',
+                        width: '60em',
+                        overflow: 'auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                >
+                    <ChartKit type="yagr" data={genYagrData()} />
+                </Card>
+            </Modal>
             <div
                 style={{
                     display: 'flex',
@@ -522,7 +657,7 @@ export const AnalyticsPage = () => {
                             setEnteredKeysCheck({brand: false, object: false, art: false});
                         }}
                     >
-                        {/* <Icon data={Calculator} /> */}
+                        <Icon data={Calculator} />
                         <Text variant="subheader-1">Рассчитать</Text>
                     </Button>
                     <motion.div
@@ -704,7 +839,7 @@ export const AnalyticsPage = () => {
                         }
                     >
                         <Button size="l" view="action" style={{marginBottom: 8}}>
-                            Столбцы
+                            <Text variant="subheader-1">Столбцы</Text>
                         </Button>
                     </Popover>
                     <div style={{minWidth: 8}} />
