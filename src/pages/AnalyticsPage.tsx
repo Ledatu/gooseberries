@@ -67,9 +67,14 @@ export const AnalyticsPage = () => {
     const [graphModalData, setGraphModalData] = useState([] as any[]);
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
-    const renderWithGraph = ({value, row}, key, title) => {
+    const renderWithGraph = (
+        {value, row},
+        key,
+        title,
+        defaultRenderFunction = defaultRender as any,
+    ) => {
         if (value === undefined) return undefined;
-        if (!row.isSummary) return defaultRender({value});
+        if (!row.isSummary) return defaultRenderFunction({value});
 
         const {graphData} = row;
 
@@ -81,7 +86,7 @@ export const AnalyticsPage = () => {
                     justifyContent: 'space-between',
                 }}
             >
-                {defaultRender({value})}
+                {defaultRenderFunction({value})}
                 <div style={{minWidth: 8}} />
                 <Button
                     disabled={!graphData}
@@ -140,11 +145,13 @@ export const AnalyticsPage = () => {
         },
         drr_orders: {
             placeholder: 'ДРР к заказам, %',
-            render: renderAsPercent,
+            render: (args) =>
+                renderWithGraph(args, 'drr_orders', 'ДРР к заказам, %', renderAsPercent),
         },
         drr_sales: {
             placeholder: 'ДРР к продажам, %',
-            render: renderAsPercent,
+            render: (args) =>
+                renderWithGraph(args, 'drr_sales', 'ДРР к продажам, %', renderAsPercent),
         },
     };
 
@@ -318,14 +325,18 @@ export const AnalyticsPage = () => {
             filteredSummaryTemp: {orders: 0, sum_orders: 0, sales: 0, sum_sales: 0, sum: 0},
         };
 
-        const summaryAdd = (row, key) => {
+        const summaryAdd = (row, key, value) => {
             const {entity} = row;
 
-            const val = row[key];
+            const val = value ?? row[key];
             summaries[entity][key] += val;
             if (!summaries[entity]['graphData'][key]) summaries[entity]['graphData'][key] = [];
             summaries[entity]['graphData'][key].push(val);
         };
+
+        temp.sort((rowA, rowB) => {
+            return new Date(rowA.date).getTime() - new Date(rowB.date).getTime();
+        });
 
         for (const row of temp) {
             const {entity} = row;
@@ -344,14 +355,27 @@ export const AnalyticsPage = () => {
             summaries[entity]['entity'] = entity;
 
             summaries[entity]['isSummary'] = true;
-            summaryAdd(row, 'orders');
-            summaryAdd(row, 'sum_orders');
-            summaryAdd(row, 'sales');
-            summaryAdd(row, 'sum_sales');
-            summaryAdd(row, 'sum');
+            summaryAdd(row, 'orders', undefined);
+            summaryAdd(row, 'sum_orders', undefined);
+            summaryAdd(row, 'sales', undefined);
+            summaryAdd(row, 'sum_sales', undefined);
+            summaryAdd(row, 'sum', undefined);
+
+            summaryAdd(
+                row,
+                'drr_orders',
+                getRoundValue(row['sum'], row['sum_orders'], true, row['sum'] ? 1 : 0),
+            );
+            summaryAdd(
+                row,
+                'drr_sales',
+                getRoundValue(row['sum'], row['sum_sales'], true, row['sum'] ? 1 : 0),
+            );
+
             const time = new Date(row['date']);
             time.setHours(0);
             summaries[entity]['graphData']['timeline'].push(time.getTime());
+            console.log(time, summaries[entity]['graphData']['timeline']);
 
             summaries[entity]['drr_orders'] = getRoundValue(
                 summaries[entity]['sum'],
