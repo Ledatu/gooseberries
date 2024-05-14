@@ -107,6 +107,8 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             campaignName:
                 Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифов М.С.'
+                    : Userfront.user.userUuid === '674281bf-7a48-463a-825d-a5c4163b4819'
+                    ? 'ИП Артем'
                     : 'ИП Валерий',
         })
             .then((response) => setDocument(response ? response['data'] : undefined))
@@ -4796,6 +4798,13 @@ export const MassAdvertPage = () => {
                         campaignName,
                     )
                 ) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else if (Userfront.user.userUuid === '674281bf-7a48-463a-825d-a5c4163b4819') {
+                if (['ИП Артем'].includes(campaignName)) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,
