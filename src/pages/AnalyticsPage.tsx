@@ -84,6 +84,7 @@ export const AnalyticsPage = () => {
                 <Button
                     disabled={!graphData}
                     size="xs"
+                    view="outlined"
                     onClick={() => {
                         setGraphModalData(graphData[key]);
                         setGraphModalTimeline(graphData['timeline']);
@@ -91,7 +92,7 @@ export const AnalyticsPage = () => {
                         setGraphModalOpen(true);
                     }}
                 >
-                    <Icon data={ChartAreaStacked} />
+                    <Icon data={ChartAreaStacked} size={13} />
                 </Button>
             </div>
         );
