@@ -240,6 +240,10 @@ export const PricesPage = () => {
             ),
         },
         {
+            name: 'obor',
+            placeholder: 'Оборачиваемомть, дней.',
+        },
+        {
             name: 'stock',
             placeholder: 'Остаток, шт.',
         },
@@ -391,6 +395,7 @@ export const PricesPage = () => {
                 roi: 0,
                 primeCost: undefined,
                 ad: 0,
+                obor: 0,
                 comissionSum: 0,
                 deliverySum: 0,
                 storageCostForArt: 0,
@@ -428,6 +433,8 @@ export const PricesPage = () => {
             artInfo.cpo = Math.round(artData['cpo']);
             artInfo.buyoutsPercent = Math.round(artData['buyoutsPercent']);
             artInfo.allExpences = Math.round(artData['allExpences']);
+
+            artInfo.obor = Math.round(artData['obor']);
 
             temp[art] = artInfo;
         }
