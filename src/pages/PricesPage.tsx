@@ -240,6 +240,10 @@ export const PricesPage = () => {
             ),
         },
         {
+            name: 'stock',
+            placeholder: 'Остаток, шт.',
+        },
+        {
             name: 'profit',
             placeholder: 'Профит, ₽',
             render: ({value, row}) => {
