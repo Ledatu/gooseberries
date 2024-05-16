@@ -12,6 +12,7 @@ import {
     Card,
     Modal,
     Checkbox,
+    TextInput,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -20,16 +21,31 @@ import block from 'bem-cn-lite';
 
 const b = block('app');
 
-import {ChevronDown, Key, Calculator, ChartAreaStacked} from '@gravity-ui/icons';
+import {
+    ChevronDown,
+    Key,
+    Calculator,
+    ChartAreaStacked,
+    TrashBin,
+    FileText,
+    CloudArrowUpIn,
+} from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare, defaultRender} from 'src/components/TheTable';
 import Userfront from '@userfront/toolkit';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
-import {getNormalDateRange, getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
+import {
+    daysInMonth,
+    getMonthName,
+    getNormalDateRange,
+    getRoundValue,
+    renderAsPercent,
+} from 'src/utilities/getRoundValue';
 import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
+import {generateModalButtonWithActions} from './MassAdvertPage';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -39,6 +55,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
 
         if (mode) {
             doc['analyticsData'][selectValue] = docum['analyticsData'][selectValue];
+            doc['plansData'][selectValue] = docum['plansData'][selectValue];
         }
         setDocument(docum);
     }
@@ -63,6 +80,14 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
 export const AnalyticsPage = () => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
 
+    const [selectedButton, setSelectedButton] = useState('');
+
+    const [planModalOpen, setPlanModalOpen] = useState(false);
+    const [planModalOpenFromEntity, setPlanModalOpenFromEntity] = useState('');
+    const [planModalKey, setPlanModalKey] = useState('');
+    const [planModalPlanValue, setPlanModalPlanValue] = useState('');
+    const [planModalPlanValueValid, setPlanModalPlanValueValid] = useState(false);
+
     const [graphModalOpen, setGraphModalOpen] = useState(false);
     const [graphModalData, setGraphModalData] = useState([] as any[]);
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
@@ -74,9 +99,89 @@ export const AnalyticsPage = () => {
         defaultRenderFunction = defaultRender as any,
     ) => {
         if (value === undefined) return undefined;
-        if (!row.isSummary) return defaultRenderFunction({value});
 
-        const {graphData} = row;
+        const {graphData, entity} = row;
+
+        const getDayPlanForDate = (date, argEntity = '') => {
+            const _entity = argEntity != '' ? argEntity : entity;
+            const monthName = getMonthName(date);
+
+            const {dayPlan} =
+                doc.plansData[selectValue[0]][_entity] &&
+                doc.plansData[selectValue[0]][_entity][key] &&
+                doc.plansData[selectValue[0]][_entity][key][monthName]
+                    ? doc.plansData[selectValue[0]][_entity][key][monthName]
+                    : {dayPlan: 0};
+
+            return dayPlan;
+        };
+
+        const planDefaultRender = (dayPlanPreCalc = 0) => {
+            const dayPlan = dayPlanPreCalc ? dayPlanPreCalc : getDayPlanForDate(new Date(row.date));
+
+            const planPercent = getRoundValue(value, dayPlan, true);
+            return (
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    {defaultRenderFunction({value})}
+                    <div style={{minWidth: 4}} />
+                    {dayPlan ? (
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            /
+                            <div style={{minWidth: 4}} />
+                            <Text color="secondary">{defaultRenderFunction({value: dayPlan})}</Text>
+                            <div style={{minWidth: 4}} />
+                            /
+                            <div style={{minWidth: 4}} />
+                            <Text
+                                color={
+                                    planPercent < 80
+                                        ? 'danger'
+                                        : planPercent < 100
+                                        ? 'warning'
+                                        : 'positive'
+                                }
+                            >
+                                {renderAsPercent({value: planPercent})}
+                            </Text>
+                        </div>
+                    ) : (
+                        <></>
+                    )}
+                </div>
+            );
+        };
+
+        if (!row.isSummary) return planDefaultRender();
+
+        const calcSumPlanForDisplayedDays = (argGraphData = [] as any[], argEntity = '') => {
+            const _graphData =
+                argGraphData && argGraphData['timeline'] && argGraphData['timeline'].length
+                    ? argGraphData
+                    : graphData;
+            // console.log(_graphData, argGraphData, entity);
+
+            const _entity = argEntity != '' ? argEntity : entity;
+            let res = 0;
+            for (const time of _graphData['timeline']) {
+                const date = new Date(time);
+                const dayPlan = getDayPlanForDate(date, _entity);
+                res += dayPlan ?? 0;
+            }
+            return res;
+        };
+
+        const calcSumPlanForDisplayedDaysMainSummary = () => {
+            let res = 0;
+            for (const tableRow of filteredData) {
+                const {graphData, isSummary, entity} = tableRow;
+                if (!isSummary || !graphData || !graphData['timeline']) continue;
+
+                res += calcSumPlanForDisplayedDays(graphData, entity) ?? 0;
+            }
+            return res;
+        };
+
+        if (row.isMainSummary) return planDefaultRender(calcSumPlanForDisplayedDaysMainSummary());
 
         return (
             <div
@@ -86,21 +191,46 @@ export const AnalyticsPage = () => {
                     justifyContent: 'space-between',
                 }}
             >
-                {defaultRenderFunction({value})}
+                {planDefaultRender(calcSumPlanForDisplayedDays())}
                 <div style={{minWidth: 8}} />
-                <Button
-                    disabled={!graphData}
-                    size="xs"
-                    view="outlined"
-                    onClick={() => {
-                        setGraphModalData(graphData[key]);
-                        setGraphModalTimeline(graphData['timeline']);
-                        setGraphModalTitle(title);
-                        setGraphModalOpen(true);
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
                     }}
                 >
-                    <Icon data={ChartAreaStacked} size={13} />
-                </Button>
+                    <Button
+                        disabled={!graphData}
+                        size="xs"
+                        view="outlined"
+                        onClick={() => {
+                            setGraphModalData(graphData[key]);
+                            setGraphModalTimeline(graphData['timeline']);
+                            setGraphModalTitle(title);
+                            setGraphModalOpen(true);
+                        }}
+                    >
+                        <Icon data={ChartAreaStacked} size={13} />
+                    </Button>
+                    <div style={{minWidth: 8}} />
+                    <Button
+                        disabled={!graphData}
+                        size="xs"
+                        view="outlined"
+                        onClick={() => {
+                            setGraphModalTitle(title);
+                            setPlanModalOpen(true);
+                            setPlanModalPlanValue('');
+                            setSelectedButton('');
+                            setPlanModalKey(key);
+                            setPlanModalOpenFromEntity(entity);
+                            setPlanModalPlanValueValid(false);
+                        }}
+                    >
+                        <Icon data={FileText} size={13} />
+                    </Button>
+                </div>
             </div>
         );
     };
@@ -147,11 +277,13 @@ export const AnalyticsPage = () => {
             placeholder: 'ДРР к заказам, %',
             render: (args) =>
                 renderWithGraph(args, 'drr_orders', 'ДРР к заказам, %', renderAsPercent),
+            planType: 'avg',
         },
         drr_sales: {
             placeholder: 'ДРР к продажам, %',
             render: (args) =>
                 renderWithGraph(args, 'drr_sales', 'ДРР к продажам, %', renderAsPercent),
+            planType: 'avg',
         },
     };
 
@@ -390,6 +522,8 @@ export const AnalyticsPage = () => {
                 summaries[entity]['sum'] ? 1 : 0,
             );
 
+            summaries['filteredSummaryTemp']['isSummary'] = true;
+            summaries['filteredSummaryTemp']['isMainSummary'] = true;
             summaries['filteredSummaryTemp']['orders'] += row['orders'];
             summaries['filteredSummaryTemp']['sum_orders'] += row['sum_orders'];
             summaries['filteredSummaryTemp']['sales'] += row['sales'];
@@ -582,6 +716,11 @@ export const AnalyticsPage = () => {
         } as YagrWidgetData;
     };
 
+    const getPlanDay = (key = '') => {
+        const isAvg = key != '' ? columnDataObj[key].planType == 'avg' : false;
+        return getRoundValue(Number(planModalPlanValue), isAvg ? 1 : daysInMonth(new Date()));
+    };
+
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
             <Modal
@@ -605,6 +744,163 @@ export const AnalyticsPage = () => {
                     }}
                 >
                     <ChartKit type="yagr" data={genYagrData()} />
+                </Card>
+            </Modal>
+            <Modal
+                open={planModalOpen}
+                onClose={() => {
+                    setPlanModalOpen(false);
+                    setGraphModalTitle('');
+                }}
+            >
+                <Card
+                    view="outlined"
+                    // theme="warning"
+                    style={{
+                        padding: 20,
+                        width: '40em',
+                        overflow: 'auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Text
+                        style={{
+                            margin: '0px 32px',
+                        }}
+                        variant="display-1"
+                    >
+                        {`Установить план ${graphModalTitle} для ${planModalOpenFromEntity}`}
+                    </Text>
+                    <div style={{minHeight: 8}} />
+                    <TextInput
+                        hasClear
+                        size="l"
+                        value={planModalPlanValue}
+                        validationState={planModalPlanValueValid ? undefined : 'invalid'}
+                        onUpdate={(val) => {
+                            const temp = Number(val != '' ? val : 'ahui');
+                            setPlanModalPlanValueValid(!isNaN(temp) && isFinite(temp));
+                            setPlanModalPlanValue(val);
+                        }}
+                        note={
+                            planModalPlanValueValid && planModalPlanValue != '' ? (
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                    <Text variant="subheader-1">
+                                        {`Ежедневный план для ${graphModalTitle} -> `}
+                                    </Text>
+                                    <div style={{minWidth: 4}} />
+                                    <Text variant="subheader-1" color="brand">
+                                        {new Intl.NumberFormat('ru-RU').format(
+                                            getPlanDay(planModalKey),
+                                        )}
+                                    </Text>
+                                </div>
+                            ) : (
+                                ''
+                            )
+                        }
+                        style={{width: 'calc(100% - 32px)'}}
+                        placeholder={`Введите план "${graphModalTitle}" на текущий месяц`}
+                    />
+                    <div style={{minHeight: 8}} />
+                    {generateModalButtonWithActions(
+                        {
+                            disabled: !planModalPlanValueValid,
+                            placeholder: 'Установить план',
+                            icon: CloudArrowUpIn,
+                            view: 'outlined-success',
+                            onClick: () => {
+                                const monthName = getMonthName(new Date());
+                                const dayPlan = getPlanDay(planModalKey);
+                                const params = {
+                                    uid: getUid(),
+                                    campaignName: selectValue[0],
+                                    data: {
+                                        plan: {
+                                            monthName,
+                                            dayPlan,
+                                        },
+                                        mode: 'Установить',
+                                        entity: planModalOpenFromEntity,
+                                        planKey: planModalKey,
+                                    },
+                                };
+
+                                if (!doc.plansData[selectValue[0]][planModalOpenFromEntity])
+                                    doc.plansData[selectValue[0]][planModalOpenFromEntity] = {};
+                                if (
+                                    !doc.plansData[selectValue[0]][planModalOpenFromEntity][
+                                        planModalKey
+                                    ]
+                                )
+                                    doc.plansData[selectValue[0]][planModalOpenFromEntity][
+                                        planModalKey
+                                    ] = {};
+                                doc.plansData[selectValue[0]][planModalOpenFromEntity][
+                                    planModalKey
+                                ][monthName] = {dayPlan};
+
+                                console.log(params);
+
+                                //////////////////////////////////
+                                callApi('setPlanForKey', params);
+                                setChangedDoc(doc);
+                                //////////////////////////////////
+
+                                setPlanModalOpen(false);
+                            },
+                        },
+                        selectedButton,
+                        setSelectedButton,
+                    )}
+                    {generateModalButtonWithActions(
+                        {
+                            placeholder: 'Удалить план',
+                            icon: TrashBin,
+                            view: 'outlined-danger',
+                            onClick: () => {
+                                const monthName = getMonthName(new Date());
+                                const dayPlan = getPlanDay();
+                                const params = {
+                                    uid: getUid(),
+                                    campaignName: selectValue[0],
+                                    data: {
+                                        plan: {
+                                            monthName,
+                                            dayPlan,
+                                        },
+                                        mode: 'Удалить',
+                                        entity: planModalOpenFromEntity,
+                                        planKey: planModalKey,
+                                    },
+                                };
+
+                                if (
+                                    doc.plansData[selectValue[0]][planModalOpenFromEntity] &&
+                                    doc.plansData[selectValue[0]][planModalOpenFromEntity][
+                                        planModalKey
+                                    ]
+                                ) {
+                                    delete doc.plansData[selectValue[0]][planModalOpenFromEntity][
+                                        planModalKey
+                                    ][monthName];
+                                }
+
+                                console.log(params);
+
+                                //////////////////////////////////
+                                callApi('setPlanForKey', params);
+                                setChangedDoc(doc);
+                                //////////////////////////////////
+
+                                setPlanModalOpen(false);
+                            },
+                        },
+                        selectedButton,
+                        setSelectedButton,
+                    )}
                 </Card>
             </Modal>
             <div
@@ -663,6 +959,8 @@ export const AnalyticsPage = () => {
                                     const resData = res['data'];
                                     doc['analyticsData'][nextValue[0]] =
                                         resData['analyticsData'][nextValue[0]];
+                                    doc['plansData'][nextValue[0]] =
+                                        resData['plansData'][nextValue[0]];
 
                                     setChangedDoc(doc);
                                     setSelectValue(nextValue);

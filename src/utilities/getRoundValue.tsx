@@ -39,3 +39,14 @@ export const renderAsPercent = ({value}) => {
     if (value === undefined) return undefined;
     return <Text>{value}%</Text>;
 };
+
+export const daysInMonth = function (date) {
+    const d = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    return d.getDate();
+};
+
+export const getMonthName = (date) => {
+    return date.toLocaleString('ru-RU', {
+        month: 'short',
+    });
+};
