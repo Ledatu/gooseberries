@@ -63,8 +63,6 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
             campaignName:
                 Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифова Р. И.'
-                    : Userfront.user.userUuid === '674281bf-7a48-463a-825d-a5c4163b4819'
-                    ? 'ИП Артем'
                     : 'ИП Валерий',
         })
             .then((response) => setDocument(response ? response['data'] : undefined))
@@ -241,7 +239,7 @@ export const PricesPage = () => {
         },
         {
             name: 'obor',
-            placeholder: 'Оборачиваемомть, дней.',
+            placeholder: 'Оборачиваемость, дней.',
         },
         {
             name: 'stock',
@@ -537,14 +535,14 @@ export const PricesPage = () => {
                         content: campaignName,
                     });
                 }
-            } else if (Userfront.user.userUuid === '674281bf-7a48-463a-825d-a5c4163b4819') {
-                if (['ИП Артем'].includes(campaignName)) {
+            } else if (Userfront.user.userUuid === '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8') {
+                if (['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана'].includes(campaignName)) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,
                     });
                 }
-            } else if (Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594') {
+            } else if (Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594') {
                 if (
                     [
                         'ИП Иосифова Р. И.',
