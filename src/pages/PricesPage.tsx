@@ -314,6 +314,8 @@ export const PricesPage = () => {
         {value: 'Цена после скидки', content: 'Цена после скидки'},
         {value: 'Цена с СПП', content: 'Цена с СПП'},
         {value: 'Наценка к себестоимости', content: 'Наценка к себестоимости'},
+        {value: 'Рентабельность', content: 'Рентабельность'},
+        {value: 'Профит', content: 'Профит'},
     ];
     const [selectValueEntered, setSelectValueEntered] = React.useState<string[]>([
         'Цена после скидки',
@@ -761,6 +763,10 @@ export const PricesPage = () => {
                                         placeholder={
                                             selectValueEntered[0] == 'Наценка к себестоимости'
                                                 ? 'Введите наценку, %'
+                                                : selectValueEntered[0] == 'Рентабельность'
+                                                ? 'Введите рентабельность, %'
+                                                : selectValueEntered[0] == 'Профит'
+                                                ? 'Введите профит, ₽'
                                                 : 'Введите цену, ₽'
                                         }
                                         value={enteredValue}
@@ -818,6 +824,8 @@ export const PricesPage = () => {
                                                 'Цена после скидки': 'rozPrice',
                                                 'Цена с СПП': 'sppPrice',
                                                 'Наценка к себестоимости': 'primeCostMarkup',
+                                                Рентабельность: 'rentabelnost',
+                                                Профит: 'profit',
                                             };
 
                                             const key = keys[selectValueEntered[0]];
