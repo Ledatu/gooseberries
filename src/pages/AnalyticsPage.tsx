@@ -507,7 +507,7 @@ export const AnalyticsPage = () => {
             const time = new Date(row['date']);
             time.setHours(0);
             summaries[entity]['graphData']['timeline'].push(time.getTime());
-            console.log(time, summaries[entity]['graphData']['timeline']);
+            // console.log(time, summaries[entity]['graphData']['timeline']);
 
             summaries[entity]['drr_orders'] = getRoundValue(
                 summaries[entity]['sum'],
