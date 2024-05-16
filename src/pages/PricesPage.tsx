@@ -824,7 +824,7 @@ export const PricesPage = () => {
                                                 'Цена после скидки': 'rozPrice',
                                                 'Цена с СПП': 'sppPrice',
                                                 'Наценка к себестоимости': 'primeCostMarkup',
-                                                Рентабельность: 'rentabelnost',
+                                                Рентабельность: 'rentabelnost   ',
                                                 Профит: 'profit',
                                             };
 
