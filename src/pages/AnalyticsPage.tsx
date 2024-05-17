@@ -239,6 +239,23 @@ export const AnalyticsPage = () => {
             placeholder: 'Сущность',
             render: ({value, row}) => {
                 if (value === undefined || row.isBlank) return undefined;
+
+                let titleWrapped = value;
+                if (value.length > 30) {
+                    let wrapped = false;
+                    titleWrapped = '';
+                    const titleArr = value.split(' ');
+                    for (const word of titleArr) {
+                        titleWrapped += word;
+                        if (titleWrapped.length > 25 && !wrapped) {
+                            titleWrapped += '\n';
+                            wrapped = true;
+                        } else {
+                            titleWrapped += ' ';
+                        }
+                    }
+                }
+
                 return renderFilterByClickButton({value}, 'entity');
             },
         },
@@ -334,7 +351,7 @@ export const AnalyticsPage = () => {
                     filterByClick(value, key);
                 }}
             >
-                {value}
+                <Text style={{whiteSpace: 'pre-wrap', height: 'fit-content'}}>{value}</Text>
             </Button>
         );
     };
