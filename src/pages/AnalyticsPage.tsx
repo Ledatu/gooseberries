@@ -345,6 +345,7 @@ export const AnalyticsPage = () => {
     const renderFilterByClickButton = ({value}, key) => {
         return (
             <Button
+                style={{height: 'fit-content'}}
                 size="xs"
                 view="flat"
                 onClick={() => {
