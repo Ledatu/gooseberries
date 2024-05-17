@@ -90,6 +90,83 @@ export const AnalyticsPage = () => {
     const [graphModalData, setGraphModalData] = useState([] as any[]);
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
+
+    const columnDataObj = {
+        entity: {
+            valueType: 'text',
+            placeholder: 'Сущность',
+            render: ({value, row}) => {
+                if (value === undefined || row.isBlank) return undefined;
+
+                let titleWrapped = value;
+                if (value.length > 30) {
+                    let wrapped = false;
+                    titleWrapped = '';
+                    const titleArr = value.split(' ');
+                    for (const word of titleArr) {
+                        titleWrapped += word;
+                        if (titleWrapped.length > 25 && !wrapped) {
+                            titleWrapped += '\n';
+                            wrapped = true;
+                        } else {
+                            titleWrapped += ' ';
+                        }
+                    }
+                }
+
+                return renderFilterByClickButton({value}, 'entity');
+            },
+        },
+        date: {
+            valueType: 'text',
+            placeholder: 'Дата',
+            render: ({value, row}) => {
+                if (row.isBlank) return undefined;
+                if (value === undefined) return 'Итого';
+                return new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
+            },
+        },
+        sum: {
+            placeholder: 'Расход, ₽',
+            render: (args) => renderWithGraph(args, 'sum', 'Расход, ₽'),
+            isReverseGrad: true,
+        },
+        sum_orders: {
+            placeholder: 'Заказов, ₽',
+            render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, ₽'),
+        },
+        orders: {
+            placeholder: 'Заказов, шт.',
+            render: (args) => renderWithGraph(args, 'orders', 'Заказов, шт.'),
+        },
+        sum_sales: {
+            placeholder: 'Продаж, ₽',
+            render: (args) => renderWithGraph(args, 'sum_sales', 'Продаж, ₽'),
+        },
+        sales: {
+            placeholder: 'Продаж, шт.',
+            render: (args) => renderWithGraph(args, 'sales', 'Продаж, шт.'),
+        },
+        profit: {
+            placeholder: 'Профит, ₽.',
+            render: (args) => renderWithGraph(args, 'profit', 'Профит, ₽.'),
+        },
+        drr_orders: {
+            placeholder: 'ДРР к заказам, %',
+            render: (args) =>
+                renderWithGraph(args, 'drr_orders', 'ДРР к заказам, %', renderAsPercent),
+            planType: 'avg',
+            isReverseGrad: true,
+        },
+        drr_sales: {
+            placeholder: 'ДРР к продажам, %',
+            render: (args) =>
+                renderWithGraph(args, 'drr_sales', 'ДРР к продажам, %', renderAsPercent),
+            planType: 'avg',
+            isReverseGrad: true,
+        },
+    };
+
     const renderWithGraph = (
         {value, row},
         key,
@@ -97,6 +174,8 @@ export const AnalyticsPage = () => {
         defaultRenderFunction = defaultRender as any,
     ) => {
         if (value === undefined) return undefined;
+
+        const {isReverseGrad, planType} = columnDataObj[key];
 
         const {graphData, entity} = row;
 
@@ -118,6 +197,16 @@ export const AnalyticsPage = () => {
             const dayPlan = dayPlanPreCalc ? dayPlanPreCalc : getDayPlanForDate(new Date(row.date));
 
             const planPercent = getRoundValue(value, dayPlan, true);
+            let percentColorTemp = 'primary';
+            if (isReverseGrad) {
+                percentColorTemp =
+                    planPercent <= 100 ? 'positive' : planPercent <= 150 ? 'warning' : 'danger';
+            } else {
+                percentColorTemp =
+                    planPercent < 80 ? 'danger' : planPercent < 100 ? 'warning' : 'positive';
+            }
+            const percentColor = percentColorTemp as any;
+
             return (
                 <div style={{display: 'flex', flexDirection: 'row'}}>
                     {defaultRenderFunction({value})}
@@ -130,15 +219,7 @@ export const AnalyticsPage = () => {
                             <div style={{minWidth: 4}} />
                             /
                             <div style={{minWidth: 4}} />
-                            <Text
-                                color={
-                                    planPercent < 80
-                                        ? 'danger'
-                                        : planPercent < 100
-                                        ? 'warning'
-                                        : 'positive'
-                                }
-                            >
+                            <Text color={percentColor}>
                                 {renderAsPercent({value: planPercent})}
                             </Text>
                         </div>
@@ -165,18 +246,23 @@ export const AnalyticsPage = () => {
                 const dayPlan = getDayPlanForDate(date, _entity);
                 res += dayPlan ?? 0;
             }
-            return res;
+            const divider = planType == 'avg' ? _graphData['timeline'].length : 1;
+            return getRoundValue(res, divider);
         };
 
         const calcSumPlanForDisplayedDaysMainSummary = () => {
             let res = 0;
+            let count = 0;
             for (const tableRow of filteredData) {
                 const {graphData, isSummary, entity} = tableRow;
                 if (!isSummary || !graphData || !graphData['timeline']) continue;
 
-                res += calcSumPlanForDisplayedDays(graphData, entity) ?? 0;
+                const calculatedSum = calcSumPlanForDisplayedDays(graphData, entity) ?? 0;
+                res += calculatedSum;
+                count += calculatedSum ? 1 : 0;
             }
-            return res;
+            const divider = planType == 'avg' ? count : 1;
+            return getRoundValue(res, divider);
         };
 
         if (row.isMainSummary) return planDefaultRender(calcSumPlanForDisplayedDaysMainSummary());
@@ -232,76 +318,6 @@ export const AnalyticsPage = () => {
             </div>
         );
     };
-
-    const columnDataObj = {
-        entity: {
-            valueType: 'text',
-            placeholder: 'Сущность',
-            render: ({value, row}) => {
-                if (value === undefined || row.isBlank) return undefined;
-
-                let titleWrapped = value;
-                if (value.length > 30) {
-                    let wrapped = false;
-                    titleWrapped = '';
-                    const titleArr = value.split(' ');
-                    for (const word of titleArr) {
-                        titleWrapped += word;
-                        if (titleWrapped.length > 25 && !wrapped) {
-                            titleWrapped += '\n';
-                            wrapped = true;
-                        } else {
-                            titleWrapped += ' ';
-                        }
-                    }
-                }
-
-                return renderFilterByClickButton({value}, 'entity');
-            },
-        },
-        date: {
-            valueType: 'text',
-            placeholder: 'Дата',
-            render: ({value, row}) => {
-                if (row.isBlank) return undefined;
-                if (value === undefined) return 'Итого';
-                return new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
-            },
-        },
-        sum: {
-            placeholder: 'Расход, ₽',
-            render: (args) => renderWithGraph(args, 'sum', 'Расход, ₽'),
-        },
-        sum_orders: {
-            placeholder: 'Заказов, ₽',
-            render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, ₽'),
-        },
-        orders: {
-            placeholder: 'Заказов, шт.',
-            render: (args) => renderWithGraph(args, 'orders', 'Заказов, шт.'),
-        },
-        sum_sales: {
-            placeholder: 'Продаж, ₽',
-            render: (args) => renderWithGraph(args, 'sum_sales', 'Продаж, ₽'),
-        },
-        sales: {
-            placeholder: 'Продаж, шт.',
-            render: (args) => renderWithGraph(args, 'sales', 'Продаж, шт.'),
-        },
-        drr_orders: {
-            placeholder: 'ДРР к заказам, %',
-            render: (args) =>
-                renderWithGraph(args, 'drr_orders', 'ДРР к заказам, %', renderAsPercent),
-            planType: 'avg',
-        },
-        drr_sales: {
-            placeholder: 'ДРР к продажам, %',
-            render: (args) =>
-                renderWithGraph(args, 'drr_sales', 'ДРР к продажам, %', renderAsPercent),
-            planType: 'avg',
-        },
-    };
-
     const columnTempState = Object.keys(columnDataObj);
 
     const apiPageColumnsInitial =
@@ -439,6 +455,7 @@ export const AnalyticsPage = () => {
                 tempTypeRow['sum_orders'] = dateStats['sum_orders'];
                 tempTypeRow['sales'] = dateStats['sales'];
                 tempTypeRow['sum_sales'] = dateStats['sum_sales'];
+                tempTypeRow['profit'] = dateStats['profit'];
                 tempTypeRow['sum'] = dateStats['sum'];
                 tempTypeRow['drr_orders'] = getRoundValue(
                     tempTypeRow['sum'],
@@ -471,7 +488,14 @@ export const AnalyticsPage = () => {
         }
 
         const summaries = {
-            filteredSummaryTemp: {orders: 0, sum_orders: 0, sales: 0, sum_sales: 0, sum: 0},
+            filteredSummaryTemp: {
+                orders: 0,
+                sum_orders: 0,
+                sales: 0,
+                sum_sales: 0,
+                sum: 0,
+                profit: 0,
+            },
         };
 
         const summaryAdd = (row, key, value) => {
@@ -495,6 +519,7 @@ export const AnalyticsPage = () => {
                     sum_orders: 0,
                     sales: 0,
                     sum_sales: 0,
+                    profit: 0,
                     sum: 0,
                     graphData: {
                         timeline: [],
@@ -509,6 +534,7 @@ export const AnalyticsPage = () => {
             summaryAdd(row, 'sales', undefined);
             summaryAdd(row, 'sum_sales', undefined);
             summaryAdd(row, 'sum', undefined);
+            summaryAdd(row, 'profit', undefined);
 
             summaryAdd(
                 row,
@@ -543,6 +569,7 @@ export const AnalyticsPage = () => {
             summaries['filteredSummaryTemp']['isMainSummary'] = true;
             summaries['filteredSummaryTemp']['orders'] += row['orders'];
             summaries['filteredSummaryTemp']['sum_orders'] += row['sum_orders'];
+            summaries['filteredSummaryTemp']['profit'] += row['profit'];
             summaries['filteredSummaryTemp']['sales'] += row['sales'];
             summaries['filteredSummaryTemp']['sum_sales'] += row['sum_sales'];
             summaries['filteredSummaryTemp']['sum'] += row['sum'];
