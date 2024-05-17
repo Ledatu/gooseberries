@@ -772,7 +772,7 @@ export const PricesPage = () => {
                                         value={enteredValue}
                                         validationState={enteredValueValid ? undefined : 'invalid'}
                                         onUpdate={(val) => {
-                                            const temp = parseInt(enteredValue);
+                                            const temp = parseInt(val);
                                             setEnteredValueValid(!isNaN(temp));
                                             setEnteredValue(val);
                                         }}
@@ -798,7 +798,7 @@ export const PricesPage = () => {
                                                 : undefined
                                         }
                                         onUpdate={(val) => {
-                                            const temp = parseInt(enteredDiscountValue);
+                                            const temp = parseInt(val);
                                             setEnteredDiscountValueValid(!isNaN(temp));
                                             setEnteredDiscountValue(val);
                                         }}
