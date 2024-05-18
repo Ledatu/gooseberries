@@ -151,6 +151,11 @@ export const AnalyticsPage = () => {
             placeholder: 'Профит, ₽.',
             render: (args) => renderWithGraph(args, 'profit', 'Профит, ₽.'),
         },
+        rentabelnost: {
+            placeholder: 'Рентабельность, %',
+            render: (args) =>
+                renderWithGraph(args, 'rentabelnost', 'Рентабельность, %', renderAsPercent),
+        },
         drr_orders: {
             placeholder: 'ДРР к заказам, %',
             render: (args) =>
@@ -456,6 +461,7 @@ export const AnalyticsPage = () => {
                 tempTypeRow['sales'] = dateStats['sales'];
                 tempTypeRow['sum_sales'] = dateStats['sum_sales'];
                 tempTypeRow['profit'] = dateStats['profit'];
+                tempTypeRow['rentabelnost'] = dateStats['rentabelnost'];
                 tempTypeRow['sum'] = dateStats['sum'];
                 tempTypeRow['drr_orders'] = getRoundValue(
                     tempTypeRow['sum'],
@@ -495,6 +501,7 @@ export const AnalyticsPage = () => {
                 sum_sales: 0,
                 sum: 0,
                 profit: 0,
+                rentabelnost: 0,
             },
         };
 
@@ -520,6 +527,7 @@ export const AnalyticsPage = () => {
                     sales: 0,
                     sum_sales: 0,
                     profit: 0,
+                    rentabelnost: 0,
                     sum: 0,
                     graphData: {
                         timeline: [],
@@ -546,6 +554,7 @@ export const AnalyticsPage = () => {
                 'drr_sales',
                 getRoundValue(row['sum'], row['sum_sales'], true, row['sum'] ? 1 : 0),
             );
+            summaryAdd(row, 'rentabelnost', getRoundValue(row['profit'], row['sum_orders'], true));
 
             const time = new Date(row['date']);
             time.setHours(0);
@@ -563,6 +572,11 @@ export const AnalyticsPage = () => {
                 summaries[entity]['sum_sales'],
                 true,
                 summaries[entity]['sum'] ? 1 : 0,
+            );
+            summaries[entity]['rentabelnost'] = getRoundValue(
+                summaries[entity]['profit'],
+                summaries[entity]['sum_orders'],
+                true,
             );
 
             summaries['filteredSummaryTemp']['isSummary'] = true;
@@ -584,6 +598,11 @@ export const AnalyticsPage = () => {
                 summaries['filteredSummaryTemp']['sum_sales'],
                 true,
                 summaries['filteredSummaryTemp']['sum'] ? 1 : 0,
+            );
+            summaries['filteredSummaryTemp']['rentabelnost'] = getRoundValue(
+                summaries['filteredSummaryTemp']['profit'],
+                summaries['filteredSummaryTemp']['sum_orders'],
+                true,
             );
         }
 
