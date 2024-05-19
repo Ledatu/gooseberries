@@ -1039,6 +1039,8 @@ export const PricesPage = () => {
                                                     }
                                                 }
 
+                                                setLastCalcOldData(tempOldData);
+
                                                 for (const [nmId, nmIdData] of Object.entries(
                                                     byNmId,
                                                 )) {
