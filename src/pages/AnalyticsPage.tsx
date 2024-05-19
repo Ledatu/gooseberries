@@ -94,7 +94,7 @@ export const AnalyticsPage = () => {
     const columnDataObj = {
         entity: {
             valueType: 'text',
-            placeholder: 'Сущность',
+            placeholder: 'Объект',
             render: ({value, row}) => {
                 if (value === undefined || row.isBlank) return undefined;
 

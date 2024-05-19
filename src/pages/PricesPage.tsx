@@ -487,7 +487,7 @@ export const PricesPage = () => {
         const paginatedDataTemp = temp.slice(0, 100);
 
         for (const [key, val] of Object.entries(filteredSummaryTemp)) {
-            if (key === undefined || val === undefined) continue;
+            if (key === undefined || val === undefined || key == 'stock') continue;
             filteredSummaryTemp[key] = getRoundValue(val, temp.length);
         }
 
