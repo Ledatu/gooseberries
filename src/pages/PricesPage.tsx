@@ -1017,16 +1017,25 @@ export const PricesPage = () => {
                                                     },
                                                 };
 
+                                                const tempOldData = {...lastCalcOldData};
+
                                                 const byNmId = {};
                                                 for (let i = 0; i < filteredData.length; i++) {
-                                                    const {nmId, wbPrice, primeCost, discount} =
-                                                        filteredData[i];
+                                                    const {
+                                                        nmId,
+                                                        wbPrice,
+                                                        primeCost,
+                                                        discount,
+                                                        art,
+                                                    } = filteredData[i];
                                                     if (nmId && wbPrice && wbPrice > primeCost) {
                                                         byNmId[nmId] = {
                                                             nmID: nmId,
                                                             price: wbPrice,
                                                             discount: discount,
                                                         };
+
+                                                        delete tempOldData[art]; // delete to prevent reset to default
                                                     }
                                                 }
 
