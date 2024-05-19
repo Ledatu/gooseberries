@@ -26,12 +26,14 @@ import {
     Key,
     ArrowsRotateLeft,
     Calculator,
+    LockOpen,
+    Lock,
     CloudArrowUpIn,
     TrashBin,
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
-import TheTable, {compare} from 'src/components/TheTable';
+import TheTable, {compare, defaultRender} from 'src/components/TheTable';
 import {RangeCalendar} from '@gravity-ui/date-components';
 import Userfront from '@userfront/toolkit';
 import {
@@ -116,6 +118,30 @@ export const PricesPage = () => {
             >
                 {value}
             </Button>
+        );
+    };
+
+    const fixedPriceRender = (args, keys, defaultRenderFunctionRes) => {
+        const {row} = args;
+
+        if (row['fixPrices'] === undefined) return defaultRenderFunctionRes;
+
+        const isFixedByKey = (() => {
+            for (const key of keys) {
+                if (row['fixPrices'][key] !== undefined) return true;
+            }
+            return false;
+        })();
+        if (!isFixedByKey) return defaultRenderFunctionRes;
+
+        return (
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+                {defaultRenderFunctionRes}
+                <div style={{minWidth: 4}} />
+                <Text color="brand">
+                    <Icon data={isFixedByKey ? LockOpen : Lock} />
+                </Text>
+            </div>
         );
     };
 
@@ -214,6 +240,7 @@ export const PricesPage = () => {
                     </Text>
                 </Link>
             ),
+            render: (args) => fixedPriceRender(args, ['rozPrice'], defaultRender(args)),
         },
         {
             name: 'spp',
@@ -236,6 +263,7 @@ export const PricesPage = () => {
                     </Text>
                 </Link>
             ),
+            render: (args) => fixedPriceRender(args, ['sppPrice'], defaultRender(args)),
         },
         {
             name: 'obor',
@@ -248,20 +276,27 @@ export const PricesPage = () => {
         {
             name: 'profit',
             placeholder: 'Профит, ₽',
-            render: ({value, row}) => {
-                const {rozPrice} = row;
-                if (value === undefined) return undefined;
-                return (
-                    <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
-                        {`${value} / ${getRoundValue(value * 100, rozPrice)}%`}
-                    </Text>
-                );
-            },
+            render: (args) =>
+                fixedPriceRender(
+                    args,
+                    ['profit', 'rentabelnost'],
+                    ((args) => {
+                        const {value, row} = args;
+                        const {rozPrice} = row;
+                        if (value === undefined) return undefined;
+                        return (
+                            <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
+                                {`${value} / ${getRoundValue(value * 100, rozPrice)}%`}
+                            </Text>
+                        );
+                    })(args),
+                ),
         },
         {
             name: 'primeCost',
             placeholder: 'Себестоимость, ₽',
-            render: (args) => renderSlashPercent(args, 'rozPrice'),
+            render: (args) =>
+                fixedPriceRender(args, ['primeCostMarkup'], renderSlashPercent(args, 'rozPrice')),
         },
         {
             name: 'comissionSum',
@@ -324,6 +359,8 @@ export const PricesPage = () => {
     const [enteredValue, setEnteredValue] = useState('');
     const [enteredValueValid, setEnteredValueValid] = useState(false);
 
+    const [fixPrices, setFixPrices] = useState(false);
+
     const [changeDiscount, setChangeDiscount] = useState(false);
     const [enteredDiscountValue, setEnteredDiscountValue] = useState('');
     const [enteredDiscountValueValid, setEnteredDiscountValueValid] = useState(false);
@@ -340,12 +377,15 @@ export const PricesPage = () => {
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
+    const [lastCalcOldData, setLastCalcOldData] = useState({});
+
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
     if (dateChangeRecalc) {
         setUpdatingFlag(true);
         setDateChangeRecalc(false);
         setCurrentPricesCalculatedBasedOn('');
+        setLastCalcOldData({});
 
         callApi('getPricesMM', {
             uid: getUid(),
@@ -388,6 +428,7 @@ export const PricesPage = () => {
                 wbWalletPrice: undefined,
                 wbPrice: 0,
                 discount: undefined,
+                fixPrices: undefined,
                 spp: 0,
                 profit: 0,
                 stock: undefined,
@@ -413,6 +454,7 @@ export const PricesPage = () => {
             artInfo.title = artData['title'];
             artInfo.imtId = artData['imtId'];
             artInfo.barcode = artData['barcode'];
+            artInfo.fixPrices = artData['fixPrices'];
             artInfo.rozPrice = artData['rozPrice'];
             artInfo.sppPrice = artData['sppPrice'];
             artInfo.wbWalletPrice = artData['wbWalletPrice'];
@@ -704,6 +746,7 @@ export const PricesPage = () => {
                                 setEnteredValue('');
                                 setEnteredDiscountValue('');
                                 setSelectedButton('');
+                                setFixPrices(false);
                                 setEnteredValueValid(false);
                                 setChangeDiscount(false);
                                 setEnteredDiscountValueValid(false);
@@ -804,6 +847,14 @@ export const PricesPage = () => {
                                         }}
                                     />
                                     <div style={{minHeight: 8}} />
+                                    <Checkbox
+                                        content={'Зафиксировать цены'}
+                                        checked={fixPrices}
+                                        onUpdate={(val) => {
+                                            setFixPrices(val);
+                                        }}
+                                    />
+                                    <div style={{minHeight: 8}} />
                                     <Button
                                         disabled={
                                             !enteredValueValid ||
@@ -818,6 +869,7 @@ export const PricesPage = () => {
                                                 campaignName: selectValue[0],
                                                 dateRange: getNormalDateRange(dateRange),
                                                 enteredValue: {},
+                                                fixPrices: fixPrices,
                                             };
 
                                             const keys = {
@@ -859,18 +911,32 @@ export const PricesPage = () => {
 
                                             console.log(params);
 
+                                            for (const [art, artData] of Object.entries(
+                                                lastCalcOldData,
+                                            )) {
+                                                doc['pricesData'][selectValue[0]][art] = artData;
+                                            }
+                                            setLastCalcOldData({});
+
                                             /////////////////////////
                                             callApi('getPricesMM', params).then((res) => {
                                                 if (!res) return;
+
+                                                const tempOldData = {};
                                                 const resData = res['data'];
                                                 for (const [art, artData] of Object.entries(
                                                     resData['pricesData'][selectValue[0]],
                                                 )) {
+                                                    tempOldData[art] =
+                                                        doc['pricesData'][selectValue[0]][art];
+
                                                     doc['pricesData'][selectValue[0]][art] =
                                                         artData;
                                                 }
                                                 doc['artsData'][selectValue[0]] =
                                                     resData['artsData'][selectValue[0]];
+
+                                                setLastCalcOldData(tempOldData);
 
                                                 setChangedDoc(doc);
                                                 setCalculatingFlag(false);
@@ -1377,6 +1443,7 @@ export const PricesPage = () => {
                     style={{
                         width: '100%',
                         maxHeight: '80vh',
+                        boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
                         overflow: 'auto',
                     }}
                 >
