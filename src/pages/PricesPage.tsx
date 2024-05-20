@@ -125,7 +125,7 @@ export const PricesPage = () => {
     const fixedPriceRender = (args, keys, defaultRenderFunctionRes) => {
         const {row} = args;
 
-        const {nmId} = row;
+        const {nmId, art} = row;
 
         const isFixedByKey = (() => {
             if (row['fixPrices'] === undefined) return false;
@@ -150,7 +150,15 @@ export const PricesPage = () => {
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 {defaultRenderFunctionRes}
                 <div style={{minWidth: 4}} />
-                <Text color={isFixedByKey ? 'brand' : isFixed ? 'secondary' : 'secondary'}>
+                <Text
+                    color={
+                        isFixedByKey
+                            ? 'brand'
+                            : isFixed && lastCalcOldData[art] === undefined
+                            ? 'secondary'
+                            : 'danger'
+                    }
+                >
                     <Icon data={isFixedByKey ? LockOpen : isFixed ? Lock : Lock} />
                 </Text>
             </div>
