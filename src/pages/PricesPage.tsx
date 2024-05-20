@@ -201,10 +201,22 @@ export const PricesPage = () => {
             render: (args) => renderFilterByClickButton(args, 'brand'),
         },
         {
+            name: 'object',
+            placeholder: 'Тип предмета',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'object'),
+        },
+        {
             name: 'title',
             placeholder: 'Наименование',
             valueType: 'text',
             render: (args) => renderFilterByClickButton(args, 'title'),
+        },
+        {
+            name: 'imtId',
+            placeholder: 'ID КТ',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'imtId'),
         },
         {
             name: 'nmId',
@@ -514,7 +526,18 @@ export const PricesPage = () => {
                 temp.push(tempTypeRow);
 
                 for (const [key, val] of Object.entries(tempTypeRow)) {
-                    if (['art', 'nmId', 'barcode', 'size', 'brand', 'title'].includes(key))
+                    if (
+                        [
+                            'art',
+                            'nmId',
+                            'barcode',
+                            'size',
+                            'brand',
+                            'imtId',
+                            'object',
+                            'title',
+                        ].includes(key)
+                    )
                         continue;
 
                     if (!filteredSummaryTemp[key]) filteredSummaryTemp[key] = 0;
