@@ -54,6 +54,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
         if (mode) {
             doc['pricesData'][selectValue] = docum['pricesData'][selectValue];
             doc['artsData'][selectValue] = docum['artsData'][selectValue];
+            doc['fixArtPrices'][selectValue] = docum['fixArtPrices'][selectValue];
         }
         setDocument(docum);
     }
@@ -124,22 +125,33 @@ export const PricesPage = () => {
     const fixedPriceRender = (args, keys, defaultRenderFunctionRes) => {
         const {row} = args;
 
-        if (row['fixPrices'] === undefined) return defaultRenderFunctionRes;
+        const {nmId} = row;
 
         const isFixedByKey = (() => {
+            if (row['fixPrices'] === undefined) return false;
             for (const key of keys) {
                 if (row['fixPrices'][key] !== undefined) return true;
             }
             return false;
         })();
-        if (!isFixedByKey) return defaultRenderFunctionRes;
+
+        const isFixed = (() => {
+            const temp = doc.fixArtPrices[selectValue[0]][nmId];
+            if (temp === undefined) return false;
+            for (const key of keys) {
+                if (temp['enteredValue'][key] !== undefined) return true;
+            }
+            return false;
+        })();
+
+        if (!isFixedByKey && !isFixed) return defaultRenderFunctionRes;
 
         return (
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 {defaultRenderFunctionRes}
                 <div style={{minWidth: 4}} />
-                <Text color="brand">
-                    <Icon data={isFixedByKey ? LockOpen : Lock} />
+                <Text color={isFixedByKey ? 'brand' : isFixed ? 'secondary' : 'secondary'}>
+                    <Icon data={isFixedByKey ? LockOpen : isFixed ? Lock : Lock} />
                 </Text>
             </div>
         );
@@ -699,6 +711,8 @@ export const PricesPage = () => {
                                         resData['pricesData'][nextValue[0]];
                                     doc['artsData'][nextValue[0]] =
                                         resData['artsData'][nextValue[0]];
+                                    doc['fixArtPrices'][nextValue[0]] =
+                                        resData['fixArtPrices'][nextValue[0]];
 
                                     setChangedDoc(doc);
                                     setSelectValue(nextValue);
@@ -1039,6 +1053,13 @@ export const PricesPage = () => {
                                                         data: [] as any[],
                                                     },
                                                 };
+                                                const paramsFix = {
+                                                    uid: getUid(),
+                                                    campaignName: selectValue[0],
+                                                    data: {
+                                                        nmIds: {},
+                                                    },
+                                                };
 
                                                 const tempOldData = {...lastCalcOldData};
 
@@ -1050,6 +1071,7 @@ export const PricesPage = () => {
                                                         primeCost,
                                                         discount,
                                                         art,
+                                                        fixPrices,
                                                     } = filteredData[i];
                                                     if (nmId && wbPrice && wbPrice > primeCost) {
                                                         byNmId[nmId] = {
@@ -1059,6 +1081,16 @@ export const PricesPage = () => {
                                                         };
 
                                                         delete tempOldData[art]; // delete to prevent reset to default
+
+                                                        paramsFix.data.nmIds[nmId] = {
+                                                            nmId: nmId,
+                                                            enteredValue: fixPrices,
+                                                        };
+                                                        if (fixPrices) {
+                                                            paramsFix.data.nmIds[nmId][
+                                                                'enteredValue'
+                                                            ]['discount'] = discount;
+                                                        }
                                                     }
                                                 }
 
@@ -1076,8 +1108,10 @@ export const PricesPage = () => {
                                                 }
 
                                                 console.log(params);
+                                                console.log(paramsFix);
                                                 /////////////////////////
                                                 callApi('updatePricesMM', params);
+                                                callApi('fixArtPrices', paramsFix);
                                                 /////////////////////////
                                                 setCurrentPricesCalculatedBasedOn('');
                                                 setUpdatePricesModalOpen(false);
