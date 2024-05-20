@@ -344,6 +344,7 @@ export const AnalyticsPage = () => {
         brand: false,
         object: false,
         title: false,
+        imtId: false,
         art: false,
     });
 
@@ -1061,6 +1062,7 @@ export const AnalyticsPage = () => {
                                 brand: false,
                                 object: false,
                                 title: false,
+                                imtId: false,
                                 art: false,
                             });
                         }}
@@ -1142,6 +1144,17 @@ export const AnalyticsPage = () => {
                                 <div style={{minHeight: 8}} />
                                 <Checkbox
                                     size="l"
+                                    content={'ID КТ'}
+                                    checked={enteredKeysCheck.imtId}
+                                    onUpdate={(val) => {
+                                        const temp = {...enteredKeysCheck};
+                                        temp.imtId = val;
+                                        setEnteredKeysCheck(temp);
+                                    }}
+                                />
+                                <div style={{minHeight: 8}} />
+                                <Checkbox
+                                    size="l"
                                     content={'Артикул'}
                                     checked={enteredKeysCheck.art}
                                     onUpdate={(val) => {
@@ -1199,6 +1212,28 @@ export const AnalyticsPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
+                    <Button
+                        size="l"
+                        view="action"
+                        onClick={() => {
+                            setFilters(() => {
+                                const newFilters = {undef: true};
+                                for (const [key, filterData] of Object.entries(filters as any)) {
+                                    if (key == 'undef' || !key || !filterData) continue;
+                                    newFilters[key] = {
+                                        val: '',
+                                        compMode: filterData['compMode'] ?? 'include',
+                                    };
+                                }
+                                filterTableData(newFilters);
+                                return newFilters;
+                            });
+                        }}
+                    >
+                        <Icon data={TrashBin} />
+                        <Text variant="subheader-1">Очистить фильтры</Text>
+                    </Button>
+                    <div style={{minWidth: 8}} />
                     <Popover
                         content={
                             <div
