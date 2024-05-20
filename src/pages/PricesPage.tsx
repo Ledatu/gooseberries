@@ -428,6 +428,7 @@ export const PricesPage = () => {
             const resData = res['data'];
             doc['pricesData'][selectValue[0]] = resData['pricesData'][selectValue[0]];
             doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
+            doc['fixArtPrices'][selectValue[0]] = resData['fixArtPrices'][selectValue[0]];
 
             setChangedDoc(doc);
 
@@ -1099,6 +1100,34 @@ export const PricesPage = () => {
                                                                 'enteredValue'
                                                             ]['discount'] = discount;
                                                         }
+                                                        //// local fixed
+                                                        if (fixPrices !== undefined) {
+                                                            if (
+                                                                !doc.fixArtPrices[selectValue[0]][
+                                                                    nmId
+                                                                ]
+                                                            )
+                                                                doc.fixArtPrices[selectValue[0]][
+                                                                    nmId
+                                                                ] = {};
+                                                            doc.fixArtPrices[selectValue[0]][
+                                                                nmId
+                                                            ].enteredValue = fixPrices;
+                                                        } else {
+                                                            if (
+                                                                !doc.fixArtPrices[selectValue[0]][
+                                                                    nmId
+                                                                ]
+                                                            )
+                                                                continue;
+                                                            delete doc.fixArtPrices[selectValue[0]][
+                                                                nmId
+                                                            ];
+                                                        }
+
+                                                        doc.pricesData[selectValue[0]][art][
+                                                            'fixPrices'
+                                                        ] = undefined;
                                                     }
                                                 }
 
@@ -1114,6 +1143,8 @@ export const PricesPage = () => {
                                                         continue;
                                                     params.updatePricesParams.data.push(nmIdData);
                                                 }
+
+                                                setChangedDoc(doc);
 
                                                 console.log(params);
                                                 console.log(paramsFix);
