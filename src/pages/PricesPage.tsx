@@ -155,7 +155,7 @@ export const PricesPage = () => {
                         isFixedByKey
                             ? 'brand'
                             : isFixed && lastCalcOldData[art] === undefined
-                            ? 'secondary'
+                            ? 'positive'
                             : 'danger'
                     }
                 >
