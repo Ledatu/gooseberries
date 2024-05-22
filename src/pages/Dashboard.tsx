@@ -19,6 +19,7 @@ import {AdvertStatsPage} from './AdvertStatsPage';
 import {DeliveryOrdersPage} from './DeliveryOrdersPage';
 import {MassAdvertPage} from './MassAdvertPage';
 // import {db} from '../utilities/firebase-config';
+import textLogo from '../assets/textLogo.png';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
@@ -51,7 +52,7 @@ export const Dashboard = () => {
         {value: 'light', content: <Icon data={Sun}></Icon>},
     ];
 
-    const [page, setPage] = React.useState('analytics');
+    const [page, setPage] = React.useState('massAdvert');
 
     const renderTabItem = (item, node, index) => {
         if (item === undefined || node === undefined || index === undefined) return <></>;
@@ -60,7 +61,7 @@ export const Dashboard = () => {
             <div
                 key={index}
                 style={{
-                    height: 80,
+                    height: 60,
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -131,54 +132,100 @@ export const Dashboard = () => {
                         style={{
                             width: '100%',
                             // boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
+                            // background: '#00000022',
                             background: '#0000',
                         }}
                     >
                         <div
                             style={{
-                                display: 'flex',
                                 width: '100%',
-                                justifyContent: 'space-around',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                flexWrap: 'wrap',
                                 boxShadow:
                                     'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
                             }}
                         >
                             <div
                                 style={{
-                                    boxShadow:
-                                        'inset 0px -9px 0px -8px var(--g-color-base-background)',
+                                    padding: '0px 48px',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    flexWrap: 'wrap',
+                                    alignItems: 'center',
                                 }}
                             >
-                                <Tabs
-                                    wrapTo={renderTabItem}
-                                    activeTab={page}
-                                    items={optionsPages}
-                                    onSelectTab={(val) => {
-                                        setPage(val);
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
                                     }}
-                                />
-                            </div>
-                            {/* <div style={{display: 'flex', flexDirection: 'row'}}> */}
-                            <Persona
-                                style={{marginRight: '8px'}}
-                                onClose={() => {
-                                    Userfront.logout();
-                                }}
-                                type="email"
-                                text={Userfront.user.email ?? ''}
-                            />
+                                >
+                                    <div
+                                        style={{
+                                            height: 68,
+                                            alignItems: 'center',
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            boxShadow:
+                                                '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                                        }}
+                                    >
+                                        <img
+                                            style={{height: 'calc(100% - 24px)'}}
+                                            src={textLogo}
+                                            alt="Aurum logo"
+                                        />
+                                        <div style={{minWidth: 32}} />
+                                    </div>
+                                    <div style={{minWidth: 32}} />
+                                    <div
+                                        style={{
+                                            boxShadow:
+                                                'inset 0px -9px 0px -8px ' +
+                                                (theme == Theme.Dark ? '#2d2c33' : '#fff'),
+                                        }}
+                                    >
+                                        <Tabs
+                                            wrapTo={renderTabItem}
+                                            activeTab={page}
+                                            items={optionsPages}
+                                            onSelectTab={(val) => {
+                                                setPage(val);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <div
+                                    style={{
+                                        height: 68,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        boxShadow:
+                                            '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                                    }}
+                                >
+                                    <div style={{minWidth: 32}} />
 
-                            <RadioButton
-                                name="themeRadioButton"
-                                defaultValue={theme}
-                                options={optionsTheme}
-                                onUpdate={async (val) => {
-                                    setTheme(val === 'light' ? Theme.Light : Theme.Dark);
-                                }}
-                            />
+                                    <Persona
+                                        style={{marginRight: '8px'}}
+                                        onClose={() => {
+                                            Userfront.logout();
+                                        }}
+                                        type="email"
+                                        text={Userfront.user.email ?? ''}
+                                    />
+
+                                    <RadioButton
+                                        name="themeRadioButton"
+                                        defaultValue={theme}
+                                        options={optionsTheme}
+                                        onUpdate={async (val) => {
+                                            setTheme(val === 'light' ? Theme.Light : Theme.Dark);
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 

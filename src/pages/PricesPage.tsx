@@ -1087,12 +1087,13 @@ export const PricesPage = () => {
                                                     const {
                                                         nmId,
                                                         wbPrice,
+                                                        rozPrice,
                                                         primeCost,
                                                         discount,
                                                         art,
                                                         fixPrices,
                                                     } = filteredData[i];
-                                                    if (nmId && wbPrice && wbPrice > primeCost) {
+                                                    if (nmId && wbPrice && rozPrice > primeCost) {
                                                         byNmId[nmId] = {
                                                             nmID: nmId,
                                                             price: wbPrice,
