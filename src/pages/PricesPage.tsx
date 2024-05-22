@@ -570,7 +570,7 @@ export const PricesPage = () => {
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 100);
+        const paginatedDataTemp = temp.slice(0, 300);
 
         for (const [key, val] of Object.entries(filteredSummaryTemp)) {
             if (key === undefined || val === undefined || key == 'stock') continue;
@@ -1568,10 +1568,10 @@ export const PricesPage = () => {
                     showInput
                     total={pagesTotal}
                     page={pagesCurrent}
-                    pageSize={100}
+                    pageSize={300}
                     onUpdate={(page) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 100, page * 100);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 300, page * 300);
                         setFilteredSummary((row) => {
                             const fstemp = row;
                             fstemp[

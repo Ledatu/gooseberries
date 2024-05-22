@@ -3817,7 +3817,7 @@ export const MassAdvertPage = () => {
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 100);
+        const paginatedDataTemp = temp.slice(0, 300);
         const filteredSummaryTemp = {
             art: `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`,
             orders: 0,
@@ -7891,10 +7891,10 @@ export const MassAdvertPage = () => {
                     showInput
                     total={pagesTotal}
                     page={pagesCurrent}
-                    pageSize={100}
+                    pageSize={300}
                     onUpdate={(page) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 100, page * 100);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 300, page * 300);
                         setFilteredSummary((row) => {
                             const temp = row;
                             temp.art = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;

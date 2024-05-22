@@ -413,7 +413,7 @@ export const NomenclaturesPage = () => {
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 100);
+        const paginatedDataTemp = temp.slice(0, 300);
 
         setFilteredSummary((row) => {
             const fstemp = row;
@@ -822,10 +822,10 @@ export const NomenclaturesPage = () => {
                     showInput
                     total={pagesTotal}
                     page={pagesCurrent}
-                    pageSize={100}
+                    pageSize={300}
                     onUpdate={(page) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 100, page * 100);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 300, page * 300);
                         setFilteredSummary((row) => {
                             const fstemp = row;
                             fstemp[
