@@ -88,6 +88,7 @@ export const AnalyticsPage = () => {
 
     const [graphModalOpen, setGraphModalOpen] = useState(false);
     const [graphModalData, setGraphModalData] = useState([] as any[]);
+    const [graphModalTrendData, setGraphModalTrendData] = useState([] as any[]);
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
 
@@ -182,7 +183,7 @@ export const AnalyticsPage = () => {
 
         const {isReverseGrad, planType} = columnDataObj[key];
 
-        const {graphData, entity} = row;
+        const {graphData, trendGraphData, entity} = row;
 
         const getDayPlanForDate = (date, argEntity = '') => {
             const _entity = argEntity != '' ? argEntity : entity;
@@ -295,6 +296,7 @@ export const AnalyticsPage = () => {
                         view="outlined"
                         onClick={() => {
                             setGraphModalData(graphData[key]);
+                            setGraphModalTrendData(trendGraphData[key]);
                             setGraphModalTimeline(graphData['timeline']);
                             setGraphModalTitle(title);
                             setGraphModalOpen(true);
@@ -513,6 +515,21 @@ export const AnalyticsPage = () => {
             summaries[entity][key] += val;
             if (!summaries[entity]['graphData'][key]) summaries[entity]['graphData'][key] = [];
             summaries[entity]['graphData'][key].push(val);
+
+            if (!summaries[entity]['trendGraphData'][key])
+                summaries[entity]['trendGraphData'][key] = [0];
+
+            const i = summaries[entity]['graphData'][key].length - 1;
+            if (i > 0) {
+                const trend =
+                    getRoundValue(
+                        summaries[entity]['graphData'][key][i],
+                        summaries[entity]['graphData'][key][i - 1],
+                        true,
+                    ) - 100;
+
+                summaries[entity]['trendGraphData'][key].push(trend);
+            }
         };
 
         temp.sort((rowA, rowB) => {
@@ -533,6 +550,7 @@ export const AnalyticsPage = () => {
                     graphData: {
                         timeline: [],
                     },
+                    trendGraphData: {},
                 };
 
             summaries[entity]['entity'] = entity;
@@ -744,8 +762,16 @@ export const AnalyticsPage = () => {
                 timeline: graphModalTimeline,
                 graphs: [
                     {
+                        name: 'Тренд, %',
+                        data: graphModalTrendData,
+                        precision: 0,
+                        id: '2',
+                        scale: 'r',
+                    },
+                    {
                         name: graphModalTitle,
                         data: graphModalData,
+                        type: 'column',
                         id: '1',
                         color: '#9a63d1',
                         scale: 'y',
@@ -763,6 +789,12 @@ export const AnalyticsPage = () => {
                 axes: {
                     y: {
                         label: graphModalTitle,
+                        precision: 'auto',
+                        show: true,
+                    },
+                    r: {
+                        label: 'Тренд, %',
+                        side: 'right',
                         precision: 'auto',
                         show: true,
                     },
@@ -792,6 +824,7 @@ export const AnalyticsPage = () => {
                 onClose={() => {
                     setGraphModalOpen(false);
                     setGraphModalData([]);
+                    setGraphModalTrendData([]);
                     setGraphModalTimeline([]);
                     setGraphModalTitle('');
                 }}
@@ -807,7 +840,7 @@ export const AnalyticsPage = () => {
                         flexDirection: 'column',
                     }}
                 >
-                    <ChartKit type="yagr" data={genYagrData()} />
+                    <ChartKit type="yagr" data={genYagrData() as YagrWidgetData} />
                 </Card>
             </Modal>
             <Modal
