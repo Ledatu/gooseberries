@@ -3,11 +3,13 @@ import block from 'bem-cn-lite';
 import {
     ThemeProvider,
     // Button,
-    // Text,
+    Text,
     Persona,
     RadioButton,
     RadioButtonOption,
     Icon,
+    Tabs,
+    Link,
     // Tabs,
 } from '@gravity-ui/uikit';
 import '../App.scss';
@@ -48,106 +50,153 @@ export const Dashboard = () => {
         {value: 'dark', content: <Icon data={Moon}></Icon>},
         {value: 'light', content: <Icon data={Sun}></Icon>},
     ];
-    const optionsPages: RadioButtonOption[] = [
-        // {value: 'api', content: 'Управление магазинами'},
-        // {value: 'create_rk', content: 'Создание РК'},
+
+    const [page, setPage] = React.useState('analytics');
+
+    const renderTabItem = (item, node, index) => {
+        if (item === undefined || node === undefined || index === undefined) return <></>;
+
+        return (
+            <div
+                key={index}
+                style={{
+                    height: 80,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    borderTop: '4px solid #0000',
+                    borderBottom: item.id == page ? '4px solid #ffbe5c' : '4px solid #0000',
+                }}
+            >
+                <Link
+                    className="tablink"
+                    view="primary"
+                    onClick={() => {
+                        setPage(item.id);
+                    }}
+                >
+                    <Text
+                        style={{
+                            fontSize: 20,
+                            fontWeight: 400,
+                        }}
+                    >
+                        {item.title}
+                    </Text>
+                </Link>
+            </div>
+        );
+    };
+
+    const optionsPages: any[] = [
         {
-            value: 'massAdvert',
-            content: 'Реклама',
+            id: 'massAdvert',
+            title: 'Реклама',
         },
         {
-            value: 'prices',
-            content: 'Цены',
+            id: 'prices',
+            title: 'Цены',
             disabled:
                 Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
                 Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
                 Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
-        // {
-        //     value: 'stats_rk',
-        //     content: 'Статистика',
-        //     disabled: Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806'  && Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
-        // },
         {
-            value: 'analytics',
-            content: 'Аналитика',
+            id: 'analytics',
+            title: 'Аналитика',
         },
-        // {
-        //     value: 'deliveryOrders',
-        //     content: 'Поставки',
-        //     disabled:
-        //         Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
-        //         Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
-        // },
         {
-            value: 'nomenclatures',
-            content: 'Товары',
+            id: 'nomenclatures',
+            title: 'Товары',
             disabled:
                 Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
                 Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
                 Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
     ];
-    // const [page, setPage] = React.useState('nomenclatures');
-    const [page, setPage] = React.useState('massAdvert');
     return (
         <ThemeProvider theme={theme}>
             <div className={b()}>
-                {/* <TextInput style={{width: '300px'}} placeholder="Ola, Ledatu!" /> */}
-
                 <div
-                    className={b('appHeader')}
                     style={{
                         display: 'flex',
                         width: '100%',
+                        position: 'absolute',
+                        top: 0,
                         justifyContent: 'space-around',
                         flexWrap: 'wrap',
                     }}
                 >
-                    <RadioButton
-                        style={{marginBottom: '8px', marginRight: '8px'}}
-                        name="pageRadioButton"
-                        defaultValue={page}
-                        options={optionsPages}
-                        onUpdate={async (val) => {
-                            setPage(val);
+                    <div
+                        style={{
+                            width: '100%',
+                            boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
+                            background: '#0000',
                         }}
-                    />
-                    {/* <div style={{display: 'flex', flexDirection: 'row'}}> */}
-                    <Persona
-                        style={{marginBottom: '8px', marginRight: '8px'}}
-                        onClose={() => {
-                            Userfront.logout();
-                        }}
-                        type="email"
-                        text={Userfront.user.email ?? ''}
-                    />
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                width: '100%',
+                                justifyContent: 'space-around',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                boxShadow:
+                                    'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    boxShadow:
+                                        'inset 0px -9px 0px -8px var(--g-color-base-background)',
+                                }}
+                            >
+                                <Tabs
+                                    wrapTo={renderTabItem}
+                                    activeTab={page}
+                                    items={optionsPages}
+                                    onSelectTab={(val) => {
+                                        setPage(val);
+                                    }}
+                                />
+                            </div>
+                            {/* <div style={{display: 'flex', flexDirection: 'row'}}> */}
+                            <Persona
+                                style={{marginRight: '8px'}}
+                                onClose={() => {
+                                    Userfront.logout();
+                                }}
+                                type="email"
+                                text={Userfront.user.email ?? ''}
+                            />
 
-                    <RadioButton
-                        style={{marginBottom: '8px'}}
-                        name="themeRadioButton"
-                        defaultValue={theme}
-                        options={optionsTheme}
-                        onUpdate={async (val) => {
-                            setTheme(val === 'light' ? Theme.Light : Theme.Dark);
-                        }}
-                    />
-                    {/* </div> */}
-                </div>
-                <div
-                    style={{
-                        marginTop: 8,
-                        // marginLeft: 48,
-                        // marginRight: 48,
-                        justifyContent: 'center',
+                            <RadioButton
+                                name="themeRadioButton"
+                                defaultValue={theme}
+                                options={optionsTheme}
+                                onUpdate={async (val) => {
+                                    setTheme(val === 'light' ? Theme.Light : Theme.Dark);
+                                }}
+                            />
+                        </div>
+                    </div>
 
-                        // position: 'absolute',
-                        width: '90vw',
-                        position: 'relative',
-                        // left: 'calc(-50vw + 50%)',
-                    }}
-                >
-                    <PageElem page={page} />
+                    <div
+                        style={{
+                            marginTop: 16,
+                            // marginLeft: 48,
+                            // marginRight: 48,
+                            justifyContent: 'center',
+
+                            // position: 'absolute',
+                            width: '90vw',
+                            position: 'relative',
+                            // left: 'calc(-50vw + 50%)',
+                        }}
+                    >
+                        <PageElem page={page} />
+                    </div>
                 </div>
             </div>
         </ThemeProvider>
