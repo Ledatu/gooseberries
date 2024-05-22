@@ -130,7 +130,7 @@ export const Dashboard = () => {
                     <div
                         style={{
                             width: '100%',
-                            boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
+                            // boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
                             background: '#0000',
                         }}
                     >
