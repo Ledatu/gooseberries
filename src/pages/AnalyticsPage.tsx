@@ -484,7 +484,17 @@ export const AnalyticsPage = () => {
                 for (const [filterArg, filterData] of Object.entries(useFilters)) {
                     if (filterArg === 'undef' || !filterData) continue;
                     if (filterData['val'] === '') continue;
-                    else if (!compare(tempTypeRow[filterArg], filterData)) {
+
+                    const fldata = filterData['val'];
+                    const flarg = tempTypeRow[filterArg];
+
+                    if (fldata.trim() == '+') {
+                        if (flarg !== undefined) continue;
+                    } else if (fldata.trim() == '-') {
+                        if (flarg === undefined) continue;
+                    }
+
+                    if (!compare(tempTypeRow[filterArg], filterData)) {
                         addFlag = false;
                         break;
                     }

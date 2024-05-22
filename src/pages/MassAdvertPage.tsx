@@ -3717,6 +3717,16 @@ export const MassAdvertPage = () => {
             for (const [filterArg, filterData] of Object.entries(useFilters)) {
                 if (filterArg == 'undef' || !filterData) continue;
                 if (filterData['val'] == '' && filterArg != 'placements') continue;
+
+                const fldata = filterData['val'];
+                const flarg = tempTypeRow[filterArg];
+
+                if (fldata.trim() == '+') {
+                    if (flarg !== undefined) continue;
+                } else if (fldata.trim() == '-') {
+                    if (flarg === undefined) continue;
+                }
+
                 if (filterArg == 'art') {
                     const rulesForAnd = filterData['val'].split('+');
                     // console.log(rulesForAnd);
@@ -3760,16 +3770,8 @@ export const MassAdvertPage = () => {
                             setSelectedSearchPhrase('');
                     }
                 } else if (filterArg == 'adverts') {
-                    const fldata = filterData['val'];
+                    const rulesForAnd = [filterData['val']];
                     const adverts = tempTypeRow[filterArg];
-
-                    if (fldata == '+' || fldata == '+ ') {
-                        if (adverts) continue;
-                    } else if (fldata == '-' || fldata == '- ') {
-                        if (!adverts) continue;
-                    }
-
-                    const rulesForAnd = [fldata];
                     // console.log(rulesForAnd);
 
                     let wholeText = '';

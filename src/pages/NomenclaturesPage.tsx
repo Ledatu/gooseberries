@@ -361,6 +361,16 @@ export const NomenclaturesPage = () => {
             for (const [filterArg, filterData] of Object.entries(useFilters)) {
                 if (filterArg == 'undef' || !filterData) continue;
                 if (filterData['val'] == '') continue;
+
+                const fldata = filterData['val'];
+                const flarg = tempTypeRow[filterArg];
+
+                if (fldata.trim() == '+') {
+                    if (flarg !== undefined) continue;
+                } else if (fldata.trim() == '-') {
+                    if (flarg === undefined) continue;
+                }
+
                 if (filterArg == 'art') {
                     const rulesForAnd = filterData['val'].split('+');
                     // console.log(rulesForAnd);
