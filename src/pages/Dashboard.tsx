@@ -145,7 +145,7 @@ export const Dashboard = () => {
                         >
                             <div
                                 style={{
-                                    padding: '0px 128px',
+                                    padding: '0px calc(15em)',
                                     display: 'flex',
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
