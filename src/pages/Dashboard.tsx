@@ -73,6 +73,7 @@ export const Dashboard = () => {
                     className="tablink"
                     view="primary"
                     onClick={() => {
+                        if (item.disabled) return;
                         setPage(item.id);
                     }}
                 >
@@ -81,6 +82,7 @@ export const Dashboard = () => {
                             fontSize: 20,
                             fontWeight: 400,
                         }}
+                        color={item.disabled ? 'secondary' : undefined}
                     >
                         {item.title}
                     </Text>
@@ -145,7 +147,7 @@ export const Dashboard = () => {
                         >
                             <div
                                 style={{
-                                    padding: '0px calc(15em)',
+                                    padding: '0px 10vw',
                                     display: 'flex',
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
