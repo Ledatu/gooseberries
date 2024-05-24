@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import block from 'bem-cn-lite';
 import {
     ThemeProvider,
@@ -11,6 +11,8 @@ import {
     Tabs,
     Link,
     Button,
+    Modal,
+    TextArea,
     // Tabs,
 } from '@gravity-ui/uikit';
 import '../App.scss';
@@ -24,7 +26,7 @@ import textLogo from '../assets/textLogo.png';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
-import {Sun, Moon, PencilToSquare} from '@gravity-ui/icons';
+import {Sun, Moon, PencilToSquare, Xmark, Check} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
@@ -53,7 +55,10 @@ export const Dashboard = () => {
         {value: 'light', content: <Icon data={Sun}></Icon>},
     ];
 
-    const [page, setPage] = React.useState('massAdvert');
+    const [notesModalOpen, setNotesModalOpen] = useState(false);
+    const [currentNote, setCurrentNote] = useState('Сохранять можно будет ближе к вечеру');
+    const [page, setPage] = useState('massAdvert');
+    const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const renderTabItem = (item, node, index) => {
         if (item === undefined || node === undefined || index === undefined) return <></>;
@@ -118,6 +123,15 @@ export const Dashboard = () => {
                 Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
     ];
+
+    const saveNote = () => {
+        setNotesModalOpen(false);
+        if (notesTextArea.current !== null) {
+            const note = notesTextArea.current.value;
+            setCurrentNote(note ?? '');
+        }
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <div className={b()}>
@@ -210,9 +224,71 @@ export const Dashboard = () => {
                                 >
                                     <div style={{minWidth: 32}} />
 
-                                    <Button size="l" disabled>
+                                    <Button
+                                        size="l"
+                                        onClick={() => setNotesModalOpen((val) => !val)}
+                                    >
                                         <Icon data={PencilToSquare} />
                                     </Button>
+                                    <Modal open={notesModalOpen} onClose={() => saveNote()}>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                width: '30em',
+                                                minHeight: '20em',
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    width: '100%',
+                                                    display: 'flex',
+                                                    height: 36,
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    position: 'relative',
+                                                }}
+                                            >
+                                                <Text variant="subheader-1" color="secondary">
+                                                    {new Date().toLocaleString('ru-RU', {
+                                                        day: '2-digit',
+                                                        month: 'long',
+                                                        year: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                    })}
+                                                </Text>
+                                                <div style={{position: 'absolute', left: 8}}>
+                                                    <Button
+                                                        disabled
+                                                        view="flat-success"
+                                                        size="s"
+                                                        onClick={() => saveNote()}
+                                                    >
+                                                        <Icon data={Check} />
+                                                    </Button>
+                                                </div>
+                                                <div style={{position: 'absolute', right: 8}}>
+                                                    <Button
+                                                        view="flat"
+                                                        size="s"
+                                                        onClick={() => saveNote()}
+                                                    >
+                                                        <Icon data={Xmark} />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <TextArea
+                                                defaultValue={currentNote}
+                                                controlRef={notesTextArea}
+                                                autoFocus
+                                                minRows={20}
+                                                maxRows={30}
+                                            />
+                                        </div>
+                                    </Modal>
                                     <div style={{minWidth: 8}} />
                                     <Persona
                                         size="s"
