@@ -1,4 +1,4 @@
-import React, {useEffect, useId, useState} from 'react';
+import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
 import {
     Spin,
     Select,
@@ -27,6 +27,7 @@ import {
     Key,
     Pencil,
     CloudArrowUpIn,
+    Tag,
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
@@ -141,6 +142,30 @@ export const NomenclaturesPage = () => {
         {name: 'title', placeholder: 'Наименование', valueType: 'text'},
         {name: 'nmId', placeholder: 'Артикул WB', valueType: 'text'},
         {name: 'barcode', placeholder: 'Баркод', valueType: 'text'},
+        {
+            name: 'tags',
+            placeholder: 'Теги',
+            render: ({value}) => {
+                if (value === undefined) return;
+                const tags = [] as ReactNode[];
+                for (const tag of value) {
+                    if (tag === undefined) continue;
+
+                    tags.push(
+                        <Button
+                            style={{margin: '0 4px'}}
+                            size="xs"
+                            pin="circle-circle"
+                            selected
+                            view="outlined-info"
+                        >
+                            {tag.toUpperCase()}
+                        </Button>,
+                    );
+                }
+                return tags;
+            },
+        },
         {
             name: 'factoryArt',
             placeholder: 'Артикул фабрики',
@@ -282,6 +307,7 @@ export const NomenclaturesPage = () => {
                 title: '',
                 imtId: '',
                 nmId: 0,
+                tags: [] as any[],
                 barcode: 0,
                 commision: undefined,
                 tax: undefined,
@@ -315,6 +341,10 @@ export const NomenclaturesPage = () => {
             artInfo.expences = artData['expences'];
             artInfo.logistics = artData['logistics'];
             artInfo.spp = artData['spp'];
+
+            // artInfo.tags = ['#бестселлер'];
+            artInfo.tags = artData['tags'];
+
             artInfo.ktr = artDataUploaded['ktr'];
             artInfo.prices = artDataUploaded['prices'];
             artInfo.factoryArt = artDataUploaded['factoryArt'];
@@ -438,6 +468,10 @@ export const NomenclaturesPage = () => {
         setPagesCurrent(1);
         setPagesTotal(Math.ceil(temp.length));
     };
+
+    const [tagsModalFormOpen, setTagsModalFormOpen] = useState(false);
+    const [tagsInputValid, setTagsInputValid] = useState(true);
+    const tagsInputRef = useRef<HTMLInputElement>(null);
 
     const [firstRecalc, setFirstRecalc] = useState(false);
 
@@ -718,6 +752,103 @@ export const NomenclaturesPage = () => {
                         ) : (
                             <></>
                         )}
+                        <div style={{minWidth: 8}} />
+                        <Button
+                            view="action"
+                            size="l"
+                            style={{marginRight: 8, marginBottom: 8}}
+                            onClick={() => {
+                                setTagsModalFormOpen(true);
+                                setSelectedButton('');
+                            }}
+                        >
+                            <Icon data={Tag} />
+                            <Text variant="subheader-1">Теги</Text>
+                        </Button>
+                        <Modal open={tagsModalFormOpen} onClose={() => setTagsModalFormOpen(false)}>
+                            <div
+                                style={{
+                                    padding: 20,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    width: '30em',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text variant="display-1">Назначить тег</Text>
+                                <div style={{minHeight: 8}} />
+                                <TextInput
+                                    controlRef={tagsInputRef}
+                                    defaultValue="#"
+                                    validationState={tagsInputValid ? undefined : 'invalid'}
+                                    errorMessage={
+                                        'Имя тега должно начинаться с #, содержать как минимум одну букву и не иметь пробелов.'
+                                    }
+                                    onUpdate={() => {
+                                        setTagsInputValid(true);
+                                    }}
+                                />
+                                <div style={{minHeight: 8}} />
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Назначить тег',
+                                        icon: CloudArrowUpIn,
+                                        view: 'outlined-success',
+                                        onClick: () => {
+                                            if (tagsInputRef.current !== null) {
+                                                const tag = tagsInputRef.current.value;
+
+                                                if (
+                                                    tag[0] != '#' ||
+                                                    tag.indexOf(' ') !== -1 ||
+                                                    tag.length < 2
+                                                ) {
+                                                    setTagsInputValid(false);
+                                                    setSelectedButton('');
+                                                    return;
+                                                }
+
+                                                const params = {
+                                                    uid: getUid(),
+                                                    campaignName: selectValue[0],
+                                                    data: {
+                                                        nmIds: [] as number[],
+                                                        mode: 'Установить',
+                                                        tag: tag,
+                                                    },
+                                                };
+
+                                                for (const row of filteredData) {
+                                                    const {art, nmId} = row ?? {};
+                                                    if (nmId === undefined) continue;
+                                                    if (!params.data.nmIds.includes(nmId))
+                                                        params.data.nmIds.push(nmId);
+
+                                                    if (!doc.nomenclatures[selectValue[0]][art])
+                                                        continue;
+                                                    if (
+                                                        !doc.nomenclatures[selectValue[0]][
+                                                            art
+                                                        ].tags.includes(tag)
+                                                    )
+                                                        doc.nomenclatures[selectValue[0]][
+                                                            art
+                                                        ].tags.push(tag);
+                                                }
+
+                                                setChangedDoc(doc);
+
+                                                callApi('setTags', params);
+
+                                                setTagsModalFormOpen(false);
+                                            }
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                            </div>
+                        </Modal>
                     </div>
                 </div>
                 <div
