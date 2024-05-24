@@ -57,7 +57,7 @@ export const Dashboard = () => {
     ];
 
     const [notesModalOpen, setNotesModalOpen] = useState(false);
-    const [currentNote, setCurrentNote] = useState('Сохранять можно будет ближе к вечеру');
+    const [currentNote, setCurrentNote] = useState('');
     const [page, setPage] = useState('analytics');
     // const [page, setPage] = useState('massAdvert');
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
