@@ -6,7 +6,6 @@ import {
     Card,
     Select,
     SelectOption,
-    Popup,
     TextInput,
     Link,
     Icon,
@@ -14,12 +13,12 @@ import {
     Label,
     PopoverBehavior,
     Modal,
+    Skeleton,
     Pagination,
     RadioButton,
     List,
     Checkbox,
 } from '@gravity-ui/uikit';
-import {RangeCalendar} from '@gravity-ui/date-components';
 import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -77,6 +76,7 @@ import {
     renderSlashPercent,
 } from 'src/utilities/getRoundValue';
 import TheTable, {compare} from 'src/components/TheTable';
+import {RangePicker} from 'src/components/RangePicker';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -116,6 +116,18 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 };
 
 export const MassAdvertPage = () => {
+    const cardStyle = {
+        minWidth: '10em',
+        height: '10em',
+        display: 'flex',
+        flex: '1 1 auto',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '16px',
+        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+        marginRight: '8px',
+        marginLeft: '8px',
+    };
     // const myObserver = new ResizeObserver((entries) => {
     //     // console.log('resized');
 
@@ -3342,10 +3354,11 @@ export const MassAdvertPage = () => {
     );
     // const monthAgo = new Date(today);
     // monthAgo.setDate(monthAgo.getDate() - 30);
+
     const [dateRange, setDateRange] = useState([today, today]);
-    const [startDate, endDate] = dateRange;
-    const fieldRef = useRef(null);
-    const [datePickerOpen, setDatePickerOpen] = useState(false);
+    const anchorRef = useRef(null);
+    const [rangePickerOpen, setRangePickerOpen] = useState(false);
+
     // console.log(doc);
     // const lbdDate: DateTime =;
     // lbdDate.subtract(90, 'day');
@@ -4786,7 +4799,184 @@ export const MassAdvertPage = () => {
         setChangedColumns(false);
     }
 
-    if (!doc) return <Spin />;
+    if (!doc)
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                }}
+            >
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        width: '100%',
+                        justifyContent: 'space-around',
+                        margin: '8px 0',
+                    }}
+                >
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                </div>
+                <div
+                    style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
+                >
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                    </div>
+                </div>
+                <div style={{minHeight: 8}} />
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <Skeleton
+                        style={{
+                            width: '20vw',
+                            height: 48,
+                        }}
+                    />
+                    <div style={{minWidth: 4}} />
+                    <Skeleton
+                        style={{
+                            width: '100%',
+                            height: 48,
+                        }}
+                    />
+                </div>
+                <div style={{minHeight: 4}} />
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <Skeleton
+                        style={{
+                            width: '20vw',
+                            height: 'calc(68vh - 96px)',
+                        }}
+                    />
+                    <div style={{minWidth: 4}} />
+                    <Skeleton
+                        style={{
+                            width: '100%',
+                            height: 'calc(68vh - 96px)',
+                        }}
+                    />
+                </div>
+                <div style={{minHeight: 4}} />
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <Skeleton
+                        style={{
+                            width: '20vw',
+                            height: 48,
+                        }}
+                    />
+                    <div style={{minWidth: 4}} />
+                    <Skeleton
+                        style={{
+                            width: '100%',
+                            height: 48,
+                        }}
+                    />
+                </div>
+            </div>
+        );
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['campaigns'])) {
@@ -4925,18 +5115,28 @@ export const MassAdvertPage = () => {
                     flexDirection: 'row',
                     width: '100%',
                     justifyContent: 'space-around',
-                    flexWrap: 'wrap',
                     margin: '8px 0',
+                    flexWrap: 'wrap',
                 }}
             >
-                {generateCard({summary, key: 'sum_orders', placeholder: 'Заказов, ₽'})}
-                {generateCard({summary, key: 'sum_sales', placeholder: 'Продаж, ₽'})}
-                {generateCard({summary, key: 'sum', placeholder: 'Расход, ₽'})}
-                {generateCard({summary, key: 'drr_orders', placeholder: 'ДРР к заказам, %'})}
-                {generateCard({summary, key: 'drr_sales', placeholder: 'ДРР к продажам, %'})}
-                {generateCard({summary, key: 'views', placeholder: 'Показов, шт.'})}
-                {generateCard({summary, key: 'clicks', placeholder: 'Кликов, шт.'})}
-                {generateCard({summary, key: 'ctr', placeholder: 'CTR, %'})}
+                {generateCard({summary, key: 'sum_orders', placeholder: 'Заказов, ₽', cardStyle})}
+                {generateCard({summary, key: 'sum_sales', placeholder: 'Продаж, ₽', cardStyle})}
+                {generateCard({summary, key: 'sum', placeholder: 'Расход, ₽', cardStyle})}
+                {generateCard({
+                    summary,
+                    key: 'drr_orders',
+                    placeholder: 'ДРР к заказам, %',
+                    cardStyle,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'drr_sales',
+                    placeholder: 'ДРР к продажам, %',
+                    cardStyle,
+                })}
+                {generateCard({summary, key: 'views', placeholder: 'Показов, шт.', cardStyle})}
+                {generateCard({summary, key: 'clicks', placeholder: 'Кликов, шт.', cardStyle})}
+                {generateCard({summary, key: 'ctr', placeholder: 'CTR, %', cardStyle})}
             </div>
             <div
                 style={{
@@ -7523,344 +7723,17 @@ export const MassAdvertPage = () => {
                         <div style={{width: 8}} />
                         {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
                     </div>
-                    <div ref={fieldRef}>
-                        <Button
-                            style={{
-                                marginBottom: 8,
-                            }}
-                            view="outlined-warning"
-                            size="l"
-                            onClick={() => {
-                                setDatePickerOpen((curVal) => !curVal);
-                            }}
-                        >
-                            <Text variant="subheader-1">
-                                {`${startDate.toLocaleDateString(
-                                    'ru-RU',
-                                )} - ${endDate.toLocaleDateString('ru-RU')}`}
-                            </Text>
-                        </Button>
-                    </div>
-                </div>
-                <Popup
-                    open={datePickerOpen}
-                    anchorRef={fieldRef}
-                    onClose={() => recalc(dateRange)}
-                    // placement="bottom-end"
-                >
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            marginLeft: 10,
-                            height: 250,
-                            width: 600,
+                    <RangePicker
+                        args={{
+                            recalc,
+                            dateRange,
+                            setDateRange,
+                            rangePickerOpen,
+                            setRangePickerOpen,
+                            anchorRef,
                         }}
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                overflow: 'auto',
-                                width: '100%',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: '100%',
-                                    marginTop: 8,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    overflow: 'auto',
-                                }}
-                            >
-                                <Button
-                                    width="max"
-                                    className={b('datePickerRangeButton')}
-                                    view="outlined"
-                                    onClick={() => {
-                                        const range = [today, today];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    Сегодня
-                                </Button>
-                                <div style={{width: 8}} />
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const yesterday = new Date(today);
-                                        yesterday.setDate(yesterday.getDate() - 1);
-                                        const range = [yesterday, yesterday];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    Вчера
-                                </Button>
-                            </div>
-                            <div
-                                style={{
-                                    width: '100%',
-                                    marginTop: 8,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    overflow: 'auto',
-                                }}
-                            >
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const today = new Date();
-                                        const startOfWeek = new Date(today);
-                                        startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Set to the first day of the current week (Sunday)
-
-                                        const endOfWeek = new Date(today);
-                                        endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the current week (Saturday)
-
-                                        const range = [startOfWeek, endOfWeek];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    Текущая неделя
-                                </Button>
-                                <div style={{width: 8}} />
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const today = new Date();
-                                        const startOfPreviousWeek = new Date(today);
-                                        startOfPreviousWeek.setDate(
-                                            today.getDate() - today.getDay() - 7 + 1,
-                                        ); // Set to the first day of the previous week (Sunday)
-
-                                        const endOfPreviousWeek = new Date(startOfPreviousWeek);
-                                        endOfPreviousWeek.setDate(
-                                            startOfPreviousWeek.getDate() + 6,
-                                        ); // Set to the last day of the previous week (Saturday)
-
-                                        const range = [startOfPreviousWeek, endOfPreviousWeek];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    Предыдущая неделя
-                                </Button>
-                            </div>
-                            <div
-                                style={{
-                                    width: '100%',
-                                    marginTop: 8,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    overflow: 'auto',
-                                }}
-                            >
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const today = new Date();
-                                        const startOfMonth = new Date(
-                                            today.getFullYear(),
-                                            today.getMonth(),
-                                            1,
-                                        ); // Set to the first day of the current month
-                                        const endOfMonth = new Date(
-                                            today.getFullYear(),
-                                            today.getMonth() + 1,
-                                            0,
-                                        ); // Set to the last day of the current month
-
-                                        const range = [startOfMonth, endOfMonth];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    Текущий месяц
-                                </Button>
-                                <div style={{width: 8}} />
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const today = new Date();
-                                        const firstDayOfPreviousMonth = new Date(
-                                            today.getFullYear(),
-                                            today.getMonth() - 1,
-                                            1,
-                                        ); // First day of the previous month
-                                        const lastDayOfPreviousMonth = new Date(
-                                            today.getFullYear(),
-                                            today.getMonth(),
-                                            0,
-                                        ); // Last day of the previous month
-
-                                        const range = [
-                                            firstDayOfPreviousMonth,
-                                            lastDayOfPreviousMonth,
-                                        ];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    Предыдущий месяц
-                                </Button>
-                            </div>
-                            <div
-                                style={{
-                                    width: '100%',
-                                    marginTop: 8,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    overflow: 'auto',
-                                }}
-                            >
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const today = new Date();
-                                        const startOfYear = new Date(today.getFullYear(), 0, 1); // Set to the first day of the current year
-                                        const endOfYear = new Date(today.getFullYear(), 11, 31); // Set to the last day of the current year
-
-                                        const range = [startOfYear, endOfYear];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    Текущий год
-                                </Button>
-                                <div style={{width: 8}} />
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const today = new Date();
-                                        const startOfPreviousYear = new Date(
-                                            today.getFullYear() - 1,
-                                            0,
-                                            1,
-                                        ); // Set to the first day of the previous year
-                                        const endOfPreviousYear = new Date(
-                                            today.getFullYear() - 1,
-                                            11,
-                                            31,
-                                        ); // Set to the last day of the previous year
-
-                                        const range = [startOfPreviousYear, endOfPreviousYear];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    Предыдущий год
-                                </Button>
-                            </div>
-                            <div
-                                style={{
-                                    width: '100%',
-                                    marginTop: 8,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    overflow: 'auto',
-                                }}
-                            >
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const yesterday = new Date(today);
-                                        yesterday.setDate(yesterday.getDate() - 1);
-                                        const eightDaysAgo = new Date(today);
-                                        eightDaysAgo.setDate(eightDaysAgo.getDate() - 7);
-                                        const range = [eightDaysAgo, yesterday];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    7 дней
-                                </Button>
-                                <div style={{width: 8}} />
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const yesterday = new Date(today);
-                                        yesterday.setDate(yesterday.getDate() - 1);
-                                        const thirtyOneDaysAgo = new Date(today);
-                                        thirtyOneDaysAgo.setDate(thirtyOneDaysAgo.getDate() - 30);
-                                        const range = [thirtyOneDaysAgo, yesterday];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    30 дней
-                                </Button>
-                                <div style={{width: 8}} />
-                                <Button
-                                    className={b('datePickerRangeButton')}
-                                    width="max"
-                                    view="outlined"
-                                    onClick={() => {
-                                        const yesterday = new Date(today);
-                                        yesterday.setDate(yesterday.getDate() - 1);
-                                        const ninetyOneDaysAgo = new Date(today);
-                                        ninetyOneDaysAgo.setDate(ninetyOneDaysAgo.getDate() - 90);
-                                        const range = [ninetyOneDaysAgo, yesterday];
-                                        setDateRange(range);
-                                        recalc(range);
-                                        setDatePickerOpen(false);
-                                    }}
-                                >
-                                    90 дней
-                                </Button>
-                            </div>
-                        </div>
-                        <div style={{width: '70%'}}>
-                            <RangeCalendar
-                                size="m"
-                                timeZone="Europe/Moscow"
-                                onUpdate={(val) => {
-                                    const range = [val.start.toDate(), val.end.toDate()];
-                                    setDateRange(range);
-                                    setDatePickerOpen(false);
-                                    recalc(range);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </Popup>
+                    />
+                </div>
             </div>
 
             <div
@@ -7874,7 +7747,7 @@ export const MassAdvertPage = () => {
                 <Card
                     style={{
                         width: '100%',
-                        maxHeight: '68vh',
+                        maxHeight: 'calc(100vh - 10em - 68px - 32px - 36px - 48px - 28px)',
                         boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
                         overflow: 'auto',
                     }}
@@ -8126,19 +7999,7 @@ const generateScheduleInput = (args) => {
 };
 
 const generateCard = (args) => {
-    const {summary, key, placeholder} = args;
-    const cardStyle = {
-        minWidth: '10em',
-        height: '10em',
-        display: 'flex',
-        flex: '1 1 auto',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: '16px',
-        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-        marginRight: '8px',
-        marginLeft: '8px',
-    };
+    const {summary, key, placeholder, cardStyle} = args;
     return (
         <Card style={cardStyle} view="outlined">
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>

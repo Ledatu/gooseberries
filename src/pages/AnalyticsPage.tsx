@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Spin,
     Select,
@@ -79,6 +79,8 @@ export const AnalyticsPage = () => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
 
     const [selectedButton, setSelectedButton] = useState('');
+    const anchorRef = useRef(null);
+    const [rangePickerOpen, setRangePickerOpen] = useState(false);
 
     const [planModalOpen, setPlanModalOpen] = useState(false);
     const [planModalOpenFromEntity, setPlanModalOpenFromEntity] = useState('');
@@ -88,7 +90,6 @@ export const AnalyticsPage = () => {
 
     const [graphModalOpen, setGraphModalOpen] = useState(false);
     const [graphModalData, setGraphModalData] = useState([] as any[]);
-    const [graphModalTrendData, setGraphModalTrendData] = useState([] as any[]);
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
 
@@ -183,7 +184,7 @@ export const AnalyticsPage = () => {
 
         const {isReverseGrad, planType} = columnDataObj[key];
 
-        const {graphData, trendGraphData, entity} = row;
+        const {graphData, entity} = row;
 
         const getDayPlanForDate = (date, argEntity = '') => {
             const _entity = argEntity != '' ? argEntity : entity;
@@ -296,7 +297,6 @@ export const AnalyticsPage = () => {
                         view="outlined"
                         onClick={() => {
                             setGraphModalData(graphData[key]);
-                            setGraphModalTrendData(trendGraphData[key]);
                             setGraphModalTimeline(graphData['timeline']);
                             setGraphModalTitle(title);
                             setGraphModalOpen(true);
@@ -767,13 +767,29 @@ export const AnalyticsPage = () => {
     }
 
     const genYagrData = () => {
+        function linearRegression(x, y) {
+            const n = x.length;
+            const sumX = x.reduce((a, b) => a + b, 0);
+            const sumY = y.reduce((a, b) => a + b, 0);
+            const sumXY = x.map((xi, i) => xi * y[i]).reduce((a, b) => a + b, 0);
+            const sumXX = x.map((xi) => xi * xi).reduce((a, b) => a + b, 0);
+
+            const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+
+            const trendLine = x.map((xi) => slope * xi + intercept);
+            return {slope, intercept, trendLine};
+        }
+
+        const {trendLine} = linearRegression(graphModalTimeline, graphModalData);
+
         return {
             data: {
                 timeline: graphModalTimeline,
                 graphs: [
                     {
-                        name: 'Тренд, %',
-                        data: graphModalTrendData,
+                        name: 'Тренд, ₽',
+                        data: trendLine,
                         precision: 0,
                         id: '2',
                         scale: 'r',
@@ -803,7 +819,7 @@ export const AnalyticsPage = () => {
                         show: true,
                     },
                     r: {
-                        label: 'Тренд, %',
+                        label: 'Тренд, ₽',
                         side: 'right',
                         precision: 'auto',
                         show: true,
@@ -815,6 +831,7 @@ export const AnalyticsPage = () => {
                 tooltip: {
                     precision: 0,
                 },
+                scales: {y: {min: 0}, r: {min: 0}},
                 title: {
                     text: 'График по дням',
                 },
@@ -834,7 +851,6 @@ export const AnalyticsPage = () => {
                 onClose={() => {
                     setGraphModalOpen(false);
                     setGraphModalData([]);
-                    setGraphModalTrendData([]);
                     setGraphModalTimeline([]);
                     setGraphModalTitle('');
                 }}
@@ -1341,7 +1357,14 @@ export const AnalyticsPage = () => {
                     </Popover>
                     <div style={{minWidth: 8}} />
                     <RangePicker
-                        args={{recalc: recalc, dateRange: dateRange, setDateRange: setDateRange}}
+                        args={{
+                            recalc,
+                            dateRange,
+                            setDateRange,
+                            rangePickerOpen,
+                            setRangePickerOpen,
+                            anchorRef,
+                        }}
                     />
                 </div>
             </div>

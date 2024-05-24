@@ -8,7 +8,6 @@ import {
     Text,
     Link,
     Pagination,
-    Popup,
     Modal,
     Card,
     TextInput,
@@ -34,7 +33,6 @@ import {
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare, defaultRender} from 'src/components/TheTable';
-import {RangeCalendar} from '@gravity-ui/date-components';
 import Userfront from '@userfront/toolkit';
 import {
     getNormalDateRange,
@@ -44,6 +42,7 @@ import {
 } from 'src/utilities/getRoundValue';
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import {motion} from 'framer-motion';
+import {RangePicker} from 'src/components/RangePicker';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -86,9 +85,8 @@ export const PricesPage = () => {
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 7);
     const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
-    const [startDate, endDate] = dateRange;
-    const fieldRef = useRef(null);
-    const [datePickerOpen, setDatePickerOpen] = useState(false);
+    const anchorRef = useRef(null);
+    const [rangePickerOpen, setRangePickerOpen] = useState(false);
 
     const [filters, setFilters] = useState({undef: false});
 
@@ -1206,345 +1204,16 @@ export const PricesPage = () => {
                         <Text variant="subheader-1">Очистить фильтры</Text>
                     </Button>
                     <div style={{minWidth: 8}} />
-                    <div ref={fieldRef}>
-                        <Button
-                            view="outlined-warning"
-                            size="l"
-                            onClick={() => {
-                                setDatePickerOpen((curVal) => !curVal);
-                            }}
-                        >
-                            <Text variant="subheader-1">
-                                {`${startDate.toLocaleDateString(
-                                    'ru-RU',
-                                )} - ${endDate.toLocaleDateString('ru-RU')}`}
-                            </Text>
-                        </Button>
-                    </div>
-                    <Popup
-                        open={datePickerOpen}
-                        anchorRef={fieldRef}
-                        // placement="bottom-end"
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                marginLeft: 10,
-                                height: 250,
-                                width: 600,
-                            }}
-                        >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    overflow: 'auto',
-                                    width: '100%',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        marginTop: 8,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        overflow: 'auto',
-                                    }}
-                                >
-                                    <Button
-                                        width="max"
-                                        className={b('datePickerRangeButton')}
-                                        view="outlined"
-                                        onClick={() => {
-                                            const range = [today, today];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        Сегодня
-                                    </Button>
-                                    <div style={{width: 8}} />
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const yesterday = new Date(today);
-                                            yesterday.setDate(yesterday.getDate() - 1);
-                                            const range = [yesterday, yesterday];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        Вчера
-                                    </Button>
-                                </div>
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        marginTop: 8,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        overflow: 'auto',
-                                    }}
-                                >
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const today = new Date();
-                                            const startOfWeek = new Date(today);
-                                            startOfWeek.setDate(
-                                                today.getDate() - today.getDay() + 1,
-                                            ); // Set to the first day of the current week (Sunday)
-
-                                            const endOfWeek = new Date(today);
-                                            endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the current week (Saturday)
-
-                                            const range = [startOfWeek, endOfWeek];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        Текущая неделя
-                                    </Button>
-                                    <div style={{width: 8}} />
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const today = new Date();
-                                            const startOfPreviousWeek = new Date(today);
-                                            startOfPreviousWeek.setDate(
-                                                today.getDate() - today.getDay() - 7 + 1,
-                                            ); // Set to the first day of the previous week (Sunday)
-
-                                            const endOfPreviousWeek = new Date(startOfPreviousWeek);
-                                            endOfPreviousWeek.setDate(
-                                                startOfPreviousWeek.getDate() + 6,
-                                            ); // Set to the last day of the previous week (Saturday)
-
-                                            const range = [startOfPreviousWeek, endOfPreviousWeek];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        Предыдущая неделя
-                                    </Button>
-                                </div>
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        marginTop: 8,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        overflow: 'auto',
-                                    }}
-                                >
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const today = new Date();
-                                            const startOfMonth = new Date(
-                                                today.getFullYear(),
-                                                today.getMonth(),
-                                                1,
-                                            ); // Set to the first day of the current month
-                                            const endOfMonth = new Date(
-                                                today.getFullYear(),
-                                                today.getMonth() + 1,
-                                                0,
-                                            ); // Set to the last day of the current month
-
-                                            const range = [startOfMonth, endOfMonth];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        Текущий месяц
-                                    </Button>
-                                    <div style={{width: 8}} />
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const today = new Date();
-                                            const firstDayOfPreviousMonth = new Date(
-                                                today.getFullYear(),
-                                                today.getMonth() - 1,
-                                                1,
-                                            ); // First day of the previous month
-                                            const lastDayOfPreviousMonth = new Date(
-                                                today.getFullYear(),
-                                                today.getMonth(),
-                                                0,
-                                            ); // Last day of the previous month
-
-                                            const range = [
-                                                firstDayOfPreviousMonth,
-                                                lastDayOfPreviousMonth,
-                                            ];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        Предыдущий месяц
-                                    </Button>
-                                </div>
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        marginTop: 8,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        overflow: 'auto',
-                                    }}
-                                >
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const today = new Date();
-                                            const startOfYear = new Date(today.getFullYear(), 0, 1); // Set to the first day of the current year
-                                            const endOfYear = new Date(today.getFullYear(), 11, 31); // Set to the last day of the current year
-
-                                            const range = [startOfYear, endOfYear];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        Текущий год
-                                    </Button>
-                                    <div style={{width: 8}} />
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const today = new Date();
-                                            const startOfPreviousYear = new Date(
-                                                today.getFullYear() - 1,
-                                                0,
-                                                1,
-                                            ); // Set to the first day of the previous year
-                                            const endOfPreviousYear = new Date(
-                                                today.getFullYear() - 1,
-                                                11,
-                                                31,
-                                            ); // Set to the last day of the previous year
-
-                                            const range = [startOfPreviousYear, endOfPreviousYear];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        Предыдущий год
-                                    </Button>
-                                </div>
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        marginTop: 8,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        overflow: 'auto',
-                                    }}
-                                >
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const yesterday = new Date(today);
-                                            yesterday.setDate(yesterday.getDate() - 1);
-                                            const eightDaysAgo = new Date(today);
-                                            eightDaysAgo.setDate(eightDaysAgo.getDate() - 7);
-                                            const range = [eightDaysAgo, yesterday];
-                                            setDateRange(range);
-                                            setDatePickerOpen(false);
-                                            setDateChangeRecalc(true);
-                                        }}
-                                    >
-                                        7 дней
-                                    </Button>
-                                    <div style={{width: 8}} />
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const yesterday = new Date(today);
-                                            yesterday.setDate(yesterday.getDate() - 1);
-                                            const thirtyOneDaysAgo = new Date(today);
-                                            thirtyOneDaysAgo.setDate(
-                                                thirtyOneDaysAgo.getDate() - 30,
-                                            );
-                                            const range = [thirtyOneDaysAgo, yesterday];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        30 дней
-                                    </Button>
-                                    <div style={{width: 8}} />
-                                    <Button
-                                        className={b('datePickerRangeButton')}
-                                        width="max"
-                                        view="outlined"
-                                        onClick={() => {
-                                            const yesterday = new Date(today);
-                                            yesterday.setDate(yesterday.getDate() - 1);
-                                            const ninetyOneDaysAgo = new Date(today);
-                                            ninetyOneDaysAgo.setDate(
-                                                ninetyOneDaysAgo.getDate() - 90,
-                                            );
-                                            const range = [ninetyOneDaysAgo, yesterday];
-                                            setDateRange(range);
-                                            setDateChangeRecalc(true);
-                                            setDatePickerOpen(false);
-                                        }}
-                                    >
-                                        90 дней
-                                    </Button>
-                                </div>
-                            </div>
-                            <div style={{width: '70%'}}>
-                                <RangeCalendar
-                                    size="m"
-                                    timeZone="Europe/Moscow"
-                                    onUpdate={(val) => {
-                                        const range = [val.start.toDate(), val.end.toDate()];
-                                        setDateRange(range);
-                                        setDatePickerOpen(false);
-                                        setDateChangeRecalc(true);
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </Popup>
+                    <RangePicker
+                        args={{
+                            recalc: () => setDateChangeRecalc(true),
+                            dateRange,
+                            setDateRange,
+                            rangePickerOpen,
+                            setRangePickerOpen,
+                            anchorRef,
+                        }}
+                    />
                 </div>
             </div>
 

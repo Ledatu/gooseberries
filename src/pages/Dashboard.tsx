@@ -10,6 +10,7 @@ import {
     Icon,
     Tabs,
     Link,
+    Button,
     // Tabs,
 } from '@gravity-ui/uikit';
 import '../App.scss';
@@ -23,7 +24,7 @@ import textLogo from '../assets/textLogo.png';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
-import {Sun, Moon} from '@gravity-ui/icons';
+import {Sun, Moon, PencilToSquare} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
@@ -209,16 +210,21 @@ export const Dashboard = () => {
                                 >
                                     <div style={{minWidth: 32}} />
 
+                                    <Button size="l" disabled>
+                                        <Icon data={PencilToSquare} />
+                                    </Button>
+                                    <div style={{minWidth: 8}} />
                                     <Persona
-                                        style={{marginRight: '8px'}}
+                                        size="s"
                                         onClose={() => {
                                             Userfront.logout();
                                         }}
-                                        type="email"
-                                        text={Userfront.user.email ?? ''}
+                                        type="empty"
+                                        text={Userfront.user.email?.split('@')[0] ?? ''}
                                     />
-
+                                    <div style={{minWidth: 8}} />
                                     <RadioButton
+                                        size="l"
                                         name="themeRadioButton"
                                         defaultValue={theme}
                                         options={optionsTheme}
