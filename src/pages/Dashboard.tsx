@@ -30,6 +30,7 @@ import {Sun, Moon, PencilToSquare, Xmark, Check} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
+import callApi, {getUid} from 'src/utilities/callApi';
 
 const b = block('app');
 
@@ -57,7 +58,8 @@ export const Dashboard = () => {
 
     const [notesModalOpen, setNotesModalOpen] = useState(false);
     const [currentNote, setCurrentNote] = useState('Сохранять можно будет ближе к вечеру');
-    const [page, setPage] = useState('massAdvert');
+    const [page, setPage] = useState('analytics');
+    // const [page, setPage] = useState('massAdvert');
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const renderTabItem = (item, node, index) => {
@@ -129,6 +131,21 @@ export const Dashboard = () => {
         if (notesTextArea.current !== null) {
             const note = notesTextArea.current.value;
             setCurrentNote(note ?? '');
+        }
+    };
+    const saveNoteToTheServer = () => {
+        setNotesModalOpen(false);
+        if (notesTextArea.current !== null) {
+            const note = notesTextArea.current.value;
+            setCurrentNote('');
+
+            const params = {
+                uid: getUid(),
+                data: {
+                    note: note,
+                },
+            };
+            callApi('saveNote', params);
         }
     };
 
@@ -262,10 +279,9 @@ export const Dashboard = () => {
                                                 </Text>
                                                 <div style={{position: 'absolute', left: 8}}>
                                                     <Button
-                                                        disabled
                                                         view="flat-success"
                                                         size="s"
-                                                        onClick={() => saveNote()}
+                                                        onClick={() => saveNoteToTheServer()}
                                                     >
                                                         <Icon data={Check} />
                                                     </Button>
