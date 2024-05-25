@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import {
     Spin,
     Button,
@@ -1928,6 +1928,34 @@ export const MassAdvertPage = () => {
             group: true,
         },
         {
+            name: 'tags',
+            placeholder: 'Теги',
+            valueType: 'text',
+            render: ({value}) => {
+                if (value === undefined) return;
+                const tags = [] as ReactNode[];
+
+                for (let i = 0; i < value.length; i++) {
+                    const tag = value[i];
+                    if (tag === undefined) continue;
+
+                    tags.push(
+                        <Button
+                            style={{margin: '0 4px', marginBottom: 4}}
+                            size="xs"
+                            pin="circle-circle"
+                            selected
+                            view="outlined-info"
+                            onClick={() => filterByButton(value, 'tags')}
+                        >
+                            {tag.toUpperCase()}
+                        </Button>,
+                    );
+                }
+                return <div style={{display: 'flex'}}>{tags}</div>;
+            },
+        },
+        {
             name: 'adverts',
             placeholder: 'Реклама',
             valueType: 'text',
@@ -3418,6 +3446,7 @@ export const MassAdvertPage = () => {
                 adverts: 0,
                 stocks: 0,
                 advertsManagerRules: undefined,
+                tags: [] as any[],
                 advertsStocksThreshold: undefined,
                 placements: undefined,
                 placementsValue: undefined,
@@ -3453,6 +3482,7 @@ export const MassAdvertPage = () => {
             artInfo.imtId = artData['imtId'];
             artInfo.object = artData['object'];
             artInfo.nmId = artData['nmId'];
+            artInfo.tags = artData['tags'];
             artInfo.title = artData['title'];
             artInfo.brand = artData['brand'];
             artInfo.stocks = artData['stocks'];
@@ -3766,6 +3796,18 @@ export const MassAdvertPage = () => {
                         }
                     }
                     if (tempFlagInc != rulesForAnd.length) {
+                        addFlag = false;
+                        break;
+                    }
+                }
+                if (filterArg == 'tags') {
+                    let wholeText = '';
+                    if (flarg)
+                        for (const key of flarg) {
+                            wholeText += key + ' ';
+                        }
+
+                    if (!compare(wholeText, filterData)) {
                         addFlag = false;
                         break;
                     }

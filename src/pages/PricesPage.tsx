@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import {
     Spin,
     Select,
@@ -217,6 +217,34 @@ export const PricesPage = () => {
             placeholder: 'Бренд',
             valueType: 'text',
             render: (args) => renderFilterByClickButton(args, 'brand'),
+        },
+        {
+            name: 'tags',
+            placeholder: 'Теги',
+            valueType: 'text',
+            render: ({value}) => {
+                if (value === undefined) return;
+                const tags = [] as ReactNode[];
+
+                for (let i = 0; i < value.length; i++) {
+                    const tag = value[i];
+                    if (tag === undefined) continue;
+
+                    tags.push(
+                        <Button
+                            style={{margin: '0 4px'}}
+                            size="xs"
+                            pin="circle-circle"
+                            selected
+                            view="outlined-info"
+                            onClick={() => filterByClick(value, 'tags')}
+                        >
+                            {tag.toUpperCase()}
+                        </Button>,
+                    );
+                }
+                return tags;
+            },
         },
         {
             name: 'object',
@@ -454,6 +482,7 @@ export const PricesPage = () => {
                 imtId: '',
                 nmId: 0,
                 barcode: 0,
+                tags: [] as any[],
                 rozPrice: undefined,
                 sppPrice: undefined,
                 wbWalletPrice: undefined,
@@ -490,6 +519,8 @@ export const PricesPage = () => {
             artInfo.sppPrice = artData['sppPrice'];
             artInfo.wbWalletPrice = artData['wbWalletPrice'];
             artInfo.wbPrice = Math.round(artData['wbPrice']);
+            artInfo.tags = artData['tags'] ?? [];
+
             // artInfo.priceInfo = artData['priceInfo'];
             artInfo.discount = artData['priceInfo'].discount;
             artInfo.spp = Math.round(artData['priceInfo'].spp);
@@ -545,7 +576,18 @@ export const PricesPage = () => {
                     if (flarg === undefined) continue;
                 }
 
-                if (!compare(tempTypeRow[filterArg], filterData)) {
+                if (filterArg == 'tags') {
+                    let wholeText = '';
+                    if (flarg)
+                        for (const key of flarg) {
+                            wholeText += key + ' ';
+                        }
+
+                    if (!compare(wholeText, filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (!compare(tempTypeRow[filterArg], filterData)) {
                     addFlag = false;
                     break;
                 }

@@ -212,6 +212,7 @@ export const NomenclaturesPage = () => {
         {
             name: 'tags',
             placeholder: 'Теги',
+            valueType: 'text',
             render: ({value}) => {
                 if (value === undefined) return;
                 const tags = [] as ReactNode[];
@@ -474,41 +475,14 @@ export const NomenclaturesPage = () => {
                     if (flarg === undefined) continue;
                 }
 
-                if (filterArg == 'art') {
-                    const rulesForAnd = filterData['val'].split('+');
-                    // console.log(rulesForAnd);
-
+                if (filterArg == 'tags') {
                     let wholeText = '';
-                    for (const key of [
-                        'art',
-                        'title',
-                        'brand',
-                        'nmId',
-                        'imtId',
-                        'object',
-                        'size',
-                        'barcode',
-                    ]) {
-                        wholeText += tempTypeRow[key] + ' ';
-                    }
+                    if (flarg)
+                        for (const key of flarg) {
+                            wholeText += key + ' ';
+                        }
 
-                    let tempFlagInc = 0;
-                    for (let k = 0; k < rulesForAnd.length; k++) {
-                        const ruleForAdd = rulesForAnd[k];
-                        if (ruleForAdd == '') {
-                            tempFlagInc++;
-                            continue;
-                        }
-                        if (
-                            compare(wholeText, {
-                                val: ruleForAdd,
-                                compMode: filterData['compMode'],
-                            })
-                        ) {
-                            tempFlagInc++;
-                        }
-                    }
-                    if (tempFlagInc != rulesForAnd.length) {
+                    if (!compare(wholeText, filterData)) {
                         addFlag = false;
                         break;
                     }
@@ -892,20 +866,24 @@ export const NomenclaturesPage = () => {
                                                 };
 
                                                 for (const row of filteredData) {
-                                                    const {art, nmId} = row ?? {};
+                                                    const {art, size, nmId} = row ?? {};
                                                     if (nmId === undefined) continue;
                                                     if (!params.data.nmIds.includes(nmId))
                                                         params.data.nmIds.push(nmId);
 
-                                                    if (!doc.nomenclatures[selectValue[0]][art])
+                                                    const aurumArt =
+                                                        art + (size == '0' ? '' : `_${size}`);
+                                                    if (
+                                                        !doc.nomenclatures[selectValue[0]][aurumArt]
+                                                    )
                                                         continue;
                                                     if (
                                                         !doc.nomenclatures[selectValue[0]][
-                                                            art
+                                                            aurumArt
                                                         ].tags.includes(tag)
                                                     )
                                                         doc.nomenclatures[selectValue[0]][
-                                                            art
+                                                            aurumArt
                                                         ].tags.push(tag);
                                                 }
 
@@ -950,18 +928,23 @@ export const NomenclaturesPage = () => {
                                                 };
 
                                                 for (const row of filteredData) {
-                                                    const {art, nmId} = row ?? {};
+                                                    const {art, size, nmId} = row ?? {};
                                                     if (nmId === undefined) continue;
                                                     if (!params.data.nmIds.includes(nmId))
                                                         params.data.nmIds.push(nmId);
 
-                                                    if (!doc.nomenclatures[selectValue[0]][art])
+                                                    const aurumArt =
+                                                        art + (size == '0' ? '' : `_${size}`);
+                                                    if (
+                                                        !doc.nomenclatures[selectValue[0]][aurumArt]
+                                                    )
                                                         continue;
 
-                                                    doc.nomenclatures[selectValue[0]][art].tags =
-                                                        doc.nomenclatures[selectValue[0]][
-                                                            art
-                                                        ].tags.filter((val) => val != tag);
+                                                    doc.nomenclatures[selectValue[0]][
+                                                        aurumArt
+                                                    ].tags = doc.nomenclatures[selectValue[0]][
+                                                        aurumArt
+                                                    ].tags.filter((val) => val != tag);
                                                 }
 
                                                 setChangedDoc(doc);
