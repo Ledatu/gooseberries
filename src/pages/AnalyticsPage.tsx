@@ -125,7 +125,74 @@ export const AnalyticsPage = () => {
             render: ({value, row}) => {
                 if (row.isBlank) return undefined;
                 if (value === undefined) return 'Итого';
-                return new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
+
+                const {notes, entity} = row;
+
+                const {all} = notes ?? [];
+
+                const notesList = [] as any[];
+                for (let i = 0; i < all.length; i++) {
+                    const {note, tags} = all[i];
+
+                    if (tags.includes(entity)) {
+                        notesList.push(
+                            <Card
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    minHeight: 64,
+                                    padding: 8,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                {note}
+                            </Card>,
+                        );
+                    }
+                }
+
+                console.log(all);
+
+                return notesList.length ? (
+                    <Popover
+                        content={
+                            <div
+                                style={{
+                                    height: 'calc(30em - 60px)',
+                                    width: '30em',
+                                    overflow: 'auto',
+                                    paddingBottom: 8,
+                                    display: 'flex',
+                                }}
+                            >
+                                <Card
+                                    view="outlined"
+                                    theme="warning"
+                                    style={{
+                                        position: 'absolute',
+                                        height: '30em',
+                                        width: '30em',
+                                        padding: 20,
+                                        overflow: 'auto',
+                                        top: -10,
+                                        left: -10,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        background: 'var(--g-color-base-background)',
+                                    }}
+                                >
+                                    {notesList}
+                                </Card>
+                            </div>
+                        }
+                    >
+                        <Text color="brand">
+                            {new Date(value).toLocaleDateString('ru-RU').slice(0, 10)}
+                        </Text>
+                    </Popover>
+                ) : (
+                    new Date(value).toLocaleDateString('ru-RU').slice(0, 10)
+                );
             },
         },
         sum: {
@@ -461,6 +528,7 @@ export const AnalyticsPage = () => {
                 tempTypeRow['entity'] = entity;
                 tempTypeRow['date'] = date;
                 tempTypeRow['orders'] = dateStats['orders'];
+                tempTypeRow['notes'] = dateStats['notes'];
                 tempTypeRow['sum_orders'] = dateStats['sum_orders'];
                 tempTypeRow['sales'] = dateStats['sales'];
                 tempTypeRow['sum_sales'] = dateStats['sum_sales'];
