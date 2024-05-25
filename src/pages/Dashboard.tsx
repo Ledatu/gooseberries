@@ -58,8 +58,8 @@ export const Dashboard = () => {
 
     const [notesModalOpen, setNotesModalOpen] = useState(false);
     const [currentNote, setCurrentNote] = useState('');
-    const [page, setPage] = useState('analytics');
-    // const [page, setPage] = useState('massAdvert');
+    // const [page, setPage] = useState('analytics');
+    const [page, setPage] = useState('massAdvert');
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const renderTabItem = (item, node, index) => {

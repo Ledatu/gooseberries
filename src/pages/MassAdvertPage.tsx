@@ -3799,8 +3799,7 @@ export const MassAdvertPage = () => {
                         addFlag = false;
                         break;
                     }
-                }
-                if (filterArg == 'tags') {
+                } else if (filterArg == 'tags') {
                     let wholeText = '';
                     if (flarg)
                         for (const key of flarg) {
