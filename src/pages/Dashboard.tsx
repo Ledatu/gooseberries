@@ -138,7 +138,6 @@ export const Dashboard = () => {
             const note = notesTextArea.current.value;
             setCurrentNote(note ?? '');
         }
-        setTagsAddedForCurrentNote([]);
     };
     const saveNoteToTheServer = () => {
         setNotesModalOpen(false);
@@ -266,6 +265,8 @@ export const Dashboard = () => {
                                                 if (!res) throw 'no response';
 
                                                 const {tags} = res['data'] ?? {};
+
+                                                tags.sort();
 
                                                 setAvailableTags(tags ?? []);
 
