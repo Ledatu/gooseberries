@@ -348,6 +348,7 @@ export const AnalyticsPage = () => {
         title: false,
         imtId: false,
         art: false,
+        tags: false,
     });
 
     const getEnteredKeys = () => {
@@ -1123,6 +1124,7 @@ export const AnalyticsPage = () => {
                                 title: false,
                                 imtId: false,
                                 art: false,
+                                tags: false,
                             });
                         }}
                     >
@@ -1219,6 +1221,17 @@ export const AnalyticsPage = () => {
                                     onUpdate={(val) => {
                                         const temp = {...enteredKeysCheck};
                                         temp.art = val;
+                                        setEnteredKeysCheck(temp);
+                                    }}
+                                />
+                                <div style={{minHeight: 8}} />
+                                <Checkbox
+                                    size="l"
+                                    content={'Теги'}
+                                    checked={enteredKeysCheck.tags}
+                                    onUpdate={(val) => {
+                                        const temp = {...enteredKeysCheck};
+                                        temp.tags = val;
                                         setEnteredKeysCheck(temp);
                                     }}
                                 />

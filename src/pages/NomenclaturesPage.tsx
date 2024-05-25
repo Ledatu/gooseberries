@@ -10,6 +10,8 @@ import {
     Modal,
     Card,
     TextInput,
+    Label,
+    Link,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -27,6 +29,7 @@ import {
     Key,
     Pencil,
     CloudArrowUpIn,
+    TrashBin,
     Tag,
 } from '@gravity-ui/icons';
 
@@ -83,6 +86,26 @@ export const NomenclaturesPage = () => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
+    const filterByClick = (val, key = 'art', compMode = 'include') => {
+        filters[key] = {val: String(val), compMode: compMode};
+        setFilters(filters);
+        filterTableData(filters);
+    };
+
+    const renderFilterByClickButton = ({value}, key) => {
+        return (
+            <Button
+                size="xs"
+                view="flat"
+                onClick={() => {
+                    filterByClick(value, key);
+                }}
+            >
+                {value}
+            </Button>
+        );
+    };
+
     const generateEditButton = (key) => {
         return (
             <Button
@@ -106,9 +129,9 @@ export const NomenclaturesPage = () => {
             name: 'art',
             placeholder: 'Артикул',
             width: 200,
-            render: ({value, footer, index}) => {
+            render: ({value, footer, index, row}) => {
                 if (footer) return <div style={{height: 28}}>{value}</div>;
-
+                const {nmId} = row;
                 return (
                     <div
                         style={{
@@ -130,18 +153,62 @@ export const NomenclaturesPage = () => {
                         >
                             {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
                         </div>
-                        {value}
+                        <Link
+                            view="primary"
+                            style={{whiteSpace: 'pre-wrap'}}
+                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                            target="_blank"
+                        >
+                            <Text variant="subheader-1">{value}</Text>
+                        </Link>
                     </div>
                 );
             },
             valueType: 'text',
             group: true,
         },
-        {name: 'size', placeholder: 'Размер', valueType: 'text'},
-        {name: 'brand', placeholder: 'Бренд', valueType: 'text'},
-        {name: 'title', placeholder: 'Наименование', valueType: 'text'},
-        {name: 'nmId', placeholder: 'Артикул WB', valueType: 'text'},
-        {name: 'barcode', placeholder: 'Баркод', valueType: 'text'},
+        {
+            name: 'size',
+            placeholder: 'Размер',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'size'),
+        },
+        {
+            name: 'brand',
+            placeholder: 'Бренд',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'brand'),
+        },
+        {
+            name: 'object',
+            placeholder: 'Тип предмета',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'object'),
+        },
+        {
+            name: 'title',
+            placeholder: 'Наименование',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'title'),
+        },
+        {
+            name: 'imtId',
+            placeholder: 'ID КТ',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'imtId'),
+        },
+        {
+            name: 'nmId',
+            placeholder: 'Артикул WB',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'nmId'),
+        },
+        {
+            name: 'barcode',
+            placeholder: 'Баркод',
+            valueType: 'text',
+            render: (args) => renderFilterByClickButton(args, 'barcode'),
+        },
         {
             name: 'tags',
             placeholder: 'Теги',
@@ -151,16 +218,22 @@ export const NomenclaturesPage = () => {
                 for (const tag of value) {
                     if (tag === undefined) continue;
 
+                    //     <Label
+                    //     style={{margin: '0 4px'}}
+                    //     size="xs"
+                    //     pin="circle-circle"
+                    //     selected
+                    //     view="outlined-info"
+                    // >
+                    //     {tag.toUpperCase()}
+                    // </Label>,
+
                     tags.push(
-                        <Button
-                            style={{margin: '0 4px'}}
-                            size="xs"
-                            pin="circle-circle"
-                            selected
-                            view="outlined-info"
-                        >
-                            {tag.toUpperCase()}
-                        </Button>,
+                        <div style={{margin: '0 4px'}}>
+                            <Label size="xs" theme="info" type="copy" copyText={tag.toUpperCase()}>
+                                {tag.toUpperCase()}
+                            </Label>
+                        </div>,
                     );
                 }
                 return tags;
@@ -775,7 +848,7 @@ export const NomenclaturesPage = () => {
                                     alignItems: 'center',
                                 }}
                             >
-                                <Text variant="display-1">Назначить тег</Text>
+                                <Text variant="display-1">Назначить / Удалить тег</Text>
                                 <div style={{minHeight: 8}} />
                                 <TextInput
                                     controlRef={tagsInputRef}
@@ -847,6 +920,61 @@ export const NomenclaturesPage = () => {
                                     selectedButton,
                                     setSelectedButton,
                                 )}
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Удалить тег',
+                                        icon: TrashBin,
+                                        view: 'outlined-danger',
+                                        onClick: () => {
+                                            if (tagsInputRef.current !== null) {
+                                                const tag = tagsInputRef.current.value;
+
+                                                if (
+                                                    tag[0] != '#' ||
+                                                    tag.indexOf(' ') !== -1 ||
+                                                    tag.length < 2
+                                                ) {
+                                                    setTagsInputValid(false);
+                                                    setSelectedButton('');
+                                                    return;
+                                                }
+
+                                                const params = {
+                                                    uid: getUid(),
+                                                    campaignName: selectValue[0],
+                                                    data: {
+                                                        nmIds: [] as number[],
+                                                        mode: 'Удалить',
+                                                        tag: tag,
+                                                    },
+                                                };
+
+                                                for (const row of filteredData) {
+                                                    const {art, nmId} = row ?? {};
+                                                    if (nmId === undefined) continue;
+                                                    if (!params.data.nmIds.includes(nmId))
+                                                        params.data.nmIds.push(nmId);
+
+                                                    if (!doc.nomenclatures[selectValue[0]][art])
+                                                        continue;
+
+                                                    doc.nomenclatures[selectValue[0]][art].tags =
+                                                        doc.nomenclatures[selectValue[0]][
+                                                            art
+                                                        ].tags.filter((val) => val != tag);
+                                                }
+
+                                                setChangedDoc(doc);
+
+                                                callApi('setTags', params);
+
+                                                setTagsModalFormOpen(false);
+                                            }
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
                             </div>
                         </Modal>
                     </div>
@@ -860,10 +988,32 @@ export const NomenclaturesPage = () => {
                         marginBottom: 8,
                     }}
                 >
+                    <Button
+                        size="l"
+                        view="action"
+                        onClick={() => {
+                            setFilters(() => {
+                                const newFilters = {undef: true};
+                                for (const [key, filterData] of Object.entries(filters as any)) {
+                                    if (key == 'undef' || !key || !filterData) continue;
+                                    newFilters[key] = {
+                                        val: '',
+                                        compMode: filterData['compMode'] ?? 'include',
+                                    };
+                                }
+                                filterTableData(newFilters);
+                                return newFilters;
+                            });
+                        }}
+                    >
+                        <Icon data={TrashBin} />
+                        <Text variant="subheader-1">Очистить фильтры</Text>
+                    </Button>
+                    <div style={{minWidth: 8}} />
                     <div style={{marginRight: 4}}>
                         <Button
                             size="l"
-                            view={'outlined'}
+                            view={'outlined-warning'}
                             onClick={() => {
                                 setUploadProgress(0);
                                 callApi('downloadPricesTemplate', {
@@ -906,7 +1056,7 @@ export const NomenclaturesPage = () => {
                                             ? 'flat-success'
                                             : uploadProgress === -1
                                             ? 'flat-danger'
-                                            : 'outlined'
+                                            : 'outlined-success'
                                     }
                                 >
                                     <Icon data={FileArrowUp} size={20} />
