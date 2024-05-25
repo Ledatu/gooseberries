@@ -67,7 +67,8 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     return doc;
 };
 
-export const NomenclaturesPage = () => {
+export const NomenclaturesPage = ({pageArgs}) => {
+    const {setSelectedCampaign} = pageArgs;
     const uploadId = useId();
 
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -312,6 +313,10 @@ export const NomenclaturesPage = () => {
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+
+    useEffect(() => {
+        setSelectedCampaign(selectValue[0]);
+    }, [selectValue]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 

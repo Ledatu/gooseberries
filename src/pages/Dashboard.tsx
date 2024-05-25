@@ -13,6 +13,7 @@ import {
     Button,
     Modal,
     TextArea,
+    List,
     // Tabs,
 } from '@gravity-ui/uikit';
 import '../App.scss';
@@ -56,11 +57,16 @@ export const Dashboard = () => {
         {value: 'light', content: <Icon data={Sun}></Icon>},
     ];
 
+    const [availableTags, setAvailableTags] = useState([] as any[]);
+    const [tagsAddedForCurrentNote, setTagsAddedForCurrentNote] = useState([] as any[]);
+    const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [notesModalOpen, setNotesModalOpen] = useState(false);
     const [currentNote, setCurrentNote] = useState('');
     // const [page, setPage] = useState('analytics');
     const [page, setPage] = useState('massAdvert');
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
+
+    const [selectedCampaign, setSelectedCampaign] = useState('');
 
     const renderTabItem = (item, node, index) => {
         if (item === undefined || node === undefined || index === undefined) return <></>;
@@ -132,20 +138,24 @@ export const Dashboard = () => {
             const note = notesTextArea.current.value;
             setCurrentNote(note ?? '');
         }
+        setTagsAddedForCurrentNote([]);
     };
     const saveNoteToTheServer = () => {
         setNotesModalOpen(false);
         if (notesTextArea.current !== null) {
             const note = notesTextArea.current.value;
-            setCurrentNote('');
 
             const params = {
                 uid: getUid(),
+                campaignName: selectedCampaign,
                 data: {
                     note: note,
+                    tags: tagsAddedForCurrentNote,
                 },
             };
             callApi('saveNote', params);
+            setCurrentNote('');
+            setTagsAddedForCurrentNote([]);
         }
     };
 
@@ -243,7 +253,28 @@ export const Dashboard = () => {
 
                                     <Button
                                         size="l"
-                                        onClick={() => setNotesModalOpen((val) => !val)}
+                                        onClick={async () => {
+                                            setNotesModalOpen((val) => !val);
+                                            setAvailableTagsPending(true);
+
+                                            try {
+                                                const res = await callApi('getAllTags', {
+                                                    uid: getUid(),
+                                                    campaignName: selectedCampaign,
+                                                });
+
+                                                if (!res) throw 'no response';
+
+                                                const {tags} = res['data'] ?? {};
+
+                                                setAvailableTags(tags ?? []);
+
+                                                setAvailableTagsPending(false);
+                                            } catch (e) {
+                                                console.log(e);
+                                                setAvailableTagsPending(false);
+                                            }
+                                        }}
                                     >
                                         <Icon data={PencilToSquare} />
                                     </Button>
@@ -254,7 +285,6 @@ export const Dashboard = () => {
                                                 flexDirection: 'column',
                                                 alignItems: 'center',
                                                 width: '30em',
-                                                minHeight: '20em',
                                             }}
                                         >
                                             <div
@@ -300,9 +330,57 @@ export const Dashboard = () => {
                                                 defaultValue={currentNote}
                                                 controlRef={notesTextArea}
                                                 autoFocus
-                                                minRows={20}
-                                                maxRows={30}
+                                                rows={20}
                                             />
+                                            <div style={{minHeight: 8}} />
+                                            <div></div>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    width: 'calc(100% - 16px)',
+                                                    height: 200,
+                                                }}
+                                            >
+                                                <List
+                                                    filterPlaceholder="Введите имя тега"
+                                                    emptyPlaceholder="Такой тег отсутствует"
+                                                    loading={availableTagsPending}
+                                                    items={availableTags}
+                                                    renderItem={(item) => {
+                                                        return (
+                                                            <Button
+                                                                size="xs"
+                                                                pin="circle-circle"
+                                                                selected={tagsAddedForCurrentNote.includes(
+                                                                    item,
+                                                                )}
+                                                                view={
+                                                                    tagsAddedForCurrentNote.includes(
+                                                                        item,
+                                                                    )
+                                                                        ? 'outlined-info'
+                                                                        : 'outlined'
+                                                                }
+                                                            >
+                                                                {item.toUpperCase()}
+                                                            </Button>
+                                                        );
+                                                    }}
+                                                    onItemClick={(item) => {
+                                                        let tempArr =
+                                                            Array.from(tagsAddedForCurrentNote);
+                                                        if (tempArr.includes(item)) {
+                                                            tempArr = tempArr.filter(
+                                                                (value) => value != item,
+                                                            );
+                                                        } else {
+                                                            tempArr.push(item);
+                                                        }
+
+                                                        setTagsAddedForCurrentNote(tempArr);
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
                                     </Modal>
                                     <div style={{minWidth: 8}} />
@@ -342,7 +420,7 @@ export const Dashboard = () => {
                             // left: 'calc(-50vw + 50%)',
                         }}
                     >
-                        <PageElem page={page} />
+                        {getPageElem({page, args: {setSelectedCampaign}})}
                     </div>
                 </div>
             </div>
@@ -350,15 +428,15 @@ export const Dashboard = () => {
     );
 };
 
-function PageElem({page}) {
+const getPageElem = ({page, args}) => {
     const pages = {
         api: <ApiPage />,
         stats_rk: <AdvertStatsPage />,
         deliveryOrders: <DeliveryOrdersPage />,
-        massAdvert: <MassAdvertPage />,
-        prices: <PricesPage />,
-        nomenclatures: <NomenclaturesPage />,
+        massAdvert: <MassAdvertPage pageArgs={args} />,
+        prices: <PricesPage pageArgs={args} />,
+        nomenclatures: <NomenclaturesPage pageArgs={args} />,
         analytics: <AnalyticsPage />,
     };
     return pages[page] ?? <div></div>;
-}
+};

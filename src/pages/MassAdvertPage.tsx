@@ -115,7 +115,9 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     return doc;
 };
 
-export const MassAdvertPage = () => {
+export const MassAdvertPage = ({pageArgs}) => {
+    const {setSelectedCampaign} = pageArgs;
+
     const cardStyle = {
         minWidth: '10em',
         height: '10em',
@@ -3317,6 +3319,10 @@ export const MassAdvertPage = () => {
     // const [doc, setUserDoc] = React.useState(getUserDoc());
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
+
+    useEffect(() => {
+        setSelectedCampaign(selectValue[0]);
+    }, [selectValue]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
     const getCampaignName = () => {

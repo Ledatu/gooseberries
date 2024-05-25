@@ -73,7 +73,9 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const PricesPage = () => {
+export const PricesPage = ({pageArgs}) => {
+    const {setSelectedCampaign} = pageArgs;
+
     const today = new Date(
         new Date()
             .toLocaleDateString('ru-RU')
@@ -427,6 +429,10 @@ export const PricesPage = () => {
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
     const [selectValue, setSelectValue] = React.useState<string[]>([]);
+
+    useEffect(() => {
+        setSelectedCampaign(selectValue[0]);
+    }, [selectValue]);
 
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
     const [updatingFlag, setUpdatingFlag] = useState(false);
