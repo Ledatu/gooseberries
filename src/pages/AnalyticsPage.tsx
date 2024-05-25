@@ -128,7 +128,7 @@ export const AnalyticsPage = () => {
 
                 const {notes, entity} = row;
 
-                const {all} = notes ?? [];
+                const {all} = notes ?? {all: []};
 
                 const notesList = [] as any[];
                 for (let i = 0; i < all.length; i++) {
@@ -150,8 +150,6 @@ export const AnalyticsPage = () => {
                         );
                     }
                 }
-
-                console.log(all);
 
                 return notesList.length ? (
                     <Popover
