@@ -7794,7 +7794,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 <Card
                     style={{
                         width: '100%',
-                        maxHeight: 'calc(100vh - 10em - 68px - 32px - 36px - 48px - 28px)',
+                        maxHeight: 'calc(100vh - 10em - 68px - 32px - 36px - 48px - 30px)',
                         boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
                         overflow: 'auto',
                     }}
