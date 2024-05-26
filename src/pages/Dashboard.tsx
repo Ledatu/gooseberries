@@ -27,7 +27,7 @@ import textLogo from '../assets/textLogo.png';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
-import {Sun, Moon, PencilToSquare, Xmark, Check} from '@gravity-ui/icons';
+import {Sun, Moon, PencilToSquare, Xmark, Check, TrashBin} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
@@ -324,6 +324,20 @@ export const Dashboard = () => {
                                                         onClick={() => saveNote()}
                                                     >
                                                         <Icon data={Xmark} />
+                                                    </Button>
+                                                </div>
+                                                <div style={{position: 'absolute', right: 40}}>
+                                                    <Button
+                                                        view="flat-danger"
+                                                        size="s"
+                                                        onClick={() => {
+                                                            if (notesTextArea.current)
+                                                                notesTextArea.current.value = '';
+
+                                                            setTagsAddedForCurrentNote([]);
+                                                        }}
+                                                    >
+                                                        <Icon data={TrashBin} />
                                                     </Button>
                                                 </div>
                                             </div>
