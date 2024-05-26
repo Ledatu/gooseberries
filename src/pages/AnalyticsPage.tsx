@@ -206,6 +206,10 @@ export const AnalyticsPage = () => {
             placeholder: 'Заказов, шт.',
             render: (args) => renderWithGraph(args, 'orders', 'Заказов, шт.'),
         },
+        avgCost: {
+            placeholder: 'Средний чек, ₽',
+            render: (args) => renderWithGraph(args, 'avgCost', 'Средний чек, ₽'),
+        },
         sum_sales: {
             placeholder: 'Продаж, ₽',
             render: (args) => renderWithGraph(args, 'sum_sales', 'Продаж, ₽'),
@@ -236,6 +240,18 @@ export const AnalyticsPage = () => {
                 renderWithGraph(args, 'drr_sales', 'ДРР к продажам, %', renderAsPercent),
             planType: 'avg',
             isReverseGrad: true,
+        },
+        stocks: {
+            placeholder: 'Остаток, шт.',
+            render: (args) => renderWithGraph(args, 'stocks', 'Остаток, шт.'),
+        },
+        obor: {
+            placeholder: 'Оборачиваемость, дней',
+            render: (args) => renderWithGraph(args, 'obor', 'Оборачиваемость, дней'),
+        },
+        orderPrice: {
+            placeholder: 'Цена заказа, ₽',
+            render: (args) => renderWithGraph(args, 'orderPrice', 'Цена заказа, ₽'),
         },
     };
 
@@ -545,6 +561,23 @@ export const AnalyticsPage = () => {
                     true,
                     tempTypeRow['sum'] ? 1 : 0,
                 );
+                tempTypeRow['stocks'] = dateStats['stocks'];
+                tempTypeRow['obor'] = getRoundValue(
+                    dateStats['stocks'],
+                    dateStats['orders'],
+                    false,
+                    dateStats['stocks'] ? 999 : 0,
+                );
+                tempTypeRow['orderPrice'] = getRoundValue(
+                    dateStats['sum'],
+                    dateStats['orders'],
+                    false,
+                    dateStats['sum'],
+                );
+                tempTypeRow['avgCost'] = getRoundValue(
+                    dateStats['sum_orders'],
+                    dateStats['orders'],
+                );
 
                 let addFlag = true;
                 const useFilters = withFilters['undef'] ? withFilters : filters;
@@ -579,9 +612,15 @@ export const AnalyticsPage = () => {
                 sum_orders: 0,
                 sales: 0,
                 sum_sales: 0,
-                sum: 0,
                 profit: 0,
+                obor: 0,
+                obor_temp: {count: 0, val: 0},
+                orderPrice: 0,
+                avgCost: 0,
+                stocks: 0,
+                stocks_temp: {count: 0, val: 0},
                 rentabelnost: 0,
+                sum: 0,
             },
         };
 
@@ -622,6 +661,12 @@ export const AnalyticsPage = () => {
                     sales: 0,
                     sum_sales: 0,
                     profit: 0,
+                    obor: 0,
+                    obor_temp: {count: 0, val: 0},
+                    orderPrice: 0,
+                    avgCost: 0,
+                    stocks: 0,
+                    stocks_temp: {count: 0, val: 0},
                     rentabelnost: 0,
                     sum: 0,
                     graphData: {
@@ -675,6 +720,33 @@ export const AnalyticsPage = () => {
                 true,
             );
 
+            summaryAdd(row, 'stocks', undefined);
+            summaries[entity]['stocks_temp'].val += row['stocks'];
+            summaries[entity]['stocks_temp'].count += 1;
+            summaries[entity]['stocks'] = getRoundValue(
+                summaries[entity]['stocks_temp'].val,
+                summaries[entity]['stocks_temp'].count,
+            );
+
+            summaryAdd(row, 'obor', undefined);
+            summaries[entity]['obor_temp'].val += row['obor'];
+            summaries[entity]['obor_temp'].count += 1;
+            summaries[entity]['obor'] = getRoundValue(
+                summaries[entity]['obor_temp'].val,
+                summaries[entity]['obor_temp'].count,
+            );
+
+            summaryAdd(row, 'avgCost', undefined);
+            summaries[entity]['avgCost'] = getRoundValue(
+                summaries[entity]['sum_orders'],
+                summaries[entity]['orders'],
+            );
+            summaryAdd(row, 'orderPrice', undefined);
+            summaries[entity]['orderPrice'] = getRoundValue(
+                summaries[entity]['sum'],
+                summaries[entity]['orders'],
+            );
+
             summaries['filteredSummaryTemp']['isSummary'] = true;
             summaries['filteredSummaryTemp']['isMainSummary'] = true;
             summaries['filteredSummaryTemp']['orders'] += row['orders'];
@@ -699,6 +771,29 @@ export const AnalyticsPage = () => {
                 summaries['filteredSummaryTemp']['profit'],
                 summaries['filteredSummaryTemp']['sum_orders'],
                 true,
+            );
+
+            summaries['filteredSummaryTemp']['stocks_temp'].val += row['stocks'];
+            summaries['filteredSummaryTemp']['stocks_temp'].count += 1;
+            summaries['filteredSummaryTemp']['stocks'] = getRoundValue(
+                summaries['filteredSummaryTemp']['stocks_temp'].val,
+                summaries['filteredSummaryTemp']['stocks_temp'].count,
+            );
+
+            summaries['filteredSummaryTemp']['obor_temp'].val += row['obor'];
+            summaries['filteredSummaryTemp']['obor_temp'].count += 1;
+            summaries['filteredSummaryTemp']['obor'] = getRoundValue(
+                summaries['filteredSummaryTemp']['obor_temp'].val,
+                summaries['filteredSummaryTemp']['obor_temp'].count,
+            );
+
+            summaries['filteredSummaryTemp']['avgCost'] = getRoundValue(
+                summaries['filteredSummaryTemp']['sum_orders'],
+                summaries['filteredSummaryTemp']['orders'],
+            );
+            summaries['filteredSummaryTemp']['orderPrice'] = getRoundValue(
+                summaries['filteredSummaryTemp']['sum'],
+                summaries['filteredSummaryTemp']['orders'],
             );
         }
 
