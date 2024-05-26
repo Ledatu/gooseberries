@@ -1691,7 +1691,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             placeholder: 'Артикул',
             width: 200,
             render: ({value, row, footer, index}) => {
-                const {title, brand, object, nmId, photos, imtId, art} = row;
+                const {title, brand, object, nmId, photos, imtId, art, tags} = row;
 
                 if (title === undefined) return <div style={{height: 28}}>{value}</div>;
 
@@ -1711,6 +1711,29 @@ export const MassAdvertPage = ({pageArgs}) => {
                             titleWrapped += ' ';
                         }
                     }
+                }
+
+                /// tags
+                const tagsNodes = [] as ReactNode[];
+                if (tags) {
+                    for (let i = 0; i < tags.length; i++) {
+                        const tag = tags[i];
+                        if (tag === undefined) continue;
+
+                        tagsNodes.push(
+                            <Button
+                                size="xs"
+                                pin="circle-circle"
+                                selected
+                                view="outlined-info"
+                                onClick={() => filterByButton(tag.toUpperCase())}
+                            >
+                                {tag.toUpperCase()}
+                            </Button>,
+                        );
+                        tagsNodes.push(<div style={{minWidth: 8}} />);
+                    }
+                    tagsNodes.pop();
                 }
 
                 return footer ? (
@@ -1920,6 +1943,15 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             <Text variant="caption-2">{`Артикул: ${value}`}</Text>
                                         </Button>
                                     </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            overflow: 'scroll',
+                                        }}
+                                    >
+                                        {tagsNodes}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1928,34 +1960,6 @@ export const MassAdvertPage = ({pageArgs}) => {
             },
             valueType: 'text',
             group: true,
-        },
-        {
-            name: 'tags',
-            placeholder: 'Теги',
-            valueType: 'text',
-            render: ({value}) => {
-                if (value === undefined) return;
-                const tags = [] as ReactNode[];
-
-                for (let i = 0; i < value.length; i++) {
-                    const tag = value[i];
-                    if (tag === undefined) continue;
-
-                    tags.push(
-                        <Button
-                            style={{margin: '0 4px', marginBottom: 4}}
-                            size="xs"
-                            pin="circle-circle"
-                            selected
-                            view="outlined-info"
-                            onClick={() => filterByButton(value, 'tags')}
-                        >
-                            {tag.toUpperCase()}
-                        </Button>,
-                    );
-                }
-                return <div style={{display: 'flex'}}>{tags}</div>;
-            },
         },
         {
             name: 'adverts',
@@ -3785,6 +3789,13 @@ export const MassAdvertPage = ({pageArgs}) => {
                         wholeText += tempTypeRow[key] + ' ';
                     }
 
+                    const tags = tempTypeRow['tags'];
+                    if (tags) {
+                        for (const key of tags) {
+                            wholeText += key + ' ';
+                        }
+                    }
+
                     let tempFlagInc = 0;
                     for (let k = 0; k < rulesForAnd.length; k++) {
                         const ruleForAdd = rulesForAnd[k];
@@ -3802,17 +3813,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                         }
                     }
                     if (tempFlagInc != rulesForAnd.length) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (filterArg == 'tags') {
-                    let wholeText = '';
-                    if (flarg)
-                        for (const key of flarg) {
-                            wholeText += key + ' ';
-                        }
-
-                    if (!compare(wholeText, filterData)) {
                         addFlag = false;
                         break;
                     }
