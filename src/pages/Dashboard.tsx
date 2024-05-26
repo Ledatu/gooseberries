@@ -161,6 +161,8 @@ export const Dashboard = () => {
     return (
         <ThemeProvider theme={theme}>
             <div className={b()}>
+                {/* <TextInput style={{width: '300px'}} placeholder="Ola, Ledatu!" /> */}
+
                 <div
                     style={{
                         display: 'flex',
@@ -421,22 +423,16 @@ export const Dashboard = () => {
                             </div>
                         </div>
                     </div>
-
-                    <div
-                        style={{
-                            marginTop: 16,
-                            // marginLeft: 48,
-                            // marginRight: 48,
-                            justifyContent: 'center',
-
-                            // position: 'absolute',
-                            width: '90vw',
-                            position: 'relative',
-                            // left: 'calc(-50vw + 50%)',
-                        }}
-                    >
-                        {getPageElem({page, args: {setSelectedCampaign}})}
-                    </div>
+                </div>
+                <div
+                    style={{
+                        marginTop: 62,
+                        justifyContent: 'center',
+                        width: '90vw',
+                        position: 'relative',
+                    }}
+                >
+                    {getPageElem({page, args: {setSelectedCampaign}})}
                 </div>
             </div>
         </ThemeProvider>
