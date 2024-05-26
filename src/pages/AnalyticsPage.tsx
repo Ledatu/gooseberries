@@ -898,7 +898,7 @@ export const AnalyticsPage = () => {
                 tooltip: {
                     precision: 0,
                 },
-                scales: {y: {min: 0}, r: {min: 0}},
+                // scales: {y: {min: }, r: {min: 0}},
                 title: {
                     text: 'График по дням',
                 },
