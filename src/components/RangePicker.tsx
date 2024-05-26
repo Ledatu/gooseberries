@@ -109,11 +109,16 @@ export const RangePicker = ({args}) => {
                                 onClick={() => {
                                     setRangePickerOpen(false);
                                     const today = new Date();
-                                    const startOfWeek = new Date(today);
-                                    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Set to the first day of the current week (Sunday)
 
-                                    const endOfWeek = new Date(today);
-                                    endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the current week (Saturday)
+                                    // Calculate the start of the week (Monday)
+                                    const startOfWeek = new Date(today);
+                                    const day = today.getDay();
+                                    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday (0)
+                                    startOfWeek.setDate(diff);
+
+                                    // Calculate the end of the week (Sunday)
+                                    const endOfWeek = new Date(startOfWeek);
+                                    endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the current week (Sunday)
 
                                     const range = [startOfWeek, endOfWeek];
                                     setDateRange(range);
