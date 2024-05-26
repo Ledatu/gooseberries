@@ -134,13 +134,16 @@ export const RangePicker = ({args}) => {
                                 onClick={() => {
                                     setRangePickerOpen(false);
                                     const today = new Date();
-                                    const startOfPreviousWeek = new Date(today);
-                                    startOfPreviousWeek.setDate(
-                                        today.getDate() - today.getDay() - 7 + 1,
-                                    ); // Set to the first day of the previous week (Sunday)
 
+                                    // Calculate the start of the previous week (Monday)
+                                    const startOfPreviousWeek = new Date(today);
+                                    const day = today.getDay();
+                                    const diff = today.getDate() - day - 7 + (day === 0 ? -6 : 1); // adjust when day is Sunday (0)
+                                    startOfPreviousWeek.setDate(diff);
+
+                                    // Calculate the end of the previous week (Sunday)
                                     const endOfPreviousWeek = new Date(startOfPreviousWeek);
-                                    endOfPreviousWeek.setDate(startOfPreviousWeek.getDate() + 6); // Set to the last day of the previous week (Saturday)
+                                    endOfPreviousWeek.setDate(startOfPreviousWeek.getDate() + 6); // Set to the last day of the previous week (Sunday)
 
                                     const range = [startOfPreviousWeek, endOfPreviousWeek];
                                     setDateRange(range);
