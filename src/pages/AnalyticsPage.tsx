@@ -77,7 +77,6 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
 
 export const AnalyticsPage = () => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
-
     const [selectedButton, setSelectedButton] = useState('');
     const anchorRef = useRef(null);
     const [rangePickerOpen, setRangePickerOpen] = useState(false);
@@ -411,9 +410,10 @@ export const AnalyticsPage = () => {
     const apiPageColumnsInitial =
         apiPageColumnsVal !== 'undefined' &&
         apiPageColumnsVal &&
-        apiPageColumnsVal.length == columnTempState.length
+        JSON.parse(apiPageColumnsVal).length == columnTempState.length
             ? JSON.parse(apiPageColumnsVal)
             : columnTempState;
+    // : columnTempState;
 
     const [apiPageColumns, setApiPageColumns] = useState(apiPageColumnsInitial);
 
