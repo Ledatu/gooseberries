@@ -1458,8 +1458,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             const {preset} = (clusterData as {preset: string}) ?? {
                                                 preset: undefined,
                                             };
-                                            if (preset && !tempPresets.includes(preset))
-                                                tempPresets.push(preset);
+                                            if (preset) tempPresets.push(preset);
                                         }
                                         setSemanticsModalSemanticsItemsValuePresets(tempPresets);
 
@@ -4046,10 +4045,23 @@ export const MassAdvertPage = ({pageArgs}) => {
             name: 'preset',
             valueType: 'text',
             placeholder: 'Пресет',
-            render: ({value}) => {
+            render: ({value, row}) => {
+                const {cluster} = row;
+
                 const bad =
                     semanticsModalSemanticsItemsValuePresets.includes(value) &&
                     semanticsModalSemanticsMinusItemsValuePresets.includes(value);
+
+                const isSelected =
+                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
+                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
+                              .phrase
+                        : '') == cluster;
+
+                const multiplePresetInstancesThowItIsNotIncluded =
+                    semanticsModalSemanticsItemsValuePresets.filter((item) => item == value)
+                        .length > 1 && !isSelected;
+
                 return (
                     <div
                         style={{
@@ -4072,7 +4084,11 @@ export const MassAdvertPage = ({pageArgs}) => {
                         ) : (
                             <Button
                                 size="xs"
-                                view={'flat'}
+                                view={
+                                    multiplePresetInstancesThowItIsNotIncluded
+                                        ? 'flat-warning'
+                                        : 'flat'
+                                }
                                 onClick={() =>
                                     filterByButtonClusters(value, true, 'preset', 'include')
                                 }
