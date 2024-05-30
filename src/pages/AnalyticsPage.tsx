@@ -252,6 +252,40 @@ export const AnalyticsPage = () => {
             placeholder: 'Цена заказа, ₽',
             render: (args) => renderWithGraph(args, 'orderPrice', 'Цена заказа, ₽'),
         },
+        buyoutsPercent: {
+            placeholder: 'Выкуп, %',
+            planType: 'avg',
+            render: (args) => renderWithGraph(args, 'buyoutsPercent', 'Выкуп, %', renderAsPercent),
+        },
+        addToCartPercent: {
+            placeholder: 'CR в корзину, %',
+            planType: 'avg',
+            render: (args) =>
+                renderWithGraph(args, 'addToCartPercent', 'CR в корзину, %', renderAsPercent),
+        },
+        cartToOrderPercent: {
+            placeholder: 'CR в заказ, %',
+            planType: 'avg',
+            render: (args) =>
+                renderWithGraph(args, 'cartToOrderPercent', 'CR в заказ, %', renderAsPercent),
+        },
+        storageCost: {
+            placeholder: 'Хранение, ₽',
+            isReverseGrad: true,
+            render: (args) => renderWithGraph(args, 'storageCost', 'Хранение, ₽'),
+        },
+        clicks: {
+            placeholder: 'Кликов, шт.',
+            render: (args) => renderWithGraph(args, 'clicks', 'Кликов, шт.'),
+        },
+        openCardCount: {
+            placeholder: 'Переходы, шт.',
+            render: (args) => renderWithGraph(args, 'openCardCount', 'Переходы, шт.'),
+        },
+        sppPrice: {
+            placeholder: 'Цена с СПП, ₽',
+            render: (args) => renderWithGraph(args, 'sppPrice', 'Цена с СПП, ₽'),
+        },
     };
 
     const renderWithGraph = (
@@ -548,6 +582,16 @@ export const AnalyticsPage = () => {
                 tempTypeRow['sum_sales'] = dateStats['sum_sales'];
                 tempTypeRow['profit'] = dateStats['profit'];
                 tempTypeRow['rentabelnost'] = dateStats['rentabelnost'];
+                tempTypeRow['clicks'] = dateStats['clicks'];
+                tempTypeRow['sppPrice'] = dateStats['sppPrice'];
+
+                tempTypeRow['openCardCount'] = dateStats['openCardCount'];
+                tempTypeRow['addToCartCount'] = dateStats['addToCartCount'];
+                tempTypeRow['addToCartPercent'] = dateStats['addToCartPercent'];
+                tempTypeRow['cartToOrderPercent'] = dateStats['cartToOrderPercent'];
+                tempTypeRow['buyoutsPercent'] = dateStats['buyoutsPercent'];
+                tempTypeRow['storageCost'] = dateStats['storageCost'];
+
                 tempTypeRow['sum'] = dateStats['sum'];
                 tempTypeRow['drr_orders'] = getRoundValue(
                     tempTypeRow['sum'],
@@ -621,6 +665,15 @@ export const AnalyticsPage = () => {
                 stocks_temp: {count: 0, val: 0},
                 rentabelnost: 0,
                 sum: 0,
+                buyoutsPercent: 0,
+                addToCartPercent: 0,
+                cartToOrderPercent: 0,
+                addToCartCount: 0,
+                openCardCount: 0,
+                storageCost: 0,
+                clicks: 0,
+                sppPrice: 0,
+                sppPrice_temp: {count: 0, val: 0},
             },
         };
 
@@ -673,6 +726,15 @@ export const AnalyticsPage = () => {
                         timeline: [],
                     },
                     trendGraphData: {},
+                    buyoutsPercent: 0,
+                    addToCartPercent: 0,
+                    cartToOrderPercent: 0,
+                    addToCartCount: 0,
+                    openCardCount: 0,
+                    storageCost: 0,
+                    clicks: 0,
+                    sppPrice: 0,
+                    sppPrice_temp: {count: 0, val: 0},
                 };
 
             summaries[entity]['entity'] = entity;
@@ -684,6 +746,29 @@ export const AnalyticsPage = () => {
             summaryAdd(row, 'sum_sales', undefined);
             summaryAdd(row, 'sum', undefined);
             summaryAdd(row, 'profit', undefined);
+
+            summaryAdd(row, 'clicks', undefined);
+            summaryAdd(row, 'openCardCount', undefined);
+            summaryAdd(row, 'addToCartCount', undefined);
+            summaryAdd(row, 'buyoutsPercent', undefined);
+            summaryAdd(row, 'addToCartPercent', undefined);
+            summaryAdd(row, 'cartToOrderPercent', undefined);
+            summaryAdd(row, 'storageCost', undefined);
+            summaries[entity]['buyoutsPercent'] = getRoundValue(
+                summaries[entity]['sales'],
+                summaries[entity]['orders'],
+                true,
+            );
+            summaries[entity]['addToCartPercent'] = getRoundValue(
+                summaries[entity]['addToCartCount'],
+                summaries[entity]['openCardCount'],
+                true,
+            );
+            summaries[entity]['cartToOrderPercent'] = getRoundValue(
+                summaries[entity]['orders'],
+                summaries[entity]['addToCartCount'],
+                true,
+            );
 
             summaryAdd(
                 row,
@@ -720,6 +805,14 @@ export const AnalyticsPage = () => {
                 true,
             );
 
+            summaryAdd(row, 'sppPrice', undefined);
+            summaries[entity]['sppPrice_temp'].val += row['sppPrice'];
+            summaries[entity]['sppPrice_temp'].count += 1;
+            summaries[entity]['sppPrice'] = getRoundValue(
+                summaries[entity]['sppPrice_temp'].val,
+                summaries[entity]['sppPrice_temp'].count,
+            );
+
             summaryAdd(row, 'stocks', undefined);
             summaries[entity]['stocks_temp'].val += row['stocks'];
             summaries[entity]['stocks_temp'].count += 1;
@@ -754,6 +847,7 @@ export const AnalyticsPage = () => {
             summaries['filteredSummaryTemp']['profit'] += row['profit'];
             summaries['filteredSummaryTemp']['sales'] += row['sales'];
             summaries['filteredSummaryTemp']['sum_sales'] += row['sum_sales'];
+            summaries['filteredSummaryTemp']['storageCost'] += row['storageCost'];
             summaries['filteredSummaryTemp']['sum'] += row['sum'];
             summaries['filteredSummaryTemp']['drr_orders'] = getRoundValue(
                 summaries['filteredSummaryTemp']['sum'],
@@ -794,6 +888,32 @@ export const AnalyticsPage = () => {
             summaries['filteredSummaryTemp']['orderPrice'] = getRoundValue(
                 summaries['filteredSummaryTemp']['sum'],
                 summaries['filteredSummaryTemp']['orders'],
+            );
+
+            summaries['filteredSummaryTemp']['clicks'] += row['clicks'];
+            summaries['filteredSummaryTemp']['addToCartCount'] += row['addToCartCount'];
+            summaries['filteredSummaryTemp']['openCardCount'] += row['openCardCount'];
+            summaries['filteredSummaryTemp']['buyoutsPercent'] = getRoundValue(
+                summaries['filteredSummaryTemp']['sales'],
+                summaries['filteredSummaryTemp']['orders'],
+                true,
+            );
+            summaries['filteredSummaryTemp']['addToCartPercent'] = getRoundValue(
+                summaries['filteredSummaryTemp']['addToCartCount'],
+                summaries['filteredSummaryTemp']['openCardCount'],
+                true,
+            );
+            summaries['filteredSummaryTemp']['cartToOrderPercent'] = getRoundValue(
+                summaries['filteredSummaryTemp']['orders'],
+                summaries['filteredSummaryTemp']['addToCartCount'],
+                true,
+            );
+
+            summaries['filteredSummaryTemp']['sppPrice_temp'].val += row['sppPrice'];
+            summaries['filteredSummaryTemp']['sppPrice_temp'].count += 1;
+            summaries['filteredSummaryTemp']['sppPrice'] = getRoundValue(
+                summaries['filteredSummaryTemp']['sppPrice_temp'].val,
+                summaries['filteredSummaryTemp']['sppPrice_temp'].count,
             );
         }
 
