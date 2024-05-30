@@ -300,7 +300,21 @@ export const PricesPage = ({pageArgs}) => {
                     </Text>
                 </Link>
             ),
-            render: (args) => fixedPriceRender(args, ['rozPrice'], defaultRender(args)),
+            render: (args) =>
+                fixedPriceRender(
+                    args,
+                    ['rozPrice'],
+                    ((args) => {
+                        const {value, row} = args as any;
+                        if (value === undefined) return undefined;
+                        const {primeCost} = row;
+                        return (
+                            <Text color={primeCost > value ? 'danger' : 'primary'}>
+                                {defaultRender(args as any)}
+                            </Text>
+                        );
+                    })(args),
+                ),
         },
         {
             name: 'spp',
