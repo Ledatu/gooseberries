@@ -1,4 +1,4 @@
-import {Text} from '@gravity-ui/uikit';
+import {Text, TextInput} from '@gravity-ui/uikit';
 import React from 'react';
 
 export const getRoundValue = (a, b, isPercentage = false, def = 0) => {
@@ -49,4 +49,35 @@ export const getMonthName = (date) => {
     return date.toLocaleString('ru-RU', {
         month: 'short',
     });
+};
+
+export const generateTextInputWithNoteOnTop = ({
+    value,
+    disabled,
+    placeholder,
+    onUpdateHandler,
+    validationState,
+}) => {
+    return (
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+        >
+            <Text
+                style={{marginLeft: 4}}
+                variant="subheader-1"
+                color={disabled ? 'secondary' : 'primary'}
+            >
+                {placeholder}
+            </Text>
+            <TextInput
+                value={value}
+                disabled={disabled}
+                validationState={validationState ? undefined : 'invalid'}
+                onUpdate={onUpdateHandler}
+            />
+        </div>
+    );
 };

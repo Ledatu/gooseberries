@@ -35,6 +35,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare, defaultRender} from 'src/components/TheTable';
 import Userfront from '@userfront/toolkit';
 import {
+    generateTextInputWithNoteOnTop,
     getNormalDateRange,
     getRoundValue,
     renderAsPercent,
@@ -101,6 +102,43 @@ export const PricesPage = ({pageArgs}) => {
     const [selectedButton, setSelectedButton] = useState('');
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
+
+    const [enableOborRuleSet, setEnableOborRuleSet] = React.useState(false);
+    const [oborRuleSet, setOborRuleSet] = React.useState({
+        7: '',
+        14: '',
+        30: '',
+        60: '',
+        90: '',
+        120: '',
+        999: '',
+    });
+    const [oborRuleSetValidationState, setOborRuleSetValidationState] = React.useState({
+        7: true,
+        14: true,
+        30: true,
+        60: true,
+        90: true,
+        120: true,
+        999: true,
+    });
+    const isOborRuleSetValid = () => {
+        for (const [_, valid] of Object.entries(oborRuleSetValidationState)) {
+            if (!valid) return false;
+        }
+        return true;
+    };
+    const clearOborRuleSet = () => {
+        const temp = {...oborRuleSet};
+        const tempValid = {...oborRuleSetValidationState};
+        for (const [obor, _] of Object.entries(temp)) {
+            temp[obor] = '';
+            tempValid[obor] = true;
+        }
+        setEnableOborRuleSet(false);
+        setOborRuleSet(temp);
+        setOborRuleSetValidationState(tempValid);
+    };
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
@@ -862,6 +900,7 @@ export const PricesPage = ({pageArgs}) => {
                                 setEnteredValue('');
                                 setEnteredDiscountValue('');
                                 setSelectedButton('');
+                                clearOborRuleSet();
                                 setFixPrices(false);
                                 setEnteredValueValid(false);
                                 setChangeDiscount(false);
@@ -892,7 +931,7 @@ export const PricesPage = ({pageArgs}) => {
                             <Card
                                 view="clear"
                                 style={{
-                                    width: 300,
+                                    width: '30em',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
@@ -903,7 +942,7 @@ export const PricesPage = ({pageArgs}) => {
                                 <div
                                     style={{
                                         height: '50%',
-                                        width: '70%',
+                                        width: 'calc(100% - 32px)',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
@@ -919,6 +958,7 @@ export const PricesPage = ({pageArgs}) => {
                                     />
                                     <div style={{minHeight: 8}} />
                                     <TextInput
+                                        disabled={enableOborRuleSet}
                                         placeholder={
                                             selectValueEntered[0] == 'Наценка к себестоимости'
                                                 ? 'Введите наценку, %'
@@ -929,7 +969,11 @@ export const PricesPage = ({pageArgs}) => {
                                                 : 'Введите цену, ₽'
                                         }
                                         value={enteredValue}
-                                        validationState={enteredValueValid ? undefined : 'invalid'}
+                                        validationState={
+                                            enteredValueValid || enableOborRuleSet
+                                                ? undefined
+                                                : 'invalid'
+                                        }
                                         onUpdate={(val) => {
                                             const temp = parseInt(val);
                                             setEnteredValueValid(!isNaN(temp));
@@ -965,16 +1009,95 @@ export const PricesPage = ({pageArgs}) => {
                                     <div style={{minHeight: 8}} />
                                     <Checkbox
                                         content={'Зафиксировать цены'}
-                                        checked={fixPrices}
+                                        checked={fixPrices || enableOborRuleSet}
                                         onUpdate={(val) => {
                                             setFixPrices(val);
                                         }}
                                     />
                                     <div style={{minHeight: 8}} />
+                                    <div
+                                        style={{
+                                            overflow: 'hidden',
+                                            display: 'flex',
+                                            width: 'calc(100%-32px)',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Checkbox
+                                            checked={enableOborRuleSet}
+                                            onUpdate={(val) => setEnableOborRuleSet(val)}
+                                            content="Задать для оборачиваемости"
+                                        />
+                                        <motion.div
+                                            animate={{
+                                                height: enableOborRuleSet ? 136 : 0,
+                                                opacity: enableOborRuleSet ? 1 : 0,
+                                            }}
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                flexWrap: 'wrap',
+                                            }}
+                                        >
+                                            {(() => {
+                                                const oborTextInputs = [] as any[];
+                                                for (const [obor, _] of Object.entries(
+                                                    oborRuleSet,
+                                                )) {
+                                                    oborTextInputs.push(
+                                                        <div
+                                                            style={{width: '8em', margin: '0 4px'}}
+                                                        >
+                                                            {generateTextInputWithNoteOnTop({
+                                                                value: oborRuleSet[obor],
+                                                                disabled: !enableOborRuleSet,
+                                                                validationState:
+                                                                    oborRuleSetValidationState[
+                                                                        obor
+                                                                    ],
+                                                                placeholder: `до ${obor} дней`,
+                                                                onUpdateHandler: (val) => {
+                                                                    const curVal = {...oborRuleSet};
+                                                                    const temp = parseInt(val);
+                                                                    setOborRuleSetValidationState(
+                                                                        () => {
+                                                                            const tempValid = {
+                                                                                ...oborRuleSetValidationState,
+                                                                            };
+                                                                            if (
+                                                                                isNaN(temp) ||
+                                                                                !isFinite(temp)
+                                                                            ) {
+                                                                                tempValid[obor] =
+                                                                                    false;
+                                                                            } else {
+                                                                                tempValid[obor] =
+                                                                                    true;
+                                                                            }
+                                                                            return tempValid;
+                                                                        },
+                                                                    );
+
+                                                                    curVal[obor] = val;
+                                                                    setOborRuleSet(curVal);
+                                                                },
+                                                            })}
+                                                        </div>,
+                                                    );
+                                                }
+
+                                                return oborTextInputs;
+                                            })()}
+                                        </motion.div>
+                                    </div>
+                                    <div style={{minHeight: 8}} />
+
                                     <Button
                                         disabled={
-                                            !enteredValueValid ||
-                                            (changeDiscount && !enteredDiscountValueValid)
+                                            (!enableOborRuleSet && !enteredValueValid) ||
+                                            (changeDiscount && !enteredDiscountValueValid) ||
+                                            (enableOborRuleSet && !isOborRuleSetValid())
                                         }
                                         size="l"
                                         view="action"
@@ -985,7 +1108,7 @@ export const PricesPage = ({pageArgs}) => {
                                                 campaignName: selectValue[0],
                                                 dateRange: getNormalDateRange(dateRange),
                                                 enteredValue: {},
-                                                fixPrices: fixPrices,
+                                                fixPrices: fixPrices || enableOborRuleSet,
                                             };
 
                                             const keys = {
@@ -997,7 +1120,9 @@ export const PricesPage = ({pageArgs}) => {
                                             };
 
                                             const key = keys[selectValueEntered[0]];
-                                            params.enteredValue[key] = parseInt(enteredValue);
+                                            params.enteredValue[key] = parseInt(
+                                                enableOborRuleSet ? '-1' : enteredValue,
+                                            );
                                             setCurrentPricesCalculatedBasedOn(
                                                 key == 'primeCostMarkup' ? 'rozPrice' : key,
                                             );
@@ -1005,6 +1130,18 @@ export const PricesPage = ({pageArgs}) => {
                                             if (changeDiscount) {
                                                 params.enteredValue['discount'] =
                                                     parseInt(enteredDiscountValue);
+                                            }
+
+                                            if (enableOborRuleSet) {
+                                                const tempOborRuleSet = {};
+                                                for (const [obor, val] of Object.entries(
+                                                    oborRuleSet,
+                                                )) {
+                                                    tempOborRuleSet[obor] =
+                                                        val !== '' ? parseInt(val) : undefined;
+                                                }
+                                                params.enteredValue['oborRuleSet'] =
+                                                    tempOborRuleSet;
                                             }
 
                                             const filters = {

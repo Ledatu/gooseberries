@@ -11,7 +11,6 @@ import {
     Popover,
     Card,
     Modal,
-    Checkbox,
     TextInput,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
@@ -29,6 +28,7 @@ import {
     TrashBin,
     FileText,
     CloudArrowUpIn,
+    LayoutColumns3,
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
@@ -127,7 +127,7 @@ export const AnalyticsPage = () => {
 
                 const {notes, entity} = row;
 
-                const {all} = notes ?? {all: []};
+                const {all} = notes ? (notes.all ? notes : {all: []}) : {all: []};
 
                 const notesList = [] as any[];
                 for (let i = 0; i < all.length; i++) {
@@ -458,6 +458,7 @@ export const AnalyticsPage = () => {
     const [calculatingFlag, setCalculatingFlag] = useState(false);
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
     const [enteredKeysCheck, setEnteredKeysCheck] = useState({
+        campaignName: false,
         brand: false,
         object: false,
         title: false,
@@ -1400,6 +1401,7 @@ export const AnalyticsPage = () => {
                         onClick={() => {
                             setEnteredValuesModalOpen(true);
                             setEnteredKeysCheck({
+                                campaignName: false,
                                 brand: false,
                                 object: false,
                                 title: false,
@@ -1444,78 +1446,90 @@ export const AnalyticsPage = () => {
                             <div
                                 style={{
                                     height: '50%',
-                                    width: '70%',
+                                    width: 'calc(100% - 32px)',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     margin: '16px 0',
                                 }}
                             >
-                                <Checkbox
-                                    size="l"
-                                    content={'Бренд'}
-                                    checked={enteredKeysCheck.brand}
-                                    onUpdate={(val) => {
-                                        const temp = {...enteredKeysCheck};
-                                        temp.brand = val;
-                                        setEnteredKeysCheck(temp);
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
                                     }}
-                                />
-                                <div style={{minHeight: 8}} />
-                                <Checkbox
-                                    size="l"
-                                    content={'Тип предмета'}
-                                    checked={enteredKeysCheck.object}
-                                    onUpdate={(val) => {
-                                        const temp = {...enteredKeysCheck};
-                                        temp.object = val;
-                                        setEnteredKeysCheck(temp);
-                                    }}
-                                />
-                                <div style={{minHeight: 8}} />
-                                <Checkbox
-                                    size="l"
-                                    content={'Наименование'}
-                                    checked={enteredKeysCheck.title}
-                                    onUpdate={(val) => {
-                                        const temp = {...enteredKeysCheck};
-                                        temp.title = val;
-                                        setEnteredKeysCheck(temp);
-                                    }}
-                                />
-                                <div style={{minHeight: 8}} />
-                                <Checkbox
-                                    size="l"
-                                    content={'ID КТ'}
-                                    checked={enteredKeysCheck.imtId}
-                                    onUpdate={(val) => {
-                                        const temp = {...enteredKeysCheck};
-                                        temp.imtId = val;
-                                        setEnteredKeysCheck(temp);
-                                    }}
-                                />
-                                <div style={{minHeight: 8}} />
-                                <Checkbox
-                                    size="l"
-                                    content={'Артикул'}
-                                    checked={enteredKeysCheck.art}
-                                    onUpdate={(val) => {
-                                        const temp = {...enteredKeysCheck};
-                                        temp.art = val;
-                                        setEnteredKeysCheck(temp);
-                                    }}
-                                />
-                                <div style={{minHeight: 8}} />
-                                <Checkbox
-                                    size="l"
-                                    content={'Теги'}
-                                    checked={enteredKeysCheck.tags}
-                                    onUpdate={(val) => {
-                                        const temp = {...enteredKeysCheck};
-                                        temp.tags = val;
-                                        setEnteredKeysCheck(temp);
-                                    }}
-                                />
+                                >
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            width: '100%',
+                                        }}
+                                    >
+                                        {generateSelectButton({
+                                            key: 'campaignName',
+                                            placeholder: 'Магазин',
+                                            enteredKeysCheck,
+                                            setEnteredKeysCheck,
+                                        })}
+                                        {generateSelectButton({
+                                            key: 'brand',
+                                            placeholder: 'Бренд',
+                                            enteredKeysCheck,
+                                            setEnteredKeysCheck,
+                                        })}
+                                        {generateSelectButton({
+                                            key: 'object',
+                                            placeholder: 'Тип предмета',
+                                            enteredKeysCheck,
+                                            setEnteredKeysCheck,
+                                        })}
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            width: '100%',
+                                        }}
+                                    >
+                                        {generateSelectButton({
+                                            key: 'title',
+                                            placeholder: 'Наименование',
+                                            enteredKeysCheck,
+                                            setEnteredKeysCheck,
+                                        })}
+                                        {generateSelectButton({
+                                            key: 'imtId',
+                                            placeholder: 'ID КТ',
+                                            enteredKeysCheck,
+                                            setEnteredKeysCheck,
+                                        })}
+                                        {generateSelectButton({
+                                            key: 'art',
+                                            placeholder: 'Артикул',
+                                            enteredKeysCheck,
+                                            setEnteredKeysCheck,
+                                        })}
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            width: '100%',
+                                        }}
+                                    >
+                                        {generateSelectButton({
+                                            key: 'tags',
+                                            placeholder: 'Теги',
+                                            enteredKeysCheck,
+                                            setEnteredKeysCheck,
+                                        })}
+                                    </div>
+                                </div>
                                 <div style={{minHeight: 8}} />
                                 <Button
                                     size="l"
@@ -1550,7 +1564,8 @@ export const AnalyticsPage = () => {
                                         setEnteredValuesModalOpen(false);
                                     }}
                                 >
-                                    Рассчитать
+                                    <Icon data={Calculator} />
+                                    <Text variant="subheader-1">Рассчитать</Text>
                                 </Button>
                             </div>
                         </Card>
@@ -1646,6 +1661,7 @@ export const AnalyticsPage = () => {
                         }
                     >
                         <Button size="l" view="action" style={{marginBottom: 8}}>
+                            <Icon data={LayoutColumns3} />
                             <Text variant="subheader-1">Столбцы</Text>
                         </Button>
                     </Popover>
@@ -1710,5 +1726,22 @@ export const AnalyticsPage = () => {
                 />
             </div>
         </div>
+    );
+};
+
+const generateSelectButton = ({key, enteredKeysCheck, setEnteredKeysCheck, placeholder}) => {
+    return (
+        <Button
+            width="max"
+            style={{margin: 4}}
+            selected={enteredKeysCheck[key]}
+            onClick={() => {
+                const temp = {...enteredKeysCheck};
+                temp[key] = !temp[key];
+                setEnteredKeysCheck(temp);
+            }}
+        >
+            <Text variant="subheader-1">{placeholder}</Text>
+        </Button>
     );
 };

@@ -71,6 +71,7 @@ settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
 import {
+    generateTextInputWithNoteOnTop,
     getLocaleDateString,
     renderAsPercent,
     renderSlashPercent,
@@ -2986,6 +2987,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                             />
                                                         </div>
                                                         <div style={{minHeight: 8}} />
+
                                                         {generateModalButtonWithActions(
                                                             {
                                                                 disabled: !advertId,
@@ -4002,6 +4004,25 @@ export const MassAdvertPage = ({pageArgs}) => {
         },
     ]);
     const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['placements']);
+    const [enableOborRuleSet, setEnableOborRuleSet] = React.useState(false);
+    const [oborRuleSet, setOborRuleSet] = React.useState({
+        7: 0,
+        14: 0,
+        30: 0,
+        60: 0,
+        90: 0,
+        120: 0,
+        999: 0,
+    });
+    const [oborRuleSetValidationState, setOborRuleSetValidationState] = React.useState({
+        7: true,
+        14: true,
+        30: true,
+        60: true,
+        90: true,
+        120: true,
+        999: true,
+    });
 
     const [firstRecalc, setFirstRecalc] = useState(false);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
@@ -4024,6 +4045,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         setModalOpenFromAdvertId('');
         setBidModalRange({from: 50, to: 50});
         setSelectedValueMethod([selectedValueMethodOptions[0].value]);
+        setEnableOborRuleSet(false);
         setBidModalRangeValid(true);
         setBidModalMaxBid(500);
         setBidModalMaxBidValid(true);
@@ -6362,6 +6384,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                         </Text>
                                                         <TextInput
                                                             type="number"
+                                                            disabled={enableOborRuleSet}
                                                             value={String(bidModalDRRInputValue)}
                                                             onChange={(val) => {
                                                                 const cpo = Number(
@@ -6432,6 +6455,64 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                     : 'invalid'
                                                             }
                                                         />
+                                                    </div>
+                                                </div>
+                                                <div style={{minHeight: 8}} />
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                    }}
+                                                >
+                                                    <Checkbox
+                                                        checked={enableOborRuleSet}
+                                                        onUpdate={(val) =>
+                                                            setEnableOborRuleSet(val)
+                                                        }
+                                                        disabled={
+                                                            selectedValueMethod[0] != 'drr' &&
+                                                            selectedValueMethod[0] != 'cpo'
+                                                        }
+                                                        size="l"
+                                                        content="Задать для оборачиваемости"
+                                                    />
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                        }}
+                                                    >
+                                                        {generateTextInputWithNoteOnTop({
+                                                            value: String(oborRuleSet[7]),
+                                                            disabled: !enableOborRuleSet,
+                                                            validationState: true,
+                                                            placeholder: 'до 7 дней',
+                                                            onUpdateHandler: (val) => {
+                                                                const curVal = {...oborRuleSet};
+                                                                const temp = Number(
+                                                                    val.replace(',', '.'),
+                                                                );
+                                                                setOborRuleSetValidationState(
+                                                                    () => {
+                                                                        const tempValid = {
+                                                                            ...oborRuleSetValidationState,
+                                                                        };
+                                                                        if (
+                                                                            isNaN(temp) ||
+                                                                            !isFinite(temp)
+                                                                        ) {
+                                                                            tempValid[7] = false;
+                                                                        } else {
+                                                                            tempValid[7] = true;
+                                                                        }
+                                                                        return tempValid;
+                                                                    },
+                                                                );
+
+                                                                curVal[7] = temp;
+                                                                setOborRuleSet(curVal);
+                                                            },
+                                                        })}
                                                     </div>
                                                 </div>
 
