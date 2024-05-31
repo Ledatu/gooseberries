@@ -1041,6 +1041,7 @@ export const PricesPage = ({pageArgs}) => {
                                             }}
                                         >
                                             {(() => {
+                                                let oborPrev = -1;
                                                 const oborTextInputs = [] as any[];
                                                 for (const [obor, _] of Object.entries(
                                                     oborRuleSet,
@@ -1056,7 +1057,9 @@ export const PricesPage = ({pageArgs}) => {
                                                                     oborRuleSetValidationState[
                                                                         obor
                                                                     ],
-                                                                placeholder: `до ${obor} дней`,
+                                                                placeholder: `${
+                                                                    oborPrev + 1
+                                                                } - ${obor} дней`,
                                                                 onUpdateHandler: (val) => {
                                                                     const curVal = {...oborRuleSet};
                                                                     const temp = parseInt(val);
@@ -1085,6 +1088,7 @@ export const PricesPage = ({pageArgs}) => {
                                                             })}
                                                         </div>,
                                                     );
+                                                    oborPrev = parseInt(obor);
                                                 }
 
                                                 return oborTextInputs;
