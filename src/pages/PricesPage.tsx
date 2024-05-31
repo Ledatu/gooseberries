@@ -12,6 +12,7 @@ import {
     Card,
     TextInput,
     Checkbox,
+    Popover,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -24,6 +25,7 @@ import {
     ChevronDown,
     Key,
     ArrowsRotateLeft,
+    Box,
     Calculator,
     LockOpen,
     Lock,
@@ -182,6 +184,13 @@ export const PricesPage = ({pageArgs}) => {
             return false;
         })();
 
+        const oborFixedRuleSet = (() => {
+            const temp = doc.fixArtPrices[selectValue[0]][nmId];
+            if (temp === undefined) return undefined;
+
+            return temp['enteredValue']['oborRuleSet'];
+        })();
+
         if (!isFixedByKey && !isFixed) return defaultRenderFunctionRes;
 
         return (
@@ -199,6 +208,80 @@ export const PricesPage = ({pageArgs}) => {
                 >
                     <Icon data={isFixedByKey ? LockOpen : isFixed ? Lock : Lock} />
                 </Text>
+                {oborFixedRuleSet ? (
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div style={{minWidth: 4}} />
+                        <Popover
+                            content={
+                                <div
+                                    style={{
+                                        height: '23em',
+                                        width: 102,
+                                        overflow: 'auto',
+                                        paddingBottom: 8,
+                                        display: 'flex',
+                                    }}
+                                >
+                                    <Card
+                                        view="outlined"
+                                        theme="warning"
+                                        style={{
+                                            position: 'absolute',
+                                            height: 52 * 7,
+                                            width: 152,
+                                            padding: 20,
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            background: 'var(--g-color-base-background)',
+                                        }}
+                                    >
+                                        {(() => {
+                                            let oborPrev = -1;
+                                            const oborTextInputs = [] as any[];
+                                            for (const [obor, _] of Object.entries(
+                                                oborFixedRuleSet,
+                                            )) {
+                                                oborTextInputs.push(
+                                                    <div style={{width: '8em', margin: '0 4px'}}>
+                                                        {generateTextInputWithNoteOnTop({
+                                                            value: oborFixedRuleSet[obor],
+                                                            disabled: true,
+                                                            validationState: true,
+                                                            placeholder: `${
+                                                                oborPrev + 1
+                                                            } - ${obor} дней`,
+                                                            onUpdateHandler: () => {},
+                                                        })}
+                                                    </div>,
+                                                );
+                                                oborPrev = parseInt(obor);
+                                            }
+
+                                            return oborTextInputs;
+                                        })()}
+                                    </Card>
+                                </div>
+                            }
+                        >
+                            <Text
+                                color={
+                                    isFixedByKey
+                                        ? 'brand'
+                                        : isFixed && lastCalcOldData[art] === undefined
+                                        ? 'positive'
+                                        : 'danger'
+                                }
+                            >
+                                <Icon data={Box} />
+                            </Text>
+                        </Popover>
+                    </div>
+                ) : (
+                    <></>
+                )}
             </div>
         );
     };
