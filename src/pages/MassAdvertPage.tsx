@@ -1339,7 +1339,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     <Text variant="caption-2">{`CPM: ${curCpm} / ${
                                         drrAI !== undefined ? `${drrAI.maxBid}` : 'Автоставки выкл.'
                                     }`}</Text>
-                                    {drrAI !== undefined ? (
+                                    {drrAI !== undefined &&
+                                    drrAI.autoBidsMode != 'bestPlacement' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
                                             {`План ${
                                                 drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'
@@ -1349,6 +1350,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         <></>
                                     )}
                                     {drrAI !== undefined &&
+                                    drrAI.autoBidsMode != 'bestPlacement' &&
                                     drrAI.autoBidsMode != 'drr' &&
                                     drrAI.autoBidsMode != 'cpo' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
@@ -1357,6 +1359,14 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                     ? 'Аукцион'
                                                     : 'Выдача'
                                             })`}
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    {drrAI !== undefined &&
+                                    drrAI.autoBidsMode == 'bestPlacement' ? (
+                                        <Text style={{marginLeft: 4}} variant="caption-2">
+                                            Метод: Лучшая позиция
                                         </Text>
                                     ) : (
                                         <></>
@@ -4091,6 +4101,10 @@ export const MassAdvertPage = ({pageArgs}) => {
             content: 'Позиция в аукционе',
         },
         {
+            value: 'bestPlacement',
+            content: 'Лучшая позиция',
+        },
+        {
             value: 'drr',
             content: 'Целевой ДРР',
         },
@@ -6488,6 +6502,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                         </Text>
                                                         <TextInput
                                                             type="number"
+                                                            disabled={
+                                                                selectedValueMethod[0] ==
+                                                                'bestPlacement'
+                                                            }
                                                             value={String(bidModalDRRInputValue)}
                                                             onChange={(val) => {
                                                                 const cpo = Number(
@@ -6535,7 +6553,9 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                         <TextInput
                                                             disabled={
                                                                 selectedValueMethod[0] == 'drr' ||
-                                                                selectedValueMethod[0] == 'cpo'
+                                                                selectedValueMethod[0] == 'cpo' ||
+                                                                selectedValueMethod[0] ==
+                                                                    'bestPlacement'
                                                             }
                                                             type="number"
                                                             value={String(bidModalRange.to)}
