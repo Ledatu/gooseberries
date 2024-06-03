@@ -1204,23 +1204,34 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 // selected
                                 // view={index % 2 == 0 ? 'flat' : 'flat-action'}
                                 view="flat"
-                                onClick={() => {
+                                onClick={async () => {
                                     setShowArtStatsModalOpen(true);
 
-                                    const arts = [] as any[];
-                                    for (const [_art, artData] of Object.entries(
-                                        doc.campaigns[selectValue[0]],
-                                    )) {
-                                        if (!_art || !artData) continue;
-                                        const advertsArt = artData['adverts'];
-                                        if (!advertsArt) continue;
-                                        const keys = Object.keys(advertsArt ?? {});
-                                        if (keys.includes(String(advertId))) {
-                                            if (!arts.includes(_art)) arts.push(_art);
-                                        }
-                                    }
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {advertId: advertId},
+                                    };
+                                    console.log(params);
 
-                                    setArtsStatsByDayData(calcByDayStats(arts));
+                                    const res = await callApi('getStatsByDateForAdvertId', params);
+                                    console.log(res);
+
+                                    if (!res) return;
+
+                                    const {days} = res['data'];
+
+                                    const stat = [] as any[];
+                                    if (days)
+                                        for (const [date, dateData] of Object.entries(days)) {
+                                            if (!date || !dateData) continue;
+                                            dateData['date'] = new Date(date);
+                                            stat.push(dateData);
+                                        }
+
+                                    console.log(stat);
+
+                                    setArtsStatsByDayData(stat);
                                 }}
                             >
                                 <Icon size={11} data={LayoutList}></Icon>
