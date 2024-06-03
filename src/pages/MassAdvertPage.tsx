@@ -1205,8 +1205,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 // view={index % 2 == 0 ? 'flat' : 'flat-action'}
                                 view="flat"
                                 onClick={async () => {
-                                    setShowArtStatsModalOpen(true);
-
                                     const params = {
                                         uid: getUid(),
                                         campaignName: selectValue[0],
@@ -1226,12 +1224,39 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         for (const [date, dateData] of Object.entries(days)) {
                                             if (!date || !dateData) continue;
                                             dateData['date'] = new Date(date);
+                                            dateData['orders'] = Math.round(dateData['orders']);
+                                            dateData['sum_orders'] = Math.round(
+                                                dateData['sum_orders'],
+                                            );
+                                            dateData['sum'] = Math.round(dateData['sum']);
+                                            dateData['views'] = Math.round(dateData['views']);
+                                            dateData['clicks'] = Math.round(dateData['clicks']);
+
+                                            const {orders, sum, clicks, views} = dateData as any;
+
+                                            dateData['drr'] = getRoundValue(
+                                                dateData['sum'],
+                                                dateData['sum_orders'],
+                                                true,
+                                                1,
+                                            );
+                                            dateData['ctr'] = getRoundValue(clicks, views, true);
+                                            dateData['cpc'] = getRoundValue(sum, clicks);
+                                            dateData['cpm'] = getRoundValue(sum * 1000, views);
+                                            dateData['cr'] = getRoundValue(orders, views, true);
+                                            dateData['cpo'] = getRoundValue(
+                                                sum,
+                                                orders,
+                                                false,
+                                                sum,
+                                            );
                                             stat.push(dateData);
                                         }
 
                                     console.log(stat);
 
                                     setArtsStatsByDayData(stat);
+                                    setShowArtStatsModalOpen(true);
                                 }}
                             >
                                 <Icon size={11} data={LayoutList}></Icon>
