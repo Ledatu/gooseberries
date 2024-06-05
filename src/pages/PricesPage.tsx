@@ -536,7 +536,9 @@ export const PricesPage = ({pageArgs}) => {
                 const {sales, orders} = row;
                 // console.log(sales, orders);
 
-                return renderAsPercent({value: getRoundValue(sales, orders, true, orders ? 0 : 1)});
+                return renderAsPercent({
+                    value: Math.round(getRoundValue(sales, orders, true, orders ? 0 : 1)),
+                });
             },
         },
         {
