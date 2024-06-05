@@ -531,15 +531,7 @@ export const PricesPage = ({pageArgs}) => {
         {
             name: 'buyoutsPercent',
             placeholder: 'Процент выкупа, %',
-            render: ({value, row}) => {
-                if (!value || !row) return undefined;
-                const {sales, orders} = row;
-                // console.log(sales, orders);
-
-                return renderAsPercent({
-                    value: Math.round(getRoundValue(sales, orders, true, orders ? 0 : 1)),
-                });
-            },
+            render: renderAsPercent,
         },
         {
             name: 'allExpences',
