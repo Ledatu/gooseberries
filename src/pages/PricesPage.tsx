@@ -531,7 +531,13 @@ export const PricesPage = ({pageArgs}) => {
         {
             name: 'buyoutsPercent',
             placeholder: 'Процент выкупа, %',
-            render: renderAsPercent,
+            render: ({value, row}) => {
+                if (!value || !row) return undefined;
+                const {sales, orders} = row;
+                // console.log(sales, orders);
+
+                return renderAsPercent({value: getRoundValue(sales, orders, true, orders ? 0 : 1)});
+            },
         },
         {
             name: 'allExpences',
@@ -638,6 +644,8 @@ export const PricesPage = ({pageArgs}) => {
                 primeCost: undefined,
                 ad: 0,
                 obor: 0,
+                sales: 0,
+                orders: 0,
                 comissionSum: 0,
                 deliverySum: 0,
                 storageCostForArt: 0,
@@ -663,6 +671,8 @@ export const PricesPage = ({pageArgs}) => {
             artInfo.tags = artData['tags'] ?? [];
 
             // artInfo.priceInfo = artData['priceInfo'];
+            artInfo.orders = artData['orders'];
+            artInfo.sales = artData['sales'];
             artInfo.discount = artData['priceInfo'].discount;
             artInfo.spp = Math.round(artData['priceInfo'].spp);
             artInfo.profit = Math.round(artData['profit']);
