@@ -62,8 +62,8 @@ export const Dashboard = () => {
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [notesModalOpen, setNotesModalOpen] = useState(false);
     const [currentNote, setCurrentNote] = useState('');
-    const [page, setPage] = useState('analytics');
-    // const [page, setPage] = useState('massAdvert');
+    // const [page, setPage] = useState('analytics');
+    const [page, setPage] = useState('massAdvert');
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const [selectedCampaign, setSelectedCampaign] = useState('');
