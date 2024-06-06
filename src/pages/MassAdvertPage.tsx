@@ -106,7 +106,9 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             uid: getUid(),
             dateRange: {from: '2023', to: '2024'},
             campaignName:
-                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+                selectValue != ''
+                    ? selectValue
+                    : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифов М.С.'
                     : 'ИП Валерий',
         })
@@ -3448,7 +3450,9 @@ export const MassAdvertPage = ({pageArgs}) => {
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [doc, setUserDoc] = React.useState(getUserDoc());
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>(
+        selectedCampaign && selectedCampaign != '' ? [selectedCampaign] : [],
+    );
 
     useEffect(() => {
         setSelectedCampaign(selectValue[0]);
@@ -5296,9 +5300,11 @@ export const MassAdvertPage = ({pageArgs}) => {
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected =
-            campaignsNames[
-                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 2 : 0
-            ]['value'];
+            selectedCampaign && selectedCampaign != ''
+                ? selectedCampaign
+                : campaignsNames[
+                      Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 2 : 0
+                  ]['value'];
         setSelectValue([selected]);
         console.log(doc);
 
