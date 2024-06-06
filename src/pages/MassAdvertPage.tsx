@@ -72,6 +72,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
 import {
     getLocaleDateString,
+    getNormalDateRange,
     renderAsPercent,
     renderSlashPercent,
 } from 'src/utilities/getRoundValue';
@@ -105,7 +106,9 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             uid: getUid(),
             dateRange: {from: '2023', to: '2024'},
             campaignName:
-                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+                selectValue != ''
+                    ? selectValue
+                    : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифов М.С.'
                     : 'ИП Валерий',
         })
@@ -116,7 +119,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 };
 
 export const MassAdvertPage = ({pageArgs}) => {
-    const {setSelectedCampaign} = pageArgs;
+    const {selectedCampaign, setSelectedCampaign} = pageArgs;
 
     const cardStyle = {
         minWidth: '10em',
@@ -646,6 +649,7 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
+    const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
 
     // const paramMap = {
     //     status: {
@@ -2655,8 +2659,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 const {drrAI, placementsValue, adverts} = row;
 
                 if (!placementsValue) return undefined;
-                const {updateTime, index, phrase, log, firstAdvertIndex, cpmIndex} =
-                    placementsValue;
+                const {updateTime, index, phrase, log, cpmIndex} = placementsValue;
                 const {placementsRange} = drrAI ?? {};
                 if (phrase == '') return undefined;
 
@@ -2671,11 +2674,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                     return undefined;
                 };
                 const fistActiveAdvert = findFirstActive(adverts);
-                const advertType = fistActiveAdvert
-                    ? fistActiveAdvert.type == 9
-                        ? 'search'
-                        : 'auto'
-                    : 'search';
 
                 const mapAuctionsTypes = {
                     Выдача: 'firstPage',
@@ -2746,10 +2744,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                             >{`${
                                 !index || index == -1
                                     ? 'Нет в выдаче'
-                                    : index +
-                                      ` (${
-                                          !cpmIndex || cpmIndex == -1 ? 'Не в аукционе' : cpmIndex
-                                      })`
+                                    : index + (!cpmIndex || cpmIndex == -1 ? '' : ` (${cpmIndex})`)
                             } `}</Text>
                             <div style={{width: 4}} />
                         </div>
@@ -3313,17 +3308,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     : 'Ставки по ДРР'
                                 : ''}
                         </Text>
-                        <Text
-                            color={
-                                placementsRange &&
-                                firstAdvertIndex > placementsRange.from &&
-                                placementsRange.from
-                                    ? 'danger'
-                                    : 'primary'
-                            }
-                        >{`Позиция первой карточки с РК: ${
-                            firstAdvertIndex ? firstAdvertIndex[advertType] : 'Нет данных'
-                        }`}</Text>
                     </div>
                 );
             },
@@ -3465,7 +3449,9 @@ export const MassAdvertPage = ({pageArgs}) => {
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [doc, setUserDoc] = React.useState(getUserDoc());
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>(
+        selectedCampaign != '' ? [selectedCampaign] : [],
+    );
 
     useEffect(() => {
         setSelectedCampaign(selectValue[0]);
@@ -5216,6 +5202,45 @@ export const MassAdvertPage = ({pageArgs}) => {
                 </div>
             </div>
         );
+
+    if (dateChangeRecalc) {
+        setFetchingDataFromServerFlag(true);
+        setDateChangeRecalc(false);
+
+        callApi('calcMassAdvertsNew', {
+            uid: getUid(),
+            campaignName: selectValue[0],
+            dateRange: getNormalDateRange(dateRange),
+        }).then((res) => {
+            if (!res) return;
+            const resData = res['data'];
+            doc['campaigns'][selectValue[0]] = resData['campaigns'][selectValue[0]];
+            doc['balances'][selectValue[0]] = resData['balances'][selectValue[0]];
+            doc['plusPhrasesTemplates'][selectValue[0]] =
+                resData['plusPhrasesTemplates'][selectValue[0]];
+            doc['advertsPlusPhrasesTemplates'][selectValue[0]] =
+                resData['advertsPlusPhrasesTemplates'][selectValue[0]];
+            doc['advertsBudgetsToKeep'][selectValue[0]] =
+                resData['advertsBudgetsToKeep'][selectValue[0]];
+            doc['advertsSelectedPhrases'][selectValue[0]] =
+                resData['advertsSelectedPhrases'][selectValue[0]];
+            doc['advertsAutoBidsRules'][selectValue[0]] =
+                resData['advertsAutoBidsRules'][selectValue[0]];
+            doc['adverts'][selectValue[0]] = resData['adverts'][selectValue[0]];
+            doc['placementsAuctions'][selectValue[0]] =
+                resData['placementsAuctions'][selectValue[0]];
+            doc['advertsSchedules'][selectValue[0]] = resData['advertsSchedules'][selectValue[0]];
+
+            setChangedDoc(doc);
+
+            setDateChangeRecalc(false);
+            setFetchingDataFromServerFlag(false);
+            console.log(doc);
+        });
+
+        setPagesCurrent(1);
+    }
+
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['campaigns'])) {
@@ -5274,9 +5299,11 @@ export const MassAdvertPage = ({pageArgs}) => {
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected =
-            campaignsNames[
-                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 2 : 0
-            ]['value'];
+            selectedCampaign != ''
+                ? selectedCampaign
+                : campaignsNames[
+                      Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 2 : 0
+                  ]['value'];
         setSelectValue([selected]);
         console.log(doc);
 

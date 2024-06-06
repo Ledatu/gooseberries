@@ -66,7 +66,9 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
             uid: getUid(),
             dateRange: getNormalDateRange(dateRange),
             campaignName:
-                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+                selectValue != ''
+                    ? selectValue
+                    : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифова Р. И.'
                     : 'ИП Валерий',
         })
@@ -77,7 +79,8 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
 };
 
 export const PricesPage = ({pageArgs}) => {
-    const {setSelectedCampaign} = pageArgs;
+    const {selectedCampaign, setSelectedCampaign} = pageArgs;
+    console.log(selectedCampaign);
 
     const today = new Date(
         new Date()
@@ -563,7 +566,9 @@ export const PricesPage = ({pageArgs}) => {
     const [updatePricesModalOpen, setUpdatePricesModalOpen] = useState(false);
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>(
+        selectedCampaign != '' ? [selectedCampaign] : [],
+    );
 
     useEffect(() => {
         setSelectedCampaign(selectValue[0]);
@@ -794,6 +799,7 @@ export const PricesPage = ({pageArgs}) => {
 
     if (!doc) return <Spin />;
     if (!firstRecalc) {
+        console.log(selectValue);
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['pricesData'])) {
             if (Userfront.user.userUuid == 'ce86aeb0-30b7-45ba-9234-a6765df7a479') {
@@ -850,7 +856,7 @@ export const PricesPage = ({pageArgs}) => {
             }
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected = campaignsNames[0]['value'];
+        const selected = selectedCampaign != '' ? selectedCampaign : campaignsNames[0]['value'];
         setSelectValue([selected]);
         console.log(doc);
 

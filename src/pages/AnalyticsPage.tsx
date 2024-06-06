@@ -65,7 +65,9 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
             uid: getUid(),
             dateRange: getNormalDateRange(dateRange),
             campaignName:
-                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+                selectValue != ''
+                    ? selectValue
+                    : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифова Р. И.'
                     : 'ИП Валерий',
         })
@@ -75,7 +77,9 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const AnalyticsPage = () => {
+export const AnalyticsPage = ({pageArgs}) => {
+    const {selectedCampaign, setSelectedCampaign} = pageArgs;
+
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
     const [selectedButton, setSelectedButton] = useState('');
     const anchorRef = useRef(null);
@@ -523,10 +527,16 @@ export const AnalyticsPage = () => {
     })();
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>(
+        selectedCampaign != '' ? [selectedCampaign] : [],
+    );
     const [buttonLoading, setButtonLoading] = useState('');
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+
+    useEffect(() => {
+        setSelectedCampaign(selectValue[0]);
+    }, [selectValue]);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
@@ -1022,7 +1032,7 @@ export const AnalyticsPage = () => {
             }
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected = campaignsNames[0]['value'];
+        const selected = selectedCampaign != '' ? selectValue : campaignsNames[0]['value'];
         setSelectValue([selected]);
         console.log(doc);
 

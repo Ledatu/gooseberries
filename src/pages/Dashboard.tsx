@@ -62,8 +62,8 @@ export const Dashboard = () => {
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [notesModalOpen, setNotesModalOpen] = useState(false);
     const [currentNote, setCurrentNote] = useState('');
-    // const [page, setPage] = useState('analytics');
-    const [page, setPage] = useState('massAdvert');
+    const [page, setPage] = useState('analytics');
+    // const [page, setPage] = useState('massAdvert');
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const [selectedCampaign, setSelectedCampaign] = useState('');
@@ -251,7 +251,6 @@ export const Dashboard = () => {
                                     }}
                                 >
                                     <div style={{minWidth: 32}} />
-
                                     <Button
                                         size="l"
                                         onClick={async () => {
@@ -432,7 +431,7 @@ export const Dashboard = () => {
                         position: 'relative',
                     }}
                 >
-                    {getPageElem({page, args: {setSelectedCampaign}})}
+                    {getPageElem({page, args: {selectedCampaign, setSelectedCampaign}})}
                 </div>
             </div>
         </ThemeProvider>
@@ -447,7 +446,7 @@ const getPageElem = ({page, args}) => {
         massAdvert: <MassAdvertPage pageArgs={args} />,
         prices: <PricesPage pageArgs={args} />,
         nomenclatures: <NomenclaturesPage pageArgs={args} />,
-        analytics: <AnalyticsPage />,
+        analytics: <AnalyticsPage pageArgs={args} />,
     };
     return pages[page] ?? <div></div>;
 };

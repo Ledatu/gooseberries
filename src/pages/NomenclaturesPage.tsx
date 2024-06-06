@@ -57,7 +57,9 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
         callApi('getNomenclatures', {
             uid: getUid(),
             campaignName:
-                Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+                selectValue != ''
+                    ? selectValue
+                    : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифова Р. И.'
                     : 'ИП Валерий',
         })
@@ -68,7 +70,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 };
 
 export const NomenclaturesPage = ({pageArgs}) => {
-    const {setSelectedCampaign} = pageArgs;
+    const {selectedCampaign, setSelectedCampaign} = pageArgs;
     const uploadId = useId();
 
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -309,7 +311,9 @@ export const NomenclaturesPage = ({pageArgs}) => {
     ];
 
     const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>([]);
+    const [selectValue, setSelectValue] = React.useState<string[]>(
+        selectedCampaign != '' ? [selectedCampaign] : [],
+    );
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
@@ -591,7 +595,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
             }
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected = campaignsNames[0]['value'];
+        const selected = selectedCampaign != '' ? selectedCampaign : campaignsNames[0]['value'];
         setSelectValue([selected]);
         console.log(doc);
 
