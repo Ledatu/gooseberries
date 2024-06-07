@@ -651,6 +651,8 @@ export const PricesPage = ({pageArgs}) => {
                 taxSum: 0,
                 expences: 0,
                 cpo: 0,
+                sum: 0,
+                cpoOrders: 0,
                 buyoutsPercent: 0,
                 allExpences: 0,
             };
@@ -685,6 +687,8 @@ export const PricesPage = ({pageArgs}) => {
             artInfo.taxSum = Math.round(artData['taxSum']);
             artInfo.expences = Math.round(artData['expencesSum']);
             artInfo.cpo = Math.round(artData['cpo']);
+            artInfo.sum = Math.round(artData['sum']);
+            artInfo.cpoOrders = Math.round(artData['cpoOrders']);
             artInfo.buyoutsPercent = Math.round(artData['buyoutsPercent']);
             artInfo.allExpences = Math.round(artData['allExpences']);
 
@@ -780,6 +784,14 @@ export const PricesPage = ({pageArgs}) => {
         filteredSummaryTemp[
             'art'
         ] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
+        filteredSummaryTemp['cpo'] = getRoundValue(
+            filteredSummaryTemp['sum'],
+            filteredSummaryTemp['cpoOrders'],
+        );
+        filteredSummaryTemp['ad'] = getRoundValue(
+            filteredSummaryTemp['cpo'],
+            filteredSummaryTemp['buyoutsPercent'] / 100,
+        );
         setFilteredSummary(filteredSummaryTemp);
 
         setFilteredData(temp);
