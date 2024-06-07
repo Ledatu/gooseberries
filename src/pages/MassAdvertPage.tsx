@@ -5284,6 +5284,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                         'ООО Лаванда (18+)',
                         'ИП Галилова',
                         'ИП Мартыненко',
+                        'ТОРГМАКСИМУМ',
                     ].includes(campaignName)
                 ) {
                     campaignsNames.push({
@@ -5303,7 +5304,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             selectedCampaign && selectedCampaign != ''
                 ? selectedCampaign
                 : campaignsNames[
-                      Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 2 : 0
+                      Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 3 : 0
                   ]['value'];
         setSelectValue([selected]);
         console.log(doc);

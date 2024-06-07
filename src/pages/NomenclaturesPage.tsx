@@ -580,6 +580,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
                         'ООО Лаванда (18+)',
                         'ИП Галилова',
                         'ИП Мартыненко',
+                        'ТОРГМАКСИМУМ',
                     ].includes(campaignName)
                 ) {
                     campaignsNames.push({
@@ -595,7 +596,12 @@ export const NomenclaturesPage = ({pageArgs}) => {
             }
         }
         setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected = selectedCampaign != '' ? selectedCampaign : campaignsNames[0]['value'];
+        const selected =
+            selectedCampaign && selectedCampaign != ''
+                ? selectedCampaign
+                : campaignsNames[
+                      Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 1 : 0
+                  ]['value'];
         setSelectValue([selected]);
         console.log(doc);
 
