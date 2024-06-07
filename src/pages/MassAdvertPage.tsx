@@ -120,7 +120,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 
 export const MassAdvertPage = ({pageArgs}) => {
     const {selectedCampaign, setSelectedCampaign} = pageArgs;
-    console.log(selectedCampaign);
+    // console.log(selectedCampaign);
 
     const cardStyle = {
         minWidth: '10em',
@@ -2071,6 +2071,32 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     </Button>
                                     чтобы показать артикулы без РК
                                 </Text>
+                                <div style={{height: 4}} />
+                                <Text variant="subheader-1">
+                                    Введите
+                                    <Button
+                                        size="s"
+                                        style={{margin: '0 3px'}}
+                                        view="outlined-action"
+                                        onClick={() => filterByButton('авто', 'adverts')}
+                                    >
+                                        авто
+                                    </Button>
+                                    чтобы показать артикулы с авто РК
+                                </Text>
+                                <div style={{height: 4}} />
+                                <Text variant="subheader-1">
+                                    Введите
+                                    <Button
+                                        size="s"
+                                        style={{margin: '0 3px'}}
+                                        view="outlined-action"
+                                        onClick={() => filterByButton('поиск', 'adverts')}
+                                    >
+                                        поиск
+                                    </Button>
+                                    чтобы показать артикулы с поисковыми РК
+                                </Text>
                             </div>
                         }
                     />
@@ -2089,8 +2115,29 @@ export const MassAdvertPage = ({pageArgs}) => {
                     const advertData = doc.adverts[selectValue[0]][advertId];
                     if (!advertData) continue;
 
-                    switches.push(generateAdvertCard(advertId, index, art));
-                    switches.push(<div style={{minWidth: 8}} />);
+                    // console.log('popa', advertData, filters['adverts'].val);
+                    if (filters['adverts'] && filters['adverts'].val != '') {
+                        // console.log('popa2', advertData, filters['adverts'].val);
+                        if (
+                            String(filters['adverts'].val).toLowerCase().includes('поиск') &&
+                            (advertData.type == 9 || advertData.type == 6)
+                        ) {
+                            switches.push(generateAdvertCard(advertId, index, art));
+                            switches.push(<div style={{minWidth: 8}} />);
+                        } else if (
+                            filters['adverts'] &&
+                            String(filters['adverts'].val).toLowerCase().includes('авто') &&
+                            advertData.type == 8
+                        ) {
+                            switches.push(generateAdvertCard(advertId, index, art));
+                            switches.push(<div style={{minWidth: 8}} />);
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        switches.push(generateAdvertCard(advertId, index, art));
+                        switches.push(<div style={{minWidth: 8}} />);
+                    }
                 }
                 switches.pop();
 
@@ -3963,13 +4010,21 @@ export const MassAdvertPage = ({pageArgs}) => {
                     const rulesForAnd = [filterData['val']];
                     const adverts = tempTypeRow[filterArg];
                     // console.log(rulesForAnd);
-
                     let wholeText = '';
+                    let wholeTextTypes = '';
                     if (adverts)
                         for (const [id, _] of Object.entries(adverts)) {
                             wholeText += id + ' ';
+                            const advertData = doc.adverts[selectValue[0]][id];
+
+                            if (advertData)
+                                wholeTextTypes += advertData.type == 8 ? 'авто ' : 'поиск ';
                         }
 
+                    const lwr = String(filterData['val']).toLocaleLowerCase().trim();
+                    if (['авто', 'поиск'].includes(lwr)) {
+                        if (wholeTextTypes.includes(lwr)) continue;
+                    }
                     let tempFlagInc = 0;
                     for (let k = 0; k < rulesForAnd.length; k++) {
                         const ruleForAdd = rulesForAnd[k];
@@ -5330,17 +5385,26 @@ export const MassAdvertPage = ({pageArgs}) => {
     // }
 
     const getUniqueAdvertIdsFromThePage = () => {
+        const lwr = filters['adverts']
+            ? String(filters['adverts']['val']).toLocaleLowerCase().trim()
+            : '';
+
         const uniqueAdverts = {};
         for (let i = 0; i < filteredData.length; i++) {
             const {adverts} = filteredData[i];
             if (setManageModalOpen === undefined) continue;
             if (!adverts) continue;
+
             for (const [id, _] of Object.entries(adverts)) {
                 if (!id) continue;
                 const advertData = doc.adverts[selectValue[0]][id];
                 if (!advertData) continue;
-                const {advertId} = advertData;
+                const {advertId, type} = advertData;
                 if (!advertId) continue;
+
+                if (lwr == 'авто' && type != 8) continue;
+                else if (lwr == 'поиск' && ![6, 9].includes(type)) continue;
+
                 uniqueAdverts[advertId] = {advertId: advertId};
             }
         }
@@ -5796,42 +5860,31 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                     advertsIds: {},
                                                 },
                                             };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const {adverts} = filteredData[i];
-                                                if (adverts) {
-                                                    for (const [id, advertsData] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        if (!id || !advertsData) continue;
-                                                        const {advertId} = advertsData as {
-                                                            advertId: number;
-                                                        };
-                                                        if (!advertId) continue;
-                                                        if (
-                                                            modalOpenFromAdvertId != '' &&
-                                                            modalOpenFromAdvertId
-                                                        ) {
-                                                            if (id != modalOpenFromAdvertId)
-                                                                continue;
-                                                        }
 
-                                                        params.data.advertsIds[advertId] = {
-                                                            advertId: advertId,
-                                                            budget: budgetModalBudgetInputValue,
-                                                        };
+                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                                            for (const [id, advertData] of Object.entries(
+                                                uniqueAdverts,
+                                            )) {
+                                                if (!id || !advertData) continue;
+                                                const {advertId} = advertData as any;
+                                                if (
+                                                    modalOpenFromAdvertId != '' &&
+                                                    modalOpenFromAdvertId
+                                                ) {
+                                                    if (id != modalOpenFromAdvertId) continue;
+                                                }
 
-                                                        if (
-                                                            budgetModalSwitchValue ==
-                                                            'Установить лимит'
-                                                        ) {
-                                                            doc.advertsBudgetsToKeep[
-                                                                selectValue[0]
-                                                            ][advertId] =
-                                                                budgetModalBudgetInputValue
-                                                                    ? budgetModalBudgetInputValue
-                                                                    : undefined;
-                                                        }
-                                                    }
+                                                params.data.advertsIds[advertId] = {
+                                                    advertId: advertId,
+                                                    budget: budgetModalBudgetInputValue,
+                                                };
+
+                                                if (budgetModalSwitchValue == 'Установить лимит') {
+                                                    doc.advertsBudgetsToKeep[selectValue[0]][
+                                                        advertId
+                                                    ] = budgetModalBudgetInputValue
+                                                        ? budgetModalBudgetInputValue
+                                                        : undefined;
                                                 }
                                             }
                                             console.log(params);
@@ -6132,37 +6185,27 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                     advertsIds: {},
                                                 },
                                             };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const {adverts} = filteredData[i];
-                                                if (adverts) {
-                                                    for (const [id, advertsData] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        if (!id || !advertsData) continue;
-                                                        const {advertId} = advertsData as {
-                                                            advertId: number;
-                                                        };
-                                                        if (!advertId) continue;
-                                                        if (
-                                                            modalOpenFromAdvertId != '' &&
-                                                            modalOpenFromAdvertId
-                                                        ) {
-                                                            if (id != modalOpenFromAdvertId)
-                                                                continue;
-                                                        }
-
-                                                        params.data.advertsIds[advertId] = {
-                                                            advertId: advertId,
-                                                        };
-
-                                                        doc.advertsSchedules[selectValue[0]][
-                                                            advertId
-                                                        ] = {};
-                                                        doc.advertsSchedules[selectValue[0]][
-                                                            advertId
-                                                        ] = {schedule: scheduleInput};
-                                                    }
+                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                                            for (const [id, advertData] of Object.entries(
+                                                uniqueAdverts,
+                                            )) {
+                                                if (!id || !advertData) continue;
+                                                const {advertId} = advertData as any;
+                                                if (
+                                                    modalOpenFromAdvertId != '' &&
+                                                    modalOpenFromAdvertId
+                                                ) {
+                                                    if (id != modalOpenFromAdvertId) continue;
                                                 }
+
+                                                params.data.advertsIds[advertId] = {
+                                                    advertId: advertId,
+                                                };
+
+                                                doc.advertsSchedules[selectValue[0]][advertId] = {};
+                                                doc.advertsSchedules[selectValue[0]][advertId] = {
+                                                    schedule: scheduleInput,
+                                                };
                                             }
                                             console.log(params);
 
@@ -6192,35 +6235,28 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                     advertsIds: {},
                                                 },
                                             };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const {adverts} = filteredData[i];
-                                                if (adverts) {
-                                                    for (const [id, advertsData] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        if (!id || !advertsData) continue;
-                                                        const {advertId} = advertsData as {
-                                                            advertId: number;
-                                                        };
-                                                        if (!advertId) continue;
-                                                        if (
-                                                            modalOpenFromAdvertId != '' &&
-                                                            modalOpenFromAdvertId
-                                                        ) {
-                                                            if (id != modalOpenFromAdvertId)
-                                                                continue;
-                                                        }
-
-                                                        params.data.advertsIds[advertId] = {
-                                                            advertId: advertId,
-                                                        };
-
-                                                        delete doc.advertsSchedules[selectValue[0]][
-                                                            advertId
-                                                        ];
-                                                    }
+                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                                            for (const [id, advertData] of Object.entries(
+                                                uniqueAdverts,
+                                            )) {
+                                                if (!id || !advertData) continue;
+                                                const {advertId} = advertData as any;
+                                                if (
+                                                    modalOpenFromAdvertId != '' &&
+                                                    modalOpenFromAdvertId
+                                                ) {
+                                                    if (id != modalOpenFromAdvertId) continue;
                                                 }
+
+                                                params.data.advertsIds[advertId] = {
+                                                    advertId: advertId,
+                                                };
+
+                                                delete doc.advertsSchedules[selectValue[0]][
+                                                    advertId
+                                                ];
                                             }
+
                                             console.log(params);
 
                                             //////////////////////////////////
@@ -6775,82 +6811,64 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                         autoBidsMode: selectedValueMethod[0],
                                                     },
                                                 };
-                                                for (let i = 0; i < filteredData.length; i++) {
-                                                    const {adverts} = filteredData[i];
-                                                    if (adverts) {
-                                                        for (const [
-                                                            id,
-                                                            advertsData,
-                                                        ] of Object.entries(adverts)) {
-                                                            if (!id || !advertsData) continue;
-                                                            const {advertId} = advertsData as {
-                                                                advertId: number;
-                                                            };
-                                                            if (
-                                                                modalOpenFromAdvertId != '' &&
-                                                                modalOpenFromAdvertId
-                                                            ) {
-                                                                if (id != modalOpenFromAdvertId)
-                                                                    continue;
-                                                            }
+                                                const uniqueAdverts =
+                                                    getUniqueAdvertIdsFromThePage();
+                                                for (const [id, advertData] of Object.entries(
+                                                    uniqueAdverts,
+                                                )) {
+                                                    if (!id || !advertData) continue;
+                                                    const {advertId} = advertData as any;
+                                                    if (
+                                                        modalOpenFromAdvertId != '' &&
+                                                        modalOpenFromAdvertId
+                                                    ) {
+                                                        if (id != modalOpenFromAdvertId) continue;
+                                                    }
 
+                                                    params.data.advertsIds[advertId] = {
+                                                        advertId: advertId,
+                                                        bid: bidModalBidInputValue,
+                                                    };
+                                                    if (bidModalSwitchValue == 'Установить') {
+                                                        params.data.advertsIds[advertId] = {
+                                                            bid: bidModalBidInputValue,
+                                                            advertId: advertId,
+                                                        };
+                                                    } else if (
+                                                        bidModalSwitchValue == 'Автоставки'
+                                                    ) {
+                                                        if (!bidModalDeleteModeSelected) {
+                                                            params.data.advertsIds[advertId] = {
+                                                                desiredDRR: bidModalDRRInputValue,
+                                                                bidStep: bidModalBidStepInputValue,
+
+                                                                advertId: advertId,
+                                                            };
+                                                        } else {
                                                             params.data.advertsIds[advertId] = {
                                                                 advertId: advertId,
-                                                                bid: bidModalBidInputValue,
                                                             };
-                                                            if (
-                                                                bidModalSwitchValue == 'Установить'
-                                                            ) {
-                                                                params.data.advertsIds[advertId] = {
-                                                                    bid: bidModalBidInputValue,
-                                                                    advertId: advertId,
-                                                                };
-                                                            } else if (
-                                                                bidModalSwitchValue == 'Автоставки'
-                                                            ) {
-                                                                if (!bidModalDeleteModeSelected) {
-                                                                    params.data.advertsIds[
-                                                                        advertId
-                                                                    ] = {
-                                                                        desiredDRR:
-                                                                            bidModalDRRInputValue,
-                                                                        bidStep:
-                                                                            bidModalBidStepInputValue,
-
-                                                                        advertId: advertId,
-                                                                    };
-                                                                } else {
-                                                                    params.data.advertsIds[
-                                                                        advertId
-                                                                    ] = {
-                                                                        advertId: advertId,
-                                                                    };
-                                                                }
-
-                                                                if (
-                                                                    !doc.advertsAutoBidsRules[
-                                                                        selectValue[0]
-                                                                    ][advertId]
-                                                                )
-                                                                    doc.advertsAutoBidsRules[
-                                                                        selectValue[0]
-                                                                    ][advertId] = {};
-                                                                doc.advertsAutoBidsRules[
-                                                                    selectValue[0]
-                                                                ][advertId] =
-                                                                    bidModalDeleteModeSelected
-                                                                        ? undefined
-                                                                        : {
-                                                                              desiredDRR:
-                                                                                  bidModalDRRInputValue,
-                                                                              placementsRange:
-                                                                                  bidModalRange,
-                                                                              maxBid: bidModalMaxBid,
-                                                                              autoBidsMode:
-                                                                                  selectedValueMethod[0],
-                                                                          };
-                                                            }
                                                         }
+
+                                                        if (
+                                                            !doc.advertsAutoBidsRules[
+                                                                selectValue[0]
+                                                            ][advertId]
+                                                        )
+                                                            doc.advertsAutoBidsRules[
+                                                                selectValue[0]
+                                                            ][advertId] = {};
+                                                        doc.advertsAutoBidsRules[selectValue[0]][
+                                                            advertId
+                                                        ] = bidModalDeleteModeSelected
+                                                            ? undefined
+                                                            : {
+                                                                  desiredDRR: bidModalDRRInputValue,
+                                                                  placementsRange: bidModalRange,
+                                                                  maxBid: bidModalMaxBid,
+                                                                  autoBidsMode:
+                                                                      selectedValueMethod[0],
+                                                              };
                                                     }
                                                 }
 
@@ -7589,36 +7607,29 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 campaignName: selectValue[0],
                                                 data: {advertsIds: {}},
                                             };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const {adverts} = filteredData[i];
-                                                if (adverts) {
-                                                    for (const [id, advertsData] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        if (!id || !advertsData) continue;
-                                                        const {advertId} = advertsData as {
-                                                            advertId: number;
-                                                        };
-                                                        if (!advertId) continue;
-                                                        params.data.advertsIds[advertId] = {
-                                                            advertId: advertId,
-                                                            mode: 'Установить',
-                                                            templateName: item,
-                                                        };
+                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                                            for (const [id, advertData] of Object.entries(
+                                                uniqueAdverts,
+                                            )) {
+                                                if (!id || !advertData) continue;
+                                                const {advertId} = advertData as any;
+                                                params.data.advertsIds[advertId] = {
+                                                    advertId: advertId,
+                                                    mode: 'Установить',
+                                                    templateName: item,
+                                                };
 
-                                                        if (
-                                                            !doc.advertsPlusPhrasesTemplates[
-                                                                selectValue[0]
-                                                            ][advertId]
-                                                        )
-                                                            doc.advertsPlusPhrasesTemplates[
-                                                                selectValue[0]
-                                                            ][advertId] = {};
-                                                        doc.advertsPlusPhrasesTemplates[
-                                                            selectValue[0]
-                                                        ][advertId].templateName = item;
-                                                    }
-                                                }
+                                                if (
+                                                    !doc.advertsPlusPhrasesTemplates[
+                                                        selectValue[0]
+                                                    ][advertId]
+                                                )
+                                                    doc.advertsPlusPhrasesTemplates[selectValue[0]][
+                                                        advertId
+                                                    ] = {};
+                                                doc.advertsPlusPhrasesTemplates[selectValue[0]][
+                                                    advertId
+                                                ].templateName = item;
                                             }
 
                                             console.log(params);
@@ -7752,27 +7763,20 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 campaignName: selectValue[0],
                                                 data: {advertsIds: {}},
                                             };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const {adverts} = filteredData[i];
-                                                if (adverts) {
-                                                    for (const [id, advertsData] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        if (!id || !advertsData) continue;
-                                                        const {advertId} = advertsData as {
-                                                            advertId: number;
-                                                        };
-                                                        if (!advertId) continue;
-                                                        params.data.advertsIds[advertId] = {
-                                                            advertId: advertId,
-                                                            mode: 'Удалить',
-                                                        };
+                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                                            for (const [id, advertData] of Object.entries(
+                                                uniqueAdverts,
+                                            )) {
+                                                if (!id || !advertData) continue;
+                                                const {advertId} = advertData as any;
+                                                params.data.advertsIds[advertId] = {
+                                                    advertId: advertId,
+                                                    mode: 'Удалить',
+                                                };
 
-                                                        doc.advertsPlusPhrasesTemplates[
-                                                            selectValue[0]
-                                                        ][advertId] = undefined;
-                                                    }
-                                                }
+                                                doc.advertsPlusPhrasesTemplates[selectValue[0]][
+                                                    advertId
+                                                ] = undefined;
                                             }
                                             console.log(params);
 
