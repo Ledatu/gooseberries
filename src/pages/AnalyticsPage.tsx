@@ -92,6 +92,7 @@ export const AnalyticsPage = ({pageArgs}) => {
     const [planModalPlanValueValid, setPlanModalPlanValueValid] = useState(false);
 
     const [graphModalOpen, setGraphModalOpen] = useState(false);
+    const [currenrGraphMetrics, setCurrenrGraphMetrics] = useState([] as any[]);
     const [graphModalData, setGraphModalData] = useState({});
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
@@ -128,35 +129,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             render: (args) => {
                 const {value, row} = args;
                 if (row.isBlank) return undefined;
-                if (value === undefined) {
-                    const {graphData} = row;
-                    if (!graphData) return undefined;
-
-                    const graphModalDataTemp = {};
-                    for (const metric of Object.keys(columnDataObj).slice(2)) {
-                        graphModalDataTemp[metric] = graphData[metric];
-                    }
-
-                    return (
-                        <div>
-                            <Text>Итого</Text>
-                            <Button
-                                disabled={!graphData}
-                                size="xs"
-                                view="outlined"
-                                onClick={() => {
-                                    setGraphModalData(graphModalDataTemp);
-                                    setGraphModalTimeline(graphData['timeline']);
-                                    setGraphModalTitle('Итого');
-                                    setGraphModalOpen(true);
-                                }}
-                            >
-                                <Icon data={ChartAreaStacked} size={13} />
-                            </Button>
-                        </div>
-                    );
-                }
-
+                if (value === undefined) return 'Итого';
                 const {notes, entity} = row;
 
                 const {all} = notes ? (notes.all ? notes : {all: []}) : {all: []};
@@ -228,12 +201,12 @@ export const AnalyticsPage = ({pageArgs}) => {
             placeholder: 'Расход, ₽',
             render: (args) => renderWithGraph(args, 'sum', 'Расход, ₽'),
             isReverseGrad: true,
-            graphColor: 'var(--g-color-private-red-250)',
+            // graphColor: 'var(--g-color-private-red-250)',
         },
         sum_orders: {
             placeholder: 'Заказов, ₽',
             render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, ₽'),
-            graphColor: 'var(--g-color-private-green-250)',
+            // graphColor: 'var(--g-color-private-green-250)',
         },
         orders: {
             placeholder: 'Заказов, шт.',
@@ -359,6 +332,15 @@ export const AnalyticsPage = ({pageArgs}) => {
         },
     };
 
+    const columnDataReversed = (() => {
+        const temp = {};
+        for (const metric of Object.keys(columnDataObj).slice(2)) {
+            const {placeholder} = columnDataObj[metric];
+            temp[placeholder] = metric;
+        }
+        return temp;
+    })();
+
     const renderWithGraph = (
         {value, row},
         key,
@@ -462,8 +444,8 @@ export const AnalyticsPage = ({pageArgs}) => {
         if (row.isMainSummary) return planDefaultRender(calcSumPlanForDisplayedDaysMainSummary());
 
         const graphModalDataTemp = {};
-        for (const metric of metrics) {
-            graphModalDataTemp[metric] = graphData[metric];
+        for (const [metric, metricData] of Object.entries(graphData)) {
+            graphModalDataTemp[metric] = metricData;
         }
 
         return (
@@ -492,6 +474,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                             setGraphModalTimeline(graphData['timeline']);
                             setGraphModalTitle(title);
                             setGraphModalOpen(true);
+                            setCurrenrGraphMetrics(metrics);
                         }}
                     >
                         <Icon data={ChartAreaStacked} size={13} />
@@ -1139,6 +1122,15 @@ export const AnalyticsPage = ({pageArgs}) => {
         return arr;
     }
 
+    const colors = [
+        'var(--g-color-private-purple-550-solid)',
+        'var(--g-color-private-yellow-550-solid)',
+        'var(--g-color-private-green-550-solid)',
+        'var(--g-color-private-orange-550-solid)',
+        'var(--g-color-private-cool-grey-550-solid)',
+        'var(--g-color-private-red-550-solid)',
+    ];
+
     const genYagrData = () => {
         function linearRegression(x, y) {
             const n = x.length;
@@ -1156,15 +1148,19 @@ export const AnalyticsPage = ({pageArgs}) => {
 
         const graphModalDataTemp = [] as any[];
         const axesConfig = {};
-        for (const [metric, metricData] of Object.entries(graphModalData)) {
+
+        for (const metric of currenrGraphMetrics) {
+            const metricData = graphModalData[metric];
+
+            // console.log(metric, metricData);
             const {trendLine} = linearRegression(graphModalTimeline, metricData);
             const properTitle = columnDataObj[metric] ? columnDataObj[metric].placeholder : metric;
-            const graphColor =
-                columnDataObj[metric] && columnDataObj[metric].graphColor
-                    ? columnDataObj[metric].graphColor
-                    : 'var(--g-color-private-purple-150)';
-            const graphTrendColor = graphColor.slice(0, graphColor.length - 4) + '450)';
-            console.log(graphTrendColor);
+            const graphColor = colors[currenrGraphMetrics.indexOf(metric) % colors.length];
+            // columnDataObj[metric] && columnDataObj[metric].graphColor
+            //     ? columnDataObj[metric].graphColor
+            //     : 'var(--g-color-private-purple-250)';
+            const graphTrendColor = graphColor.slice(0, graphColor.length - 10) + '650-solid)';
+            // console.log(graphTrendColor);
 
             graphModalDataTemp.push({
                 name: 'Тренд ' + properTitle,
@@ -1172,7 +1168,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                 color: graphTrendColor,
                 precision: 0,
                 id: '2',
-                scale: metric + '_trend',
+                scale: 'r',
             });
             graphModalDataTemp.push({
                 name: properTitle,
@@ -1181,15 +1177,15 @@ export const AnalyticsPage = ({pageArgs}) => {
                 // lineWidth: 2,
                 id: '1',
                 color: graphColor,
-                scale: metric,
+                scale: 'y',
             });
-            axesConfig[metric] = {
-                label: properTitle,
+            axesConfig['y'] = {
+                label: 'Значение',
                 precision: 'auto',
                 show: true,
             };
-            axesConfig[metric + '_trend'] = {
-                label: 'Тренд ' + properTitle,
+            axesConfig['r'] = {
+                label: 'Тренд',
                 precision: 'auto',
                 side: 'right',
                 show: true,
@@ -1218,7 +1214,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                 tooltip: {
                     precision: 0,
                 },
-                // scales: {y: {min: }, r: {min: 0}},
+                scales: {y: {min: 0, stacking: false}, r: {min: 0}},
                 title: {
                     text: 'График по дням',
                 },
@@ -1237,7 +1233,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                 open={graphModalOpen}
                 onClose={() => {
                     setGraphModalOpen(false);
-                    setGraphModalData([]);
+                    setCurrenrGraphMetrics([]);
+                    setGraphModalData({});
                     setGraphModalTimeline([]);
                     setGraphModalTitle('');
                 }}
@@ -1250,10 +1247,110 @@ export const AnalyticsPage = ({pageArgs}) => {
                         width: '90em',
                         overflow: 'auto',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                     }}
                 >
                     <ChartKit type="yagr" data={genYagrData() as YagrWidgetData} />
+                    <div
+                        style={{
+                            padding: 8,
+                            height: 'calc(100% - 16px)',
+                            width: 200,
+                            overflow: 'auto',
+                            boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <List
+                            filterPlaceholder="Введите название метрики"
+                            emptyPlaceholder="Такая метрика отсутствует"
+                            items={Object.keys(columnDataReversed)}
+                            renderItem={(item) => {
+                                const selected = currenrGraphMetrics.includes(
+                                    columnDataReversed[item],
+                                );
+                                const graphColor =
+                                    colors[
+                                        currenrGraphMetrics.indexOf(columnDataReversed[item]) %
+                                            colors.length
+                                    ];
+                                const backColor = graphColor
+                                    ? graphColor.slice(0, graphColor.length - 10) + '150)'
+                                    : undefined;
+                                const graphTrendColor = graphColor
+                                    ? graphColor.slice(0, graphColor.length - 10) + '650-solid)'
+                                    : undefined;
+
+                                return (
+                                    <Button
+                                        size="xs"
+                                        pin="circle-circle"
+                                        // selected={selected}
+                                        style={{position: 'relative', overflow: 'hidden'}}
+                                        view={selected ? 'flat' : 'outlined'}
+                                    >
+                                        <div
+                                            style={{
+                                                borderRadius: 10,
+                                                left: 0,
+                                                position: 'absolute',
+                                                width: '100%',
+                                                height: '100%',
+                                                background: selected ? backColor : '#0000',
+                                            }}
+                                        />
+                                        <Text
+                                            style={{
+                                                color: selected ? graphTrendColor : undefined,
+                                            }}
+                                        >
+                                            {item}
+                                        </Text>
+                                    </Button>
+                                );
+                            }}
+                            onItemClick={(item) => {
+                                const metricVal = columnDataReversed[item];
+                                let tempArr = Array.from(currenrGraphMetrics);
+                                if (tempArr.includes(metricVal)) {
+                                    tempArr = tempArr.filter((value) => value != metricVal);
+                                } else {
+                                    tempArr.push(metricVal);
+                                }
+
+                                tempArr = tempArr.sort((a, b) => {
+                                    const metricDataA = graphModalData[a];
+                                    const metricDataB = graphModalData[b];
+                                    return metricDataA[0] - metricDataB[0];
+                                });
+
+                                setCurrenrGraphMetrics(tempArr);
+                            }}
+                        />
+                        <Button
+                            width="max"
+                            view={currenrGraphMetrics.length ? 'flat-danger' : 'normal'}
+                            selected={currenrGraphMetrics.length != 0}
+                            onClick={() => {
+                                setCurrenrGraphMetrics([]);
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <Icon data={TrashBin} />
+                                <div style={{minWidth: 3}} />
+                                Очистить
+                            </div>
+                        </Button>
+                    </div>
                 </Card>
             </Modal>
             <Modal
