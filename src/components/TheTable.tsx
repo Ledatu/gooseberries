@@ -117,8 +117,6 @@ const generateFilterTextInput = (args) => {
                 flexDirection: 'row',
                 alignItems: 'end',
                 minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
-
-                maxWidth: '30vw',
             }}
             onClick={(event) => {
                 event.stopPropagation();

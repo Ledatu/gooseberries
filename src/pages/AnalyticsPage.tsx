@@ -92,7 +92,7 @@ export const AnalyticsPage = ({pageArgs}) => {
     const [planModalPlanValueValid, setPlanModalPlanValueValid] = useState(false);
 
     const [graphModalOpen, setGraphModalOpen] = useState(false);
-    const [graphModalData, setGraphModalData] = useState([] as any[]);
+    const [graphModalData, setGraphModalData] = useState({});
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
 
@@ -125,9 +125,37 @@ export const AnalyticsPage = ({pageArgs}) => {
         date: {
             valueType: 'text',
             placeholder: 'Дата',
-            render: ({value, row}) => {
+            render: (args) => {
+                const {value, row} = args;
                 if (row.isBlank) return undefined;
-                if (value === undefined) return 'Итого';
+                if (value === undefined) {
+                    const {graphData} = row;
+                    if (!graphData) return undefined;
+
+                    const graphModalDataTemp = {};
+                    for (const metric of Object.keys(columnDataObj).slice(2)) {
+                        graphModalDataTemp[metric] = graphData[metric];
+                    }
+
+                    return (
+                        <div>
+                            <Text>Итого</Text>
+                            <Button
+                                disabled={!graphData}
+                                size="xs"
+                                view="outlined"
+                                onClick={() => {
+                                    setGraphModalData(graphModalDataTemp);
+                                    setGraphModalTimeline(graphData['timeline']);
+                                    setGraphModalTitle('Итого');
+                                    setGraphModalOpen(true);
+                                }}
+                            >
+                                <Icon data={ChartAreaStacked} size={13} />
+                            </Button>
+                        </div>
+                    );
+                }
 
                 const {notes, entity} = row;
 
@@ -200,10 +228,12 @@ export const AnalyticsPage = ({pageArgs}) => {
             placeholder: 'Расход, ₽',
             render: (args) => renderWithGraph(args, 'sum', 'Расход, ₽'),
             isReverseGrad: true,
+            graphColor: 'var(--g-color-private-red-250)',
         },
         sum_orders: {
             placeholder: 'Заказов, ₽',
             render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, ₽'),
+            graphColor: 'var(--g-color-private-green-250)',
         },
         orders: {
             placeholder: 'Заказов, шт.',
@@ -228,19 +258,37 @@ export const AnalyticsPage = ({pageArgs}) => {
         rentabelnost: {
             placeholder: 'Рентабельность, %',
             render: (args) =>
-                renderWithGraph(args, 'rentabelnost', 'Рентабельность, %', renderAsPercent),
+                renderWithGraph(
+                    args,
+                    'rentabelnost',
+                    'Рентабельность, %',
+                    ['rentabelnost'],
+                    renderAsPercent,
+                ),
         },
         drr_orders: {
             placeholder: 'ДРР к заказам, %',
             render: (args) =>
-                renderWithGraph(args, 'drr_orders', 'ДРР к заказам, %', renderAsPercent),
+                renderWithGraph(
+                    args,
+                    'drr_orders',
+                    'ДРР к заказам, %',
+                    ['drr_orders'],
+                    renderAsPercent,
+                ),
             planType: 'avg',
             isReverseGrad: true,
         },
         drr_sales: {
             placeholder: 'ДРР к продажам, %',
             render: (args) =>
-                renderWithGraph(args, 'drr_sales', 'ДРР к продажам, %', renderAsPercent),
+                renderWithGraph(
+                    args,
+                    'drr_sales',
+                    'ДРР к продажам, %',
+                    ['drr_sales'],
+                    renderAsPercent,
+                ),
             planType: 'avg',
             isReverseGrad: true,
         },
@@ -259,19 +307,38 @@ export const AnalyticsPage = ({pageArgs}) => {
         buyoutsPercent: {
             placeholder: 'Выкуп, %',
             planType: 'avg',
-            render: (args) => renderWithGraph(args, 'buyoutsPercent', 'Выкуп, %', renderAsPercent),
+            render: (args) =>
+                renderWithGraph(
+                    args,
+                    'buyoutsPercent',
+                    'Выкуп, %',
+                    ['buyoutsPercent'],
+                    renderAsPercent,
+                ),
         },
         addToCartPercent: {
             placeholder: 'CR в корзину, %',
             planType: 'avg',
             render: (args) =>
-                renderWithGraph(args, 'addToCartPercent', 'CR в корзину, %', renderAsPercent),
+                renderWithGraph(
+                    args,
+                    'addToCartPercent',
+                    'CR в корзину, %',
+                    ['addToCartPercent'],
+                    renderAsPercent,
+                ),
         },
         cartToOrderPercent: {
             placeholder: 'CR в заказ, %',
             planType: 'avg',
             render: (args) =>
-                renderWithGraph(args, 'cartToOrderPercent', 'CR в заказ, %', renderAsPercent),
+                renderWithGraph(
+                    args,
+                    'cartToOrderPercent',
+                    'CR в заказ, %',
+                    ['cartToOrderPercent'],
+                    renderAsPercent,
+                ),
         },
         storageCost: {
             placeholder: 'Хранение, ₽',
@@ -296,9 +363,11 @@ export const AnalyticsPage = ({pageArgs}) => {
         {value, row},
         key,
         title,
+        metrics: any = undefined,
         defaultRenderFunction = defaultRender as any,
     ) => {
         if (value === undefined) return undefined;
+        if (!metrics) metrics = [key];
 
         const {isReverseGrad, planType} = columnDataObj[key];
 
@@ -392,6 +461,11 @@ export const AnalyticsPage = ({pageArgs}) => {
 
         if (row.isMainSummary) return planDefaultRender(calcSumPlanForDisplayedDaysMainSummary());
 
+        const graphModalDataTemp = {};
+        for (const metric of metrics) {
+            graphModalDataTemp[metric] = graphData[metric];
+        }
+
         return (
             <div
                 style={{
@@ -414,7 +488,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                         size="xs"
                         view="outlined"
                         onClick={() => {
-                            setGraphModalData(graphData[key]);
+                            setGraphModalData(graphModalDataTemp);
                             setGraphModalTimeline(graphData['timeline']);
                             setGraphModalTitle(title);
                             setGraphModalOpen(true);
@@ -1080,28 +1154,52 @@ export const AnalyticsPage = ({pageArgs}) => {
             return {slope, intercept, trendLine};
         }
 
-        const {trendLine} = linearRegression(graphModalTimeline, graphModalData);
+        const graphModalDataTemp = [] as any[];
+        const axesConfig = {};
+        for (const [metric, metricData] of Object.entries(graphModalData)) {
+            const {trendLine} = linearRegression(graphModalTimeline, metricData);
+            const properTitle = columnDataObj[metric] ? columnDataObj[metric].placeholder : metric;
+            const graphColor =
+                columnDataObj[metric] && columnDataObj[metric].graphColor
+                    ? columnDataObj[metric].graphColor
+                    : 'var(--g-color-private-purple-150)';
+            const graphTrendColor = graphColor.slice(0, graphColor.length - 4) + '450)';
+            console.log(graphTrendColor);
+
+            graphModalDataTemp.push({
+                name: 'Тренд ' + properTitle,
+                data: trendLine,
+                color: graphTrendColor,
+                precision: 0,
+                id: '2',
+                scale: metric + '_trend',
+            });
+            graphModalDataTemp.push({
+                name: properTitle,
+                data: metricData,
+                type: 'column',
+                // lineWidth: 2,
+                id: '1',
+                color: graphColor,
+                scale: metric,
+            });
+            axesConfig[metric] = {
+                label: properTitle,
+                precision: 'auto',
+                show: true,
+            };
+            axesConfig[metric + '_trend'] = {
+                label: 'Тренд ' + properTitle,
+                precision: 'auto',
+                side: 'right',
+                show: true,
+            };
+        }
 
         return {
             data: {
                 timeline: graphModalTimeline,
-                graphs: [
-                    {
-                        name: 'Тренд, ₽',
-                        data: trendLine,
-                        precision: 0,
-                        id: '2',
-                        scale: 'r',
-                    },
-                    {
-                        name: graphModalTitle,
-                        data: graphModalData,
-                        type: 'column',
-                        id: '1',
-                        color: '#9a63d1',
-                        scale: 'y',
-                    },
-                ],
+                graphs: [...graphModalDataTemp],
             },
 
             libraryConfig: {
@@ -1112,17 +1210,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                     },
                 },
                 axes: {
-                    y: {
-                        label: graphModalTitle,
-                        precision: 'auto',
-                        show: true,
-                    },
-                    r: {
-                        label: 'Тренд, ₽',
-                        side: 'right',
-                        precision: 'auto',
-                        show: true,
-                    },
+                    ...axesConfig,
                     x: {
                         show: true,
                     },
@@ -1158,8 +1246,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                     view="outlined"
                     theme="warning"
                     style={{
-                        height: '30em',
-                        width: '60em',
+                        height: '50em',
+                        width: '90em',
                         overflow: 'auto',
                         display: 'flex',
                         flexDirection: 'column',

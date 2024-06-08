@@ -2023,6 +2023,22 @@ export const MassAdvertPage = ({pageArgs}) => {
             placeholder: 'Реклама',
             valueType: 'text',
             additionalNodes: [
+                <Button
+                    style={{marginLeft: 5}}
+                    // size="l"
+                    view="outlined"
+                    onClick={() => filterByButton('авто', 'adverts')}
+                >
+                    <Icon data={Rocket} size={14} />
+                </Button>,
+                <Button
+                    style={{marginLeft: 5}}
+                    // size="l"
+                    view="outlined"
+                    onClick={() => filterByButton('поиск', 'adverts')}
+                >
+                    <Icon data={Magnifier} size={14} />
+                </Button>,
                 <div
                     style={{
                         display: 'flex',
