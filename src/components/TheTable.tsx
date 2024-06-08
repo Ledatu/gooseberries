@@ -108,7 +108,7 @@ const generateFilterTextInput = (args) => {
     } = args;
     let minWidth = viewportSize ? viewportSize.width / 20 : 60;
     if (minWidth < 40) minWidth = 60;
-    if (minWidth > 100) minWidth = 100;
+    if (minWidth > 250) minWidth = 200;
 
     return (
         <div

@@ -2132,7 +2132,12 @@ export const MassAdvertPage = ({pageArgs}) => {
                     if (!advertData) continue;
 
                     // console.log('popa', advertData, filters['adverts'].val);
-                    if (filters['adverts'] && filters['adverts'].val != '') {
+                    if (
+                        filters['adverts'] &&
+                        ['авто', 'поиск'].includes(
+                            String(filters['adverts'].val).toLowerCase().trim(),
+                        )
+                    ) {
                         // console.log('popa2', advertData, filters['adverts'].val);
                         if (
                             String(filters['adverts'].val).toLowerCase().includes('поиск') &&
