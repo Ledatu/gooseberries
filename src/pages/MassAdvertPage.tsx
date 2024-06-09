@@ -6624,10 +6624,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                         </Text>
                                                         <TextInput
                                                             type="number"
-                                                            disabled={
-                                                                selectedValueMethod[0] ==
-                                                                'bestPlacement'
-                                                            }
                                                             value={String(bidModalDRRInputValue)}
                                                             onChange={(val) => {
                                                                 const cpo = Number(
