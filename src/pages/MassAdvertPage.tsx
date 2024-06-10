@@ -3524,6 +3524,7 @@ export const MassAdvertPage = ({pageArgs}) => {
 
     const [filteredSummary, setFilteredSummary] = useState({
         art: '',
+        uniqueImtIds: 0,
         views: 0,
         clicks: 0,
         sum: 0,
@@ -4109,7 +4110,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         });
         const paginatedDataTemp = temp.slice(0, 300);
         const filteredSummaryTemp = {
-            art: `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`,
+            art: '',
             orders: 0,
             sum_orders: 0,
             sum: 0,
@@ -4120,6 +4121,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             cpc: 0,
             cpm: 0,
             cr: 0,
+            uniqueImtIds: 0,
             stocks: 0,
             cpo: 0,
             adverts: 0,
@@ -4131,9 +4133,12 @@ export const MassAdvertPage = ({pageArgs}) => {
             cartToOrderPercent: 0,
         };
         const uniqueAdvertsIds: any[] = [];
+        const uniqueImtIds: any[] = [];
         for (let i = 0; i < temp.length; i++) {
             const row = temp[i];
-            // const art = row['art'];
+            const imtId = row['imtId'];
+            if (!uniqueImtIds.includes(imtId)) uniqueImtIds.push(imtId);
+
             const adverts = row['adverts'];
             if (adverts) {
                 for (const id of Object.keys(adverts)) {
@@ -4150,6 +4155,9 @@ export const MassAdvertPage = ({pageArgs}) => {
             filteredSummaryTemp.openCardCount += row['openCardCount'];
             filteredSummaryTemp.addToCartCount += row['addToCartCount'];
         }
+        filteredSummaryTemp.uniqueImtIds = Math.round(uniqueImtIds.length);
+        filteredSummaryTemp.art = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length} ID КТ: ${filteredSummaryTemp.uniqueImtIds}`;
+
         filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
         filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
         filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks);
@@ -8140,7 +8148,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                         const paginatedDataTemp = filteredData.slice((page - 1) * 300, page * 300);
                         setFilteredSummary((row) => {
                             const temp = row;
-                            temp.art = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;
+                            temp.art = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length} ID КТ: ${temp.uniqueImtIds}`;
 
                             return temp;
                         });
