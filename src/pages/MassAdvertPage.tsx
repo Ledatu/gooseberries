@@ -18,6 +18,7 @@ import {
     RadioButton,
     List,
     Checkbox,
+    Tooltip,
 } from '@gravity-ui/uikit';
 import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
@@ -47,6 +48,8 @@ import {
     ChevronDown,
     ArrowShapeUp,
     Minus,
+    CaretUp,
+    CaretDown,
     Plus,
     Play,
     Pause,
@@ -444,11 +447,13 @@ export const MassAdvertPage = ({pageArgs}) => {
             ctr: 0,
             clicks: 0,
             freq: 0,
+            freqTrend: 0,
             placements: null,
         },
         minus: {
             cluster: {summary: 0},
             freq: 0,
+            freqTrend: 0,
             count: 0,
             clicks: 0,
             sum: 0,
@@ -473,6 +478,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             ctr: 0,
             clicks: 0,
             freq: 0,
+            freqTrend: 0,
             placements: null,
         };
 
@@ -516,6 +522,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             ctr: 0,
             clicks: 0,
             freq: 0,
+            freqTrend: 0,
             placements: null,
         };
 
@@ -540,7 +547,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 temp.push(cluster);
             }
         }
-        console.log(temp);
+        // console.log(temp);
 
         setSemanticsModalSemanticsMinusItemsFiltratedValue([...temp]);
 
@@ -1513,10 +1520,18 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         for (const [_cluster, clusterData] of Object.entries(
                                             temp,
                                         )) {
-                                            const {preset} = (clusterData as {preset: string}) ?? {
+                                            const {preset, freq} = (clusterData as {
+                                                preset: string;
+                                                freq: object;
+                                            }) ?? {
                                                 preset: undefined,
+                                                freq: undefined,
                                             };
                                             if (preset) tempPresets.push(preset);
+                                            if (freq && freq['val']) {
+                                                temp[_cluster].freq = freq['val'];
+                                                temp[_cluster].freqTrend = freq['trend'];
+                                            }
                                         }
                                         setSemanticsModalSemanticsItemsValuePresets(tempPresets);
 
@@ -1526,8 +1541,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     setSemanticsModalSemanticsMinusItemsValue(() => {
                                         const temp = advertSemantics.excluded;
                                         temp.sort((a, b) => {
-                                            const freqA = a.freq ? a.freq : 0;
-                                            const freqB = b.freq ? b.freq : 0;
+                                            const freqA = a.freq ? a.freq.val : 0;
+                                            const freqB = b.freq ? b.freq.val : 0;
                                             return freqB - freqA;
                                         });
 
@@ -1535,11 +1550,18 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         for (const [_cluster, clusterData] of Object.entries(
                                             temp,
                                         )) {
-                                            const {preset} = (clusterData as {preset: string}) ?? {
+                                            const {preset, freq} = (clusterData as {
+                                                preset: string;
+                                                freq: object;
+                                            }) ?? {
                                                 preset: undefined,
+                                                freq: undefined,
                                             };
-                                            if (preset && !tempPresets.includes(preset))
-                                                tempPresets.push(preset);
+                                            if (preset) tempPresets.push(preset);
+                                            if (freq && freq['val']) {
+                                                temp[_cluster].freq = freq['val'];
+                                                temp[_cluster].freqTrend = freq['trend'];
+                                            }
                                         }
                                         setSemanticsModalSemanticsMinusItemsValuePresets(
                                             tempPresets,
@@ -4440,6 +4462,31 @@ export const MassAdvertPage = ({pageArgs}) => {
         {
             name: 'freq',
             placeholder: 'Частота',
+            render: ({value, row}) => {
+                const {freqTrend} = row;
+                return (
+                    <Tooltip content={`${freqTrend > 0 ? '+' : ''}${freqTrend}`}>
+                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <Text>{value}</Text>
+                            {freqTrend ? (
+                                <Text
+                                    color={
+                                        freqTrend > 0
+                                            ? 'positive'
+                                            : freqTrend < 0
+                                            ? 'danger'
+                                            : 'primary'
+                                    }
+                                >
+                                    <Icon data={freqTrend > 0 ? CaretUp : CaretDown} />
+                                </Text>
+                            ) : (
+                                <> </>
+                            )}
+                        </div>
+                    </Tooltip>
+                );
+            },
         },
         {
             name: 'count',
@@ -4744,6 +4791,31 @@ export const MassAdvertPage = ({pageArgs}) => {
         {
             name: 'freq',
             placeholder: 'Частота',
+            render: ({value, row}) => {
+                const {freqTrend} = row;
+                return (
+                    <Tooltip content={`${freqTrend > 0 ? '+' : ''}${freqTrend}`}>
+                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <Text>{value}</Text>
+                            {freqTrend ? (
+                                <Text
+                                    color={
+                                        freqTrend > 0
+                                            ? 'positive'
+                                            : freqTrend < 0
+                                            ? 'danger'
+                                            : 'primary'
+                                    }
+                                >
+                                    <Icon data={freqTrend > 0 ? CaretUp : CaretDown} />
+                                </Text>
+                            ) : (
+                                <> </>
+                            )}
+                        </div>
+                    </Tooltip>
+                );
+            },
         },
         {
             name: 'count',
