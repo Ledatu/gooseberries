@@ -4256,9 +4256,9 @@ export const MassAdvertPage = ({pageArgs}) => {
 
             try {
                 const wordsForAdverts = await callApi('getWordsForAdvertId', params);
-                if (doc.adverts && wordsForAdverts) {
-                    for (const [advertId, _] of Object.entries(doc.adverts)) {
-                        doc.adverts[advertId] = wordsForAdverts[advertId] ?? {};
+                if (doc.adverts[selectValue[0]] && wordsForAdverts) {
+                    for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
+                        doc.adverts[selectValue[0]][advertId] = wordsForAdverts[advertId] ?? {};
                     }
                     setChangedDoc(doc);
                 }
