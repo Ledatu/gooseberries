@@ -100,6 +100,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['advertsSelectedPhrases'][selectValue] =
                 docum['advertsSelectedPhrases'][selectValue];
             doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
+            doc['dzhemData'][selectValue] = docum['dzhemData'][selectValue];
         }
         setDocument(docum);
     }
@@ -1520,18 +1521,37 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         for (const [_cluster, clusterData] of Object.entries(
                                             temp,
                                         )) {
-                                            const {preset, freq} = (clusterData as {
+                                            const {preset, freq, cluster} = (clusterData as {
                                                 preset: string;
+                                                cluster: string;
                                                 freq: object;
                                             }) ?? {
                                                 preset: undefined,
                                                 freq: undefined,
+                                                cluster: undefined,
                                             };
                                             if (preset) tempPresets.push(preset);
                                             if (freq && freq['val']) {
                                                 temp[_cluster].freq = freq['val'];
                                                 temp[_cluster].freqTrend = freq['trend'];
                                             }
+                                            const dzhem = doc.dzhemData
+                                                ? doc.dzhemData[selectValue[0]]
+                                                    ? doc.dzhemData[selectValue[0]][
+                                                          semanticsModalOpenFromArt
+                                                      ]
+                                                        ? doc.dzhemData[selectValue[0]][
+                                                              semanticsModalOpenFromArt
+                                                          ].phrasesStats ?? undefined
+                                                        : undefined
+                                                    : undefined
+                                                : undefined;
+                                            if (dzhem && dzhem[cluster])
+                                                for (const [metric, metricVal] of Object.entries(
+                                                    dzhem[cluster],
+                                                )) {
+                                                    temp[_cluster][metric] = metricVal;
+                                                }
                                         }
                                         setSemanticsModalSemanticsItemsValuePresets(tempPresets);
 
@@ -1550,18 +1570,37 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         for (const [_cluster, clusterData] of Object.entries(
                                             temp,
                                         )) {
-                                            const {preset, freq} = (clusterData as {
+                                            const {preset, freq, cluster} = (clusterData as {
                                                 preset: string;
+                                                cluster: string;
                                                 freq: object;
                                             }) ?? {
                                                 preset: undefined,
                                                 freq: undefined,
+                                                cluster: undefined,
                                             };
                                             if (preset) tempPresets.push(preset);
                                             if (freq && freq['val']) {
                                                 temp[_cluster].freq = freq['val'];
                                                 temp[_cluster].freqTrend = freq['trend'];
                                             }
+                                            const dzhem = doc.dzhemData
+                                                ? doc.dzhemData[selectValue[0]]
+                                                    ? doc.dzhemData[selectValue[0]][
+                                                          semanticsModalOpenFromArt
+                                                      ]
+                                                        ? doc.dzhemData[selectValue[0]][
+                                                              semanticsModalOpenFromArt
+                                                          ].phrasesStats ?? undefined
+                                                        : undefined
+                                                    : undefined
+                                                : undefined;
+                                            if (dzhem && dzhem[cluster])
+                                                for (const [metric, metricVal] of Object.entries(
+                                                    dzhem[cluster],
+                                                )) {
+                                                    temp[_cluster][metric] = metricVal;
+                                                }
                                         }
                                         setSemanticsModalSemanticsMinusItemsValuePresets(
                                             tempPresets,
@@ -4265,11 +4304,14 @@ export const MassAdvertPage = ({pageArgs}) => {
                 if (!res) throw 'its undefined';
                 const wordsForAdverts = res['data'];
                 // console.log(wordsForAdverts);
+                if (!doc.dzhemData) doc.dzhemData = {};
+                if (!doc.dzhemData[selectValue[0]])
+                    doc.dzhemData[selectValue[0]] = wordsForAdverts.dzhem;
 
                 if (doc.adverts[selectValue[0]] && wordsForAdverts) {
                     for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
                         doc.adverts[selectValue[0]][advertId].words =
-                            wordsForAdverts[advertId] ?? {};
+                            wordsForAdverts.words[advertId] ?? {};
                     }
                     setChangedDoc(doc);
                 }
@@ -4663,6 +4705,33 @@ export const MassAdvertPage = ({pageArgs}) => {
                 );
             },
         },
+        {placeholder: 'Видимость, %', name: 'visibility'},
+        {placeholder: 'Видимость, % (предыдущий период)', name: 'visibilityPrev'},
+        {placeholder: 'Средняя позиция', name: 'avgPosition'},
+        {placeholder: 'Средняя позиция (предыдущий период)', name: 'avgPositionPrev'},
+        {placeholder: 'Медианная позиция', name: 'medianPosition'},
+        {placeholder: 'Медианная позиция (предыдущий период)', name: 'medianPositionPrev'},
+        {placeholder: 'Переходы в карточку', name: 'openCardCount'},
+        {placeholder: 'Переходы в карточку (предыдущий период)', name: 'openCardCountPrev'},
+        {
+            placeholder: 'Переходы в карточку лучше, чем у n% карточек конкурентов, %',
+            name: 'openCardCountBetterThanN',
+        },
+        {placeholder: 'Положили в корзину', name: 'addToCartCount'},
+        {placeholder: 'Положили в корзину (предыдущий период)', name: 'addToCartCountPrev'},
+        {
+            placeholder: 'Положили в корзину лучше, чем n% карточек конкурентов, %',
+            name: 'addToCartCountBetterThanN',
+        },
+        {placeholder: 'Конверсия в корзину, %', name: 'addToCartPercent'},
+        {placeholder: 'Конверсия в корзину, % (предыдущий период)', name: 'addToCartPercentPrev'},
+        {placeholder: 'Заказали, шт', name: 'orders'},
+        {placeholder: 'Заказали, шт (предыдущий период)', name: 'ordersPrev'},
+        {placeholder: 'Заказы лучше, чем n% карточек конкурентов, %', name: 'ordersBetterThanN'},
+        {placeholder: 'Конверсия в заказ, %', name: 'cartToOrderPercent'},
+        {placeholder: 'Конверсия в заказ, % (предыдущий период)', name: 'cartToOrderPercentPrev'},
+        {placeholder: 'Минимальная цена со скидкой (по размерам)', name: 'minPriceWithSppBySizes'},
+        {placeholder: 'Максимальная цена со скидкой (по размерам)', name: 'maxPriceWithSppBySizes'},
     ];
     const columnDataSemantics2 = [
         {
@@ -4992,6 +5061,33 @@ export const MassAdvertPage = ({pageArgs}) => {
                 );
             },
         },
+        {placeholder: 'Видимость, %', name: 'visibility'},
+        {placeholder: 'Видимость, % (предыдущий период)', name: 'visibilityPrev'},
+        {placeholder: 'Средняя позиция', name: 'avgPosition'},
+        {placeholder: 'Средняя позиция (предыдущий период)', name: 'avgPositionPrev'},
+        {placeholder: 'Медианная позиция', name: 'medianPosition'},
+        {placeholder: 'Медианная позиция (предыдущий период)', name: 'medianPositionPrev'},
+        {placeholder: 'Переходы в карточку', name: 'openCardCount'},
+        {placeholder: 'Переходы в карточку (предыдущий период)', name: 'openCardCountPrev'},
+        {
+            placeholder: 'Переходы в карточку лучше, чем у n% карточек конкурентов, %',
+            name: 'openCardCountBetterThanN',
+        },
+        {placeholder: 'Положили в корзину', name: 'addToCartCount'},
+        {placeholder: 'Положили в корзину (предыдущий период)', name: 'addToCartCountPrev'},
+        {
+            placeholder: 'Положили в корзину лучше, чем n% карточек конкурентов, %',
+            name: 'addToCartCountBetterThanN',
+        },
+        {placeholder: 'Конверсия в корзину, %', name: 'addToCartPercent'},
+        {placeholder: 'Конверсия в корзину, % (предыдущий период)', name: 'addToCartPercentPrev'},
+        {placeholder: 'Заказали, шт', name: 'orders'},
+        {placeholder: 'Заказали, шт (предыдущий период)', name: 'ordersPrev'},
+        {placeholder: 'Заказы лучше, чем n% карточек конкурентов, %', name: 'ordersBetterThanN'},
+        {placeholder: 'Конверсия в заказ, %', name: 'cartToOrderPercent'},
+        {placeholder: 'Конверсия в заказ, % (предыдущий период)', name: 'cartToOrderPercentPrev'},
+        {placeholder: 'Минимальная цена со скидкой (по размерам)', name: 'minPriceWithSppBySizes'},
+        {placeholder: 'Максимальная цена со скидкой (по размерам)', name: 'maxPriceWithSppBySizes'},
     ];
 
     // const [auctionFilters, setAuctionFilters] = useState({undef: false});
@@ -5152,14 +5248,8 @@ export const MassAdvertPage = ({pageArgs}) => {
             header: 'Цена 1 буста, ₽',
             name: 'avgBoostPrice',
         },
-        // {
-        //     header: 'Наименование',
-        //     name: 'name',
-        // },
-        // {
-        //     header: 'Поставщик',
-        //     name: 'supplier',
-        // },
+        // {header: 'Частота, шт', name: 'freq'},
+        // {header: 'Частота, шт (предыдущий период)', name: 'freqPrev'},
     ] as Column<any>[];
     // const auctionColumns = generateColumns(
     //     columnDataAuction,
@@ -7981,6 +8071,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             resData['adverts'][nextValue[0]];
                                         doc['placementsAuctions'][nextValue[0]] =
                                             resData['placementsAuctions'][nextValue[0]];
+                                        // doc['dzhemData'][nextValue[0]] =
+                                        // resData['dzhemData'][nextValue[0]];
                                         doc['advertsSchedules'][nextValue[0]] =
                                             resData['advertsSchedules'][nextValue[0]];
 
