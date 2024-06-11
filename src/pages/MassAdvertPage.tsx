@@ -4264,7 +4264,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 const res = await callApi('getWordsForAdvertId', params);
                 if (!res) throw 'its undefined';
                 const wordsForAdverts = res['data'];
-                console.log(wordsForAdverts);
+                // console.log(wordsForAdverts);
 
                 if (doc.adverts[selectValue[0]] && wordsForAdverts) {
                     for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
