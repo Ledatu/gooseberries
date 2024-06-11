@@ -296,7 +296,27 @@ export const PricesPage = ({pageArgs}) => {
             width: 200,
             render: ({value, footer, index, row}) => {
                 if (footer) return <div style={{height: 28}}>{value}</div>;
-                const {nmId} = row;
+                const {nmId, tags} = row;
+
+                const tagsNodes = [] as ReactNode[];
+                for (let i = 0; i < tags.length; i++) {
+                    const tag = tags[i];
+                    if (tag === undefined) continue;
+
+                    tagsNodes.push(
+                        <Button
+                            style={{margin: '0 4px'}}
+                            size="xs"
+                            pin="circle-circle"
+                            selected
+                            view="outlined-info"
+                            onClick={() => filterByClick(tag.toUpperCase(), 'art')}
+                        >
+                            {tag.toUpperCase()}
+                        </Button>,
+                    );
+                }
+
                 return (
                     <div
                         style={{
@@ -305,27 +325,38 @@ export const PricesPage = ({pageArgs}) => {
                             flexDirection: 'row',
                             marginRight: 8,
                             alignItems: 'center',
+                            justifyContent: 'space-between',
                         }}
                     >
                         <div
                             style={{
-                                width: `${String(filteredData.length).length * 6}px`,
-                                // width: 20,
-                                margin: '0 16px',
+                                overflow: 'hidden',
                                 display: 'flex',
-                                justifyContent: 'center',
+                                flexDirection: 'row',
+                                alignItems: 'center',
                             }}
                         >
-                            {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
+                            <div
+                                style={{
+                                    width: `${String(filteredData.length).length * 6}px`,
+                                    // width: 20,
+                                    margin: '0 16px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
+                            </div>
+                            <Link
+                                view="primary"
+                                style={{whiteSpace: 'pre-wrap'}}
+                                href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                                target="_blank"
+                            >
+                                <Text variant="subheader-1">{value}</Text>
+                            </Link>
                         </div>
-                        <Link
-                            view="primary"
-                            style={{whiteSpace: 'pre-wrap'}}
-                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
-                            target="_blank"
-                        >
-                            <Text variant="subheader-1">{value}</Text>
-                        </Link>
+                        {tagsNodes}
                     </div>
                 );
             },
@@ -343,34 +374,6 @@ export const PricesPage = ({pageArgs}) => {
             placeholder: 'Бренд',
             valueType: 'text',
             render: (args) => renderFilterByClickButton(args, 'brand'),
-        },
-        {
-            name: 'tags',
-            placeholder: 'Теги',
-            valueType: 'text',
-            render: ({value}) => {
-                if (value === undefined) return;
-                const tags = [] as ReactNode[];
-
-                for (let i = 0; i < value.length; i++) {
-                    const tag = value[i];
-                    if (tag === undefined) continue;
-
-                    tags.push(
-                        <Button
-                            style={{margin: '0 4px'}}
-                            size="xs"
-                            pin="circle-circle"
-                            selected
-                            view="outlined-info"
-                            onClick={() => filterByClick(value, 'tags')}
-                        >
-                            {tag.toUpperCase()}
-                        </Button>,
-                    );
-                }
-                return tags;
-            },
         },
         {
             name: 'object',
@@ -730,10 +733,10 @@ export const PricesPage = ({pageArgs}) => {
                     if (flarg === undefined) continue;
                 }
 
-                if (filterArg == 'tags') {
-                    let wholeText = '';
-                    if (flarg)
-                        for (const key of flarg) {
+                if (filterArg == 'art') {
+                    let wholeText = flarg;
+                    if (tempTypeRow['tags'])
+                        for (const key of tempTypeRow['tags']) {
                             wholeText += key + ' ';
                         }
 

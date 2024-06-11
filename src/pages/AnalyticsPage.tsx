@@ -657,8 +657,9 @@ export const AnalyticsPage = ({pageArgs}) => {
                 tempTypeRow['addToCartCount'] = dateStats['addToCartCount'];
                 tempTypeRow['addToCartPercent'] = dateStats['addToCartPercent'];
                 tempTypeRow['cartToOrderPercent'] = dateStats['cartToOrderPercent'];
-                tempTypeRow['buyoutsPercent'] = dateStats['buyoutsPercent'];
                 tempTypeRow['storageCost'] = dateStats['storageCost'];
+                tempTypeRow['buyoutsPercent'] = dateStats['buyoutsPercent'];
+                tempTypeRow['expectedSales'] = dateStats['expectedSales'];
 
                 tempTypeRow['sum'] = dateStats['sum'];
                 tempTypeRow['drr_orders'] = getRoundValue(
@@ -734,6 +735,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                 rentabelnost: 0,
                 sum: 0,
                 buyoutsPercent: 0,
+                expectedSales: 0,
                 addToCartPercent: 0,
                 cartToOrderPercent: 0,
                 addToCartCount: 0,
@@ -798,6 +800,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                     addToCartPercent: 0,
                     cartToOrderPercent: 0,
                     addToCartCount: 0,
+                    expectedSales: 0,
                     openCardCount: 0,
                     storageCost: 0,
                     clicks: 0,
@@ -811,6 +814,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             summaryAdd(row, 'orders', undefined);
             summaryAdd(row, 'sum_orders', undefined);
             summaryAdd(row, 'sales', undefined);
+            summaryAdd(row, 'expectedSales', undefined);
             summaryAdd(row, 'sum_sales', undefined);
             summaryAdd(row, 'sum', undefined);
             summaryAdd(row, 'profit', undefined);
@@ -823,7 +827,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             summaryAdd(row, 'cartToOrderPercent', undefined);
             summaryAdd(row, 'storageCost', undefined);
             summaries[entity]['buyoutsPercent'] = getRoundValue(
-                summaries[entity]['sales'],
+                summaries[entity]['expectedSales'],
                 summaries[entity]['orders'],
                 true,
             );
@@ -914,6 +918,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             summaries['filteredSummaryTemp']['sum_orders'] += row['sum_orders'];
             summaries['filteredSummaryTemp']['profit'] += row['profit'];
             summaries['filteredSummaryTemp']['sales'] += row['sales'];
+            summaries['filteredSummaryTemp']['expectedSales'] += row['expectedSales'];
             summaries['filteredSummaryTemp']['sum_sales'] += row['sum_sales'];
             summaries['filteredSummaryTemp']['storageCost'] += row['storageCost'];
             summaries['filteredSummaryTemp']['sum'] += row['sum'];
@@ -962,7 +967,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             summaries['filteredSummaryTemp']['addToCartCount'] += row['addToCartCount'];
             summaries['filteredSummaryTemp']['openCardCount'] += row['openCardCount'];
             summaries['filteredSummaryTemp']['buyoutsPercent'] = getRoundValue(
-                summaries['filteredSummaryTemp']['sales'],
+                summaries['filteredSummaryTemp']['expectedSales'],
                 summaries['filteredSummaryTemp']['orders'],
                 true,
             );
