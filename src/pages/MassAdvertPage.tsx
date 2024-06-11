@@ -1665,6 +1665,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             </Text>
                                         </Label>
                                     </>
+                                ) : wordsFetchUpdate ? (
+                                    <Skeleton style={{marginLeft: 5, width: 60}} />
                                 ) : (
                                     <></>
                                 )}
