@@ -4252,7 +4252,7 @@ export const MassAdvertPage = ({pageArgs}) => {
     useEffect(() => {
         console.log('here');
 
-        if (!wordsFetchUpdate || !selectValue[0]) return;
+        if (!wordsFetchUpdate || !selectValue[0] || !firstRecalc) return;
         const fetchWords = async () => {
             const params = {
                 uid: getUid(),
@@ -4281,7 +4281,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         };
 
         fetchWords();
-    }, [wordsFetchUpdate]);
+    }, [wordsFetchUpdate, firstRecalc]);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
     const openBudgetModalForm = () => {
@@ -5512,8 +5512,6 @@ export const MassAdvertPage = ({pageArgs}) => {
         setFilters(filters);
 
         recalc(dateRange, selected);
-
-        setWordsFetchUpdate(true);
 
         setFirstRecalc(true);
     }
