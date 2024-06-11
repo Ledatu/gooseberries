@@ -4244,6 +4244,33 @@ export const MassAdvertPage = ({pageArgs}) => {
     ]);
     const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['placements']);
     const [firstRecalc, setFirstRecalc] = useState(false);
+    const [wordsFetchUpdate, setWordsFetchUpdate] = useState(false);
+    useEffect(() => {
+        if (!wordsFetchUpdate || !selectValue[0]) return;
+        const fetchWords = async () => {
+            const params = {
+                uid: getUid(),
+                campaignName: selectValue[0],
+            };
+            console.log(params);
+
+            try {
+                const wordsForAdverts = await callApi('getWordsForAdvertId', params);
+                if (doc.adverts && wordsForAdverts) {
+                    for (const [advertId, _] of Object.entries(doc.adverts)) {
+                        doc.adverts[advertId] = wordsForAdverts[advertId] ?? {};
+                    }
+                    setChangedDoc(doc);
+                }
+            } catch (error) {
+                console.error('Error fetching words for adverts:', error);
+            } finally {
+                setWordsFetchUpdate(false);
+            }
+        };
+
+        fetchWords();
+    }, [wordsFetchUpdate, selectValue]);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
     const openBudgetModalForm = () => {
@@ -5476,7 +5503,9 @@ export const MassAdvertPage = ({pageArgs}) => {
         recalc(dateRange, selected);
 
         setFirstRecalc(true);
+        setWordsFetchUpdate(true);
     }
+
     // if (firstRecalc && !secondRecalcForSticky) {
     //     setSecondRecalcForSticky(true);
     // }
@@ -7916,6 +7945,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                             }}
                             onUpdate={(nextValue) => {
                                 setSwitchingCampaignsFlag(true);
+                                setWordsFetchUpdate(true);
 
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi('getMassAdvertsNew', {
