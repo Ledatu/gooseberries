@@ -3549,6 +3549,7 @@ export const MassAdvertPage = ({pageArgs}) => {
 
     useEffect(() => {
         setSelectedCampaign(selectValue[0]);
+        setWordsFetchUpdate(true);
     }, [selectValue]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
@@ -4249,6 +4250,8 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [firstRecalc, setFirstRecalc] = useState(false);
     const [wordsFetchUpdate, setWordsFetchUpdate] = useState(false);
     useEffect(() => {
+        console.log('here');
+
         if (!wordsFetchUpdate || !selectValue[0]) return;
         const fetchWords = async () => {
             const params = {
@@ -4278,7 +4281,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         };
 
         fetchWords();
-    }, [wordsFetchUpdate, selectValue]);
+    }, [wordsFetchUpdate]);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
     const openBudgetModalForm = () => {
@@ -5509,9 +5512,10 @@ export const MassAdvertPage = ({pageArgs}) => {
         setFilters(filters);
 
         recalc(dateRange, selected);
+        
+        setWordsFetchUpdate(true);
 
         setFirstRecalc(true);
-        setWordsFetchUpdate(true);
     }
 
     // if (firstRecalc && !secondRecalcForSticky) {
@@ -7953,8 +7957,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                             }}
                             onUpdate={(nextValue) => {
                                 setSwitchingCampaignsFlag(true);
-                                setWordsFetchUpdate(true);
-
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi('getMassAdvertsNew', {
                                         uid: getUid(),
