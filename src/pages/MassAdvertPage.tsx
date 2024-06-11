@@ -100,7 +100,14 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['advertsSelectedPhrases'][selectValue] =
                 docum['advertsSelectedPhrases'][selectValue];
             doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
-            doc['dzhemData'][selectValue] = docum['dzhemData'][selectValue];
+
+            if (
+                doc['dzhemData'] &&
+                doc['dzhemData'][selectValue] &&
+                docum['dzhemData'] &&
+                docum['dzhemData'][selectValue]
+            )
+                doc['dzhemData'][selectValue] = docum['dzhemData'][selectValue];
         }
         setDocument(docum);
     }
