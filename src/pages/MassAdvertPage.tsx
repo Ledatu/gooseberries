@@ -3571,6 +3571,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 const resData = response['data'];
                 setChangedDoc(resData);
                 setChangedDocUpdateType(true);
+                setWordsFetchUpdate(true);
                 // console.log(response ? response['data'] : undefined);
             })
             .catch((error) => console.error(error));
@@ -4255,10 +4256,15 @@ export const MassAdvertPage = ({pageArgs}) => {
             console.log(params);
 
             try {
-                const wordsForAdverts = await callApi('getWordsForAdvertId', params);
+                const res = await callApi('getWordsForAdvertId', params);
+                if (!res) throw 'its undefined';
+                const wordsForAdverts = res['data'];
+                console.log(wordsForAdverts);
+
                 if (doc.adverts[selectValue[0]] && wordsForAdverts) {
                     for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
-                        doc.adverts[selectValue[0]][advertId] = wordsForAdverts[advertId] ?? {};
+                        doc.adverts[selectValue[0]][advertId].words =
+                            wordsForAdverts[advertId] ?? {};
                     }
                     setChangedDoc(doc);
                 }
