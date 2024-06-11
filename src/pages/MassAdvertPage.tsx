@@ -5512,7 +5512,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         setFilters(filters);
 
         recalc(dateRange, selected);
-        
+
         setWordsFetchUpdate(true);
 
         setFirstRecalc(true);
