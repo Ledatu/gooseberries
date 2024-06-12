@@ -240,7 +240,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
                         </div>,
                     );
                 }
-                return tags;
+                return <div style={{display: 'flex', flexDirection: 'row'}}>{tags}</div>;
             },
         },
         {
@@ -361,7 +361,18 @@ export const NomenclaturesPage = ({pageArgs}) => {
                 console.log(response.data);
                 const artsData = response.data;
                 doc.artsData[selectValue[0]] = artsData;
-                setChangedDoc(doc);
+
+                callApi('getNomenclatures', {
+                    uid: getUid(),
+                    campaignName: selectValue[0],
+                }).then((res) => {
+                    if (!res) return;
+                    const resData = res['data'];
+                    doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
+                    doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
+                    setChangedDoc(doc);
+                    console.log(doc);
+                });
             })
             .catch((error) => {
                 console.error('Error uploading file: ', error);
