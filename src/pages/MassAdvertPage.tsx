@@ -4521,9 +4521,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                 if (!res) throw 'its undefined';
                 const wordsForAdverts = res['data'];
                 // console.log(wordsForAdverts);
-                if (!doc.dzhemData) doc.dzhemData = {};
-                if (!doc.dzhemData[selectValue[0]])
-                    doc.dzhemData[selectValue[0]] = wordsForAdverts.dzhem;
 
                 if (doc.adverts[selectValue[0]] && wordsForAdverts) {
                     for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
@@ -8366,6 +8363,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         // resData['dzhemData'][nextValue[0]];
                                         doc['advertsSchedules'][nextValue[0]] =
                                             resData['advertsSchedules'][nextValue[0]];
+                                        doc['dzhemData'][nextValue[0]] =
+                                            resData['dzhemData'][nextValue[0]];
 
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
