@@ -110,6 +110,22 @@ const generateFilterTextInput = (args) => {
     if (minWidth < 40) minWidth = 60;
     if (minWidth > 250) minWidth = 200;
 
+    let placeholderWrapped = placeholder;
+    if (placeholder.length > 30) {
+        let wrapped = false;
+        placeholderWrapped = '';
+        const titleArr = placeholder.split(' ');
+        for (const word of titleArr) {
+            placeholderWrapped += word;
+            if (placeholderWrapped.length > 25 && !wrapped) {
+                placeholderWrapped += '\n';
+                wrapped = true;
+            } else {
+                placeholderWrapped += ' ';
+            }
+        }
+    }
+
     return (
         <div
             style={{
@@ -122,9 +138,23 @@ const generateFilterTextInput = (args) => {
                 event.stopPropagation();
             }}
         >
-            <div style={{display: 'flex', flexDirection: 'column', width: '100%'}}>
-                <Text style={{marginLeft: 4}} variant="subheader-1">
-                    {placeholder}
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                    height: '100%',
+                    justifyContent: 'end',
+                }}
+            >
+                <Text
+                    style={{
+                        marginLeft: 4,
+                        whiteSpace: 'pre-wrap',
+                    }}
+                    variant="subheader-1"
+                >
+                    {placeholderWrapped}
                 </Text>
                 <TextInput
                     hasClear
