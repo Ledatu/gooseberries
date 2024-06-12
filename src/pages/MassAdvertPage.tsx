@@ -1,4 +1,4 @@
-import React, {ReactNode, useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
 import {
     Spin,
     Button,
@@ -25,6 +25,7 @@ import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
 import block from 'bem-cn-lite';
+const {ipAddress} = require('../ipAddress');
 
 import Userfront from '@userfront/toolkit';
 import DataTable, {Column} from '@gravity-ui/react-data-table';
@@ -40,6 +41,7 @@ import {
     Star,
     LayoutHeader,
     ArrowsRotateLeft,
+    FileArrowUp,
     TriangleExclamation,
     ChartLine,
     ArrowRotateLeft,
@@ -63,8 +65,12 @@ import {
     TrashBin,
     Check,
     CloudArrowUpIn,
+    Cherry,
     Xmark,
 } from '@gravity-ui/icons';
+
+// import JarIcon from '../assets/jar-of-jam.svg';
+
 import {motion} from 'framer-motion';
 
 import ChartKit, {settings} from '@gravity-ui/chartkit';
@@ -309,6 +315,148 @@ export const MassAdvertPage = ({pageArgs}) => {
     //     {value: 'Установить лимит', content: 'Установить лимит'},
     // ];
     // const [semanticsModalSwitchValue, setSemanticsModalSwitchValue] = React.useState('Пополнить');
+    const [showDzhemModalOpen, setShowDzhemModalOpen] = useState(false);
+    const [dzhemData, setDzhemData] = useState<any[]>([]);
+    const [dzhemDataFilteredData, setDzhemDataFilteredData] = useState<any[]>([]);
+    const [dzhemDataFilters, setDzhemDataFilters] = useState({undef: false});
+
+    const uploadId = useId();
+    const [uploadProgress, setUploadProgress] = useState(0);
+    function handleChange(event) {
+        const file = event.target.files[0];
+        if (!file || !file.name.includes('.xlsx')) {
+            setUploadProgress(-1);
+
+            return;
+        }
+        event.preventDefault();
+        const url = `${ipAddress}/api/uploadDzhem`;
+        const formData = new FormData();
+        if (!file) return;
+        formData.append('file', file);
+        formData.append('uid', getUid());
+        formData.append('campaignName', selectValue[0]);
+
+        const token =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data',
+                Authorization: 'Bearer ' + token,
+            },
+            onUploadProgress: function (progressEvent) {
+                const percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total,
+                );
+                setUploadProgress(percentCompleted);
+            },
+        };
+
+        axios
+            .post(url, formData, config)
+            .then((response) => {
+                console.log(response.data);
+                const dzhem = response.data;
+                doc.dzhemData[selectValue[0]] = dzhem;
+
+                setChangedDoc(doc);
+            })
+            .catch((error) => {
+                console.error('Error uploading file: ', error);
+            });
+    }
+
+    const [dzhemDataFilteredSummary, setDzhemDataFilteredSummary] = useState({
+        freq: 0,
+        freqPrev: 0,
+        visibility: 0,
+        visibilityPrev: 0,
+        avgPosition: 0,
+        avgPositionPrev: 0,
+        medianPosition: 0,
+        medianPositionPrev: 0,
+        openCardCount: 0,
+        openCardCountPrev: 0,
+        openCardCountBetterThanN: 0,
+        addToCartCount: 0,
+        addToCartCountPrev: 0,
+        addToCartCountBetterThanN: 0,
+        addToCartPercent: 0,
+        addToCartPercentPrev: 0,
+        orders: 0,
+        ordersPrev: 0,
+        ordersBetterThanN: 0,
+        cartToOrderPercent: 0,
+        cartToOrderPercentPrev: 0,
+        minPriceWithSppBySizes: 0,
+        maxPriceWithSppBySizes: 0,
+    });
+    const dzhemDataFilter = (withfFilters: any, stats: any[]) => {
+        const _filters = withfFilters ?? dzhemDataFilters;
+        const _stats = stats ?? dzhemData;
+
+        const dzhemDataFilteredSummaryTemp = {
+            freq: 0,
+            freqPrev: 0,
+            visibility: 0,
+            visibilityPrev: 0,
+            avgPosition: 0,
+            avgPositionPrev: 0,
+            medianPosition: 0,
+            medianPositionPrev: 0,
+            openCardCount: 0,
+            openCardCountPrev: 0,
+            openCardCountBetterThanN: 0,
+            addToCartCount: 0,
+            addToCartCountPrev: 0,
+            addToCartCountBetterThanN: 0,
+            addToCartPercent: 0,
+            addToCartPercentPrev: 0,
+            orders: 0,
+            ordersPrev: 0,
+            ordersBetterThanN: 0,
+            cartToOrderPercent: 0,
+            cartToOrderPercentPrev: 0,
+            minPriceWithSppBySizes: 0,
+            maxPriceWithSppBySizes: 0,
+        };
+
+        setDzhemDataFilteredData(
+            _stats.filter((stat) => {
+                for (const [filterArg, filterData] of Object.entries(_filters)) {
+                    if (filterArg == 'undef' || !filterData) continue;
+                    if (filterData['val'] == '') continue;
+                    else if (!compare(stat[filterArg], filterData)) {
+                        return false;
+                    }
+                }
+
+                // for (const [key, val] of Object.entries(stat)) {
+                //     if (
+                //         [
+                //             'sum',
+                //             'clicks',
+                //             'views',
+                //             'orders',
+                //             'sum_orders',
+                //             'openCardCount',
+                //             'addToCartCount',
+                //             'addToCartPercent',
+                //             'cartToOrderPercent',
+                //         ].includes(key)
+                //     )
+                //         dzhemDataFilteredSummaryTemp[key] +=
+                //             isFinite(val as number) && !isNaN(val as number) ? val : 0;
+                // }
+
+                // dzhemDataFilteredSummaryTemp['date']++;
+
+                return true;
+            }),
+        );
+        setDzhemDataFilteredSummary(dzhemDataFilteredSummaryTemp);
+    };
 
     const [showArtStatsModalOpen, setShowArtStatsModalOpen] = useState(false);
     const [artsStatsByDayData, setArtsStatsByDayData] = useState<any[]>([]);
@@ -1539,7 +1687,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         for (const [_cluster, clusterData] of Object.entries(
                                             temp,
                                         )) {
-                                            const {preset, freq, cluster} = (clusterData as {
+                                            const {preset, freq} = (clusterData as {
                                                 preset: string;
                                                 cluster: string;
                                                 freq: object;
@@ -1553,23 +1701,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 temp[_cluster].freq = freq['val'];
                                                 temp[_cluster].freqTrend = freq['trend'];
                                             }
-                                            const dzhem = doc.dzhemData
-                                                ? doc.dzhemData[selectValue[0]]
-                                                    ? doc.dzhemData[selectValue[0]][
-                                                          semanticsModalOpenFromArt
-                                                      ]
-                                                        ? doc.dzhemData[selectValue[0]][
-                                                              semanticsModalOpenFromArt
-                                                          ].phrasesStats ?? undefined
-                                                        : undefined
-                                                    : undefined
-                                                : undefined;
-                                            if (dzhem && dzhem[cluster])
-                                                for (const [metric, metricVal] of Object.entries(
-                                                    dzhem[cluster],
-                                                )) {
-                                                    temp[_cluster][metric] = metricVal;
-                                                }
                                         }
                                         setSemanticsModalSemanticsItemsValuePresets(tempPresets);
 
@@ -1588,7 +1719,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         for (const [_cluster, clusterData] of Object.entries(
                                             temp,
                                         )) {
-                                            const {preset, freq, cluster} = (clusterData as {
+                                            const {preset, freq} = (clusterData as {
                                                 preset: string;
                                                 cluster: string;
                                                 freq: object;
@@ -1602,23 +1733,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 temp[_cluster].freq = freq['val'];
                                                 temp[_cluster].freqTrend = freq['trend'];
                                             }
-                                            const dzhem = doc.dzhemData
-                                                ? doc.dzhemData[selectValue[0]]
-                                                    ? doc.dzhemData[selectValue[0]][
-                                                          semanticsModalOpenFromArt
-                                                      ]
-                                                        ? doc.dzhemData[selectValue[0]][
-                                                              semanticsModalOpenFromArt
-                                                          ].phrasesStats ?? undefined
-                                                        : undefined
-                                                    : undefined
-                                                : undefined;
-                                            if (dzhem && dzhem[cluster])
-                                                for (const [metric, metricVal] of Object.entries(
-                                                    dzhem[cluster],
-                                                )) {
-                                                    temp[_cluster][metric] = metricVal;
-                                                }
                                         }
                                         setSemanticsModalSemanticsMinusItemsValuePresets(
                                             tempPresets,
@@ -1945,69 +2059,141 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     <div
                                         style={{
                                             display: 'flex',
-                                            flexDirection: 'row',
+                                            flexDirection: 'column',
                                             alignItems: 'center',
                                         }}
                                     >
-                                        <Button
-                                            size="xs"
-                                            pin="round-clear"
-                                            view="outlined"
-                                            onClick={() => {
-                                                setAdvertsArtsListModalFromOpen(true);
-                                                const adverts = doc.adverts[selectValue[0]];
-                                                const temp = [] as any[];
-                                                if (adverts) {
-                                                    for (const [_, advertData] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        if (!advertData) continue;
-                                                        temp.push(advertData['advertId']);
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <Button
+                                                size="xs"
+                                                pin="brick-brick"
+                                                view="outlined"
+                                                onClick={() => {
+                                                    setAdvertsArtsListModalFromOpen(true);
+                                                    const adverts = doc.adverts[selectValue[0]];
+                                                    const temp = [] as any[];
+                                                    if (adverts) {
+                                                        for (const [
+                                                            _,
+                                                            advertData,
+                                                        ] of Object.entries(adverts)) {
+                                                            if (!advertData) continue;
+                                                            temp.push(advertData['advertId']);
+                                                        }
                                                     }
-                                                }
-                                                setSemanticsModalOpenFromArt(art);
-                                                setRkList(temp ?? []);
-                                                setRkListMode('add');
-                                            }}
-                                        >
-                                            <Icon data={Plus} />
-                                        </Button>
-                                        <Button
-                                            size="xs"
-                                            pin="brick-clear"
-                                            view="outlined"
-                                            onClick={() => {
-                                                setAdvertsArtsListModalFromOpen(true);
-                                                const adverts = row.adverts;
-                                                const temp = [] as any[];
-                                                if (adverts) {
-                                                    for (const [_, advertData] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        if (!advertData) continue;
-                                                        temp.push(advertData['advertId']);
+                                                    setSemanticsModalOpenFromArt(art);
+                                                    setRkList(temp ?? []);
+                                                    setRkListMode('add');
+                                                }}
+                                            >
+                                                <Icon data={Plus} />
+                                            </Button>
+                                            <div style={{minWidth: 2}} />
+                                            <Button
+                                                size="xs"
+                                                pin="brick-brick"
+                                                view="outlined"
+                                                onClick={() => {
+                                                    setAdvertsArtsListModalFromOpen(true);
+                                                    const adverts = row.adverts;
+                                                    const temp = [] as any[];
+                                                    if (adverts) {
+                                                        for (const [
+                                                            _,
+                                                            advertData,
+                                                        ] of Object.entries(adverts)) {
+                                                            if (!advertData) continue;
+                                                            temp.push(advertData['advertId']);
+                                                        }
                                                     }
-                                                }
-                                                setSemanticsModalOpenFromArt(art);
-                                                setRkList(temp ?? []);
-                                                setRkListMode('delete');
+                                                    setSemanticsModalOpenFromArt(art);
+                                                    setRkList(temp ?? []);
+                                                    setRkListMode('delete');
+                                                }}
+                                            >
+                                                <Icon data={Xmark} />
+                                            </Button>
+                                        </div>
+                                        <div style={{minHeight: 2}} />
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
                                             }}
                                         >
-                                            <Icon data={Xmark} />
-                                        </Button>
-                                        <Button
-                                            pin="brick-round"
-                                            view="outlined"
-                                            size="xs"
-                                            // selected
-                                            // view={index % 2 == 0 ? 'flat' : 'flat-action'}
-                                            onClick={() => {
-                                                setShowArtStatsModalOpen(true);
-                                                setArtsStatsByDayData(calcByDayStats([art]));
-                                            }}
-                                        >
-                                            <Icon data={LayoutList}></Icon>
-                                        </Button>
+                                            <Button
+                                                pin="brick-brick"
+                                                view="outlined"
+                                                size="xs"
+                                                // selected
+                                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
+                                                onClick={() => {
+                                                    setShowArtStatsModalOpen(true);
+                                                    setArtsStatsByDayData(calcByDayStats([art]));
+                                                }}
+                                            >
+                                                <Icon data={LayoutList}></Icon>
+                                            </Button>
+                                            <div style={{minWidth: 2}} />
+                                            <Button
+                                                pin="brick-brick"
+                                                view="outlined"
+                                                size="xs"
+                                                // selected
+                                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
+                                                onClick={() => {
+                                                    const dzhem = doc.dzhemData
+                                                        ? doc.dzhemData[selectValue[0]]
+                                                            ? doc.dzhemData[selectValue[0]][value]
+                                                                ? doc.dzhemData[selectValue[0]][
+                                                                      value
+                                                                  ].phrasesStats ?? undefined
+                                                                : undefined
+                                                            : undefined
+                                                        : undefined;
+                                                    console.log(
+                                                        value,
+                                                        doc.dzhemData[selectValue[0]][value],
+                                                    );
+
+                                                    const temp = [] as any[];
+                                                    if (dzhem)
+                                                        for (const [
+                                                            phrase,
+                                                            phrasesStats,
+                                                        ] of Object.entries(dzhem)) {
+                                                            if (!phrase || !phrasesStats) continue;
+                                                            phrasesStats['phrase'] = phrase;
+                                                            temp.push(phrasesStats);
+                                                        }
+
+                                                    setDzhemData(temp);
+                                                    setShowDzhemModalOpen(true);
+                                                }}
+                                                // style={{
+                                                //     background:
+                                                //         'linear-gradient(135deg, #ff9649, #ff5e62)',
+                                                // }}
+                                            >
+                                                {/* <div style={{width: 11}}>
+                                                    <Text>
+                                                        <img
+                                                            color="white"
+                                                            style={{width: '100%', height: 'auto'}}
+                                                            src={JarIcon}
+                                                        />
+                                                    </Text>
+                                                </div> */}
+                                                <Icon data={Cherry}></Icon>
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div style={{width: 4}} />
@@ -4723,33 +4909,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                 );
             },
         },
-        {placeholder: 'Видимость, %', name: 'visibility'},
-        {placeholder: 'Видимость, % (предыдущий период)', name: 'visibilityPrev'},
-        {placeholder: 'Средняя позиция', name: 'avgPosition'},
-        {placeholder: 'Средняя позиция (предыдущий период)', name: 'avgPositionPrev'},
-        {placeholder: 'Медианная позиция', name: 'medianPosition'},
-        {placeholder: 'Медианная позиция (предыдущий период)', name: 'medianPositionPrev'},
-        {placeholder: 'Переходы в карточку', name: 'openCardCount'},
-        {placeholder: 'Переходы в карточку (предыдущий период)', name: 'openCardCountPrev'},
-        {
-            placeholder: 'Переходы в карточку лучше, чем у n% карточек конкурентов, %',
-            name: 'openCardCountBetterThanN',
-        },
-        {placeholder: 'Положили в корзину', name: 'addToCartCount'},
-        {placeholder: 'Положили в корзину (предыдущий период)', name: 'addToCartCountPrev'},
-        {
-            placeholder: 'Положили в корзину лучше, чем n% карточек конкурентов, %',
-            name: 'addToCartCountBetterThanN',
-        },
-        {placeholder: 'Конверсия в корзину, %', name: 'addToCartPercent'},
-        {placeholder: 'Конверсия в корзину, % (предыдущий период)', name: 'addToCartPercentPrev'},
-        {placeholder: 'Заказали, шт', name: 'orders'},
-        {placeholder: 'Заказали, шт (предыдущий период)', name: 'ordersPrev'},
-        {placeholder: 'Заказы лучше, чем n% карточек конкурентов, %', name: 'ordersBetterThanN'},
-        {placeholder: 'Конверсия в заказ, %', name: 'cartToOrderPercent'},
-        {placeholder: 'Конверсия в заказ, % (предыдущий период)', name: 'cartToOrderPercentPrev'},
-        {placeholder: 'Минимальная цена со скидкой (по размерам)', name: 'minPriceWithSppBySizes'},
-        {placeholder: 'Максимальная цена со скидкой (по размерам)', name: 'maxPriceWithSppBySizes'},
     ];
     const columnDataSemantics2 = [
         {
@@ -5079,6 +5238,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                 );
             },
         },
+    ];
+
+    const columnDataDzhem = [
+        {placeholder: 'Поисковая фраза', name: 'phrase', valueType: 'text'},
         {placeholder: 'Видимость, %', name: 'visibility'},
         {placeholder: 'Видимость, % (предыдущий период)', name: 'visibilityPrev'},
         {placeholder: 'Средняя позиция', name: 'avgPosition'},
@@ -6351,6 +6514,41 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 }}
                             />
                         </div>
+                    </Modal>
+                    <Modal open={showDzhemModalOpen} onClose={() => setShowDzhemModalOpen(false)}>
+                        <motion.div
+                            onAnimationStart={async () => {
+                                await new Promise((resolve) => setTimeout(resolve, 300));
+                                dzhemDataFilter({freq: {val: '', mode: 'include'}}, dzhemData);
+                            }}
+                            animate={{height: showDzhemModalOpen ? '60em' : 0}}
+                            style={{
+                                margin: 20,
+                                maxWidth: '90vw',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text variant="subheader-2">Статистика Джема</Text>
+                            <Card
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
+                                    overflow: 'auto',
+                                }}
+                            >
+                                <TheTable
+                                    columnData={columnDataDzhem}
+                                    data={dzhemDataFilteredData}
+                                    filters={dzhemDataFilters}
+                                    setFilters={setDzhemDataFilters}
+                                    filterData={dzhemDataFilter}
+                                    footerData={[dzhemDataFilteredSummary]}
+                                />
+                            </Card>
+                        </motion.div>
                     </Modal>
                     <Modal
                         open={showArtStatsModalOpen}
@@ -8293,6 +8491,45 @@ export const MassAdvertPage = ({pageArgs}) => {
                         <Text variant="subheader-1">Очистить фильтры</Text>
                     </Button>
                     <div style={{width: 8}} />
+                    <div>
+                        <label htmlFor={uploadId}>
+                            <Button
+                                size="l"
+                                onClick={() => {
+                                    setUploadProgress(0);
+                                }}
+                                style={{
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                }}
+                                selected={uploadProgress === 100 || uploadProgress === -1}
+                                view={
+                                    uploadProgress === 100
+                                        ? 'flat-success'
+                                        : uploadProgress === -1
+                                        ? 'flat-danger'
+                                        : 'outlined-success'
+                                }
+                            >
+                                <Icon data={FileArrowUp} size={20} />
+                                Загрузить Джем
+                                <input
+                                    id={uploadId}
+                                    style={{
+                                        opacity: 0,
+                                        position: 'absolute',
+                                        height: 40,
+                                        left: 0,
+                                    }}
+                                    type="file"
+                                    onChange={handleChange}
+                                />
+                            </Button>
+                        </label>
+                    </div>
+                    <div style={{width: 8}} />
+
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                         <Button
                             style={{
