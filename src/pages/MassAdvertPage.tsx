@@ -819,8 +819,18 @@ export const MassAdvertPage = ({pageArgs}) => {
         const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
         const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
         if (!advertData) return <></>;
-        const {advertId, status, words, budget, bidLog, daysInWork, type, cpm, budgetLog} =
-            advertData;
+        const {
+            advertId,
+            status,
+            words,
+            budget,
+            bidLog,
+            daysInWork,
+            type,
+            cpm,
+            budgetLog,
+            pregenerated,
+        } = advertData;
         if (![4, 9, 11].includes(status)) return <></>;
 
         const semantics = words;
@@ -1065,6 +1075,7 @@ export const MassAdvertPage = ({pageArgs}) => {
 
         return (
             <Card
+                theme={pregenerated ? 'warning' : 'normal'}
                 style={{
                     height: 96,
                     width: 'fit-content',
@@ -1392,7 +1403,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         setModalOpenFromAdvertId(advertId);
                                     }}
                                 >
-                                    <Text variant="caption-2">{`CPM: ${curCpm} / ${
+                                    <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} / ${
                                         drrAI !== undefined ? `${drrAI.maxBid}` : 'Автоставки выкл.'
                                     }`}</Text>
                                     {drrAI !== undefined &&
@@ -5947,7 +5958,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         placeholder: 'Запуск',
                                         icon: CloudArrowUpIn,
                                         view: 'outlined-success',
-                                        onClick: () => {
+                                        onClick: async () => {
                                             const params = {
                                                 uid: getUid(),
                                                 campaignName: selectValue[0],
@@ -5966,12 +5977,74 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 params.data.arts[art] = {art, nmId};
                                             }
                                             console.log(params);
-
-                                            //////////////////////////////////
-                                            callApi('createMassAdverts', params);
-                                            //////////////////////////////////
-
                                             setModalFormOpen(false);
+
+                                            //////////////////////////////////
+                                            try {
+                                                const res = await callApi(
+                                                    'createMassAdverts',
+                                                    params,
+                                                );
+
+                                                if (res) {
+                                                    const advertsInfosPregenerated = res['data'];
+                                                    if (advertsInfosPregenerated)
+                                                        for (const [
+                                                            advertId,
+                                                            advertsData,
+                                                        ] of Object.entries(
+                                                            advertsInfosPregenerated,
+                                                        )) {
+                                                            if (!advertId || !advertsData) continue;
+                                                            advertsData['daysInWork'] = 1;
+                                                            doc.adverts[selectValue[0]][advertId] =
+                                                                advertsData;
+
+                                                            const type = advertsData['type'];
+                                                            let nms = [] as any[];
+                                                            if (type == 8) {
+                                                                nms = advertsData['autoParams']
+                                                                    ? advertsData['autoParams']
+                                                                          .nms ?? []
+                                                                    : [];
+                                                            } else if (type == 9) {
+                                                                nms = advertsData['unitedParams']
+                                                                    ? advertsData['unitedParams'][0]
+                                                                          .nms ?? []
+                                                                    : [];
+                                                            }
+
+                                                            for (const [
+                                                                art,
+                                                                artData,
+                                                            ] of Object.entries(
+                                                                doc.campaigns[selectValue[0]],
+                                                            )) {
+                                                                if (!art || !artData) continue;
+                                                                if (nms.includes(artData['nmId'])) {
+                                                                    if (
+                                                                        !doc.campaigns[
+                                                                            selectValue[0]
+                                                                        ][art]['adverts']
+                                                                    )
+                                                                        doc.campaigns[
+                                                                            selectValue[0]
+                                                                        ][art]['adverts'] = {};
+                                                                    doc.campaigns[selectValue[0]][
+                                                                        art
+                                                                    ]['adverts'][advertId] = {
+                                                                        advertId: advertId,
+                                                                    };
+                                                                }
+                                                            }
+                                                        }
+
+                                                    setChangedDoc(doc);
+                                                }
+                                            } catch (error) {
+                                                console.log(error);
+                                            }
+                                            //////////////////////////////////
                                         },
                                     },
                                     selectedButton,
