@@ -72,7 +72,6 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 export const NomenclaturesPage = ({pageArgs}) => {
     const {selectedCampaign, setSelectedCampaign} = pageArgs;
     const uploadId = useId();
-
     const [uploadProgress, setUploadProgress] = useState(0);
 
     const [filters, setFilters] = useState({undef: false});

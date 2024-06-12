@@ -396,6 +396,8 @@ export const MassAdvertPage = ({pageArgs}) => {
         const _filters = withfFilters ?? dzhemDataFilters;
         const _stats = stats ?? dzhemData;
 
+        let count = 0;
+
         const dzhemDataFilteredSummaryTemp = {
             freq: 0,
             freqPrev: 0,
@@ -432,29 +434,40 @@ export const MassAdvertPage = ({pageArgs}) => {
                     }
                 }
 
-                // for (const [key, val] of Object.entries(stat)) {
-                //     if (
-                //         [
-                //             'sum',
-                //             'clicks',
-                //             'views',
-                //             'orders',
-                //             'sum_orders',
-                //             'openCardCount',
-                //             'addToCartCount',
-                //             'addToCartPercent',
-                //             'cartToOrderPercent',
-                //         ].includes(key)
-                //     )
-                //         dzhemDataFilteredSummaryTemp[key] +=
-                //             isFinite(val as number) && !isNaN(val as number) ? val : 0;
-                // }
+                for (const [key, val] of Object.entries(stat)) {
+                    if (key == 'phrase') continue;
+                    dzhemDataFilteredSummaryTemp[key] +=
+                        isFinite(val as number) && !isNaN(val as number) ? val : 0;
+                }
+                count++;
 
                 // dzhemDataFilteredSummaryTemp['date']++;
 
                 return true;
             }),
         );
+
+        for (const key of [
+            'visibility',
+            'visibilityPrev',
+            'avgPosition',
+            'avgPositionPrev',
+            'medianPosition',
+            'medianPositionPrev',
+            'openCardCountBetterThanN',
+            'addToCartCountBetterThanN',
+            'addToCartPercent',
+            'addToCartPercentPrev',
+            'ordersBetterThanN',
+            'cartToOrderPercent',
+            'cartToOrderPercentPrev',
+            'minPriceWithSppBySizes',
+            'maxPriceWithSppBySizes',
+        ])
+            dzhemDataFilteredSummaryTemp[key] = getRoundValue(
+                dzhemDataFilteredSummaryTemp[key],
+                count,
+            );
         setDzhemDataFilteredSummary(dzhemDataFilteredSummaryTemp);
     };
 
