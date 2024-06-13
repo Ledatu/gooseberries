@@ -25,7 +25,6 @@ import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
 import block from 'bem-cn-lite';
-const {ipAddress} = require('../ipAddress');
 
 import Userfront from '@userfront/toolkit';
 import DataTable, {Column} from '@gravity-ui/react-data-table';
@@ -322,17 +321,26 @@ export const MassAdvertPage = ({pageArgs}) => {
 
     const uploadId = useId();
     const [uploadProgress, setUploadProgress] = useState(0);
-    function handleChange(event) {
+    async function handleChange(event) {
         const file = event.target.files[0];
+
         if (!file || !file.name.includes('.xlsx')) {
             setUploadProgress(-1);
-
             return;
         }
+
+        // Check file size (example limit: 10MB)
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        if (file.size > MAX_FILE_SIZE) {
+            console.error('File size exceeds the limit');
+            setUploadProgress(-1);
+            return;
+        }
+
         event.preventDefault();
-        const url = `${ipAddress}/api/uploadDzhem`;
+        const url = 'https://aurum-mp.ru/api/uploadDzhemAlternative'; // New endpoint URL
         const formData = new FormData();
-        if (!file) return;
+
         formData.append('file', file);
         formData.append('uid', getUid());
         formData.append('campaignName', selectValue[0]);
@@ -342,8 +350,7 @@ export const MassAdvertPage = ({pageArgs}) => {
 
         const config = {
             headers: {
-                'content-type': 'multipart/form-data',
-                Authorization: 'Bearer ' + token,
+                Authorization: `Bearer ${token}`,
             },
             onUploadProgress: function (progressEvent) {
                 const percentCompleted = Math.round(
@@ -353,18 +360,37 @@ export const MassAdvertPage = ({pageArgs}) => {
             },
         };
 
-        axios
-            .post(url, formData, config)
-            .then((response) => {
-                console.log(response.data);
-                const dzhem = response.data;
-                doc.dzhemData[selectValue[0]] = dzhem;
+        try {
+            const response = await axios.post(url, formData, config);
+            console.log(response.data);
+            const dzhem = response.data;
+            doc.dzhemData[selectValue[0]] = dzhem;
+            setChangedDoc(doc);
+        } catch (error) {
+            console.error('Error uploading file: ', error);
+            if (error.response) {
+                // Server responded with a status other than 200 range
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+                console.error('Response headers:', error.response.headers);
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('Request data:', error.request);
+            } else {
+                // Something happened in setting up the request
+                console.error('Error message:', error.message);
+            }
 
-                setChangedDoc(doc);
-            })
-            .catch((error) => {
-                console.error('Error uploading file: ', error);
+            // Capture detailed error for debugging
+            console.error({
+                message: error.message,
+                name: error.name,
+                stack: error.stack,
+                config: error.config,
+                code: error.code,
+                status: error.response ? error.response.status : null,
             });
+        }
     }
 
     const [dzhemDataFilteredSummary, setDzhemDataFilteredSummary] = useState({
@@ -5250,49 +5276,88 @@ export const MassAdvertPage = ({pageArgs}) => {
         },
     ];
 
+    const genTextColumn = (textArray) => {
+        const wrapped = [] as any[];
+        for (const row of textArray) {
+            wrapped.push(<div style={{height: 18}}>{row}</div>);
+        }
+
+        return <div style={{display: 'flex', flexDirection: 'column'}}>{wrapped}</div>;
+    };
+
     const columnDataDzhem = [
-        {placeholder: 'Поисковая фраза', name: 'phrase', valueType: 'text'},
-        {placeholder: 'Видимость, %', name: 'visibility', render: renderAsPercent},
-        {placeholder: 'Видимость, % (пр. пер.)', name: 'visibilityPrev', render: renderAsPercent},
-        {placeholder: 'Средняя позиция', name: 'avgPosition'},
-        {placeholder: 'Средняя позиция (пр. пер.)', name: 'avgPositionPrev'},
-        {placeholder: 'Медианная позиция', name: 'medianPosition'},
-        {placeholder: 'Медианная позиция (пр. пер.)', name: 'medianPositionPrev'},
-        {placeholder: 'Переходы', name: 'openCardCount'},
-        {placeholder: 'Переходы (пр. пер.)', name: 'openCardCountPrev'},
+        {placeholder: genTextColumn(['', 'Поисковая фраза']), name: 'phrase', valueType: 'text'},
         {
-            placeholder: 'Переходы лучше, чем у n% КТ конкурентов, %',
-            name: 'openCardCountBetterThanN',
+            placeholder: genTextColumn(['', 'CR в корзину, %']),
+            name: 'addToCartPercent',
             render: renderAsPercent,
         },
-        {placeholder: 'В корзину', name: 'addToCartCount'},
-        {placeholder: 'В корзину (пр. пер.)', name: 'addToCartCountPrev'},
         {
-            placeholder: 'В корзину лучше, чем у n% КТ конкурентов, %',
-            name: 'addToCartCountBetterThanN',
+            placeholder: genTextColumn(['', 'CR в заказ, %']),
+            name: 'cartToOrderPercent',
             render: renderAsPercent,
         },
-        {placeholder: 'CR в корзину, %', name: 'addToCartPercent', render: renderAsPercent},
         {
-            placeholder: 'CR в корзину, % (пр. пер.)',
+            placeholder: genTextColumn(['', 'Видимость, %']),
+            name: 'visibility',
+            render: renderAsPercent,
+        },
+        {placeholder: genTextColumn(['', 'Ср. позиция']), name: 'avgPosition'},
+        {placeholder: genTextColumn(['', 'Мед. позиция']), name: 'medianPosition'},
+        {placeholder: genTextColumn(['', 'Переходы, шт.']), name: 'openCardCount'},
+        {placeholder: genTextColumn(['', 'В корзину, шт.']), name: 'addToCartCount'},
+        {placeholder: genTextColumn(['', 'Заказов, шт.']), name: 'orders'},
+
+        {
+            placeholder: genTextColumn(['CR в корзину, %', '(пр. период)']),
             name: 'addToCartPercentPrev',
             render: renderAsPercent,
         },
-        {placeholder: 'Заказов, шт', name: 'orders'},
-        {placeholder: 'Заказов, шт (пр. пер.)', name: 'ordersPrev'},
         {
-            placeholder: 'Заказы лучше, чем у n% КТ конкурентов, %',
-            name: 'ordersBetterThanN',
-            render: renderAsPercent,
-        },
-        {placeholder: 'CR в заказ, %', name: 'cartToOrderPercent', render: renderAsPercent},
-        {
-            placeholder: 'CR в заказ, % (пр. пер.)',
+            placeholder: genTextColumn(['CR в заказ, %', '(пр. период)']),
             name: 'cartToOrderPercentPrev',
             render: renderAsPercent,
         },
-        {placeholder: 'Мин. цена со скидкой (по размерам)', name: 'minPriceWithSppBySizes'},
-        {placeholder: 'Макс. цена со скидкой (по размерам)', name: 'maxPriceWithSppBySizes'},
+        {
+            placeholder: genTextColumn(['Видимость, %', '(пр. период)']),
+            name: 'visibilityPrev',
+            render: renderAsPercent,
+        },
+        {
+            placeholder: genTextColumn(['Ср. позиция', '(пр. период)']),
+            name: 'avgPositionPrev',
+        },
+        {placeholder: genTextColumn(['Мед. позиция', '(пр. период)']), name: 'medianPositionPrev'},
+        {placeholder: genTextColumn(['Переходы, шт.', '(пр. период)']), name: 'openCardCountPrev'},
+        {
+            placeholder: genTextColumn(['В корзину, шт.', '(пр. период)']),
+            name: 'addToCartCountPrev',
+        },
+        {placeholder: genTextColumn(['Заказов, шт.', '(пр. период)']), name: 'ordersPrev'},
+
+        {
+            placeholder: genTextColumn(['Переходы, шт.', 'лучше, чем у n% КТ конкурентов']),
+            name: 'openCardCountBetterThanN',
+            render: renderAsPercent,
+        },
+        {
+            placeholder: genTextColumn(['В корзину, шт.', 'лучше, чем у n% КТ конкурентов']),
+            name: 'addToCartCountBetterThanN',
+            render: renderAsPercent,
+        },
+        {
+            placeholder: genTextColumn(['Заказы, шт.', 'лучше, чем у n% КТ конкурентов']),
+            name: 'ordersBetterThanN',
+            render: renderAsPercent,
+        },
+        {
+            placeholder: genTextColumn(['Мин. цена со скидкой', '(по размерам)']),
+            name: 'minPriceWithSppBySizes',
+        },
+        {
+            placeholder: genTextColumn(['Макс. цена со скидкой', '(по размерам)']),
+            name: 'maxPriceWithSppBySizes',
+        },
     ];
 
     // const [auctionFilters, setAuctionFilters] = useState({undef: false});
@@ -6554,7 +6619,9 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 alignItems: 'center',
                             }}
                         >
-                            <Text variant="subheader-2">Статистика Джема</Text>
+                            <Text variant="header-2" style={{marginBottom: 8}}>
+                                Статистика Джема
+                            </Text>
                             <Card
                                 style={{
                                     width: '100%',

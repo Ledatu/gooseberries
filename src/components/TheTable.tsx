@@ -110,27 +110,28 @@ const generateFilterTextInput = (args) => {
     if (minWidth < 40) minWidth = 60;
     if (minWidth > 250) minWidth = 200;
 
-    let placeholderWrapped = placeholder;
-    if (placeholder.length > 30) {
-        let wrapped = false;
-        placeholderWrapped = '';
-        const titleArr = placeholder.split(' ');
-        for (const word of titleArr) {
-            placeholderWrapped += word;
-            if (placeholderWrapped.length > 25 && !wrapped) {
-                placeholderWrapped += '\n';
-                wrapped = true;
-            } else {
-                placeholderWrapped += ' ';
-            }
-        }
-    }
+    // let placeholderWrapped = placeholder;
+    // if (placeholder.length > 30) {
+    //     let wrapped = false;
+    //     placeholderWrapped = '';
+    //     const titleArr = placeholder.split(' ');
+    //     for (const word of titleArr) {
+    //         placeholderWrapped += word;
+    //         if (placeholderWrapped.length > 25 && !wrapped) {
+    //             placeholderWrapped += '\n';
+    //             wrapped = true;
+    //         } else {
+    //             placeholderWrapped += ' ';
+    //         }
+    //     }
+    // }
 
     return (
         <div
             style={{
                 display: 'flex',
                 flexDirection: 'row',
+                height: 'max-content',
                 alignItems: 'end',
                 minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
             }}
@@ -147,14 +148,8 @@ const generateFilterTextInput = (args) => {
                     justifyContent: 'end',
                 }}
             >
-                <Text
-                    style={{
-                        marginLeft: 4,
-                        whiteSpace: 'pre-wrap',
-                    }}
-                    variant="subheader-1"
-                >
-                    {placeholderWrapped}
+                <Text style={{marginLeft: 4}} variant="subheader-1">
+                    {placeholder}
                 </Text>
                 <TextInput
                     hasClear
