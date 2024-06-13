@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useId, useRef, useState} from 'react';
 import {
     Spin,
     Select,
@@ -28,6 +28,8 @@ import {
     TrashBin,
     FileText,
     CloudArrowUpIn,
+    FileArrowDown,
+    FileArrowUp,
     LayoutColumns3,
 } from '@gravity-ui/icons';
 
@@ -46,6 +48,7 @@ import {
 import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {generateModalButtonWithActions} from './MassAdvertPage';
+import axios from 'axios';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -96,6 +99,8 @@ export const AnalyticsPage = ({pageArgs}) => {
     const [graphModalData, setGraphModalData] = useState({});
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
+    const uploadId = useId();
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const columnDataObj = {
         entity: {
@@ -214,6 +219,7 @@ export const AnalyticsPage = ({pageArgs}) => {
         },
         avgCost: {
             placeholder: 'Средний чек, ₽',
+            planType: 'avg',
             render: (args) => renderWithGraph(args, 'avgCost', 'Средний чек, ₽'),
         },
         sum_sales: {
@@ -230,6 +236,7 @@ export const AnalyticsPage = ({pageArgs}) => {
         },
         rentabelnost: {
             placeholder: 'Рентабельность, %',
+            planType: 'avg',
             render: (args) =>
                 renderWithGraph(
                     args,
@@ -271,6 +278,7 @@ export const AnalyticsPage = ({pageArgs}) => {
         },
         obor: {
             placeholder: 'Оборачиваемость, дней',
+            planType: 'avg',
             render: (args) => renderWithGraph(args, 'obor', 'Оборачиваемость, дней'),
         },
         orderPrice: {
@@ -327,6 +335,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             render: (args) => renderWithGraph(args, 'openCardCount', 'Переходы, шт.'),
         },
         sppPrice: {
+            planType: 'avg',
             placeholder: 'Цена с СПП, ₽',
             render: (args) => renderWithGraph(args, 'sppPrice', 'Цена с СПП, ₽'),
         },
@@ -596,6 +605,84 @@ export const AnalyticsPage = ({pageArgs}) => {
     }, [selectValue]);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
+    async function handleChange(event) {
+        const file = event.target.files[0];
+
+        if (!file || !file.name.includes('.xlsx')) {
+            setUploadProgress(-1);
+            return;
+        }
+
+        // Check file size (example limit: 10MB)
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+        if (file.size > MAX_FILE_SIZE) {
+            console.error('File size exceeds the limit');
+            setUploadProgress(-1);
+            return;
+        }
+
+        event.preventDefault();
+        const url = 'https://aurum-mp.ru/api/uploadPlans';
+        const formData = new FormData();
+
+        formData.append('file', file);
+        formData.append('uid', getUid());
+        formData.append('campaignName', selectValue[0]);
+
+        const token =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            onUploadProgress: function (progressEvent) {
+                const percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total,
+                );
+                setUploadProgress(percentCompleted);
+            },
+        };
+
+        try {
+            const response = await axios.post(url, formData, config);
+            console.log(response.data);
+            if (response) {
+                const resData = response['data'];
+                doc['plansData'][selectValue[0]] = resData;
+                setChangedDoc(doc);
+
+                setTimeout(() => {
+                    setUploadProgress(0);
+                }, 5 * 1000);
+            }
+            event.target.files = [];
+        } catch (error) {
+            console.error('Error uploading file: ', error);
+            if (error.response) {
+                // Server responded with a status other than 200 range
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+                console.error('Response headers:', error.response.headers);
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('Request data:', error.request);
+            } else {
+                // Something happened in setting up the request
+                console.error('Error message:', error.message);
+            }
+
+            // Capture detailed error for debugging
+            console.error({
+                message: error.message,
+                name: error.name,
+                stack: error.stack,
+                config: error.config,
+                code: error.code,
+                status: error.response ? error.response.status : null,
+            });
+        }
+    }
 
     const recalc = (dateRange, selected = '', withfFilters = {}) => {
         const [startDate, endDate] = dateRange;
@@ -1871,6 +1958,105 @@ export const AnalyticsPage = ({pageArgs}) => {
                             <Text variant="subheader-1">Столбцы</Text>
                         </Button>
                     </Popover>
+                    <div style={{minWidth: 8}} />
+                    <Button
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                        size="l"
+                        view={'outlined-warning'}
+                        onClick={() => {
+                            const params = {
+                                uid: getUid(),
+                                campaignName: selectValue[0],
+                                data: {entities: [] as any[]},
+                            };
+
+                            for (let i = 0; i < filteredData.length; i++) {
+                                const {entity} = filteredData[i];
+                                if (!entity) continue;
+                                if (!params.data.entities.includes(entity))
+                                    params.data.entities.push(entity);
+                            }
+                            setUploadProgress(0);
+                            callApi('downloadPlansTemplate', params)
+                                .then((res: any) => {
+                                    return res.data;
+                                })
+                                .then((blob) => {
+                                    const element = document.createElement('a');
+                                    element.href = URL.createObjectURL(blob);
+                                    element.download = `Планы на текущий месяц ${selectValue[0]}.xlsx`;
+                                    // simulate link click
+                                    document.body.appendChild(element);
+                                    element.click();
+                                });
+                        }}
+                    >
+                        <Text
+                            variant="subheader-1"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Icon data={FileArrowDown} size={20} />
+                            <div style={{minWidth: 3}} />
+                            Скачать планы
+                        </Text>
+                    </Button>
+                    <div style={{minWidth: 8}} />
+                    <label htmlFor={uploadId}>
+                        <Button
+                            size="l"
+                            onClick={() => {
+                                setUploadProgress(0);
+                            }}
+                            style={{
+                                cursor: 'pointer',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                            selected={uploadProgress === 100 || uploadProgress === -1}
+                            view={
+                                uploadProgress === 100
+                                    ? 'flat-success'
+                                    : uploadProgress === -1
+                                    ? 'flat-danger'
+                                    : 'outlined-success'
+                            }
+                        >
+                            <Text
+                                variant="subheader-1"
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Icon data={FileArrowUp} size={20} />
+                                <div style={{minWidth: 3}} />
+                                Загрузить планы
+                                <input
+                                    id={uploadId}
+                                    style={{
+                                        opacity: 0,
+                                        position: 'absolute',
+                                        height: 40,
+                                        left: 0,
+                                    }}
+                                    type="file"
+                                    onChange={handleChange}
+                                />
+                            </Text>
+                        </Button>
+                    </label>
                     <div style={{minWidth: 8}} />
                     <RangePicker
                         args={{
