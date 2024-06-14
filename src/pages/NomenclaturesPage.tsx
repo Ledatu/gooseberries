@@ -851,7 +851,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
                                 <div style={{minHeight: 8}} />
                                 <TextInput
                                     controlRef={tagsInputRef}
-                                    defaultValue="#"
+                                    defaultValue=""
                                     validationState={tagsInputValid ? undefined : 'invalid'}
                                     errorMessage={
                                         'Имя тега должно начинаться с #, содержать как минимум одну букву и не иметь пробелов.'
