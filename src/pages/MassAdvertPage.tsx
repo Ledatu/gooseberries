@@ -126,7 +126,9 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
                     ? selectValue
                     : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифов М.С.'
-                    : 'ИП Валерий',
+                    : Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806'
+                    ? 'ОТК ПРОИЗВОДСТВО'
+                    : 'Текстиль',
         })
             .then((response) => setDocument(response ? response['data'] : undefined))
             .catch((error) => console.error(error));
@@ -5904,7 +5906,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             selectedCampaign && selectedCampaign != ''
                 ? selectedCampaign
                 : campaignsNames[
-                      Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 3 : 0
+                      Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 2 : 0
                   ]['value'];
         setSelectValue([selected]);
         console.log(doc);
