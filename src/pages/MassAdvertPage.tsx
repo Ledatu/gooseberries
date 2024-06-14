@@ -3762,35 +3762,32 @@ export const MassAdvertPage = ({pageArgs}) => {
             name: 'drr',
             placeholder: 'ДРР, %',
             render: ({value, row}) => {
-                const findFirstActive = (adverts) => {
+                const findMinDrr = (adverts) => {
+                    let minDrr = 0;
                     for (const [id, _] of Object.entries(adverts ?? {})) {
                         const advert = doc.adverts[selectValue[0]][id];
                         if (!advert) continue;
-                        if ([9, 11].includes(advert.status)) return advert;
+                        if (![9, 11].includes(advert.status)) continue;
+                        const drrAI = doc.advertsAutoBidsRules[selectValue[0]][advert.advertId];
+                        const {desiredDRR} = drrAI ?? {};
+                        if (desiredDRR > minDrr) minDrr = desiredDRR;
                     }
-                    return undefined;
+                    return minDrr;
                 };
                 const {adverts} = row;
-                const fistActiveAdvert = findFirstActive(adverts);
-
-                const drrAI = fistActiveAdvert
-                    ? doc.advertsAutoBidsRules[selectValue[0]][fistActiveAdvert.advertId]
-                    : undefined;
-                const {desiredDRR, autoBidsMode} = drrAI ?? {};
+                const minDrr = findMinDrr(adverts);
 
                 return (
                     <Text
                         color={
-                            desiredDRR
-                                ? autoBidsMode != 'cpo'
-                                    ? value <= desiredDRR
-                                        ? value == 0
-                                            ? 'primary'
-                                            : 'positive'
-                                        : value / desiredDRR - 1 < 0.5
-                                        ? 'warning'
-                                        : 'danger'
-                                    : 'primary'
+                            minDrr
+                                ? value <= minDrr
+                                    ? value == 0
+                                        ? 'primary'
+                                        : 'positive'
+                                    : value / minDrr - 1 < 0.5
+                                    ? 'warning'
+                                    : 'danger'
                                 : 'primary'
                         }
                     >
