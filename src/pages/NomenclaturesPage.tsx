@@ -61,7 +61,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
                     ? selectValue
                     : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
                     ? 'ИП Иосифова Р. И.'
-                    : 'ИП Валерий',
+                    : 'ОТК ПРОИЗВОДСТВО',
         })
             .then((response) => setDocument(response ? response['data'] : undefined))
             .catch((error) => console.error(error));

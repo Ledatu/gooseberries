@@ -45,6 +45,7 @@ import {
     ChartLine,
     ArrowRotateLeft,
     CircleRuble,
+    TShirt,
     SlidersVertical,
     ChevronDown,
     ArrowShapeUp,
@@ -2536,7 +2537,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             name: 'analytics',
             placeholder: 'Аналитика',
             render: ({row}) => {
-                const {placementsValue} = row ?? {};
+                const {placementsValue, stocksBySizes} = row ?? {};
                 if (!placementsValue) return undefined;
                 const {reviewRating, sizes, feedbacks, phrase} = placementsValue;
                 if (!reviewRating) return undefined;
@@ -2874,6 +2875,35 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 </div>
                             </Button>
                         </Popover>
+                        {stocksBySizes && stocksBySizes.all > 1 ? (
+                            <Button
+                                style={{
+                                    width: 94,
+                                    overflow: 'hidden',
+                                }}
+                                width="max"
+                                size="xs"
+                                view={stocksBySizes ? 'flat' : 'flat-danger'}
+                                pin="clear-clear"
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text>{`${stocksBySizes.available ?? ''} / ${
+                                        stocksBySizes.all ?? ''
+                                    }`}</Text>
+                                    <div style={{minWidth: 3}} />
+                                    <Icon data={TShirt} size={11} />
+                                </div>
+                            </Button>
+                        ) : (
+                            <></>
+                        )}
                     </Card>
                 );
             },
@@ -4008,6 +4038,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 title: '',
                 adverts: 0,
                 stocks: 0,
+                stocksBySizes: {},
                 advertsManagerRules: undefined,
                 tags: [] as any[],
                 advertsStocksThreshold: undefined,
@@ -4049,6 +4080,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             artInfo.title = artData['title'];
             artInfo.brand = artData['brand'];
             artInfo.stocks = artData['stocks'];
+            artInfo.stocksBySizes = artData['stocksBySizes'];
             artInfo.adverts = artData['adverts'];
             artInfo.advertsManagerRules = artData['advertsManagerRules'];
             artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
