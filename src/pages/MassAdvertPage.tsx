@@ -1435,6 +1435,17 @@ export const MassAdvertPage = ({pageArgs}) => {
 
                                     if (!res) return;
 
+                                    const arts = [] as any[];
+                                    for (let i = 0; i < filteredData.length; i++) {
+                                        const {art, adverts} = filteredData[i];
+                                        if (!adverts) continue;
+                                        for (const [id, _] of Object.entries(adverts)) {
+                                            if (id == String(advertId)) {
+                                                if (!arts.includes(art)) arts.push(art);
+                                            }
+                                        }
+                                    }
+
                                     const {days} = res['data'];
 
                                     const stat = [] as any[];
@@ -1468,6 +1479,44 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 false,
                                                 sum,
                                             );
+
+                                            for (const _art of arts) {
+                                                const {advertsStats, nmFullDetailReport} =
+                                                    doc.campaigns[selectValue[0]][_art];
+                                                if (!advertsStats) continue;
+
+                                                if (!nmFullDetailReport) continue;
+                                                if (!nmFullDetailReport.statistics) continue;
+                                                if (!nmFullDetailReport.statistics[date]) continue;
+
+                                                const {openCardCount, addToCartCount} =
+                                                    nmFullDetailReport.statistics[date] ?? {
+                                                        openCardCount: 0,
+                                                        addToCartCount: 0,
+                                                    };
+
+                                                if (!dateData['openCardCount'])
+                                                    dateData['openCardCount'] = 0;
+                                                if (!dateData['addToCartCount'])
+                                                    dateData['addToCartCount'] = 0;
+
+                                                dateData['openCardCount'] += openCardCount ?? 0;
+                                                dateData['addToCartCount'] += addToCartCount ?? 0;
+                                            }
+                                            dateData['openCardCount'] = Math.round(
+                                                dateData['openCardCount'],
+                                            );
+                                            dateData['addToCartPercent'] = getRoundValue(
+                                                dateData['addToCartCount'],
+                                                dateData['openCardCount'],
+                                                true,
+                                            );
+                                            dateData['cartToOrderPercent'] = getRoundValue(
+                                                dateData['orders'],
+                                                dateData['addToCartCount'],
+                                                true,
+                                            );
+
                                             stat.push(dateData);
                                         }
 
