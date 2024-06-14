@@ -868,7 +868,11 @@ export const NomenclaturesPage = ({pageArgs}) => {
                                         view: 'outlined-success',
                                         onClick: () => {
                                             if (tagsInputRef.current !== null) {
-                                                const tag = tagsInputRef.current.value;
+                                                const tagUnformatted = tagsInputRef.current.value;
+
+                                                const tag =
+                                                    '#' +
+                                                    tagUnformatted.replace(/#/g, '').toUpperCase();
 
                                                 if (
                                                     tag[0] != '#' ||
@@ -930,7 +934,11 @@ export const NomenclaturesPage = ({pageArgs}) => {
                                         view: 'outlined-danger',
                                         onClick: () => {
                                             if (tagsInputRef.current !== null) {
-                                                const tag = tagsInputRef.current.value;
+                                                const tagUnformatted = tagsInputRef.current.value;
+
+                                                const tag =
+                                                    '#' +
+                                                    tagUnformatted.replace(/#/g, '').toUpperCase();
 
                                                 if (
                                                     tag[0] != '#' ||
