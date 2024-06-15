@@ -1681,7 +1681,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     )}
                                     {drrAI !== undefined && drrAI.autoBidsMode == 'orders' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
-                                            {`Метод: Цель по заказам (${drrAI.desiredOrders})`}
+                                            {`Заказы (${drrAI.desiredOrders})`}
                                         </Text>
                                     ) : (
                                         <></>
