@@ -80,6 +80,7 @@ settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
 import {
+    generateTextInputWithNoteOnTop,
     getLocaleDateString,
     getNormalDateRange,
     renderAsPercent,
@@ -761,6 +762,8 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
     const [bidModalDeleteModeSelected, setBidModalDeleteModeSelected] = useState(false);
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
+    const [ordersInputValue, setOrdersInputValue] = useState('');
+    const [ordersInputValueValid, setOrdersInputValueValid] = useState(true);
     const [bidModalRange, setBidModalRange] = useState({from: 50, to: 50});
     const [bidModalRangeValid, setBidModalRangeValid] = useState(true);
     const [bidModalMaxBid, setBidModalMaxBid] = useState(500);
@@ -1655,6 +1658,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     )}
                                     {drrAI !== undefined &&
                                     drrAI.autoBidsMode != 'bestPlacement' &&
+                                    drrAI.autoBidsMode != 'orders' &&
                                     drrAI.autoBidsMode != 'drr' &&
                                     drrAI.autoBidsMode != 'cpo' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
@@ -1671,6 +1675,13 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     drrAI.autoBidsMode == 'bestPlacement' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
                                             Метод: Лучшая позиция
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    {drrAI !== undefined && drrAI.autoBidsMode == 'orders' ? (
+                                        <Text style={{marginLeft: 4}} variant="caption-2">
+                                            {`Метод: Цель по заказам (${drrAI.desiredOrders})`}
                                         </Text>
                                     ) : (
                                         <></>
@@ -3592,6 +3603,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                                     maxBid: bidModalMaxBid,
                                                                                     autoBidsMode:
                                                                                         selectedValueMethod[0],
+                                                                                    desiredOrders:
+                                                                                        parseInt(
+                                                                                            ordersInputValue,
+                                                                                        ),
                                                                                 },
                                                                             };
 
@@ -3621,6 +3636,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                                 bidModalDeleteModeSelected
                                                                                     ? undefined
                                                                                     : {
+                                                                                          desiredOrders:
+                                                                                              parseInt(
+                                                                                                  ordersInputValue,
+                                                                                              ),
                                                                                           desiredDRR:
                                                                                               bidModalDRRInputValue,
                                                                                           placementsRange:
@@ -4080,6 +4099,8 @@ export const MassAdvertPage = ({pageArgs}) => {
             artInfo.title = artData['title'];
             artInfo.brand = artData['brand'];
             artInfo.stocks = artData['stocks'];
+            console.log();
+
             artInfo.stocksBySizes = artData['stocksBySizes'];
             artInfo.adverts = artData['adverts'];
             artInfo.advertsManagerRules = artData['advertsManagerRules'];
@@ -4598,6 +4619,10 @@ export const MassAdvertPage = ({pageArgs}) => {
             content: 'Лучшая позиция',
         },
         {
+            value: 'orders',
+            content: 'Цель по заказам',
+        },
+        {
             value: 'drr',
             content: 'Целевой ДРР',
         },
@@ -4656,6 +4681,8 @@ export const MassAdvertPage = ({pageArgs}) => {
         setSelectedButton('');
         setBidModalBidInputValue(125);
         setBidModalSwitchValue('Установить');
+        setOrdersInputValue('');
+        setOrdersInputValueValid(true);
         setBidModalBidInputValidationValue(true);
         setBidModalDeleteModeSelected(false);
         setBidModalBidStepInputValue(5);
@@ -7012,6 +7039,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             setBidModalDeleteModeSelected(false);
                                             setBidModalFormOpen(true);
                                             setBidModalBidStepInputValue(5);
+                                            setOrdersInputValue('');
+                                            setOrdersInputValueValid(true);
                                             setBidModalRange({from: 50, to: 50});
                                             setBidModalRangeValid(true);
                                             setBidModalMaxBid(500);
@@ -7308,51 +7337,73 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                             width: 8,
                                                         }}
                                                     />
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            // selectedValueMethod[0] ==
-                                                            // 'Под Позицию'
-                                                            //     ? 'flex'
-                                                            //     : 'none',
-                                                            flexDirection: 'column',
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            style={{marginLeft: 4}}
-                                                            variant="subheader-1"
-                                                        >
-                                                            {'Позиция'}
-                                                        </Text>
-                                                        <TextInput
-                                                            disabled={
-                                                                selectedValueMethod[0] == 'drr' ||
-                                                                selectedValueMethod[0] == 'cpo' ||
-                                                                selectedValueMethod[0] ==
-                                                                    'bestPlacement'
-                                                            }
-                                                            type="number"
-                                                            value={String(bidModalRange.to)}
-                                                            onUpdate={(val) => {
-                                                                const intVal = Number(val);
-
-                                                                setBidModalRange(() => {
-                                                                    setBidModalRangeValid(
-                                                                        intVal > 0,
-                                                                    );
-                                                                    return {
-                                                                        from: intVal,
-                                                                        to: intVal,
-                                                                    };
-                                                                });
+                                                    {selectedValueMethod[0] != 'orders' ? (
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                // selectedValueMethod[0] ==
+                                                                // 'Под Позицию'
+                                                                //     ? 'flex'
+                                                                //     : 'none',
+                                                                flexDirection: 'column',
                                                             }}
-                                                            validationState={
-                                                                bidModalRangeValid
-                                                                    ? undefined
-                                                                    : 'invalid'
-                                                            }
-                                                        />
-                                                    </div>
+                                                        >
+                                                            <Text
+                                                                style={{marginLeft: 4}}
+                                                                variant="subheader-1"
+                                                            >
+                                                                {'Позиция'}
+                                                            </Text>
+                                                            <TextInput
+                                                                disabled={
+                                                                    selectedValueMethod[0] ==
+                                                                        'drr' ||
+                                                                    selectedValueMethod[0] ==
+                                                                        'cpo' ||
+                                                                    selectedValueMethod[0] ==
+                                                                        'bestPlacement'
+                                                                }
+                                                                type="number"
+                                                                value={String(bidModalRange.to)}
+                                                                onUpdate={(val) => {
+                                                                    const intVal = Number(val);
+
+                                                                    setBidModalRange(() => {
+                                                                        setBidModalRangeValid(
+                                                                            intVal > 0,
+                                                                        );
+                                                                        return {
+                                                                            from: intVal,
+                                                                            to: intVal,
+                                                                        };
+                                                                    });
+                                                                }}
+                                                                validationState={
+                                                                    bidModalRangeValid
+                                                                        ? undefined
+                                                                        : 'invalid'
+                                                                }
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <></>
+                                                    )}
+                                                    {selectedValueMethod[0] == 'orders' ? (
+                                                        generateTextInputWithNoteOnTop({
+                                                            value: ordersInputValue,
+                                                            onUpdateHandler: (val) => {
+                                                                const valid = !isNaN(parseInt(val));
+                                                                setOrdersInputValueValid(valid);
+                                                                setOrdersInputValue(val);
+                                                            },
+                                                            disabled:
+                                                                selectedValueMethod[0] != 'orders',
+                                                            placeholder: 'Цель по заказам',
+                                                            validationState: ordersInputValueValid,
+                                                        })
+                                                    ) : (
+                                                        <></>
+                                                    )}
                                                 </div>
                                                 <div style={{minHeight: 8}} />
 
@@ -7539,6 +7590,9 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                   desiredDRR: bidModalDRRInputValue,
                                                                   placementsRange: bidModalRange,
                                                                   maxBid: bidModalMaxBid,
+                                                                  desiredOrders:
+                                                                      parseInt(ordersInputValue),
+
                                                                   autoBidsMode:
                                                                       selectedValueMethod[0],
                                                               };
