@@ -7531,6 +7531,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                         stocksThreshold:
                                                             bidModalStocksThresholdInputValue,
                                                         placementsRange: bidModalRange,
+                                                        desiredOrders: parseInt(ordersInputValue),
                                                         maxBid: bidModalMaxBid,
                                                         autoBidsMode: selectedValueMethod[0],
                                                     },
