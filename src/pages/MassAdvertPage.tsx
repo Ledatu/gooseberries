@@ -2895,7 +2895,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 width="max"
                                 size="xs"
                                 view={stocksBySizes ? 'flat' : 'flat-danger'}
-                                pin="clear-clear"
+                                pin="brick-brick"
                             >
                                 <div
                                     style={{
