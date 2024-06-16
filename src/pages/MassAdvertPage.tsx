@@ -8787,6 +8787,9 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     cursor: 'pointer',
                                     position: 'relative',
                                     overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
                                 }}
                                 selected={uploadProgress === 100 || uploadProgress === -1}
                                 view={
@@ -8797,19 +8800,29 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         : 'outlined-success'
                                 }
                             >
-                                <Icon data={FileArrowUp} size={20} />
-                                Загрузить Джем
-                                <input
-                                    id={uploadId}
+                                <Text
+                                    variant="subheader-1"
                                     style={{
-                                        opacity: 0,
-                                        position: 'absolute',
-                                        height: 40,
-                                        left: 0,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
                                     }}
-                                    type="file"
-                                    onChange={handleChange}
-                                />
+                                >
+                                    <Icon data={FileArrowUp} size={20} />
+                                    <div style={{minWidth: 3}} />
+                                    Загрузить Джем
+                                    <input
+                                        id={uploadId}
+                                        style={{
+                                            opacity: 0,
+                                            position: 'absolute',
+                                            height: 40,
+                                            left: 0,
+                                        }}
+                                        type="file"
+                                        onChange={handleChange}
+                                    />
+                                </Text>
                             </Button>
                         </label>
                     </div>
