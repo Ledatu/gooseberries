@@ -2967,8 +2967,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 >
                                     <Text color={profitLog.profit > 0 ? 'positive' : 'danger'}>{`${
                                         profitLog.profit ?? ''
-                                    } / ${profitLog.rentabelnost ?? ''}`}</Text>
-                                    <div style={{minWidth: 3}} />₽
+                                    } / ${profitLog.rentabelnost ?? ''} ₽`}</Text>
                                 </div>
                             </Button>
                         ) : (
