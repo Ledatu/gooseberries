@@ -143,7 +143,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                 for (let i = 0; i < all.length; i++) {
                     const {note, tags} = all[i];
 
-                    if (tags.includes(entity)) {
+                    if (tags.includes(entity) || tags.length == 0) {
                         notesList.push(
                             <Card
                                 style={{
