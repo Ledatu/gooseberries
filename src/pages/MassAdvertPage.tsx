@@ -1010,24 +1010,14 @@ export const MassAdvertPage = ({pageArgs}) => {
         const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
         const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
         if (!advertData) return <></>;
-        const {
-            advertId,
-            status,
-            words,
-            budget,
-            bidLog,
-            daysInWork,
-            type,
-            cpm,
-            budgetLog,
-            pregenerated,
-        } = advertData;
+        const {advertId, status, words, budget, bidLog, daysInWork, type, budgetLog, pregenerated} =
+            advertData;
         if (![4, 9, 11].includes(status)) return <></>;
 
         const semantics = words;
 
         const curBudget = budget;
-        const curCpm = cpm;
+        let curCpm = 0;
         // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
         const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
@@ -1065,6 +1055,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         if (bidLogType) {
             for (let i = 1; i < bidLogType.bids.length; i++) {
                 const {val} = bidLogType.bids[i - 1];
+                curCpm = val;
                 const {time, index, cpmIndex, position} = bidLogType.bids[i];
                 if (!time || !val) continue;
 
