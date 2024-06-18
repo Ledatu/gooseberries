@@ -1306,7 +1306,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                 tooltip: {
                     precision: 0,
                 },
-                scales: {y: {min: 0, stacking: false}, r: {min: 0}},
+                // scales: {y: {min: 0, stacking: false}, r: {min: 0}},
                 title: {
                     text: 'График по дням',
                 },
