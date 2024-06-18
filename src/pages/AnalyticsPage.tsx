@@ -276,6 +276,11 @@ export const AnalyticsPage = ({pageArgs}) => {
             placeholder: 'Остаток, шт.',
             render: (args) => renderWithGraph(args, 'stocks', 'Остаток, шт.'),
         },
+        primeCost: {
+            planType: 'avg',
+            placeholder: 'Себестоимость, ₽',
+            render: (args) => renderWithGraph(args, 'primeCost', 'Себестоимость, ₽'),
+        },
         obor: {
             placeholder: 'Оборачиваемость, дней',
             planType: 'avg',
@@ -762,6 +767,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                     tempTypeRow['sum'] ? 1 : 0,
                 );
                 tempTypeRow['stocks'] = dateStats['stocks'];
+                tempTypeRow['primeCost'] = dateStats['primeCost'];
                 tempTypeRow['obor'] = getRoundValue(
                     dateStats['stocks'],
                     dateStats['orders'],
@@ -819,6 +825,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                 avgCost: 0,
                 stocks: 0,
                 stocks_temp: {count: 0, val: 0},
+                primeCost: 0,
+                primeCost_temp: {count: 0, val: 0},
                 rentabelnost: 0,
                 sum: 0,
                 buyoutsPercent: 0,
@@ -877,6 +885,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                     avgCost: 0,
                     stocks: 0,
                     stocks_temp: {count: 0, val: 0},
+                    primeCost: 0,
+                    primeCost_temp: {count: 0, val: 0},
                     rentabelnost: 0,
                     sum: 0,
                     graphData: {
@@ -979,6 +989,13 @@ export const AnalyticsPage = ({pageArgs}) => {
                 summaries[entity]['stocks_temp'].val,
                 summaries[entity]['stocks_temp'].count,
             );
+            summaryAdd(row, 'primeCost', undefined);
+            summaries[entity]['primeCost_temp'].val += row['primeCost'];
+            summaries[entity]['primeCost_temp'].count += 1;
+            summaries[entity]['primeCost'] = getRoundValue(
+                summaries[entity]['primeCost_temp'].val,
+                summaries[entity]['primeCost_temp'].count,
+            );
 
             summaryAdd(row, 'obor', undefined);
             summaries[entity]['obor_temp'].val += row['obor'];
@@ -1032,6 +1049,13 @@ export const AnalyticsPage = ({pageArgs}) => {
             summaries['filteredSummaryTemp']['stocks'] = getRoundValue(
                 summaries['filteredSummaryTemp']['stocks_temp'].val,
                 summaries['filteredSummaryTemp']['stocks_temp'].count,
+            );
+
+            summaries['filteredSummaryTemp']['primeCost_temp'].val += row['primeCost'];
+            summaries['filteredSummaryTemp']['primeCost_temp'].count += 1;
+            summaries['filteredSummaryTemp']['primeCost'] = getRoundValue(
+                summaries['filteredSummaryTemp']['primeCost_temp'].val,
+                summaries['filteredSummaryTemp']['primeCost_temp'].count,
             );
 
             summaries['filteredSummaryTemp']['obor_temp'].val += row['obor'];
