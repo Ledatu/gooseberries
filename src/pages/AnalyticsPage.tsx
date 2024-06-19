@@ -1278,13 +1278,15 @@ export const AnalyticsPage = ({pageArgs}) => {
             const graphTrendColor = graphColor.slice(0, graphColor.length - 10) + '650-solid)';
             // console.log(graphTrendColor);
 
+            const valueType = properTitle.split(', ')[1];
+
             graphModalDataTemp.push({
                 name: 'Тренд ' + properTitle,
                 data: trendLine,
                 color: graphTrendColor,
                 precision: 0,
                 id: '2',
-                scale: 'r',
+                scale: 'r ' + valueType,
             });
             graphModalDataTemp.push({
                 name: properTitle,
@@ -1293,15 +1295,15 @@ export const AnalyticsPage = ({pageArgs}) => {
                 // lineWidth: 2,
                 id: '1',
                 color: graphColor,
-                scale: 'y',
+                scale: 'y ' + valueType,
             });
-            axesConfig['y'] = {
-                label: 'Значение',
+            axesConfig['y ' + valueType] = {
+                label: 'Значение, ' + valueType,
                 precision: 'auto',
                 show: true,
             };
-            axesConfig['r'] = {
-                label: 'Тренд',
+            axesConfig['r ' + valueType] = {
+                label: 'Тренд, ' + valueType,
                 precision: 'auto',
                 side: 'right',
                 show: true,
@@ -1436,8 +1438,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 }
 
                                 tempArr = tempArr.sort((a, b) => {
-                                    const metricDataA = graphModalData[a];
-                                    const metricDataB = graphModalData[b];
+                                    const metricDataA = graphModalData[a].sort();
+                                    const metricDataB = graphModalData[b].sort();
                                     return metricDataA[0] - metricDataB[0];
                                 });
 
