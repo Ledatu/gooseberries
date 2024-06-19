@@ -992,10 +992,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             summaryAdd(row, 'primeCost', undefined);
             summaries[entity]['primeCost_temp'].val += row['primeCost'];
             summaries[entity]['primeCost_temp'].count += 1;
-            summaries[entity]['primeCost'] = getRoundValue(
-                summaries[entity]['primeCost_temp'].val,
-                summaries[entity]['primeCost_temp'].count,
-            );
+            summaries[entity]['primeCost'] = row['primeCost'];
 
             summaryAdd(row, 'obor', undefined);
             summaries[entity]['obor_temp'].val += row['obor'];
@@ -1101,13 +1098,18 @@ export const AnalyticsPage = ({pageArgs}) => {
             );
         }
 
-        setFilteredSummary(summaries['filteredSummaryTemp']);
-
+        let primeCostSummaries = 0;
         for (const [entity, entitySummary] of Object.entries(summaries)) {
             if (entity === 'filteredSummaryTemp') continue;
+            const {primeCost} = entitySummary;
+            primeCostSummaries += primeCost ?? 0;
+
             if (entity) temp.push(entitySummary);
             temp.push({entity: entity, isSummary: false, isBlank: true});
         }
+
+        summaries['filteredSummaryTemp'].primeCost = primeCostSummaries;
+        setFilteredSummary(summaries['filteredSummaryTemp']);
 
         temp.sort((rowA, rowB) => {
             return rowB.isSummary - rowA.isSummary;
