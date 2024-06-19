@@ -1280,7 +1280,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             const graphTrendColor = graphColor.slice(0, graphColor.length - 10) + '650-solid)';
             // console.log(graphTrendColor);
 
-            const valueType = properTitle.split(', ')[1];
+            // const valueType = properTitle.split(', ')[1];
 
             graphModalDataTemp.push({
                 name: 'Тренд ' + properTitle,
@@ -1288,7 +1288,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                 color: graphTrendColor,
                 precision: 0,
                 id: '2',
-                scale: 'r ' + valueType,
+                scale: 'r',
             });
             graphModalDataTemp.push({
                 name: properTitle,
@@ -1297,15 +1297,15 @@ export const AnalyticsPage = ({pageArgs}) => {
                 // lineWidth: 2,
                 id: '1',
                 color: graphColor,
-                scale: 'y ' + valueType,
+                scale: 'y',
             });
-            axesConfig['y ' + valueType] = {
-                label: 'Значение, ' + valueType,
+            axesConfig['y'] = {
+                label: 'Значение',
                 precision: 'auto',
                 show: true,
             };
-            axesConfig['r ' + valueType] = {
-                label: 'Тренд, ' + valueType,
+            axesConfig['r'] = {
+                label: 'Тренд',
                 precision: 'auto',
                 side: 'right',
                 show: true,
@@ -1440,8 +1440,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 }
 
                                 tempArr = tempArr.sort((a, b) => {
-                                    const metricDataA = graphModalData[a].sort();
-                                    const metricDataB = graphModalData[b].sort();
+                                    const metricDataA = graphModalData[a];
+                                    const metricDataB = graphModalData[b];
                                     return metricDataA[0] - metricDataB[0];
                                 });
 
