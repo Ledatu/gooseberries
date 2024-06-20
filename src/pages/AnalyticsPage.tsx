@@ -1164,6 +1164,13 @@ export const AnalyticsPage = ({pageArgs}) => {
                         content: campaignName,
                     });
                 }
+            } else if (Userfront.user.userUuid == '0fcea1c8-a8d7-4525-9cf8-444e31692897') {
+                if (['ОТК ПРОИЗВОДСТВО'].includes(campaignName)) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
             } else if (Userfront.user.userUuid === '1c5a0344-31ea-469e-945e-1dfc4b964ecd') {
                 if (
                     ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
