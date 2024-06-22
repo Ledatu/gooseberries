@@ -8035,7 +8035,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 style={{
                                                     display: 'flex',
                                                     flexDirection: 'column',
-                                                    height: '60vh',
+                                                    height: 'calc(60vh + 24px)',
                                                     width: '60vw',
                                                     justifyContent: 'space-between',
                                                     margin: '30px 30px',
@@ -8052,7 +8052,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                         style={{
                                                             display: 'flex',
                                                             flexDirection: 'column',
-                                                            height: '68vh',
+                                                            height: '60vh',
                                                             width: '48%',
                                                         }}
                                                     >
@@ -8166,7 +8166,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                         style={{
                                                             display: 'flex',
                                                             flexDirection: 'column',
-                                                            height: '68vh',
+                                                            height: '60vh',
                                                             width: '48%',
                                                         }}
                                                     >
@@ -8233,6 +8233,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                     </div>
                                                 </div>
                                                 <Button
+                                                    style={{marginTop: 8}}
                                                     pin="circle-circle"
                                                     view="action"
                                                     onClick={() =>
