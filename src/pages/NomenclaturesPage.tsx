@@ -1050,7 +1050,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
                             }}
                         >
                             <Icon data={FileArrowDown} size={20} />
-                            Скачать
+                            <Text variant="subheader-1">Скачать</Text>
                         </Button>
                     </div>
                     <div>
@@ -1076,7 +1076,8 @@ export const NomenclaturesPage = ({pageArgs}) => {
                                     }
                                 >
                                     <Icon data={FileArrowUp} size={20} />
-                                    Загрузить
+                                    <Text variant="subheader-1">Загрузить</Text>
+
                                     <input
                                         id={uploadId}
                                         style={{

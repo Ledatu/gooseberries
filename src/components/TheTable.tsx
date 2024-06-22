@@ -49,19 +49,31 @@ export default function TheTable({
                 sub,
                 name: name,
                 className: b(className ?? (i < 1 ? `td_fixed td_fixed_${name}` : 'td_body')),
-                header: sub
-                    ? placeholder
-                    : generateFilterTextInput({
-                          filters,
-                          setFilters,
-                          filterData: filterData,
-                          name,
-                          placeholder,
-                          valueType,
-                          width,
-                          viewportSize,
-                          additionalNodes,
-                      }),
+                header: sub ? (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                        }}
+                    >
+                        <Text variant="subheader-1">{placeholder}</Text>
+                        {additionalNodes}
+                    </div>
+                ) : (
+                    generateFilterTextInput({
+                        filters,
+                        setFilters,
+                        filterData: filterData,
+                        name,
+                        placeholder,
+                        valueType,
+                        width,
+                        viewportSize,
+                        additionalNodes,
+                    })
+                ),
                 render: render ? (args) => render(args) : (args) => defaultRender(args, valueType),
             });
         }
