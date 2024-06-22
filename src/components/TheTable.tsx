@@ -42,23 +42,26 @@ export default function TheTable({
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
             if (!column) continue;
-            const {name, placeholder, width, render, className, valueType, additionalNodes} =
+            const {name, placeholder, width, render, className, valueType, additionalNodes, sub} =
                 column;
 
             columns.push({
+                sub,
                 name: name,
                 className: b(className ?? (i < 1 ? `td_fixed td_fixed_${name}` : 'td_body')),
-                header: generateFilterTextInput({
-                    filters,
-                    setFilters,
-                    filterData: filterData,
-                    name,
-                    placeholder,
-                    valueType,
-                    width,
-                    viewportSize,
-                    additionalNodes,
-                }),
+                header: sub
+                    ? placeholder
+                    : generateFilterTextInput({
+                          filters,
+                          setFilters,
+                          filterData: filterData,
+                          name,
+                          placeholder,
+                          valueType,
+                          width,
+                          viewportSize,
+                          additionalNodes,
+                      }),
                 render: render ? (args) => render(args) : (args) => defaultRender(args, valueType),
             });
         }
@@ -94,7 +97,7 @@ export default function TheTable({
     );
 }
 
-const generateFilterTextInput = (args) => {
+export const generateFilterTextInput = (args) => {
     const {
         filters,
         setFilters,

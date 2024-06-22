@@ -32,6 +32,7 @@ import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
 import callApi, {getUid} from 'src/utilities/callApi';
+import {DeliveryPage} from './DeliveryPage';
 
 const b = block('app');
 
@@ -63,7 +64,8 @@ export const Dashboard = () => {
     const [notesModalOpen, setNotesModalOpen] = useState(false);
     const [currentNote, setCurrentNote] = useState('');
     // const [page, setPage] = useState('analytics');
-    const [page, setPage] = useState('massAdvert');
+    const [page, setPage] = useState('delivery');
+    // const [page, setPage] = useState('massAdvert');
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const [selectedCampaign, setSelectedCampaign] = useState('');
@@ -113,6 +115,14 @@ export const Dashboard = () => {
         {
             id: 'analytics',
             title: 'Аналитика',
+        },
+        {
+            id: 'delivery',
+            title: 'Поставки',
+            disabled:
+                Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
+                Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
+                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
         },
         {
             id: 'prices',
@@ -443,6 +453,7 @@ const getPageElem = ({page, args}) => {
         api: <ApiPage />,
         stats_rk: <AdvertStatsPage />,
         deliveryOrders: <DeliveryOrdersPage />,
+        delivery: <DeliveryPage pageArgs={args} />,
         massAdvert: <MassAdvertPage pageArgs={args} />,
         prices: <PricesPage pageArgs={args} />,
         nomenclatures: <NomenclaturesPage pageArgs={args} />,
