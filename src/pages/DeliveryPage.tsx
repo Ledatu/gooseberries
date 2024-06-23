@@ -17,7 +17,14 @@ import block from 'bem-cn-lite';
 
 const b = block('app');
 
-import {ChevronDown, Key, ArrowsRotateLeft, TrashBin, FileArrowDown} from '@gravity-ui/icons';
+import {
+    ChevronDown,
+    Key,
+    ArrowsRotateLeft,
+    TrashBin,
+    FileArrowDown,
+    Pencil,
+} from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import Userfront from '@userfront/toolkit';
@@ -34,6 +41,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
 
         if (mode) {
             doc['deliveryData'][selectValue] = docum['deliveryData'][selectValue];
+            doc['tariffs'][selectValue] = docum['tariffs'][selectValue];
         }
         setDocument(docum);
     }
@@ -84,6 +92,13 @@ export const DeliveryPage = ({pageArgs}) => {
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
+    const [primeCostType, setPrimeCostType] = useState(['Себестоимость 1']);
+    const primeCostTypeOptions = [
+        {value: 'Себестоимость 1', content: 'Себестоимость 1'},
+        {value: 'Себестоимость 2', content: 'Себестоимость 2'},
+        {value: 'Себестоимость 3', content: 'Себестоимость 3'},
+    ];
+
     const filterByClick = (val, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
         setFilters(filters);
@@ -130,10 +145,12 @@ export const DeliveryPage = ({pageArgs}) => {
             uid: getUid(),
             campaignName: selectValue[0],
             dateRange: getNormalDateRange(dateRange),
+            data: {primeCostType: primeCostType[0]},
         }).then((res) => {
             if (!res) return;
             const resData = res['data'];
             doc['deliveryData'][selectValue[0]] = resData['deliveryData'][selectValue[0]];
+            doc['tariffs'][selectValue[0]] = resData['tariffs'][selectValue[0]];
 
             setChangedDoc(doc);
 
@@ -156,7 +173,10 @@ export const DeliveryPage = ({pageArgs}) => {
             if (!artData['art']) continue;
 
             const artInfo = {
+                factoryArt: '',
+                tags: [],
                 art: '',
+                brandArt: '',
                 size: 0,
                 object: '',
                 brand: '',
@@ -166,7 +186,10 @@ export const DeliveryPage = ({pageArgs}) => {
                 barcode: 0,
                 byWarehouses: {},
             };
+            artInfo.factoryArt = artData['factoryArt'];
             artInfo.art = artData['art'];
+            artInfo.brandArt = artData['brand_art'];
+            artInfo.tags = artData['tags'];
             artInfo.size = artData['size'];
             artInfo.object = artData['object'];
             artInfo.brand = artData['brand'];
@@ -320,7 +343,7 @@ export const DeliveryPage = ({pageArgs}) => {
             width: 200,
             render: ({value, footer, index, row}) => {
                 if (footer) return <div style={{height: 28}}>{value}</div>;
-                const {nmId, tags} = row;
+                const {nmId, tags, brandArt} = row;
 
                 const tagsNodes = [] as ReactNode[];
                 if (tags) {
@@ -379,7 +402,7 @@ export const DeliveryPage = ({pageArgs}) => {
                                 href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
                                 target="_blank"
                             >
-                                <Text variant="subheader-1">{value}</Text>
+                                <Text variant="subheader-1">{brandArt}</Text>
                             </Link>
                         </div>
                         {tagsNodes}
@@ -433,17 +456,22 @@ export const DeliveryPage = ({pageArgs}) => {
         },
         ...(() => {
             const columnTemp = [
-                {name: 'orders', placeholder: 'Заказы шт.'},
+                // {name: 'orders', placeholder: 'Заказы шт.'},
+                {name: 'stock', placeholder: 'Остаток, шт.'},
                 {name: 'orderRate', placeholder: 'Заказы шт./день'},
                 {name: 'obor', placeholder: 'Оборач. текущ.'},
                 {name: 'prefObor', placeholder: 'Оборач. уст.'},
-                {name: 'stock', placeholder: 'Остаток, шт.'},
-                {name: 'toOrder', placeholder: 'Заказать, шт.'},
+                {name: 'toOrder', placeholder: 'Отгрузить, шт.'},
                 {name: 'primeCost', placeholder: 'Себестоимость, ₽'},
                 {name: 'fullPrice', placeholder: 'Сумма, ₽'},
             ];
             const columnsTemp = [] as any[];
             const createNewWarehouseColumn = (warehouseName) => {
+                const warehouseTariff = doc.tariffs[selectValue[0]][warehouseName];
+                const expr = warehouseTariff
+                    ? warehouseTariff.boxDeliveryAndStorageExpr
+                    : undefined;
+
                 if (warehouseName == 'all') warehouseName = 'Все склады';
 
                 const genSub = () => {
@@ -473,45 +501,86 @@ export const DeliveryPage = ({pageArgs}) => {
 
                 columnsTemp.push({
                     name: 'warehouse_' + warehouseName,
-                    placeholder: warehouseName,
+                    placeholder: (
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Text variant="subheader-1">{warehouseName}</Text>
+                            <div style={{minWidth: 3}} />
+                            <Text
+                                variant="subheader-1"
+                                color={expr > 135 ? 'danger' : expr > 85 ? 'warning' : 'positive'}
+                            >
+                                {expr ? `${expr}%` : ''}
+                            </Text>
+                        </div>
+                    ),
                     additionalNodes: [
-                        <Button
-                            size="xs"
-                            view="outlined"
-                            onClick={() => {
-                                const params = {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
-                                    data: {},
-                                };
-                                for (let i = 0; i < filteredData.length; i++) {
-                                    const row = filteredData[i];
-                                    if (!row) continue;
-                                    const {art} = row;
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Button size="xs" view="outlined" onClick={() => {}}>
+                                <Icon data={Pencil} size={13} />
+                                <Text variant="subheader-1">Изменить количество</Text>
+                            </Button>
+                            <div style={{minWidth: 8}} />
+                            <Button
+                                size="xs"
+                                view="outlined"
+                                onClick={() => {
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {
+                                            arts: {},
+                                            warehouseName: warehouseName,
+                                        },
+                                    };
+                                    const warehouse =
+                                        warehouseName == 'Все склады' ? 'all' : warehouseName;
 
-                                    if (doc.deliveryData[selectValue[0]][art])
-                                        params.data[art] = doc.deliveryData[selectValue[0]][art];
-                                }
+                                    for (let i = 0; i < filteredData.length; i++) {
+                                        const row = filteredData[i];
+                                        if (!row) continue;
+                                        const {art} = row;
 
-                                callApi('downloadOrdersArchive', params)
-                                    .then((res: any) => {
-                                        return res.data;
-                                    })
-                                    .then((blob) => {
-                                        const element = document.createElement('a');
-                                        element.href = URL.createObjectURL(blob);
-                                        element.download = `Поставка ${selectValue[0]} ${new Date()
-                                            .toLocaleDateString('ru-RU')
-                                            .slice(0, 10)}.zip`;
-                                        // simulate link click
-                                        document.body.appendChild(element);
-                                        element.click();
-                                    });
-                            }}
-                        >
-                            <Icon data={FileArrowDown} />
-                            <Text variant="subheader-1">Скачать отгрузочный пакет</Text>
-                        </Button>,
+                                        const docData = doc.deliveryData[selectValue[0]][art];
+                                        if (!docData) continue;
+
+                                        const warehouseData = docData.byWarehouses[warehouse];
+                                        const toOrder = warehouseData.toOrder;
+                                        if (!toOrder) continue;
+
+                                        params.data.arts[art] = {
+                                            factoryArt: docData.factoryArt,
+                                            art: docData.art,
+                                            barcode: docData.barcode,
+                                            toOrder: toOrder,
+                                            primeCost: warehouseData.primeCost,
+                                            fullPrice: warehouseData.fullPrice,
+                                        };
+                                    }
+
+                                    console.log(params);
+
+                                    callApi('downloadOrdersArchive', params)
+                                        .then((res: any) => {
+                                            return res.data;
+                                        })
+                                        .then((blob) => {
+                                            const element = document.createElement('a');
+                                            element.href = URL.createObjectURL(blob);
+                                            element.download = `Поставка ${
+                                                selectValue[0]
+                                            } ${new Date()
+                                                .toLocaleDateString('ru-RU')
+                                                .slice(0, 10)}.xlsx`;
+                                            // simulate link click
+                                            document.body.appendChild(element);
+                                            element.click();
+                                        });
+                                }}
+                            >
+                                <Icon data={FileArrowDown} size={13} />
+                                <Text variant="subheader-1">Скачать отгрузочный пакет</Text>
+                            </Button>
+                        </div>,
                     ],
                     sub: sub,
                 });
@@ -652,11 +721,13 @@ export const DeliveryPage = ({pageArgs}) => {
                                     uid: getUid(),
                                     campaignName: nextValue,
                                     dateRange: getNormalDateRange(dateRange),
+                                    data: {primeCostType: primeCostType[0]},
                                 }).then((res) => {
                                     if (!res) return;
                                     const resData = res['data'];
                                     doc['deliveryData'][nextValue[0]] =
                                         resData['deliveryData'][nextValue[0]];
+                                    doc['tariffs'][nextValue[0]] = resData['tariffs'][nextValue[0]];
 
                                     setChangedDoc(doc);
                                     setSelectValue(nextValue);
@@ -717,6 +788,33 @@ export const DeliveryPage = ({pageArgs}) => {
                         >
                             <Spin style={{marginLeft: 8}} />
                         </motion.div>
+                        <div style={{minWidth: 8}} />
+                        <Select
+                            onUpdate={(nextValue) => {
+                                setPrimeCostType(nextValue);
+                                setDateChangeRecalc(true);
+                            }}
+                            options={primeCostTypeOptions}
+                            renderControl={({onClick, onKeyDown, ref}) => {
+                                return (
+                                    <Button
+                                        size="l"
+                                        style={{
+                                            width: '100%',
+                                        }}
+                                        ref={ref}
+                                        view="outlined-warning"
+                                        onClick={onClick}
+                                        extraProps={{
+                                            onKeyDown,
+                                        }}
+                                    >
+                                        <Text variant="subheader-1">{primeCostType[0]}</Text>
+                                        <Icon data={ChevronDown} />
+                                    </Button>
+                                );
+                            }}
+                        />
                     </div>
                 </div>
                 <div

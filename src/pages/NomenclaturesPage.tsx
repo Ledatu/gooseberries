@@ -293,6 +293,11 @@ export const NomenclaturesPage = ({pageArgs}) => {
             render: renderAsPercent,
         },
         {
+            name: 'prefObor',
+            placeholder: 'Оборачиваемость, дней',
+            additionalNodes: [generateEditButton('prefObor')],
+        },
+        {
             name: 'primeCost1',
             placeholder: 'Себестоимость 1, ₽',
             additionalNodes: [generateEditButton('primeCost1')],
@@ -405,6 +410,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
                 commision: undefined,
                 tax: undefined,
                 expences: undefined,
+                prefObor: undefined,
                 logistics: 0,
                 photos: undefined,
                 spp: 0,
@@ -449,6 +455,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
             artInfo.commision = artDataUploaded['commision'];
             artInfo.tax = artDataUploaded['tax'];
             artInfo.expences = artDataUploaded['expences'];
+            artInfo.prefObor = artDataUploaded['prefObor'];
             artInfo.primeCost1 = artDataUploaded['prices']
                 ? artDataUploaded['prices']['Себестоимость 1']
                 : undefined;
