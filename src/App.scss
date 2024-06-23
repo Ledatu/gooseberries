@@ -141,6 +141,10 @@
         // border-collapse: separate;
     }
 
+    .the-table__dividerColumn {
+        background: var(--g-color-base-background) !important;
+    }
+
     &__summary-text {
         font-weight: bold;
         font-size: 18pt;

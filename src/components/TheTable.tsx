@@ -42,14 +42,27 @@ export default function TheTable({
         for (let i = 0; i < columnsInfo.length; i++) {
             const column = columnsInfo[i];
             if (!column) continue;
-            const {name, placeholder, width, render, className, valueType, additionalNodes, sub} =
-                column;
+            const {
+                name,
+                placeholder,
+                width,
+                render,
+                className,
+                valueType,
+                additionalNodes,
+                sortable,
+                sub,
+                isDivider,
+            } = column;
 
             columns.push({
+                sortable,
                 sub,
                 name: name,
                 className: b(className ?? (i < 1 ? `td_fixed td_fixed_${name}` : 'td_body')),
-                header: sub ? (
+                header: isDivider ? (
+                    <></>
+                ) : sub ? (
                     <div
                         style={{
                             display: 'flex',

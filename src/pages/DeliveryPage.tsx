@@ -9,6 +9,8 @@ import {
     Link,
     Pagination,
     Card,
+    Modal,
+    TextInput,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -21,6 +23,7 @@ import {
     ChevronDown,
     Key,
     ArrowsRotateLeft,
+    Calculator,
     TrashBin,
     FileArrowDown,
     Pencil,
@@ -31,7 +34,7 @@ import Userfront from '@userfront/toolkit';
 import {getNormalDateRange, getRoundValue} from 'src/utilities/getRoundValue';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
-import TheTable, {compare, generateFilterTextInput} from 'src/components/TheTable';
+import TheTable, {compare, defaultRender, generateFilterTextInput} from 'src/components/TheTable';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -89,6 +92,13 @@ export const DeliveryPage = ({pageArgs}) => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
+    const [changeToOrderCountModalOpen, setChangeToOrderCountModalOpen] = useState(false);
+    const [changeToOrderCountModalOpenFromWarehouse, setChangeToOrderCountModalOpenFromWarehouse] =
+        useState('');
+    const [changeToOrderCountValue, setChangeToOrderCountValue] = useState(0);
+    const [changeToOrderCountValueValid, setChangeToOrderCountValueValid] = useState(true);
+    const orderCountValueTextInput = useRef<HTMLInputElement>(null);
+
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
@@ -135,6 +145,82 @@ export const DeliveryPage = ({pageArgs}) => {
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
+
+    const rebalanceToCount = (val) => {
+        const currentNumber = changeToOrderCountValue;
+        const warehouse = changeToOrderCountModalOpenFromWarehouse;
+        const k = currentNumber / val;
+        for (let i = 0; i < filteredData.length; i++) {
+            const row = filteredData[i];
+
+            const {art} = row;
+            const artData = doc.deliveryData[selectValue[0]][art];
+            if (!artData) continue;
+            const warehouseData = artData.byWarehouses[warehouse];
+            if (!warehouseData) continue;
+
+            const {toOrder, primeCost} = warehouseData;
+            let {multiplicity} = warehouseData;
+            if (!multiplicity) multiplicity = 10;
+
+            if (!toOrder) continue;
+
+            let newBoxCount = Math.floor(toOrder / k / multiplicity);
+            if (!newBoxCount) newBoxCount = 1;
+
+            const newOrder = Math.round(newBoxCount * multiplicity);
+
+            // console.log(art, toOrder, newOrder);
+
+            const tempWarehouseData = {...warehouseData};
+            tempWarehouseData['toOrder'] = newOrder;
+            tempWarehouseData['fullPrice'] = Math.round(newOrder * primeCost);
+            // tempWarehouseData['prefObor'] = getRoundValue(newOrder, orderRate, false, 999);
+
+            doc.deliveryData[selectValue[0]][art].byWarehouses[warehouse] = tempWarehouseData;
+
+            setChangedDoc(doc);
+        }
+    };
+
+    const saveChangeToOrderCountValue = () => {
+        if (orderCountValueTextInput.current !== null) {
+            const val = orderCountValueTextInput.current.value;
+            const temp = parseInt(val);
+            if (isNaN(temp) || !isFinite(temp) || temp < 0) {
+                setChangeToOrderCountValueValid(false);
+            } else {
+                rebalanceToCount(temp);
+                setChangeToOrderCountModalOpen(false);
+            }
+        }
+    };
+    const generateEditCountButton = (addVal) => {
+        return (
+            <Button
+                style={{width: 60, margin: 4}}
+                pin="circle-circle"
+                onClick={() => {
+                    if (orderCountValueTextInput.current !== null) {
+                        let val = orderCountValueTextInput.current.value;
+                        if (val == '') val = '0';
+
+                        const temp = parseInt(val);
+                        if (isNaN(temp) || !isFinite(temp)) {
+                            setChangeToOrderCountValueValid(false);
+                        } else {
+                            let res = temp + addVal;
+                            if (res <= 0) res = 0;
+                            orderCountValueTextInput.current.value = String(res);
+                            setChangeToOrderCountValueValid(true);
+                        }
+                    }
+                }}
+            >
+                <Text>{`${addVal > 0 ? '+' : ''}${addVal}`}</Text>
+            </Button>
+        );
+    };
 
     if (dateChangeRecalc) {
         setUpdatingFlag(true);
@@ -288,7 +374,18 @@ export const DeliveryPage = ({pageArgs}) => {
                         continue;
 
                     if (!filteredSummaryTemp[key]) filteredSummaryTemp[key] = 0;
-                    filteredSummaryTemp[key] += val;
+
+                    if (key.includes('obor')) {
+                        if (!filteredSummaryTemp[key + 'count'])
+                            filteredSummaryTemp[key + 'count'] = 0;
+
+                        if (val != 999) {
+                            filteredSummaryTemp[key] += val ?? 0;
+                            filteredSummaryTemp[key + 'count'] += 1;
+                        }
+                    } else {
+                        filteredSummaryTemp[key] += val ?? 0;
+                    }
                 }
             }
         }
@@ -299,24 +396,29 @@ export const DeliveryPage = ({pageArgs}) => {
             if (!a.art || !b.art) return false;
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 300);
+        const paginatedDataTemp = temp.slice(0, 150);
 
         for (const [key, val] of Object.entries(filteredSummaryTemp)) {
-            if (key === undefined || val === undefined || key == 'stock') continue;
-            filteredSummaryTemp[key] = getRoundValue(val, temp.length);
+            if (
+                key === undefined ||
+                val === undefined ||
+                (() => {
+                    for (const piece of ['stock', 'toOrder', 'fullPrice']) {
+                        if (key.includes(piece)) return true;
+                    }
+                    return false;
+                })()
+            )
+                continue;
+
+            if (key.includes('obor')) {
+                filteredSummaryTemp[key] = getRoundValue(val, filteredSummaryTemp[key + 'count']);
+            } else filteredSummaryTemp[key] = getRoundValue(val, temp.length);
         }
 
         filteredSummaryTemp[
             'art'
         ] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
-        filteredSummaryTemp['cpo'] = getRoundValue(
-            filteredSummaryTemp['sum'],
-            filteredSummaryTemp['cpoOrders'],
-        );
-        filteredSummaryTemp['ad'] = getRoundValue(
-            filteredSummaryTemp['cpo'],
-            filteredSummaryTemp['buyoutsPercent'] / 100,
-        );
         setFilteredSummary(filteredSummaryTemp);
 
         setFilteredData(temp);
@@ -466,12 +568,13 @@ export const DeliveryPage = ({pageArgs}) => {
                 {name: 'fullPrice', placeholder: 'Сумма, ₽'},
             ];
             const columnsTemp = [] as any[];
-            const createNewWarehouseColumn = (warehouseName) => {
-                const warehouseTariff = doc.tariffs[selectValue[0]][warehouseName];
+            const createNewWarehouseColumn = (warehouse) => {
+                const warehouseTariff = doc.tariffs[selectValue[0]][warehouse];
                 const expr = warehouseTariff
                     ? warehouseTariff.boxDeliveryAndStorageExpr
                     : undefined;
 
+                let warehouseName = warehouse;
                 if (warehouseName == 'all') warehouseName = 'Все склады';
 
                 const genSub = () => {
@@ -490,6 +593,7 @@ export const DeliveryPage = ({pageArgs}) => {
                                 placeholder: placeholder,
                             }),
                             accessor: warehouseName + '_' + name,
+                            render: defaultRender,
                         });
                     }
 
@@ -515,7 +619,18 @@ export const DeliveryPage = ({pageArgs}) => {
                     ),
                     additionalNodes: [
                         <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button size="xs" view="outlined" onClick={() => {}}>
+                            <Button
+                                size="xs"
+                                view="outlined"
+                                onClick={() => {
+                                    setChangeToOrderCountModalOpen(true);
+                                    setChangeToOrderCountModalOpenFromWarehouse(warehouse);
+                                    setChangeToOrderCountValue(
+                                        filteredSummary[`${warehouseName}_toOrder`],
+                                    );
+                                    setChangeToOrderCountValueValid(true);
+                                }}
+                            >
                                 <Icon data={Pencil} size={13} />
                                 <Text variant="subheader-1">Изменить количество</Text>
                             </Button>
@@ -590,10 +705,19 @@ export const DeliveryPage = ({pageArgs}) => {
                 const warehouseNamesTemp = doc.deliveryData[selectValue[0]]['warehouseNames'];
                 if (warehouseNamesTemp) {
                     for (let i = 0; i < warehouseNamesTemp.length; i++) {
+                        columnsTemp.push({
+                            sortable: false,
+                            className: 'dividerColumn',
+                            name: warehouseNamesTemp[i] + 'divider',
+                            width: 5,
+                            isDivider: true,
+                        });
                         createNewWarehouseColumn(warehouseNamesTemp[i]);
                     }
                 }
             }
+
+            // columnsTemp.pop();
 
             return columnsTemp;
         })(),
@@ -815,6 +939,65 @@ export const DeliveryPage = ({pageArgs}) => {
                                 );
                             }}
                         />
+                        <Modal
+                            open={changeToOrderCountModalOpen}
+                            onClose={() => {
+                                setChangeToOrderCountModalOpen(false);
+                            }}
+                        >
+                            <div>
+                                <Card
+                                    view="clear"
+                                    style={{
+                                        width: 200,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: 'none',
+                                        margin: 20,
+                                    }}
+                                >
+                                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                                        <Text style={{marginLeft: 8}} variant="subheader-1">
+                                            Отгрузить, шт.
+                                        </Text>
+                                        <TextInput
+                                            size="l"
+                                            controlRef={orderCountValueTextInput}
+                                            hasClear
+                                            defaultValue={String(changeToOrderCountValue)}
+                                            validationState={
+                                                changeToOrderCountValueValid ? undefined : 'invalid'
+                                            }
+                                        />
+                                    </div>
+                                    <div style={{minHeight: 8}} />
+                                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                            {generateEditCountButton(100)}
+                                            {generateEditCountButton(500)}
+                                            {generateEditCountButton(1000)}
+                                        </div>
+                                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                                            {generateEditCountButton(-100)}
+                                            {generateEditCountButton(-500)}
+                                            {generateEditCountButton(-1000)}
+                                        </div>
+                                    </div>
+                                    <div style={{minHeight: 8}} />
+                                    <Button
+                                        pin="circle-circle"
+                                        size="l"
+                                        view="action"
+                                        onClick={saveChangeToOrderCountValue}
+                                    >
+                                        <Icon data={Calculator} />
+                                        <Text variant="subheader-1">Рассчитать</Text>
+                                    </Button>
+                                </Card>
+                            </div>
+                        </Modal>
                     </div>
                 </div>
                 <div
@@ -892,10 +1075,10 @@ export const DeliveryPage = ({pageArgs}) => {
                     showInput
                     total={pagesTotal}
                     page={pagesCurrent}
-                    pageSize={300}
+                    pageSize={150}
                     onUpdate={(page) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 300, page * 300);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 150, page * 150);
                         setFilteredSummary((row) => {
                             const fstemp = row;
                             fstemp[
