@@ -632,18 +632,19 @@ export const DeliveryPage = ({pageArgs}) => {
                         if (value === undefined) return undefined;
                         const prefObor = row[warehouseName + '_prefObor'];
                         const stock = row[warehouseName + '_stock'];
+                        const orderRate = row[warehouseName + '_orderRate'];
                         const diviation = Math.abs(getRoundValue(value, prefObor, true, 100) - 100);
 
                         return (
                             <Text
                                 color={
-                                    stock
-                                        ? diviation < 25
-                                            ? 'positive'
-                                            : diviation < 50
-                                            ? 'warning'
-                                            : 'danger'
-                                        : 'secondary'
+                                    !stock && !orderRate
+                                        ? 'secondary'
+                                        : diviation < 25
+                                        ? 'positive'
+                                        : diviation < 50
+                                        ? 'warning'
+                                        : 'danger'
                                 }
                             >
                                 {defaultRender({value})}
