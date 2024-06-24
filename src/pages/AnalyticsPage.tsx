@@ -2056,6 +2056,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                             size="l"
                             onClick={() => {
                                 setUploadProgress(0);
+                                (document.getElementById(uploadId) as HTMLInputElement).value = '';
                             }}
                             style={{
                                 cursor: 'pointer',
