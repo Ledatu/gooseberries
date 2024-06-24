@@ -153,7 +153,9 @@ export const DeliveryPage = ({pageArgs}) => {
                     .then((blob) => {
                         const element = document.createElement('a');
                         element.href = URL.createObjectURL(blob);
-                        element.download = `Отгрузочный лист.xlsx`;
+                        element.download = `Отгрузочный лист ${selectValue[0]} ${new Date()
+                            .toLocaleDateString('ru-RU')
+                            .slice(0, 10)}.xlsx`;
                         // simulate link click
                         document.body.appendChild(element);
                         element.click();
