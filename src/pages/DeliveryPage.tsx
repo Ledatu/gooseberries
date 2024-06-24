@@ -625,7 +625,32 @@ export const DeliveryPage = ({pageArgs}) => {
                 // {name: 'orders', placeholder: 'Заказы шт.'},
                 {name: 'stock', placeholder: 'Остаток, шт.'},
                 {name: 'orderRate', placeholder: 'Заказы шт./день'},
-                {name: 'obor', placeholder: 'Оборач. текущ.'},
+                {
+                    name: 'obor',
+                    placeholder: 'Оборач. текущ.',
+                    render: ({row, value}, warehouseName) => {
+                        if (value === undefined) return undefined;
+                        const prefObor = row[warehouseName + '_prefObor'];
+                        const stock = row[warehouseName + '_stock'];
+                        const diviation = Math.abs(getRoundValue(value, prefObor, true, 100) - 100);
+
+                        return (
+                            <Text
+                                color={
+                                    stock
+                                        ? diviation < 25
+                                            ? 'positive'
+                                            : diviation < 50
+                                            ? 'warning'
+                                            : 'danger'
+                                        : 'secondary'
+                                }
+                            >
+                                {defaultRender({value})}
+                            </Text>
+                        );
+                    },
+                },
                 {name: 'prefObor', placeholder: 'Оборач. уст.'},
                 {name: 'toOrder', placeholder: 'Отгрузить, шт.'},
                 {name: 'primeCost', placeholder: 'Себестоимость, ₽'},
@@ -645,7 +670,7 @@ export const DeliveryPage = ({pageArgs}) => {
                     const subTemp = [] as any[];
                     for (const col of columnTemp) {
                         if (!col) continue;
-                        const {name, placeholder} = col;
+                        const {name, placeholder, render} = col;
 
                         subTemp.push({
                             name: warehouseName + '_' + name,
@@ -657,7 +682,7 @@ export const DeliveryPage = ({pageArgs}) => {
                                 placeholder: placeholder,
                             }),
                             accessor: warehouseName + '_' + name,
-                            render: defaultRender,
+                            render: render ? (args) => render(args, warehouseName) : defaultRender,
                         });
                     }
 
