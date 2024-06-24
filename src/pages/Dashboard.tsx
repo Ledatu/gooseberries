@@ -122,7 +122,8 @@ export const Dashboard = () => {
             disabled:
                 Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
                 Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
-                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
+                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
+                Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064',
         },
         {
             id: 'prices',
@@ -130,7 +131,8 @@ export const Dashboard = () => {
             disabled:
                 Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
                 Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
-                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
+                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
+                Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064',
         },
         {
             id: 'nomenclatures',
@@ -138,7 +140,8 @@ export const Dashboard = () => {
             disabled:
                 Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
                 Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
-                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594',
+                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
+                Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064',
         },
     ];
 

@@ -126,7 +126,8 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             campaignName:
                 selectValue != ''
                     ? selectValue
-                    : Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594'
+                    : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
+                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
                     ? 'ИП Иосифов М.С.'
                     : 'ОТК ПРОИЗВОДСТВО',
         })
@@ -5990,7 +5991,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                         content: campaignName,
                     });
                 }
-            } else if (Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594') {
+            } else if (
+                Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
+                Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+            ) {
                 if (
                     [
                         'ИП Иосифова Р. И.',
@@ -6020,7 +6024,10 @@ export const MassAdvertPage = ({pageArgs}) => {
             selectedCampaign && selectedCampaign != ''
                 ? selectedCampaign
                 : campaignsNames[
-                      Userfront.user.userUuid == '46431a09-85c3-4703-8246-d1b5c9e52594' ? 2 : 0
+                      Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
+                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+                          ? 2
+                          : 0
                   ]['value'];
         setSelectValue([selected]);
         console.log(doc);
