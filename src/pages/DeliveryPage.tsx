@@ -1,4 +1,4 @@
-import React, {ReactNode, useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
 import {
     Spin,
     Select,
@@ -26,6 +26,7 @@ import {
     Calculator,
     TrashBin,
     FileArrowDown,
+    FileArrowUp,
     Pencil,
 } from '@gravity-ui/icons';
 
@@ -35,6 +36,7 @@ import {getNormalDateRange, getRoundValue} from 'src/utilities/getRoundValue';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
 import TheTable, {compare, defaultRender, generateFilterTextInput} from 'src/components/TheTable';
+import axios from 'axios';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -102,6 +104,65 @@ export const DeliveryPage = ({pageArgs}) => {
 
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
+
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const uploadId = useId();
+    function handleChange(event) {
+        const file = event.target.files[0];
+        if (!file || !file.name.includes('.xlsx')) {
+            setUploadProgress(-1);
+
+            return;
+        }
+        event.preventDefault();
+        const url = `https://aurum-mp.ru/api/convertDeliiveryOrdersTemplate`;
+        const formData = new FormData();
+        if (!file) return;
+        formData.append('file', file);
+        formData.append('uid', getUid());
+        formData.append('campaignName', selectValue[0]);
+
+        const token =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data',
+                Authorization: 'Bearer ' + token,
+            },
+            onUploadProgress: function (progressEvent) {
+                const percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total,
+                );
+                setUploadProgress(percentCompleted);
+            },
+        };
+
+        axios
+            .post(url, formData, config)
+            .then((response) => {
+                console.log(response.data);
+
+                callApi('downloadDeliveryOrdersByBoxRows', {
+                    uid: getUid(),
+                    campaignName: selectValue[0],
+                })
+                    .then((res: any) => {
+                        return res.data;
+                    })
+                    .then((blob) => {
+                        const element = document.createElement('a');
+                        element.href = URL.createObjectURL(blob);
+                        element.download = `Отгрузочный лист.xlsx`;
+                        // simulate link click
+                        document.body.appendChild(element);
+                        element.click();
+                    });
+            })
+            .catch((error) => {
+                console.error('Error uploading file: ', error);
+            });
+    }
 
     const [primeCostType, setPrimeCostType] = useState(['Себестоимость 1']);
     const primeCostTypeOptions = [
@@ -1016,6 +1077,70 @@ export const DeliveryPage = ({pageArgs}) => {
                         marginBottom: 8,
                     }}
                 >
+                    <Button
+                        size="l"
+                        view={'outlined-warning'}
+                        onClick={() => {
+                            setUploadProgress(0);
+                            callApi('downloadDeliveryOrdersFactoryArtTemplate', {
+                                uid: getUid(),
+                                campaignName: selectValue[0],
+                            })
+                                .then((res: any) => {
+                                    return res.data;
+                                })
+                                .then((blob) => {
+                                    const element = document.createElement('a');
+                                    element.href = URL.createObjectURL(blob);
+                                    element.download = `Шаблон.xlsx`;
+                                    // simulate link click
+                                    document.body.appendChild(element);
+                                    element.click();
+                                });
+                        }}
+                    >
+                        <Icon data={FileArrowDown} size={20} />
+                        <Text variant="subheader-1">Скачать шаблон</Text>
+                    </Button>
+                    <div style={{minWidth: 8}} />
+                    <label htmlFor={uploadId}>
+                        <Button
+                            size="l"
+                            onClick={() => {
+                                setUploadProgress(0);
+                                (document.getElementById(uploadId) as HTMLInputElement).value = '';
+                            }}
+                            style={{
+                                cursor: 'pointer',
+                                position: 'relative',
+                                overflow: 'hidden',
+                            }}
+                            selected={uploadProgress === 100 || uploadProgress === -1}
+                            view={
+                                uploadProgress === 100
+                                    ? 'flat-success'
+                                    : uploadProgress === -1
+                                    ? 'flat-danger'
+                                    : 'outlined-success'
+                            }
+                        >
+                            <Icon data={FileArrowUp} size={20} />
+                            <Text variant="subheader-1">Обработать шаблон</Text>
+
+                            <input
+                                id={uploadId}
+                                style={{
+                                    opacity: 0,
+                                    position: 'absolute',
+                                    height: 40,
+                                    left: 0,
+                                }}
+                                type="file"
+                                onChange={handleChange}
+                            />
+                        </Button>
+                    </label>
+                    <div style={{minWidth: 8}} />
                     <Button
                         size="l"
                         view="action"
