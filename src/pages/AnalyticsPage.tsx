@@ -2150,7 +2150,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                 <Card
                     style={{
                         maxWidth: '100%',
-                        maxHeight: '80vh',
+                        // maxHeight: '80vh',
+                        maxHeight: 'calc(100vh - 10em - 52px)',
                         boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
                         overflow: 'auto',
                     }}
