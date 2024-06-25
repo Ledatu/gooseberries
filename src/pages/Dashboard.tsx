@@ -440,7 +440,7 @@ export const Dashboard = () => {
                     style={{
                         marginTop: 62,
                         justifyContent: 'center',
-                        width: '90vw',
+                        width: 'calc(100vw - 80px)',
                         position: 'relative',
                     }}
                 >
