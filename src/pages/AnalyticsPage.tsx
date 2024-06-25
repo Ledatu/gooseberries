@@ -277,6 +277,11 @@ export const AnalyticsPage = ({pageArgs}) => {
             placeholder: 'Остаток, шт.',
             render: (args) => renderWithGraph(args, 'stocks', 'Остаток, шт.'),
         },
+        skuInStock: {
+            planType: 'avg',
+            placeholder: 'Товары, шт.',
+            render: (args) => renderWithGraph(args, 'skuInStock', 'Товары, шт.'),
+        },
         primeCost: {
             planType: 'avg',
             placeholder: 'Себестоимость, ₽',
@@ -768,6 +773,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                     tempTypeRow['sum'] ? 1 : 0,
                 );
                 tempTypeRow['stocks'] = dateStats['stocks'];
+                tempTypeRow['skuInStock'] = dateStats['skuInStock'];
                 tempTypeRow['primeCost'] = dateStats['primeCost'];
                 tempTypeRow['obor'] = getRoundValue(
                     dateStats['stocks'],
@@ -826,6 +832,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                 avgCost: 0,
                 stocks: 0,
                 stocks_temp: {count: 0, val: 0},
+                skuInStock: 0,
+                skuInStock_temp: {count: 0, val: 0},
                 primeCost: 0,
                 primeCost_temp: {count: 0, val: 0},
                 rentabelnost: 0,
@@ -886,6 +894,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                     avgCost: 0,
                     stocks: 0,
                     stocks_temp: {count: 0, val: 0},
+                    skuInStock: 0,
+                    skuInStock_temp: {count: 0, val: 0},
                     primeCost: 0,
                     primeCost_temp: {count: 0, val: 0},
                     rentabelnost: 0,
@@ -983,6 +993,14 @@ export const AnalyticsPage = ({pageArgs}) => {
                 summaries[entity]['sppPrice_temp'].count,
             );
 
+            summaryAdd(row, 'skuInStock', undefined);
+            summaries[entity]['skuInStock_temp'].val += row['skuInStock'];
+            summaries[entity]['skuInStock_temp'].count += 1;
+            summaries[entity]['skuInStock'] = getRoundValue(
+                summaries[entity]['skuInStock_temp'].val,
+                summaries[entity]['skuInStock_temp'].count,
+            );
+
             summaryAdd(row, 'stocks', undefined);
             summaries[entity]['stocks_temp'].val += row['stocks'];
             summaries[entity]['stocks_temp'].count += 1;
@@ -1040,6 +1058,13 @@ export const AnalyticsPage = ({pageArgs}) => {
                 summaries['filteredSummaryTemp']['profit'],
                 summaries['filteredSummaryTemp']['sum_orders'],
                 true,
+            );
+
+            summaries['filteredSummaryTemp']['skuInStock_temp'].val += row['skuInStock'];
+            summaries['filteredSummaryTemp']['skuInStock_temp'].count += 1;
+            summaries['filteredSummaryTemp']['skuInStock'] = getRoundValue(
+                summaries['filteredSummaryTemp']['skuInStock_temp'].val,
+                summaries['filteredSummaryTemp']['skuInStock_temp'].count,
             );
 
             summaries['filteredSummaryTemp']['stocks_temp'].val += row['stocks'];
