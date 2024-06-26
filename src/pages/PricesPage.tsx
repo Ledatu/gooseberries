@@ -31,6 +31,8 @@ import {
     Lock,
     CloudArrowUpIn,
     TrashBin,
+    Play,
+    Pause,
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
@@ -188,6 +190,10 @@ export const PricesPage = ({pageArgs}) => {
             return false;
         })();
 
+        const isPaused = doc.fixArtPrices[selectValue[0]][nmId]
+            ? doc.fixArtPrices[selectValue[0]][nmId].paused
+            : false;
+
         const oborFixedRuleSet = (() => {
             const temp = doc.fixArtPrices[selectValue[0]][nmId];
             if (temp === undefined) return undefined;
@@ -203,7 +209,9 @@ export const PricesPage = ({pageArgs}) => {
                 <div style={{minWidth: 4}} />
                 <Text
                     color={
-                        isFixedByKey
+                        isPaused
+                            ? 'secondary'
+                            : isFixedByKey
                             ? 'brand'
                             : isFixed && lastCalcOldData[art] === undefined
                             ? 'positive'
@@ -560,6 +568,39 @@ export const PricesPage = ({pageArgs}) => {
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
     const [enteredValue, setEnteredValue] = useState('');
     const [enteredValueValid, setEnteredValueValid] = useState(false);
+
+    const [fixPricesManagingModalOpen, setFixPricesManagingModalOpen] = useState(false);
+    const manageFixPricesActivityOnClick = async (mode) => {
+        setFixPricesManagingModalOpen(false);
+
+        const params = {
+            uid: getUid(),
+            campaignName: selectValue[0],
+            data: {mode: mode, nmIds: [] as number[]},
+        };
+
+        for (let i = 0; i < filteredData.length; i++) {
+            const row = filteredData[i];
+            const {nmId} = row ?? {};
+            if (!nmId) continue;
+
+            if (!params.data.nmIds.includes(nmId)) params.data.nmIds.push(nmId);
+
+            if (!doc.fixArtPrices[selectValue[0]][nmId]) continue;
+            if (mode == 'play') {
+                doc.fixArtPrices[selectValue[0]][nmId]['paused'] = false;
+            } else if (mode == 'pause') {
+                doc.fixArtPrices[selectValue[0]][nmId]['paused'] = true;
+            } else if (mode == 'stop') {
+                delete doc.fixArtPrices[selectValue[0]][nmId];
+                continue;
+            }
+        }
+
+        setChangedDoc(doc);
+
+        callApi('manageFixPricesActivity', params);
+    };
 
     const [fixPrices, setFixPrices] = useState(false);
 
@@ -1331,6 +1372,82 @@ export const PricesPage = ({pageArgs}) => {
                                         Рассчитать
                                     </Button>
                                 </div>
+                            </Card>
+                        </Modal>
+                        <div style={{minWidth: 8}} />
+                        <Button
+                            size="l"
+                            view="action"
+                            onClick={() => {
+                                setFixPricesManagingModalOpen(true);
+                            }}
+                        >
+                            <Icon data={Play} />
+                            <Text variant="subheader-1">Управление фиксацией цен</Text>
+                        </Button>
+                        <Modal
+                            open={fixPricesManagingModalOpen}
+                            onClose={() => {
+                                setFixPricesManagingModalOpen(false);
+                                setSelectedButton('');
+                            }}
+                        >
+                            <Card
+                                view="clear"
+                                style={{
+                                    width: 300,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    backgroundColor: 'none',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    Управление
+                                </Text>
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Продолжить',
+                                        icon: Play,
+                                        view: 'outlined-success',
+                                        onClick: () => {
+                                            manageFixPricesActivityOnClick('play');
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Приостановить',
+                                        icon: Pause,
+                                        view: 'outlined-warning',
+                                        onClick: () => {
+                                            manageFixPricesActivityOnClick('pause');
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Завершить',
+                                        icon: Pause,
+                                        view: 'outlined-danger',
+                                        onClick: () => {
+                                            manageFixPricesActivityOnClick('stop');
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                <div style={{height: 16}} />
                             </Card>
                         </Modal>
                         <div style={{minWidth: 8}} />

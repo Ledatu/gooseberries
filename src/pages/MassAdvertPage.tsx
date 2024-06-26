@@ -6233,7 +6233,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                             {generateModalButtonWithActions(
                                 {
                                     placeholder: 'Завершить',
-                                    icon: Pause,
+                                    icon: TrashBin,
                                     view: 'outlined-danger',
                                     onClick: () => {
                                         manageAdvertsActivityOnClick('stop', undefined);
