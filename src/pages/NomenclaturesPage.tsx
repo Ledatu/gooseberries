@@ -644,6 +644,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
         commision: {name: 'Коммисия WB, %', type: 'number'},
         tax: {name: 'Ставка налога, %', type: 'number'},
         expences: {name: 'Дополнительные расходы, %', type: 'number'},
+        prefObor: {name: 'Оборачиваемость, дней', type: 'number'},
         primeCost1: {name: 'Себестоимость 1, ₽', type: 'number'},
         primeCost2: {name: 'Себестоимость 2, ₽', type: 'number'},
         primeCost3: {name: 'Себестоимость 3, ₽', type: 'number'},
