@@ -1437,8 +1437,8 @@ export const PricesPage = ({pageArgs}) => {
                                 )}
                                 {generateModalButtonWithActions(
                                     {
-                                        placeholder: 'Завершить',
-                                        icon: Pause,
+                                        placeholder: 'Удалить',
+                                        icon: TrashBin,
                                         view: 'outlined-danger',
                                         onClick: () => {
                                             manageFixPricesActivityOnClick('stop');
