@@ -775,7 +775,7 @@ export const DeliveryPage = ({pageArgs}) => {
                                                 selectValue[0]
                                             } ${new Date()
                                                 .toLocaleDateString('ru-RU')
-                                                .slice(0, 10)}.xlsx`;
+                                                .slice(0, 10)}.zip`;
                                             // simulate link click
                                             document.body.appendChild(element);
                                             element.click();
