@@ -3134,6 +3134,7 @@ export const MassAdvertPage = ({pageArgs}) => {
 
                     if (!index || index == -1) return undefined;
                     const {position} = log ?? {};
+
                     return (
                         <Card
                             view="clear"
@@ -3154,9 +3155,9 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         }}
                                     >
                                         <Text color="secondary">{`${position + 1}`}</Text>
-                                        <div style={{width: 3}} />
+                                        <div style={{minWidth: 3}} />
                                         <Icon data={ArrowRight} size={13}></Icon>
-                                        <div style={{width: 3}} />
+                                        <div style={{minWidth: 3}} />
                                     </div>
                                 ) : (
                                     <></>
@@ -3178,7 +3179,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 const {placementsRange} = drrAI ?? {};
                 if (phrase == '') return undefined;
 
-                const {position} = log ?? {};
+                const {position, advertsType} = log ?? {};
 
                 const findFirstActive = (adverts) => {
                     for (const [id, _] of Object.entries(adverts ?? {})) {
@@ -3231,6 +3232,24 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         alignItems: 'center',
                                     }}
                                 >
+                                    {advertsType ? (
+                                        <Text
+                                            color="secondary"
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <Icon
+                                                data={advertsType == 'auto' ? Rocket : Magnifier}
+                                                size={13}
+                                            />
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    <div style={{minWidth: advertsType ? 3 : 0}} />
                                     <Text color="secondary">{`${position + 1}`}</Text>
                                     <div style={{width: 3}} />
                                     <Icon data={ArrowRight} size={13}></Icon>
