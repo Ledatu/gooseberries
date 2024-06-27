@@ -83,6 +83,7 @@ import {
     generateTextInputWithNoteOnTop,
     getLocaleDateString,
     getNormalDateRange,
+    getRoundValue,
     renderAsPercent,
     renderSlashPercent,
 } from 'src/utilities/getRoundValue';
@@ -9171,7 +9172,7 @@ const parseFirst10Pages = async (
     setCurrentParsingProgress,
     pagesCount = 20,
     startPage = 0,
-    startValuesList = {updateTime: '', data: {}},
+    startValuesList = {updateTime: '', data: {}, cpms: {search: [], auto: []}},
     startValuesProg = {
         max: pagesCount * 100,
         progress: 0,
@@ -9180,7 +9181,11 @@ const parseFirst10Pages = async (
         isParsing: false,
     },
 ) => {
-    const allCardDataList = startValuesList ?? {updateTime: '', data: {}};
+    const allCardDataList = startValuesList ?? {
+        updateTime: '',
+        data: {},
+        cpms: {search: [], auto: []},
+    };
 
     setCurrentParsingProgress((obj) => {
         const curVal = Object.assign({}, obj);
@@ -9203,7 +9208,7 @@ const parseFirst10Pages = async (
     let retryCount = 0;
     for (let page = startPage + 1; page <= pagesCount; page++) {
         // retryCount = 0;
-        const url = `https://search.wb.ru/exactmatch/ru/common/v5/search?ab_testing=false&appType=1&page=${page}&curr=rub&dest=-1257218&query=${encodeURIComponent(
+        const url = `https://search.wb.ru/exactmatch/ru/common/v5/search?ab_testing=false&appType=64&page=${page}&curr=rub&dest=-1257218&query=${encodeURIComponent(
             searchPhrase,
         )}&resultset=catalog&sort=popular&spp=30&suppressSpellcheck=false`;
 
@@ -9212,15 +9217,44 @@ const parseFirst10Pages = async (
             const data = response.data;
             if (data && data.data && data.data.products && data.data.products.length == 100) {
                 const myData = {};
+                const cpms = {};
                 for (let i = 0; i < data.data.products.length; i++) {
-                    const index = i + 1 + (page - 1) * 100;
+                    const cur = data.data.products[i];
+                    cur.index = i + 1 + (page - 1) * 100;
+                    const {id, log, name, brand, supplier} = cur;
+
+                    const {tp} = log ?? {};
+                    if (tp) {
+                        const advertsType = tp == 'b' ? 'auto' : tp == 'c' ? 'search' : 'none';
+                        cur.log.advertsType = advertsType;
+                        cur.advertsType = advertsType;
+
+                        cur.log.name = name;
+                        cur.log.brand = brand;
+                        cur.log.id = id;
+                        cur.log.supplier = supplier;
+                        cur.position = log.position;
+                        cur.promoPosition = log.promoPosition;
+                        cur.cpm = log.cpm;
+
+                        cur.avgBoostPrice = getRoundValue(
+                            log.cpm,
+                            cur.position - cur.promoPosition,
+                        );
+                        cur.log.avgBoostPrice = cur.avgBoostPrice;
+
+                        if (!cpms[advertsType]) cpms[advertsType] = [];
+                        cpms[advertsType].push(cur.log);
+                        cur.cpmIndex =
+                            allCardDataList.cpms[advertsType].length + cpms[advertsType].length;
+                    }
 
                     setCurrentParsingProgress((obj) => {
                         const curVal = Object.assign({}, obj);
                         if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: pagesCount * 100};
-                        if (index == pagesCount * 100) curVal[searchPhrase].warning = false;
-                        if (index % 100 == 0) {
-                            curVal[searchPhrase].progress = index;
+                        if (cur.index == pagesCount * 100) curVal[searchPhrase].warning = false;
+                        if (cur.index % 100 == 0) {
+                            curVal[searchPhrase].progress = cur.index;
                         }
                         curVal[searchPhrase].isParsing =
                             curVal[searchPhrase].progress != curVal[searchPhrase].max &&
@@ -9228,13 +9262,11 @@ const parseFirst10Pages = async (
                         return curVal;
                     });
 
-                    const cur = data.data.products[i];
-                    cur.index = index;
-                    const {id} = cur;
                     myData[id] = cur;
                 }
 
                 Object.assign(allCardDataList.data, myData);
+                Object.assign(allCardDataList.cpms, cpms);
 
                 console.log(`Data saved for search phrase: ${searchPhrase}, page: ${page}`);
                 await new Promise((resolve) => setTimeout(resolve, 400));
