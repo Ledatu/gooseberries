@@ -111,6 +111,108 @@ export const PricesPage = ({pageArgs}) => {
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
+    const [calcUnitEconomyModalOpen, setCalcUnitEconomyModalOpen] = useState(false);
+    const [unitEconomyParams, setUnitEconomyParams] = useState({
+        rozPrice: '',
+        primeCost: '',
+        comission: '',
+        length: '',
+        width: '',
+        height: '',
+        koef: 100,
+        ktr: 1,
+        tax: '',
+        expences: '',
+        drr: 10,
+        buyoutsPercent: '',
+        obor: 30,
+    });
+    const [unitEconomyParamsValid, setUnitEconomyParamsValid] = useState({
+        rozPrice: false,
+        primeCost: false,
+        comission: false,
+        length: false,
+        width: false,
+        height: false,
+        koef: true,
+        ktr: true,
+        tax: false,
+        expences: false,
+        drr: true,
+        buyoutsPercent: false,
+        obor: true,
+    });
+    const [unitEconomyProfit, setUnitEconomyProfit] = useState({
+        profit: 0,
+        delivery: '',
+        storage: '',
+    });
+    const [unitEconomyProfitValid, setUnitEconomyProfitValid] = useState(false);
+    useEffect(() => {
+        for (const [_, valid] of Object.entries(unitEconomyParamsValid)) {
+            if (!valid) {
+                setUnitEconomyProfitValid(false);
+                return;
+            }
+        }
+        setUnitEconomyProfitValid(true);
+
+        const buyoutsPercent = Number(unitEconomyParams.buyoutsPercent) / 100;
+
+        const rozPrice = Number(unitEconomyParams.rozPrice);
+        const primeCost = Number(unitEconomyParams.primeCost);
+        const comission = Number(unitEconomyParams.comission) / 100;
+        const comissionSum = comission * rozPrice;
+
+        const length = Number(unitEconomyParams.length);
+        const width = Number(unitEconomyParams.width);
+        const height = Number(unitEconomyParams.height);
+        const koef = Number(unitEconomyParams.koef) / 100;
+        const ktr = Number(unitEconomyParams.ktr);
+        const volume = (length * width * height) / 1000;
+
+        const boxDeliveryBase = 30;
+        const boxDeliveryLiter = 7;
+        const boxStorageBase = 0.07;
+        // const boxStorageLiter = 0.07;
+
+        let delivery = 0;
+        delivery += boxDeliveryBase * koef * (volume < 1 ? volume : 1);
+        if (volume > 1) {
+            delivery += (volume - 1) * (boxDeliveryLiter * koef);
+        }
+        delivery += (1 - buyoutsPercent) * 50;
+        delivery *= ktr ?? 1;
+        delivery = delivery / buyoutsPercent;
+
+        const tax = Number(unitEconomyParams.tax) / 100;
+        const taxSum = tax * rozPrice;
+
+        const expences = Number(unitEconomyParams.expences) / 100;
+        const expencesSum = expences * rozPrice;
+
+        const obor = Number(unitEconomyParams.obor);
+        const storageCostForArt = obor * volume * boxStorageBase * koef;
+
+        const drr = Number(unitEconomyParams.drr) / 100;
+        const ad = (drr * rozPrice) / buyoutsPercent;
+
+        const allExpences =
+            ad + delivery + comissionSum + storageCostForArt + taxSum + expencesSum + primeCost;
+
+        const profit = rozPrice - allExpences;
+
+        const tempProfit = {...unitEconomyProfit};
+        tempProfit.profit = profit;
+        tempProfit.delivery =
+            isNaN(delivery) || !isFinite(delivery) ? 'Ошибка.' : String(Math.round(delivery));
+        tempProfit.storage =
+            isNaN(storageCostForArt) || !isFinite(storageCostForArt)
+                ? 'Ошибка.'
+                : String(Math.round(storageCostForArt));
+        setUnitEconomyProfit(tempProfit);
+    }, [unitEconomyParams]);
+
     const [enableOborRuleSet, setEnableOborRuleSet] = React.useState(false);
     const [oborRuleSet, setOborRuleSet] = React.useState({
         7: '',
@@ -1623,6 +1725,159 @@ export const PricesPage = ({pageArgs}) => {
                         marginBottom: 8,
                     }}
                 >
+                    <Button
+                        size="l"
+                        view="action"
+                        onClick={() => {
+                            setCalcUnitEconomyModalOpen(true);
+                        }}
+                    >
+                        <Icon data={Calculator} />
+                        <Text variant="subheader-1">Рассчитать юнит экономику</Text>
+                    </Button>
+                    <Modal
+                        open={calcUnitEconomyModalOpen}
+                        onClose={() => {
+                            setCalcUnitEconomyModalOpen(false);
+                            setUnitEconomyParams(unitEconomyParams);
+                        }}
+                    >
+                        <Card
+                            view="clear"
+                            style={{
+                                width: 250,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                backgroundColor: 'none',
+                                margin: 20,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                {(() => {
+                                    const placeholders = [
+                                        {
+                                            rozPrice: 'Цена после скидки, ₽',
+                                            primeCost: 'Себестоимость, ₽',
+                                            comission: 'Комиссия, %',
+                                            tax: 'Налог, %',
+                                            expences: 'Доп. расходы, %',
+                                            drr: 'ДРР,  %',
+                                            buyoutsPercent: 'Процент выкупа, %',
+                                        },
+                                        {
+                                            length: 'Длина, см.',
+                                            width: 'Ширина, см.',
+                                            height: 'Высота, см.',
+                                            koef: 'Коэффициент склада, %',
+                                            ktr: 'КТР',
+                                            obor: 'Оборачиваемость, дней',
+                                        },
+                                    ];
+                                    const inputs = [] as any[];
+                                    for (const headers of placeholders) {
+                                        const row = [] as any[];
+                                        for (const [key, placeholder] of Object.entries(headers)) {
+                                            row.push(
+                                                generateTextInputWithNoteOnTop({
+                                                    placeholder: placeholder,
+                                                    value: unitEconomyParams[key],
+                                                    onUpdateHandler: (val) => {
+                                                        const temp = {...unitEconomyParams};
+                                                        temp[key] = val;
+                                                        setUnitEconomyParams(temp);
+
+                                                        const numberLike = Number(
+                                                            val != '' ? val : 'nan',
+                                                        );
+                                                        const validTemp = {
+                                                            ...unitEconomyParamsValid,
+                                                        };
+                                                        validTemp[key] =
+                                                            !isNaN(numberLike) &&
+                                                            isFinite(numberLike);
+                                                        setUnitEconomyParamsValid(validTemp);
+                                                    },
+                                                    disabled: false,
+                                                    validationState: unitEconomyParamsValid[key],
+                                                }),
+                                            );
+                                            row.push(<div style={{minHeight: 8}} />);
+                                        }
+                                        row.pop();
+                                        inputs.push(row);
+                                    }
+
+                                    const divs = [] as any[];
+                                    for (const row of inputs) {
+                                        divs.push(
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                {row}
+                                            </div>,
+                                        );
+                                        divs.push(<div style={{minHeight: 8}} />);
+                                    }
+                                    return divs;
+                                })()}
+                                {generateTextInputWithNoteOnTop({
+                                    placeholder: 'Логистика, ₽',
+                                    value: unitEconomyProfitValid
+                                        ? unitEconomyProfit.delivery
+                                        : 'Ошибка.',
+                                    onUpdateHandler: () => {},
+                                    disabled: true,
+                                    validationState: true,
+                                })}
+                                <div style={{minHeight: 8}} />
+                                {generateTextInputWithNoteOnTop({
+                                    placeholder: 'Хранение, ₽',
+                                    value: unitEconomyProfitValid
+                                        ? unitEconomyProfit.storage
+                                        : 'Ошибка.',
+                                    onUpdateHandler: () => {},
+                                    disabled: true,
+                                    validationState: true,
+                                })}
+                                <div style={{minHeight: 8}} />
+                                <Text
+                                    variant="header-1"
+                                    color={
+                                        unitEconomyProfitValid
+                                            ? unitEconomyProfit.profit > 0
+                                                ? 'positive'
+                                                : 'danger'
+                                            : 'danger'
+                                    }
+                                >
+                                    {(() => {
+                                        return unitEconomyProfitValid
+                                            ? `${Math.round(
+                                                  unitEconomyProfit.profit,
+                                              )} / ${getRoundValue(
+                                                  unitEconomyProfit.profit,
+                                                  unitEconomyParams['rozPrice'],
+                                                  true,
+                                              )}%`
+                                            : 'Введите все значения';
+                                    })()}
+                                </Text>
+                            </div>
+                        </Card>
+                    </Modal>
+                    <div style={{minWidth: 8}} />
                     <Button
                         size="l"
                         view="action"
