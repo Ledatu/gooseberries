@@ -766,6 +766,8 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
     const [ordersInputValue, setOrdersInputValue] = useState('');
     const [ordersInputValueValid, setOrdersInputValueValid] = useState(true);
+    const [desiredSumInputValue, setDesiredSumInputValue] = useState('');
+    const [desiredSumInputValueValid, setDesiredSumInputValueValid] = useState(true);
     const [bidModalRange, setBidModalRange] = useState({from: 50, to: 50});
     const [bidModalRangeValid, setBidModalRangeValid] = useState(true);
     const [bidModalMaxBid, setBidModalMaxBid] = useState(500);
@@ -3677,6 +3679,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                                         parseInt(
                                                                                             ordersInputValue,
                                                                                         ),
+                                                                                    desiredSum:
+                                                                                        parseInt(
+                                                                                            desiredSumInputValue,
+                                                                                        ),
                                                                                 },
                                                                             };
 
@@ -3710,6 +3716,11 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                                               parseInt(
                                                                                                   ordersInputValue,
                                                                                               ),
+                                                                                          desiredSum:
+                                                                                              parseInt(
+                                                                                                  desiredSumInputValue,
+                                                                                              ),
+
                                                                                           desiredDRR:
                                                                                               bidModalDRRInputValue,
                                                                                           placementsRange:
@@ -4697,6 +4708,10 @@ export const MassAdvertPage = ({pageArgs}) => {
             content: 'Цель по заказам',
         },
         {
+            value: 'sum',
+            content: 'Плановый расход',
+        },
+        {
             value: 'drr',
             content: 'Целевой ДРР',
         },
@@ -4757,6 +4772,8 @@ export const MassAdvertPage = ({pageArgs}) => {
         setBidModalSwitchValue('Установить');
         setOrdersInputValue('');
         setOrdersInputValueValid(true);
+        setDesiredSumInputValue('');
+        setDesiredSumInputValueValid(true);
         setBidModalBidInputValidationValue(true);
         setBidModalDeleteModeSelected(false);
         setBidModalBidStepInputValue(5);
@@ -5294,6 +5311,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                                         parseInt(
                                                                                             ordersInputValue,
                                                                                         ),
+                                                                                    desiredSum:
+                                                                                        parseInt(
+                                                                                            desiredSumInputValue,
+                                                                                        ),
                                                                                 },
                                                                             };
 
@@ -5334,6 +5355,11 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                                               parseInt(
                                                                                                   ordersInputValue,
                                                                                               ),
+                                                                                          desiredSum:
+                                                                                              parseInt(
+                                                                                                  desiredSumInputValue,
+                                                                                              ),
+
                                                                                           desiredDRR:
                                                                                               bidModalDRRInputValue,
                                                                                           placementsRange:
@@ -6146,6 +6172,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                                         parseInt(
                                                                                             ordersInputValue,
                                                                                         ),
+                                                                                    desiredSum:
+                                                                                        parseInt(
+                                                                                            desiredSumInputValue,
+                                                                                        ),
                                                                                 },
                                                                             };
 
@@ -6186,6 +6216,11 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                                               parseInt(
                                                                                                   ordersInputValue,
                                                                                               ),
+                                                                                          desiredSum:
+                                                                                              parseInt(
+                                                                                                  desiredSumInputValue,
+                                                                                              ),
+
                                                                                           desiredDRR:
                                                                                               bidModalDRRInputValue,
                                                                                           placementsRange:
@@ -8174,6 +8209,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             setBidModalBidStepInputValue(5);
                                             setOrdersInputValue('');
                                             setOrdersInputValueValid(true);
+                                            setDesiredSumInputValue('');
+                                            setDesiredSumInputValueValid(true);
                                             setBidModalRange({from: 50, to: 50});
                                             setBidModalRangeValid(true);
                                             setBidModalMaxBid(500);
@@ -8470,7 +8507,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                             width: 8,
                                                         }}
                                                     />
-                                                    {selectedValueMethod[0] != 'orders' ? (
+                                                    {selectedValueMethod[0] != 'orders' &&
+                                                    selectedValueMethod[0] != 'sum' ? (
                                                         <div
                                                             style={{
                                                                 display: 'flex',
@@ -8533,6 +8571,23 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                 selectedValueMethod[0] != 'orders',
                                                             placeholder: 'Цель по заказам',
                                                             validationState: ordersInputValueValid,
+                                                        })
+                                                    ) : (
+                                                        <></>
+                                                    )}
+                                                    {selectedValueMethod[0] == 'sum' ? (
+                                                        generateTextInputWithNoteOnTop({
+                                                            value: desiredSumInputValue,
+                                                            onUpdateHandler: (val) => {
+                                                                const valid = !isNaN(parseInt(val));
+                                                                setDesiredSumInputValueValid(valid);
+                                                                setDesiredSumInputValue(val);
+                                                            },
+                                                            disabled:
+                                                                selectedValueMethod[0] != 'sum',
+                                                            placeholder: 'Плановый расход',
+                                                            validationState:
+                                                                desiredSumInputValueValid,
                                                         })
                                                     ) : (
                                                         <></>
@@ -8665,6 +8720,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                             bidModalStocksThresholdInputValue,
                                                         placementsRange: bidModalRange,
                                                         desiredOrders: parseInt(ordersInputValue),
+                                                        desiredSum: parseInt(desiredSumInputValue),
                                                         maxBid: bidModalMaxBid,
                                                         autoBidsMode: selectedValueMethod[0],
                                                     },
@@ -8726,6 +8782,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                                   maxBid: bidModalMaxBid,
                                                                   desiredOrders:
                                                                       parseInt(ordersInputValue),
+                                                                  desiredSum:
+                                                                      parseInt(
+                                                                          desiredSumInputValue,
+                                                                      ),
 
                                                                   autoBidsMode:
                                                                       selectedValueMethod[0],
