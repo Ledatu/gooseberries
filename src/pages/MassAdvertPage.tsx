@@ -1655,6 +1655,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     drrAI.autoBidsMode != 'bestPlacement' &&
                                     drrAI.autoBidsMode != 'orders' &&
                                     drrAI.autoBidsMode != 'drr' &&
+                                    drrAI.autoBidsMode != 'sum' &&
                                     drrAI.autoBidsMode != 'cpo' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
                                             {`План №: ${drrAI.placementsRange.from} (${
@@ -1677,6 +1678,13 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     {drrAI !== undefined && drrAI.autoBidsMode == 'orders' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
                                             {`Заказы (${drrAI.desiredOrders})`}
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    {drrAI !== undefined && drrAI.autoBidsMode == 'sum' ? (
+                                        <Text style={{marginLeft: 4}} variant="caption-2">
+                                            {`Расход (${drrAI.desiredOrders})`}
                                         </Text>
                                     ) : (
                                         <></>
