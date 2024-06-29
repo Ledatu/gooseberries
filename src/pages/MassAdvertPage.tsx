@@ -1684,7 +1684,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     )}
                                     {drrAI !== undefined && drrAI.autoBidsMode == 'sum' ? (
                                         <Text style={{marginLeft: 4}} variant="caption-2">
-                                            {`Расход (${drrAI.desiredOrders})`}
+                                            {`Расход (${drrAI.desiredSum})`}
                                         </Text>
                                     ) : (
                                         <></>
