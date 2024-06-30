@@ -608,7 +608,24 @@ export const PricesPage = ({pageArgs}) => {
             name: 'primeCost',
             placeholder: 'Себестоимость, ₽',
             render: (args) =>
-                fixedPriceRender(args, ['primeCostMarkup'], renderSlashPercent(args, 'rozPrice')),
+                fixedPriceRender(
+                    args,
+                    ['primeCostMarkup'],
+                    ((args) => {
+                        const {value, row} = args;
+                        if (value === undefined) return undefined;
+                        const {rozPrice} = row;
+                        const markup = rozPrice - value;
+                        const percent = Math.round((markup / (value as number)) * 100);
+                        return (
+                            <Text>{`${value} ${
+                                isNaN(percent) || !isFinite(percent) || !value || !markup
+                                    ? ''
+                                    : '/ ' + percent + '%'
+                            }`}</Text>
+                        );
+                    })(args),
+                ),
         },
         {
             name: 'comissionSum',
