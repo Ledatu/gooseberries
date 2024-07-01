@@ -4102,10 +4102,12 @@ export const MassAdvertPage = ({pageArgs}) => {
         ctr: 0,
         sum: 0,
         drr_orders: 0,
-        drr_sales: 0,
-        sales: 0,
-        sum_sales: 0,
+        orders: 0,
         sum_orders: 0,
+        openCardCount: 0,
+        addToCartPercent: 0,
+        addToCartCount: 0,
+        cartToOrderPercent: 0,
     });
 
     const getRoundValue = (a, b, isPercentage = false, def = 0) => {
@@ -4127,11 +4129,13 @@ export const MassAdvertPage = ({pageArgs}) => {
             clicks: 0,
             ctr: 0,
             sum: 0,
-            sales: 0,
+            orders: 0,
             drr_orders: 0,
-            drr_sales: 0,
             sum_orders: 0,
-            sum_sales: 0,
+            openCardCount: 0,
+            addToCartPercent: 0,
+            addToCartCount: 0,
+            cartToOrderPercent: 0,
         };
 
         const _selectedCampaignName = selected == '' ? selectValue[0] : selected;
@@ -4302,21 +4306,31 @@ export const MassAdvertPage = ({pageArgs}) => {
                 artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
 
                 summaryTemp.sum_orders += artInfo.sum_orders;
-                summaryTemp.sum_sales += artInfo.sum_sales;
-                summaryTemp.sales += artInfo.sales;
                 summaryTemp.sum += artInfo.sum;
                 summaryTemp.views += artInfo.views;
                 summaryTemp.clicks += artInfo.clicks;
+                summaryTemp.addToCartCount += artInfo.addToCartCount;
+                summaryTemp.openCardCount += artInfo.openCardCount;
+                summaryTemp.orders += artInfo.orders;
             }
 
             temp[art] = artInfo;
         }
 
         summaryTemp.sum_orders = Math.round(summaryTemp.sum_orders);
-        summaryTemp.sum_sales = Math.round(summaryTemp.sum_sales);
         summaryTemp.ctr = getRoundValue(summaryTemp.clicks, summaryTemp.views, true);
         summaryTemp.drr_orders = getRoundValue(summaryTemp.sum, summaryTemp.sum_orders, true, 1);
-        summaryTemp.drr_sales = getRoundValue(summaryTemp.sum, summaryTemp.sum_sales, true, 1);
+
+        summaryTemp.addToCartPercent = getRoundValue(
+            summaryTemp.addToCartCount,
+            summaryTemp.openCardCount,
+            true,
+        );
+        summaryTemp.cartToOrderPercent = getRoundValue(
+            summaryTemp.orders,
+            summaryTemp.addToCartCount,
+            true,
+        );
 
         setSummary(summaryTemp);
         setTableData(temp);
@@ -7233,7 +7247,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                 }}
             >
                 {generateCard({summary, key: 'sum_orders', placeholder: 'Заказов, ₽', cardStyle})}
-                {generateCard({summary, key: 'sum_sales', placeholder: 'Продаж, ₽', cardStyle})}
                 {generateCard({summary, key: 'sum', placeholder: 'Расход, ₽', cardStyle})}
                 {generateCard({
                     summary,
@@ -7241,15 +7254,21 @@ export const MassAdvertPage = ({pageArgs}) => {
                     placeholder: 'ДРР к заказам, %',
                     cardStyle,
                 })}
-                {generateCard({
-                    summary,
-                    key: 'drr_sales',
-                    placeholder: 'ДРР к продажам, %',
-                    cardStyle,
-                })}
                 {generateCard({summary, key: 'views', placeholder: 'Показов, шт.', cardStyle})}
                 {generateCard({summary, key: 'clicks', placeholder: 'Кликов, шт.', cardStyle})}
                 {generateCard({summary, key: 'ctr', placeholder: 'CTR, %', cardStyle})}
+                {generateCard({
+                    summary,
+                    key: 'addToCartPercent',
+                    placeholder: 'CR в корзину, %',
+                    cardStyle,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'cartToOrderPercent',
+                    placeholder: 'CR в заказ, %',
+                    cardStyle,
+                })}
             </div>
             <div
                 style={{
