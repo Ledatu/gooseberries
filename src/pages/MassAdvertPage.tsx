@@ -4297,7 +4297,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 );
 
                 artInfo.sum_orders = Math.round(artInfo.sum_orders);
-                artInfo.orders = Math.round(artInfo.orders * 100) / 100;
+                artInfo.orders = Math.round(artInfo.orders);
                 artInfo.sum_sales = Math.round(artInfo.sum_sales);
                 artInfo.sales = Math.round(artInfo.sales * 100) / 100;
                 artInfo.sum = Math.round(artInfo.sum);
@@ -10316,6 +10316,7 @@ const generateCard = (args) => {
                         fontWeight: 'bold',
                         fontSize: '18pt',
                         marginBottom: 10,
+                        marginTop: 4,
                     }}
                 >
                     {valueType == 'text'
