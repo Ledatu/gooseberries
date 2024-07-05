@@ -3999,6 +3999,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         ctr: 0,
         drr: 0,
         orders: 0,
+        analytics: 0,
         stocks: 0,
         sum_orders: 0,
         adverts: 0,
@@ -4252,6 +4253,8 @@ export const MassAdvertPage = ({pageArgs}) => {
 
                     artInfo.sum_orders += dateData['sum_orders'];
                     artInfo.orders += dateData['orders'];
+                    if (artInfo.art == 'Ф7/серый') console.log(artInfo.orders);
+
                     artInfo.sum_sales += dateData['sum_sales'];
                     artInfo.sales += dateData['sales'];
                     artInfo.sum += dateData['sum'];
@@ -4320,7 +4323,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 summaryTemp.orders += artInfo.orders;
 
                 summaryTemp.profitTemp += Math.round(
-                    (artInfo.orders *= (artInfo.expectedBuyoutsPersent ?? 0) / 100) *
+                    ((artInfo.orders * (artInfo.expectedBuyoutsPersent ?? 0)) / 100) *
                         (artInfo.profitLog ? artInfo.profitLog['profit'] ?? 0 : 0) ?? 0,
                 );
             }
@@ -4627,6 +4630,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             clicks: 0,
             drr: 0,
             ctr: 0,
+            analytics: 0,
             cpc: 0,
             cpm: 0,
             cr: 0,
@@ -4660,6 +4664,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             filteredSummaryTemp.sum += row['sum'];
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
+            filteredSummaryTemp.analytics += row['orders'] * row['expectedBuyoutsPersent'];
             filteredSummaryTemp.budget += row['budget'] ?? 0;
             filteredSummaryTemp.openCardCount += row['openCardCount'];
             filteredSummaryTemp.addToCartCount += row['addToCartCount'];

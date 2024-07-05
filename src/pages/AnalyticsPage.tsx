@@ -757,6 +757,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                 tempTypeRow['cartToOrderPercent'] = dateStats['cartToOrderPercent'];
                 tempTypeRow['storageCost'] = dateStats['storageCost'];
                 tempTypeRow['buyoutsPercent'] = dateStats['buyoutsPercent'];
+
                 tempTypeRow['expectedSales'] = dateStats['expectedSales'];
 
                 tempTypeRow['sum'] = dateStats['sum'];
