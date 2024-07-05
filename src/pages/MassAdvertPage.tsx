@@ -4345,7 +4345,9 @@ export const MassAdvertPage = ({pageArgs}) => {
 
         summaryTemp.profit = `${new Intl.NumberFormat('ru-RU').format(
             summaryTemp.profitTemp,
-        )}₽ / ${getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_orders, true)}%`;
+        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+            getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_orders, true),
+        )}%`;
 
         setSummary(summaryTemp);
         setTableData(temp);
