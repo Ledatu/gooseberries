@@ -4108,6 +4108,8 @@ export const MassAdvertPage = ({pageArgs}) => {
         addToCartPercent: 0,
         addToCartCount: 0,
         cartToOrderPercent: 0,
+        profit: '',
+        profitTemp: 0,
     });
 
     const getRoundValue = (a, b, isPercentage = false, def = 0) => {
@@ -4136,6 +4138,8 @@ export const MassAdvertPage = ({pageArgs}) => {
             addToCartPercent: 0,
             addToCartCount: 0,
             cartToOrderPercent: 0,
+            profit: '',
+            profitTemp: 0,
         };
 
         const _selectedCampaignName = selected == '' ? selectValue[0] : selected;
@@ -4161,6 +4165,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 placements: undefined,
                 placementsValue: undefined,
                 drrAI: {},
+                expectedBuyoutsPersent: 0,
                 plusPhrasesTemplate: undefined,
                 advertsSelectedPhrases: {},
                 semantics: {},
@@ -4203,6 +4208,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             artInfo.profitLog = artData['profitLog'];
             artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
             artInfo.placementsValue = artData['placements'];
+            artInfo.expectedBuyoutsPersent = artData['expectedBuyoutsPersent'];
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
             artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
 
@@ -4312,6 +4318,11 @@ export const MassAdvertPage = ({pageArgs}) => {
                 summaryTemp.addToCartCount += artInfo.addToCartCount;
                 summaryTemp.openCardCount += artInfo.openCardCount;
                 summaryTemp.orders += artInfo.orders;
+
+                summaryTemp.profitTemp += Math.round(
+                    (artInfo.orders *= (artInfo.expectedBuyoutsPersent ?? 0) / 100) *
+                        (artInfo.profitLog ? artInfo.profitLog['profit'] ?? 0 : 0) ?? 0,
+                );
             }
 
             temp[art] = artInfo;
@@ -4331,6 +4342,10 @@ export const MassAdvertPage = ({pageArgs}) => {
             summaryTemp.addToCartCount,
             true,
         );
+
+        summaryTemp.profit = `${new Intl.NumberFormat('ru-RU').format(
+            summaryTemp.profitTemp,
+        )}₽ / ${getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_orders, true)}%`;
 
         setSummary(summaryTemp);
         setTableData(temp);
@@ -7253,6 +7268,13 @@ export const MassAdvertPage = ({pageArgs}) => {
                     key: 'drr_orders',
                     placeholder: 'ДРР к заказам, %',
                     cardStyle,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'profit',
+                    placeholder: 'Профит ₽ / Рент. %',
+                    cardStyle,
+                    valueType: 'text',
                 })}
                 {generateCard({summary, key: 'views', placeholder: 'Показов, шт.', cardStyle})}
                 {generateCard({summary, key: 'clicks', placeholder: 'Кликов, шт.', cardStyle})}
@@ -10282,7 +10304,7 @@ const generateScheduleInput = (args) => {
 };
 
 const generateCard = (args) => {
-    const {summary, key, placeholder, cardStyle} = args;
+    const {summary, key, placeholder, cardStyle, valueType} = args;
     return (
         <Card style={cardStyle} view="outlined">
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
@@ -10294,7 +10316,9 @@ const generateCard = (args) => {
                         marginBottom: 10,
                     }}
                 >
-                    {new Intl.NumberFormat('ru-RU').format(summary[key])}
+                    {valueType == 'text'
+                        ? summary[key]
+                        : new Intl.NumberFormat('ru-RU').format(summary[key])}
                     {placeholder.includes(', %') ? '%' : ''}
                 </Text>
             </div>
