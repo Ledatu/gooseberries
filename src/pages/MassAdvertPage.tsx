@@ -2550,8 +2550,19 @@ export const MassAdvertPage = ({pageArgs}) => {
         {
             name: 'analytics',
             placeholder: 'Аналитика',
-            render: ({row, footer}) => {
-                if (footer) return undefined;
+            render: ({row, footer, value}) => {
+                if (footer) {
+                    const sumOrders = row['sum_orders'];
+                    return (
+                        <Text color={value > 0 ? 'positive' : 'danger'}>
+                            {`${new Intl.NumberFormat('ru-RU').format(
+                                value,
+                            )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                getRoundValue(value, sumOrders, true),
+                            )}%`}
+                        </Text>
+                    );
+                }
                 const {placementsValue, stocksBySizes, profitLog} = row ?? {};
 
                 // if (!placementsValue) return undefined;
@@ -2968,9 +2979,13 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Text color={profitLog.profit > 0 ? 'positive' : 'danger'}>{`${
-                                        profitLog.profit ?? ''
-                                    }₽ / ${profitLog.rentabelnost ?? ''}%`}</Text>
+                                    <Text
+                                        color={profitLog.profit > 0 ? 'positive' : 'danger'}
+                                    >{`${new Intl.NumberFormat('ru-RU').format(
+                                        profitLog['profit'],
+                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                        profitLog['rentabelnost'],
+                                    )}%`}</Text>
                                 </div>
                             </Button>
                         ) : (
@@ -4664,7 +4679,11 @@ export const MassAdvertPage = ({pageArgs}) => {
             filteredSummaryTemp.sum += row['sum'];
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
-            filteredSummaryTemp.analytics += row['orders'] * row['expectedBuyoutsPersent'];
+            filteredSummaryTemp.analytics += Math.round(
+                (row['orders'] ?? 0) *
+                    (row['expectedBuyoutsPersent'] / 100 ?? 0) *
+                    ((row['profitLog'] ? row['profitLog']['profit'] : 0) ?? 0) ?? 0,
+            );
             filteredSummaryTemp.budget += row['budget'] ?? 0;
             filteredSummaryTemp.openCardCount += row['openCardCount'];
             filteredSummaryTemp.addToCartCount += row['addToCartCount'];
