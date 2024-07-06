@@ -65,6 +65,7 @@ import {
     TrashBin,
     Check,
     CloudArrowUpIn,
+    Tag,
     Cherry,
     Xmark,
 } from '@gravity-ui/icons';
@@ -188,6 +189,9 @@ export const MassAdvertPage = ({pageArgs}) => {
 
     // const [semanticsModalTextAreaAddMode, setSemanticsModalTextAreaAddMode] = useState(false);
     // const [semanticsModalTextAreaValue, setSemanticsModalTextAreaValue] = useState('');
+    const [availableTags, setAvailableTags] = useState([] as any[]);
+    const [availableTagsPending, setAvailableTagsPending] = useState(false);
+    const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
     const [placementsDisplayPhrase, setPlacementsDisplayPhrase] = useState('');
 
@@ -7199,6 +7203,24 @@ export const MassAdvertPage = ({pageArgs}) => {
         setSelectValue([selected]);
         console.log(doc);
 
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selected,
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+
         for (let i = 0; i < columnData.length; i++) {
             const {name, valueType} = columnData[i];
             if (!name) continue;
@@ -8948,6 +8970,60 @@ export const MassAdvertPage = ({pageArgs}) => {
                         <Icon data={Clock} />
                         <Text variant="subheader-1">График</Text>
                     </Button>
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        view="action"
+                        loading={availableTagsPending}
+                        size="l"
+                        onClick={async () => {
+                            setTagsModalOpen(true);
+                        }}
+                    >
+                        <Icon data={Tag} />
+                        <Text variant="subheader-1">Теги</Text>
+                    </Button>
+                    <Modal
+                        open={tagsModalOpen}
+                        onClose={() => {
+                            setTagsModalOpen(false);
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                width: '30vw',
+                                height: '60vh',
+                                margin: 20,
+                            }}
+                        >
+                            {availableTagsPending ? (
+                                <div></div>
+                            ) : (
+                                <List
+                                    filterPlaceholder="Введите имя тега"
+                                    emptyPlaceholder="Такой тег отсутствует"
+                                    loading={availableTagsPending}
+                                    items={availableTags}
+                                    renderItem={(item) => {
+                                        return (
+                                            <Button
+                                                size="xs"
+                                                pin="circle-circle"
+                                                selected
+                                                view={'outlined-info'}
+                                            >
+                                                {item.toUpperCase()}
+                                            </Button>
+                                        );
+                                    }}
+                                    onItemClick={(item) => {
+                                        filterByButton(item, 'art');
+                                        setTagsModalOpen(false);
+                                    }}
+                                />
+                            )}
+                        </div>
+                    </Modal>
                     <Modal
                         open={semanticsModalFormOpen}
                         onClose={() => {
@@ -9816,12 +9892,30 @@ export const MassAdvertPage = ({pageArgs}) => {
                             }}
                             onUpdate={(nextValue) => {
                                 setSwitchingCampaignsFlag(true);
+                                setAvailableTagsPending(true);
+                                callApi('getAllTags', {
+                                    uid: getUid(),
+                                    campaignName: nextValue[0],
+                                })
+                                    .then((res) => {
+                                        if (!res) throw 'no response';
+                                        const {tags} = res['data'] ?? {};
+                                        tags.sort();
+                                        setAvailableTags(tags ?? []);
+                                    })
+                                    .catch((e) => {
+                                        console.log(e);
+                                    })
+                                    .finally(() => {
+                                        setAvailableTagsPending(false);
+                                    });
+
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi('getMassAdvertsNew', {
                                         uid: getUid(),
                                         dateRange: {from: '2023', to: '2024'},
                                         campaignName: nextValue,
-                                    }).then((res) => {
+                                    }).then(async (res) => {
                                         if (!res) return;
                                         const resData = res['data'];
                                         doc['campaigns'][nextValue[0]] =
@@ -9851,6 +9945,7 @@ export const MassAdvertPage = ({pageArgs}) => {
 
                                         setChangedDoc(doc);
                                         setSelectValue(nextValue);
+
                                         // recalc(dateRange, nextValue[0]);
 
                                         setSwitchingCampaignsFlag(false);

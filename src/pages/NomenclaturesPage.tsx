@@ -9,6 +9,7 @@ import {
     Pagination,
     Modal,
     Card,
+    List,
     TextInput,
     Label,
     Link,
@@ -323,6 +324,15 @@ export const NomenclaturesPage = ({pageArgs}) => {
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
+    const [availableTags, setAvailableTags] = useState([] as any[]);
+    const [availableTagsPending, setAvailableTagsPending] = useState(false);
+    const [tagsModalOpen, setTagsModalOpen] = useState(false);
+    const filterByButton = (val, key = 'tags', compMode = 'include') => {
+        filters[key] = {val: String(val), compMode: compMode};
+        setFilters(filters);
+        filterTableData(filters);
+    };
+
     useEffect(() => {
         setSelectedCampaign(selectValue[0]);
     }, [selectValue]);
@@ -629,6 +639,24 @@ export const NomenclaturesPage = ({pageArgs}) => {
         setSelectValue([selected]);
         console.log(doc);
 
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selected,
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+
         recalc(selected);
         setFirstRecalc(true);
     }
@@ -808,6 +836,24 @@ export const NomenclaturesPage = ({pageArgs}) => {
                             onUpdate={(nextValue) => {
                                 setSwitchingCampaignsFlag(true);
 
+                                setAvailableTagsPending(true);
+                                callApi('getAllTags', {
+                                    uid: getUid(),
+                                    campaignName: nextValue[0],
+                                })
+                                    .then((res) => {
+                                        if (!res) throw 'no response';
+                                        const {tags} = res['data'] ?? {};
+                                        tags.sort();
+                                        setAvailableTags(tags ?? []);
+                                    })
+                                    .catch((e) => {
+                                        console.log(e);
+                                    })
+                                    .finally(() => {
+                                        setAvailableTagsPending(false);
+                                    });
+
                                 if (!Object.keys(doc['nomenclatures'][nextValue[0]]).length) {
                                     callApi('getNomenclatures', {
                                         uid: getUid(),
@@ -840,6 +886,62 @@ export const NomenclaturesPage = ({pageArgs}) => {
                             <></>
                         )}
                         <div style={{minWidth: 8}} />
+
+                        <Button
+                            style={{cursor: 'pointer', marginBottom: '8px'}}
+                            view="action"
+                            loading={availableTagsPending}
+                            size="l"
+                            onClick={async () => {
+                                setTagsModalOpen(true);
+                            }}
+                        >
+                            <Icon data={Tag} />
+                            <Text variant="subheader-1">Теги</Text>
+                        </Button>
+                        <Modal
+                            open={tagsModalOpen}
+                            onClose={() => {
+                                setTagsModalOpen(false);
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    width: '30vw',
+                                    height: '60vh',
+                                    margin: 20,
+                                }}
+                            >
+                                {availableTagsPending ? (
+                                    <div></div>
+                                ) : (
+                                    <List
+                                        filterPlaceholder="Введите имя тега"
+                                        emptyPlaceholder="Такой тег отсутствует"
+                                        loading={availableTagsPending}
+                                        items={availableTags}
+                                        renderItem={(item) => {
+                                            return (
+                                                <Button
+                                                    size="xs"
+                                                    pin="circle-circle"
+                                                    selected
+                                                    view={'outlined-info'}
+                                                >
+                                                    {item.toUpperCase()}
+                                                </Button>
+                                            );
+                                        }}
+                                        onItemClick={(item) => {
+                                            filterByButton(item, 'tags');
+                                            setTagsModalOpen(false);
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        </Modal>
+                        <div style={{minWidth: 8}} />
                         <Button
                             view="action"
                             size="l"
@@ -850,7 +952,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
                             }}
                         >
                             <Icon data={Tag} />
-                            <Text variant="subheader-1">Теги</Text>
+                            <Text variant="subheader-1">Управление тегами</Text>
                         </Button>
                         <Modal open={tagsModalFormOpen} onClose={() => setTagsModalFormOpen(false)}>
                             <div

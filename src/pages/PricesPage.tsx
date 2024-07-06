@@ -10,6 +10,7 @@ import {
     Pagination,
     Modal,
     Card,
+    List,
     TextInput,
     Checkbox,
     Popover,
@@ -23,6 +24,7 @@ const b = block('app');
 
 import {
     ChevronDown,
+    Tag,
     Key,
     ArrowsRotateLeft,
     Box,
@@ -110,6 +112,10 @@ export const PricesPage = ({pageArgs}) => {
     const [selectedButton, setSelectedButton] = useState('');
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
+
+    const [availableTags, setAvailableTags] = useState([] as any[]);
+    const [availableTagsPending, setAvailableTagsPending] = useState(false);
+    const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
     const [calcUnitEconomyModalOpen, setCalcUnitEconomyModalOpen] = useState(false);
     const [unitEconomyParams, setUnitEconomyParams] = useState({
@@ -1048,6 +1054,24 @@ export const PricesPage = ({pageArgs}) => {
         setSelectValue([selected]);
         console.log(doc);
 
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selected,
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+
         recalc(selected);
         setFirstRecalc(true);
     }
@@ -1096,6 +1120,24 @@ export const PricesPage = ({pageArgs}) => {
                         }}
                         onUpdate={(nextValue) => {
                             setSwitchingCampaignsFlag(true);
+
+                            setAvailableTagsPending(true);
+                            callApi('getAllTags', {
+                                uid: getUid(),
+                                campaignName: nextValue[0],
+                            })
+                                .then((res) => {
+                                    if (!res) throw 'no response';
+                                    const {tags} = res['data'] ?? {};
+                                    tags.sort();
+                                    setAvailableTags(tags ?? []);
+                                })
+                                .catch((e) => {
+                                    console.log(e);
+                                })
+                                .finally(() => {
+                                    setAvailableTagsPending(false);
+                                });
 
                             if (!Object.keys(doc['pricesData'][nextValue[0]]).length) {
                                 callApi('getPricesMM', {
@@ -1147,6 +1189,61 @@ export const PricesPage = ({pageArgs}) => {
                         >
                             <Spin style={{marginLeft: 8}} />
                         </motion.div>
+                        <div style={{minWidth: 8}} />
+                        <Button
+                            style={{cursor: 'pointer'}}
+                            view="action"
+                            loading={availableTagsPending}
+                            size="l"
+                            onClick={async () => {
+                                setTagsModalOpen(true);
+                            }}
+                        >
+                            <Icon data={Tag} />
+                            <Text variant="subheader-1">Теги</Text>
+                        </Button>
+                        <Modal
+                            open={tagsModalOpen}
+                            onClose={() => {
+                                setTagsModalOpen(false);
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    width: '30vw',
+                                    height: '60vh',
+                                    margin: 20,
+                                }}
+                            >
+                                {availableTagsPending ? (
+                                    <div></div>
+                                ) : (
+                                    <List
+                                        filterPlaceholder="Введите имя тега"
+                                        emptyPlaceholder="Такой тег отсутствует"
+                                        loading={availableTagsPending}
+                                        items={availableTags}
+                                        renderItem={(item) => {
+                                            return (
+                                                <Button
+                                                    size="xs"
+                                                    pin="circle-circle"
+                                                    selected
+                                                    view={'outlined-info'}
+                                                >
+                                                    {item.toUpperCase()}
+                                                </Button>
+                                            );
+                                        }}
+                                        onItemClick={(item) => {
+                                            filterByClick(item, 'art');
+                                            setTagsModalOpen(false);
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        </Modal>
                         <div style={{minWidth: 8}} />
                         <Button
                             loading={updatingFlag}

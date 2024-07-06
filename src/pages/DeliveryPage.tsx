@@ -10,6 +10,7 @@ import {
     Pagination,
     Card,
     Modal,
+    List,
     TextInput,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
@@ -23,6 +24,7 @@ import {
     ChevronDown,
     Key,
     ArrowsRotateLeft,
+    Tag,
     Calculator,
     TrashBin,
     FileArrowDown,
@@ -207,6 +209,10 @@ export const DeliveryPage = ({pageArgs}) => {
 
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+
+    const [availableTags, setAvailableTags] = useState([] as any[]);
+    const [availableTagsPending, setAvailableTagsPending] = useState(false);
+    const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
@@ -887,6 +893,24 @@ export const DeliveryPage = ({pageArgs}) => {
         setSelectValue([selected]);
         console.log(doc);
 
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selected,
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+
         recalc(selected);
         setFirstRecalc(true);
     }
@@ -935,6 +959,23 @@ export const DeliveryPage = ({pageArgs}) => {
                         }}
                         onUpdate={(nextValue) => {
                             setSwitchingCampaignsFlag(true);
+                            setAvailableTagsPending(true);
+                            callApi('getAllTags', {
+                                uid: getUid(),
+                                campaignName: nextValue[0],
+                            })
+                                .then((res) => {
+                                    if (!res) throw 'no response';
+                                    const {tags} = res['data'] ?? {};
+                                    tags.sort();
+                                    setAvailableTags(tags ?? []);
+                                })
+                                .catch((e) => {
+                                    console.log(e);
+                                })
+                                .finally(() => {
+                                    setAvailableTagsPending(false);
+                                });
 
                             if (!Object.keys(doc['deliveryData'][nextValue[0]]).length) {
                                 callApi('getDeliveryOrders', {
@@ -984,6 +1025,61 @@ export const DeliveryPage = ({pageArgs}) => {
                         >
                             <Spin style={{marginLeft: 8}} />
                         </motion.div>
+                        <div style={{minWidth: 8}} />
+                        <Button
+                            style={{cursor: 'pointer'}}
+                            view="action"
+                            loading={availableTagsPending}
+                            size="l"
+                            onClick={async () => {
+                                setTagsModalOpen(true);
+                            }}
+                        >
+                            <Icon data={Tag} />
+                            <Text variant="subheader-1">Теги</Text>
+                        </Button>
+                        <Modal
+                            open={tagsModalOpen}
+                            onClose={() => {
+                                setTagsModalOpen(false);
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    width: '30vw',
+                                    height: '60vh',
+                                    margin: 20,
+                                }}
+                            >
+                                {availableTagsPending ? (
+                                    <div></div>
+                                ) : (
+                                    <List
+                                        filterPlaceholder="Введите имя тега"
+                                        emptyPlaceholder="Такой тег отсутствует"
+                                        loading={availableTagsPending}
+                                        items={availableTags}
+                                        renderItem={(item) => {
+                                            return (
+                                                <Button
+                                                    size="xs"
+                                                    pin="circle-circle"
+                                                    selected
+                                                    view={'outlined-info'}
+                                                >
+                                                    {item.toUpperCase()}
+                                                </Button>
+                                            );
+                                        }}
+                                        onItemClick={(item) => {
+                                            filterByClick(item, 'art');
+                                            setTagsModalOpen(false);
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        </Modal>
                         <div style={{minWidth: 8}} />
                         <Button
                             loading={updatingFlag}
