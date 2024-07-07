@@ -1630,6 +1630,9 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     const advertsBidsLog = res['data'];
                                     console.log(res);
 
+                                    if (advertsBidsLog)
+                                        advertsBidsLog.bids = advertsBidsLog.bids.reverse();
+
                                     // console.log(wordsForAdverts);
 
                                     doc.adverts[selectValue[0]][advertId].bidLog =
