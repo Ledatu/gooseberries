@@ -481,12 +481,6 @@ export const PricesPage = ({pageArgs}) => {
             group: true,
         },
         {
-            name: 'size',
-            placeholder: 'Размер',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'size'),
-        },
-        {
             name: 'brand',
             placeholder: 'Бренд',
             valueType: 'text',
@@ -791,7 +785,6 @@ export const PricesPage = ({pageArgs}) => {
 
             const artInfo = {
                 art: '',
-                size: 0,
                 object: '',
                 brand: '',
                 title: '',
@@ -827,7 +820,6 @@ export const PricesPage = ({pageArgs}) => {
                 allExpences: 0,
             };
             artInfo.art = artData['art'];
-            artInfo.size = artData['size'];
             artInfo.object = artData['object'];
             artInfo.brand = artData['brand'];
             artInfo.nmId = artData['nmId'];
