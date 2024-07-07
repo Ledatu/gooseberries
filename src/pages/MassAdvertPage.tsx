@@ -1632,7 +1632,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         }}
                                     >
                                         {advertsBidsLogFetchUpdate ? (
-                                            <Card
+                                            <div
                                                 view="raised"
                                                 style={{
                                                     display: 'flex',
@@ -1640,10 +1640,11 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                     alignItems: 'center',
                                                     width: '100%',
                                                     height: '100%',
+                                                    background: 'var(--g-color-base-background)',
                                                 }}
                                             >
                                                 <Loader size="l" />
-                                            </Card>
+                                            </div>
                                         ) : (
                                             <ChartKit type="yagr" data={yagrData} />
                                         )}
