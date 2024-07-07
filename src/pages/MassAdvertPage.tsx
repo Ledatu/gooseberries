@@ -1535,7 +1535,9 @@ export const MassAdvertPage = ({pageArgs}) => {
                     >
                         <Popover
                             onOpenChange={async (open) => {
-                                if (!open) return;
+                                if (!open) {
+                                    return;
+                                }
                                 const params = {
                                     uid: getUid(),
                                     campaignName: selectValue[0],
@@ -1594,22 +1596,41 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             display: 'flex',
                                         }}
                                     >
-                                        {advertsBidsLogFetchUpdate ? (
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    background: 'var(--g-color-base-background)',
-                                                }}
-                                            >
-                                                <Loader size="l" />
-                                            </div>
-                                        ) : (
+                                        <motion.div
+                                            style={{
+                                                left: 0,
+                                                top: 0,
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                width: '100%',
+                                                height: '100%',
+                                                position: 'absolute',
+                                                background: 'var(--g-color-base-background)',
+                                            }}
+                                        >
+                                            <Loader size="l" />
+                                        </motion.div>
+                                        <motion.div
+                                            animate={{opacity: advertsBidsLogFetchUpdate ? 0 : 1}}
+                                            transition={{duration: 0.2, ease: 'easeIn'}}
+                                            style={{
+                                                display: advertsBidsLogFetchUpdate
+                                                    ? 'none'
+                                                    : 'flex',
+                                                pointerEvents: advertsBidsLogFetchUpdate
+                                                    ? 'none'
+                                                    : undefined,
+                                                cursor: 'default',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                            }}
+                                        >
                                             <ChartKit type="yagr" data={yagrData} />
-                                        )}
+                                        </motion.div>
                                     </Card>
                                 </div>
                             }
