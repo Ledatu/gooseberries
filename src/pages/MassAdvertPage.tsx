@@ -4036,6 +4036,7 @@ export const MassAdvertPage = ({pageArgs}) => {
     useEffect(() => {
         setSelectedCampaign(selectValue[0]);
         setWordsFetchUpdate(true);
+        setAdvertsBidsLogFetchUpdate(true);
     }, [selectValue]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
@@ -4061,6 +4062,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 setChangedDoc(resData);
                 setChangedDocUpdateType(true);
                 setWordsFetchUpdate(true);
+                setAdvertsBidsLogFetchUpdate(true);
                 // console.log(response ? response['data'] : undefined);
             })
             .catch((error) => console.error(error));
@@ -4272,7 +4274,6 @@ export const MassAdvertPage = ({pageArgs}) => {
 
                     artInfo.sum_orders += dateData['sum_orders'];
                     artInfo.orders += dateData['orders'];
-                    if (artInfo.art == 'Ф7/серый') console.log(artInfo.orders);
 
                     artInfo.sum_sales += dateData['sum_sales'];
                     artInfo.sales += dateData['sales'];
@@ -4823,6 +4824,46 @@ export const MassAdvertPage = ({pageArgs}) => {
 
         fetchWords();
     }, [wordsFetchUpdate, firstRecalc]);
+
+    const [advertsBidsLogFetchUpdate, setAdvertsBidsLogFetchUpdate] = useState(false);
+    useEffect(() => {
+        console.log('here adverts');
+
+        if (!advertsBidsLogFetchUpdate || !selectValue[0] || !firstRecalc) return;
+        console.log('here adverts 2');
+        const fetchAdvertsBidsLog = async () => {
+            const params = {
+                uid: getUid(),
+                campaignName: selectValue[0],
+            };
+            console.log(params);
+            console.log('here adverts 3');
+
+            try {
+                const res = await callApi('getAdvertBidsLogs', params);
+                if (!res) throw 'its undefined';
+                const advertsBidsLog = res['data'];
+                console.log(res);
+
+                // console.log(wordsForAdverts);
+
+                if (doc.adverts[selectValue[0]] && advertsBidsLog) {
+                    for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
+                        doc.adverts[selectValue[0]][advertId].bidLog = advertsBidsLog[advertId] ?? {
+                            bids: [],
+                        };
+                    }
+                    setChangedDoc(doc);
+                }
+            } catch (error) {
+                console.error('Error fetching adverts bids logs:', error);
+            } finally {
+                setAdvertsBidsLogFetchUpdate(false);
+            }
+        };
+
+        fetchAdvertsBidsLog();
+    }, [advertsBidsLogFetchUpdate, firstRecalc]);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
     const openBudgetModalForm = () => {
