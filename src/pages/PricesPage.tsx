@@ -510,12 +510,6 @@ export const PricesPage = ({pageArgs}) => {
             valueType: 'text',
             render: (args) => renderFilterByClickButton(args, 'nmId'),
         },
-        {
-            name: 'barcode',
-            placeholder: 'Баркод',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'barcode'),
-        },
         {name: 'wbPrice', placeholder: 'Цена до, ₽'},
         {
             name: 'discount',

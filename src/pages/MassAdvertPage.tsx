@@ -1,4 +1,4 @@
-import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import {
     Spin,
     Button,
@@ -41,7 +41,6 @@ import {
     Star,
     LayoutHeader,
     ArrowsRotateLeft,
-    FileArrowUp,
     TriangleExclamation,
     ChartLine,
     ArrowRotateLeft,
@@ -327,80 +326,6 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [dzhemData, setDzhemData] = useState<any[]>([]);
     const [dzhemDataFilteredData, setDzhemDataFilteredData] = useState<any[]>([]);
     const [dzhemDataFilters, setDzhemDataFilters] = useState({undef: false});
-
-    const uploadId = useId();
-    const [uploadProgress, setUploadProgress] = useState(0);
-    async function handleChange(event) {
-        const file = event.target.files[0];
-
-        if (!file || !file.name.includes('.xlsx')) {
-            setUploadProgress(-1);
-            return;
-        }
-
-        // Check file size (example limit: 10MB)
-        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-        if (file.size > MAX_FILE_SIZE) {
-            console.error('File size exceeds the limit');
-            setUploadProgress(-1);
-            return;
-        }
-
-        event.preventDefault();
-        const url = 'https://aurum-mp.ru/api/uploadDzhemAlternative'; // New endpoint URL
-        const formData = new FormData();
-
-        formData.append('file', file);
-        formData.append('uid', getUid());
-        formData.append('campaignName', selectValue[0]);
-
-        const token =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            onUploadProgress: function (progressEvent) {
-                const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total,
-                );
-                setUploadProgress(percentCompleted);
-            },
-        };
-
-        try {
-            const response = await axios.post(url, formData, config);
-            console.log(response.data);
-            const dzhem = response.data;
-            doc.dzhemData[selectValue[0]] = dzhem;
-            setChangedDoc(doc);
-        } catch (error) {
-            console.error('Error uploading file: ', error);
-            if (error.response) {
-                // Server responded with a status other than 200 range
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-                console.error('Response headers:', error.response.headers);
-            } else if (error.request) {
-                // Request was made but no response received
-                console.error('Request data:', error.request);
-            } else {
-                // Something happened in setting up the request
-                console.error('Error message:', error.message);
-            }
-
-            // Capture detailed error for debugging
-            console.error({
-                message: error.message,
-                name: error.name,
-                stack: error.stack,
-                config: error.config,
-                code: error.code,
-                status: error.response ? error.response.status : null,
-            });
-        }
-    }
 
     const [dzhemDataFilteredSummary, setDzhemDataFilteredSummary] = useState({
         freq: 0,
@@ -10186,58 +10111,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                         <Text variant="subheader-1">Очистить фильтры</Text>
                     </Button>
                     <div style={{width: 8}} />
-                    <div>
-                        <label htmlFor={uploadId}>
-                            <Button
-                                size="l"
-                                onClick={() => {
-                                    setUploadProgress(0);
-                                }}
-                                style={{
-                                    cursor: 'pointer',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
-                                selected={uploadProgress === 100 || uploadProgress === -1}
-                                view={
-                                    uploadProgress === 100
-                                        ? 'flat-success'
-                                        : uploadProgress === -1
-                                        ? 'flat-danger'
-                                        : 'outlined-success'
-                                }
-                            >
-                                <Text
-                                    variant="subheader-1"
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <Icon data={FileArrowUp} size={20} />
-                                    <div style={{minWidth: 3}} />
-                                    Загрузить Джем
-                                    <input
-                                        id={uploadId}
-                                        style={{
-                                            opacity: 0,
-                                            position: 'absolute',
-                                            height: 40,
-                                            left: 0,
-                                        }}
-                                        type="file"
-                                        onChange={handleChange}
-                                    />
-                                </Text>
-                            </Button>
-                        </label>
-                    </div>
-                    <div style={{width: 8}} />
-
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                         <Button
                             style={{
