@@ -1609,6 +1609,41 @@ export const MassAdvertPage = ({pageArgs}) => {
                         }}
                     >
                         <Popover
+                            onOpenChange={async (open) => {
+                                if (!open) return;
+                                const params = {
+                                    uid: getUid(),
+                                    campaignName: selectValue[0],
+                                    advertId: advertId,
+                                    startDate: getLocaleDateString(dateRange[0]).slice(0, 10),
+                                    endDate: getLocaleDateString(dateRange[1]).slice(0, 10),
+                                };
+                                console.log(params);
+
+                                try {
+                                    setAdvertsBidsLogFetchUpdate(true);
+                                    const res = await callApi(
+                                        'getAdvertBidsLogsForAdvertId',
+                                        params,
+                                    );
+                                    if (!res) throw 'its undefined';
+                                    const advertsBidsLog = res['data'];
+                                    console.log(res);
+
+                                    // console.log(wordsForAdverts);
+
+                                    doc.adverts[selectValue[0]][advertId].bidLog =
+                                        advertsBidsLog ?? {
+                                            bids: [],
+                                        };
+
+                                    setChangedDoc(doc);
+                                } catch (error) {
+                                    console.error('Error fetching adverts bids logs:', error);
+                                } finally {
+                                    setAdvertsBidsLogFetchUpdate(false);
+                                }
+                            }}
                             content={
                                 <div
                                     style={{
@@ -4852,44 +4887,44 @@ export const MassAdvertPage = ({pageArgs}) => {
     }, [wordsFetchUpdate, firstRecalc]);
 
     const [advertsBidsLogFetchUpdate, setAdvertsBidsLogFetchUpdate] = useState(false);
-    useEffect(() => {
-        console.log('here adverts');
+    // useEffect(() => {
+    //     console.log('here adverts');
 
-        if (!advertsBidsLogFetchUpdate || !selectValue[0] || !firstRecalc) return;
-        console.log('here adverts 2');
-        const fetchAdvertsBidsLog = async () => {
-            const params = {
-                uid: getUid(),
-                campaignName: selectValue[0],
-            };
-            console.log(params);
-            console.log('here adverts 3');
+    //     if (!advertsBidsLogFetchUpdate || !selectValue[0] || !firstRecalc) return;
+    //     console.log('here adverts 2');
+    //     const fetchAdvertsBidsLog = async () => {
+    //         const params = {
+    //             uid: getUid(),
+    //             campaignName: selectValue[0],
+    //         };
+    //         console.log(params);
+    //         console.log('here adverts 3');
 
-            try {
-                const res = await callApi('getAdvertBidsLogs', params);
-                if (!res) throw 'its undefined';
-                const advertsBidsLog = res['data'];
-                console.log(res);
+    //         try {
+    //             const res = await callApi('getAdvertBidsLogs', params);
+    //             if (!res) throw 'its undefined';
+    //             const advertsBidsLog = res['data'];
+    //             console.log(res);
 
-                // console.log(wordsForAdverts);
+    //             // console.log(wordsForAdverts);
 
-                if (doc.adverts[selectValue[0]] && advertsBidsLog) {
-                    for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
-                        doc.adverts[selectValue[0]][advertId].bidLog = advertsBidsLog[advertId] ?? {
-                            bids: [],
-                        };
-                    }
-                    setChangedDoc(doc);
-                }
-            } catch (error) {
-                console.error('Error fetching adverts bids logs:', error);
-            } finally {
-                setAdvertsBidsLogFetchUpdate(false);
-            }
-        };
+    //             if (doc.adverts[selectValue[0]] && advertsBidsLog) {
+    //                 for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
+    //                     doc.adverts[selectValue[0]][advertId].bidLog = advertsBidsLog[advertId] ?? {
+    //                         bids: [],
+    //                     };
+    //                 }
+    //                 setChangedDoc(doc);
+    //             }
+    //         } catch (error) {
+    //             console.error('Error fetching adverts bids logs:', error);
+    //         } finally {
+    //             setAdvertsBidsLogFetchUpdate(false);
+    //         }
+    //     };
 
-        fetchAdvertsBidsLog();
-    }, [advertsBidsLogFetchUpdate, firstRecalc]);
+    //     fetchAdvertsBidsLog();
+    // }, [advertsBidsLogFetchUpdate, firstRecalc]);
     // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
     const openBudgetModalForm = () => {
