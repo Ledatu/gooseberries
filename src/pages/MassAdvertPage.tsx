@@ -19,6 +19,7 @@ import {
     List,
     Checkbox,
     Tooltip,
+    Loader,
 } from '@gravity-ui/uikit';
 import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
@@ -1018,14 +1019,24 @@ export const MassAdvertPage = ({pageArgs}) => {
         const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
         const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
         if (!advertData) return <></>;
-        const {advertId, status, words, budget, bidLog, daysInWork, type, budgetLog, pregenerated} =
-            advertData;
+        const {
+            advertId,
+            status,
+            words,
+            budget,
+            bidLog,
+            daysInWork,
+            type,
+            budgetLog,
+            pregenerated,
+            cpm,
+        } = advertData;
         if (![4, 9, 11].includes(status)) return <></>;
 
         const semantics = words;
 
         const curBudget = budget;
-        let curCpm = 0;
+        let curCpm = cpm;
         // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
         const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
@@ -1620,7 +1631,22 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             display: 'flex',
                                         }}
                                     >
-                                        <ChartKit type="yagr" data={yagrData} />
+                                        {advertsBidsLogFetchUpdate ? (
+                                            <Card
+                                                view="raised"
+                                                style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    width: '100%',
+                                                    height: '100%',
+                                                }}
+                                            >
+                                                <Loader size="l" />
+                                            </Card>
+                                        ) : (
+                                            <ChartKit type="yagr" data={yagrData} />
+                                        )}
                                     </Card>
                                 </div>
                             }
