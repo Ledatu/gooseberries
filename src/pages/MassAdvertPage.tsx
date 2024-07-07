@@ -1633,7 +1633,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     >
                                         {advertsBidsLogFetchUpdate ? (
                                             <div
-                                                view="raised"
                                                 style={{
                                                     display: 'flex',
                                                     justifyContent: 'center',
