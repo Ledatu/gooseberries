@@ -17,6 +17,37 @@ export const getLocaleDateString = (date, autoSlice = 10) => {
     return autoSlice ? str.slice(0, autoSlice) : str;
 };
 
+export const getDateFromLocaleString = (str) => {
+    const date = str;
+    const isoDate = date.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1').slice(0, 10);
+    const res = new Date(`${isoDate}T00:00:00.000Z`);
+    return res;
+};
+
+export const getDateFromLocaleMonthName = (monthName, year) => {
+    const monthMap = {
+        январь: 0,
+        февраль: 1,
+        март: 2,
+        апрель: 3,
+        май: 4,
+        июнь: 5,
+        июль: 6,
+        август: 7,
+        сентябрь: 8,
+        октябрь: 9,
+        ноябрь: 10,
+        декабрь: 11,
+    };
+
+    const monthNumber = monthMap[monthName.toLowerCase()];
+    if (monthNumber === undefined) {
+        throw new Error('Invalid month name');
+    }
+
+    return new Date(year, monthNumber);
+};
+
 export const getNormalDateRange = (dateRange) => {
     const res = {};
     res['lbd'] = getLocaleDateString(dateRange[0]);

@@ -41,6 +41,8 @@ import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
 import {
     daysInMonth,
+    getDateFromLocaleMonthName,
+    getDateFromLocaleString,
     getMonthName,
     getNormalDateRange,
     getRoundValue,
@@ -887,7 +889,29 @@ export const AnalyticsPage = ({pageArgs}) => {
         };
 
         temp.sort((rowA, rowB) => {
-            return new Date(rowA.date).getTime() - new Date(rowB.date).getTime();
+            let dateA, dateB;
+            const dots = rowA.date.split('.').length - 1;
+            console.log(dots);
+
+            if (dots == 2) {
+                dateA = getDateFromLocaleString(rowA.date);
+                dateB = getDateFromLocaleString(rowB.date);
+            }
+            if (dots == 4) {
+                dateA = getDateFromLocaleString(rowA.date.slice(0, 10));
+                dateB = getDateFromLocaleString(rowB.date.slice(0, 10));
+
+                console.log(dateA, dateB, rowA.date.slice(0, 10));
+            }
+            if (dots == 0) {
+                const monthA = rowA.date.split(' ');
+                const monthB = rowB.date.split(' ');
+
+                dateA = getDateFromLocaleMonthName(monthA[0], monthA[1]);
+                dateB = getDateFromLocaleMonthName(monthB[0], monthB[1]);
+            }
+
+            return dateB.getTime() - dateA.getTime();
         });
 
         for (const row of temp) {
