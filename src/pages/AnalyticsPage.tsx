@@ -994,7 +994,25 @@ export const AnalyticsPage = ({pageArgs}) => {
             );
             summaryAdd(row, 'rentabelnost', getRoundValue(row['profit'], row['sum_orders'], true));
 
-            const time = new Date(row['date']);
+            const getDate = (inputDate) => {
+                let date = inputDate;
+                const dots = inputDate.split('.').length - 1;
+
+                if (dots == 2) {
+                    date = getDateFromLocaleString(date);
+                }
+                if (dots == 4) {
+                    date = getDateFromLocaleString(date.slice(0, 10));
+                }
+                if (dots == 0) {
+                    const month = date.split(' ');
+                    date = getDateFromLocaleMonthName(month[0], month[1]);
+                }
+                return date;
+            };
+
+            const time = getDate(row['date']);
+
             time.setHours(0);
             summaries[entity]['graphData']['timeline'].push(time.getTime());
             // console.log(time, summaries[entity]['graphData']['timeline']);
