@@ -891,7 +891,6 @@ export const AnalyticsPage = ({pageArgs}) => {
         temp.sort((rowA, rowB) => {
             let dateA, dateB;
             const dots = rowA.date.split('.').length - 1;
-            console.log(dots);
 
             if (dots == 2) {
                 dateA = getDateFromLocaleString(rowA.date);
@@ -900,8 +899,6 @@ export const AnalyticsPage = ({pageArgs}) => {
             if (dots == 4) {
                 dateA = getDateFromLocaleString(rowA.date.slice(0, 10));
                 dateB = getDateFromLocaleString(rowB.date.slice(0, 10));
-
-                console.log(dateA, dateB, rowA.date.slice(0, 10));
             }
             if (dots == 0) {
                 const monthA = rowA.date.split(' ');
