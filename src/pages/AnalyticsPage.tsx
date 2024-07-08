@@ -195,12 +195,10 @@ export const AnalyticsPage = ({pageArgs}) => {
                             </div>
                         }
                     >
-                        <Text color="brand">
-                            {new Date(value).toLocaleDateString('ru-RU').slice(0, 10)}
-                        </Text>
+                        <Text color="brand">{value}</Text>
                     </Popover>
                 ) : (
-                    new Date(value).toLocaleDateString('ru-RU').slice(0, 10)
+                    value
                 );
             },
         },
@@ -548,6 +546,8 @@ export const AnalyticsPage = ({pageArgs}) => {
         art: false,
         tags: false,
     });
+
+    const [enteredKeysDateType, setEnteredKeysDateType] = useState('day');
 
     const getEnteredKeys = () => {
         const keys = [] as string[];
@@ -1896,7 +1896,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                         <Card
                             view="clear"
                             style={{
-                                width: 300,
+                                width: 350,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
@@ -1926,7 +1926,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                                             display: 'flex',
                                             flexDirection: 'row',
                                             alignItems: 'center',
-                                            width: '100%',
+                                            width: 'calc(100% + 8px)',
                                         }}
                                     >
                                         {generateSelectButton({
@@ -1953,7 +1953,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                                             display: 'flex',
                                             flexDirection: 'row',
                                             alignItems: 'center',
-                                            width: '100%',
+                                            width: 'calc(100% + 8px)',
                                         }}
                                     >
                                         {generateSelectButton({
@@ -1980,7 +1980,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                                             display: 'flex',
                                             flexDirection: 'row',
                                             alignItems: 'center',
-                                            width: '100%',
+                                            width: 'calc(100% + 8px)',
                                         }}
                                     >
                                         {generateSelectButton({
@@ -1991,7 +1991,39 @@ export const AnalyticsPage = ({pageArgs}) => {
                                         })}
                                     </div>
                                 </div>
-                                <div style={{minHeight: 8}} />
+                                <div style={{minHeight: 4}} />
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: 'calc(100% - 32px)',
+                                    }}
+                                >
+                                    <Button
+                                        pin="round-brick"
+                                        selected={enteredKeysDateType == 'day'}
+                                        onClick={() => setEnteredKeysDateType('day')}
+                                    >
+                                        <Text variant="subheader-1">По дням</Text>
+                                    </Button>
+                                    <Button
+                                        pin="brick-brick"
+                                        selected={enteredKeysDateType == 'week'}
+                                        onClick={() => setEnteredKeysDateType('week')}
+                                    >
+                                        <Text variant="subheader-1">По неделям</Text>
+                                    </Button>
+                                    <Button
+                                        pin="brick-round"
+                                        selected={enteredKeysDateType == 'month'}
+                                        onClick={() => setEnteredKeysDateType('month')}
+                                    >
+                                        <Text variant="subheader-1">По месяцам</Text>
+                                    </Button>
+                                </div>
+                                <div style={{minHeight: 12}} />
                                 <Button
                                     size="l"
                                     view="action"
@@ -2001,7 +2033,10 @@ export const AnalyticsPage = ({pageArgs}) => {
                                             uid: getUid(),
                                             campaignName: selectValue[0],
                                             dateRange: getNormalDateRange(dateRange),
-                                            enteredValues: {entityKeys: getEnteredKeys()},
+                                            enteredValues: {
+                                                entityKeys: getEnteredKeys(),
+                                                dateType: enteredKeysDateType,
+                                            },
                                         };
 
                                         console.log(params);
