@@ -1543,8 +1543,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     uid: getUid(),
                                     campaignName: selectValue[0],
                                     advertId: advertId,
-                                    startDate: dateRange[0].toISOString().slice(0, 10),
-                                    endDate: dateRange[1].toISOString().slice(0, 10),
+                                    startDate: getLocaleDateString(dateRange[0], 10),
+                                    endDate: getLocaleDateString(dateRange[1], 10),
                                 };
                                 console.log(params);
 
