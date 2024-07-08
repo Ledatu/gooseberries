@@ -959,9 +959,9 @@ export const MassAdvertPage = ({pageArgs}) => {
         if (![4, 9, 11].includes(status)) return <></>;
 
         const semantics = words;
+        const curCpm = cpm;
 
         const curBudget = budget;
-        let curCpm = cpm;
         // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
         const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
@@ -999,9 +999,10 @@ export const MassAdvertPage = ({pageArgs}) => {
         if (bidLogType) {
             for (let i = 1; i < bidLogType.bids.length; i++) {
                 const {val} = bidLogType.bids[i - 1];
-                curCpm = val;
                 const {time, index, cpmIndex, position} = bidLogType.bids[i];
                 if (!time || !val) continue;
+
+                // curCpm = val;
 
                 const timeObj = new Date(time);
                 const rbd = new Date(dateRange[1]);
