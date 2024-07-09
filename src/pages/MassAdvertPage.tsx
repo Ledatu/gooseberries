@@ -2578,7 +2578,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                         </Text>
                     );
                 }
-                const {placementsValue, stocksBySizes, profitLog} = row ?? {};
+                const {placementsValue, stocksBySizes, profit} = row ?? {};
+                const sumOrders = row['sum_orders'];
 
                 // if (!placementsValue) return undefined;
                 const {reviewRating, sizes, feedbacks, phrase} = placementsValue ?? {};
@@ -2975,37 +2976,33 @@ export const MassAdvertPage = ({pageArgs}) => {
                         ) : (
                             <></>
                         )}
-                        {profitLog ? (
-                            <Button
+                        <Button
+                            style={{
+                                width: 120,
+                                overflow: 'hidden',
+                            }}
+                            width="max"
+                            size="xs"
+                            view={'outlined'}
+                            pin="clear-clear"
+                        >
+                            <div
                                 style={{
-                                    width: 120,
-                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
                                 }}
-                                width="max"
-                                size="xs"
-                                view={'outlined'}
-                                pin="clear-clear"
                             >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <Text
-                                        color={profitLog.profit > 0 ? 'positive' : 'danger'}
-                                    >{`${new Intl.NumberFormat('ru-RU').format(
-                                        profitLog['profit'],
-                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                        profitLog['rentabelnost'],
-                                    )}%`}</Text>
-                                </div>
-                            </Button>
-                        ) : (
-                            <></>
-                        )}
+                                <Text
+                                    color={profit > 0 ? 'positive' : 'danger'}
+                                >{`${new Intl.NumberFormat('ru-RU').format(
+                                    Math.round(profit),
+                                )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                    getRoundValue(profit, sumOrders, true),
+                                )}%`}</Text>
+                            </div>
+                        </Button>
                     </Card>
                 );
             },
@@ -4217,6 +4214,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 cpm: 0,
                 cr: 0,
                 cpo: 0,
+                profit: 0,
                 sales: 0,
                 sum_sales: 0,
                 openCardCount: 0,
@@ -4291,6 +4289,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                     artInfo.sum += dateData['sum'];
                     artInfo.views += dateData['views'];
                     artInfo.clicks += dateData['clicks'];
+                    artInfo.profit += dateData['profit'];
 
                     // console.log(
                     //     artData['nmFullDetailReport']
