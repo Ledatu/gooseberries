@@ -390,7 +390,6 @@ export const AnalyticsPage = ({pageArgs}) => {
                     date = getDateFromLocaleString(date.slice(0, 10));
                 } else if (dots == 0) {
                     const month = date.split(' ');
-                    console.log(month, date, dots);
                     date = getDateFromLocaleMonthName(month[0], month[1]);
                 }
             } else {
