@@ -18,6 +18,7 @@ export const getLocaleDateString = (date, autoSlice = 10) => {
 };
 
 export const getDateFromLocaleString = (str) => {
+    if (!str) return new Date(`2100-01-01T00:00:00.000Z`);
     const date = str;
     const isoDate = date.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1').slice(0, 10);
     const res = new Date(`${isoDate}T00:00:00.000Z`);

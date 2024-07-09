@@ -946,7 +946,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                 dateB = getDateFromLocaleMonthName(monthB[0], monthB[1]);
             }
 
-            return dateB.getTime() - dateA.getTime();
+            return dateA.getTime() - dateB.getTime();
         });
 
         for (const row of temp) {
@@ -1229,7 +1229,34 @@ export const AnalyticsPage = ({pageArgs}) => {
         });
 
         temp.sort((rowA, rowB) => {
-            return new Date(rowB.date).getTime() - new Date(rowA.date).getTime();
+            if (rowA.isBlank && rowB.isBlank) return 0;
+            if (rowA.isBlank) return 1;
+            if (rowB.isBlank) return -1;
+
+            if (rowA.date == undefined && rowB.date == undefined) return 0;
+            if (rowA.date == undefined) return -1;
+            if (rowB.date == undefined) return 1;
+
+            let dateA, dateB;
+            const dots = rowA.date.split('.').length - 1;
+
+            if (dots == 2) {
+                dateA = getDateFromLocaleString(rowA.date);
+                dateB = getDateFromLocaleString(rowB.date);
+            }
+            if (dots == 4) {
+                dateA = getDateFromLocaleString(rowA.date.slice(0, 10));
+                dateB = getDateFromLocaleString(rowB.date.slice(0, 10));
+            }
+            if (dots == 0) {
+                const monthA = rowA.date.split(' ');
+                const monthB = rowB.date.split(' ');
+
+                dateA = getDateFromLocaleMonthName(monthA[0], monthA[1]);
+                dateB = getDateFromLocaleMonthName(monthB[0], monthB[1]);
+            }
+
+            return dateB.getTime() - dateA.getTime();
         });
 
         temp.sort((rowA, rowB) => {
