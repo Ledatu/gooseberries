@@ -43,6 +43,7 @@ import {
     daysInMonth,
     getDateFromLocaleMonthName,
     getDateFromLocaleString,
+    getLocaleDateString,
     getMonthName,
     getNormalDateRange,
     getRoundValue,
@@ -376,7 +377,26 @@ export const AnalyticsPage = ({pageArgs}) => {
 
         const {graphData, entity} = row;
 
-        const getDayPlanForDate = (date, argEntity = '') => {
+        const getDayPlanForDate = (inputDate, argEntity = '') => {
+            if (!inputDate) return 0;
+            const dots = inputDate.split('.').length - 1;
+            const dashes = inputDate.split('-').length - 1;
+
+            let date = inputDate;
+            if (dashes != 2) {
+                if (dots == 2) {
+                    date = getDateFromLocaleString(date);
+                } else if (dots == 4) {
+                    date = getDateFromLocaleString(date.slice(0, 10));
+                } else if (dots == 0) {
+                    const month = date.split(' ');
+                    console.log(month, date, dots);
+                    date = getDateFromLocaleMonthName(month[0], month[1]);
+                }
+            } else {
+                date = new Date(inputDate);
+            }
+
             const _entity = argEntity != '' ? argEntity : entity;
             const monthName = getMonthName(date);
 
@@ -387,11 +407,31 @@ export const AnalyticsPage = ({pageArgs}) => {
                     ? doc.plansData[selectValue[0]][_entity][key][monthName]
                     : {dayPlan: 0};
 
+            if (
+                _entity == '#F.F.+ФУТБОЛКИ-ПОЛО+ЛЕТО+188950637' &&
+                key == 'orders' &&
+                doc.plansData[selectValue[0]][_entity]
+            )
+                console.log(
+                    inputDate,
+                    date,
+                    dayPlan,
+                    _entity,
+                    key,
+                    monthName,
+                    doc.plansData[selectValue[0]][_entity][key][monthName],
+                    doc.plansData[selectValue[0]][_entity]
+                        ? doc.plansData[selectValue[0]][_entity][key]
+                            ? doc.plansData[selectValue[0]][_entity][key][monthName]
+                            : -1
+                        : -1,
+                );
+
             return dayPlan;
         };
 
         const planDefaultRender = (dayPlanPreCalc = 0) => {
-            const dayPlan = dayPlanPreCalc ? dayPlanPreCalc : getDayPlanForDate(new Date(row.date));
+            const dayPlan = dayPlanPreCalc ? dayPlanPreCalc : getDayPlanForDate(row.date);
 
             const planPercent = getRoundValue(value, dayPlan, true);
             let percentColorTemp = 'primary';
@@ -439,8 +479,7 @@ export const AnalyticsPage = ({pageArgs}) => {
             const _entity = argEntity != '' ? argEntity : entity;
             let res = 0;
             for (const time of _graphData['timeline']) {
-                const date = new Date(time);
-                const dayPlan = getDayPlanForDate(date, _entity);
+                const dayPlan = getDayPlanForDate(getLocaleDateString(new Date(time), 10), _entity);
                 res += dayPlan ?? 0;
             }
             const divider = planType == 'avg' ? _graphData['timeline'].length : 1;
@@ -1000,12 +1039,11 @@ export const AnalyticsPage = ({pageArgs}) => {
 
                 if (dots == 2) {
                     date = getDateFromLocaleString(date);
-                }
-                if (dots == 4) {
+                } else if (dots == 4) {
                     date = getDateFromLocaleString(date.slice(0, 10));
-                }
-                if (dots == 0) {
+                } else if (dots == 0) {
                     const month = date.split(' ');
+                    console.log(month, date, dots);
                     date = getDateFromLocaleMonthName(month[0], month[1]);
                 }
                 return date;
