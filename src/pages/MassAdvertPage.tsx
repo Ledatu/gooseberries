@@ -4352,10 +4352,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 summaryTemp.openCardCount += artInfo.openCardCount;
                 summaryTemp.orders += artInfo.orders;
 
-                summaryTemp.profitTemp += Math.round(
-                    ((artInfo.orders * (artInfo.expectedBuyoutsPersent ?? 0)) / 100) *
-                        (artInfo.profitLog ? artInfo.profitLog['profit'] ?? 0 : 0) ?? 0,
-                );
+                summaryTemp.profitTemp += Math.round(artInfo.profit);
             }
 
             temp[art] = artInfo;
@@ -4694,11 +4691,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             filteredSummaryTemp.sum += row['sum'];
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
-            filteredSummaryTemp.analytics += Math.round(
-                (row['orders'] ?? 0) *
-                    (row['expectedBuyoutsPersent'] / 100 ?? 0) *
-                    ((row['profitLog'] ? row['profitLog']['profit'] : 0) ?? 0) ?? 0,
-            );
+            filteredSummaryTemp.analytics += Math.round(row['profit'] ?? 0);
             filteredSummaryTemp.budget += row['budget'] ?? 0;
             filteredSummaryTemp.openCardCount += row['openCardCount'];
             filteredSummaryTemp.addToCartCount += row['addToCartCount'];
