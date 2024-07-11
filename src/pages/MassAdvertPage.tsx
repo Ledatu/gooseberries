@@ -4691,7 +4691,14 @@ export const MassAdvertPage = ({pageArgs}) => {
             filteredSummaryTemp.sum += row['sum'];
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
+            // if (row['art'] == 'страйп/15/16-1406')
+            //     console.log(
+            //         row['profit'],
+            //         filteredSummaryTemp.analytics,
+            //         filteredSummaryTemp.analytics + Math.round(row['profit'] ?? 0),
+            //     );
             filteredSummaryTemp.analytics += Math.round(row['profit'] ?? 0);
+
             filteredSummaryTemp.budget += row['budget'] ?? 0;
             filteredSummaryTemp.openCardCount += row['openCardCount'];
             filteredSummaryTemp.addToCartCount += row['addToCartCount'];

@@ -39,7 +39,7 @@ import axios from 'axios';
 import TheTable, {compare} from 'src/components/TheTable';
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import Userfront from '@userfront/toolkit';
-import {renderAsPercent} from 'src/utilities/getRoundValue';
+import {getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -110,17 +110,20 @@ export const NomenclaturesPage = ({pageArgs}) => {
         );
     };
 
-    const generateEditButton = (key) => {
+    const generateEditButton = (key, onClick = undefined as any) => {
         return (
             <Button
                 style={{marginLeft: 5}}
                 view="outlined"
                 onClick={(event) => {
-                    event.stopPropagation();
-                    setEnteredValueModalOpen(true);
-                    setEnteredValue('');
-                    setSelectedButton('');
-                    setEnteredValueKey(key);
+                    if (onClick) onClick(event);
+                    else {
+                        event.stopPropagation();
+                        setEnteredValueModalOpen(true);
+                        setEnteredValue('');
+                        setSelectedButton('');
+                        setEnteredValueKey(key);
+                    }
                 }}
             >
                 <Icon data={Pencil} />
@@ -214,6 +217,10 @@ export const NomenclaturesPage = ({pageArgs}) => {
             render: (args) => renderFilterByClickButton(args, 'barcode'),
         },
         {
+            name: 'volume',
+            placeholder: 'Объём, л.',
+        },
+        {
             name: 'tags',
             placeholder: 'Теги',
             valueType: 'text',
@@ -243,6 +250,12 @@ export const NomenclaturesPage = ({pageArgs}) => {
                 }
                 return <div style={{display: 'flex', flexDirection: 'row'}}>{tags}</div>;
             },
+            additionalNodes: [
+                generateEditButton('tags', () => {
+                    setTagsModalFormOpen(true);
+                    setSelectedButton('');
+                }),
+            ],
         },
         {
             name: 'factoryArt',
@@ -254,21 +267,6 @@ export const NomenclaturesPage = ({pageArgs}) => {
             name: 'multiplicity',
             placeholder: 'Кратность короба, шт.',
             additionalNodes: [generateEditButton('multiplicity')],
-        },
-        {
-            name: 'length',
-            placeholder: 'Длина, см.',
-            additionalNodes: [generateEditButton('length')],
-        },
-        {
-            name: 'width',
-            placeholder: 'Ширина, см.',
-            additionalNodes: [generateEditButton('width')],
-        },
-        {
-            name: 'height',
-            placeholder: 'Высота, см.',
-            additionalNodes: [generateEditButton('height')],
         },
         {name: 'weight', placeholder: 'Вес, кг.', additionalNodes: [generateEditButton('weight')]},
         {
@@ -428,9 +426,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
                 prices: 0,
                 factoryArt: undefined,
                 multiplicity: undefined,
-                length: undefined,
-                width: undefined,
-                height: undefined,
+                volume: 0,
                 ktr: undefined,
                 weight: undefined,
                 primeCost1: undefined,
@@ -459,9 +455,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
             artInfo.prices = artDataUploaded['prices'];
             artInfo.factoryArt = artDataUploaded['factoryArt'];
             artInfo.multiplicity = artDataUploaded['multiplicity'];
-            artInfo.length = artDataUploaded['length'];
-            artInfo.width = artDataUploaded['width'];
-            artInfo.height = artDataUploaded['height'];
+            artInfo.volume = getRoundValue(artDataUploaded['volume'], 10, true) / 100;
             artInfo.weight = artDataUploaded['weight'];
             artInfo.commision = artDataUploaded['commision'];
             artInfo.tax = artDataUploaded['tax'];
@@ -941,19 +935,6 @@ export const NomenclaturesPage = ({pageArgs}) => {
                                 )}
                             </div>
                         </Modal>
-                        <div style={{minWidth: 8}} />
-                        <Button
-                            view="action"
-                            size="l"
-                            style={{marginRight: 8, marginBottom: 8}}
-                            onClick={() => {
-                                setTagsModalFormOpen(true);
-                                setSelectedButton('');
-                            }}
-                        >
-                            <Icon data={Tag} />
-                            <Text variant="subheader-1">Управление тегами</Text>
-                        </Button>
                         <Modal open={tagsModalFormOpen} onClose={() => setTagsModalFormOpen(false)}>
                             <div
                                 style={{
