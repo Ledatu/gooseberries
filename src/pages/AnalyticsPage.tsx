@@ -578,6 +578,8 @@ export const AnalyticsPage = ({pageArgs}) => {
         localStorage.setItem('apiPageColumns', JSON.stringify(apiPageColumns));
     }, [apiPageColumns]);
 
+    const [calculatingAutoPlansFlag, setCalculatingAutoPlansFlag] = useState(false);
+
     const [calculatingFlag, setCalculatingFlag] = useState(false);
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
     const [enteredKeysCheck, setEnteredKeysCheck] = useState({
@@ -589,6 +591,7 @@ export const AnalyticsPage = ({pageArgs}) => {
         art: false,
         tags: false,
     });
+    const [entityKeysLastCalc, setEntityKeysLastCalc] = useState([] as any[]);
 
     const [enteredKeysDateType, setEnteredKeysDateType] = useState('day');
 
@@ -1910,7 +1913,6 @@ export const AnalyticsPage = ({pageArgs}) => {
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="action"
-                        loading={availableTagsPending}
                         size="l"
                         onClick={async () => {
                             setTagsModalOpen(true);
@@ -1968,11 +1970,25 @@ export const AnalyticsPage = ({pageArgs}) => {
                         onClick={async () => {
                             setAutoPlanModalOpen(true);
                             setCurrenrPlanModalMetrics([]);
+                            setPlanModalPlanValue('');
+                            setPlanModalPlanValueValid(false);
                         }}
                     >
                         <Icon data={FileText} />
                         <Text variant="subheader-1">Автопланы</Text>
                     </Button>
+                    <motion.div
+                        style={{
+                            overflow: 'hidden',
+                            marginTop: 4,
+                        }}
+                        animate={{
+                            maxWidth: calculatingAutoPlansFlag ? 40 : 0,
+                            opacity: calculatingAutoPlansFlag ? 1 : 0,
+                        }}
+                    >
+                        <Spin style={{marginLeft: 8}} />
+                    </motion.div>
                     <Modal
                         open={autoPlanModalOpen}
                         onClose={() => {
@@ -2031,21 +2047,24 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 <div style={{minHeight: 8}} />
                                 {generateModalButtonWithActions(
                                     {
-                                        // disabled: !planModalPlanValueValid,
-                                        disabled: true,
+                                        disabled: !planModalPlanValueValid,
                                         placeholder: 'Установить план',
                                         icon: CloudArrowUpIn,
                                         view: 'outlined-success',
                                         onClick: () => {
                                             const monthName = getMonthName(new Date());
-                                            const dayPlan = getPlanDay(planModalKey);
+                                            const percentage = planModalPlanValue;
                                             const params = {
                                                 uid: getUid(),
                                                 campaignName: selectValue[0],
                                                 data: {
+                                                    enteredValues: {
+                                                        entityKeys: entityKeysLastCalc,
+                                                        dateType: 'month',
+                                                    },
                                                     plan: {
                                                         monthName,
-                                                        dayPlan,
+                                                        percentage,
                                                     },
                                                     mode: 'Установить',
                                                     entities: [] as any[],
@@ -2062,7 +2081,15 @@ export const AnalyticsPage = ({pageArgs}) => {
                                             console.log(params);
 
                                             //////////////////////////////////
-                                            callApi('setAutoPlanForKeys', params);
+                                            setCalculatingAutoPlansFlag(true);
+                                            callApi('setAutoPlanForKeys', params)
+                                                .then((res) => {
+                                                    if (!res || !res['data']) return;
+                                                    doc['plansData'][selectValue[0]] = res['data'];
+                                                })
+                                                .finally(() => {
+                                                    setCalculatingAutoPlansFlag(false);
+                                                });
                                             setChangedDoc(doc);
                                             //////////////////////////////////
 
@@ -2074,20 +2101,19 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 )}
                                 {generateModalButtonWithActions(
                                     {
-                                        disabled: true,
                                         placeholder: 'Удалить план',
                                         icon: TrashBin,
                                         view: 'outlined-danger',
                                         onClick: () => {
                                             const monthName = getMonthName(new Date());
-                                            const dayPlan = getPlanDay(planModalKey);
+                                            const percentage = planModalPlanValue;
                                             const params = {
                                                 uid: getUid(),
                                                 campaignName: selectValue[0],
                                                 data: {
                                                     plan: {
                                                         monthName,
-                                                        dayPlan,
+                                                        percentage,
                                                     },
                                                     mode: 'Удалить',
                                                     entities: [] as any[],
@@ -2104,7 +2130,16 @@ export const AnalyticsPage = ({pageArgs}) => {
                                             console.log(params);
 
                                             //////////////////////////////////
-                                            callApi('setAutoPlanForKeys', params);
+                                            setCalculatingAutoPlansFlag(true);
+                                            callApi('setAutoPlanForKeys', params)
+                                                .then((res) => {
+                                                    if (!res || !res['data']) return;
+
+                                                    doc['plansData'][selectValue[0]] = res['data'];
+                                                })
+                                                .finally(() => {
+                                                    setCalculatingAutoPlansFlag(false);
+                                                });
                                             setChangedDoc(doc);
                                             //////////////////////////////////
 
@@ -2386,12 +2421,14 @@ export const AnalyticsPage = ({pageArgs}) => {
                                     view="action"
                                     onClick={() => {
                                         setCalculatingFlag(true);
+                                        const entityKeys = getEnteredKeys();
+                                        setEntityKeysLastCalc(entityKeys);
                                         const params = {
                                             uid: getUid(),
                                             campaignName: selectValue[0],
                                             dateRange: getNormalDateRange(dateRange),
                                             enteredValues: {
-                                                entityKeys: getEnteredKeys(),
+                                                entityKeys: entityKeys,
                                                 dateType: enteredKeysDateType,
                                             },
                                         };
@@ -2405,6 +2442,8 @@ export const AnalyticsPage = ({pageArgs}) => {
 
                                             doc['analyticsData'][selectValue[0]] =
                                                 resData['analyticsData'][selectValue[0]];
+                                            doc['plansData'][selectValue[0]] =
+                                                resData['plansData'][selectValue[0]];
 
                                             setChangedDoc(doc);
                                             setCalculatingFlag(false);
