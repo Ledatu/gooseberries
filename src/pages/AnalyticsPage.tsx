@@ -93,6 +93,9 @@ export const AnalyticsPage = ({pageArgs}) => {
     const anchorRef = useRef(null);
     const [rangePickerOpen, setRangePickerOpen] = useState(false);
 
+    const [autoPlanModalOpen, setAutoPlanModalOpen] = useState(false);
+    const [currenrPlanModalMetrics, setCurrenrPlanModalMetrics] = useState([] as any[]);
+
     const [planModalOpen, setPlanModalOpen] = useState(false);
     const [planModalOpenFromEntity, setPlanModalOpenFromEntity] = useState('');
     const [planModalKey, setPlanModalKey] = useState('');
@@ -1958,6 +1961,255 @@ export const AnalyticsPage = ({pageArgs}) => {
                             )}
                         </div>
                     </Modal>
+                    <Button
+                        view="action"
+                        loading={availableTagsPending}
+                        size="l"
+                        onClick={async () => {
+                            setAutoPlanModalOpen(true);
+                            setCurrenrPlanModalMetrics(['sales']);
+                        }}
+                    >
+                        <Icon data={FileText} />
+                        <Text variant="subheader-1">Автопланы</Text>
+                    </Button>
+                    <Modal
+                        open={autoPlanModalOpen}
+                        onClose={() => {
+                            setAutoPlanModalOpen(false);
+                            setCurrenrPlanModalMetrics([]);
+                        }}
+                    >
+                        <Card
+                            view="outlined"
+                            theme="warning"
+                            style={{
+                                height: '30em',
+                                width: 'calc(40em + 200px)',
+                                overflow: 'auto',
+                                display: 'flex',
+                                flexDirection: 'row',
+                            }}
+                        >
+                            <Card
+                                view="outlined"
+                                // theme="warning"
+                                style={{
+                                    padding: 20,
+                                    width: '40em',
+                                    overflow: 'auto',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        margin: '0px 32px',
+                                    }}
+                                    variant="display-1"
+                                >
+                                    Установить план, %
+                                </Text>
+                                <div style={{minHeight: 8}} />
+                                <TextInput
+                                    hasClear
+                                    size="l"
+                                    value={planModalPlanValue}
+                                    validationState={
+                                        planModalPlanValueValid ? undefined : 'invalid'
+                                    }
+                                    onUpdate={(val) => {
+                                        const temp = Number(val != '' ? val : 'ahui');
+                                        setPlanModalPlanValueValid(!isNaN(temp) && isFinite(temp));
+                                        setPlanModalPlanValue(val);
+                                    }}
+                                    style={{width: 'calc(100% - 32px)'}}
+                                    placeholder={`Введите план на текущий месяц`}
+                                />
+                                <div style={{minHeight: 8}} />
+                                {generateModalButtonWithActions(
+                                    {
+                                        disabled: !planModalPlanValueValid,
+                                        placeholder: 'Установить план',
+                                        icon: CloudArrowUpIn,
+                                        view: 'outlined-success',
+                                        onClick: () => {
+                                            const monthName = getMonthName(new Date());
+                                            const dayPlan = getPlanDay(planModalKey);
+                                            const params = {
+                                                uid: getUid(),
+                                                campaignName: selectValue[0],
+                                                data: {
+                                                    plan: {
+                                                        monthName,
+                                                        dayPlan,
+                                                    },
+                                                    mode: 'Установить',
+                                                    entities: [] as any[],
+                                                    planKeys: currenrPlanModalMetrics,
+                                                },
+                                            };
+
+                                            for (const row of filteredData) {
+                                                const {entity} = row;
+                                                if (!params.data.entities.includes(entity))
+                                                    params.data.entities.push(entity);
+                                            }
+
+                                            console.log(params);
+
+                                            //////////////////////////////////
+                                            callApi('setAutoPlanForKeys', params);
+                                            setChangedDoc(doc);
+                                            //////////////////////////////////
+
+                                            setAutoPlanModalOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Удалить план',
+                                        icon: TrashBin,
+                                        view: 'outlined-danger',
+                                        onClick: () => {
+                                            const monthName = getMonthName(new Date());
+                                            const dayPlan = getPlanDay(planModalKey);
+                                            const params = {
+                                                uid: getUid(),
+                                                campaignName: selectValue[0],
+                                                data: {
+                                                    plan: {
+                                                        monthName,
+                                                        dayPlan,
+                                                    },
+                                                    mode: 'Удалить',
+                                                    entities: [] as any[],
+                                                    planKeys: currenrPlanModalMetrics,
+                                                },
+                                            };
+
+                                            for (const row of filteredData) {
+                                                const {entity} = row;
+                                                if (!params.data.entities.includes(entity))
+                                                    params.data.entities.push(entity);
+                                            }
+
+                                            console.log(params);
+
+                                            //////////////////////////////////
+                                            callApi('setAutoPlanForKeys', params);
+                                            setChangedDoc(doc);
+                                            //////////////////////////////////
+
+                                            setAutoPlanModalOpen(false);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                            </Card>
+                            <div
+                                style={{
+                                    padding: 8,
+                                    height: 'calc(100% - 16px)',
+                                    width: 200,
+                                    overflow: 'auto',
+                                    boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                }}
+                            >
+                                <List
+                                    filterPlaceholder="Введите название метрики"
+                                    emptyPlaceholder="Такая метрика отсутствует"
+                                    items={Object.keys(columnDataReversed)}
+                                    renderItem={(item) => {
+                                        const selected = currenrPlanModalMetrics.includes(
+                                            columnDataReversed[item],
+                                        );
+
+                                        const graphColor = colors[0];
+                                        const backColor = graphColor
+                                            ? graphColor.slice(0, graphColor.length - 10) + '150)'
+                                            : undefined;
+                                        const graphTrendColor = graphColor
+                                            ? graphColor.slice(0, graphColor.length - 10) +
+                                              '650-solid)'
+                                            : undefined;
+
+                                        return (
+                                            <Button
+                                                size="xs"
+                                                pin="circle-circle"
+                                                // selected={selected}
+                                                style={{position: 'relative', overflow: 'hidden'}}
+                                                view={selected ? 'flat' : 'outlined'}
+                                            >
+                                                <div
+                                                    style={{
+                                                        borderRadius: 10,
+                                                        left: 0,
+                                                        position: 'absolute',
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        background: selected ? backColor : '#0000',
+                                                    }}
+                                                />
+                                                <Text
+                                                    style={{
+                                                        color: selected
+                                                            ? graphTrendColor
+                                                            : undefined,
+                                                    }}
+                                                >
+                                                    {item}
+                                                </Text>
+                                            </Button>
+                                        );
+                                    }}
+                                    onItemClick={(item) => {
+                                        const metricVal = columnDataReversed[item];
+                                        let tempArr = Array.from(currenrPlanModalMetrics);
+                                        if (tempArr.includes(metricVal)) {
+                                            tempArr = tempArr.filter((value) => value != metricVal);
+                                        } else {
+                                            tempArr.push(metricVal);
+                                        }
+
+                                        setCurrenrPlanModalMetrics(tempArr);
+                                    }}
+                                />
+                                <Button
+                                    width="max"
+                                    view={currenrPlanModalMetrics.length ? 'flat-danger' : 'normal'}
+                                    selected={currenrPlanModalMetrics.length != 0}
+                                    onClick={() => {
+                                        setCurrenrPlanModalMetrics([]);
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <Icon data={TrashBin} />
+                                        <div style={{minWidth: 3}} />
+                                        Очистить
+                                    </div>
+                                </Button>
+                            </div>
+                        </Card>
+                    </Modal>
+                    <div style={{minWidth: 8}} />
                     <Button
                         loading={calculatingFlag}
                         size="l"

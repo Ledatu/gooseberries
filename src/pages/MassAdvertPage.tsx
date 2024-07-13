@@ -2566,8 +2566,8 @@ export const MassAdvertPage = ({pageArgs}) => {
             name: 'analytics',
             placeholder: 'Аналитика',
             render: ({row, footer, value}) => {
+                const sumOrders = row['sum_orders'];
                 if (footer) {
-                    const sumOrders = row['sum_orders'];
                     return (
                         <Text color={value > 0 ? 'positive' : 'danger'}>
                             {`${new Intl.NumberFormat('ru-RU').format(
@@ -2578,8 +2578,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                         </Text>
                     );
                 }
-                const {placementsValue, stocksBySizes, profit} = row ?? {};
-                const sumOrders = row['sum_orders'];
+                const {placementsValue, stocksBySizes} = row ?? {};
 
                 // if (!placementsValue) return undefined;
                 const {reviewRating, sizes, feedbacks, phrase} = placementsValue ?? {};
@@ -2995,11 +2994,11 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 }}
                             >
                                 <Text
-                                    color={profit > 0 ? 'positive' : 'danger'}
+                                    color={value > 0 ? 'positive' : 'danger'}
                                 >{`${new Intl.NumberFormat('ru-RU').format(
-                                    Math.round(profit),
+                                    Math.round(value),
                                 )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                    getRoundValue(profit, sumOrders, true),
+                                    getRoundValue(value, sumOrders, true),
                                 )}%`}</Text>
                             </div>
                         </Button>
@@ -4214,7 +4213,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 cpm: 0,
                 cr: 0,
                 cpo: 0,
-                profit: 0,
+                analytics: 0,
                 sales: 0,
                 sum_sales: 0,
                 openCardCount: 0,
@@ -4289,7 +4288,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                     artInfo.sum += dateData['sum'];
                     artInfo.views += dateData['views'];
                     artInfo.clicks += dateData['clicks'];
-                    artInfo.profit += dateData['profit'];
+                    artInfo.analytics += dateData['profit'];
 
                     // console.log(
                     //     artData['nmFullDetailReport']
@@ -4352,7 +4351,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 summaryTemp.openCardCount += artInfo.openCardCount;
                 summaryTemp.orders += artInfo.orders;
 
-                summaryTemp.profitTemp += Math.round(artInfo.profit);
+                summaryTemp.profitTemp += Math.round(artInfo.analytics);
             }
 
             temp[art] = artInfo;
@@ -4697,7 +4696,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             //         filteredSummaryTemp.analytics,
             //         filteredSummaryTemp.analytics + Math.round(row['profit'] ?? 0),
             //     );
-            filteredSummaryTemp.analytics += Math.round(row['profit'] ?? 0);
+            filteredSummaryTemp.analytics += Math.round(row['analytics'] ?? 0);
 
             filteredSummaryTemp.budget += row['budget'] ?? 0;
             filteredSummaryTemp.openCardCount += row['openCardCount'];
