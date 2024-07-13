@@ -537,7 +537,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             artsStatsByDayFilteredSummaryTemp.addToCartCount,
             true,
         );
-        const {orders, sum, views, clicks} = artsStatsByDayFilteredSummaryTemp;
+        const {orders, sum, views, clicks, openCardCount} = artsStatsByDayFilteredSummaryTemp;
 
         artsStatsByDayFilteredSummaryTemp.drr = getRoundValue(
             artsStatsByDayFilteredSummaryTemp.sum,
@@ -548,7 +548,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         artsStatsByDayFilteredSummaryTemp.ctr = getRoundValue(clicks, views, true);
         artsStatsByDayFilteredSummaryTemp.cpc = getRoundValue(sum, clicks);
         artsStatsByDayFilteredSummaryTemp.cpm = getRoundValue(sum * 1000, views);
-        artsStatsByDayFilteredSummaryTemp.cr = getRoundValue(orders, views, true);
+        artsStatsByDayFilteredSummaryTemp.cr = getRoundValue(orders, openCardCount, true);
         artsStatsByDayFilteredSummaryTemp.cpo = getRoundValue(sum, orders, false, sum);
 
         setArtsStatsByDayFilteredSummary(artsStatsByDayFilteredSummaryTemp);
@@ -931,7 +931,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             dateData['ctr'] = getRoundValue(clicks, views, true);
             dateData['cpc'] = getRoundValue(sum, clicks);
             dateData['cpm'] = getRoundValue(sum * 1000, views);
-            dateData['cr'] = getRoundValue(orders, views, true);
+            dateData['cr'] = getRoundValue(orders, dateData['openCardCount'], true);
             dateData['cpo'] = getRoundValue(sum, orders, false, sum);
             temp.push(dateData);
         }
@@ -1412,7 +1412,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             dateData['ctr'] = getRoundValue(clicks, views, true);
                                             dateData['cpc'] = getRoundValue(sum, clicks);
                                             dateData['cpm'] = getRoundValue(sum * 1000, views);
-                                            dateData['cr'] = getRoundValue(orders, views, true);
                                             dateData['cpo'] = getRoundValue(
                                                 sum,
                                                 orders,
@@ -1454,6 +1453,11 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             dateData['cartToOrderPercent'] = getRoundValue(
                                                 dateData['orders'],
                                                 dateData['addToCartCount'],
+                                                true,
+                                            );
+                                            dateData['cr'] = getRoundValue(
+                                                orders,
+                                                dateData['openCardCount'],
                                                 true,
                                             );
 
@@ -4340,7 +4344,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
                 artInfo.cpc = getRoundValue(artInfo.sum, artInfo.clicks);
                 artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
-                artInfo.cr = getRoundValue(artInfo.orders, artInfo.views, true);
+                artInfo.cr = getRoundValue(artInfo.orders, artInfo.openCardCount, true);
                 artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
 
                 summaryTemp.sum_orders += artInfo.sum_orders;
@@ -4747,7 +4751,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         );
         filteredSummaryTemp.cr = getRoundValue(
             filteredSummaryTemp.orders,
-            filteredSummaryTemp.views,
+            filteredSummaryTemp.openCardCount,
             true,
         );
         filteredSummaryTemp.cpo = getRoundValue(
