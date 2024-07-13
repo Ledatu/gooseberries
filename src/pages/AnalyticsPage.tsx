@@ -1967,7 +1967,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                         size="l"
                         onClick={async () => {
                             setAutoPlanModalOpen(true);
-                            setCurrenrPlanModalMetrics(['sales']);
+                            setCurrenrPlanModalMetrics([]);
                         }}
                     >
                         <Icon data={FileText} />
@@ -2010,7 +2010,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                                     }}
                                     variant="display-1"
                                 >
-                                    Установить план, %
+                                    Установить план, % от предыдущего месяца
                                 </Text>
                                 <div style={{minHeight: 8}} />
                                 <TextInput
@@ -2031,7 +2031,8 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 <div style={{minHeight: 8}} />
                                 {generateModalButtonWithActions(
                                     {
-                                        disabled: !planModalPlanValueValid,
+                                        // disabled: !planModalPlanValueValid,
+                                        disabled: true,
                                         placeholder: 'Установить план',
                                         icon: CloudArrowUpIn,
                                         view: 'outlined-success',
@@ -2073,6 +2074,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 )}
                                 {generateModalButtonWithActions(
                                     {
+                                        disabled: true,
                                         placeholder: 'Удалить план',
                                         icon: TrashBin,
                                         view: 'outlined-danger',
