@@ -84,7 +84,7 @@ export const DeliveryPage = ({pageArgs}) => {
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     const weekAgo = new Date(today);
-    weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setDate(weekAgo.getDate() - 30);
     const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
     const anchorRef = useRef(null);
     const [rangePickerOpen, setRangePickerOpen] = useState(false);
