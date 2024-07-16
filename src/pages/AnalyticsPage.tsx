@@ -632,7 +632,9 @@ export const AnalyticsPage = ({pageArgs}) => {
             .replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
             .slice(0, 10),
     );
-    const [dateRange, setDateRange] = useState([today, today]);
+    const monthAgo = new Date(today);
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    const [dateRange, setDateRange] = useState([monthAgo, today]);
 
     const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
