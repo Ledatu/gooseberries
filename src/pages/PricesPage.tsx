@@ -754,6 +754,7 @@ export const PricesPage = ({pageArgs}) => {
                 res['data'] && res['data'][0] ? res['data'][0]['groupingType'] : 'art',
             ]);
             setGroupingFetching(false);
+            setDateChangeRecalc(true);
         });
     }, [selectValue]);
 
