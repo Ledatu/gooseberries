@@ -679,14 +679,15 @@ export const PricesPage = ({pageArgs}) => {
         'Цена после скидки',
     ]);
 
-    // const [groupingKeysCheck, setGroupingKeysCheck] = useState({
-    //     campaignName: false,
-    //     brand: false,
-    //     object: false,
-    //     title: false,
-    //     imtId: false,
-    //     art: false,
-    // });
+    const groupingOptions = [
+        {value: 'campaignName', content: 'Магазин'},
+        {value: 'brand', content: 'Бренд'},
+        {value: 'object', content: 'Тип предмета'},
+        {value: 'title', content: 'Наименование'},
+        {value: 'imtId', content: 'ID КТ'},
+        {value: 'art', content: 'Артикул'},
+    ];
+    const [groupingValue, setGroupingValue] = useState(['art']);
 
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
     const [enteredValue, setEnteredValue] = useState('');
@@ -1835,183 +1836,38 @@ export const PricesPage = ({pageArgs}) => {
                         marginBottom: 8,
                     }}
                 >
-                    {/* <Popover
-                        content={
-                            <div
-                                style={{
-                                    height: 'calc(300px - 60px)',
-                                    width: 150,
-                                    overflow: 'auto',
-                                    display: 'flex',
-                                }}
-                            >
-                                <Card
-                                    style={{
-                                        position: 'absolute',
-                                        background: 'var(--g-color-base-background)',
-                                        height: 300,
-                                        width: 200,
-                                        padding: 8,
-                                        overflow: 'auto',
-                                        top: -10,
-                                        left: -9,
-                                        display: 'flex',
+                    <Select
+                        options={groupingOptions}
+                        onUpdate={(nextValule) => {
+                            setGroupingValue(nextValule);
+                        }}
+                        renderControl={({onClick, onKeyDown, ref}) => {
+                            const mapp = {
+                                campaignName: 'Магазин',
+                                brand: 'Бренд',
+                                object: 'Тип предмета',
+                                title: 'Наименование',
+                                imtId: 'ID КТ',
+                                art: 'Артикул',
+                            };
+                            return (
+                                <Button
+                                    ref={ref}
+                                    size="l"
+                                    view="outlined-action"
+                                    onClick={onClick}
+                                    extraProps={{
+                                        onKeyDown,
                                     }}
                                 >
-                                    <Card
-                                        view="clear"
-                                        style={{
-                                            width: 350,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            backgroundColor: 'none',
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                height: '50%',
-                                                width: 'calc(100% - 32px)',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                margin: '16px 0',
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                        width: 'calc(100% + 8px)',
-                                                    }}
-                                                >
-                                                    {generateSelectButton({
-                                                        key: 'campaignName',
-                                                        placeholder: 'Магазин',
-                                                        enteredKeysCheck,
-                                                        setEnteredKeysCheck,
-                                                    })}
-                                                    {generateSelectButton({
-                                                        key: 'brand',
-                                                        placeholder: 'Бренд',
-                                                        enteredKeysCheck,
-                                                        setEnteredKeysCheck,
-                                                    })}
-                                                    {generateSelectButton({
-                                                        key: 'object',
-                                                        placeholder: 'Тип предмета',
-                                                        enteredKeysCheck,
-                                                        setEnteredKeysCheck,
-                                                    })}
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                        width: 'calc(100% + 8px)',
-                                                    }}
-                                                >
-                                                    {generateSelectButton({
-                                                        key: 'title',
-                                                        placeholder: 'Наименование',
-                                                        enteredKeysCheck,
-                                                        setEnteredKeysCheck,
-                                                    })}
-                                                    {generateSelectButton({
-                                                        key: 'imtId',
-                                                        placeholder: 'ID КТ',
-                                                        enteredKeysCheck,
-                                                        setEnteredKeysCheck,
-                                                    })}
-                                                    {generateSelectButton({
-                                                        key: 'art',
-                                                        placeholder: 'Артикул',
-                                                        enteredKeysCheck,
-                                                        setEnteredKeysCheck,
-                                                    })}
-                                                </div>
-                                            </div>
-                                            <div style={{minHeight: 12}} />
-                                            <Button
-                                                size="l"
-                                                view="action"
-                                                onClick={() => {
-                                                    setCalculatingFlag(true);
-                                                    const entityKeys = getEnteredKeys();
-                                                    setEntityKeysLastCalc(entityKeys);
-                                                    const params = {
-                                                        uid: getUid(),
-                                                        campaignName: selectValue[0],
-                                                        dateRange: getNormalDateRange(dateRange),
-                                                        enteredValues: {
-                                                            entityKeys: entityKeys,
-                                                            dateType: enteredKeysDateType,
-                                                        },
-                                                    };
-
-                                                    console.log(params);
-
-                                                    /////////////////////////
-                                                    callApi('getAnalytics', params).then((res) => {
-                                                        if (!res) return;
-                                                        const resData = res['data'];
-
-                                                        doc['analyticsData'][selectValue[0]] =
-                                                            resData['analyticsData'][
-                                                                selectValue[0]
-                                                            ];
-                                                        doc['plansData'][selectValue[0]] =
-                                                            resData['plansData'][selectValue[0]];
-
-                                                        setChangedDoc(doc);
-                                                        setCalculatingFlag(false);
-                                                        console.log(doc);
-                                                    });
-
-                                                    setPagesCurrent(1);
-                                                    /////////////////////////
-
-                                                    setEnteredValuesModalOpen(false);
-                                                }}
-                                            >
-                                                <Icon data={Calculator} />
-                                                <Text variant="subheader-1">Рассчитать</Text>
-                                            </Button>
-                                        </div>
-                                    </Card>
-                                </Card>
-                            </div>
-                        }
-                    >
-                        <Button
-                            loading={calculatingFlag}
-                            size="l"
-                            view="action"
-                            onClick={() => {
-                                setGroupingKeysCheck({
-                                    campaignName: false,
-                                    brand: false,
-                                    object: false,
-                                    title: false,
-                                    imtId: false,
-                                    art: false,
-                                });
-                            }}
-                        >
-                            <Icon data={Calculator} />
-                            <Text variant="subheader-1">Группировка</Text>
-                        </Button>
-                    </Popover> */}
+                                    <Text variant="subheader-1">
+                                        Группировка: {mapp[groupingValue[0]]}
+                                    </Text>
+                                    <Icon data={ChevronDown} />
+                                </Button>
+                            );
+                        }}
+                    />
 
                     <Button
                         size="l"
