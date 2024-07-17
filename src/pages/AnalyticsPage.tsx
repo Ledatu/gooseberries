@@ -409,25 +409,25 @@ export const AnalyticsPage = ({pageArgs}) => {
                     ? doc.plansData[selectValue[0]][_entity][key][monthName]
                     : {dayPlan: 0};
 
-            if (
-                _entity == '#F.F.+ФУТБОЛКИ-ПОЛО+ЛЕТО+188950637' &&
-                key == 'orders' &&
-                doc.plansData[selectValue[0]][_entity]
-            )
-                console.log(
-                    inputDate,
-                    date,
-                    dayPlan,
-                    _entity,
-                    key,
-                    monthName,
-                    doc.plansData[selectValue[0]][_entity][key][monthName],
-                    doc.plansData[selectValue[0]][_entity]
-                        ? doc.plansData[selectValue[0]][_entity][key]
-                            ? doc.plansData[selectValue[0]][_entity][key][monthName]
-                            : -1
-                        : -1,
-                );
+            // if (
+            //     _entity == '#F.F.+ФУТБОЛКИ-ПОЛО+ЛЕТО+188950637' &&
+            //     key == 'orders' &&
+            //     doc.plansData[selectValue[0]][_entity]
+            // )
+            //     console.log(
+            //         inputDate,
+            //         date,
+            //         dayPlan,
+            //         _entity,
+            //         key,
+            //         monthName,
+            //         doc.plansData[selectValue[0]][_entity][key][monthName],
+            //         doc.plansData[selectValue[0]][_entity]
+            //             ? doc.plansData[selectValue[0]][_entity][key]
+            //                 ? doc.plansData[selectValue[0]][_entity][key][monthName]
+            //                 : -1
+            //             : -1,
+            //     );
 
             return dayPlan;
         };
