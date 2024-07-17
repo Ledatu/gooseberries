@@ -754,7 +754,6 @@ export const PricesPage = ({pageArgs}) => {
                 res['data'] && res['data'][0] ? res['data'][0]['groupingType'] : 'art',
             ]);
             setGroupingFetching(false);
-            setDateChangeRecalc(true);
         });
     }, [selectValue]);
 
@@ -1867,6 +1866,7 @@ export const PricesPage = ({pageArgs}) => {
                             callApi('setPricesGrouping', params)
                                 .then((res) => {
                                     console.log(res);
+                                    setDateChangeRecalc(true);
                                 })
                                 .catch((e) => {
                                     console.log(e);
