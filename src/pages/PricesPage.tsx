@@ -1868,7 +1868,7 @@ export const PricesPage = ({pageArgs}) => {
                             );
                         }}
                     />
-
+                    <div style={{minWidth: 8}} />
                     <Button
                         size="l"
                         view="action"
