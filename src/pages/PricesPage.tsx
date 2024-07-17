@@ -109,6 +109,8 @@ export const PricesPage = ({pageArgs}) => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
+    const [groupingFetching, setGroupingFetching] = useState(false);
+
     const [selectedButton, setSelectedButton] = useState('');
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
@@ -687,7 +689,7 @@ export const PricesPage = ({pageArgs}) => {
         {value: 'imtId', content: 'ID КТ'},
         {value: 'art', content: 'Артикул'},
     ];
-    const [groupingValue, setGroupingValue] = useState(['art']);
+    const [groupingValue, setGroupingValue] = useState(['']);
 
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
     const [enteredValue, setEnteredValue] = useState('');
@@ -741,6 +743,18 @@ export const PricesPage = ({pageArgs}) => {
 
     useEffect(() => {
         setSelectedCampaign(selectValue[0]);
+
+        const params = {uid: getUid(), campaignName: selectValue[0]};
+        setGroupingFetching(true);
+        callApi('getPricesGrouping', params).then((res) => {
+            if (!res) return;
+            console.log(res);
+
+            setGroupingValue([
+                res['data'] && res['data'][0] ? res['data'][0]['groupingType'] : 'art',
+            ]);
+            setGroupingFetching(false);
+        });
     }, [selectValue]);
 
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
@@ -1840,6 +1854,22 @@ export const PricesPage = ({pageArgs}) => {
                         options={groupingOptions}
                         onUpdate={(nextValule) => {
                             setGroupingValue(nextValule);
+                            const params = {
+                                uid: getUid(),
+                                campaignName: selectValue[0],
+                                data: {
+                                    groupingType: nextValule[0],
+                                },
+                            };
+                            console.log(params);
+
+                            callApi('setPricesGrouping', params)
+                                .then((res) => {
+                                    console.log(res);
+                                })
+                                .catch((e) => {
+                                    console.log(e);
+                                });
                         }}
                         renderControl={({onClick, onKeyDown, ref}) => {
                             const mapp = {
@@ -1852,6 +1882,7 @@ export const PricesPage = ({pageArgs}) => {
                             };
                             return (
                                 <Button
+                                    loading={groupingFetching}
                                     ref={ref}
                                     size="l"
                                     view="outlined-action"
