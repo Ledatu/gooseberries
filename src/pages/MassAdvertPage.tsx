@@ -477,6 +477,12 @@ export const MassAdvertPage = ({pageArgs}) => {
             cartToOrderPercent: 0,
         };
 
+        _stats.sort((a, b) => {
+            const dateA = new Date(a['date']);
+            const dateB = new Date(b['date']);
+            return dateB.getTime() - dateA.getTime();
+        });
+
         setArtsStatsByDayFilteredData(
             _stats.filter((stat) => {
                 for (const [filterArg, filterData] of Object.entries(_filters)) {
