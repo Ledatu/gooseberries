@@ -369,6 +369,8 @@ export const DeliveryPage = ({pageArgs}) => {
                     artInfo[`${warehouseName}_prefObor`] = warehouseData['prefObor'];
                     artInfo[`${warehouseName}_primeCost`] = warehouseData['primeCost'];
                     artInfo[`${warehouseName}_fullPrice`] = warehouseData['fullPrice'];
+                    artInfo[`${warehouseName}_profit`] = warehouseData['profit'];
+                    artInfo[`${warehouseName}_sumOrders`] = warehouseData['sumOrders'];
                 }
             }
 
@@ -473,7 +475,7 @@ export const DeliveryPage = ({pageArgs}) => {
                 key === undefined ||
                 val === undefined ||
                 (() => {
-                    for (const piece of ['stock', 'toOrder', 'fullPrice']) {
+                    for (const piece of ['stock', 'toOrder', 'fullPrice', 'profit', 'sumOrders']) {
                         if (key.includes(piece)) return true;
                     }
                     return false;
@@ -662,6 +664,22 @@ export const DeliveryPage = ({pageArgs}) => {
                 {name: 'toOrder', placeholder: 'Отгрузить, шт.'},
                 {name: 'primeCost', placeholder: 'Себестоимость, ₽'},
                 {name: 'fullPrice', placeholder: 'Сумма, ₽'},
+                {
+                    name: 'profit',
+                    placeholder: 'Профит ₽ / Рент. %',
+                    render: ({row, value}, warehouseName) => {
+                        const sumOrders = row[warehouseName + '_sumOrders'];
+                        return (
+                            <Text color={value > 0 ? 'positive' : 'danger'}>
+                                {`${new Intl.NumberFormat('ru-RU').format(
+                                    value,
+                                )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                    getRoundValue(value, sumOrders, true),
+                                )}%`}
+                            </Text>
+                        );
+                    },
+                },
             ];
             const columnsTemp = [] as any[];
             const createNewWarehouseColumn = (warehouse) => {
