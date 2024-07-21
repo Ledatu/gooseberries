@@ -122,17 +122,21 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     }
 
     useEffect(() => {
-        callApi('getMassAdvertsNew', {
-            uid: getUid(),
-            dateRange: {from: '2023', to: '2024'},
-            campaignName:
-                selectValue != ''
-                    ? selectValue
-                    : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                    ? 'ИП Иосифов М.С.'
-                    : 'ОТК ПРОИЗВОДСТВО',
-        })
+        callApi(
+            'getMassAdvertsNew',
+            {
+                uid: getUid(),
+                dateRange: {from: '2023', to: '2024'},
+                campaignName:
+                    selectValue != ''
+                        ? selectValue
+                        : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
+                          Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+                        ? 'ИП Иосифов М.С.'
+                        : 'ОТК ПРОИЗВОДСТВО',
+            },
+            true,
+        )
             .then((response) => setDocument(response ? response['data'] : undefined))
             .catch((error) => console.error(error));
     }, []);
@@ -4070,7 +4074,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         };
         console.log(params);
 
-        await callApi('getMassAdvertsNew', params)
+        await callApi('getMassAdvertsNew', params, true)
             .then((response) => {
                 setFetchingDataFromServerFlag(false);
                 // console.log(response);
@@ -9971,11 +9975,15 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     });
 
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
-                                    callApi('getMassAdvertsNew', {
-                                        uid: getUid(),
-                                        dateRange: {from: '2023', to: '2024'},
-                                        campaignName: nextValue,
-                                    }).then(async (res) => {
+                                    callApi(
+                                        'getMassAdvertsNew',
+                                        {
+                                            uid: getUid(),
+                                            dateRange: {from: '2023', to: '2024'},
+                                            campaignName: nextValue,
+                                        },
+                                        true,
+                                    ).then(async (res) => {
                                         if (!res) return;
                                         const resData = res['data'];
                                         doc['campaigns'][nextValue[0]] =

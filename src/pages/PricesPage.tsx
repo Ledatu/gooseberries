@@ -28,6 +28,7 @@ import {
     Key,
     ArrowsRotateLeft,
     Box,
+    Copy,
     Calculator,
     LockOpen,
     Lock,
@@ -66,17 +67,21 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     }
 
     useEffect(() => {
-        callApi('getPricesMM', {
-            uid: getUid(),
-            dateRange: getNormalDateRange(dateRange),
-            campaignName:
-                selectValue != ''
-                    ? selectValue
-                    : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                    ? 'ИП Иосифова Р. И.'
-                    : 'ОТК ПРОИЗВОДСТВО',
-        })
+        callApi(
+            'getPricesMM',
+            {
+                uid: getUid(),
+                dateRange: getNormalDateRange(dateRange),
+                campaignName:
+                    selectValue != ''
+                        ? selectValue
+                        : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
+                          Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+                        ? 'ИП Иосифова Р. И.'
+                        : 'ОТК ПРОИЗВОДСТВО',
+            },
+            true,
+        )
             .then((response) => setDocument(response ? response['data'] : undefined))
             .catch((error) => console.error(error));
     }, []);
@@ -266,15 +271,28 @@ export const PricesPage = ({pageArgs}) => {
 
     const renderFilterByClickButton = ({value}, key) => {
         return (
-            <Button
-                size="xs"
-                view="flat"
-                onClick={() => {
-                    filterByClick(value, key);
-                }}
-            >
-                {value}
-            </Button>
+            <div style={{display: 'flex', flexDirection: 'row'}}>
+                <Button
+                    size="xs"
+                    pin="round-clear"
+                    view="outlined"
+                    onClick={() => {
+                        filterByClick(value, key);
+                    }}
+                >
+                    {value}
+                </Button>
+                <Button
+                    size="xs"
+                    view="outlined"
+                    pin="clear-round"
+                    onClick={() => {
+                        navigator.clipboard.writeText(value);
+                    }}
+                >
+                    <Icon data={Copy} size={13} />
+                </Button>
+            </div>
         );
     };
 
@@ -774,11 +792,15 @@ export const PricesPage = ({pageArgs}) => {
         setCurrentPricesCalculatedBasedOn('');
         setLastCalcOldData({});
 
-        callApi('getPricesMM', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-            dateRange: getNormalDateRange(dateRange),
-        }).then((res) => {
+        callApi(
+            'getPricesMM',
+            {
+                uid: getUid(),
+                campaignName: selectValue[0],
+                dateRange: getNormalDateRange(dateRange),
+            },
+            true,
+        ).then((res) => {
             if (!res) return;
             const resData = res['data'];
             doc['pricesData'][selectValue[0]] = resData['pricesData'][selectValue[0]];
@@ -1151,11 +1173,15 @@ export const PricesPage = ({pageArgs}) => {
                                 });
 
                             if (!Object.keys(doc['pricesData'][nextValue[0]]).length) {
-                                callApi('getPricesMM', {
-                                    uid: getUid(),
-                                    campaignName: nextValue,
-                                    dateRange: getNormalDateRange(dateRange),
-                                }).then((res) => {
+                                callApi(
+                                    'getPricesMM',
+                                    {
+                                        uid: getUid(),
+                                        campaignName: nextValue,
+                                        dateRange: getNormalDateRange(dateRange),
+                                    },
+                                    true,
+                                ).then((res) => {
                                     if (!res) return;
                                     const resData = res['data'];
                                     doc['pricesData'][nextValue[0]] =
@@ -1565,7 +1591,7 @@ export const PricesPage = ({pageArgs}) => {
                                             setLastCalcOldData({});
 
                                             /////////////////////////
-                                            callApi('getPricesMM', params).then((res) => {
+                                            callApi('getPricesMM', params, true).then((res) => {
                                                 if (!res) return;
 
                                                 const tempOldData = {};

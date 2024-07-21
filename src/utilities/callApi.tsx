@@ -3,23 +3,31 @@ import axios from 'axios';
 
 const {ipAddress} = require('../ipAddress');
 
-export default function callApi(endpoint: string, params: object) {
-    return new Promise((resolve) => {
-        const token =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-        axios
-            .post(`${ipAddress}/api/${endpoint}`, params, {
+export default async function callApi(endpoint, params, retry = false) {
+    const token =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+    const maxRetries = retry ? 5 : 1;
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+            const response = await axios.post(`${ipAddress}/api/${endpoint}`, params, {
                 responseType: endpoint.includes('download') ? 'blob' : undefined,
                 headers: {
                     Authorization: 'Bearer ' + token,
                 },
-            })
-            .then((response) => resolve(response))
-            .catch((error) => {
-                console.error('API call failed:', error);
-                resolve(undefined);
             });
-    });
+            return response;
+        } catch (error) {
+            console.error(`API call failed on attempt ${attempt + 1}:`, error);
+            if (attempt < maxRetries - 1) {
+                await delay(3000);
+            } else {
+                return undefined;
+            }
+        }
+    }
+    return undefined;
 }
 
 export const getUid = () => {

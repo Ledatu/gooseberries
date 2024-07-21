@@ -4,7 +4,6 @@ import {
     ThemeProvider,
     // Button,
     Text,
-    Persona,
     RadioButton,
     RadioButtonOption,
     Icon,
@@ -416,14 +415,14 @@ export const Dashboard = () => {
                                         </div>
                                     </Modal>
                                     <div style={{minWidth: 8}} />
-                                    <Persona
-                                        size="s"
-                                        onClose={() => {
+                                    <Button
+                                        size="l"
+                                        onClick={() => {
                                             Userfront.logout();
                                         }}
-                                        type="empty"
-                                        text={Userfront.user.email?.split('@')[0] ?? ''}
-                                    />
+                                    >
+                                        {Userfront.user.email?.split('@')[0] ?? ''}
+                                    </Button>
                                     <div style={{minWidth: 8}} />
                                     <RadioButton
                                         size="l"

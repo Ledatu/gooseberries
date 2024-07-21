@@ -55,16 +55,20 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     }
 
     useEffect(() => {
-        callApi('getNomenclatures', {
-            uid: getUid(),
-            campaignName:
-                selectValue != ''
-                    ? selectValue
-                    : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                    ? 'ИП Иосифова Р. И.'
-                    : 'ОТК ПРОИЗВОДСТВО',
-        })
+        callApi(
+            'getNomenclatures',
+            {
+                uid: getUid(),
+                campaignName:
+                    selectValue != ''
+                        ? selectValue
+                        : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
+                          Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+                        ? 'ИП Иосифова Р. И.'
+                        : 'ОТК ПРОИЗВОДСТВО',
+            },
+            true,
+        )
             .then((response) => setDocument(response ? response['data'] : undefined))
             .catch((error) => console.error(error));
     }, []);
@@ -375,10 +379,14 @@ export const NomenclaturesPage = ({pageArgs}) => {
                 const artsData = response.data;
                 doc.artsData[selectValue[0]] = artsData;
 
-                callApi('getNomenclatures', {
-                    uid: getUid(),
-                    campaignName: selectValue[0],
-                }).then((res) => {
+                callApi(
+                    'getNomenclatures',
+                    {
+                        uid: getUid(),
+                        campaignName: selectValue[0],
+                    },
+                    true,
+                ).then((res) => {
                     if (!res) return;
                     const resData = res['data'];
                     doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
@@ -776,10 +784,14 @@ export const NomenclaturesPage = ({pageArgs}) => {
                                                     'changeUploadedArtsDataForKey',
                                                     params,
                                                 );
-                                                await callApi('getNomenclatures', {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                }).then((res) => {
+                                                await callApi(
+                                                    'getNomenclatures',
+                                                    {
+                                                        uid: getUid(),
+                                                        campaignName: selectValue[0],
+                                                    },
+                                                    true,
+                                                ).then((res) => {
                                                     if (!res) return;
                                                     const resData = res['data'];
                                                     doc['nomenclatures'][selectValue[0]] =
@@ -849,10 +861,14 @@ export const NomenclaturesPage = ({pageArgs}) => {
                                     });
 
                                 if (!Object.keys(doc['nomenclatures'][nextValue[0]]).length) {
-                                    callApi('getNomenclatures', {
-                                        uid: getUid(),
-                                        campaignName: nextValue,
-                                    }).then((res) => {
+                                    callApi(
+                                        'getNomenclatures',
+                                        {
+                                            uid: getUid(),
+                                            campaignName: nextValue,
+                                        },
+                                        true,
+                                    ).then((res) => {
                                         if (!res) return;
                                         const resData = res['data'];
                                         doc['nomenclatures'][nextValue[0]] =

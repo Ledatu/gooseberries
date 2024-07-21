@@ -25,6 +25,7 @@ import {
     Key,
     Calculator,
     ChartAreaStacked,
+    Copy,
     TrashBin,
     FileText,
     CloudArrowUpIn,
@@ -68,17 +69,21 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     }
 
     useEffect(() => {
-        callApi('getAnalytics', {
-            uid: getUid(),
-            dateRange: getNormalDateRange(dateRange),
-            campaignName:
-                selectValue != ''
-                    ? selectValue
-                    : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                    ? 'ИП Иосифова Р. И.'
-                    : 'ОТК ПРОИЗВОДСТВО',
-        })
+        callApi(
+            'getAnalytics',
+            {
+                uid: getUid(),
+                dateRange: getNormalDateRange(dateRange),
+                campaignName:
+                    selectValue != ''
+                        ? selectValue
+                        : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
+                          Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+                        ? 'ИП Иосифова Р. И.'
+                        : 'ОТК ПРОИЗВОДСТВО',
+            },
+            true,
+        )
             .then((response) => setDocument(response ? response['data'] : undefined))
             .catch((error) => console.error(error));
     }, []);
@@ -114,7 +119,8 @@ export const AnalyticsPage = ({pageArgs}) => {
         entity: {
             valueType: 'text',
             placeholder: 'Объект',
-            render: ({value, row}) => {
+            minWidth: 400,
+            render: ({value, row, footer}) => {
                 if (value === undefined || row.isBlank) return undefined;
 
                 let titleWrapped = value;
@@ -133,7 +139,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                     }
                 }
 
-                return renderFilterByClickButton({value}, 'entity');
+                return !footer ? renderFilterByClickButton({value}, 'entity') : value;
             },
         },
         date: {
@@ -626,16 +632,30 @@ export const AnalyticsPage = ({pageArgs}) => {
 
     const renderFilterByClickButton = ({value}, key) => {
         return (
-            <Button
-                style={{height: 'fit-content'}}
-                size="xs"
-                view="flat"
-                onClick={() => {
-                    filterByClick(value, key);
-                }}
-            >
-                <Text style={{whiteSpace: 'pre-wrap', height: 'fit-content'}}>{value}</Text>
-            </Button>
+            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                <Button
+                    style={{height: 'fit-content'}}
+                    size="xs"
+                    pin="round-round"
+                    view="outlined"
+                    onClick={() => {
+                        filterByClick(value, key);
+                    }}
+                >
+                    <Text style={{whiteSpace: 'pre-wrap', height: 'fit-content'}}>{value}</Text>
+                </Button>
+                <div style={{minWidth: 5}} />
+                <Button
+                    size="xs"
+                    view="outlined"
+                    pin="round-round"
+                    onClick={() => {
+                        navigator.clipboard.writeText(value);
+                    }}
+                >
+                    <Icon data={Copy} size={13} />
+                </Button>
+            </div>
         );
     };
 
@@ -1891,7 +1911,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 });
 
                             if (!Object.keys(doc['analyticsData'][nextValue[0]]).length) {
-                                callApi('getAnalytics', params).then((res) => {
+                                callApi('getAnalytics', params, true).then((res) => {
                                     if (!res) return;
                                     const resData = res['data'];
                                     doc['analyticsData'][nextValue[0]] =
@@ -2451,7 +2471,7 @@ export const AnalyticsPage = ({pageArgs}) => {
                                         console.log(params);
 
                                         /////////////////////////
-                                        callApi('getAnalytics', params).then((res) => {
+                                        callApi('getAnalytics', params, true).then((res) => {
                                             if (!res) return;
                                             const resData = res['data'];
 
