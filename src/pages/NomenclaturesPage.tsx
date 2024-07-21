@@ -447,7 +447,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
             artInfo.expences = artData['expences'];
             artInfo.logistics = artData['logistics'];
             artInfo.spp = artData['spp'];
-            artInfo.volume = getRoundValue(artData['volume'], 10, true) / 100;
+            artInfo.volume = getRoundValue(artData['volume'], 1, true) / 100;
 
             // artInfo.tags = ['#бестселлер'];
             artInfo.tags = artData['tags'];
