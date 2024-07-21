@@ -238,7 +238,13 @@ export const AnalyticsPage = ({pageArgs}) => {
         },
         profit: {
             placeholder: 'Профит, ₽.',
-            render: (args) => renderWithGraph(args, 'profit', 'Профит, ₽.'),
+            render: (args) =>
+                renderWithGraph(args, 'profit', 'Профит, ₽.', undefined, (args) => {
+                    const {value} = args;
+                    return (
+                        <Text color={value > 0 ? 'positive' : 'danger'}>{defaultRender(args)}</Text>
+                    );
+                }),
         },
         rentabelnost: {
             placeholder: 'Рентабельность, %',
@@ -249,7 +255,14 @@ export const AnalyticsPage = ({pageArgs}) => {
                     'rentabelnost',
                     'Рентабельность, %',
                     ['rentabelnost'],
-                    renderAsPercent,
+                    (args) => {
+                        const {value} = args;
+                        return (
+                            <Text color={value > 0 ? 'positive' : 'danger'}>
+                                {renderAsPercent(args)}
+                            </Text>
+                        );
+                    },
                 ),
         },
         drr_orders: {
