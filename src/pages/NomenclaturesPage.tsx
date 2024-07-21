@@ -447,6 +447,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
             artInfo.expences = artData['expences'];
             artInfo.logistics = artData['logistics'];
             artInfo.spp = artData['spp'];
+            artInfo.volume = getRoundValue(artData['volume'], 10, true) / 100;
 
             // artInfo.tags = ['#бестселлер'];
             artInfo.tags = artData['tags'];
@@ -455,7 +456,6 @@ export const NomenclaturesPage = ({pageArgs}) => {
             artInfo.prices = artDataUploaded['prices'];
             artInfo.factoryArt = artDataUploaded['factoryArt'];
             artInfo.multiplicity = artDataUploaded['multiplicity'];
-            artInfo.volume = getRoundValue(artDataUploaded['volume'], 10, true) / 100;
             artInfo.weight = artDataUploaded['weight'];
             artInfo.commision = artDataUploaded['commision'];
             artInfo.tax = artDataUploaded['tax'];
