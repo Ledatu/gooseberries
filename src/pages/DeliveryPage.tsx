@@ -12,6 +12,7 @@ import {
     Modal,
     List,
     TextInput,
+    Tooltip,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -28,6 +29,7 @@ import {
     Calculator,
     TrashBin,
     FileArrowDown,
+    Boxes3,
     FileArrowUp,
     Pencil,
 } from '@gravity-ui/icons';
@@ -101,6 +103,8 @@ export const DeliveryPage = ({pageArgs}) => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
+    const [splitCountIntoBoxes, setSplitCountIntoBoxes] = useState(true);
+
     const [changeToOrderCountModalOpen, setChangeToOrderCountModalOpen] = useState(false);
     const [changeToOrderCountModalOpenFromWarehouse, setChangeToOrderCountModalOpenFromWarehouse] =
         useState('');
@@ -127,6 +131,7 @@ export const DeliveryPage = ({pageArgs}) => {
         formData.append('file', file);
         formData.append('uid', getUid());
         formData.append('campaignName', selectValue[0]);
+        formData.append('splitCountIntoBoxes', JSON.stringify(splitCountIntoBoxes));
 
         const token =
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
@@ -1294,6 +1299,17 @@ export const DeliveryPage = ({pageArgs}) => {
                             />
                         </Button>
                     </label>
+                    <div style={{minWidth: 8}} />
+                    <Tooltip content="Выбор того будет ли общее количество товаров разбито на коробки">
+                        <Button
+                            size="l"
+                            view={splitCountIntoBoxes ? 'outlined-success' : 'outlined'}
+                            selected={splitCountIntoBoxes}
+                            onClick={() => setSplitCountIntoBoxes(!splitCountIntoBoxes)}
+                        >
+                            <Icon data={Boxes3} size={20} />
+                        </Button>
+                    </Tooltip>
                     <div style={{minWidth: 8}} />
                     <Button
                         size="l"
