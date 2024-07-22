@@ -1300,7 +1300,10 @@ export const DeliveryPage = ({pageArgs}) => {
                         </Button>
                     </label>
                     <div style={{minWidth: 8}} />
-                    <Tooltip content="Выбор того будет ли общее количество товаров разбито на коробки">
+                    <Tooltip
+                        content="Выбор того будет ли общее количество товаров разбито на коробки"
+                        openDelay={1000}
+                    >
                         <Button
                             size="l"
                             view={splitCountIntoBoxes ? 'outlined-success' : 'outlined'}

@@ -81,7 +81,7 @@ export const Dashboard = () => {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     borderTop: '4px solid #0000',
-                    borderBottom: item.id == page ? '4px solid #ffbe5c' : '4px solid #0000',
+                    borderBottom: item.id == page ? '4px solid #ffbe5c' : '5px solid #0000',
                 }}
             >
                 <Link
