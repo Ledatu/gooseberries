@@ -4171,6 +4171,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
         {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
         {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
+        {name: 'cpl', placeholder: 'CPL, ₽'},
     ];
 
     const [filteredSummary, setFilteredSummary] = useState({
@@ -4377,6 +4378,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 addToCartPercent: 0,
                 addToCartCount: 0,
                 cartToOrderPercent: 0,
+                cpl: 0,
             };
 
             artInfo.art = artData['art'];
@@ -4499,6 +4501,12 @@ export const MassAdvertPage = ({pageArgs}) => {
                 artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
                 artInfo.cr = getRoundValue(artInfo.orders, artInfo.openCardCount, true);
                 artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
+                artInfo.cpl = getRoundValue(
+                    artInfo.sum,
+                    artInfo.addToCartCount,
+                    false,
+                    artInfo.sum,
+                );
 
                 summaryTemp.sum_orders += artInfo.sum_orders;
                 summaryTemp.sum += artInfo.sum;
@@ -4820,6 +4828,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             uniqueImtIds: 0,
             stocks: 0,
             cpo: 0,
+            cpl: 0,
             adverts: 0,
             semantics: null,
             budget: 0,
@@ -4910,6 +4919,12 @@ export const MassAdvertPage = ({pageArgs}) => {
         filteredSummaryTemp.cpo = getRoundValue(
             filteredSummaryTemp.sum,
             filteredSummaryTemp.orders,
+            false,
+            filteredSummaryTemp.sum,
+        );
+        filteredSummaryTemp.cpl = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.addToCartCount,
             false,
             filteredSummaryTemp.sum,
         );
@@ -6933,6 +6948,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
         {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
         {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
+        {name: 'cpl', placeholder: 'CPL, ₽'},
     ];
 
     const columnDataAuction = [

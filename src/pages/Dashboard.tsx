@@ -32,6 +32,7 @@ import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {DeliveryPage} from './DeliveryPage';
+import {SEOPage} from './SEOPage';
 
 const b = block('app');
 
@@ -76,12 +77,13 @@ export const Dashboard = () => {
             <div
                 key={index}
                 style={{
+                    // marginBottom: item.id == page ? 1 : 0,
                     height: 60,
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
                     borderTop: '4px solid #0000',
-                    borderBottom: item.id == page ? '4px solid #ffbe5c' : '5px solid #0000',
+                    borderBottom: item.id == page ? '5px solid #ffbe5c' : '5px solid #0000',
                 }}
             >
                 <Link
@@ -144,6 +146,11 @@ export const Dashboard = () => {
                 Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
                 Userfront.user.userUuid !== 'c5c9a3ce-2167-4446-a43b-d8ed63f80124' &&
                 Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064',
+        },
+        {
+            disabled: true,
+            id: 'seo',
+            title: 'SEO',
         },
     ];
 
@@ -463,6 +470,7 @@ const getPageElem = ({page, args}) => {
         prices: <PricesPage pageArgs={args} />,
         nomenclatures: <NomenclaturesPage pageArgs={args} />,
         analytics: <AnalyticsPage pageArgs={args} />,
+        seo: <SEOPage />,
     };
     return pages[page] ?? <div></div>;
 };
