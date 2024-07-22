@@ -1271,6 +1271,24 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     borderTopLeftRadius: 7,
                                     overflow: 'hidden',
                                 }}
+                                href={`https://cmp.wildberries.ru/campaigns/edit/${advertId}`}
+                                target="_blank"
+                                size="xs"
+                                pin="brick-brick"
+                                view={
+                                    status
+                                        ? status == 9
+                                            ? 'flat-success'
+                                            : status == 11
+                                            ? 'flat-danger'
+                                            : 'flat-warning'
+                                        : 'flat'
+                                }
+                            >
+                                <Icon data={type == 8 ? Rocket : Magnifier} size={11} />
+                            </Button>
+                            <Button
+                                selected
                                 onClick={() => filterByButton(advertId, 'adverts')}
                                 // style=x{{position: 'relative', top: -2}}
                                 size="xs"
@@ -1285,17 +1303,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         : 'flat'
                                 }
                             >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <Icon data={type == 8 ? Rocket : Magnifier} size={11} />
-                                    <div style={{width: 2}} />
-                                    {advertId}
-                                </div>
+                                {advertId}
                             </Button>
                             <Button
                                 selected
