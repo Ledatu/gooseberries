@@ -68,6 +68,7 @@ import {
     Check,
     CloudArrowUpIn,
     Tag,
+    // TagRuble,
     Cherry,
     Xmark,
 } from '@gravity-ui/icons';
@@ -1413,7 +1414,12 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 borderBottomLeftRadius: 9,
                             }}
                         >
-                            <Button pin="clear-clear" size="xs">
+                            <Button
+                                pin="brick-brick"
+                                size="xs"
+                                width="max"
+                                view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
+                            >
                                 {copiedAdvertsSettings.advertId
                                     ? copiedAdvertsSettings.advertId
                                     : 'Буфер пуст'}
@@ -1438,8 +1444,9 @@ export const MassAdvertPage = ({pageArgs}) => {
                             }}
                         >
                             <Button
-                                pin="clear-clear"
+                                pin="brick-brick"
                                 size="xs"
+                                view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
                                 onClick={() => {
                                     setCopiedAdvertsSettings({advertId});
                                 }}
@@ -1461,15 +1468,17 @@ export const MassAdvertPage = ({pageArgs}) => {
                             }}
                         >
                             <Button
-                                pin="clear-clear"
+                                pin="brick-brick"
                                 size="xs"
                                 disabled={advertId == copiedAdvertsSettings.advertId}
+                                view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
                                 onClick={() => setCopiedParams(advertId)}
                             >
                                 <Icon data={ArrowDownToSquare} size={11} />
                             </Button>
                             <Button
-                                pin="clear-clear"
+                                pin="brick-brick"
+                                view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
                                 size="xs"
                                 onClick={() => setCopiedAdvertsSettings({advertId: 0})}
                             >
@@ -2215,6 +2224,24 @@ export const MassAdvertPage = ({pageArgs}) => {
 
                 /// tags
                 const tagsNodes = [] as ReactNode[];
+                // tagsNodes.push(
+                //     <Button
+                //         size="xs"
+                //         pin="circle-circle"
+                //         view="flat"
+                //         style={{
+                //             borderRadius: 100,
+                //             overflow: 'hidden',
+                //             background:
+                //                 'linear-gradient(0deg, rgba(36, 36, 36, .1) 0, rgba(36, 36, 36, .1) 100%), linear-gradient(97deg, #ed3ccaa7 .49%, #df34d2a7 14.88%, #d02bd9a7 29.27%, #bf22e1a7 43.14%, #ae1ae8a7 57.02%, #9a10f0a7 70.89%, #8306f7a7 84.76%, #7c1af8a7 99.15%)',
+                //             // background: 'linear-gradient(to top, #c471f5 0%, #fa71cd 100%)',
+                //         }}
+                //     >
+                //         <Icon data={TagRuble} size={12} />
+                //     </Button>,
+                // );
+                // tagsNodes.push(<div style={{minWidth: 8}} />);
+
                 if (tags) {
                     for (let i = 0; i < tags.length; i++) {
                         const tag = tags[i];
