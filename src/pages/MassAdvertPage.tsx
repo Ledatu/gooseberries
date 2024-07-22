@@ -37,10 +37,12 @@ import {
     Key,
     Rocket,
     Comment,
+    ArrowDownToSquare,
     Magnifier,
     Star,
     LayoutHeader,
     ArrowsRotateLeft,
+    Copy,
     TriangleExclamation,
     ChartLine,
     ArrowRotateLeft,
@@ -212,6 +214,35 @@ export const MassAdvertPage = ({pageArgs}) => {
         {value: 'Поиск', content: 'Поиск'},
     ];
     const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState(['Авто']);
+
+    const [copiedAdvertsSettings, setCopiedAdvertsSettings] = useState({advertId: 0});
+    const setCopiedParams = (advertId) => {
+        console.log(advertId, 'params will be set from', copiedAdvertsSettings.advertId);
+        const params = {
+            uid: getUid(),
+            campaignName: selectValue[0],
+            data: {advertId},
+        };
+        for (const param of [
+            'advertsAutoBidsRules',
+            'advertsBudgetsToKeep',
+            'advertsPlusPhrasesTemplates',
+            'advertsSelectedPhrases',
+            'advertsSchedules',
+        ]) {
+            params.data[param] = doc[param][selectValue[0]][copiedAdvertsSettings.advertId];
+            doc[param][selectValue[0]][advertId] = params.data[param];
+        }
+
+        console.log(params);
+        callApi('copyAdvertsSettings', params)
+            .then(() => {
+                setChangedDoc(doc);
+            })
+            .catch((error) => {
+                console.log('error copiyng:', error);
+            });
+    };
 
     const [plusPhrasesModalFormOpen, setPlusPhrasesModalFormOpen] = useState(false);
     const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState<any[]>([]);
@@ -1361,6 +1392,83 @@ export const MassAdvertPage = ({pageArgs}) => {
                             <div style={{width: 8}} />
                         </div>
 
+                        <motion.div
+                            animate={{
+                                width: !copiedAdvertsSettings.advertId ? 0 : 70,
+                            }}
+                            transition={{delay: copiedAdvertsSettings.advertId ? 0.2 : 0}}
+                            style={{
+                                width: 0,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                overflow: 'hidden',
+                                borderBottomLeftRadius: 9,
+                            }}
+                        >
+                            <Button pin="clear-clear" size="xs">
+                                {copiedAdvertsSettings.advertId
+                                    ? copiedAdvertsSettings.advertId
+                                    : 'Буфер пуст'}
+                            </Button>
+                        </motion.div>
+                        <motion.div
+                            animate={{
+                                borderBottomRightRadius: copiedAdvertsSettings.advertId ? 0 : 9,
+                                borderBottomLeftRadius: copiedAdvertsSettings.advertId ? 0 : 9,
+                            }}
+                            onAnimationStart={async () => {
+                                await new Promise((resolve) => setTimeout(resolve, 400));
+                                filterTableData({adverts: {val: '', mode: 'include'}}, data);
+                            }}
+                            transition={{delay: copiedAdvertsSettings.advertId ? 0 : 0.2}}
+                            style={{
+                                borderBottomRightRadius: 9,
+                                borderBottomLeftRadius: 9,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <Button
+                                pin="clear-clear"
+                                size="xs"
+                                onClick={() => {
+                                    setCopiedAdvertsSettings({advertId});
+                                }}
+                            >
+                                <Icon data={Copy} size={11} />
+                            </Button>
+                        </motion.div>
+                        <motion.div
+                            animate={{
+                                width: !copiedAdvertsSettings.advertId ? 0 : 40,
+                            }}
+                            transition={{delay: copiedAdvertsSettings.advertId ? 0.2 : 0}}
+                            style={{
+                                width: 0,
+                                borderBottomRightRadius: 9,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <Button
+                                pin="clear-clear"
+                                size="xs"
+                                disabled={advertId == copiedAdvertsSettings.advertId}
+                                onClick={() => setCopiedParams(advertId)}
+                            >
+                                <Icon data={ArrowDownToSquare} size={11} />
+                            </Button>
+                            <Button
+                                pin="clear-clear"
+                                size="xs"
+                                onClick={() => setCopiedAdvertsSettings({advertId: 0})}
+                            >
+                                <Icon data={Xmark} size={11} />
+                            </Button>
+                        </motion.div>
+                        <div style={{width: 8}} />
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <Button
                                 pin="clear-clear"
@@ -10027,6 +10135,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 setWarningBeforeDeleteConfirmation(false);
                                 recalc(dateRange, nextValue[0], filters);
                                 setPagesCurrent(1);
+                                setCopiedAdvertsSettings({advertId: 0});
                             }}
                         />
                     </div>
