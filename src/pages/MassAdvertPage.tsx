@@ -4171,6 +4171,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
         {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
         {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
+        {name: 'addToCartCount', placeholder: 'Корзины, шт.'},
         {name: 'cpl', placeholder: 'CPL, ₽'},
     ];
 

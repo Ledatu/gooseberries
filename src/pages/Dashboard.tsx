@@ -148,7 +148,6 @@ export const Dashboard = () => {
                 Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064',
         },
         {
-            disabled: true,
             id: 'seo',
             title: 'SEO',
         },

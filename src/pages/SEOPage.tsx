@@ -2,6 +2,7 @@ import {Card, TextInput} from '@gravity-ui/uikit';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
 import TheTable, {compare} from 'src/components/TheTable';
+import callApi, {getUid} from 'src/utilities/callApi';
 
 export const SEOPage = () => {
     const [isInputDown, setIsInputDown] = useState(true);
@@ -30,12 +31,21 @@ export const SEOPage = () => {
                 const isValid = val != '';
                 setIsInputDown(!isValid);
 
-                setDataPhrasesTable({
-                    какашки: {phrase: 'какашки', freq: 4000},
-                    'какашки собаки': {phrase: 'какашки собаки', freq: 400},
-                    'какашки кошки': {phrase: 'какашки кошки', freq: 40},
-                    кошки: {phrase: 'кошки', freq: 40333333},
-                });
+                const params = {
+                    uid: getUid(),
+                    phraseFilter: val,
+                };
+                console.log(params);
+
+                callApi('getRequestsFiltered', params)
+                    .then((res) => {
+                        if (!res) return;
+                        const data = res['data'];
+                        setDataPhrasesTable(data);
+                    })
+                    .catch((error) => {
+                        console.log(new Date(), 'error occured:', error);
+                    });
             }
         }
     };
@@ -155,6 +165,7 @@ export const SEOPage = () => {
                 style={{display: 'flex', flexDirection: 'row', width: '60vw'}}
             >
                 <TextInput
+                    autoFocus
                     controlRef={mainInputRef}
                     style={{
                         margin: '8px 0',
@@ -173,6 +184,7 @@ export const SEOPage = () => {
                     stiffness: 1000,
                 }}
                 style={{
+                    pointerEvents: isInputDown ? 'none' : 'all',
                     top: 300,
                     position: 'absolute',
                     display: 'flex',
@@ -192,11 +204,17 @@ export const SEOPage = () => {
                         );
                     }}
                     animate={{
+                        x: isInputDown ? -1000 : 0,
                         opacity: !isInputDown ? 1 : 0,
-                        maxWidth: !isInputDown ? '40vw' : 0,
+                    }}
+                    transition={{
+                        type: 'spring',
+                        damping: 100,
+                        stiffness: 1000,
                     }}
                     style={{
-                        maxWidth: 0,
+                        x: -1000,
+                        maxWidth: '50vw',
                         opacity: 0,
                         display: 'flex',
                         flexDirection: 'column',
@@ -220,11 +238,17 @@ export const SEOPage = () => {
                         filterDataWordsTable({freq: {val: '', mode: 'include'}}, dataWordsTable);
                     }}
                     animate={{
+                        x: isInputDown ? 1000 : 0,
                         opacity: !isInputDown ? 1 : 0,
-                        maxWidth: !isInputDown ? '40vw' : 0,
+                    }}
+                    transition={{
+                        type: 'spring',
+                        damping: 100,
+                        stiffness: 1000,
                     }}
                     style={{
-                        maxWidth: 0,
+                        x: 1000,
+                        maxWidth: '30vw',
                         opacity: 0,
                         display: 'flex',
                         flexDirection: 'column',
