@@ -11,7 +11,7 @@ import {
 } from '@gravity-ui/uikit';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
-import TheTable, {compare, defaultRender} from 'src/components/TheTable';
+import TheTable, {compare} from 'src/components/TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
 
 import {FileArrowDown, Function} from '@gravity-ui/icons';
@@ -21,26 +21,6 @@ export const SEOPage = () => {
     const mainInputRef = useRef<HTMLInputElement>(null);
 
     const pageSize = 300;
-    const renderWithIndex = (args, filteredData, currentPage) => {
-        const {value, footer, index} = args;
-        if (footer) return value;
-
-        return (
-            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                <div
-                    style={{
-                        width: `${String(filteredData.length).length * 6}px`,
-                        margin: '0 16px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                    }}
-                >
-                    {Math.floor((currentPage - 1) * pageSize + index + 1)}
-                </div>
-                {defaultRender(args)}
-            </div>
-        );
-    };
 
     const [dataPhrasesTable, setDataPhrasesTable] = useState({});
     const [filtersPhrasesTable, setFiltersPhrasesTable] = useState({undef: false});
@@ -54,10 +34,11 @@ export const SEOPage = () => {
             name: 'phrase',
             placeholder: 'Поисковая фраза',
             valueType: 'text',
-            render: (args) =>
-                renderWithIndex(args, filteredDataPhrasesTable, currentPagePhrasesTable),
         },
-        {name: 'freq', placeholder: 'Частота'},
+        {
+            name: 'freq',
+            placeholder: 'Частота',
+        },
     ];
 
     const [dataWordsTable, setDataWordsTable] = useState({});
@@ -72,9 +53,11 @@ export const SEOPage = () => {
             name: 'word',
             placeholder: 'Слово',
             valueType: 'text',
-            render: (args) => renderWithIndex(args, filteredDataWordsTable, currentPageWordsTable),
         },
-        {name: 'freq', placeholder: 'Частота'},
+        {
+            name: 'freq',
+            placeholder: 'Частота',
+        },
     ];
 
     const [fetchingPhrases, setFetchingPhrases] = useState(true);
