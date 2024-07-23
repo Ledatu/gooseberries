@@ -1,8 +1,20 @@
-import {Card, Loader, Pagination, TextInput} from '@gravity-ui/uikit';
+import {
+    Button,
+    Card,
+    Icon,
+    Loader,
+    Pagination,
+    TextInput,
+    Text,
+    Link,
+    Popover,
+} from '@gravity-ui/uikit';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
 import TheTable, {compare} from 'src/components/TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
+
+import {FileArrowDown, Function} from '@gravity-ui/icons';
 
 export const SEOPage = () => {
     const [isInputDown, setIsInputDown] = useState(true);
@@ -37,6 +49,8 @@ export const SEOPage = () => {
     const [fetchingPhrases, setFetchingPhrases] = useState(true);
     const [lastFetchedPhrase, setLastFetchedPhrase] = useState('');
 
+    const [useRegularExpressions, setUseRegularExpressions] = useState(false);
+
     const handleMainInputKeyDown = (event) => {
         if (event.key === 'Enter') {
             if (mainInputRef.current !== null) {
@@ -47,7 +61,7 @@ export const SEOPage = () => {
                 const params = {
                     uid: getUid(),
                     filterPhrase: val,
-                    escapeChars: true,
+                    escapeChars: !useRegularExpressions,
                 };
                 console.log(params);
 
@@ -67,6 +81,30 @@ export const SEOPage = () => {
                 }
             }
         }
+    };
+
+    const downloadXlsx = () => {
+        callApi('downloadSEOXslx', {
+            uid: getUid(),
+            data: {
+                phrasesTable: filteredDataPhrasesTable,
+                wordsTable: filteredDataWordsTable,
+                lastFetchedPhrase,
+            },
+        })
+            .then((res: any) => {
+                return res.data;
+            })
+            .then((blob) => {
+                const element = document.createElement('a');
+                element.href = URL.createObjectURL(blob);
+                element.download = `SEO ${lastFetchedPhrase} ${new Date().toLocaleDateString(
+                    'ru-RU',
+                )}.xlsx`;
+                // simulate link click
+                document.body.appendChild(element);
+                element.click();
+            });
     };
 
     const filterDataTable = (
@@ -206,12 +244,47 @@ export const SEOPage = () => {
                     damping: 100,
                     stiffness: 1000,
                 }}
-                style={{display: 'flex', flexDirection: 'row', width: '60vw'}}
+                style={{display: 'flex', flexDirection: 'row', width: '60vw', alignItems: 'center'}}
             >
                 <TextInput
+                    leftContent={
+                        <Popover
+                            delayOpening={1000}
+                            hasArrow={false}
+                            placement={'bottom'}
+                            content={
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text>Поиск с использованием регулярных выражений.</Text>
+                                    <div style={{minWidth: 4}} />
+                                    <Link
+                                        href="https://support.google.com/a/answer/1371415?hl=ru"
+                                        target="_blank"
+                                    >
+                                        Справка
+                                    </Link>
+                                </div>
+                            }
+                        >
+                            <Button
+                                style={{marginRight: 8}}
+                                size="l"
+                                selected={useRegularExpressions}
+                                onClick={() => setUseRegularExpressions(!useRegularExpressions)}
+                            >
+                                <Icon data={Function} size={20} />
+                            </Button>
+                        </Popover>
+                    }
                     autoFocus
                     controlRef={mainInputRef}
                     style={{
+                        borderRadius: 9,
                         margin: '8px 0',
                         boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
                     }}
@@ -219,6 +292,36 @@ export const SEOPage = () => {
                     placeholder="Введите слово для поиска"
                     onKeyDown={handleMainInputKeyDown}
                 />
+                <motion.div
+                    animate={{
+                        width: isInputDown || fetchingPhrases ? 0 : 138,
+                        marginLeft: isInputDown || fetchingPhrases ? 0 : 16,
+                        opacity: isInputDown || fetchingPhrases ? 0 : 1,
+                    }}
+                    transition={{
+                        type: 'spring',
+                        damping: 100,
+                        stiffness: 1000,
+                    }}
+                    style={{display: 'flex', flexDirection: 'row', width: 0, opacity: 0}}
+                >
+                    <Button
+                        size="xl"
+                        style={{
+                            boxShadow: tableCardStyle.boxShadow,
+                            borderRadius: tableCardStyle.borderRadius,
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                        view="outlined"
+                        onClick={downloadXlsx}
+                    >
+                        <Icon data={FileArrowDown} size={20} />
+                        Скачать
+                    </Button>
+                </motion.div>
             </motion.div>
             <motion.div
                 animate={{opacity: fetchingPhrases && !isInputDown ? 1 : 0}}
@@ -226,13 +329,13 @@ export const SEOPage = () => {
                 style={{
                     opacity: 0,
                     pointerEvents: 'none',
-                    top: 76,
+                    top: 60,
                     position: 'absolute',
                     display: 'flex',
                     flexDirection: 'row',
                     justifyContent: 'center',
                     width: '100vw',
-                    height: 208,
+                    height: 224,
                 }}
             >
                 <Loader size="l" />
