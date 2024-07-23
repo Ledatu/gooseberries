@@ -1246,7 +1246,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             <Card
                 theme={pregenerated ? 'warning' : 'normal'}
                 style={{
-                    height: 96,
+                    height: 104.5,
                     width: 'fit-content',
                 }}
                 // view="raised"
@@ -1352,310 +1352,31 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 />
                             </Button>
                             <div style={{width: 8}} />
-                            <Button
-                                selected={isWarningBeforeDeleteConfirmationRow}
-                                style={{
-                                    display:
-                                        index != -1
-                                            ? warningBeforeDeleteConfirmation
-                                                ? isWarningBeforeDeleteConfirmationRow
-                                                    ? 'flex'
-                                                    : 'none'
-                                                : 'flex'
-                                            : 'none',
-                                    borderBottomRightRadius: 9,
-                                    borderBottomLeftRadius: 9,
-                                    overflow: 'hidden',
-                                }}
-                                onClick={async () => {
-                                    setWarningBeforeDeleteConfirmation(() => {
-                                        setWarningBeforeDeleteConfirmationRow(
-                                            warningBeforeDeleteConfirmation ? 0 : index,
-                                        );
-                                        setModalOpenFromAdvertId(
-                                            warningBeforeDeleteConfirmation ? '' : advertId,
-                                        );
-                                        return !warningBeforeDeleteConfirmation;
-                                    });
-
-                                    if (!warningBeforeDeleteConfirmation) {
-                                        await new Promise((resolve) => {
-                                            setTimeout(() => {
-                                                setWarningBeforeDeleteConfirmationRow(0);
-                                                setWarningBeforeDeleteConfirmation(false);
-                                                setModalOpenFromAdvertId('');
-
-                                                resolve(1);
-                                            }, 5 * 1000);
-                                        });
-                                    }
-                                }}
-                                // style={{position: 'relative', top: -2}}
-                                disabled={status === undefined}
-                                size="xs"
-                                pin="brick-brick"
-                                view={isWarningBeforeDeleteConfirmationRow ? 'flat-danger' : 'flat'}
-                            >
-                                <Icon data={TrashBin} size={11} />
-                            </Button>
-                            <div style={{width: 8}} />
                         </div>
-
-                        <motion.div
-                            animate={{
-                                width: !copiedAdvertsSettings.advertId ? 0 : 70,
-                            }}
-                            transition={{delay: copiedAdvertsSettings.advertId ? 0.2 : 0}}
+                        <Button
+                            pin="clear-clear"
                             style={{
-                                width: 0,
-                                display: 'flex',
-                                flexDirection: 'row',
-                                overflow: 'hidden',
+                                borderTopRightRadius: 7,
                                 borderBottomLeftRadius: 9,
-                            }}
-                        >
-                            <Button
-                                pin="brick-brick"
-                                size="xs"
-                                width="max"
-                                view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                            >
-                                {copiedAdvertsSettings.advertId
-                                    ? copiedAdvertsSettings.advertId
-                                    : 'Буфер пуст'}
-                            </Button>
-                        </motion.div>
-                        <motion.div
-                            animate={{
-                                borderBottomRightRadius: copiedAdvertsSettings.advertId ? 0 : 9,
-                                borderBottomLeftRadius: copiedAdvertsSettings.advertId ? 0 : 9,
-                            }}
-                            onAnimationStart={async () => {
-                                await new Promise((resolve) => setTimeout(resolve, 400));
-                                filterTableData({adverts: {val: '', mode: 'include'}}, data);
-                            }}
-                            transition={{delay: copiedAdvertsSettings.advertId ? 0 : 0.2}}
-                            style={{
-                                borderBottomRightRadius: 9,
-                                borderBottomLeftRadius: 9,
-                                display: 'flex',
-                                flexDirection: 'row',
                                 overflow: 'hidden',
                             }}
-                        >
-                            <Button
-                                pin="brick-brick"
-                                size="xs"
-                                view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                                onClick={() => {
-                                    setCopiedAdvertsSettings({advertId});
-                                }}
-                            >
-                                <Icon data={Copy} size={11} />
-                            </Button>
-                        </motion.div>
-                        <motion.div
-                            animate={{
-                                width: !copiedAdvertsSettings.advertId ? 0 : 40,
-                            }}
-                            transition={{delay: copiedAdvertsSettings.advertId ? 0.2 : 0}}
-                            style={{
-                                width: 0,
-                                borderBottomRightRadius: 9,
-                                display: 'flex',
-                                flexDirection: 'row',
-                                overflow: 'hidden',
+                            size="xs"
+                            // selected
+                            view="flat"
+                            onClick={() => {
+                                const nDaysAgo = new Date(today);
+
+                                nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
+
+                                const range = [nDaysAgo, today];
+                                recalc(range);
+                                setDateRange(range);
                             }}
                         >
-                            <Button
-                                pin="brick-brick"
-                                size="xs"
-                                disabled={advertId == copiedAdvertsSettings.advertId}
-                                view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                                onClick={() => setCopiedParams(advertId)}
-                            >
-                                <Icon data={ArrowDownToSquare} size={11} />
-                            </Button>
-                            <Button
-                                pin="brick-brick"
-                                view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                                size="xs"
-                                onClick={() => setCopiedAdvertsSettings({advertId: 0})}
-                            >
-                                <Icon data={Xmark} size={11} />
-                            </Button>
-                        </motion.div>
-                        <div style={{width: 8}} />
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button
-                                pin="clear-clear"
-                                style={{
-                                    borderBottomLeftRadius: 9,
-                                    overflow: 'hidden',
-                                }}
-                                size="xs"
-                                // selected
-                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
-                                view="flat"
-                                onClick={async () => {
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {advertId: advertId},
-                                    };
-                                    console.log(params);
-
-                                    const res = await callApi('getStatsByDateForAdvertId', params);
-                                    console.log(res);
-
-                                    if (!res) return;
-
-                                    const arts = [] as any[];
-                                    for (let i = 0; i < filteredData.length; i++) {
-                                        const {art, adverts} = filteredData[i];
-                                        if (!adverts) continue;
-                                        for (const [id, _] of Object.entries(adverts)) {
-                                            if (id == String(advertId)) {
-                                                if (!arts.includes(art)) arts.push(art);
-                                            }
-                                        }
-                                    }
-
-                                    const {days} = res['data'];
-
-                                    const stat = [] as any[];
-                                    if (days)
-                                        for (const [date, dateData] of Object.entries(days)) {
-                                            if (!date || !dateData) continue;
-                                            dateData['date'] = new Date(date);
-                                            dateData['orders'] = Math.round(dateData['orders']);
-                                            dateData['sum_orders'] = Math.round(
-                                                dateData['sum_orders'],
-                                            );
-                                            dateData['sum'] = Math.round(dateData['sum']);
-                                            dateData['views'] = Math.round(dateData['views']);
-                                            dateData['clicks'] = Math.round(dateData['clicks']);
-
-                                            const {orders, sum, clicks, views} = dateData as any;
-
-                                            dateData['drr'] = getRoundValue(
-                                                dateData['sum'],
-                                                dateData['sum_orders'],
-                                                true,
-                                                1,
-                                            );
-                                            dateData['ctr'] = getRoundValue(clicks, views, true);
-                                            dateData['cpc'] = getRoundValue(sum, clicks);
-                                            dateData['cpm'] = getRoundValue(sum * 1000, views);
-                                            dateData['cpo'] = getRoundValue(
-                                                sum,
-                                                orders,
-                                                false,
-                                                sum,
-                                            );
-
-                                            for (const _art of arts) {
-                                                const {advertsStats, nmFullDetailReport} =
-                                                    doc.campaigns[selectValue[0]][_art];
-                                                if (!advertsStats) continue;
-
-                                                if (!nmFullDetailReport) continue;
-                                                if (!nmFullDetailReport.statistics) continue;
-                                                if (!nmFullDetailReport.statistics[date]) continue;
-
-                                                const {openCardCount, addToCartCount} =
-                                                    nmFullDetailReport.statistics[date] ?? {
-                                                        openCardCount: 0,
-                                                        addToCartCount: 0,
-                                                    };
-
-                                                if (!dateData['openCardCount'])
-                                                    dateData['openCardCount'] = 0;
-                                                if (!dateData['addToCartCount'])
-                                                    dateData['addToCartCount'] = 0;
-
-                                                dateData['openCardCount'] += openCardCount ?? 0;
-                                                dateData['addToCartCount'] += addToCartCount ?? 0;
-                                            }
-                                            dateData['openCardCount'] = Math.round(
-                                                dateData['openCardCount'],
-                                            );
-                                            dateData['addToCartPercent'] = getRoundValue(
-                                                dateData['addToCartCount'],
-                                                dateData['openCardCount'],
-                                                true,
-                                            );
-                                            dateData['cartToOrderPercent'] = getRoundValue(
-                                                dateData['orders'],
-                                                dateData['addToCartCount'],
-                                                true,
-                                            );
-                                            dateData['cr'] = getRoundValue(
-                                                orders,
-                                                dateData['openCardCount'],
-                                                true,
-                                            );
-
-                                            stat.push(dateData);
-                                        }
-
-                                    console.log(stat);
-
-                                    setArtsStatsByDayData(stat);
-                                    setShowArtStatsModalOpen(true);
-                                }}
-                            >
-                                <Icon size={11} data={LayoutList}></Icon>
-                            </Button>
-                            <Button
-                                pin="clear-clear"
-                                style={{
-                                    overflow: 'hidden',
-                                }}
-                                size="xs"
-                                // selected
-                                view={
-                                    doc.advertsSchedules[selectValue[0]][advertId]
-                                        ? 'flat-action'
-                                        : 'flat'
-                                }
-                                onClick={() => {
-                                    setShowScheduleModalOpen(true);
-                                    setModalOpenFromAdvertId(advertId);
-
-                                    const schedule = doc.advertsSchedules[selectValue[0]][advertId]
-                                        ? doc.advertsSchedules[selectValue[0]][advertId].schedule
-                                        : undefined;
-
-                                    setScheduleInput(schedule ?? genTempSchedule());
-                                }}
-                            >
-                                <Icon size={11} data={Clock} />
-                            </Button>
-                            <Button
-                                pin="clear-clear"
-                                style={{
-                                    borderTopRightRadius: 7,
-                                    overflow: 'hidden',
-                                }}
-                                size="xs"
-                                // selected
-                                view="flat"
-                                onClick={() => {
-                                    const nDaysAgo = new Date(today);
-
-                                    nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
-
-                                    const range = [nDaysAgo, today];
-                                    recalc(range);
-                                    setDateRange(range);
-                                }}
-                            >
-                                {daysInWork + 1}
-                                <div style={{width: 2}} />
-                                <Icon size={11} data={status ? Calendar : Ban}></Icon>
-                            </Button>
-                        </div>
+                            {daysInWork + 1}
+                            <div style={{width: 2}} />
+                            <Icon size={11} data={status ? Calendar : Ban}></Icon>
+                        </Button>
                     </div>
                     <motion.div
                         animate={{
@@ -2122,6 +1843,293 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 )}
                                 <div style={{width: 5}} />
                             </div>
+                        </div>
+                        <div
+                            style={{
+                                minHeight: 0.5,
+                                marginTop: 4,
+                                width: '100%',
+                                background: 'var(--yc-color-base-generic-hover)',
+                            }}
+                        />
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                width: '100%',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <Button
+                                selected={isWarningBeforeDeleteConfirmationRow}
+                                style={{
+                                    display:
+                                        index != -1
+                                            ? warningBeforeDeleteConfirmation
+                                                ? isWarningBeforeDeleteConfirmationRow
+                                                    ? 'flex'
+                                                    : 'none'
+                                                : 'flex'
+                                            : 'none',
+                                    borderBottomLeftRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                                onClick={async () => {
+                                    setWarningBeforeDeleteConfirmation(() => {
+                                        setWarningBeforeDeleteConfirmationRow(
+                                            warningBeforeDeleteConfirmation ? 0 : index,
+                                        );
+                                        setModalOpenFromAdvertId(
+                                            warningBeforeDeleteConfirmation ? '' : advertId,
+                                        );
+                                        return !warningBeforeDeleteConfirmation;
+                                    });
+
+                                    if (!warningBeforeDeleteConfirmation) {
+                                        await new Promise((resolve) => {
+                                            setTimeout(() => {
+                                                setWarningBeforeDeleteConfirmationRow(0);
+                                                setWarningBeforeDeleteConfirmation(false);
+                                                setModalOpenFromAdvertId('');
+
+                                                resolve(1);
+                                            }, 5 * 1000);
+                                        });
+                                    }
+                                }}
+                                // style={{position: 'relative', top: -2}}
+                                disabled={status === undefined}
+                                size="xs"
+                                pin="brick-brick"
+                                view={isWarningBeforeDeleteConfirmationRow ? 'flat-danger' : 'flat'}
+                            >
+                                <Icon data={TrashBin} size={11} />
+                            </Button>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <motion.div
+                                    animate={{
+                                        width: !copiedAdvertsSettings.advertId ? 0 : 70,
+                                    }}
+                                    transition={{delay: copiedAdvertsSettings.advertId ? 0.2 : 0}}
+                                    style={{
+                                        width: 0,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    <Button
+                                        pin="brick-brick"
+                                        size="xs"
+                                        width="max"
+                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
+                                    >
+                                        {copiedAdvertsSettings.advertId
+                                            ? copiedAdvertsSettings.advertId
+                                            : 'Буфер пуст'}
+                                    </Button>
+                                </motion.div>
+                                <motion.div
+                                    onAnimationStart={async () => {
+                                        await new Promise((resolve) => setTimeout(resolve, 200));
+                                        filterTableData(
+                                            {adverts: {val: '', mode: 'include'}},
+                                            data,
+                                        );
+                                    }}
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    <Button
+                                        pin="brick-brick"
+                                        size="xs"
+                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
+                                        onClick={() => {
+                                            setCopiedAdvertsSettings({advertId});
+                                        }}
+                                    >
+                                        <Icon data={Copy} size={11} />
+                                    </Button>
+                                </motion.div>
+                                <motion.div
+                                    animate={{
+                                        width: !copiedAdvertsSettings.advertId ? 0 : 40,
+                                    }}
+                                    transition={{delay: copiedAdvertsSettings.advertId ? 0.2 : 0}}
+                                    style={{
+                                        width: 0,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    <Button
+                                        pin="brick-brick"
+                                        size="xs"
+                                        disabled={advertId == copiedAdvertsSettings.advertId}
+                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
+                                        onClick={() => setCopiedParams(advertId)}
+                                    >
+                                        <Icon data={ArrowDownToSquare} size={11} />
+                                    </Button>
+                                    <Button
+                                        pin="brick-brick"
+                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
+                                        size="xs"
+                                        onClick={() => setCopiedAdvertsSettings({advertId: 0})}
+                                    >
+                                        <Icon data={Xmark} size={11} />
+                                    </Button>
+                                </motion.div>
+                            </div>
+                            <Button
+                                pin="clear-clear"
+                                style={{
+                                    overflow: 'hidden',
+                                }}
+                                size="xs"
+                                // selected
+                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
+                                view="flat"
+                                onClick={async () => {
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {advertId: advertId},
+                                    };
+                                    console.log(params);
+
+                                    const res = await callApi('getStatsByDateForAdvertId', params);
+                                    console.log(res);
+
+                                    if (!res) return;
+
+                                    const arts = [] as any[];
+                                    for (let i = 0; i < filteredData.length; i++) {
+                                        const {art, adverts} = filteredData[i];
+                                        if (!adverts) continue;
+                                        for (const [id, _] of Object.entries(adverts)) {
+                                            if (id == String(advertId)) {
+                                                if (!arts.includes(art)) arts.push(art);
+                                            }
+                                        }
+                                    }
+
+                                    const {days} = res['data'];
+
+                                    const stat = [] as any[];
+                                    if (days)
+                                        for (const [date, dateData] of Object.entries(days)) {
+                                            if (!date || !dateData) continue;
+                                            dateData['date'] = new Date(date);
+                                            dateData['orders'] = Math.round(dateData['orders']);
+                                            dateData['sum_orders'] = Math.round(
+                                                dateData['sum_orders'],
+                                            );
+                                            dateData['sum'] = Math.round(dateData['sum']);
+                                            dateData['views'] = Math.round(dateData['views']);
+                                            dateData['clicks'] = Math.round(dateData['clicks']);
+
+                                            const {orders, sum, clicks, views} = dateData as any;
+
+                                            dateData['drr'] = getRoundValue(
+                                                dateData['sum'],
+                                                dateData['sum_orders'],
+                                                true,
+                                                1,
+                                            );
+                                            dateData['ctr'] = getRoundValue(clicks, views, true);
+                                            dateData['cpc'] = getRoundValue(sum, clicks);
+                                            dateData['cpm'] = getRoundValue(sum * 1000, views);
+                                            dateData['cpo'] = getRoundValue(
+                                                sum,
+                                                orders,
+                                                false,
+                                                sum,
+                                            );
+
+                                            for (const _art of arts) {
+                                                const {advertsStats, nmFullDetailReport} =
+                                                    doc.campaigns[selectValue[0]][_art];
+                                                if (!advertsStats) continue;
+
+                                                if (!nmFullDetailReport) continue;
+                                                if (!nmFullDetailReport.statistics) continue;
+                                                if (!nmFullDetailReport.statistics[date]) continue;
+
+                                                const {openCardCount, addToCartCount} =
+                                                    nmFullDetailReport.statistics[date] ?? {
+                                                        openCardCount: 0,
+                                                        addToCartCount: 0,
+                                                    };
+
+                                                if (!dateData['openCardCount'])
+                                                    dateData['openCardCount'] = 0;
+                                                if (!dateData['addToCartCount'])
+                                                    dateData['addToCartCount'] = 0;
+
+                                                dateData['openCardCount'] += openCardCount ?? 0;
+                                                dateData['addToCartCount'] += addToCartCount ?? 0;
+                                            }
+                                            dateData['openCardCount'] = Math.round(
+                                                dateData['openCardCount'],
+                                            );
+                                            dateData['addToCartPercent'] = getRoundValue(
+                                                dateData['addToCartCount'],
+                                                dateData['openCardCount'],
+                                                true,
+                                            );
+                                            dateData['cartToOrderPercent'] = getRoundValue(
+                                                dateData['orders'],
+                                                dateData['addToCartCount'],
+                                                true,
+                                            );
+                                            dateData['cr'] = getRoundValue(
+                                                orders,
+                                                dateData['openCardCount'],
+                                                true,
+                                            );
+
+                                            stat.push(dateData);
+                                        }
+
+                                    console.log(stat);
+
+                                    setArtsStatsByDayData(stat);
+                                    setShowArtStatsModalOpen(true);
+                                }}
+                            >
+                                <Icon size={11} data={LayoutList}></Icon>
+                            </Button>
+                            <Button
+                                pin="clear-clear"
+                                style={{
+                                    overflow: 'hidden',
+                                    borderBottomRightRadius: 9,
+                                }}
+                                size="xs"
+                                // selected
+                                view={
+                                    doc.advertsSchedules[selectValue[0]][advertId]
+                                        ? 'flat-action'
+                                        : 'flat'
+                                }
+                                onClick={() => {
+                                    setShowScheduleModalOpen(true);
+                                    setModalOpenFromAdvertId(advertId);
+
+                                    const schedule = doc.advertsSchedules[selectValue[0]][advertId]
+                                        ? doc.advertsSchedules[selectValue[0]][advertId].schedule
+                                        : undefined;
+
+                                    setScheduleInput(schedule ?? genTempSchedule());
+                                }}
+                            >
+                                <Icon size={11} data={Clock} />
+                            </Button>
                         </div>
                     </motion.div>
                     <motion.div

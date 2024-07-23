@@ -303,7 +303,11 @@ export const SEOPage = () => {
                         boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
                     }}
                     size="xl"
-                    placeholder="Введите слово для поиска"
+                    placeholder={
+                        useRegularExpressions
+                            ? 'Введите регулярное выражение'
+                            : 'Введите поисковый запрос'
+                    }
                     onKeyDown={handleMainInputKeyDown}
                 />
                 <motion.div

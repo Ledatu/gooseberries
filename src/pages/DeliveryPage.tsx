@@ -248,6 +248,7 @@ export const DeliveryPage = ({pageArgs}) => {
             if (!newBoxCount) newBoxCount = 1;
 
             const newOrder = Math.round(newBoxCount * multiplicity);
+            // console.log(toOrder, newBoxCount, newOrder);
 
             // console.log(art, toOrder, newOrder);
 
