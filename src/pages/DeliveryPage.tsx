@@ -29,6 +29,7 @@ import {
     Calculator,
     TrashBin,
     FileArrowDown,
+    Box,
     Boxes3,
     FileArrowUp,
     Pencil,
@@ -95,6 +96,8 @@ export const DeliveryPage = ({pageArgs}) => {
     const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
     const anchorRef = useRef(null);
     const [rangePickerOpen, setRangePickerOpen] = useState(false);
+
+    const [useMyStocks, setUseMyStocks] = useState(false);
 
     const [filters, setFilters] = useState({undef: false});
 
@@ -314,7 +317,7 @@ export const DeliveryPage = ({pageArgs}) => {
                 uid: getUid(),
                 campaignName: selectValue[0],
                 dateRange: getNormalDateRange(dateRange),
-                data: {primeCostType: primeCostType[0]},
+                data: {primeCostType: primeCostType[0], useMyStocks},
             },
             true,
         ).then((res) => {
@@ -345,6 +348,7 @@ export const DeliveryPage = ({pageArgs}) => {
 
             const artInfo = {
                 factoryArt: '',
+                myStocks: '',
                 tags: [],
                 art: '',
                 brandArt: '',
@@ -358,6 +362,7 @@ export const DeliveryPage = ({pageArgs}) => {
                 byWarehouses: {},
             };
             artInfo.factoryArt = artData['factoryArt'];
+            artInfo.myStocks = artData['myStocks'];
             artInfo.art = artData['art'];
             artInfo.brandArt = artData['brand_art'];
             artInfo.tags = artData['tags'];
@@ -642,6 +647,25 @@ export const DeliveryPage = ({pageArgs}) => {
             placeholder: 'Баркод',
             valueType: 'text',
             render: (args) => renderFilterByClickButton(args, 'barcode'),
+        },
+        {
+            name: 'myStocks',
+            placeholder: 'Мои остатки, шт.',
+            additionalNodes: [
+                <Tooltip content="Подогнать поставку под мои остатки." openDelay={1000}>
+                    <Button
+                        style={{marginLeft: 5}}
+                        selected={useMyStocks}
+                        view="outlined"
+                        onClick={() => {
+                            setUseMyStocks(!useMyStocks);
+                            setDateChangeRecalc(true);
+                        }}
+                    >
+                        <Icon data={Box} />
+                    </Button>
+                </Tooltip>,
+            ],
         },
         ...(() => {
             const columnTemp = [
@@ -1018,7 +1042,7 @@ export const DeliveryPage = ({pageArgs}) => {
                                         uid: getUid(),
                                         campaignName: nextValue,
                                         dateRange: getNormalDateRange(dateRange),
-                                        data: {primeCostType: primeCostType[0]},
+                                        data: {primeCostType: primeCostType[0], useMyStocks},
                                     },
                                     true,
                                 ).then((res) => {
