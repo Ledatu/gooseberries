@@ -1255,7 +1255,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             <Card
                 theme={pregenerated ? 'warning' : 'normal'}
                 style={{
-                    height: 104.5,
+                    height: 106.5,
                     width: 'fit-content',
                 }}
                 // view="raised"
@@ -1856,7 +1856,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                         <div
                             style={{
                                 minHeight: 0.5,
-                                marginTop: 4,
+                                marginTop: 5,
                                 width: '100%',
                                 background: 'var(--yc-color-base-generic-hover)',
                             }}
@@ -1880,7 +1880,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                     : 'none'
                                                 : 'flex'
                                             : 'none',
-                                    borderBottomLeftRadius: 9,
+                                    borderBottomLeftRadius: 7,
                                     overflow: 'hidden',
                                 }}
                                 onClick={async () => {
@@ -2121,7 +2121,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 pin="clear-clear"
                                 style={{
                                     overflow: 'hidden',
-                                    borderBottomRightRadius: 9,
+                                    borderBottomRightRadius: 7,
                                 }}
                                 size="xs"
                                 // selected
@@ -2918,7 +2918,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                     <Card
                         style={{
                             width: 120,
-                            height: 96,
+                            height: 106.5,
                             display: 'flex',
                             flexDirection: 'column',
                             overflow: 'hidden',
@@ -2965,25 +2965,35 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     </div>
                                 }
                             >
-                                <Button
-                                    view="outlined"
-                                    width="max"
-                                    size="xs"
-                                    pin="clear-clear"
-                                    style={{
-                                        width: 120,
-                                        overflow: 'hidden',
-                                        borderTopLeftRadius: 7,
-                                        borderTopRightRadius: 7,
-                                    }}
-                                    // pin="brick-brick"
-                                >
-                                    {`${priceRub} ₽`}
-                                </Button>
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    <Button
+                                        view="flat"
+                                        width="max"
+                                        size="xs"
+                                        pin="clear-clear"
+                                        style={{
+                                            width: 120,
+                                            overflow: 'hidden',
+                                            borderTopLeftRadius: 7,
+                                            borderTopRightRadius: 7,
+                                        }}
+                                        // pin="brick-brick"
+                                    >
+                                        {`${priceRub} ₽`}
+                                    </Button>
+                                    <div
+                                        style={{
+                                            minHeight: 0.5,
+                                            width: '100%',
+                                            background: 'var(--yc-color-base-generic-hover)',
+                                        }}
+                                    />
+                                </div>
                             </Popover>
                         ) : (
                             <></>
                         )}
+
                         {reviewRating ? (
                             <div style={{display: 'flex', flexDirection: 'row'}}>
                                 <Popover
