@@ -269,6 +269,11 @@ export const NomenclaturesPage = ({pageArgs}) => {
             additionalNodes: [generateEditButton('factoryArt')],
         },
         {
+            name: 'myStocks',
+            placeholder: 'Мои остатки, шт.',
+            additionalNodes: [generateEditButton('myStocks')],
+        },
+        {
             name: 'multiplicity',
             placeholder: 'Кратность короба, шт.',
             additionalNodes: [generateEditButton('multiplicity')],
@@ -434,6 +439,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
                 spp: 0,
                 prices: 0,
                 factoryArt: undefined,
+                myStocks: 0,
                 multiplicity: undefined,
                 volume: 0,
                 ktr: undefined,
@@ -464,6 +470,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
             artInfo.ktr = artDataUploaded['ktr'];
             artInfo.prices = artDataUploaded['prices'];
             artInfo.factoryArt = artDataUploaded['factoryArt'];
+            artInfo.myStocks = artDataUploaded['myStocks'];
             artInfo.multiplicity = artDataUploaded['multiplicity'];
             artInfo.weight = artDataUploaded['weight'];
             artInfo.commision = artDataUploaded['commision'];
@@ -667,6 +674,7 @@ export const NomenclaturesPage = ({pageArgs}) => {
 
     const keys = {
         factoryArt: {name: 'Артикул фабрики', type: 'text'},
+        myStocks: {name: 'Мои остатки, шт.', type: 'number'},
         multiplicity: {name: 'Кратность короба, шт.', type: 'number'},
         length: {name: 'Длина, см.', type: 'number'},
         width: {name: 'Ширина, см.', type: 'number'},
