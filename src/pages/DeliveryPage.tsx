@@ -65,7 +65,8 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
                     selectValue != ''
                         ? selectValue
                         : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                          Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+                          Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' ||
+                          Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6'
                         ? 'ИП Иосифова Р. И.'
                         : 'ОТК ПРОИЗВОДСТВО',
             },
@@ -886,7 +887,8 @@ export const DeliveryPage = ({pageArgs}) => {
                 }
             } else if (
                 Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+                Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' ||
+                Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6'
             ) {
                 if (
                     [
