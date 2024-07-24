@@ -495,7 +495,14 @@ export const DeliveryPage = ({pageArgs}) => {
                 key === undefined ||
                 val === undefined ||
                 (() => {
-                    for (const piece of ['stock', 'toOrder', 'fullPrice', 'profit', 'sumOrders']) {
+                    for (const piece of [
+                        'stock',
+                        'toOrder',
+                        'fullPrice',
+                        'profit',
+                        'sumOrders',
+                        'myStocks',
+                    ]) {
                         if (key.includes(piece)) return true;
                     }
                     return false;
