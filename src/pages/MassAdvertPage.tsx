@@ -489,6 +489,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         addToCartCount: 0,
         addToCartPercent: 0,
         cartToOrderPercent: 0,
+        cpl: 0,
     });
     const artsStatsByDayDataFilter = (withfFilters: any, stats: any[]) => {
         const _filters = withfFilters ?? artsStatsByDayFilters;
@@ -511,6 +512,7 @@ export const MassAdvertPage = ({pageArgs}) => {
             addToCartCount: 0,
             addToCartPercent: 0,
             cartToOrderPercent: 0,
+            cpl: 0,
         };
 
         _stats.sort((a, b) => {
@@ -579,7 +581,8 @@ export const MassAdvertPage = ({pageArgs}) => {
             artsStatsByDayFilteredSummaryTemp.addToCartCount,
             true,
         );
-        const {orders, sum, views, clicks, openCardCount} = artsStatsByDayFilteredSummaryTemp;
+        const {orders, sum, views, clicks, openCardCount, addToCartCount} =
+            artsStatsByDayFilteredSummaryTemp;
 
         artsStatsByDayFilteredSummaryTemp.drr = getRoundValue(
             artsStatsByDayFilteredSummaryTemp.sum,
@@ -592,6 +595,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         artsStatsByDayFilteredSummaryTemp.cpm = getRoundValue(sum * 1000, views);
         artsStatsByDayFilteredSummaryTemp.cr = getRoundValue(orders, openCardCount, true);
         artsStatsByDayFilteredSummaryTemp.cpo = getRoundValue(sum, orders, false, sum);
+        artsStatsByDayFilteredSummaryTemp.cpl = getRoundValue(sum, addToCartCount, false, sum);
 
         setArtsStatsByDayFilteredSummary(artsStatsByDayFilteredSummaryTemp);
     };
@@ -918,6 +922,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                     addToCartCount: 0,
                     addToCartPercent: 0,
                     cartToOrderPercent: 0,
+                    cpl: 0,
                 };
 
             for (const _art of arts) {
@@ -953,6 +958,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                 tempJson[strDate].orders,
                 tempJson[strDate].addToCartCount,
                 true,
+            );
+            tempJson[strDate].cpl = getRoundValue(
+                tempJson[strDate].sum,
+                tempJson[strDate].addToCartCount,
             );
         }
 
@@ -2088,9 +2097,13 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 true,
                                             );
                                             dateData['cr'] = getRoundValue(
-                                                orders,
+                                                dateData['orders'],
                                                 dateData['openCardCount'],
                                                 true,
+                                            );
+                                            dateData['cpl'] = getRoundValue(
+                                                dateData['sum'],
+                                                dateData['addToCartCount'],
                                             );
 
                                             stat.push(dateData);
@@ -6957,6 +6970,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
         {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
         {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
+        {name: 'addToCartCount', placeholder: 'Корзины, шт.'},
         {name: 'cpl', placeholder: 'CPL, ₽'},
     ];
 
