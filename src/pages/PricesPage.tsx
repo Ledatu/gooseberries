@@ -950,8 +950,7 @@ export const PricesPage = ({pageArgs}) => {
                         addFlag = false;
                         break;
                     }
-                }
-                if (filterArg == 'primeCost' && fldata.includes('%')) {
+                } else if (filterArg == 'primeCost' && fldata.includes('%')) {
                     const comp = fldata.replace(/%/g, '').trim();
                     const tempFilterData = {...filterData};
                     tempFilterData['val'] = comp;
