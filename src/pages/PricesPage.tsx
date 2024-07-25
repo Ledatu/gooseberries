@@ -628,14 +628,16 @@ export const PricesPage = ({pageArgs}) => {
                     ((args) => {
                         const {value, row} = args;
                         if (value === undefined) return undefined;
-                        const {rozPrice} = row;
-                        const markup = rozPrice - value;
-                        const percent = Math.round((markup / (value as number)) * 100);
+                        const {primeCostMarkup} = row;
+
                         return (
                             <Text>{`${value} ${
-                                isNaN(percent) || !isFinite(percent) || !value || !markup
+                                isNaN(primeCostMarkup) ||
+                                !isFinite(primeCostMarkup) ||
+                                !value ||
+                                !primeCostMarkup
                                     ? ''
-                                    : '/ ' + percent + '%'
+                                    : '/ ' + primeCostMarkup + '%'
                             }`}</Text>
                         );
                     })(args),
@@ -833,7 +835,7 @@ export const PricesPage = ({pageArgs}) => {
                 nmId: 0,
                 barcode: 0,
                 tags: [] as any[],
-                rozPrice: undefined,
+                rozPrice: 0,
                 sppPrice: undefined,
                 wbWalletPrice: undefined,
                 wbPrice: 0,
@@ -844,7 +846,8 @@ export const PricesPage = ({pageArgs}) => {
                 stock: undefined,
                 rentabelnost: 0,
                 roi: 0,
-                primeCost: undefined,
+                primeCost: 0,
+                primeCostMarkup: 0,
                 ad: 0,
                 obor: 0,
                 sales: 0,
@@ -883,6 +886,9 @@ export const PricesPage = ({pageArgs}) => {
             artInfo.stock = artData['stock'];
             artInfo.rentabelnost = getRoundValue(artData['rentabelnost'], 1, true);
             artInfo.primeCost = artData['primeCost'];
+            const markup = artInfo.rozPrice - artInfo.primeCost;
+            artInfo.primeCostMarkup = Math.round((markup / artInfo.primeCost) * 100);
+
             artInfo.ad = Math.round(artData['ad']);
             artInfo.comissionSum = Math.round(artData['comissionSum']);
             artInfo.deliverySum = Math.round(artData['deliverySum']);
@@ -941,6 +947,16 @@ export const PricesPage = ({pageArgs}) => {
                         }
 
                     if (!compare(wholeText, filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                }
+                if (filterArg == 'primeCost' && fldata.includes('%')) {
+                    const comp = fldata.replace(/%/g, '').trim();
+                    const tempFilterData = {...filterData};
+                    tempFilterData['val'] = comp;
+
+                    if (!flarg || !compare(tempTypeRow['primeCostMarkup'], tempFilterData)) {
                         addFlag = false;
                         break;
                     }

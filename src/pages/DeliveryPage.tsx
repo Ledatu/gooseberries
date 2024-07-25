@@ -348,7 +348,7 @@ export const DeliveryPage = ({pageArgs}) => {
 
             const artInfo = {
                 factoryArt: '',
-                myStocks: '',
+                myStocks: 0,
                 tags: [],
                 art: '',
                 brandArt: '',
