@@ -2300,7 +2300,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                         <div
                             style={{
                                 justifyContent: 'space-between',
-                                overflow: 'hidden',
                                 display: 'flex',
                                 flexDirection: 'row',
                                 marginRight: 8,
@@ -2567,7 +2566,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         style={{
                                             display: 'flex',
                                             flexDirection: 'row',
-                                            overflow: 'scroll',
+                                            maxWidth: 'calc(20vw - 46px)',
+                                            overflowX: 'scroll',
                                         }}
                                     >
                                         {tagsNodes}
