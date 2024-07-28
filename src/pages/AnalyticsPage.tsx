@@ -760,6 +760,8 @@ export const AnalyticsPage = ({pageArgs}) => {
             }
             event.target.files = [];
         } catch (error) {
+            setUploadProgress(-1);
+
             console.error('Error uploading file: ', error);
             if (error.response) {
                 // Server responded with a status other than 200 range

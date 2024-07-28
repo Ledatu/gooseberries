@@ -44,6 +44,7 @@ import {
     ArrowsRotateLeft,
     Copy,
     TriangleExclamation,
+    ArrowShapeDown,
     ChartLine,
     ArrowRotateLeft,
     CircleRuble,
@@ -68,7 +69,7 @@ import {
     Check,
     CloudArrowUpIn,
     Tag,
-    // TagRuble,
+    TagRuble,
     Cherry,
     Xmark,
 } from '@gravity-ui/icons';
@@ -93,6 +94,7 @@ import {
 } from 'src/utilities/getRoundValue';
 import TheTable, {compare} from 'src/components/TheTable';
 import {RangePicker} from 'src/components/RangePicker';
+import {AutoSalesModal} from 'src/components/AutoSalesModal';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -112,6 +114,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['advertsSelectedPhrases'][selectValue] =
                 docum['advertsSelectedPhrases'][selectValue];
             doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
+            doc['autoSalesProfits'][selectValue] = docum['autoSalesProfits'][selectValue];
 
             if (
                 doc['dzhemData'] &&
@@ -199,6 +202,12 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [availableTags, setAvailableTags] = useState([] as any[]);
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [tagsModalOpen, setTagsModalOpen] = useState(false);
+
+    const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
+    const [availableAutoSales, setAvailableAutoSales] = useState({});
+    const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
+    const [autoSalesModalOpen, setAutoSalesModalOpen] = useState(false);
+    const [autoSalesProfits, setAutoSalesProfits] = useState({});
 
     const [placementsDisplayPhrase, setPlacementsDisplayPhrase] = useState('');
 
@@ -2220,6 +2229,17 @@ export const MassAdvertPage = ({pageArgs}) => {
             name: 'art',
             placeholder: 'Артикул',
             width: 200,
+            additionalNodes: [
+                <Button
+                    style={{marginLeft: 5}}
+                    view="outlined"
+                    onClick={() => {
+                        filterByButton('АВТОСКИДКИ');
+                    }}
+                >
+                    <Icon data={TagRuble} />
+                </Button>,
+            ],
             render: ({value, row, footer, index}) => {
                 const {title, brand, object, nmId, photos, imtId, art, tags} = row;
 
@@ -2245,23 +2265,26 @@ export const MassAdvertPage = ({pageArgs}) => {
 
                 /// tags
                 const tagsNodes = [] as ReactNode[];
-                // tagsNodes.push(
-                //     <Button
-                //         size="xs"
-                //         pin="circle-circle"
-                //         view="flat"
-                //         style={{
-                //             borderRadius: 100,
-                //             overflow: 'hidden',
-                //             background:
-                //                 'linear-gradient(0deg, rgba(36, 36, 36, .1) 0, rgba(36, 36, 36, .1) 100%), linear-gradient(97deg, #ed3ccaa7 .49%, #df34d2a7 14.88%, #d02bd9a7 29.27%, #bf22e1a7 43.14%, #ae1ae8a7 57.02%, #9a10f0a7 70.89%, #8306f7a7 84.76%, #7c1af8a7 99.15%)',
-                //             // background: 'linear-gradient(to top, #c471f5 0%, #fa71cd 100%)',
-                //         }}
-                //     >
-                //         <Icon data={TagRuble} size={12} />
-                //     </Button>,
-                // );
-                // tagsNodes.push(<div style={{minWidth: 8}} />);
+                if (availableAutoSalesNmIds.includes(nmId)) {
+                    tagsNodes.push(
+                        <Button
+                            size="xs"
+                            pin="circle-circle"
+                            view="action"
+                            selected
+                            style={{
+                                borderRadius: 100,
+                                overflow: 'hidden',
+                                // background:
+                                // 'linear-gradient(0deg, rgba(36, 36, 36, .1) 0, rgba(36, 36, 36, .1) 100%), linear-gradient(97deg, #ed3ccaa7 .49%, #df34d2a7 14.88%, #d02bd9a7 29.27%, #bf22e1a7 43.14%, #ae1ae8a7 57.02%, #9a10f0a7 70.89%, #8306f7a7 84.76%, #7c1af8a7 99.15%)',
+                                // background: 'linear-gradient(to top, #c471f5 0%, #fa71cd 100%)',
+                            }}
+                        >
+                            <Icon data={TagRuble} size={12} />
+                        </Button>,
+                    );
+                    tagsNodes.push(<div style={{minWidth: 8}} />);
+                }
 
                 if (tags) {
                     for (let i = 0; i < tags.length; i++) {
@@ -2585,144 +2608,326 @@ export const MassAdvertPage = ({pageArgs}) => {
             name: 'adverts',
             placeholder: 'Реклама',
             valueType: 'text',
-            additionalNodes: [
-                <Button
-                    style={{marginLeft: 5}}
-                    // size="l"
-                    view="outlined"
-                    onClick={() => filterByButton('авто', 'adverts')}
-                >
-                    <Icon data={Rocket} size={14} />
-                </Button>,
-                <Button
-                    style={{marginLeft: 5}}
-                    // size="l"
-                    view="outlined"
-                    onClick={() => filterByButton('поиск', 'adverts')}
-                >
-                    <Icon data={Magnifier} size={14} />
-                </Button>,
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        marginBottom: 5,
-                        marginLeft: 4,
-                    }}
-                >
-                    <HelpPopover
-                        size="l"
-                        content={
-                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                <Text variant="subheader-1">
-                                    Для поиска введите
-                                    <Text
-                                        style={{margin: '0 3px'}}
-                                        color="brand"
-                                        variant="subheader-1"
-                                    >
-                                        Id РК
-                                    </Text>
-                                </Text>
-                                <div style={{height: 4}} />
-                                <Text variant="subheader-1">
-                                    Введите
-                                    <Button
-                                        size="s"
-                                        style={{margin: '0 3px'}}
-                                        view="outlined-action"
-                                        onClick={() => filterByButton('+', 'adverts')}
-                                    >
-                                        <Icon data={Plus} size={14} />
-                                    </Button>
-                                    чтобы показать артикулы с РК
-                                </Text>
-                                <div style={{height: 4}} />
-                                <Text variant="subheader-1">
-                                    Введите
-                                    <Button
-                                        size="s"
-                                        style={{margin: '0 3px'}}
-                                        view="outlined-action"
-                                        onClick={() => filterByButton('-', 'adverts')}
-                                    >
-                                        <Icon data={Minus} size={14} />
-                                    </Button>
-                                    чтобы показать артикулы без РК
-                                </Text>
-                                <div style={{height: 4}} />
-                                <Text variant="subheader-1">
-                                    Введите
-                                    <Button
-                                        size="s"
-                                        style={{margin: '0 3px'}}
-                                        view="outlined-action"
-                                        onClick={() => filterByButton('авто', 'adverts')}
-                                    >
-                                        авто
-                                    </Button>
-                                    чтобы показать артикулы с авто РК
-                                </Text>
-                                <div style={{height: 4}} />
-                                <Text variant="subheader-1">
-                                    Введите
-                                    <Button
-                                        size="s"
-                                        style={{margin: '0 3px'}}
-                                        view="outlined-action"
-                                        onClick={() => filterByButton('поиск', 'adverts')}
-                                    >
-                                        поиск
-                                    </Button>
-                                    чтобы показать артикулы с поисковыми РК
-                                </Text>
-                            </div>
-                        }
-                    />
-                </div>,
-            ],
+            additionalNodes:
+                Object.keys(autoSalesProfits).length == 0
+                    ? [
+                          <Button
+                              style={{marginLeft: 5}}
+                              // size="l"
+                              view="outlined"
+                              onClick={() => filterByButton('авто', 'adverts')}
+                          >
+                              <Icon data={Rocket} size={14} />
+                          </Button>,
+                          <Button
+                              style={{marginLeft: 5}}
+                              // size="l"
+                              view="outlined"
+                              onClick={() => filterByButton('поиск', 'adverts')}
+                          >
+                              <Icon data={Magnifier} size={14} />
+                          </Button>,
+                          <div
+                              style={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  marginBottom: 5,
+                                  marginLeft: 4,
+                              }}
+                          >
+                              <HelpPopover
+                                  size="l"
+                                  content={
+                                      <div style={{display: 'flex', flexDirection: 'column'}}>
+                                          <Text variant="subheader-1">
+                                              Для поиска введите
+                                              <Text
+                                                  style={{margin: '0 3px'}}
+                                                  color="brand"
+                                                  variant="subheader-1"
+                                              >
+                                                  Id РК
+                                              </Text>
+                                          </Text>
+                                          <div style={{height: 4}} />
+                                          <Text variant="subheader-1">
+                                              Введите
+                                              <Button
+                                                  size="s"
+                                                  style={{margin: '0 3px'}}
+                                                  view="outlined-action"
+                                                  onClick={() => filterByButton('+', 'adverts')}
+                                              >
+                                                  <Icon data={Plus} size={14} />
+                                              </Button>
+                                              чтобы показать артикулы с РК
+                                          </Text>
+                                          <div style={{height: 4}} />
+                                          <Text variant="subheader-1">
+                                              Введите
+                                              <Button
+                                                  size="s"
+                                                  style={{margin: '0 3px'}}
+                                                  view="outlined-action"
+                                                  onClick={() => filterByButton('-', 'adverts')}
+                                              >
+                                                  <Icon data={Minus} size={14} />
+                                              </Button>
+                                              чтобы показать артикулы без РК
+                                          </Text>
+                                          <div style={{height: 4}} />
+                                          <Text variant="subheader-1">
+                                              Введите
+                                              <Button
+                                                  size="s"
+                                                  style={{margin: '0 3px'}}
+                                                  view="outlined-action"
+                                                  onClick={() => filterByButton('авто', 'adverts')}
+                                              >
+                                                  авто
+                                              </Button>
+                                              чтобы показать артикулы с авто РК
+                                          </Text>
+                                          <div style={{height: 4}} />
+                                          <Text variant="subheader-1">
+                                              Введите
+                                              <Button
+                                                  size="s"
+                                                  style={{margin: '0 3px'}}
+                                                  view="outlined-action"
+                                                  onClick={() => filterByButton('поиск', 'adverts')}
+                                              >
+                                                  поиск
+                                              </Button>
+                                              чтобы показать артикулы с поисковыми РК
+                                          </Text>
+                                      </div>
+                                  }
+                              />
+                          </div>,
+                      ]
+                    : [
+                          <Button
+                              view="outlined"
+                              style={{marginLeft: 5}}
+                              onClick={() => {
+                                  const params = {
+                                      uid: getUid(),
+                                      campaignName: selectValue[0],
+                                      data: {},
+                                  };
+                                  for (const row of filteredData) {
+                                      const {nmId, art} = row;
+                                      const profits = autoSalesProfits[art];
+                                      if (!profits) continue;
+                                      const {
+                                          autoSaleName,
+                                          dateRange,
+                                          rozPrice,
+                                          oldRozPrices,
+                                          oldDiscount,
+                                      } = profits;
+                                      params.data[nmId] = {
+                                          autoSaleName,
+                                          dateRange,
+                                          rozPrice,
+                                          oldRozPrices,
+                                          oldDiscount,
+                                      };
+                                  }
+
+                                  console.log(params);
+
+                                  callApi('setAutoSales', params);
+                              }}
+                          >
+                              <Icon data={Check} />
+                              Принять все
+                          </Button>,
+                          <Button
+                              style={{marginLeft: 5}}
+                              view="outlined"
+                              onClick={() => {
+                                  setAutoSalesProfits({});
+                              }}
+                          >
+                              <Icon data={Xmark} />
+                              Отклонить все
+                          </Button>,
+                      ],
             render: ({value, row, index}) => {
-                if (value === null || value === undefined) return;
                 if (typeof value === 'number') {
                     return <Text>{`Уникальных Id: ${value}`}</Text>;
                 }
 
-                const {art} = row;
+                const {art, nmId} = row;
 
                 const switches: any[] = [];
-                for (const [advertId, _] of Object.entries(value)) {
-                    const advertData = doc.adverts[selectValue[0]][advertId];
-                    if (!advertData) continue;
+                if (value)
+                    for (const [advertId, _] of Object.entries(value)) {
+                        const advertData = doc.adverts[selectValue[0]][advertId];
+                        if (!advertData) continue;
 
-                    // console.log('popa', advertData, filters['adverts'].val);
-                    if (
-                        filters['adverts'] &&
-                        ['авто', 'поиск'].includes(
-                            String(filters['adverts'].val).toLowerCase().trim(),
-                        )
-                    ) {
-                        // console.log('popa2', advertData, filters['adverts'].val);
+                        // console.log('popa', advertData, filters['adverts'].val);
                         if (
-                            String(filters['adverts'].val).toLowerCase().includes('поиск') &&
-                            (advertData.type == 9 || advertData.type == 6)
-                        ) {
-                            switches.push(generateAdvertCard(advertId, index, art));
-                            switches.push(<div style={{minWidth: 8}} />);
-                        } else if (
                             filters['adverts'] &&
-                            String(filters['adverts'].val).toLowerCase().includes('авто') &&
-                            advertData.type == 8
+                            ['авто', 'поиск'].includes(
+                                String(filters['adverts'].val).toLowerCase().trim(),
+                            )
                         ) {
+                            // console.log('popa2', advertData, filters['adverts'].val);
+                            if (
+                                String(filters['adverts'].val).toLowerCase().includes('поиск') &&
+                                (advertData.type == 9 || advertData.type == 6)
+                            ) {
+                                switches.push(generateAdvertCard(advertId, index, art));
+                                switches.push(<div style={{minWidth: 8}} />);
+                            } else if (
+                                filters['adverts'] &&
+                                String(filters['adverts'].val).toLowerCase().includes('авто') &&
+                                advertData.type == 8
+                            ) {
+                                switches.push(generateAdvertCard(advertId, index, art));
+                                switches.push(<div style={{minWidth: 8}} />);
+                            } else {
+                                continue;
+                            }
+                        } else {
                             switches.push(generateAdvertCard(advertId, index, art));
                             switches.push(<div style={{minWidth: 8}} />);
-                        } else {
-                            continue;
                         }
-                    } else {
-                        switches.push(generateAdvertCard(advertId, index, art));
-                        switches.push(<div style={{minWidth: 8}} />);
                     }
+
+                const profitsData = autoSalesProfits[art];
+                if (profitsData) {
+                    switches.push(
+                        <Card
+                            style={{
+                                height: 106.5,
+                                width: 'fit-content',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Button
+                                style={{
+                                    borderTopLeftRadius: 7,
+                                    borderTopRightRadius: 7,
+                                    overflow: 'hidden',
+                                }}
+                                width="max"
+                                size="xs"
+                                pin="brick-brick"
+                                view="flat"
+                            >
+                                <Text>{profitsData.autoSaleName}</Text>
+                            </Button>
+                            <Button view="outlined" size="xs" pin="clear-clear" width="max">
+                                <Text color={profitsData.profit > 0 ? 'positive' : 'danger'}>
+                                    {`${new Intl.NumberFormat('ru-RU').format(
+                                        profitsData.oldProfit,
+                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                        getRoundValue(profitsData.oldRentabelnost, 1, true),
+                                    )}%`}
+                                </Text>
+                            </Button>
+
+                            <Text
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: 20,
+                                }}
+                                color={
+                                    profitsData.profit == profitsData.oldProfit
+                                        ? 'positive'
+                                        : 'secondary'
+                                }
+                            >
+                                <Icon data={ArrowShapeDown} />
+                            </Text>
+                            <Button view="outlined" size="xs" pin="clear-clear" width="max">
+                                <Text color={profitsData.profit > 0 ? 'positive' : 'danger'}>
+                                    {`${new Intl.NumberFormat('ru-RU').format(
+                                        profitsData.profit,
+                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                        getRoundValue(profitsData.rentabelnost, 1, true),
+                                    )}%`}
+                                </Text>
+                            </Button>
+                            <div
+                                style={{
+                                    minHeight: 0.5,
+                                    marginTop: 5,
+                                    width: '100%',
+                                    background: 'var(--yc-color-base-generic-hover)',
+                                }}
+                            />
+                            <div style={{display: 'flex', flexDirection: 'row', width: '100%'}}>
+                                <Button
+                                    pin="clear-clear"
+                                    size="xs"
+                                    width="max"
+                                    view="flat-success"
+                                    selected
+                                    style={{borderBottomLeftRadius: 7, overflow: 'hidden'}}
+                                    onClick={() => {
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            data: {},
+                                        };
+                                        const {
+                                            autoSaleName,
+                                            dateRange,
+                                            rozPrice,
+                                            oldRozPrices,
+                                            oldDiscount,
+                                        } = profitsData;
+                                        params.data[nmId] = {
+                                            autoSaleName,
+                                            dateRange,
+                                            rozPrice,
+                                            oldRozPrices,
+                                            oldDiscount,
+                                        };
+
+                                        console.log(params);
+
+                                        callApi('setAutoSales', params);
+
+                                        const temp = {...autoSalesProfits};
+                                        delete temp[art];
+                                        setAutoSalesProfits(temp);
+                                    }}
+                                >
+                                    <Icon data={Check} />
+                                </Button>
+                                <Button
+                                    pin="clear-clear"
+                                    size="xs"
+                                    width="max"
+                                    view="flat-danger"
+                                    selected
+                                    style={{borderBottomRightRadius: 7, overflow: 'hidden'}}
+                                    onClick={() => {
+                                        const temp = {...autoSalesProfits};
+                                        delete temp[art];
+                                        setAutoSalesProfits(temp);
+                                    }}
+                                >
+                                    <Icon data={Xmark} />
+                                </Button>
+                            </div>
+                        </Card>,
+                    );
+                    switches.push(<div style={{minWidth: 8}} />);
                 }
+
                 switches.pop();
 
                 return (
@@ -4234,6 +4439,54 @@ export const MassAdvertPage = ({pageArgs}) => {
         setSelectedCampaign(selectValue[0]);
         setWordsFetchUpdate(true);
         setAdvertsBidsLogFetchUpdate(true);
+
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selectValue[0],
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+
+        setAvailableAutoSalesPending(true);
+        callApi('getAllAvailableAutoSales', {
+            uid: getUid(),
+            campaignName: selectValue[0],
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const sales = res['data'] ?? {};
+                setAvailableAutoSales(sales ?? {});
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableAutoSalesPending(false);
+            });
+
+        callApi('getAvailableAutoSaleNmIds', {
+            uid: getUid(),
+            campaignName: selectValue[0],
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const nmIds = res['data'] ?? {};
+                setAvailableAutoSalesNmIds(nmIds ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            });
     }, [selectValue]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
@@ -4740,37 +4993,44 @@ export const MassAdvertPage = ({pageArgs}) => {
                     const rulesForAnd = filterData['val'].split('+');
                     // console.log(rulesForAnd);
 
-                    let wholeText = '';
-                    for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
-                        wholeText += tempTypeRow[key] + ' ';
-                    }
+                    if (fldata == 'АВТОСКИДКИ ') {
+                        if (!availableAutoSalesNmIds.includes(tempTypeRow['nmId'])) {
+                            addFlag = false;
+                            break;
+                        }
+                    } else {
+                        let wholeText = '';
+                        for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
+                            wholeText += tempTypeRow[key] + ' ';
+                        }
 
-                    const tags = tempTypeRow['tags'];
-                    if (tags) {
-                        for (const key of tags) {
-                            wholeText += key + ' ';
+                        const tags = tempTypeRow['tags'];
+                        if (tags) {
+                            for (const key of tags) {
+                                wholeText += key + ' ';
+                            }
                         }
-                    }
 
-                    let tempFlagInc = 0;
-                    for (let k = 0; k < rulesForAnd.length; k++) {
-                        const ruleForAdd = rulesForAnd[k];
-                        if (ruleForAdd == '') {
-                            tempFlagInc++;
-                            continue;
+                        let tempFlagInc = 0;
+                        for (let k = 0; k < rulesForAnd.length; k++) {
+                            const ruleForAdd = rulesForAnd[k];
+                            if (ruleForAdd == '') {
+                                tempFlagInc++;
+                                continue;
+                            }
+                            if (
+                                compare(wholeText, {
+                                    val: ruleForAdd,
+                                    compMode: filterData['compMode'],
+                                })
+                            ) {
+                                tempFlagInc++;
+                            }
                         }
-                        if (
-                            compare(wholeText, {
-                                val: ruleForAdd,
-                                compMode: filterData['compMode'],
-                            })
-                        ) {
-                            tempFlagInc++;
+                        if (tempFlagInc != rulesForAnd.length) {
+                            addFlag = false;
+                            break;
                         }
-                    }
-                    if (tempFlagInc != rulesForAnd.length) {
-                        addFlag = false;
-                        break;
                     }
                 } else if (filterArg == 'placements') {
                     if (filterData['val'] == '') {
@@ -7459,24 +7719,6 @@ export const MassAdvertPage = ({pageArgs}) => {
         setSelectValue([selected]);
         console.log(doc);
 
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selected,
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
-
         for (let i = 0; i < columnData.length; i++) {
             const {name, valueType} = columnData[i];
             if (!name) continue;
@@ -9280,6 +9522,30 @@ export const MassAdvertPage = ({pageArgs}) => {
                             )}
                         </div>
                     </Modal>
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        view="action"
+                        loading={availableAutoSalesPending}
+                        size="l"
+                        onClick={async () => {
+                            setAutoSalesModalOpen(true);
+                        }}
+                    >
+                        <Icon data={TagRuble} />
+                        <Text variant="subheader-1">Автоакции</Text>
+                    </Button>
+                    <AutoSalesModal
+                        params={{
+                            autoSalesModalOpen,
+                            setAutoSalesModalOpen,
+                            getUid,
+                            selectValue,
+                            availableAutoSales,
+                            filteredData,
+                            autoSalesProfits,
+                            setAutoSalesProfits,
+                        }}
+                    />
                     <Modal
                         open={semanticsModalFormOpen}
                         onClose={() => {
@@ -10148,23 +10414,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                             }}
                             onUpdate={(nextValue) => {
                                 setSwitchingCampaignsFlag(true);
-                                setAvailableTagsPending(true);
-                                callApi('getAllTags', {
-                                    uid: getUid(),
-                                    campaignName: nextValue[0],
-                                })
-                                    .then((res) => {
-                                        if (!res) throw 'no response';
-                                        const {tags} = res['data'] ?? {};
-                                        tags.sort();
-                                        setAvailableTags(tags ?? []);
-                                    })
-                                    .catch((e) => {
-                                        console.log(e);
-                                    })
-                                    .finally(() => {
-                                        setAvailableTagsPending(false);
-                                    });
+                                setSelectValue(nextValue);
 
                                 if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
                                     callApi(
@@ -10202,9 +10452,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             resData['advertsSchedules'][nextValue[0]];
                                         doc['dzhemData'][nextValue[0]] =
                                             resData['dzhemData'][nextValue[0]];
+                                        doc['autoSalesProfits'][nextValue[0]] =
+                                            resData['autoSalesProfits'][nextValue[0]];
 
                                         setChangedDoc(doc);
-                                        setSelectValue(nextValue);
 
                                         // recalc(dateRange, nextValue[0]);
 
@@ -10212,7 +10463,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         console.log(doc);
                                     });
                                 } else {
-                                    setSelectValue(nextValue);
                                     setSwitchingCampaignsFlag(false);
                                 }
                                 setWarningBeforeDeleteConfirmationRow(0);

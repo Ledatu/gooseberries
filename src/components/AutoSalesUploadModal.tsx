@@ -10,10 +10,12 @@ export const AutoSalesUploadModal = ({params}) => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [dateRange, setDateRange] = useState([] as any[]);
     const [startDate, endDate] = dateRange;
+    const [saleName, setSaleName] = useState('');
     const uploadId = useId();
 
     useEffect(() => {
         setDateRange([]);
+        setSaleName('');
     }, [autoSalesUploadModalOpen]);
 
     async function handleChange(event) {
@@ -24,21 +26,18 @@ export const AutoSalesUploadModal = ({params}) => {
             return;
         }
 
-        // Check file size (example limit: 10MB)
-        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-        if (file.size > MAX_FILE_SIZE) {
-            console.error('File size exceeds the limit');
-            setUploadProgress(-1);
-            return;
-        }
+        const saleNameTemp = file.name.split('_')[5];
+        setSaleName(saleNameTemp);
 
         event.preventDefault();
         const url = 'https://aurum-mp.ru/api/uploadAutoSales';
         const formData = new FormData();
 
-        formData.append('file', file);
         formData.append('uid', getUid());
         formData.append('campaignName', selectValue[0]);
+        formData.append('autoSaleName', saleNameTemp);
+        formData.append('dateRange', JSON.stringify(dateRange));
+        formData.append('file', file);
 
         const token =
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
@@ -65,6 +64,7 @@ export const AutoSalesUploadModal = ({params}) => {
             }
             event.target.files = [];
         } catch (error) {
+            setUploadProgress(-1);
             console.error('Error uploading file: ', error);
             if (error.response) {
                 // Server responded with a status other than 200 range
@@ -110,56 +110,70 @@ export const AutoSalesUploadModal = ({params}) => {
                     backgroundColor: 'none',
                 }}
             >
-                <label htmlFor={uploadId}>
-                    <Button
-                        disabled={!startDate || !endDate}
-                        size="l"
-                        onClick={() => {
-                            setUploadProgress(0);
-                            (document.getElementById(uploadId) as HTMLInputElement).value = '';
-                        }}
-                        style={{
-                            cursor: 'pointer',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                        }}
-                        selected={uploadProgress === 100 || uploadProgress === -1}
-                        view={
-                            uploadProgress === 100
-                                ? 'flat-success'
-                                : uploadProgress === -1
-                                ? 'flat-danger'
-                                : 'outlined-success'
-                        }
-                    >
-                        <Text
-                            variant="subheader-1"
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Icon data={FileArrowUp} size={20} />
-                            <div style={{minWidth: 3}} />
-                            Загрузить файл автоакции
-                            <input
-                                id={uploadId}
-                                style={{
-                                    opacity: 0,
-                                    position: 'absolute',
-                                    height: 40,
-                                    left: 0,
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Text variant="header-1">{saleName}</Text>
+                    <div style={{minHeight: 8}} />
+                    <form encType="multipart/form-data">
+                        <label htmlFor={uploadId}>
+                            <Button
+                                disabled={!startDate || !endDate}
+                                size="l"
+                                onClick={() => {
+                                    setUploadProgress(0);
+                                    (document.getElementById(uploadId) as HTMLInputElement).value =
+                                        '';
                                 }}
-                                type="file"
-                                onChange={handleChange}
-                            />
-                        </Text>
-                    </Button>
-                </label>
+                                style={{
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                                selected={uploadProgress === 100 || uploadProgress === -1}
+                                view={
+                                    uploadProgress === 100
+                                        ? 'flat-success'
+                                        : uploadProgress === -1
+                                        ? 'flat-danger'
+                                        : 'outlined-success'
+                                }
+                            >
+                                <Text
+                                    variant="subheader-1"
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Icon data={FileArrowUp} size={20} />
+                                    <div style={{minWidth: 3}} />
+                                    Загрузить файл автоакции
+                                    <input
+                                        id={uploadId}
+                                        style={{
+                                            opacity: 0,
+                                            position: 'absolute',
+                                            height: 40,
+                                            left: 0,
+                                        }}
+                                        type="file"
+                                        onChange={handleChange}
+                                    />
+                                </Text>
+                            </Button>
+                        </label>
+                    </form>
+                </div>
                 <div
                     style={{
                         display: 'flex',
