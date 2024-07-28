@@ -58,6 +58,7 @@ export const AutoSalesUploadModal = ({params}) => {
             const response = await axios.post(url, formData, config);
             console.log(response.data);
             if (response) {
+                setAutoSalesUploadModalOpen(false);
                 setTimeout(() => {
                     setUploadProgress(0);
                 }, 5 * 1000);
