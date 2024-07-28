@@ -114,7 +114,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['advertsSelectedPhrases'][selectValue] =
                 docum['advertsSelectedPhrases'][selectValue];
             doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
-            doc['autoSalesProfits'][selectValue] = docum['autoSalesProfits'][selectValue];
+            doc['autoSales'][selectValue] = docum['autoSales'][selectValue];
 
             if (
                 doc['dzhemData'] &&
@@ -208,6 +208,7 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
     const [autoSalesModalOpen, setAutoSalesModalOpen] = useState(false);
     const [autoSalesProfits, setAutoSalesProfits] = useState({});
+    const [filterAutoSales, setFilterAutoSales] = useState(false);
 
     const [placementsDisplayPhrase, setPlacementsDisplayPhrase] = useState('');
 
@@ -2233,8 +2234,10 @@ export const MassAdvertPage = ({pageArgs}) => {
                 <Button
                     style={{marginLeft: 5}}
                     view="outlined"
+                    selected={filterAutoSales}
                     onClick={() => {
-                        filterByButton('АВТОСКИДКИ');
+                        setFilterAutoSales(!filterAutoSales);
+                        filterTableData(filters, data, !filterAutoSales);
                     }}
                 >
                     <Icon data={TagRuble} />
@@ -2266,22 +2269,83 @@ export const MassAdvertPage = ({pageArgs}) => {
                 /// tags
                 const tagsNodes = [] as ReactNode[];
                 if (availableAutoSalesNmIds.includes(nmId)) {
+                    const autoSalesInfo = doc['autoSales'][selectValue[0]][nmId];
                     tagsNodes.push(
-                        <Button
-                            size="xs"
-                            pin="circle-circle"
-                            view="action"
-                            selected
-                            style={{
-                                borderRadius: 100,
-                                overflow: 'hidden',
-                                // background:
-                                // 'linear-gradient(0deg, rgba(36, 36, 36, .1) 0, rgba(36, 36, 36, .1) 100%), linear-gradient(97deg, #ed3ccaa7 .49%, #df34d2a7 14.88%, #d02bd9a7 29.27%, #bf22e1a7 43.14%, #ae1ae8a7 57.02%, #9a10f0a7 70.89%, #8306f7a7 84.76%, #7c1af8a7 99.15%)',
-                                // background: 'linear-gradient(to top, #c471f5 0%, #fa71cd 100%)',
-                            }}
-                        >
-                            <Icon data={TagRuble} size={12} />
-                        </Button>,
+                        autoSalesInfo ? (
+                            <div>
+                                <Button size="xs" pin="circle-brick" view="action" selected>
+                                    <Icon data={TagRuble} size={12} />
+                                </Button>
+                                <Popover
+                                    openOnHover={autoSalesInfo.fixedPrices}
+                                    delayOpening={1000}
+                                    placement={'bottom'}
+                                    content={
+                                        <Text variant="subheader-1">
+                                            {autoSalesInfo['fixedPrices'] ? (
+                                                autoSalesInfo['fixedPrices']['dateRange'] ? (
+                                                    `${new Date(
+                                                        autoSalesInfo['fixedPrices'][
+                                                            'dateRange'
+                                                        ][0],
+                                                    ).toLocaleDateString('ru-RU')}
+                                            - ${new Date(
+                                                autoSalesInfo['fixedPrices']['dateRange'][1],
+                                            ).toLocaleDateString('ru-RU')}`
+                                                ) : (
+                                                    'Выберите даты автоакции'
+                                                )
+                                            ) : (
+                                                <></>
+                                            )}
+                                        </Text>
+                                    }
+                                >
+                                    <Button
+                                        size="xs"
+                                        pin={
+                                            autoSalesInfo.fixedPrices
+                                                ? 'brick-brick'
+                                                : 'brick-circle'
+                                        }
+                                        view="action"
+                                        selected
+                                    >
+                                        <Text>{autoSalesInfo.autoSaleName}</Text>
+                                    </Button>
+                                </Popover>
+                                {autoSalesInfo.fixedPrices ? (
+                                    <Button
+                                        size="xs"
+                                        pin="brick-circle"
+                                        view="action"
+                                        selected
+                                        onClick={() => {
+                                            const params = {
+                                                uid: getUid(),
+                                                campaignName: selectValue[0],
+                                                nmIds: [nmId],
+                                            };
+
+                                            console.log(params);
+
+                                            delete doc.autoSales[selectValue[0]][nmId];
+                                            setChangedDoc(doc);
+
+                                            callApi('deleteAutoSaleFromNmIds', params);
+                                        }}
+                                    >
+                                        <Icon data={Xmark} size={12} />
+                                    </Button>
+                                ) : (
+                                    <></>
+                                )}
+                            </div>
+                        ) : (
+                            <Button size="xs" pin="circle-circle" view="action" selected>
+                                <Icon data={TagRuble} size={12} />
+                            </Button>
+                        ),
                     );
                     tagsNodes.push(<div style={{minWidth: 8}} />);
                 }
@@ -2716,6 +2780,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                       campaignName: selectValue[0],
                                       data: {},
                                   };
+                                  const tempAutoSales = {...autoSalesProfits};
                                   for (const row of filteredData) {
                                       const {nmId, art} = row;
                                       const profits = autoSalesProfits[art];
@@ -2734,9 +2799,17 @@ export const MassAdvertPage = ({pageArgs}) => {
                                           oldRozPrices,
                                           oldDiscount,
                                       };
+                                      delete tempAutoSales[art];
+
+                                      doc.autoSales[selectValue[0]][nmId] = {
+                                          autoSaleName,
+                                          fixedPrices: {dateRange},
+                                      };
                                   }
 
                                   console.log(params);
+                                  setAutoSalesProfits(tempAutoSales);
+                                  setChangedDoc(doc);
 
                                   callApi('setAutoSales', params);
                               }}
@@ -2748,7 +2821,12 @@ export const MassAdvertPage = ({pageArgs}) => {
                               style={{marginLeft: 5}}
                               view="outlined"
                               onClick={() => {
-                                  setAutoSalesProfits({});
+                                  const tempAutoSales = {...autoSalesProfits};
+                                  for (const row of filteredData) {
+                                      const {art} = row;
+                                      delete tempAutoSales[art];
+                                  }
+                                  setAutoSalesProfits(tempAutoSales);
                               }}
                           >
                               <Icon data={Xmark} />
@@ -2821,7 +2899,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                 pin="brick-brick"
                                 view="flat"
                             >
-                                <Text>{profitsData.autoSaleName}</Text>
+                                <Text variant="subheader-1">{profitsData.autoSaleName}</Text>
                             </Button>
                             <Button view="outlined" size="xs" pin="clear-clear" width="max">
                                 <Text color={profitsData.profit > 0 ? 'positive' : 'danger'}>
@@ -2897,6 +2975,12 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         };
 
                                         console.log(params);
+
+                                        doc.autoSales[selectValue[0]][nmId] = {
+                                            autoSaleName,
+                                            fixedPrices: {dateRange},
+                                        };
+                                        setChangedDoc(doc);
 
                                         callApi('setAutoSales', params);
 
@@ -4962,8 +5046,13 @@ export const MassAdvertPage = ({pageArgs}) => {
         return yagrBalanceData;
     };
 
-    const filterTableData = (withfFilters = {}, tableData = {}) => {
+    const filterTableData = (
+        withfFilters = {},
+        tableData = {},
+        _filterAutoSales = undefined as any,
+    ) => {
         const temp = [] as any;
+        const usefilterAutoSales = _filterAutoSales ?? filterAutoSales;
 
         for (const [art, artInfo] of Object.entries(
             Object.keys(tableData).length ? tableData : data,
@@ -4989,48 +5078,46 @@ export const MassAdvertPage = ({pageArgs}) => {
                     if (flarg === undefined) continue;
                 }
 
+                if (usefilterAutoSales && !availableAutoSalesNmIds.includes(tempTypeRow['nmId'])) {
+                    addFlag = false;
+                    break;
+                }
+
                 if (filterArg == 'art') {
                     const rulesForAnd = filterData['val'].split('+');
                     // console.log(rulesForAnd);
 
-                    if (fldata == 'АВТОСКИДКИ ') {
-                        if (!availableAutoSalesNmIds.includes(tempTypeRow['nmId'])) {
-                            addFlag = false;
-                            break;
-                        }
-                    } else {
-                        let wholeText = '';
-                        for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
-                            wholeText += tempTypeRow[key] + ' ';
-                        }
+                    let wholeText = '';
+                    for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
+                        wholeText += tempTypeRow[key] + ' ';
+                    }
 
-                        const tags = tempTypeRow['tags'];
-                        if (tags) {
-                            for (const key of tags) {
-                                wholeText += key + ' ';
-                            }
+                    const tags = tempTypeRow['tags'];
+                    if (tags) {
+                        for (const key of tags) {
+                            wholeText += key + ' ';
                         }
+                    }
 
-                        let tempFlagInc = 0;
-                        for (let k = 0; k < rulesForAnd.length; k++) {
-                            const ruleForAdd = rulesForAnd[k];
-                            if (ruleForAdd == '') {
-                                tempFlagInc++;
-                                continue;
-                            }
-                            if (
-                                compare(wholeText, {
-                                    val: ruleForAdd,
-                                    compMode: filterData['compMode'],
-                                })
-                            ) {
-                                tempFlagInc++;
-                            }
+                    let tempFlagInc = 0;
+                    for (let k = 0; k < rulesForAnd.length; k++) {
+                        const ruleForAdd = rulesForAnd[k];
+                        if (ruleForAdd == '') {
+                            tempFlagInc++;
+                            continue;
                         }
-                        if (tempFlagInc != rulesForAnd.length) {
-                            addFlag = false;
-                            break;
+                        if (
+                            compare(wholeText, {
+                                val: ruleForAdd,
+                                compMode: filterData['compMode'],
+                            })
+                        ) {
+                            tempFlagInc++;
                         }
+                    }
+                    if (tempFlagInc != rulesForAnd.length) {
+                        addFlag = false;
+                        break;
                     }
                 } else if (filterArg == 'placements') {
                     if (filterData['val'] == '') {
@@ -9544,6 +9631,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                             filteredData,
                             autoSalesProfits,
                             setAutoSalesProfits,
+                            setAvailableAutoSalesPending,
                         }}
                     />
                     <Modal
@@ -10452,8 +10540,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                             resData['advertsSchedules'][nextValue[0]];
                                         doc['dzhemData'][nextValue[0]] =
                                             resData['dzhemData'][nextValue[0]];
-                                        doc['autoSalesProfits'][nextValue[0]] =
-                                            resData['autoSalesProfits'][nextValue[0]];
+                                        doc['autoSales'][nextValue[0]] =
+                                            resData['autoSales'][nextValue[0]];
 
                                         setChangedDoc(doc);
 

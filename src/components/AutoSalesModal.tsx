@@ -12,6 +12,7 @@ export const AutoSalesModal = ({params}) => {
         selectValue,
         availableAutoSales,
         filteredData,
+        setAvailableAutoSalesPending,
         setAutoSalesProfits,
     } = params;
 
@@ -98,16 +99,21 @@ export const AutoSalesModal = ({params}) => {
                             console.log(params);
 
                             setAutoSalesModalOpen(false);
-                            callApi('calcAutoSaleProfit', params, true).then((res) => {
-                                console.log(res);
-                                if (!res || !res['data']) return;
-                                const profits = res['data'];
-                                const temp = {};
-                                for (const [art, artData] of Object.entries(profits)) {
-                                    temp[art] = artData;
-                                }
-                                setAutoSalesProfits(temp);
-                            });
+                            setAvailableAutoSalesPending(true);
+                            callApi('calcAutoSaleProfit', params, true)
+                                .then((res) => {
+                                    console.log(res);
+                                    if (!res || !res['data']) return;
+                                    const profits = res['data'];
+                                    const temp = {};
+                                    for (const [art, artData] of Object.entries(profits)) {
+                                        temp[art] = artData;
+                                    }
+                                    setAutoSalesProfits(temp);
+                                })
+                                .finally(() => {
+                                    setAvailableAutoSalesPending(false);
+                                });
                         }}
                     >
                         <Icon data={Calculator} />
