@@ -54,11 +54,11 @@ export const AutoSalesUploadModal = ({params}) => {
             },
         };
 
+        setAutoSalesUploadModalOpen(false);
         try {
             const response = await axios.post(url, formData, config);
             console.log(response.data);
             if (response) {
-                setAutoSalesUploadModalOpen(false);
                 setTimeout(() => {
                     setUploadProgress(0);
                 }, 5 * 1000);
@@ -159,17 +159,21 @@ export const AutoSalesUploadModal = ({params}) => {
                                     <Icon data={FileArrowUp} size={20} />
                                     <div style={{minWidth: 3}} />
                                     Загрузить файл автоакции
-                                    <input
-                                        id={uploadId}
-                                        style={{
-                                            opacity: 0,
-                                            position: 'absolute',
-                                            height: 40,
-                                            left: 0,
-                                        }}
-                                        type="file"
-                                        onChange={handleChange}
-                                    />
+                                    {!startDate || !endDate ? (
+                                        <></>
+                                    ) : (
+                                        <input
+                                            id={uploadId}
+                                            style={{
+                                                opacity: 0,
+                                                position: 'absolute',
+                                                height: 40,
+                                                left: 0,
+                                            }}
+                                            type="file"
+                                            onChange={handleChange}
+                                        />
+                                    )}
                                 </Text>
                             </Button>
                         </label>

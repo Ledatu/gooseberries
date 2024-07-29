@@ -95,6 +95,7 @@ import {
 import TheTable, {compare} from 'src/components/TheTable';
 import {RangePicker} from 'src/components/RangePicker';
 import {AutoSalesModal} from 'src/components/AutoSalesModal';
+import {AutoSalesUploadModal} from 'src/components/AutoSalesUploadModal';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -203,6 +204,7 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
+    const [autoSalesUploadModalOpen, setAutoSalesUploadModalOpen] = useState(false);
     const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
     const [availableAutoSales, setAvailableAutoSales] = useState({});
     const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
@@ -9619,7 +9621,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                         }}
                     >
                         <Icon data={TagRuble} />
-                        <Text variant="subheader-1">Автоакции</Text>
+                        <Text variant="subheader-1">Рассчитать Автоакции</Text>
                     </Button>
                     <AutoSalesModal
                         params={{
@@ -9634,6 +9636,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                             setAvailableAutoSalesPending,
                         }}
                     />
+
                     <Modal
                         open={semanticsModalFormOpen}
                         onClose={() => {
@@ -10696,6 +10699,25 @@ export const MassAdvertPage = ({pageArgs}) => {
                         <div style={{width: 8}} />
                         {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
                     </div>
+                    <Button
+                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                        size="l"
+                        view="action"
+                        onClick={() => {
+                            setAutoSalesUploadModalOpen(true);
+                        }}
+                    >
+                        <Icon data={TagRuble} />
+                        <Text variant="subheader-1">Загрузить Автоакции</Text>
+                    </Button>
+                    <AutoSalesUploadModal
+                        params={{
+                            autoSalesUploadModalOpen,
+                            setAutoSalesUploadModalOpen,
+                            getUid,
+                            selectValue,
+                        }}
+                    />
                     <RangePicker
                         args={{
                             recalc,
