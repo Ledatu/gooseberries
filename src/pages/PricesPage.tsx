@@ -34,7 +34,6 @@ import {
     Lock,
     CloudArrowUpIn,
     TrashBin,
-    TagRuble,
     Play,
     Pause,
 } from '@gravity-ui/icons';
@@ -52,7 +51,6 @@ import {
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
-import {AutoSalesUploadModal} from 'src/components/AutoSalesUploadModal';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -749,8 +747,6 @@ export const PricesPage = ({pageArgs}) => {
 
         callApi('manageFixPricesActivity', params);
     };
-
-    const [autoSalesUploadModalOpen, setAutoSalesUploadModalOpen] = useState(false);
 
     const [fixPrices, setFixPrices] = useState(false);
 
@@ -2121,25 +2117,6 @@ export const PricesPage = ({pageArgs}) => {
                         <Text variant="subheader-1">Очистить фильтры</Text>
                     </Button>
                     <div style={{minWidth: 8}} />
-                    <Button
-                        size="l"
-                        view="action"
-                        onClick={() => {
-                            setAutoSalesUploadModalOpen(true);
-                        }}
-                    >
-                        <Icon data={TagRuble} />
-                        <Text variant="subheader-1">Автоакции</Text>
-                    </Button>
-                    <div style={{minWidth: 8}} />
-                    <AutoSalesUploadModal
-                        params={{
-                            autoSalesUploadModalOpen,
-                            setAutoSalesUploadModalOpen,
-                            getUid,
-                            selectValue,
-                        }}
-                    />
                     <RangePicker
                         args={{
                             recalc: () => setDateChangeRecalc(true),

@@ -204,7 +204,6 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
-    const [autoSalesUploadModalOpen, setAutoSalesUploadModalOpen] = useState(false);
     const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
     const [availableAutoSales, setAvailableAutoSales] = useState({});
     const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
@@ -10699,21 +10698,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                         <div style={{width: 8}} />
                         {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
                     </div>
-                    <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        size="l"
-                        view="action"
-                        onClick={() => {
-                            setAutoSalesUploadModalOpen(true);
-                        }}
-                    >
-                        <Icon data={TagRuble} />
-                        <Text variant="subheader-1">Загрузить Автоакции</Text>
-                    </Button>
                     <AutoSalesUploadModal
                         params={{
-                            autoSalesUploadModalOpen,
-                            setAutoSalesUploadModalOpen,
                             getUid,
                             selectValue,
                         }}

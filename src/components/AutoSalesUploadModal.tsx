@@ -1,33 +1,43 @@
-import {Button, Card, Icon, Modal, Text} from '@gravity-ui/uikit';
+import {Button, Icon, Modal, Text} from '@gravity-ui/uikit';
 import axios from 'axios';
 import React, {useEffect, useId, useState} from 'react';
-import {FileArrowUp} from '@gravity-ui/icons';
+import {FileArrowUp, TagRuble} from '@gravity-ui/icons';
 import {RangeCalendar} from '@gravity-ui/date-components';
+import {motion} from 'framer-motion';
 
 export const AutoSalesUploadModal = ({params}) => {
-    const {autoSalesUploadModalOpen, setAutoSalesUploadModalOpen, getUid, selectValue} = params;
+    const {getUid, selectValue} = params;
 
+    const [autoSalesUploadModalOpen, setAutoSalesUploadModalOpen] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [dateRange, setDateRange] = useState([] as any[]);
     const [startDate, endDate] = dateRange;
     const [saleName, setSaleName] = useState('');
     const uploadId = useId();
 
+    const [currentStep, setCurrentStep] = useState(0);
+
     useEffect(() => {
         setDateRange([]);
         setSaleName('');
+        setCurrentStep(0);
+        setUploadProgress(0);
     }, [autoSalesUploadModalOpen]);
 
     async function handleChange(event) {
         const file = event.target.files[0];
 
-        if (!file || !file.name.includes('.xlsx')) {
+        if (!file) {
             setUploadProgress(-1);
             return;
         }
 
         const saleNameTemp = file.name.split('_')[5];
         setSaleName(saleNameTemp);
+        if (!saleNameTemp) {
+            setUploadProgress(-1);
+            return;
+        }
 
         event.preventDefault();
         const url = 'https://aurum-mp.ru/api/uploadAutoSales';
@@ -54,16 +64,15 @@ export const AutoSalesUploadModal = ({params}) => {
             },
         };
 
-        setAutoSalesUploadModalOpen(false);
         try {
             const response = await axios.post(url, formData, config);
             console.log(response.data);
             if (response) {
                 setTimeout(() => {
+                    setAutoSalesUploadModalOpen(false);
                     setUploadProgress(0);
-                }, 5 * 1000);
+                }, 1 * 1000);
             }
-            event.target.files = [];
         } catch (error) {
             setUploadProgress(-1);
             console.error('Error uploading file: ', error);
@@ -93,117 +102,146 @@ export const AutoSalesUploadModal = ({params}) => {
     }
 
     return (
-        <Modal
-            open={autoSalesUploadModalOpen}
-            onClose={() => {
-                setAutoSalesUploadModalOpen(false);
-            }}
-        >
-            <Card
-                view="clear"
-                style={{
-                    margin: 20,
-                    flexWrap: 'nowrap',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    backgroundColor: 'none',
+        <div>
+            <Button
+                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                size="l"
+                view="action"
+                onClick={() => {
+                    setAutoSalesUploadModalOpen(true);
                 }}
             >
-                <div
+                <Icon data={TagRuble} />
+                <Text variant="subheader-1">Загрузить Автоакции</Text>
+            </Button>
+            <Modal
+                open={autoSalesUploadModalOpen}
+                onClose={() => {
+                    setAutoSalesUploadModalOpen(false);
+                }}
+            >
+                <motion.div
                     style={{
+                        margin: 20,
+                        flexWrap: 'nowrap',
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'center',
                         alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'none',
                     }}
                 >
-                    <Text variant="header-1">{saleName}</Text>
-                    <div style={{minHeight: 8}} />
-                    <form encType="multipart/form-data">
-                        <label htmlFor={uploadId}>
-                            <Button
-                                disabled={!startDate || !endDate}
-                                size="l"
-                                onClick={() => {
-                                    setUploadProgress(0);
-                                    (document.getElementById(uploadId) as HTMLInputElement).value =
-                                        '';
-                                }}
-                                style={{
-                                    cursor: 'pointer',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
-                                selected={uploadProgress === 100 || uploadProgress === -1}
-                                view={
-                                    uploadProgress === 100
-                                        ? 'flat-success'
-                                        : uploadProgress === -1
-                                        ? 'flat-danger'
-                                        : 'outlined-success'
-                                }
-                            >
-                                <Text
-                                    variant="subheader-1"
+                    <motion.div
+                        animate={{height: currentStep < 3 ? 36 : 0}}
+                        style={{height: 36, overflow: 'hidden'}}
+                    >
+                        <Button size="l" view="outlined" onClick={() => setCurrentStep(1)}>
+                            <Text variant="subheader-1">
+                                {startDate && endDate
+                                    ? `${startDate.toLocaleDateString(
+                                          'ru-RU',
+                                      )} - ${endDate.toLocaleDateString('ru-RU')}`
+                                    : 'Выберите даты автоакции'}
+                            </Text>
+                        </Button>
+                    </motion.div>
+                    <motion.div
+                        animate={{height: currentStep == 1 ? 250 : 0}}
+                        style={{
+                            overflow: 'hidden',
+                            height: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <RangeCalendar
+                            size="m"
+                            timeZone="Europe/Moscow"
+                            onUpdate={(val) => {
+                                const range = [val.start.toDate(), val.end.toDate()];
+                                setDateRange(range);
+                                setCurrentStep(2);
+                            }}
+                        />
+                    </motion.div>
+                    <motion.div
+                        animate={{height: currentStep == 2 ? 44 : currentStep == 3 ? 80 : 0}}
+                        style={{
+                            height: 0,
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'end',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text variant="header-1">{saleName}</Text>
+                        <div style={{minHeight: 8}} />
+                        <form encType="multipart/form-data">
+                            <label htmlFor={uploadId}>
+                                <Button
+                                    disabled={!startDate || !endDate}
+                                    size="l"
+                                    onClick={() => {
+                                        setCurrentStep(3);
+                                        setUploadProgress(0);
+                                        (
+                                            document.getElementById(uploadId) as HTMLInputElement
+                                        ).value = '';
+                                    }}
                                     style={{
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                        overflow: 'hidden',
                                         display: 'flex',
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                     }}
+                                    selected={uploadProgress === 100 || uploadProgress === -1}
+                                    view={
+                                        uploadProgress === 100
+                                            ? 'flat-success'
+                                            : uploadProgress === -1
+                                            ? 'flat-danger'
+                                            : 'outlined-success'
+                                    }
                                 >
-                                    <Icon data={FileArrowUp} size={20} />
-                                    <div style={{minWidth: 3}} />
-                                    Загрузить файл автоакции
-                                    {!startDate || !endDate ? (
-                                        <></>
-                                    ) : (
-                                        <input
-                                            id={uploadId}
-                                            style={{
-                                                opacity: 0,
-                                                position: 'absolute',
-                                                height: 40,
-                                                left: 0,
-                                            }}
-                                            type="file"
-                                            onChange={handleChange}
-                                        />
-                                    )}
-                                </Text>
-                            </Button>
-                        </label>
-                    </form>
-                </div>
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <RangeCalendar
-                        size="m"
-                        timeZone="Europe/Moscow"
-                        onUpdate={(val) => {
-                            const range = [val.start.toDate(), val.end.toDate()];
-                            setDateRange(range);
-                        }}
-                    />
-                    <Text variant="subheader-2" color={startDate && endDate ? 'primary' : 'danger'}>
-                        {startDate && endDate
-                            ? `${startDate.toLocaleDateString(
-                                  'ru-RU',
-                              )} - ${endDate.toLocaleDateString('ru-RU')}`
-                            : 'Выберите даты автоакции'}
-                    </Text>
-                </div>
-            </Card>
-        </Modal>
+                                    <Text
+                                        variant="subheader-1"
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Icon data={FileArrowUp} size={20} />
+                                        <div style={{minWidth: 3}} />
+                                        Загрузить файл автоакции
+                                        {!startDate || !endDate ? (
+                                            <></>
+                                        ) : (
+                                            <input
+                                                id={uploadId}
+                                                style={{
+                                                    opacity: 0,
+                                                    position: 'absolute',
+                                                    height: 40,
+                                                    left: 0,
+                                                }}
+                                                type="file"
+                                                accept=".xls,.xlsx"
+                                                onChange={handleChange}
+                                            />
+                                        )}
+                                    </Text>
+                                </Button>
+                            </label>
+                        </form>
+                    </motion.div>
+                </motion.div>
+            </Modal>
+        </div>
     );
 };
