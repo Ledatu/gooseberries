@@ -1,4 +1,4 @@
-import {Button, Icon, Modal, Text} from '@gravity-ui/uikit';
+import {Button, Icon, Loader, Modal, Text} from '@gravity-ui/uikit';
 import axios from 'axios';
 import React, {useEffect, useId, useState} from 'react';
 import {FileArrowUp, TagRuble} from '@gravity-ui/icons';
@@ -113,7 +113,7 @@ export const AutoSalesUploadModal = ({params}) => {
                 }}
             >
                 <Icon data={TagRuble} />
-                <Text variant="subheader-1">Загрузить Автоакции</Text>
+                <Text variant="subheader-1">Загрузить акции</Text>
             </Button>
             <Modal
                 open={autoSalesUploadModalOpen}
@@ -142,7 +142,7 @@ export const AutoSalesUploadModal = ({params}) => {
                                     ? `${startDate.toLocaleDateString(
                                           'ru-RU',
                                       )} - ${endDate.toLocaleDateString('ru-RU')}`
-                                    : 'Выберите даты автоакции'}
+                                    : 'Выберите даты акции'}
                             </Text>
                         </Button>
                     </motion.div>
@@ -178,7 +178,16 @@ export const AutoSalesUploadModal = ({params}) => {
                             alignItems: 'center',
                         }}
                     >
-                        <Text variant="header-1">{saleName}</Text>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text variant="header-1">{saleName}</Text>
+                            <Loader />
+                        </div>
                         <div style={{minHeight: 8}} />
                         <form encType="multipart/form-data">
                             <label htmlFor={uploadId}>
@@ -219,7 +228,7 @@ export const AutoSalesUploadModal = ({params}) => {
                                     >
                                         <Icon data={FileArrowUp} size={20} />
                                         <div style={{minWidth: 3}} />
-                                        Загрузить файл автоакции
+                                        Загрузить файл акции
                                         {!startDate || !endDate ? (
                                             <></>
                                         ) : (

@@ -154,7 +154,7 @@ export const AutoSalesModal = ({params}) => {
                             ? `${startDate.toLocaleDateString(
                                   'ru-RU',
                               )} - ${endDate.toLocaleDateString('ru-RU')}`
-                            : 'Выберите даты автоакции'}
+                            : 'Выберите даты акции'}
                     </Text>
                 </div>
             </Card>

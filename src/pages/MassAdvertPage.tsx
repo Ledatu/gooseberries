@@ -2284,7 +2284,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     placement={'bottom'}
                                     content={
                                         <Text variant="subheader-1">
-                                            {autoSalesInfo['fixedPrices'] ? (
+                                            {autoSalesInfo['fixedPrices'] &&
+                                            autoSalesInfo['fixedPrices']['dateRange'] ? (
                                                 autoSalesInfo['fixedPrices']['dateRange'] ? (
                                                     `${new Date(
                                                         autoSalesInfo['fixedPrices'][
@@ -2295,7 +2296,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                                                 autoSalesInfo['fixedPrices']['dateRange'][1],
                                             ).toLocaleDateString('ru-RU')}`
                                                 ) : (
-                                                    'Выберите даты автоакции'
+                                                    'Выберите даты акции'
                                                 )
                                             ) : (
                                                 <></>
@@ -2306,7 +2307,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                     <Button
                                         size="xs"
                                         pin={
-                                            autoSalesInfo.fixedPrices
+                                            autoSalesInfo['fixedPrices'] &&
+                                            autoSalesInfo['fixedPrices']['dateRange']
                                                 ? 'brick-brick'
                                                 : 'brick-circle'
                                         }
@@ -2316,7 +2318,8 @@ export const MassAdvertPage = ({pageArgs}) => {
                                         <Text>{autoSalesInfo.autoSaleName}</Text>
                                     </Button>
                                 </Popover>
-                                {autoSalesInfo.fixedPrices ? (
+                                {autoSalesInfo['fixedPrices'] &&
+                                autoSalesInfo['fixedPrices']['dateRange'] ? (
                                     <Button
                                         size="xs"
                                         pin="brick-circle"
@@ -9625,7 +9628,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                         }}
                     >
                         <Icon data={TagRuble} />
-                        <Text variant="subheader-1">Рассчитать Автоакции</Text>
+                        <Text variant="subheader-1">Рассчитать акции</Text>
                     </Button>
                     <AutoSalesModal
                         params={{
