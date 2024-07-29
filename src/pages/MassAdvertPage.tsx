@@ -210,6 +210,7 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [autoSalesModalOpen, setAutoSalesModalOpen] = useState(false);
     const [autoSalesProfits, setAutoSalesProfits] = useState({});
     const [filterAutoSales, setFilterAutoSales] = useState(false);
+    const [refetchAutoSales, setRefetchAutoSales] = useState(false);
 
     const [placementsDisplayPhrase, setPlacementsDisplayPhrase] = useState('');
 
@@ -4542,7 +4543,9 @@ export const MassAdvertPage = ({pageArgs}) => {
             .finally(() => {
                 setAvailableTagsPending(false);
             });
+    }, [selectValue]);
 
+    useEffect(() => {
         setAvailableAutoSalesPending(true);
         callApi('getAllAvailableAutoSales', {
             uid: getUid(),
@@ -4572,7 +4575,9 @@ export const MassAdvertPage = ({pageArgs}) => {
             .catch((e) => {
                 console.log(e);
             });
-    }, [selectValue]);
+
+        setRefetchAutoSales(false);
+    }, [selectValue, refetchAutoSales]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
     const getCampaignName = () => {
@@ -10702,6 +10707,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                         params={{
                             getUid,
                             selectValue,
+                            setRefetchAutoSales,
                         }}
                     />
                     <RangePicker

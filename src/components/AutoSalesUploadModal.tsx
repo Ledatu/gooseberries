@@ -6,7 +6,7 @@ import {RangeCalendar} from '@gravity-ui/date-components';
 import {motion} from 'framer-motion';
 
 export const AutoSalesUploadModal = ({params}) => {
-    const {getUid, selectValue} = params;
+    const {getUid, selectValue, setRefetchAutoSales} = params;
 
     const [autoSalesUploadModalOpen, setAutoSalesUploadModalOpen] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -71,6 +71,7 @@ export const AutoSalesUploadModal = ({params}) => {
                 setTimeout(() => {
                     setAutoSalesUploadModalOpen(false);
                     setUploadProgress(0);
+                    setRefetchAutoSales(true);
                 }, 1 * 1000);
             }
         } catch (error) {
