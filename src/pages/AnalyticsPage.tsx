@@ -717,14 +717,6 @@ export const AnalyticsPage = ({pageArgs}) => {
             return;
         }
 
-        // Check file size (example limit: 10MB)
-        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-        if (file.size > MAX_FILE_SIZE) {
-            console.error('File size exceeds the limit');
-            setUploadProgress(-1);
-            return;
-        }
-
         event.preventDefault();
         const url = 'https://aurum-mp.ru/api/uploadPlans';
         const formData = new FormData();
@@ -732,6 +724,10 @@ export const AnalyticsPage = ({pageArgs}) => {
         formData.append('uid', getUid());
         formData.append('campaignName', selectValue[0]);
         formData.append('file', file);
+
+        for (const value of formData.values()) {
+            console.log(value);
+        }
 
         const token =
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
@@ -760,7 +756,6 @@ export const AnalyticsPage = ({pageArgs}) => {
                     setUploadProgress(0);
                 }, 5 * 1000);
             }
-            event.target.files = [];
         } catch (error) {
             setUploadProgress(-1);
 

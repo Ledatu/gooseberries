@@ -4527,6 +4527,8 @@ export const MassAdvertPage = ({pageArgs}) => {
     );
 
     useEffect(() => {
+        if (!selectValue[0]) return;
+
         setSelectedCampaign(selectValue[0]);
         setWordsFetchUpdate(true);
         setAdvertsBidsLogFetchUpdate(true);
@@ -4551,6 +4553,7 @@ export const MassAdvertPage = ({pageArgs}) => {
     }, [selectValue]);
 
     useEffect(() => {
+        if (!selectValue[0]) return;
         setAvailableAutoSalesPending(true);
         callApi('getAllAvailableAutoSales', {
             uid: getUid(),
