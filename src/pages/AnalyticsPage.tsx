@@ -727,9 +727,9 @@ export const AnalyticsPage = ({pageArgs}) => {
         const url = 'https://aurum-mp.ru/api/uploadPlans';
         const formData = new FormData();
 
-        formData.append('file', file);
         formData.append('uid', getUid());
         formData.append('campaignName', selectValue[0]);
+        formData.append('file', file);
 
         const token =
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
