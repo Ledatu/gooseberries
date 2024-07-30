@@ -1,12 +1,13 @@
 import {Button, Icon, Loader, Modal, Text} from '@gravity-ui/uikit';
-import axios from 'axios';
+// import axios from 'axios';
 import React, {useEffect, useId, useState} from 'react';
 import {FileArrowUp, TagRuble} from '@gravity-ui/icons';
 import {RangeCalendar} from '@gravity-ui/date-components';
 import {motion} from 'framer-motion';
 
 export const AutoSalesUploadModal = ({params}) => {
-    const {getUid, selectValue, setRefetchAutoSales} = params;
+    // const {getUid, selectValue, setRefetchAutoSales} = params;
+    const {getUid, selectValue} = params;
 
     const [autoSalesUploadModalOpen, setAutoSalesUploadModalOpen] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -26,21 +27,26 @@ export const AutoSalesUploadModal = ({params}) => {
 
     async function handleChange(event) {
         const file = event.target.files[0];
+        console.log('ивент', event);
+        console.log('ивент таргет', event.target);
+        console.log('все файлы', event.target.files);
+        console.log('первый файл', file);
 
-        if (!file) {
-            setUploadProgress(-1);
-            return;
-        }
+        // if (!file) {
+        //     setUploadProgress(-1);
+        //     return;
+        // }
 
-        const saleNameTemp = file.name.split('_')[5];
+        // const saleNameTemp = file.name.split('_')[5];
+        const saleNameTemp = 'тест';
         setSaleName(saleNameTemp);
-        if (!saleNameTemp) {
-            setUploadProgress(-1);
-            return;
-        }
+        // if (!saleNameTemp) {
+        //     setUploadProgress(-1);
+        //     return;
+        // }
 
         event.preventDefault();
-        const url = 'https://aurum-mp.ru/api/uploadAutoSales';
+        // const url = 'https://aurum-mp.ru/api/uploadAutoSales';
         const formData = new FormData();
 
         formData.append('uid', getUid());
@@ -52,58 +58,59 @@ export const AutoSalesUploadModal = ({params}) => {
         for (const [key, val] of formData.entries()) {
             console.log(key, '-', val);
         }
+        console.log('загрузка будет пропущена в тестовых целях');
 
-        const token =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
+        // const token =
+        //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
 
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            onUploadProgress: function (progressEvent) {
-                const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total,
-                );
-                setUploadProgress(percentCompleted);
-            },
-        };
+        // const config = {
+        //     headers: {
+        //         Authorization: `Bearer ${token}`,
+        //     },
+        //     onUploadProgress: function (progressEvent) {
+        //         const percentCompleted = Math.round(
+        //             (progressEvent.loaded * 100) / progressEvent.total,
+        //         );
+        //         setUploadProgress(percentCompleted);
+        //     },
+        // };
 
-        try {
-            const response = await axios.post(url, formData, config);
-            console.log(response.data);
-            if (response) {
-                setTimeout(() => {
-                    setAutoSalesUploadModalOpen(false);
-                    setUploadProgress(0);
-                    setRefetchAutoSales(true);
-                }, 1 * 1000);
-            }
-        } catch (error) {
-            setUploadProgress(-1);
-            console.error('Error uploading file: ', error);
-            if (error.response) {
-                // Server responded with a status other than 200 range
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-                console.error('Response headers:', error.response.headers);
-            } else if (error.request) {
-                // Request was made but no response received
-                console.error('Request data:', error.request);
-            } else {
-                // Something happened in setting up the request
-                console.error('Error message:', error.message);
-            }
+        // try {
+        //     const response = await axios.post(url, formData, config);
+        //     console.log(response.data);
+        //     if (response) {
+        //         setTimeout(() => {
+        //             setAutoSalesUploadModalOpen(false);
+        //             setUploadProgress(0);
+        //             setRefetchAutoSales(true);
+        //         }, 1 * 1000);
+        //     }
+        // } catch (error) {
+        //     setUploadProgress(-1);
+        //     console.error('Error uploading file: ', error);
+        //     if (error.response) {
+        //         // Server responded with a status other than 200 range
+        //         console.error('Response data:', error.response.data);
+        //         console.error('Response status:', error.response.status);
+        //         console.error('Response headers:', error.response.headers);
+        //     } else if (error.request) {
+        //         // Request was made but no response received
+        //         console.error('Request data:', error.request);
+        //     } else {
+        //         // Something happened in setting up the request
+        //         console.error('Error message:', error.message);
+        //     }
 
-            // Capture detailed error for debugging
-            console.error({
-                message: error.message,
-                name: error.name,
-                stack: error.stack,
-                config: error.config,
-                code: error.code,
-                status: error.response ? error.response.status : null,
-            });
-        }
+        //     // Capture detailed error for debugging
+        //     console.error({
+        //         message: error.message,
+        //         name: error.name,
+        //         stack: error.stack,
+        //         config: error.config,
+        //         code: error.code,
+        //         status: error.response ? error.response.status : null,
+        //     });
+        // }
     }
 
     return (
