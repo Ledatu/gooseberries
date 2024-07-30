@@ -48,6 +48,10 @@ export const AutoSalesUploadModal = ({params}) => {
         formData.append('autoSaleName', saleNameTemp);
         formData.append('dateRange', JSON.stringify(dateRange));
         formData.append('file', file);
+        console.log('Вывод пара ключ - значение');
+        for (const [key, val] of formData.entries()) {
+            console.log(key, '-', val);
+        }
 
         const token =
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
