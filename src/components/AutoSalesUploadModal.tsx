@@ -38,7 +38,7 @@ export const AutoSalesUploadModal = ({params}) => {
 
         const saleNameTemp = 'ЦЕНОТРЯС';
         // const saleNameTemp = file.name.split('_')[5];
-        setSaleName('шаблон');
+        setSaleName(saleNameTemp);
         if (!saleNameTemp) {
             setUploadProgress(-1);
             return;
