@@ -69,6 +69,8 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
                           Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' ||
                           Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6'
                         ? 'ИП Иосифова Р. И.'
+                        : Userfront.user.userUuid === 'a59ebe89-bc25-4bc3-b9cf-d788f819898c'
+                        ? 'Сальвадор37'
                         : 'ОТК ПРОИЗВОДСТВО',
             },
             true,
@@ -136,6 +138,8 @@ export const DeliveryPage = ({pageArgs}) => {
         formData.append('campaignName', selectValue[0]);
         formData.append('splitCountIntoBoxes', JSON.stringify(splitCountIntoBoxes));
         formData.append('file', file);
+
+        console.log(formData);
 
         const token =
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
@@ -893,6 +897,13 @@ export const DeliveryPage = ({pageArgs}) => {
                         campaignName,
                     )
                 ) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else if (Userfront.user.userUuid == 'a59ebe89-bc25-4bc3-b9cf-d788f819898c') {
+                if (['Сальвадор37'].includes(campaignName)) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,

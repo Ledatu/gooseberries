@@ -80,6 +80,8 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
                         : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
                           Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
                         ? 'ИП Иосифова Р. И.'
+                        : Userfront.user.userUuid === 'a59ebe89-bc25-4bc3-b9cf-d788f819898c'
+                        ? 'Сальвадор37'
                         : 'ОТК ПРОИЗВОДСТВО',
             },
             true,
@@ -1342,6 +1344,13 @@ export const AnalyticsPage = ({pageArgs}) => {
                         campaignName,
                     )
                 ) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else if (Userfront.user.userUuid == 'a59ebe89-bc25-4bc3-b9cf-d788f819898c') {
+                if (['Сальвадор37'].includes(campaignName)) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,

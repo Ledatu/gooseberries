@@ -132,6 +132,7 @@ export const Dashboard = () => {
                 Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
                 Userfront.user.userUuid !== 'c5c9a3ce-2167-4446-a43b-d8ed63f80124' &&
                 Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' &&
+                Userfront.user.userUuid !== 'a59ebe89-bc25-4bc3-b9cf-d788f819898c' &&
                 Userfront.user.userUuid !== '2b58844a-0801-4ca1-806d-78da9f641be6',
         },
         {
@@ -142,6 +143,7 @@ export const Dashboard = () => {
                 Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
                 Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
                 Userfront.user.userUuid !== 'c5c9a3ce-2167-4446-a43b-d8ed63f80124' &&
+                Userfront.user.userUuid !== 'a59ebe89-bc25-4bc3-b9cf-d788f819898c' &&
                 Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064',
         },
         {
@@ -153,6 +155,7 @@ export const Dashboard = () => {
                 Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
                 Userfront.user.userUuid !== 'c5c9a3ce-2167-4446-a43b-d8ed63f80124' &&
                 Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' &&
+                Userfront.user.userUuid !== 'a59ebe89-bc25-4bc3-b9cf-d788f819898c' &&
                 Userfront.user.userUuid !== '2b58844a-0801-4ca1-806d-78da9f641be6',
         },
         {
