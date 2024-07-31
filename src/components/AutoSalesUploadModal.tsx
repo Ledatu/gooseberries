@@ -26,18 +26,17 @@ export const AutoSalesUploadModal = ({params}) => {
 
     async function handleChange(event) {
         const file = event.target.files[0];
-        console.log('ивент', event);
-        console.log('ивент таргет', event.target);
-        console.log('все файлы', event.target.files);
-        console.log('первый файл', file);
 
-        // if (!file) {
-        //     setUploadProgress(-1);
-        //     return;
-        // }
+        if (!file) {
+            setUploadProgress(-1);
+            return;
+        }
 
-        const saleNameTemp = 'ЦЕНОТРЯС';
-        // const saleNameTemp = file.name.split('_')[5];
+        let saleNameTemp = file.name;
+        saleNameTemp = saleNameTemp
+            .slice(saleNameTemp.indexOf('_'), saleNameTemp.lastIndexOf('_'))
+            .replace(/_/g, '');
+
         setSaleName(saleNameTemp);
         if (!saleNameTemp) {
             setUploadProgress(-1);
