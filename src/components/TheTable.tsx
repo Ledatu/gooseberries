@@ -5,7 +5,8 @@ import block from 'bem-cn-lite';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 
 import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
-import {Button, DropdownMenu, Icon, TextInput, Text} from '@gravity-ui/uikit';
+import {Button, DropdownMenu, Icon, Text} from '@gravity-ui/uikit';
+import {DelayedTextInput} from '@gravity-ui/components';
 
 const b = block('the-table');
 
@@ -179,17 +180,18 @@ export const generateFilterTextInput = (args) => {
                 <Text style={{marginLeft: 4}} variant="subheader-1">
                     {placeholder}
                 </Text>
-                <TextInput
+                <DelayedTextInput
+                    delay={250}
                     hasClear
                     value={filters[name] ? filters[name].val : ''}
-                    onChange={(val) => {
+                    onUpdate={(val) => {
                         setFilters(() => {
                             if (!(name in filters))
                                 filters[name] = {
                                     compMode: valueType != 'text' ? 'bigger' : 'include',
                                     val: '',
                                 };
-                            filters[name].val = val.target.value;
+                            filters[name].val = val;
                             filterData(filters);
                             return filters;
                         });

@@ -106,7 +106,6 @@ export const PricesPage = ({pageArgs}) => {
     weekAgo.setDate(weekAgo.getDate() - 7);
     const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
     const anchorRef = useRef(null);
-    const [rangePickerOpen, setRangePickerOpen] = useState(false);
 
     const [filters, setFilters] = useState({undef: false});
 
@@ -2131,8 +2130,6 @@ export const PricesPage = ({pageArgs}) => {
                             recalc: () => setDateChangeRecalc(true),
                             dateRange,
                             setDateRange,
-                            rangePickerOpen,
-                            setRangePickerOpen,
                             anchorRef,
                         }}
                     />

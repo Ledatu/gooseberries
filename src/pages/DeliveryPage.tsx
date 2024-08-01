@@ -97,7 +97,6 @@ export const DeliveryPage = ({pageArgs}) => {
     weekAgo.setDate(weekAgo.getDate() - 30);
     const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
     const anchorRef = useRef(null);
-    const [rangePickerOpen, setRangePickerOpen] = useState(false);
 
     const [useMyStocks, setUseMyStocks] = useState(false);
 
@@ -1386,8 +1385,6 @@ export const DeliveryPage = ({pageArgs}) => {
                             recalc: () => setDateChangeRecalc(true),
                             dateRange,
                             setDateRange,
-                            rangePickerOpen,
-                            setRangePickerOpen,
                             anchorRef,
                         }}
                     />

@@ -111,7 +111,7 @@ export const AutoSalesUploadModal = ({params}) => {
     }
 
     return (
-        <div>
+        <div style={{display: 'flex', flexDirection: 'row'}}>
             <Button
                 style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                 size="l"

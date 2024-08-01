@@ -1,7 +1,6 @@
-import React, {useEffect, useId, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Spin,
-    Select,
     SelectOption,
     Icon,
     Button,
@@ -16,28 +15,18 @@ import {
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
-import block from 'bem-cn-lite';
-
-const b = block('app');
-
 import {
-    ChevronDown,
-    Key,
-    Calculator,
     ChartAreaStacked,
     Copy,
     TrashBin,
     FileText,
     CloudArrowUpIn,
     FileArrowDown,
-    FileArrowUp,
-    LayoutColumns3,
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare, defaultRender} from 'src/components/TheTable';
 import Userfront from '@userfront/toolkit';
-import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
 import {
     daysInMonth,
@@ -52,8 +41,12 @@ import {
 import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {generateModalButtonWithActions} from './MassAdvertPage';
-import axios from 'axios';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
+import {CalcAutoPlansModal} from 'src/components/CalcAutoPlansModal';
+import {AnalyticsCalcModal} from 'src/components/AnalyticsCalcModal';
+import {PlansUpload} from 'src/components/PlansUpload';
+import {ColumnsEdit} from 'src/components/ColumsEdit';
+import {CampaignSelect} from 'src/components/CampaignSelect';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -98,10 +91,6 @@ export const AnalyticsPage = ({pageArgs}) => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
     const [selectedButton, setSelectedButton] = useState('');
     const anchorRef = useRef(null);
-    const [rangePickerOpen, setRangePickerOpen] = useState(false);
-
-    const [autoPlanModalOpen, setAutoPlanModalOpen] = useState(false);
-    const [currenrPlanModalMetrics, setCurrenrPlanModalMetrics] = useState([] as any[]);
 
     const [planModalOpen, setPlanModalOpen] = useState(false);
     const [planModalOpenFromEntity, setPlanModalOpenFromEntity] = useState('');
@@ -114,8 +103,6 @@ export const AnalyticsPage = ({pageArgs}) => {
     const [graphModalData, setGraphModalData] = useState({});
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
-    const uploadId = useId();
-    const [uploadProgress, setUploadProgress] = useState(0);
 
     const columnDataObj = {
         entity: {
@@ -599,30 +586,7 @@ export const AnalyticsPage = ({pageArgs}) => {
         localStorage.setItem('apiPageColumns', JSON.stringify(apiPageColumns));
     }, [apiPageColumns]);
 
-    const [calculatingAutoPlansFlag, setCalculatingAutoPlansFlag] = useState(false);
-
-    const [calculatingFlag, setCalculatingFlag] = useState(false);
-    const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
-    const [enteredKeysCheck, setEnteredKeysCheck] = useState({
-        campaignName: false,
-        brand: false,
-        object: false,
-        title: false,
-        imtId: false,
-        art: false,
-        tags: false,
-    });
     const [entityKeysLastCalc, setEntityKeysLastCalc] = useState([] as any[]);
-
-    const [enteredKeysDateType, setEnteredKeysDateType] = useState('day');
-
-    const getEnteredKeys = () => {
-        const keys = [] as string[];
-        for (const [key, check] of Object.entries(enteredKeysCheck)) {
-            if (key && check) keys.push(key);
-        }
-        return keys;
-    };
 
     const [filters, setFilters] = useState({undef: false});
 
@@ -691,7 +655,6 @@ export const AnalyticsPage = ({pageArgs}) => {
     const [selectValue, setSelectValue] = React.useState<string[]>(
         selectedCampaign != '' ? [selectedCampaign] : [],
     );
-    const [buttonLoading, setButtonLoading] = useState('');
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
@@ -706,81 +669,6 @@ export const AnalyticsPage = ({pageArgs}) => {
     }, [selectValue]);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
-    async function handleChange(event) {
-        const file = event.target.files[0];
-
-        if (!file || !file.name.includes('.xlsx')) {
-            setUploadProgress(-1);
-            return;
-        }
-
-        event.preventDefault();
-        const url = 'https://aurum-mp.ru/api/uploadPlans';
-        const formData = new FormData();
-
-        formData.append('uid', getUid());
-        formData.append('campaignName', selectValue[0]);
-        formData.append('file', file);
-
-        for (const value of formData.values()) {
-            console.log(value);
-        }
-
-        const token =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            onUploadProgress: function (progressEvent) {
-                const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total,
-                );
-                setUploadProgress(percentCompleted);
-            },
-        };
-
-        try {
-            const response = await axios.post(url, formData, config);
-            console.log(response.data);
-            if (response) {
-                const resData = response['data'];
-                doc['plansData'][selectValue[0]] = resData;
-                setChangedDoc(doc);
-
-                setTimeout(() => {
-                    setUploadProgress(0);
-                }, 5 * 1000);
-            }
-        } catch (error) {
-            setUploadProgress(-1);
-
-            console.error('Error uploading file: ', error);
-            if (error.response) {
-                // Server responded with a status other than 200 range
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-                console.error('Response headers:', error.response.headers);
-            } else if (error.request) {
-                // Request was made but no response received
-                console.error('Request data:', error.request);
-            } else {
-                // Something happened in setting up the request
-                console.error('Error message:', error.message);
-            }
-
-            // Capture detailed error for debugging
-            console.error({
-                message: error.message,
-                name: error.name,
-                stack: error.stack,
-                config: error.config,
-                code: error.code,
-                status: error.response ? error.response.status : null,
-            });
-        }
-    }
 
     const recalc = (dateRange, selected = '', withfFilters = {}) => {
         const [startDate, endDate] = dateRange;
@@ -789,22 +677,6 @@ export const AnalyticsPage = ({pageArgs}) => {
         const campaignData = doc
             ? doc.analyticsData[selected === '' ? selectValue[0] : selected]
             : {};
-        // const campaignData = doc ? doc.analytics[selected === '' ? selectValue[0] : selected] : {};
-
-        // const temp = {};
-        // for (const [entity, entityData] of Object.entries(campaignData)) {
-        //     if (!entity || !entityData) continue;
-
-        //     const entityInfo = {
-        //         entity: '',
-        //         sum_orders: '',
-        //         sum: '',
-        //     };
-
-        //     entityInfo.entity = entity;
-
-        //     temp[entity] = entityInfo;
-        // }
 
         setTableData(campaignData);
 
@@ -1418,25 +1290,6 @@ export const AnalyticsPage = ({pageArgs}) => {
         setFirstRecalc(true);
     }
 
-    function arrayMove(arrayTemp, oldIndex, newIndex) {
-        const arr = [...arrayTemp];
-        while (oldIndex < 0) {
-            oldIndex += arr.length;
-        }
-        while (newIndex < 0) {
-            newIndex += arr.length;
-        }
-        if (newIndex >= arr.length) {
-            let k = newIndex - arr.length + 1;
-            while (k--) {
-                arr.push(undefined);
-            }
-        }
-        arr.splice(newIndex, 0, arr.splice(oldIndex, 1)[0]);
-
-        return arr;
-    }
-
     const colors = [
         'var(--g-color-private-purple-550-solid)',
         'var(--g-color-private-yellow-550-solid)',
@@ -1843,575 +1696,40 @@ export const AnalyticsPage = ({pageArgs}) => {
                         display: 'flex',
                         justifyContent: 'start',
                         flexWrap: 'wrap',
+                        height: 44,
                     }}
                 >
-                    <Select
-                        className={b('selectCampaign')}
-                        value={selectValue}
-                        placeholder="Values"
-                        options={selectOptions}
-                        renderControl={({onClick, onKeyDown, ref}) => {
-                            return (
-                                <Button
-                                    loading={buttonLoading === 'switchingCampaigns'}
-                                    ref={ref}
-                                    size="l"
-                                    view="action"
-                                    onClick={onClick}
-                                    extraProps={{
-                                        onKeyDown,
-                                    }}
-                                >
-                                    <Icon data={Key} />
-                                    <Text variant="subheader-1">{selectValue[0]}</Text>
-                                    <Icon data={ChevronDown} />
-                                </Button>
-                            );
-                        }}
-                        onUpdate={(nextValue) => {
-                            setButtonLoading('switchingCampaigns');
-
-                            const params = {
-                                uid: getUid(),
-                                campaignName: nextValue[0],
-                                dateRange: getNormalDateRange(dateRange),
-                            };
-
-                            if (!Object.keys(doc['analyticsData'][nextValue[0]]).length) {
-                                callApi('getAnalytics', params, true).then((res) => {
-                                    if (!res) return;
-                                    const resData = res['data'];
-                                    doc['analyticsData'][nextValue[0]] =
-                                        resData['analyticsData'][nextValue[0]];
-                                    doc['plansData'][nextValue[0]] =
-                                        resData['plansData'][nextValue[0]];
-
-                                    setChangedDoc(doc);
-                                    setSelectValue(nextValue);
-
-                                    setButtonLoading('');
-                                    console.log(doc);
-                                });
-                            } else {
-                                setSelectValue(nextValue);
-                                setButtonLoading('');
-                            }
-                            recalc(dateRange, nextValue[0], filters);
-                            setPagesCurrent(1);
-                        }}
+                    <CampaignSelect
+                        selectValue={selectValue}
+                        setSelectValue={setSelectValue}
+                        selectOptions={selectOptions}
+                        dateRange={dateRange}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                        recalc={recalc}
+                        filters={filters}
+                        setPagesCurrent={setPagesCurrent}
                     />
-                    <motion.div
-                        style={{
-                            overflow: 'hidden',
-                        }}
-                        animate={{
-                            maxWidth: buttonLoading === 'switchingCampaigns' ? 40 : 0,
-                            opacity: buttonLoading === 'switchingCampaigns' ? 1 : 0,
-                        }}
-                    >
-                        <Spin style={{marginTop: 4, marginLeft: 8}} />
-                    </motion.div>
                     <div style={{minWidth: 8}} />
                     <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
-                    <Button
-                        view="action"
-                        size="l"
-                        onClick={async () => {
-                            setAutoPlanModalOpen(true);
-                            setCurrenrPlanModalMetrics([]);
-                            setPlanModalPlanValue('');
-                            setPlanModalPlanValueValid(false);
-                        }}
-                    >
-                        <Icon data={FileText} />
-                        <Text variant="subheader-1">Автопланы</Text>
-                    </Button>
-                    <motion.div
-                        style={{
-                            overflow: 'hidden',
-                            marginTop: 4,
-                        }}
-                        animate={{
-                            maxWidth: calculatingAutoPlansFlag ? 40 : 0,
-                            opacity: calculatingAutoPlansFlag ? 1 : 0,
-                        }}
-                    >
-                        <Spin style={{marginLeft: 8}} />
-                    </motion.div>
-                    <Modal
-                        open={autoPlanModalOpen}
-                        onClose={() => {
-                            setAutoPlanModalOpen(false);
-                            setCurrenrPlanModalMetrics([]);
-                        }}
-                    >
-                        <Card
-                            view="outlined"
-                            theme="warning"
-                            style={{
-                                height: '30em',
-                                width: 'calc(40em + 200px)',
-                                overflow: 'auto',
-                                display: 'flex',
-                                flexDirection: 'row',
-                            }}
-                        >
-                            <Card
-                                view="outlined"
-                                // theme="warning"
-                                style={{
-                                    padding: 20,
-                                    width: '40em',
-                                    overflow: 'auto',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        margin: '0px 32px',
-                                    }}
-                                    variant="display-1"
-                                >
-                                    Установить план, % от предыдущего месяца
-                                </Text>
-                                <div style={{minHeight: 8}} />
-                                <TextInput
-                                    hasClear
-                                    size="l"
-                                    value={planModalPlanValue}
-                                    validationState={
-                                        planModalPlanValueValid ? undefined : 'invalid'
-                                    }
-                                    onUpdate={(val) => {
-                                        const temp = Number(val != '' ? val : 'ahui');
-                                        setPlanModalPlanValueValid(!isNaN(temp) && isFinite(temp));
-                                        setPlanModalPlanValue(val);
-                                    }}
-                                    style={{width: 'calc(100% - 32px)'}}
-                                    placeholder={`Введите план на текущий месяц`}
-                                />
-                                <div style={{minHeight: 8}} />
-                                {generateModalButtonWithActions(
-                                    {
-                                        disabled: !planModalPlanValueValid,
-                                        placeholder: 'Установить план',
-                                        icon: CloudArrowUpIn,
-                                        view: 'outlined-success',
-                                        onClick: () => {
-                                            const monthName = getMonthName(new Date());
-                                            const percentage = planModalPlanValue;
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    enteredValues: {
-                                                        entityKeys: entityKeysLastCalc,
-                                                        dateType: 'month',
-                                                    },
-                                                    plan: {
-                                                        monthName,
-                                                        percentage,
-                                                    },
-                                                    mode: 'Установить',
-                                                    entities: [] as any[],
-                                                    planKeys: currenrPlanModalMetrics,
-                                                },
-                                            };
-
-                                            for (const row of filteredData) {
-                                                const {entity} = row;
-                                                if (!params.data.entities.includes(entity))
-                                                    params.data.entities.push(entity);
-                                            }
-
-                                            console.log(params);
-
-                                            //////////////////////////////////
-                                            setCalculatingAutoPlansFlag(true);
-                                            callApi('setAutoPlanForKeys', params)
-                                                .then((res) => {
-                                                    if (!res || !res['data']) return;
-                                                    doc['plansData'][selectValue[0]] = res['data'];
-                                                })
-                                                .finally(() => {
-                                                    setCalculatingAutoPlansFlag(false);
-                                                });
-                                            setChangedDoc(doc);
-                                            //////////////////////////////////
-
-                                            setAutoPlanModalOpen(false);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Удалить план',
-                                        icon: TrashBin,
-                                        view: 'outlined-danger',
-                                        onClick: () => {
-                                            const monthName = getMonthName(new Date());
-                                            const percentage = planModalPlanValue;
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    plan: {
-                                                        monthName,
-                                                        percentage,
-                                                    },
-                                                    mode: 'Удалить',
-                                                    entities: [] as any[],
-                                                    planKeys: currenrPlanModalMetrics,
-                                                },
-                                            };
-
-                                            for (const row of filteredData) {
-                                                const {entity} = row;
-                                                if (!params.data.entities.includes(entity))
-                                                    params.data.entities.push(entity);
-                                            }
-
-                                            console.log(params);
-
-                                            //////////////////////////////////
-                                            setCalculatingAutoPlansFlag(true);
-                                            callApi('setAutoPlanForKeys', params)
-                                                .then((res) => {
-                                                    if (!res || !res['data']) return;
-
-                                                    doc['plansData'][selectValue[0]] = res['data'];
-                                                })
-                                                .finally(() => {
-                                                    setCalculatingAutoPlansFlag(false);
-                                                });
-                                            setChangedDoc(doc);
-                                            //////////////////////////////////
-
-                                            setAutoPlanModalOpen(false);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                            </Card>
-                            <div
-                                style={{
-                                    padding: 8,
-                                    height: 'calc(100% - 16px)',
-                                    width: 200,
-                                    overflow: 'auto',
-                                    boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                }}
-                            >
-                                <List
-                                    filterPlaceholder="Введите название метрики"
-                                    emptyPlaceholder="Такая метрика отсутствует"
-                                    items={Object.keys(columnDataReversed)}
-                                    renderItem={(item) => {
-                                        const selected = currenrPlanModalMetrics.includes(
-                                            columnDataReversed[item],
-                                        );
-
-                                        const graphColor = colors[0];
-                                        const backColor = graphColor
-                                            ? graphColor.slice(0, graphColor.length - 10) + '150)'
-                                            : undefined;
-                                        const graphTrendColor = graphColor
-                                            ? graphColor.slice(0, graphColor.length - 10) +
-                                              '650-solid)'
-                                            : undefined;
-
-                                        return (
-                                            <Button
-                                                size="xs"
-                                                pin="circle-circle"
-                                                // selected={selected}
-                                                style={{position: 'relative', overflow: 'hidden'}}
-                                                view={selected ? 'flat' : 'outlined'}
-                                            >
-                                                <div
-                                                    style={{
-                                                        borderRadius: 10,
-                                                        left: 0,
-                                                        position: 'absolute',
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        background: selected ? backColor : '#0000',
-                                                    }}
-                                                />
-                                                <Text
-                                                    style={{
-                                                        color: selected
-                                                            ? graphTrendColor
-                                                            : undefined,
-                                                    }}
-                                                >
-                                                    {item}
-                                                </Text>
-                                            </Button>
-                                        );
-                                    }}
-                                    onItemClick={(item) => {
-                                        const metricVal = columnDataReversed[item];
-                                        let tempArr = Array.from(currenrPlanModalMetrics);
-                                        if (tempArr.includes(metricVal)) {
-                                            tempArr = tempArr.filter((value) => value != metricVal);
-                                        } else {
-                                            tempArr.push(metricVal);
-                                        }
-
-                                        setCurrenrPlanModalMetrics(tempArr);
-                                    }}
-                                />
-                                <Button
-                                    width="max"
-                                    view={currenrPlanModalMetrics.length ? 'flat-danger' : 'normal'}
-                                    selected={currenrPlanModalMetrics.length != 0}
-                                    onClick={() => {
-                                        setCurrenrPlanModalMetrics([]);
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            width: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}
-                                    >
-                                        <Icon data={TrashBin} />
-                                        <div style={{minWidth: 3}} />
-                                        Очистить
-                                    </div>
-                                </Button>
-                            </div>
-                        </Card>
-                    </Modal>
+                    <CalcAutoPlansModal
+                        filteredData={filteredData}
+                        columnDataReversed={columnDataReversed}
+                        selectValue={selectValue}
+                        entityKeysLastCalc={entityKeysLastCalc}
+                        colors={colors}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                    />
                     <div style={{minWidth: 8}} />
-                    <Button
-                        loading={calculatingFlag}
-                        size="l"
-                        view="action"
-                        onClick={() => {
-                            setEnteredValuesModalOpen(true);
-                            setEnteredKeysCheck({
-                                campaignName: false,
-                                brand: false,
-                                object: false,
-                                title: false,
-                                imtId: false,
-                                art: false,
-                                tags: false,
-                            });
-                        }}
-                    >
-                        <Icon data={Calculator} />
-                        <Text variant="subheader-1">Рассчитать</Text>
-                    </Button>
-                    <motion.div
-                        style={{
-                            overflow: 'hidden',
-                            marginTop: 4,
-                        }}
-                        animate={{
-                            maxWidth: calculatingFlag ? 40 : 0,
-                            opacity: calculatingFlag ? 1 : 0,
-                        }}
-                    >
-                        <Spin style={{marginLeft: 8}} />
-                    </motion.div>
-                    <Modal
-                        open={enteredValuesModalOpen}
-                        onClose={() => {
-                            setEnteredValuesModalOpen(false);
-                        }}
-                    >
-                        <Card
-                            view="clear"
-                            style={{
-                                width: 350,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                backgroundColor: 'none',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    height: '50%',
-                                    width: 'calc(100% - 32px)',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    margin: '16px 0',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            width: 'calc(100% + 8px)',
-                                        }}
-                                    >
-                                        {generateSelectButton({
-                                            key: 'campaignName',
-                                            placeholder: 'Магазин',
-                                            enteredKeysCheck,
-                                            setEnteredKeysCheck,
-                                        })}
-                                        {generateSelectButton({
-                                            key: 'brand',
-                                            placeholder: 'Бренд',
-                                            enteredKeysCheck,
-                                            setEnteredKeysCheck,
-                                        })}
-                                        {generateSelectButton({
-                                            key: 'object',
-                                            placeholder: 'Тип предмета',
-                                            enteredKeysCheck,
-                                            setEnteredKeysCheck,
-                                        })}
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            width: 'calc(100% + 8px)',
-                                        }}
-                                    >
-                                        {generateSelectButton({
-                                            key: 'title',
-                                            placeholder: 'Наименование',
-                                            enteredKeysCheck,
-                                            setEnteredKeysCheck,
-                                        })}
-                                        {generateSelectButton({
-                                            key: 'imtId',
-                                            placeholder: 'ID КТ',
-                                            enteredKeysCheck,
-                                            setEnteredKeysCheck,
-                                        })}
-                                        {generateSelectButton({
-                                            key: 'art',
-                                            placeholder: 'Артикул',
-                                            enteredKeysCheck,
-                                            setEnteredKeysCheck,
-                                        })}
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            width: 'calc(100% + 8px)',
-                                        }}
-                                    >
-                                        {generateSelectButton({
-                                            key: 'tags',
-                                            placeholder: 'Теги',
-                                            enteredKeysCheck,
-                                            setEnteredKeysCheck,
-                                        })}
-                                    </div>
-                                </div>
-                                <div style={{minHeight: 4}} />
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        width: 'calc(100% - 32px)',
-                                    }}
-                                >
-                                    <Button
-                                        pin="round-brick"
-                                        selected={enteredKeysDateType == 'day'}
-                                        onClick={() => setEnteredKeysDateType('day')}
-                                    >
-                                        <Text variant="subheader-1">По дням</Text>
-                                    </Button>
-                                    <Button
-                                        pin="brick-brick"
-                                        selected={enteredKeysDateType == 'week'}
-                                        onClick={() => setEnteredKeysDateType('week')}
-                                    >
-                                        <Text variant="subheader-1">По неделям</Text>
-                                    </Button>
-                                    <Button
-                                        pin="brick-round"
-                                        selected={enteredKeysDateType == 'month'}
-                                        onClick={() => setEnteredKeysDateType('month')}
-                                    >
-                                        <Text variant="subheader-1">По месяцам</Text>
-                                    </Button>
-                                </div>
-                                <div style={{minHeight: 12}} />
-                                <Button
-                                    size="l"
-                                    view="action"
-                                    onClick={() => {
-                                        setCalculatingFlag(true);
-                                        const entityKeys = getEnteredKeys();
-                                        setEntityKeysLastCalc(entityKeys);
-                                        const params = {
-                                            uid: getUid(),
-                                            campaignName: selectValue[0],
-                                            dateRange: getNormalDateRange(dateRange),
-                                            enteredValues: {
-                                                entityKeys: entityKeys,
-                                                dateType: enteredKeysDateType,
-                                            },
-                                        };
-
-                                        console.log(params);
-
-                                        /////////////////////////
-                                        callApi('getAnalytics', params, true).then((res) => {
-                                            if (!res) return;
-                                            const resData = res['data'];
-
-                                            doc['analyticsData'][selectValue[0]] =
-                                                resData['analyticsData'][selectValue[0]];
-                                            doc['plansData'][selectValue[0]] =
-                                                resData['plansData'][selectValue[0]];
-
-                                            setChangedDoc(doc);
-                                            setCalculatingFlag(false);
-                                            console.log(doc);
-                                        });
-
-                                        setPagesCurrent(1);
-                                        /////////////////////////
-
-                                        setEnteredValuesModalOpen(false);
-                                    }}
-                                >
-                                    <Icon data={Calculator} />
-                                    <Text variant="subheader-1">Рассчитать</Text>
-                                </Button>
-                            </div>
-                        </Card>
-                    </Modal>
-                    <div style={{minWidth: 8}} />
+                    <AnalyticsCalcModal
+                        setPagesCurrent={setPagesCurrent}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                        setEntityKeysLastCalc={setEntityKeysLastCalc}
+                        selectValue={selectValue}
+                        dateRange={dateRange}
+                    />
                 </div>
                 <div
                     style={{
@@ -2443,69 +1761,11 @@ export const AnalyticsPage = ({pageArgs}) => {
                         <Text variant="subheader-1">Очистить фильтры</Text>
                     </Button>
                     <div style={{minWidth: 8}} />
-                    <Popover
-                        content={
-                            <div
-                                style={{
-                                    height: 'calc(300px - 60px)',
-                                    width: 150,
-                                    overflow: 'auto',
-                                    display: 'flex',
-                                }}
-                            >
-                                <Card
-                                    view="outlined"
-                                    theme="warning"
-                                    style={{
-                                        position: 'absolute',
-                                        background: 'var(--g-color-base-background)',
-                                        height: 300,
-                                        width: 200,
-                                        padding: 8,
-                                        overflow: 'auto',
-                                        top: -10,
-                                        left: -9,
-                                        display: 'flex',
-                                    }}
-                                >
-                                    <List
-                                        sortable
-                                        filterable={false}
-                                        itemHeight={28}
-                                        items={apiPageColumns}
-                                        sortHandleAlign="right"
-                                        renderItem={(item) => {
-                                            return (
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                    }}
-                                                >
-                                                    {/* <Checkbox defaultChecked /> */}
-                                                    {/* <div style={{minWidth: 4}} /> */}
-                                                    <Text>
-                                                        {columnDataObj[item as string].placeholder}
-                                                    </Text>
-                                                </div>
-                                            );
-                                        }}
-                                        onSortEnd={({oldIndex, newIndex}) => {
-                                            setApiPageColumns(
-                                                arrayMove(apiPageColumns, oldIndex, newIndex),
-                                            );
-                                        }}
-                                    />
-                                </Card>
-                            </div>
-                        }
-                    >
-                        <Button size="l" view="action" style={{marginBottom: 8}}>
-                            <Icon data={LayoutColumns3} />
-                            <Text variant="subheader-1">Столбцы</Text>
-                        </Button>
-                    </Popover>
+                    <ColumnsEdit
+                        columns={apiPageColumns}
+                        setColumns={setApiPageColumns}
+                        columnDataObj={columnDataObj}
+                    />
                     <div style={{minWidth: 8}} />
                     <Button
                         style={{
@@ -2528,7 +1788,6 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 if (!params.data.entities.includes(entity))
                                     params.data.entities.push(entity);
                             }
-                            setUploadProgress(0);
                             callApi('downloadPlansTemplate', params)
                                 .then((res: any) => {
                                     return res.data;
@@ -2557,63 +1816,17 @@ export const AnalyticsPage = ({pageArgs}) => {
                         </Text>
                     </Button>
                     <div style={{minWidth: 8}} />
-                    <label htmlFor={uploadId}>
-                        <Button
-                            size="l"
-                            onClick={() => {
-                                setUploadProgress(0);
-                                (document.getElementById(uploadId) as HTMLInputElement).value = '';
-                            }}
-                            style={{
-                                cursor: 'pointer',
-                                position: 'relative',
-                                overflow: 'hidden',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
-                            selected={uploadProgress === 100 || uploadProgress === -1}
-                            view={
-                                uploadProgress === 100
-                                    ? 'flat-success'
-                                    : uploadProgress === -1
-                                    ? 'flat-danger'
-                                    : 'outlined-success'
-                            }
-                        >
-                            <Text
-                                variant="subheader-1"
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Icon data={FileArrowUp} size={20} />
-                                <div style={{minWidth: 3}} />
-                                Загрузить планы
-                                <input
-                                    id={uploadId}
-                                    style={{
-                                        opacity: 0,
-                                        position: 'absolute',
-                                        height: 40,
-                                        left: 0,
-                                    }}
-                                    type="file"
-                                    onChange={handleChange}
-                                />
-                            </Text>
-                        </Button>
-                    </label>
+                    <PlansUpload
+                        selectValue={selectValue}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                    />
                     <div style={{minWidth: 8}} />
                     <RangePicker
                         args={{
                             recalc,
                             dateRange,
                             setDateRange,
-                            rangePickerOpen,
-                            setRangePickerOpen,
                             anchorRef,
                         }}
                     />
@@ -2668,22 +1881,5 @@ export const AnalyticsPage = ({pageArgs}) => {
                 />
             </div>
         </div>
-    );
-};
-
-const generateSelectButton = ({key, enteredKeysCheck, setEnteredKeysCheck, placeholder}) => {
-    return (
-        <Button
-            width="max"
-            style={{margin: 4}}
-            selected={enteredKeysCheck[key]}
-            onClick={() => {
-                const temp = {...enteredKeysCheck};
-                temp[key] = !temp[key];
-                setEnteredKeysCheck(temp);
-            }}
-        >
-            <Text variant="subheader-1">{placeholder}</Text>
-        </Button>
     );
 };

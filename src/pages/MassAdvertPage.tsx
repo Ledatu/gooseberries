@@ -68,7 +68,6 @@ import {
     TrashBin,
     Check,
     CloudArrowUpIn,
-    Tag,
     TagRuble,
     Cherry,
     Xmark,
@@ -96,6 +95,7 @@ import TheTable, {compare} from 'src/components/TheTable';
 import {RangePicker} from 'src/components/RangePicker';
 import {AutoSalesModal} from 'src/components/AutoSalesModal';
 import {AutoSalesUploadModal} from 'src/components/AutoSalesUploadModal';
+import {TagsFilterModal} from 'src/components/TagsFilterModal';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -199,12 +199,6 @@ export const MassAdvertPage = ({pageArgs}) => {
     const [manageModalOpen, setManageModalOpen] = useState(false);
     const [manageModalInProgress, setManageModalInProgress] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
-
-    // const [semanticsModalTextAreaAddMode, setSemanticsModalTextAreaAddMode] = useState(false);
-    // const [semanticsModalTextAreaValue, setSemanticsModalTextAreaValue] = useState('');
-    const [availableTags, setAvailableTags] = useState([] as any[]);
-    const [availableTagsPending, setAvailableTagsPending] = useState(false);
-    const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
     const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
     const [availableAutoSales, setAvailableAutoSales] = useState({});
@@ -4533,24 +4527,6 @@ export const MassAdvertPage = ({pageArgs}) => {
         setSelectedCampaign(selectValue[0]);
         setWordsFetchUpdate(true);
         setAdvertsBidsLogFetchUpdate(true);
-
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
     }, [selectValue]);
 
     useEffect(() => {
@@ -4660,7 +4636,6 @@ export const MassAdvertPage = ({pageArgs}) => {
 
     const [dateRange, setDateRange] = useState([today, today]);
     const anchorRef = useRef(null);
-    const [rangePickerOpen, setRangePickerOpen] = useState(false);
 
     // console.log(doc);
     // const lbdDate: DateTime =;
@@ -9577,60 +9552,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                         <Icon data={Clock} />
                         <Text variant="subheader-1">График</Text>
                     </Button>
-                    <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="action"
-                        loading={availableTagsPending}
-                        size="l"
-                        onClick={async () => {
-                            setTagsModalOpen(true);
-                        }}
-                    >
-                        <Icon data={Tag} />
-                        <Text variant="subheader-1">Теги</Text>
-                    </Button>
-                    <Modal
-                        open={tagsModalOpen}
-                        onClose={() => {
-                            setTagsModalOpen(false);
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                width: '30vw',
-                                height: '60vh',
-                                margin: 20,
-                            }}
-                        >
-                            {availableTagsPending ? (
-                                <div></div>
-                            ) : (
-                                <List
-                                    filterPlaceholder="Введите имя тега"
-                                    emptyPlaceholder="Такой тег отсутствует"
-                                    loading={availableTagsPending}
-                                    items={availableTags}
-                                    renderItem={(item) => {
-                                        return (
-                                            <Button
-                                                size="xs"
-                                                pin="circle-circle"
-                                                selected
-                                                view={'outlined-info'}
-                                            >
-                                                {item.toUpperCase()}
-                                            </Button>
-                                        );
-                                    }}
-                                    onItemClick={(item) => {
-                                        filterByButton(item, 'art');
-                                        setTagsModalOpen(false);
-                                    }}
-                                />
-                            )}
-                        </div>
-                    </Modal>
+                    <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="action"
@@ -10731,8 +10653,6 @@ export const MassAdvertPage = ({pageArgs}) => {
                             recalc,
                             dateRange,
                             setDateRange,
-                            rangePickerOpen,
-                            setRangePickerOpen,
                             anchorRef,
                         }}
                     />
