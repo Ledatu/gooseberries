@@ -29,7 +29,6 @@ import {
     TrashBin,
     FileText,
     CloudArrowUpIn,
-    Tag,
     FileArrowDown,
     FileArrowUp,
     LayoutColumns3,
@@ -54,6 +53,7 @@ import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import axios from 'axios';
+import {TagsFilterModal} from 'src/components/TagsFilterModal';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -695,9 +695,6 @@ export const AnalyticsPage = ({pageArgs}) => {
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
-    const [availableTags, setAvailableTags] = useState([] as any[]);
-    const [availableTagsPending, setAvailableTagsPending] = useState(false);
-    const [tagsModalOpen, setTagsModalOpen] = useState(false);
     const filterByButton = (val, key = 'entity', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
         setFilters(filters);
@@ -1305,7 +1302,7 @@ export const AnalyticsPage = ({pageArgs}) => {
 
         temp.pop();
 
-        const paginatedDataTemp = temp.slice(0, 366);
+        const paginatedDataTemp = temp.slice(0, 100);
 
         setFilteredSummary((row) => {
             const fstemp = row;
@@ -1416,24 +1413,6 @@ export const AnalyticsPage = ({pageArgs}) => {
                   ]['value'];
         setSelectValue([selected]);
         console.log(doc);
-
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selected,
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
 
         recalc(dateRange, selected);
         setFirstRecalc(true);
@@ -1898,24 +1877,6 @@ export const AnalyticsPage = ({pageArgs}) => {
                                 dateRange: getNormalDateRange(dateRange),
                             };
 
-                            setAvailableTagsPending(true);
-                            callApi('getAllTags', {
-                                uid: getUid(),
-                                campaignName: nextValue[0],
-                            })
-                                .then((res) => {
-                                    if (!res) throw 'no response';
-                                    const {tags} = res['data'] ?? {};
-                                    tags.sort();
-                                    setAvailableTags(tags ?? []);
-                                })
-                                .catch((e) => {
-                                    console.log(e);
-                                })
-                                .finally(() => {
-                                    setAvailableTagsPending(false);
-                                });
-
                             if (!Object.keys(doc['analyticsData'][nextValue[0]]).length) {
                                 callApi('getAnalytics', params, true).then((res) => {
                                     if (!res) return;
@@ -1951,62 +1912,9 @@ export const AnalyticsPage = ({pageArgs}) => {
                         <Spin style={{marginTop: 4, marginLeft: 8}} />
                     </motion.div>
                     <div style={{minWidth: 8}} />
-                    <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="action"
-                        size="l"
-                        onClick={async () => {
-                            setTagsModalOpen(true);
-                        }}
-                    >
-                        <Icon data={Tag} />
-                        <Text variant="subheader-1">Теги</Text>
-                    </Button>
-                    <Modal
-                        open={tagsModalOpen}
-                        onClose={() => {
-                            setTagsModalOpen(false);
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                width: '30vw',
-                                height: '60vh',
-                                margin: 20,
-                            }}
-                        >
-                            {availableTagsPending ? (
-                                <div></div>
-                            ) : (
-                                <List
-                                    filterPlaceholder="Введите имя тега"
-                                    emptyPlaceholder="Такой тег отсутствует"
-                                    loading={availableTagsPending}
-                                    items={availableTags}
-                                    renderItem={(item) => {
-                                        return (
-                                            <Button
-                                                size="xs"
-                                                pin="circle-circle"
-                                                selected
-                                                view={'outlined-info'}
-                                            >
-                                                {item.toUpperCase()}
-                                            </Button>
-                                        );
-                                    }}
-                                    onItemClick={(item) => {
-                                        filterByButton(item);
-                                        setTagsModalOpen(false);
-                                    }}
-                                />
-                            )}
-                        </div>
-                    </Modal>
+                    <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
                     <Button
                         view="action"
-                        loading={availableTagsPending}
                         size="l"
                         onClick={async () => {
                             setAutoPlanModalOpen(true);
@@ -2743,10 +2651,10 @@ export const AnalyticsPage = ({pageArgs}) => {
                     showInput
                     total={pagesTotal}
                     page={pagesCurrent}
-                    pageSize={366}
+                    pageSize={100}
                     onUpdate={(page) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 366, page * 366);
+                        const paginatedDataTemp = filteredData.slice((page - 1) * 100, page * 100);
                         setFilteredSummary((row) => {
                             const fstemp = row;
                             fstemp[

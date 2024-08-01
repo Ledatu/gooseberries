@@ -2274,6 +2274,7 @@ export const MassAdvertPage = ({pageArgs}) => {
                 const tagsNodes = [] as ReactNode[];
                 if (availableAutoSalesNmIds.includes(nmId)) {
                     const autoSalesInfo = doc['autoSales'][selectValue[0]][nmId];
+
                     tagsNodes.push(
                         autoSalesInfo ? (
                             <div>
