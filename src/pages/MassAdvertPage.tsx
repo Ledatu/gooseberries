@@ -7737,7 +7737,7 @@ export const MassAdvertPage = ({
                 ? selectedCampaign
                 : campaignsNames[0]['value'];
         setSelectValue([selected]);
-        
+
         console.log(doc);
 
         for (let i = 0; i < columnData.length; i++) {

@@ -17,9 +17,6 @@ import {
 } from '@gravity-ui/uikit';
 import '../App.scss';
 import Userfront from '@userfront/toolkit';
-import {ApiPage} from './ApiPage';
-import {AdvertStatsPage} from './AdvertStatsPage';
-import {DeliveryOrdersPage} from './DeliveryOrdersPage';
 import {MassAdvertPage} from './MassAdvertPage';
 // import {db} from '../utilities/firebase-config';
 import textLogo from '../assets/textLogo.png';
@@ -476,9 +473,6 @@ export const Dashboard = () => {
 
 const PageElem = ({page, selectedCampaign, setSelectedCampaign, userInfo}) => {
     const pages = {
-        api: <ApiPage />,
-        stats_rk: <AdvertStatsPage />,
-        deliveryOrders: <DeliveryOrdersPage />,
         delivery: (
             <DeliveryPage
                 selectedCampaign={selectedCampaign}
