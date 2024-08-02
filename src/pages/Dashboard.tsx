@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import block from 'bem-cn-lite';
 import {
     ThemeProvider,
@@ -41,6 +41,13 @@ enum Theme {
     Dark = 'dark',
 }
 
+export interface User {
+    uuid: string;
+    roles: string[];
+    modules: string[];
+    campaignNames: string[];
+}
+
 export const Dashboard = () => {
     const themeVal = localStorage.getItem('theme');
     const initialTheme =
@@ -52,6 +59,17 @@ export const Dashboard = () => {
     useEffect(() => {
         localStorage.setItem('theme', JSON.stringify(theme));
     }, [theme]);
+
+    const [userInfo, setUserInfo] = useState({} as User);
+    useEffect(() => {
+        callApi('getUserInfo', {uid: Userfront.user.userUuid})
+            .then((response) => {
+                if (!response || !response['data']) return;
+                const info: User = response.data;
+                setUserInfo(info);
+            })
+            .catch((e) => console.log('Error occured while fetching user info', e));
+    }, []);
 
     const optionsTheme: RadioButtonOption[] = [
         {value: 'dark', content: <Icon data={Moon}></Icon>},
@@ -65,14 +83,14 @@ export const Dashboard = () => {
     const [currentNote, setCurrentNote] = useState('');
     // const [page, setPage] = useState('analytics');
     // const [page, setPage] = useState('delivery');
-    const [page, setPage] = useState(
-        Userfront.user.userUuid !== '2b58844a-0801-4ca1-806d-78da9f641be6'
-            ? 'massAdvert'
-            : 'delivery',
-    );
-    const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const [selectedCampaign, setSelectedCampaign] = useState('');
+    const modules = useMemo(() => userInfo.modules ?? [], [userInfo]);
+
+    const [page, setPage] = useState(modules.includes('all') ? 'massAdvert' : modules[0]);
+    useEffect(() => setPage(modules.includes('all') ? 'massAdvert' : modules[0]), [modules]);
+
+    const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const renderTabItem = (item, node, index) => {
         if (item === undefined || node === undefined || index === undefined) return <></>;
@@ -116,54 +134,32 @@ export const Dashboard = () => {
         {
             id: 'massAdvert',
             title: 'Реклама',
-            disabled: Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6',
+            disabled: !modules.includes('all') && !modules.includes('massAdvert'),
         },
         {
             id: 'analytics',
             title: 'Аналитика',
-            disabled: Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6',
+            disabled: !modules.includes('all') && !modules.includes('analytics'),
         },
         {
             id: 'delivery',
             title: 'Поставки',
-            disabled:
-                Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
-                Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
-                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
-                Userfront.user.userUuid !== 'c5c9a3ce-2167-4446-a43b-d8ed63f80124' &&
-                Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' &&
-                Userfront.user.userUuid !== 'a59ebe89-bc25-4bc3-b9cf-d788f819898c' &&
-                Userfront.user.userUuid !== '2b58844a-0801-4ca1-806d-78da9f641be6',
+            disabled: !modules.includes('all') && !modules.includes('delivery'),
         },
         {
             id: 'prices',
             title: 'Цены',
-            disabled:
-                Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
-                Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
-                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
-                Userfront.user.userUuid !== 'c5c9a3ce-2167-4446-a43b-d8ed63f80124' &&
-                Userfront.user.userUuid !== 'a59ebe89-bc25-4bc3-b9cf-d788f819898c' &&
-                Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064',
+            disabled: !modules.includes('all') && !modules.includes('prices'),
         },
         {
             id: 'nomenclatures',
             title: 'Товары',
-            disabled:
-                Userfront.user.userUuid !== '4a1f2828-9a1e-4bbf-8e07-208ba676a806' &&
-                Userfront.user.userUuid !== '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8' &&
-                Userfront.user.userUuid !== '46431a09-85c3-4703-8246-d1b5c9e52594' &&
-                Userfront.user.userUuid !== 'c5c9a3ce-2167-4446-a43b-d8ed63f80124' &&
-                Userfront.user.userUuid !== '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' &&
-                Userfront.user.userUuid !== 'a59ebe89-bc25-4bc3-b9cf-d788f819898c' &&
-                Userfront.user.userUuid !== '2b58844a-0801-4ca1-806d-78da9f641be6',
+            disabled: !modules.includes('all') && !modules.includes('nomenclatures'),
         },
         {
             id: 'seo',
             title: 'SEO',
-            disabled:
-                Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6' ||
-                Userfront.user.userUuid == '5164799d-ff93-434b-b089-d1160ce4f5cb',
+            disabled: !modules.includes('all') && !modules.includes('seo'),
         },
     ];
 
@@ -466,24 +462,59 @@ export const Dashboard = () => {
                         position: 'relative',
                     }}
                 >
-                    {getPageElem({page, args: {selectedCampaign, setSelectedCampaign}})}
+                    <PageElem
+                        page={page}
+                        selectedCampaign={selectedCampaign}
+                        setSelectedCampaign={setSelectedCampaign}
+                        userInfo={userInfo}
+                    />
                 </div>
             </div>
         </ThemeProvider>
     );
 };
 
-const getPageElem = ({page, args}) => {
+const PageElem = ({page, selectedCampaign, setSelectedCampaign, userInfo}) => {
     const pages = {
         api: <ApiPage />,
         stats_rk: <AdvertStatsPage />,
         deliveryOrders: <DeliveryOrdersPage />,
-        delivery: <DeliveryPage pageArgs={args} />,
-        massAdvert: <MassAdvertPage pageArgs={args} />,
-        prices: <PricesPage pageArgs={args} />,
-        nomenclatures: <NomenclaturesPage pageArgs={args} />,
-        analytics: <AnalyticsPage pageArgs={args} />,
+        delivery: (
+            <DeliveryPage
+                selectedCampaign={selectedCampaign}
+                setSelectedCampaign={setSelectedCampaign}
+                userInfo={userInfo}
+            />
+        ),
+        massAdvert: (
+            <MassAdvertPage
+                selectedCampaign={selectedCampaign}
+                setSelectedCampaign={setSelectedCampaign}
+                userInfo={userInfo}
+            />
+        ),
+        prices: (
+            <PricesPage
+                selectedCampaign={selectedCampaign}
+                setSelectedCampaign={setSelectedCampaign}
+                userInfo={userInfo}
+            />
+        ),
+        nomenclatures: (
+            <NomenclaturesPage
+                selectedCampaign={selectedCampaign}
+                setSelectedCampaign={setSelectedCampaign}
+                userInfo={userInfo}
+            />
+        ),
+        analytics: (
+            <AnalyticsPage
+                selectedCampaign={selectedCampaign}
+                setSelectedCampaign={setSelectedCampaign}
+                userInfo={userInfo}
+            />
+        ),
         seo: <SEOPage />,
     };
-    return pages[page] ?? <div></div>;
+    return pages[page] ?? <></>;
 };

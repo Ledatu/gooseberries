@@ -26,7 +26,6 @@ import {
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare, defaultRender} from 'src/components/TheTable';
-import Userfront from '@userfront/toolkit';
 import {RangePicker} from 'src/components/RangePicker';
 import {
     daysInMonth,
@@ -47,8 +46,15 @@ import {AnalyticsCalcModal} from 'src/components/AnalyticsCalcModal';
 import {PlansUpload} from 'src/components/PlansUpload';
 import {ColumnsEdit} from 'src/components/ColumsEdit';
 import {CampaignSelect} from 'src/components/CampaignSelect';
+import {User} from './Dashboard';
 
-const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
+const getUserDoc = (
+    dateRange,
+    docum = undefined,
+    mode = false,
+    selectValue = '',
+    userInfo: User,
+) => {
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
@@ -70,14 +76,9 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
                 campaignName:
                     selectValue != ''
                         ? selectValue
-                        : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                          Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                        ? 'ИП Иосифова Р. И.'
-                        : Userfront.user.userUuid === 'a59ebe89-bc25-4bc3-b9cf-d788f819898c'
-                        ? 'Сальвадор37'
-                        : Userfront.user.userUuid == '5164799d-ff93-434b-b089-d1160ce4f5cb'
-                        ? 'Текстиль'
-                        : 'ОТК ПРОИЗВОДСТВО',
+                        : userInfo.campaignNames.includes('all')
+                        ? 'ОТК ПРОИЗВОДСТВО'
+                        : userInfo.campaignNames[0],
             },
             true,
         )
@@ -87,9 +88,15 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const AnalyticsPage = ({pageArgs}) => {
-    const {selectedCampaign, setSelectedCampaign} = pageArgs;
-
+export const AnalyticsPage = ({
+    selectedCampaign,
+    setSelectedCampaign,
+    userInfo,
+}: {
+    selectedCampaign: string;
+    setSelectedCampaign: Function;
+    userInfo: User;
+}) => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
     const [selectedButton, setSelectedButton] = useState('');
     const anchorRef = useRef(null);
@@ -670,7 +677,7 @@ export const AnalyticsPage = ({pageArgs}) => {
         setSelectedCampaign(selectValue[0]);
     }, [selectValue]);
 
-    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
+    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0], userInfo);
 
     const recalc = (dateRange, selected = '', withfFilters = {}) => {
         const [startDate, endDate] = dateRange;
@@ -1204,95 +1211,24 @@ export const AnalyticsPage = ({pageArgs}) => {
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['analyticsData'])) {
-            if (Userfront.user.userUuid === 'ce86aeb0-30b7-45ba-9234-a6765df7a479') {
-                if (
-                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
-                        campaignName,
-                    )
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == 'a59ebe89-bc25-4bc3-b9cf-d788f819898c') {
-                if (['Сальвадор37'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == '5164799d-ff93-434b-b089-d1160ce4f5cb') {
-                if (['Текстиль'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == '0fcea1c8-a8d7-4525-9cf8-444e31692897') {
-                if (['ОТК ПРОИЗВОДСТВО'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid === '1c5a0344-31ea-469e-945e-1dfc4b964ecd') {
-                if (
-                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
-                        campaignName,
-                    )
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid === '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8') {
-                if (['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (
-                Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+            if (
+                userInfo.campaignNames.includes('all') ||
+                userInfo.campaignNames.includes(campaignName)
             ) {
-                if (
-                    [
-                        'ИП Иосифова Р. И.',
-                        'ИП Иосифов А. М.',
-                        'ИП Иосифов М.С.',
-                        'ИП Иосифов С.М. (домашка)',
-                        'ООО Лаванда (18+)',
-                        'ИП Галилова',
-                        'ИП Мартыненко',
-                        'ТОРГМАКСИМУМ',
-                    ].includes(campaignName)
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else {
                 campaignsNames.push({
                     value: campaignName,
                     content: campaignName,
                 });
             }
         }
+        console.log(campaignsNames);
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected =
             selectedCampaign && selectedCampaign != ''
                 ? selectedCampaign
-                : campaignsNames[
-                      Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                          ? 1
-                          : 0
-                  ]['value'];
+                : campaignsNames[0]['value'];
         setSelectValue([selected]);
+
         console.log(doc);
 
         recalc(dateRange, selected);

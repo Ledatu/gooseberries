@@ -36,14 +36,20 @@ import {
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
-import Userfront from '@userfront/toolkit';
 import {getNormalDateRange, getRoundValue} from 'src/utilities/getRoundValue';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
 import TheTable, {compare, defaultRender, generateFilterTextInput} from 'src/components/TheTable';
 import axios from 'axios';
+import {User} from './Dashboard';
 
-const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
+const getUserDoc = (
+    dateRange,
+    docum = undefined,
+    mode = false,
+    selectValue = '',
+    userInfo: User,
+) => {
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
@@ -65,13 +71,9 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
                 campaignName:
                     selectValue != ''
                         ? selectValue
-                        : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                          Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' ||
-                          Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6'
-                        ? 'ИП Иосифова Р. И.'
-                        : Userfront.user.userUuid === 'a59ebe89-bc25-4bc3-b9cf-d788f819898c'
-                        ? 'Сальвадор37'
-                        : 'ОТК ПРОИЗВОДСТВО',
+                        : userInfo.campaignNames.includes('all')
+                        ? 'ОТК ПРОИЗВОДСТВО'
+                        : userInfo.campaignNames[0],
             },
             true,
         )
@@ -81,10 +83,15 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const DeliveryPage = ({pageArgs}) => {
-    const {selectedCampaign, setSelectedCampaign} = pageArgs;
-    console.log(selectedCampaign);
-
+export const DeliveryPage = ({
+    selectedCampaign,
+    setSelectedCampaign,
+    userInfo,
+}: {
+    selectedCampaign: string;
+    setSelectedCampaign: Function;
+    userInfo: User;
+}) => {
     const today = new Date(
         new Date()
             .toLocaleDateString('ru-RU')
@@ -230,7 +237,7 @@ export const DeliveryPage = ({pageArgs}) => {
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
-    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
+    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0], userInfo);
 
     const rebalanceToCount = (val) => {
         const currentNumber = changeToOrderCountValue;
@@ -887,85 +894,26 @@ export const DeliveryPage = ({pageArgs}) => {
     ];
 
     if (!firstRecalc) {
-        console.log(selectValue);
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['deliveryData'])) {
-            if (Userfront.user.userUuid == 'ce86aeb0-30b7-45ba-9234-a6765df7a479') {
-                if (
-                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
-                        campaignName,
-                    )
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == 'a59ebe89-bc25-4bc3-b9cf-d788f819898c') {
-                if (['Сальвадор37'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == '1c5a0344-31ea-469e-945e-1dfc4b964ecd') {
-                if (
-                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
-                        campaignName,
-                    )
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid === '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8') {
-                if (['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (
-                Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064' ||
-                Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6'
+            if (
+                userInfo.campaignNames.includes('all') ||
+                userInfo.campaignNames.includes(campaignName)
             ) {
-                if (
-                    [
-                        'ИП Иосифова Р. И.',
-                        'ИП Иосифов А. М.',
-                        'ИП Иосифов М.С.',
-                        'ИП Иосифов С.М. (домашка)',
-                        'ООО Лаванда (18+)',
-                        'ИП Галилова',
-                        'ИП Мартыненко',
-                        'ТОРГМАКСИМУМ',
-                    ].includes(campaignName)
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else {
                 campaignsNames.push({
                     value: campaignName,
                     content: campaignName,
                 });
             }
         }
+        console.log(campaignsNames);
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected =
             selectedCampaign && selectedCampaign != ''
                 ? selectedCampaign
-                : campaignsNames[
-                      Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                          ? 1
-                          : 0
-                  ]['value'];
+                : campaignsNames[0]['value'];
         setSelectValue([selected]);
+
         console.log(doc);
 
         setAvailableTagsPending(true);

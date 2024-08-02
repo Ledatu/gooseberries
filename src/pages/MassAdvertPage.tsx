@@ -27,7 +27,6 @@ import '../App.scss';
 
 import block from 'bem-cn-lite';
 
-import Userfront from '@userfront/toolkit';
 import DataTable, {Column} from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
@@ -96,8 +95,9 @@ import {RangePicker} from 'src/components/RangePicker';
 import {AutoSalesModal} from 'src/components/AutoSalesModal';
 import {AutoSalesUploadModal} from 'src/components/AutoSalesUploadModal';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
+import {User} from './Dashboard';
 
-const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
+const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo: User) => {
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
@@ -134,14 +134,9 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
         campaignName:
             selectValue != ''
                 ? selectValue
-                : Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                  Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                ? 'ИП Иосифов М.С.'
-                : Userfront.user.userUuid === 'a59ebe89-bc25-4bc3-b9cf-d788f819898c'
-                ? 'Сальвадор37'
-                : Userfront.user.userUuid === '5164799d-ff93-434b-b089-d1160ce4f5cb'
-                ? 'Текстиль'
-                : 'ОТК ПРОИЗВОДСТВО',
+                : userInfo.campaignNames.includes('all')
+                ? 'ОТК ПРОИЗВОДСТВО'
+                : userInfo.campaignNames[0],
     };
     console.log(params);
 
@@ -153,10 +148,15 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     return doc;
 };
 
-export const MassAdvertPage = ({pageArgs}) => {
-    const {selectedCampaign, setSelectedCampaign} = pageArgs;
-    // console.log(selectedCampaign);
-
+export const MassAdvertPage = ({
+    selectedCampaign,
+    setSelectedCampaign,
+    userInfo,
+}: {
+    selectedCampaign: string;
+    setSelectedCampaign: Function;
+    userInfo: User;
+}) => {
     const cardStyle = {
         minWidth: '10em',
         height: '10em',
@@ -4565,7 +4565,7 @@ export const MassAdvertPage = ({pageArgs}) => {
         setRefetchAutoSales(false);
     }, [selectValue, refetchAutoSales]);
 
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0], userInfo);
     const getCampaignName = () => {
         return selectValue[0];
     };
@@ -7720,95 +7720,24 @@ export const MassAdvertPage = ({pageArgs}) => {
     if (!firstRecalc) {
         const campaignsNames: object[] = [];
         for (const [campaignName, _] of Object.entries(doc['campaigns'])) {
-            if (Userfront.user.userUuid == 'ce86aeb0-30b7-45ba-9234-a6765df7a479') {
-                if (
-                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
-                        campaignName,
-                    )
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == 'a59ebe89-bc25-4bc3-b9cf-d788f819898c') {
-                if (['Сальвадор37'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == '5164799d-ff93-434b-b089-d1160ce4f5cb') {
-                if (['Текстиль'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == '0fcea1c8-a8d7-4525-9cf8-444e31692897') {
-                if (['ОТК ПРОИЗВОДСТВО'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid == '1c5a0344-31ea-469e-945e-1dfc4b964ecd') {
-                if (
-                    ['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана', 'ТОРГМАКСИМУМ'].includes(
-                        campaignName,
-                    )
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (Userfront.user.userUuid === '17fcd1f0-cb29-455d-b5bd-42345f0c7ef8') {
-                if (['ИП Валерий', 'ИП Артем', 'Текстиль', 'ИП Оксана'].includes(campaignName)) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else if (
-                Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
+            if (
+                userInfo.campaignNames.includes('all') ||
+                userInfo.campaignNames.includes(campaignName)
             ) {
-                if (
-                    [
-                        'ИП Иосифова Р. И.',
-                        'ИП Иосифов А. М.',
-                        'ИП Иосифов М.С.',
-                        'ИП Иосифов С.М. (домашка)',
-                        'ООО Лаванда (18+)',
-                        'ИП Галилова',
-                        'ИП Мартыненко',
-                        'ТОРГМАКСИМУМ',
-                    ].includes(campaignName)
-                ) {
-                    campaignsNames.push({
-                        value: campaignName,
-                        content: campaignName,
-                    });
-                }
-            } else {
                 campaignsNames.push({
                     value: campaignName,
                     content: campaignName,
                 });
             }
         }
+        console.log(campaignsNames);
         setSelectOptions(campaignsNames as SelectOption<any>[]);
         const selected =
             selectedCampaign && selectedCampaign != ''
                 ? selectedCampaign
-                : campaignsNames[
-                      Userfront.user.userUuid === '46431a09-85c3-4703-8246-d1b5c9e52594' ||
-                      Userfront.user.userUuid === '6857e0f3-0069-4b70-a6f0-2c47ab4e6064'
-                          ? 2
-                          : 0
-                  ]['value'];
+                : campaignsNames[0]['value'];
         setSelectValue([selected]);
+        
         console.log(doc);
 
         for (let i = 0; i < columnData.length; i++) {
