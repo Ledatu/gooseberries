@@ -11,7 +11,6 @@ import {
 import Userfront, {SignupForm, LoginForm, PasswordResetForm} from '@userfront/toolkit';
 import {Button, Link} from '@gravity-ui/uikit';
 import {Dashboard} from './pages/Dashboard';
-import {autoFetchCards} from './utilities/fetchRkData';
 import '@gravity-ui/uikit/styles/styles.scss';
 
 Userfront.init('xbr4jv4b');
@@ -23,7 +22,6 @@ export const App = () => {
                 <Route path="/signup" element={<SignUpElem />} />
                 <Route path="/login" element={<LoginElem />} />
                 <Route path="/reset" element={<PasswordResetElem />} />
-                <Route path="/fetchCards" element={<CardFetching />} />
                 <Route
                     path="/userinfo"
                     element={
@@ -44,11 +42,6 @@ export const App = () => {
         </Router>
     );
 };
-
-function CardFetching() {
-    autoFetchCards();
-    return <div>FETCHING YOU KNOW</div>;
-}
 
 function SignUpElem() {
     return (
