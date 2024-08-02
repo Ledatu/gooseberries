@@ -75,6 +75,8 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
                         ? 'ИП Иосифова Р. И.'
                         : Userfront.user.userUuid === 'a59ebe89-bc25-4bc3-b9cf-d788f819898c'
                         ? 'Сальвадор37'
+                        : Userfront.user.userUuid == '5164799d-ff93-434b-b089-d1160ce4f5cb'
+                        ? 'Текстиль'
                         : 'ОТК ПРОИЗВОДСТВО',
             },
             true,
@@ -1215,6 +1217,13 @@ export const AnalyticsPage = ({pageArgs}) => {
                 }
             } else if (Userfront.user.userUuid == 'a59ebe89-bc25-4bc3-b9cf-d788f819898c') {
                 if (['Сальвадор37'].includes(campaignName)) {
+                    campaignsNames.push({
+                        value: campaignName,
+                        content: campaignName,
+                    });
+                }
+            } else if (Userfront.user.userUuid == '5164799d-ff93-434b-b089-d1160ce4f5cb') {
+                if (['Текстиль'].includes(campaignName)) {
                     campaignsNames.push({
                         value: campaignName,
                         content: campaignName,

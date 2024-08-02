@@ -161,7 +161,9 @@ export const Dashboard = () => {
         {
             id: 'seo',
             title: 'SEO',
-            disabled: Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6',
+            disabled:
+                Userfront.user.userUuid === '2b58844a-0801-4ca1-806d-78da9f641be6' ||
+                Userfront.user.userUuid == '5164799d-ff93-434b-b089-d1160ce4f5cb',
         },
     ];
 
