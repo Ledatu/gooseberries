@@ -330,6 +330,11 @@ export const AnalyticsPage = ({
                     renderAsPercent,
                 ),
         },
+        cr: {
+            placeholder: 'CR, %',
+            planType: 'avg',
+            render: (args) => renderWithGraph(args, 'cr', 'CR, %', ['cr'], renderAsPercent),
+        },
         addToCartPercent: {
             placeholder: 'CR в корзину, %',
             planType: 'avg',
@@ -371,6 +376,14 @@ export const AnalyticsPage = ({
             planType: 'avg',
             placeholder: 'Цена с СПП, ₽',
             render: (args) => renderWithGraph(args, 'sppPrice', 'Цена с СПП, ₽'),
+        },
+        addToCartCount: {
+            placeholder: 'Корзины, шт.',
+            render: (args) => renderWithGraph(args, 'addToCartCount', 'Корзины, шт.'),
+        },
+        cpl: {
+            placeholder: 'CPL, ₽',
+            render: (args) => renderWithGraph(args, 'cpl', 'CPL, ₽'),
         },
     };
 
@@ -719,6 +732,9 @@ export const AnalyticsPage = ({
                 tempTypeRow['clicks'] = dateStats['clicks'];
                 tempTypeRow['sppPrice'] = dateStats['sppPrice'];
 
+                tempTypeRow['cr'] = dateStats['cr'];
+                tempTypeRow['cpl'] = dateStats['cpl'];
+
                 tempTypeRow['openCardCount'] = dateStats['openCardCount'];
                 tempTypeRow['addToCartCount'] = dateStats['addToCartCount'];
                 tempTypeRow['addToCartPercent'] = dateStats['addToCartPercent'];
@@ -755,6 +771,17 @@ export const AnalyticsPage = ({
                     dateStats['orders'],
                     false,
                     dateStats['sum'],
+                );
+                tempTypeRow['cpl'] = getRoundValue(
+                    dateStats['sum'],
+                    dateStats['addToCartCount'],
+                    false,
+                    dateStats['sum'],
+                );
+                tempTypeRow['cr'] = getRoundValue(
+                    dateStats['orders'],
+                    dateStats['openCardCount'],
+                    true,
                 );
                 tempTypeRow['avgCost'] = getRoundValue(
                     dateStats['sum_orders'],
@@ -813,6 +840,8 @@ export const AnalyticsPage = ({
                 cartToOrderPercent: 0,
                 addToCartCount: 0,
                 openCardCount: 0,
+                cr: 0,
+                cpl: 0,
                 storageCost: 0,
                 clicks: 0,
                 sppPrice: 0,
@@ -899,6 +928,8 @@ export const AnalyticsPage = ({
                     expectedSales: 0,
                     openCardCount: 0,
                     storageCost: 0,
+                    cr: 0,
+                    cpl: 0,
                     clicks: 0,
                     sppPrice: 0,
                     sppPrice_temp: {count: 0, val: 0},
