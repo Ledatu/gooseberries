@@ -11,16 +11,18 @@ import {
 } from '@gravity-ui/uikit';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
-import TheTable, {compare} from 'src/components/TheTable';
+import TheTable, {compare, defaultRender} from 'src/components/TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
 
-import {FileArrowDown, Function} from '@gravity-ui/icons';
+import {FileArrowDown, Function, Minus, ArrowRotateLeft} from '@gravity-ui/icons';
 
 export const SEOPage = () => {
     const [isInputDown, setIsInputDown] = useState(true);
     const mainInputRef = useRef<HTMLInputElement>(null);
 
     const pageSize = 300;
+
+    const [deletedWords, setDeletedWords] = useState([] as string[]);
 
     const [dataPhrasesTable, setDataPhrasesTable] = useState({});
     const [filtersPhrasesTable, setFiltersPhrasesTable] = useState({undef: false});
@@ -53,6 +55,42 @@ export const SEOPage = () => {
             name: 'word',
             placeholder: 'Слово',
             valueType: 'text',
+            render: (args) => {
+                const {footer, value} = args;
+                if (footer) return defaultRender(args);
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            width: '100%',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        {defaultRender(args)}
+                        <Button
+                            size="xs"
+                            view="outlined"
+                            onClick={() => {
+                                setDeletedWords((prevWords) => prevWords.concat([value]));
+                            }}
+                        >
+                            <Icon data={Minus} />
+                        </Button>
+                    </div>
+                );
+            },
+            additionalNodes: deletedWords.length
+                ? [
+                      <Button
+                          style={{marginLeft: 5}}
+                          view="outlined"
+                          onClick={() => setDeletedWords([])}
+                      >
+                          <Icon data={ArrowRotateLeft} />
+                      </Button>,
+                  ]
+                : [],
         },
         {
             name: 'freq',
@@ -87,6 +125,7 @@ export const SEOPage = () => {
                             if (!res) return;
                             const data = res['data'];
                             setDataPhrasesTable(data);
+                            setDeletedWords([]);
                         })
                         .catch((error) => {
                             console.log(new Date(), 'error occured:', error);
@@ -121,13 +160,7 @@ export const SEOPage = () => {
             });
     };
 
-    const filterDataTable = (
-        withfFilters,
-        tableData,
-        defaultFilters,
-        defaultTableData,
-        defaultSetFilteredTableData,
-    ) => {
+    const filterDataTable = (withfFilters, tableData, defaultFilters, defaultTableData) => {
         const temp = [] as any;
 
         for (const [phrase, phraseInfo] of Object.entries(
@@ -167,8 +200,6 @@ export const SEOPage = () => {
             return b.freq - a.freq;
         });
 
-        defaultSetFilteredTableData(temp);
-
         return temp;
     };
 
@@ -178,8 +209,9 @@ export const SEOPage = () => {
             tableData,
             filtersWordsTable,
             dataWordsTable,
-            setFilteredDataWordsTable,
-        );
+        ).filter(({word}) => !deletedWords.includes(word));
+
+        setFilteredDataWordsTable(temp);
 
         const paginatedDataTemp = temp.slice(0, 300);
         const filteredSummaryTemp = {
@@ -198,7 +230,7 @@ export const SEOPage = () => {
     };
     useEffect(() => {
         filterDataWordsTable(filtersWordsTable, dataWordsTable);
-    }, [filtersWordsTable, dataWordsTable]);
+    }, [filtersWordsTable, dataWordsTable, deletedWords]);
 
     const filterDataPhrasesTable = (withfFilters = {}, tableData = {}) => {
         const temp = filterDataTable(
@@ -206,8 +238,9 @@ export const SEOPage = () => {
             tableData,
             filtersPhrasesTable,
             dataPhrasesTable,
-            setFilteredDataPhrasesTable,
         );
+
+        setFilteredDataPhrasesTable(temp);
 
         const paginatedDataTemp = temp.slice(0, 300);
         const filteredSummaryTemp = {
