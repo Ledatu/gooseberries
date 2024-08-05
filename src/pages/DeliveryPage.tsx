@@ -42,6 +42,7 @@ import {RangePicker} from 'src/components/RangePicker';
 import TheTable, {compare, defaultRender, generateFilterTextInput} from 'src/components/TheTable';
 import axios from 'axios';
 import {User} from './Dashboard';
+import {WarehousesEdit} from 'src/components/WarehousesEdit';
 
 const getUserDoc = (
     dateRange,
@@ -236,6 +237,9 @@ export const DeliveryPage = ({
     const [availableTags, setAvailableTags] = useState([] as any[]);
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [tagsModalOpen, setTagsModalOpen] = useState(false);
+
+    const [warehouseNames, setWarehouseNames] = useState([] as string[]);
+    const [sortingType, setSortingType] = useState('');
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0], userInfo);
 
@@ -872,17 +876,19 @@ export const DeliveryPage = ({
             };
 
             if (doc.deliveryData[selectValue[0]]) {
-                const warehouseNamesTemp = doc.deliveryData[selectValue[0]]['warehouseNames'];
-                if (warehouseNamesTemp) {
-                    for (let i = 0; i < warehouseNamesTemp.length; i++) {
+                if (warehouseNames) {
+                    for (let i = 0; i < warehouseNames.length; i++) {
+                        const warehouse = warehouseNames[i];
+                        if (!warehouse['visible']) continue;
+                        const name = warehouse['name'] ?? '';
                         columnsTemp.push({
                             sortable: false,
                             className: 'dividerColumn',
-                            name: warehouseNamesTemp[i] + 'divider',
+                            name: name + 'divider',
                             width: 5,
                             isDivider: true,
                         });
-                        createNewWarehouseColumn(warehouseNamesTemp[i]);
+                        createNewWarehouseColumn(name);
                     }
                 }
             }
@@ -1305,6 +1311,14 @@ export const DeliveryPage = ({
                             <Icon data={Boxes3} size={20} />
                         </Button>
                     </Tooltip>
+                    <div style={{minWidth: 8}} />
+                    <WarehousesEdit
+                        columns={warehouseNames}
+                        setColumns={setWarehouseNames}
+                        selectValue={selectValue}
+                        sortingType={sortingType}
+                        setSortingType={setSortingType}
+                    />
                     <div style={{minWidth: 8}} />
                     <Button
                         size="l"

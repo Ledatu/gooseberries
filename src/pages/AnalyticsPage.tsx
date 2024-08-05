@@ -383,6 +383,8 @@ export const AnalyticsPage = ({
         },
         cpl: {
             placeholder: 'CPL, ₽',
+            isReverseGrad: true,
+            planType: 'avg',
             render: (args) => renderWithGraph(args, 'cpl', 'CPL, ₽'),
         },
     };
@@ -1067,6 +1069,14 @@ export const AnalyticsPage = ({
                 summaries[entity]['sum'],
                 summaries[entity]['orders'],
             );
+            summaryAdd(row, 'cr', undefined);
+            summaries[entity]['cr'] = getRoundValue(
+                summaries[entity]['orders'],
+                summaries[entity]['openCardCount'],
+                true,
+            );
+            summaryAdd(row, 'cpl', undefined);
+            summaryAdd(row, 'cpl', undefined);
 
             summaries['filteredSummaryTemp']['isSummary'] = true;
             summaries['filteredSummaryTemp']['isMainSummary'] = true;
