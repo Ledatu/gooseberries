@@ -10,7 +10,6 @@ import {
     Link,
     Icon,
     Popover,
-    Label,
     PopoverBehavior,
     Modal,
     Skeleton,
@@ -18,8 +17,6 @@ import {
     RadioButton,
     List,
     Checkbox,
-    Tooltip,
-    Loader,
 } from '@gravity-ui/uikit';
 import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
@@ -32,17 +29,13 @@ import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
 import {
-    Pencil,
     Key,
     Rocket,
     Comment,
-    ArrowDownToSquare,
     Magnifier,
     Star,
     LayoutHeader,
     ArrowsRotateLeft,
-    Copy,
-    TriangleExclamation,
     ArrowShapeDown,
     ChartLine,
     ArrowRotateLeft,
@@ -52,18 +45,12 @@ import {
     ChevronDown,
     ArrowShapeUp,
     Minus,
-    CaretUp,
-    CaretDown,
     Plus,
     Play,
     Pause,
     ArrowRight,
     LayoutList,
     Clock,
-    Ban,
-    Calendar,
-    Eye,
-    EyeSlash,
     TrashBin,
     Check,
     CloudArrowUpIn,
@@ -96,6 +83,8 @@ import {AutoSalesModal} from 'src/components/AutoSalesModal';
 import {AutoSalesUploadModal} from 'src/components/AutoSalesUploadModal';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
 import {User} from './Dashboard';
+import {PhrasesModal} from 'src/components/PhrasesModal';
+import {AdvertCard} from 'src/components/AdvertCard';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo: User) => {
     const [doc, setDocument] = useState<any>();
@@ -183,6 +172,7 @@ export const MassAdvertPage = ({
     // const windowDimensions = useWindowDimensions();
 
     // const isDesktop = windowDimensions.height < windowDimensions.width;
+    const [selectedSearchPhrase, setSelectedSearchPhrase] = useState<string>('');
 
     const auctionOptions: any[] = [
         {value: 'Выдача', content: 'Выдача'},
@@ -190,6 +180,8 @@ export const MassAdvertPage = ({
         {value: 'Аукцион Поиска', content: 'Аукцион Поиска'},
     ];
     const [auctionSelectedOption, setAuctionSelectedOption] = useState('Выдача');
+    const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
+    const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
 
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
@@ -200,6 +192,8 @@ export const MassAdvertPage = ({
     const [manageModalOpen, setManageModalOpen] = useState(false);
     const [manageModalInProgress, setManageModalInProgress] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
+
+    const [modalOpenFromAdvertId, setModalOpenFromAdvertId] = useState('');
 
     const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
     const [availableAutoSales, setAvailableAutoSales] = useState({});
@@ -226,36 +220,6 @@ export const MassAdvertPage = ({
     const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState(['Авто']);
 
     const [copiedAdvertsSettings, setCopiedAdvertsSettings] = useState({advertId: 0});
-    const setCopiedParams = (advertId) => {
-        console.log(advertId, 'params will be set from', copiedAdvertsSettings.advertId);
-        const params = {
-            uid: getUid(),
-            campaignName: selectValue[0],
-            data: {advertId},
-        };
-        for (const param of [
-            'advertsAutoBidsRules',
-            'advertsBudgetsToKeep',
-            'advertsPlusPhrasesTemplates',
-            'advertsSelectedPhrases',
-            'advertsSchedules',
-        ]) {
-            params.data[param] = doc[param][selectValue[0]][copiedAdvertsSettings.advertId];
-            doc[param][selectValue[0]][advertId] = params.data[param];
-        }
-
-        console.log(params);
-        callApi('copyAdvertsSettings', params)
-            .then(() => {
-                setChangedDoc(doc);
-            })
-            .catch((error) => {
-                console.log('error copiyng:', error);
-            });
-    };
-
-    const [plusPhrasesModalFormOpen, setPlusPhrasesModalFormOpen] = useState(false);
-    const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState<any[]>([]);
 
     const [budgetModalFormOpen, setBudgetModalFormOpen] = useState(false);
     const [budgetModalBudgetInputValue, setBudgetModalBudgetInputValue] = useState(1000);
@@ -274,89 +238,6 @@ export const MassAdvertPage = ({
     const [artsStatsByDayModeSwitchValue, setArtsStatsByDayModeSwitchValue] = React.useState([
         'Статистика по дням',
     ]);
-
-    const [semanticsAutoPhrasesModalFormOpen, setSemanticsAutoPhrasesModalFormOpen] =
-        useState(false);
-    const [semanticsAutoPhrasesModalIncludesList, setSemanticsAutoPhrasesModalIncludesList] =
-        useState<any[]>([]);
-    // // const [
-    // //     semanticsAutoPhrasesModalIncludesListTemp,
-    // //     setSemanticsAutoPhrasesModalIncludesListTemp,
-    // // ] = useState<any[]>([]);
-    const [
-        semanticsAutoPhrasesModalIncludesListInput,
-        setSemanticsAutoPhrasesModalIncludesListInput,
-    ] = useState('');
-    const [semanticsAutoPhrasesModalNotIncludesList, setSemanticsAutoPhrasesModalNotIncludesList] =
-        useState<any[]>([]);
-    // // const [
-    // //     semanticsAutoPhrasesModalNotIncludesListTemp,
-    // //     setSemanticsAutoPhrasesModalNotIncludesListTemp,
-    // // ] = useState<any[]>([]);
-    const [
-        semanticsAutoPhrasesModalNotIncludesListInput,
-        setSemanticsAutoPhrasesModalNotIncludesListInput,
-    ] = useState('');
-
-    const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
-    const [warningBeforeDeleteConfirmationRow, setWarningBeforeDeleteConfirmationRow] = useState(0);
-
-    const [advertsArtsListModalFromOpen, setAdvertsArtsListModalFromOpen] = useState(false);
-    const [rkList, setRkList] = useState<any[]>([]);
-    const [rkListMode, setRkListMode] = useState('add');
-
-    const [semanticsModalFormOpen, setSemanticsModalFormOpen] = useState(false);
-    const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
-    const [modalOpenFromAdvertId, setModalOpenFromAdvertId] = useState('');
-    const [selectedSearchPhrase, setSelectedSearchPhrase] = useState<string>('');
-    const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
-    const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
-        any[]
-    >([]);
-    const [semanticsModalSemanticsItemsValuePresets, setSemanticsModalSemanticsItemsValuePresets] =
-        useState<any[]>([]);
-    const [
-        semanticsModalSemanticsMinusItemsValuePresets,
-        setSemanticsModalSemanticsMinusItemsValuePresets,
-    ] = useState<any[]>([]);
-    const [
-        semanticsModalSemanticsItemsFiltratedValue,
-        setSemanticsModalSemanticsItemsFiltratedValue,
-    ] = useState<any[]>([]);
-    const [
-        semanticsModalSemanticsMinusItemsFiltratedValue,
-        setSemanticsModalSemanticsMinusItemsFiltratedValue,
-    ] = useState<any[]>([]);
-    const [semanticsModalSemanticsMinusItemsValue, setSemanticsModalSemanticsMinusItemsValue] =
-        useState<any[]>([]);
-    const [semanticsModalSemanticsPlusItemsValue, setSemanticsModalSemanticsPlusItemsValue] =
-        useState<any[]>([]);
-    const [
-        semanticsModalSemanticsPlusItemsTemplateNameSaveValue,
-        setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue,
-    ] = useState('Новый шаблон');
-    const [semanticsModalSemanticsThresholdValue, setSemanticsModalSemanticsThresholdValue] =
-        useState(1);
-    const [semanticsModalSemanticsCTRThresholdValue, setSemanticsModalSemanticsCTRThresholdValue] =
-        useState('0');
-    const [
-        semanticsModalSemanticsCTRThresholdValueValid,
-        setSemanticsModalSemanticsCTRThresholdValueValid,
-    ] = useState(true);
-    const [
-        semanticsModalSemanticsSecondThresholdValue,
-        setSemanticsModalSemanticsSecondThresholdValue,
-    ] = useState(0);
-    const [
-        semanticsModalSemanticsSecondCTRThresholdValue,
-        setSemanticsModalSemanticsSecondCTRThresholdValue,
-    ] = useState('0');
-    const [
-        semanticsModalSemanticsSecondCTRThresholdValueValid,
-        setSemanticsModalSemanticsSecondCTRThresholdValueValid,
-    ] = useState(true);
-
-    const [semanticsModalIsFixed, setSemanticsModalIsFixed] = useState(false);
 
     // const [
     //     semanticsModalSemanticsInputValidationValue,
@@ -609,6 +490,10 @@ export const MassAdvertPage = ({
         setArtsStatsByDayFilteredSummary(artsStatsByDayFilteredSummaryTemp);
     };
 
+    const [advertsArtsListModalFromOpen, setAdvertsArtsListModalFromOpen] = useState(false);
+    const [rkList, setRkList] = useState<any[]>([]);
+    const [rkListMode, setRkListMode] = useState('add');
+
     const [showScheduleModalOpen, setShowScheduleModalOpen] = useState(false);
     const [scheduleInput, setScheduleInput] = useState({});
     const genTempSchedule = () => {
@@ -620,125 +505,6 @@ export const MassAdvertPage = ({
             }
         }
         return tempScheduleInput;
-    };
-
-    const [semanticsFilteredSummary, setSemanticsFilteredSummary] = useState({
-        active: {
-            cluster: {summary: 0},
-            cpc: 0,
-            sum: 0,
-            count: 0,
-            ctr: 0,
-            clicks: 0,
-            freq: 0,
-            freqTrend: 0,
-            placements: null,
-        },
-        minus: {
-            cluster: {summary: 0},
-            freq: 0,
-            freqTrend: 0,
-            count: 0,
-            clicks: 0,
-            sum: 0,
-            cpc: 0,
-            ctr: 0,
-            placements: null,
-        },
-        template: {cluster: {summary: 0}},
-    });
-
-    const [clustersFiltersActive, setClustersFiltersActive] = useState({undef: false});
-    const clustersFilterDataActive = (withfFilters: any, clusters: any[]) => {
-        const _clustersFilters = withfFilters ?? clustersFiltersActive;
-        const _clusters = clusters ?? semanticsModalSemanticsItemsValue;
-        // console.log(_clustersFilters, _clusters);
-
-        semanticsFilteredSummary.active = {
-            cluster: {summary: 0},
-            cpc: 0,
-            sum: 0,
-            count: 0,
-            ctr: 0,
-            clicks: 0,
-            freq: 0,
-            freqTrend: 0,
-            placements: null,
-        };
-
-        setSemanticsModalSemanticsItemsFiltratedValue(
-            _clusters.filter((cluster) => {
-                for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
-                    if (filterArg == 'undef' || !filterData) continue;
-                    if (filterData['val'] == '') continue;
-                    else if (!compare(cluster[filterArg], filterData)) {
-                        return false;
-                    }
-                }
-
-                for (const [key, val] of Object.entries(cluster)) {
-                    if (['sum', 'count', 'clicks', 'freq'].includes(key))
-                        semanticsFilteredSummary.active[key] += val;
-                }
-                semanticsFilteredSummary.active.cluster.summary++;
-
-                return true;
-            }),
-        );
-
-        const {sum, count, clicks} = semanticsFilteredSummary.active;
-        semanticsFilteredSummary.active.cpc = getRoundValue(sum, clicks);
-        semanticsFilteredSummary.active.ctr = getRoundValue(clicks, count, true);
-        setSemanticsFilteredSummary(semanticsFilteredSummary);
-    };
-
-    const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
-    const clustersFilterDataMinus = (withfFilters: any, clusters: any[]) => {
-        const _clustersFilters = withfFilters ?? clustersFiltersMinus;
-        const _clusters = clusters ?? semanticsModalSemanticsMinusItemsValue;
-        // console.log(_clustersFilters, _clusters);
-
-        semanticsFilteredSummary.minus = {
-            cluster: {summary: 0},
-            cpc: 0,
-            sum: 0,
-            count: 0,
-            ctr: 0,
-            clicks: 0,
-            freq: 0,
-            freqTrend: 0,
-            placements: null,
-        };
-
-        const temp = [] as any[];
-        for (const cluster of _clusters) {
-            let addFlag = true;
-            for (const [filterArg, filterData] of Object.entries(_clustersFilters)) {
-                if (filterArg == 'undef' || !filterData) continue;
-                if (filterData['val'] == '') continue;
-                else if (!compare(cluster[filterArg], filterData)) {
-                    addFlag = false;
-                    break;
-                }
-            }
-
-            if (addFlag) {
-                for (const [key, val] of Object.entries(cluster)) {
-                    if (['sum', 'count', 'clicks', 'freq'].includes(key))
-                        semanticsFilteredSummary.minus[key] += val;
-                }
-                semanticsFilteredSummary.minus.cluster.summary++;
-                temp.push(cluster);
-            }
-        }
-        // console.log(temp);
-
-        setSemanticsModalSemanticsMinusItemsFiltratedValue([...temp]);
-
-        const {sum, count, clicks} = semanticsFilteredSummary.minus;
-        semanticsFilteredSummary.minus.cpc = getRoundValue(sum, clicks);
-        semanticsFilteredSummary.minus.ctr = getRoundValue(clicks, count, true);
-        setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
 
     const [pagesTotal, setPagesTotal] = useState(1);
@@ -866,6 +632,11 @@ export const MassAdvertPage = ({
     //         9: 'Поиск + Каталог',
     //     },
     // };
+    const updateColumnWidth = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        filterTableData({adverts: {val: '', mode: 'include'}}, data);
+    };
+
     const manageAdvertsActivityCallFunc = async (mode, advertId) => {
         const params = {
             uid: getUid(),
@@ -886,17 +657,6 @@ export const MassAdvertPage = ({
         filters[key] = {val: String(val) + ' ', compMode: compMode};
         setFilters(filters);
         filterTableData(filters);
-    };
-    const filterByButtonClusters = (val, activeFlag, key = 'art', compMode = 'include') => {
-        if (activeFlag) {
-            clustersFiltersActive[key] = {val: String(val), compMode: compMode};
-            setClustersFiltersActive(clustersFiltersActive);
-            clustersFilterDataActive(clustersFiltersActive, semanticsModalSemanticsItemsValue);
-        } else {
-            clustersFiltersMinus[key] = {val: String(val), compMode: compMode};
-            setClustersFiltersMinus(clustersFiltersMinus);
-            clustersFilterDataMinus(clustersFiltersMinus, semanticsModalSemanticsMinusItemsValue);
-        }
     };
 
     const calcByDayStats = (arts) => {
@@ -997,1231 +757,6 @@ export const MassAdvertPage = ({
         }
 
         return temp;
-    };
-
-    const generateAdvertCard = (id, index, art) => {
-        const advertData = doc.adverts[selectValue[0]][id];
-        const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
-        const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
-        if (!advertData) return <></>;
-        const {
-            advertId,
-            status,
-            words,
-            budget,
-            bidLog,
-            daysInWork,
-            type,
-            budgetLog,
-            pregenerated,
-            cpm,
-        } = advertData;
-        if (![4, 9, 11].includes(status)) return <></>;
-
-        const semantics = words;
-        const curCpm = cpm;
-
-        const curBudget = budget;
-        // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
-
-        const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
-            ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
-            : undefined;
-        const {isFixed, autoPhrasesTemplate} =
-            doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate] ?? {};
-
-        const themeToUse = plusPhrasesTemplate
-            ? isFixed
-                ? 'flat-warning'
-                : autoPhrasesTemplate &&
-                  ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
-                      (autoPhrasesTemplate.notIncludes && autoPhrasesTemplate.notIncludes.length))
-                ? 'flat-success'
-                : 'flat-info'
-            : 'normal';
-
-        const advertSemantics = {
-            clusters: semantics ? semantics.clusters ?? [] : [],
-            excluded: semantics ? semantics.excluded ?? [] : [],
-        };
-
-        const isWarningBeforeDeleteConfirmationRow =
-            index == warningBeforeDeleteConfirmationRow &&
-            warningBeforeDeleteConfirmation &&
-            advertId == modalOpenFromAdvertId;
-
-        const timeline: any[] = [];
-        const graphsData: any[] = [];
-        const graphsDataPosition: any[] = [];
-        const graphsDataPositionAuction: any[] = [];
-        const graphsDataPositionOrganic: any[] = [];
-        const bidLogType = bidLog;
-        if (bidLogType) {
-            for (let i = 1; i < bidLogType.bids.length; i++) {
-                const {val} = bidLogType.bids[i - 1];
-                const {time, index, cpmIndex, position} = bidLogType.bids[i];
-                if (!time || !val) continue;
-
-                // curCpm = val;
-
-                const timeObj = new Date(time);
-                const rbd = new Date(dateRange[1]);
-                rbd.setHours(23, 59, 59);
-                if (timeObj < dateRange[0] || timeObj > rbd) continue;
-                timeline.push(timeObj.getTime());
-                graphsData.push(val);
-
-                if (index == -1 || !index) graphsDataPosition.push(null);
-                else graphsDataPosition.push(index);
-
-                if (cpmIndex == -1 || !index) graphsDataPositionAuction.push(null);
-                else graphsDataPositionAuction.push(cpmIndex);
-
-                if (position == -1 || !position) graphsDataPositionOrganic.push(null);
-                else graphsDataPositionOrganic.push(position);
-            }
-        }
-        const yagrData: YagrWidgetData = {
-            data: {
-                timeline: timeline,
-                graphs: [
-                    {
-                        id: '0',
-                        name: 'Ставка',
-                        color: '#5fb8a5',
-                        data: graphsData,
-                    },
-                    {
-                        id: '1',
-                        name: 'Позиция',
-                        color: '#4aa1f2',
-                        scale: 'r',
-                        data: graphsDataPosition,
-                    },
-                    {
-                        id: '2',
-                        name: 'Позиция в аукционе',
-                        color: '#9a63d1',
-                        scale: 'r',
-                        data: graphsDataPositionAuction,
-                    },
-                    {
-                        id: '3',
-                        name: 'Органическая позиция',
-                        color: '#708da6',
-                        scale: 'r2',
-                        data: graphsDataPositionOrganic,
-                    },
-                ],
-            },
-
-            libraryConfig: {
-                chart: {
-                    series: {
-                        spanGaps: false,
-                        type: 'line',
-                        interpolation: 'smooth',
-                    },
-                },
-                axes: {
-                    y: {
-                        label: 'Ставка',
-                        precision: 'auto',
-                        show: true,
-                    },
-                    r: {
-                        label: 'Выдача',
-                        side: 'right',
-                        precision: 'auto',
-                        show: true,
-                    },
-                    r1: {
-                        label: 'Аукцион',
-                        side: 'right',
-                        precision: 'auto',
-                        show: true,
-                    },
-                    r2: {
-                        label: 'Органика',
-                        side: 'right',
-                        precision: 'auto',
-                        show: true,
-                    },
-                    x: {
-                        label: 'Время',
-                        precision: 'auto',
-                        show: true,
-                    },
-                },
-                scales: {},
-                title: {
-                    text: 'Изменение ставки',
-                },
-            },
-        };
-
-        const timelineBudget: any[] = [];
-        const graphsDataBudgets: any[] = [];
-        const graphsDataBudgetsDiv: any[] = [];
-        const graphsDataBudgetsDivHours = {};
-        if (budgetLog) {
-            for (let i = 0; i < budgetLog.length; i++) {
-                const {budget, time} = budgetLog[i];
-                if (!time || !budget) continue;
-
-                const timeObj = new Date(time);
-
-                timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
-
-                const lbd = new Date(dateRange[0]);
-                lbd.setHours(0, 0, 0, 0);
-                const rbd = new Date(dateRange[1]);
-                rbd.setHours(23, 59, 59);
-                if (timeObj < lbd || timeObj > rbd) continue;
-                timelineBudget.push(timeObj.getTime());
-                graphsDataBudgets.push(budget);
-
-                const hour = time.slice(0, 13);
-                if (!graphsDataBudgetsDivHours[hour]) graphsDataBudgetsDivHours[hour] = budget;
-            }
-            let prevHour = '';
-            for (let i = 0; i < timelineBudget.length; i++) {
-                const dateObj = new Date(timelineBudget[i]);
-                const time = dateObj.toISOString();
-                if (dateObj.getMinutes() != 0) {
-                    graphsDataBudgetsDiv.push(null);
-                    continue;
-                }
-                const hour = time.slice(0, 13);
-                if (prevHour == '') {
-                    graphsDataBudgetsDiv.push(null);
-                    prevHour = hour;
-                    continue;
-                }
-
-                const spent = graphsDataBudgetsDivHours[prevHour] - graphsDataBudgetsDivHours[hour];
-                graphsDataBudgetsDiv.push(spent);
-
-                prevHour = hour;
-            }
-        }
-
-        const yagrBudgetData = {
-            data: {
-                timeline: timelineBudget,
-                graphs: [
-                    {
-                        id: '0',
-                        name: 'Баланс',
-                        scale: 'y',
-                        color: '#ffbe5c',
-                        data: graphsDataBudgets,
-                    },
-                    {
-                        id: '1',
-                        type: 'column',
-                        data: graphsDataBudgetsDiv,
-                        name: 'Расход',
-                        scale: 'r',
-                    },
-                ],
-            },
-
-            libraryConfig: {
-                chart: {
-                    series: {
-                        spanGaps: false,
-                        type: 'line',
-                        interpolation: 'smooth',
-                    },
-                },
-                axes: {
-                    y: {
-                        label: 'Баланс',
-                        precision: 'auto',
-                        show: true,
-                    },
-                    r: {
-                        label: 'Расход',
-                        precision: 'auto',
-                        side: 'right',
-                        show: true,
-                    },
-                    x: {
-                        label: 'Время',
-                        precision: 'auto',
-                        show: true,
-                    },
-                },
-                scales: {y: {min: 0}, r: {min: 0}},
-                title: {
-                    text: 'Изменение баланса',
-                },
-            },
-        } as YagrWidgetData;
-
-        return (
-            <Card
-                theme={pregenerated ? 'warning' : 'normal'}
-                style={{
-                    height: 106.5,
-                    width: 'fit-content',
-                }}
-                // view="raised"
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                    }}
-                >
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                        }}
-                    >
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button
-                                selected
-                                style={{
-                                    borderTopLeftRadius: 7,
-                                    overflow: 'hidden',
-                                }}
-                                href={`https://cmp.wildberries.ru/campaigns/edit/${advertId}`}
-                                target="_blank"
-                                size="xs"
-                                pin="brick-brick"
-                                view={
-                                    status
-                                        ? status == 9
-                                            ? 'flat-success'
-                                            : status == 11
-                                            ? 'flat-danger'
-                                            : 'flat-warning'
-                                        : 'flat'
-                                }
-                            >
-                                <Icon data={type == 8 ? Rocket : Magnifier} size={11} />
-                            </Button>
-                            <Button
-                                selected
-                                onClick={() => filterByButton(advertId, 'adverts')}
-                                // style=x{{position: 'relative', top: -2}}
-                                size="xs"
-                                pin="brick-brick"
-                                view={
-                                    status
-                                        ? status == 9
-                                            ? 'flat-success'
-                                            : status == 11
-                                            ? 'flat-danger'
-                                            : 'flat-warning'
-                                        : 'flat'
-                                }
-                            >
-                                {advertId}
-                            </Button>
-                            <Button
-                                selected
-                                style={{
-                                    borderBottomRightRadius: 9,
-                                    overflow: 'hidden',
-                                }}
-                                onClick={async () => {
-                                    const res = await manageAdvertsActivityCallFunc(
-                                        status ? (status == 9 ? 'pause' : 'start') : 'start',
-                                        advertId,
-                                    );
-                                    console.log(res);
-                                    if (!res || res['data'] === undefined) {
-                                        return;
-                                    }
-
-                                    if (res['data']['status'] == 'ok') {
-                                        doc.adverts[selectValue[0]][advertId].status =
-                                            status == 9 ? 11 : 9;
-                                    } else if (res['data']['status'] == 'bad') {
-                                        doc.adverts[selectValue[0]][advertId].status =
-                                            status == 11 ? 9 : 11;
-                                    }
-                                    setChangedDoc(doc);
-                                }}
-                                // style={{position: 'relative', top: -2}}
-                                disabled={status === undefined}
-                                // disabled
-                                size="xs"
-                                pin="brick-brick"
-                                view={
-                                    status
-                                        ? status == 9
-                                            ? 'flat-success'
-                                            : status == 11
-                                            ? 'flat-danger'
-                                            : 'flat-warning'
-                                        : 'flat'
-                                }
-                            >
-                                <Icon
-                                    data={status ? (status == 9 ? Pause : Play) : Play}
-                                    size={11}
-                                />
-                            </Button>
-                            <div style={{width: 8}} />
-                        </div>
-                        <Button
-                            pin="clear-clear"
-                            style={{
-                                borderTopRightRadius: 7,
-                                borderBottomLeftRadius: 9,
-                                overflow: 'hidden',
-                            }}
-                            size="xs"
-                            // selected
-                            view="flat"
-                            onClick={() => {
-                                const nDaysAgo = new Date(today);
-
-                                nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
-
-                                const range = [nDaysAgo, today];
-                                recalc(range);
-                                setDateRange(range);
-                            }}
-                        >
-                            {daysInWork + 1}
-                            <div style={{width: 2}} />
-                            <Icon size={11} data={status ? Calendar : Ban}></Icon>
-                        </Button>
-                    </div>
-                    <motion.div
-                        animate={{
-                            opacity: isWarningBeforeDeleteConfirmationRow ? 0 : 1,
-                            pointerEvents: isWarningBeforeDeleteConfirmationRow ? 'none' : 'auto',
-                        }}
-                        transition={{
-                            duration: 0.2,
-                            delay: isWarningBeforeDeleteConfirmationRow ? 0 : 0.2,
-                        }}
-                        style={{
-                            height: 76,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'start',
-                        }}
-                    >
-                        <Popover
-                            onOpenChange={async (open) => {
-                                if (!open) {
-                                    return;
-                                }
-                                const params = {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
-                                    advertId: advertId,
-                                    startDate: getLocaleDateString(dateRange[0], 10),
-                                    endDate: getLocaleDateString(dateRange[1], 10),
-                                };
-                                console.log(params);
-
-                                try {
-                                    setAdvertsBidsLogFetchUpdate(true);
-                                    const res = await callApi(
-                                        'getAdvertBidsLogsForAdvertId',
-                                        params,
-                                    );
-                                    if (!res) throw 'its undefined';
-                                    const advertsBidsLog = res['data'];
-                                    console.log(res);
-
-                                    if (advertsBidsLog)
-                                        advertsBidsLog.bids = advertsBidsLog.bids.reverse();
-
-                                    // console.log(wordsForAdverts);
-
-                                    doc.adverts[selectValue[0]][advertId].bidLog =
-                                        advertsBidsLog ?? {
-                                            bids: [],
-                                        };
-
-                                    setChangedDoc(doc);
-                                } catch (error) {
-                                    console.error('Error fetching adverts bids logs:', error);
-                                } finally {
-                                    setAdvertsBidsLogFetchUpdate(false);
-                                }
-                            }}
-                            content={
-                                <div
-                                    style={{
-                                        height: 'calc(48em - 60px)',
-                                        width: '72em',
-                                        overflow: 'auto',
-                                        display: 'flex',
-                                    }}
-                                >
-                                    <Card
-                                        view="outlined"
-                                        theme="warning"
-                                        style={{
-                                            position: 'absolute',
-                                            height: '48em',
-                                            width: '72em',
-                                            overflow: 'auto',
-                                            top: -10,
-                                            left: -10,
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <motion.div
-                                            style={{
-                                                left: 0,
-                                                top: 0,
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                width: '100%',
-                                                height: '100%',
-                                                position: 'absolute',
-                                                background: 'var(--g-color-base-background)',
-                                            }}
-                                        >
-                                            <Loader size="l" />
-                                        </motion.div>
-                                        <motion.div
-                                            animate={{opacity: advertsBidsLogFetchUpdate ? 0 : 1}}
-                                            transition={{duration: 0.2, ease: 'easeIn'}}
-                                            style={{
-                                                display: advertsBidsLogFetchUpdate
-                                                    ? 'none'
-                                                    : 'flex',
-                                                pointerEvents: advertsBidsLogFetchUpdate
-                                                    ? 'none'
-                                                    : undefined,
-                                                cursor: 'default',
-                                                position: 'absolute',
-                                                left: 0,
-                                                top: 0,
-                                                width: '100%',
-                                                height: '100%',
-                                            }}
-                                        >
-                                            <ChartKit type="yagr" data={yagrData} />
-                                        </motion.div>
-                                    </Card>
-                                </div>
-                            }
-                        >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    width: '100%',
-                                }}
-                            >
-                                <Button
-                                    pin="brick-round"
-                                    size="xs"
-                                    view="flat"
-                                    onClick={() => {
-                                        openBidModalForm();
-                                        setModalOpenFromAdvertId(advertId);
-                                    }}
-                                >
-                                    <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} / ${
-                                        drrAI !== undefined ? `${drrAI.maxBid}` : 'Автоставки выкл.'
-                                    }`}</Text>
-                                    {drrAI !== undefined &&
-                                    drrAI.autoBidsMode != 'bestPlacement' ? (
-                                        <Text style={{marginLeft: 4}} variant="caption-2">
-                                            {`План ${
-                                                drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'
-                                            }: ${drrAI.desiredDRR}`}
-                                        </Text>
-                                    ) : (
-                                        <></>
-                                    )}
-                                    {drrAI !== undefined &&
-                                    drrAI.autoBidsMode != 'bestPlacement' &&
-                                    drrAI.autoBidsMode != 'orders' &&
-                                    drrAI.autoBidsMode != 'drr' &&
-                                    drrAI.autoBidsMode != 'sum' &&
-                                    drrAI.autoBidsMode != 'cpo' ? (
-                                        <Text style={{marginLeft: 4}} variant="caption-2">
-                                            {`План №: ${drrAI.placementsRange.from} (${
-                                                drrAI.autoBidsMode == 'auction'
-                                                    ? 'Аукцион'
-                                                    : 'Выдача'
-                                            })`}
-                                        </Text>
-                                    ) : (
-                                        <></>
-                                    )}
-                                    {drrAI !== undefined &&
-                                    drrAI.autoBidsMode == 'bestPlacement' ? (
-                                        <Text style={{marginLeft: 4}} variant="caption-2">
-                                            Метод: Лучшая позиция
-                                        </Text>
-                                    ) : (
-                                        <></>
-                                    )}
-                                    {drrAI !== undefined && drrAI.autoBidsMode == 'orders' ? (
-                                        <Text style={{marginLeft: 4}} variant="caption-2">
-                                            {`Заказы (${drrAI.desiredOrders})`}
-                                        </Text>
-                                    ) : (
-                                        <></>
-                                    )}
-                                    {drrAI !== undefined && drrAI.autoBidsMode == 'sum' ? (
-                                        <Text style={{marginLeft: 4}} variant="caption-2">
-                                            {`Расход (${drrAI.desiredSum})`}
-                                        </Text>
-                                    ) : (
-                                        <></>
-                                    )}
-                                </Button>
-                            </div>
-                        </Popover>
-                        <Popover
-                            content={
-                                <div
-                                    style={{
-                                        height: 'calc(30em - 60px)',
-                                        width: '600em',
-                                        overflow: 'auto',
-                                        display: 'flex',
-                                    }}
-                                >
-                                    <Card
-                                        view="outlined"
-                                        theme="warning"
-                                        style={{
-                                            position: 'absolute',
-                                            height: '30em',
-                                            width: '60em',
-                                            overflow: 'auto',
-                                            top: -10,
-                                            left: -10,
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <ChartKit type="yagr" data={yagrBudgetData} />
-                                    </Card>
-                                </div>
-                            }
-                        >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Button
-                                    pin="brick-round"
-                                    size="xs"
-                                    view="flat"
-                                    onClick={() => {
-                                        openBudgetModalForm();
-                                        setModalOpenFromAdvertId(advertId);
-                                    }}
-                                >
-                                    <Text variant="caption-2">{`Баланс: ${
-                                        curBudget !== undefined ? curBudget : 'Нет инф.'
-                                    } / ${
-                                        budgetToKeep !== undefined
-                                            ? budgetToKeep
-                                            : 'Бюджет не задан.'
-                                    }`}</Text>
-                                </Button>
-                            </div>
-                        </Popover>
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button
-                                size="xs"
-                                pin="brick-round"
-                                // style={{
-                                //     borderTopRightRadius: 7,
-                                //     borderBottomRightRadius: 7,
-                                //     overflow: 'hidden',
-                                // }}
-                                selected={themeToUse != 'normal'}
-                                view={themeToUse}
-                                onClick={() => {
-                                    setSemanticsModalFormOpen(true);
-
-                                    setSemanticsModalOpenFromArt(art);
-                                    setModalOpenFromAdvertId(advertId);
-
-                                    if (autoPhrasesTemplate) {
-                                        setSemanticsAutoPhrasesModalIncludesList(
-                                            autoPhrasesTemplate.includes ?? [],
-                                        );
-                                        setSemanticsAutoPhrasesModalNotIncludesList(
-                                            autoPhrasesTemplate.notIncludes ?? [],
-                                        );
-                                    } else {
-                                        setSemanticsAutoPhrasesModalIncludesList([]);
-                                        setSemanticsAutoPhrasesModalNotIncludesList([]);
-                                    }
-                                    setSemanticsAutoPhrasesModalIncludesListInput('');
-                                    setSemanticsAutoPhrasesModalNotIncludesListInput('');
-
-                                    setSemanticsModalSemanticsItemsValue(() => {
-                                        const temp = advertSemantics.clusters;
-                                        temp.sort((a, b) => {
-                                            const key = 'count';
-                                            const valA = a[key] ?? 0;
-                                            const valB = b[key] ?? 0;
-                                            return valB - valA;
-                                        });
-
-                                        const tempPresets = [] as any[];
-                                        for (const [_cluster, clusterData] of Object.entries(
-                                            temp,
-                                        )) {
-                                            const {preset, freq} = (clusterData as {
-                                                preset: string;
-                                                cluster: string;
-                                                freq: object;
-                                            }) ?? {
-                                                preset: undefined,
-                                                freq: undefined,
-                                                cluster: undefined,
-                                            };
-                                            if (preset) tempPresets.push(preset);
-                                            if (freq && freq['val']) {
-                                                temp[_cluster].freq = freq['val'];
-                                                temp[_cluster].freqTrend = freq['trend'];
-                                            }
-                                        }
-                                        setSemanticsModalSemanticsItemsValuePresets(tempPresets);
-
-                                        setSemanticsModalSemanticsItemsFiltratedValue(temp);
-                                        return temp;
-                                    });
-                                    setSemanticsModalSemanticsMinusItemsValue(() => {
-                                        const temp = advertSemantics.excluded;
-                                        temp.sort((a, b) => {
-                                            const freqA = a.freq ? a.freq.val : 0;
-                                            const freqB = b.freq ? b.freq.val : 0;
-                                            return freqB - freqA;
-                                        });
-
-                                        const tempPresets = [] as any[];
-                                        for (const [_cluster, clusterData] of Object.entries(
-                                            temp,
-                                        )) {
-                                            const {preset, freq} = (clusterData as {
-                                                preset: string;
-                                                cluster: string;
-                                                freq: object;
-                                            }) ?? {
-                                                preset: undefined,
-                                                freq: undefined,
-                                                cluster: undefined,
-                                            };
-                                            if (preset) tempPresets.push(preset);
-                                            if (freq && freq['val']) {
-                                                temp[_cluster].freq = freq['val'];
-                                                temp[_cluster].freqTrend = freq['trend'];
-                                            }
-                                        }
-                                        setSemanticsModalSemanticsMinusItemsValuePresets(
-                                            tempPresets,
-                                        );
-
-                                        setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
-                                        return temp;
-                                    });
-
-                                    const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][
-                                        plusPhrasesTemplate
-                                    ]
-                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                              plusPhrasesTemplate
-                                          ].threshold
-                                        : 1;
-                                    setSemanticsModalSemanticsThresholdValue(plusThreshold);
-
-                                    const plusCTRThreshold = doc.plusPhrasesTemplates[
-                                        selectValue[0]
-                                    ][plusPhrasesTemplate]
-                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                              plusPhrasesTemplate
-                                          ].ctrThreshold
-                                        : 0;
-                                    setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
-
-                                    const plusSecondThreshold = doc.plusPhrasesTemplates[
-                                        selectValue[0]
-                                    ][plusPhrasesTemplate]
-                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                              plusPhrasesTemplate
-                                          ].secondThreshold
-                                        : 0;
-                                    setSemanticsModalSemanticsSecondThresholdValue(
-                                        plusSecondThreshold,
-                                    );
-
-                                    const plusSecondCTRThreshold = doc.plusPhrasesTemplates[
-                                        selectValue[0]
-                                    ][plusPhrasesTemplate]
-                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                              plusPhrasesTemplate
-                                          ].secondCtrThreshold
-                                        : 0;
-                                    setSemanticsModalSemanticsSecondCTRThresholdValue(
-                                        plusSecondCTRThreshold,
-                                    );
-
-                                    const isFixed = doc.plusPhrasesTemplates[selectValue[0]][
-                                        plusPhrasesTemplate
-                                    ]
-                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                              plusPhrasesTemplate
-                                          ].isFixed ?? false
-                                        : false;
-                                    setSemanticsModalIsFixed(isFixed);
-
-                                    setClustersFiltersActive({undef: false});
-                                    setClustersFiltersMinus({undef: false});
-
-                                    // // console.log(value.plus);
-                                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                        plusPhrasesTemplate ?? `Новый шаблон`,
-                                    );
-                                    const plusItems = doc.plusPhrasesTemplates[selectValue[0]][
-                                        plusPhrasesTemplate
-                                    ]
-                                        ? doc.plusPhrasesTemplates[selectValue[0]][
-                                              plusPhrasesTemplate
-                                          ].clusters
-                                        : [];
-                                    setSemanticsModalSemanticsPlusItemsValue(plusItems);
-
-                                    // setSemanticsModalTextAreaValue('');
-                                    // setSemanticsModalTextAreaAddMode(false);
-                                }}
-                            >
-                                <Text variant="caption-2">
-                                    {themeToUse != 'normal' ? plusPhrasesTemplate : 'Фразы'}
-                                </Text>
-                            </Button>
-                            <div style={{height: 4}} />
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                {advertSemantics.clusters.length ? (
-                                    <>
-                                        <div style={{width: 5}} />
-                                        <Label theme="clear">
-                                            <Text
-                                                variant="caption-2"
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                {advertSemantics.clusters.length}
-                                                <div style={{width: 3}} />
-                                                <Icon size={11} data={Eye} />
-                                            </Text>
-                                        </Label>
-                                    </>
-                                ) : wordsFetchUpdate ? (
-                                    <Skeleton style={{marginLeft: 5, width: 60}} />
-                                ) : (
-                                    <></>
-                                )}
-                                {advertSemantics.excluded.length ? (
-                                    <>
-                                        <div style={{width: 5}} />
-                                        <Label theme="clear">
-                                            <Text
-                                                variant="caption-2"
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                {advertSemantics.excluded.length}
-                                                <div style={{width: 3}} />
-                                                <Icon size={11} data={EyeSlash} />
-                                            </Text>
-                                        </Label>
-                                    </>
-                                ) : (
-                                    <></>
-                                )}
-                                <div style={{width: 5}} />
-                            </div>
-                        </div>
-                        <div
-                            style={{
-                                minHeight: 0.5,
-                                marginTop: 5,
-                                width: '100%',
-                                background: 'var(--yc-color-base-generic-hover)',
-                            }}
-                        />
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                width: '100%',
-                                justifyContent: 'space-between',
-                            }}
-                        >
-                            <Button
-                                selected={isWarningBeforeDeleteConfirmationRow}
-                                style={{
-                                    display:
-                                        index != -1
-                                            ? warningBeforeDeleteConfirmation
-                                                ? isWarningBeforeDeleteConfirmationRow
-                                                    ? 'flex'
-                                                    : 'none'
-                                                : 'flex'
-                                            : 'none',
-                                    borderBottomLeftRadius: 7,
-                                    overflow: 'hidden',
-                                }}
-                                onClick={async () => {
-                                    setWarningBeforeDeleteConfirmation(() => {
-                                        setWarningBeforeDeleteConfirmationRow(
-                                            warningBeforeDeleteConfirmation ? 0 : index,
-                                        );
-                                        setModalOpenFromAdvertId(
-                                            warningBeforeDeleteConfirmation ? '' : advertId,
-                                        );
-                                        return !warningBeforeDeleteConfirmation;
-                                    });
-
-                                    if (!warningBeforeDeleteConfirmation) {
-                                        await new Promise((resolve) => {
-                                            setTimeout(() => {
-                                                setWarningBeforeDeleteConfirmationRow(0);
-                                                setWarningBeforeDeleteConfirmation(false);
-                                                setModalOpenFromAdvertId('');
-
-                                                resolve(1);
-                                            }, 5 * 1000);
-                                        });
-                                    }
-                                }}
-                                // style={{position: 'relative', top: -2}}
-                                disabled={status === undefined}
-                                size="xs"
-                                pin="brick-brick"
-                                view={isWarningBeforeDeleteConfirmationRow ? 'flat-danger' : 'flat'}
-                            >
-                                <Icon data={TrashBin} size={11} />
-                            </Button>
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <motion.div
-                                    animate={{
-                                        width: !copiedAdvertsSettings.advertId ? 0 : 70,
-                                    }}
-                                    transition={{delay: copiedAdvertsSettings.advertId ? 0.2 : 0}}
-                                    style={{
-                                        width: 0,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        overflow: 'hidden',
-                                    }}
-                                >
-                                    <Button
-                                        pin="brick-brick"
-                                        size="xs"
-                                        width="max"
-                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                                    >
-                                        {copiedAdvertsSettings.advertId
-                                            ? copiedAdvertsSettings.advertId
-                                            : 'Буфер пуст'}
-                                    </Button>
-                                </motion.div>
-                                <motion.div
-                                    onAnimationStart={async () => {
-                                        await new Promise((resolve) => setTimeout(resolve, 200));
-                                        filterTableData(
-                                            {adverts: {val: '', mode: 'include'}},
-                                            data,
-                                        );
-                                    }}
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        overflow: 'hidden',
-                                    }}
-                                >
-                                    <Button
-                                        pin="brick-brick"
-                                        size="xs"
-                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                                        onClick={() => {
-                                            setCopiedAdvertsSettings({advertId});
-                                        }}
-                                    >
-                                        <Icon data={Copy} size={11} />
-                                    </Button>
-                                </motion.div>
-                                <motion.div
-                                    animate={{
-                                        width: !copiedAdvertsSettings.advertId ? 0 : 40,
-                                    }}
-                                    transition={{delay: copiedAdvertsSettings.advertId ? 0.2 : 0}}
-                                    style={{
-                                        width: 0,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        overflow: 'hidden',
-                                    }}
-                                >
-                                    <Button
-                                        pin="brick-brick"
-                                        size="xs"
-                                        disabled={advertId == copiedAdvertsSettings.advertId}
-                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                                        onClick={() => setCopiedParams(advertId)}
-                                    >
-                                        <Icon data={ArrowDownToSquare} size={11} />
-                                    </Button>
-                                    <Button
-                                        pin="brick-brick"
-                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                                        size="xs"
-                                        onClick={() => setCopiedAdvertsSettings({advertId: 0})}
-                                    >
-                                        <Icon data={Xmark} size={11} />
-                                    </Button>
-                                </motion.div>
-                            </div>
-                            <Button
-                                pin="clear-clear"
-                                style={{
-                                    overflow: 'hidden',
-                                }}
-                                size="xs"
-                                // selected
-                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
-                                view="flat"
-                                onClick={async () => {
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {advertId: advertId},
-                                    };
-                                    console.log(params);
-
-                                    const res = await callApi('getStatsByDateForAdvertId', params);
-                                    console.log(res);
-
-                                    if (!res) return;
-
-                                    const arts = [] as any[];
-                                    for (let i = 0; i < filteredData.length; i++) {
-                                        const {art, adverts} = filteredData[i];
-                                        if (!adverts) continue;
-                                        for (const [id, _] of Object.entries(adverts)) {
-                                            if (id == String(advertId)) {
-                                                if (!arts.includes(art)) arts.push(art);
-                                            }
-                                        }
-                                    }
-
-                                    const {days} = res['data'];
-
-                                    const stat = [] as any[];
-                                    if (days)
-                                        for (const [date, dateData] of Object.entries(days)) {
-                                            if (!date || !dateData) continue;
-                                            dateData['date'] = new Date(date);
-                                            dateData['orders'] = Math.round(dateData['orders']);
-                                            dateData['sum_orders'] = Math.round(
-                                                dateData['sum_orders'],
-                                            );
-                                            dateData['sum'] = Math.round(dateData['sum']);
-                                            dateData['views'] = Math.round(dateData['views']);
-                                            dateData['clicks'] = Math.round(dateData['clicks']);
-
-                                            const {orders, sum, clicks, views} = dateData as any;
-
-                                            dateData['drr'] = getRoundValue(
-                                                dateData['sum'],
-                                                dateData['sum_orders'],
-                                                true,
-                                                1,
-                                            );
-                                            dateData['ctr'] = getRoundValue(clicks, views, true);
-                                            dateData['cpc'] = getRoundValue(sum, clicks);
-                                            dateData['cpm'] = getRoundValue(sum * 1000, views);
-                                            dateData['cpo'] = getRoundValue(
-                                                sum,
-                                                orders,
-                                                false,
-                                                sum,
-                                            );
-
-                                            for (const _art of arts) {
-                                                const {advertsStats, nmFullDetailReport} =
-                                                    doc.campaigns[selectValue[0]][_art];
-                                                if (!advertsStats) continue;
-
-                                                if (!nmFullDetailReport) continue;
-                                                if (!nmFullDetailReport.statistics) continue;
-                                                if (!nmFullDetailReport.statistics[date]) continue;
-
-                                                const {openCardCount, addToCartCount} =
-                                                    nmFullDetailReport.statistics[date] ?? {
-                                                        openCardCount: 0,
-                                                        addToCartCount: 0,
-                                                    };
-
-                                                if (!dateData['openCardCount'])
-                                                    dateData['openCardCount'] = 0;
-                                                if (!dateData['addToCartCount'])
-                                                    dateData['addToCartCount'] = 0;
-
-                                                dateData['openCardCount'] += openCardCount ?? 0;
-                                                dateData['addToCartCount'] += addToCartCount ?? 0;
-                                            }
-                                            dateData['openCardCount'] = Math.round(
-                                                dateData['openCardCount'],
-                                            );
-                                            dateData['addToCartPercent'] = getRoundValue(
-                                                dateData['addToCartCount'],
-                                                dateData['openCardCount'],
-                                                true,
-                                            );
-                                            dateData['cartToOrderPercent'] = getRoundValue(
-                                                dateData['orders'],
-                                                dateData['addToCartCount'],
-                                                true,
-                                            );
-                                            dateData['cr'] = getRoundValue(
-                                                dateData['orders'],
-                                                dateData['openCardCount'],
-                                                true,
-                                            );
-                                            dateData['cpl'] = getRoundValue(
-                                                dateData['sum'],
-                                                dateData['addToCartCount'],
-                                            );
-
-                                            stat.push(dateData);
-                                        }
-
-                                    console.log(stat);
-
-                                    setArtsStatsByDayData(stat);
-                                    setShowArtStatsModalOpen(true);
-                                }}
-                            >
-                                <Icon size={11} data={LayoutList}></Icon>
-                            </Button>
-                            <Button
-                                pin="clear-clear"
-                                style={{
-                                    overflow: 'hidden',
-                                    borderBottomRightRadius: 7,
-                                }}
-                                size="xs"
-                                // selected
-                                view={
-                                    doc.advertsSchedules[selectValue[0]][advertId]
-                                        ? 'flat-action'
-                                        : 'flat'
-                                }
-                                onClick={() => {
-                                    setShowScheduleModalOpen(true);
-                                    setModalOpenFromAdvertId(advertId);
-
-                                    const schedule = doc.advertsSchedules[selectValue[0]][advertId]
-                                        ? doc.advertsSchedules[selectValue[0]][advertId].schedule
-                                        : undefined;
-
-                                    setScheduleInput(schedule ?? genTempSchedule());
-                                }}
-                            >
-                                <Icon size={11} data={Clock} />
-                            </Button>
-                        </div>
-                    </motion.div>
-                    <motion.div
-                        style={{
-                            height: 70,
-                            width: '100%',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                        }}
-                        animate={{
-                            opacity: !isWarningBeforeDeleteConfirmationRow ? 0 : 1,
-                            pointerEvents: !isWarningBeforeDeleteConfirmationRow ? 'none' : 'auto',
-                            y: !isWarningBeforeDeleteConfirmationRow ? 0 : -76 + 4,
-                        }}
-                        transition={{
-                            duration: 0.1,
-                            delay: isWarningBeforeDeleteConfirmationRow ? 0.05 : 0,
-                        }}
-                    >
-                        <Text variant="subheader-1">{'Удалить РК?'}</Text>
-                        <div style={{minHeight: 4}} />
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                            }}
-                        >
-                            <Button
-                                view={'outlined-danger'}
-                                onClick={async () => {
-                                    setWarningBeforeDeleteConfirmation(() => {
-                                        setWarningBeforeDeleteConfirmationRow(0);
-                                        return false;
-                                    });
-
-                                    const res = await manageAdvertsActivityCallFunc(
-                                        'stop',
-                                        advertId,
-                                    );
-                                    console.log(res);
-                                    if (!res || res['data'] === undefined) {
-                                        return;
-                                    }
-
-                                    if (res['data']['status'] == 'ok') {
-                                        doc.adverts[selectValue[0]][advertId] = undefined;
-                                    }
-                                    setChangedDoc(doc);
-                                }}
-                            >
-                                Удалить
-                            </Button>
-                            <div style={{minWidth: 8}} />
-                            <Button
-                                view={'outlined'}
-                                onClick={() => {
-                                    setWarningBeforeDeleteConfirmation(() => {
-                                        setWarningBeforeDeleteConfirmationRow(0);
-                                        return false;
-                                    });
-                                }}
-                            >
-                                Отмена
-                            </Button>
-                        </div>
-                    </motion.div>
-                </div>
-            </Card>
-        );
     };
 
     const columnData = [
@@ -2861,20 +1396,207 @@ export const MassAdvertPage = ({
                                 String(filters['adverts'].val).toLowerCase().includes('поиск') &&
                                 (advertData.type == 9 || advertData.type == 6)
                             ) {
-                                switches.push(generateAdvertCard(advertId, index, art));
+                                switches.push(
+                                    <AdvertCard
+                                        id={advertId}
+                                        index={index}
+                                        art={art}
+                                        doc={doc}
+                                        selectValue={selectValue}
+                                        copiedAdvertsSettings={copiedAdvertsSettings}
+                                        setChangedDoc={setChangedDoc}
+                                        setShowScheduleModalOpen={setShowScheduleModalOpen}
+                                        genTempSchedule={genTempSchedule}
+                                        manageAdvertsActivityCallFunc={
+                                            manageAdvertsActivityCallFunc
+                                        }
+                                        setArtsStatsByDayData={setArtsStatsByDayData}
+                                        updateColumnWidth={updateColumnWidth}
+                                        filteredData={filteredData}
+                                        setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                        wordsFetchUpdate={wordsFetchUpdate}
+                                        setFetchedPlacements={setFetchedPlacements}
+                                        currentParsingProgress={currentParsingProgress}
+                                        setCurrentParsingProgress={setCurrentParsingProgress}
+                                        selectedValueMethodOptions={selectedValueMethodOptions}
+                                        columnDataAuction={columnDataAuction}
+                                        auctionOptions={auctionOptions}
+                                        auctionSelectedOption={auctionSelectedOption}
+                                        openBidModalForm={openBidModalForm}
+                                        openBudgetModalForm={openBudgetModalForm}
+                                        setDateRange={setDateRange}
+                                        setModalOpenFromAdvertId={setModalOpenFromAdvertId}
+                                        setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                        dateRange={dateRange}
+                                        bidModalMaxBid={bidModalMaxBid}
+                                        recalc={recalc}
+                                        filterByButton={filterByButton}
+                                        setScheduleInput={setScheduleInput}
+                                        selectedValueMethod={selectedValueMethod}
+                                        bidModalRange={bidModalRange}
+                                        desiredSumInputValue={desiredSumInputValue}
+                                        ordersInputValue={ordersInputValue}
+                                        bidModalDeleteModeSelected={bidModalDeleteModeSelected}
+                                        bidModalBidStepInputValue={bidModalBidStepInputValue}
+                                        bidModalDRRInputValue={bidModalDRRInputValue}
+                                        bidModalStocksThresholdInputValue={
+                                            bidModalStocksThresholdInputValue
+                                        }
+                                        setBidModalDRRInputValue={setBidModalDRRInputValue}
+                                        bidModalMaxBidValid={bidModalMaxBidValid}
+                                        setBidModalDRRInputValidationValue={
+                                            setBidModalDRRInputValidationValue
+                                        }
+                                        bidModalRangeValid={bidModalRangeValid}
+                                        bidModalDRRInputValidationValue={
+                                            bidModalDRRInputValidationValue
+                                        }
+                                        setBidModalRange={setBidModalRange}
+                                        setBidModalMaxBid={setBidModalMaxBid}
+                                        setBidModalMaxBidValid={setBidModalMaxBidValid}
+                                        setSelectedValueMethod={setSelectedValueMethod}
+                                        setBidModalRangeValid={setBidModalRangeValid}
+                                        setAuctionSelectedOption={setAuctionSelectedOption}
+                                        resetBidModalFormInputs={resetBidModalFormInputs}
+                                    />,
+                                );
                                 switches.push(<div style={{minWidth: 8}} />);
                             } else if (
                                 filters['adverts'] &&
                                 String(filters['adverts'].val).toLowerCase().includes('авто') &&
                                 advertData.type == 8
                             ) {
-                                switches.push(generateAdvertCard(advertId, index, art));
+                                switches.push(
+                                    <AdvertCard
+                                        id={advertId}
+                                        index={index}
+                                        art={art}
+                                        doc={doc}
+                                        selectValue={selectValue}
+                                        copiedAdvertsSettings={copiedAdvertsSettings}
+                                        setChangedDoc={setChangedDoc}
+                                        setShowScheduleModalOpen={setShowScheduleModalOpen}
+                                        genTempSchedule={genTempSchedule}
+                                        manageAdvertsActivityCallFunc={
+                                            manageAdvertsActivityCallFunc
+                                        }
+                                        setArtsStatsByDayData={setArtsStatsByDayData}
+                                        updateColumnWidth={updateColumnWidth}
+                                        filteredData={filteredData}
+                                        setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                        wordsFetchUpdate={wordsFetchUpdate}
+                                        setFetchedPlacements={setFetchedPlacements}
+                                        currentParsingProgress={currentParsingProgress}
+                                        setCurrentParsingProgress={setCurrentParsingProgress}
+                                        selectedValueMethodOptions={selectedValueMethodOptions}
+                                        columnDataAuction={columnDataAuction}
+                                        auctionOptions={auctionOptions}
+                                        auctionSelectedOption={auctionSelectedOption}
+                                        openBidModalForm={openBidModalForm}
+                                        openBudgetModalForm={openBudgetModalForm}
+                                        setDateRange={setDateRange}
+                                        setModalOpenFromAdvertId={setModalOpenFromAdvertId}
+                                        setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                        dateRange={dateRange}
+                                        bidModalMaxBid={bidModalMaxBid}
+                                        recalc={recalc}
+                                        filterByButton={filterByButton}
+                                        setScheduleInput={setScheduleInput}
+                                        selectedValueMethod={selectedValueMethod}
+                                        bidModalRange={bidModalRange}
+                                        desiredSumInputValue={desiredSumInputValue}
+                                        ordersInputValue={ordersInputValue}
+                                        bidModalDeleteModeSelected={bidModalDeleteModeSelected}
+                                        bidModalBidStepInputValue={bidModalBidStepInputValue}
+                                        bidModalDRRInputValue={bidModalDRRInputValue}
+                                        bidModalStocksThresholdInputValue={
+                                            bidModalStocksThresholdInputValue
+                                        }
+                                        setBidModalDRRInputValue={setBidModalDRRInputValue}
+                                        bidModalMaxBidValid={bidModalMaxBidValid}
+                                        setBidModalDRRInputValidationValue={
+                                            setBidModalDRRInputValidationValue
+                                        }
+                                        bidModalRangeValid={bidModalRangeValid}
+                                        bidModalDRRInputValidationValue={
+                                            bidModalDRRInputValidationValue
+                                        }
+                                        setBidModalRange={setBidModalRange}
+                                        setBidModalMaxBid={setBidModalMaxBid}
+                                        setBidModalMaxBidValid={setBidModalMaxBidValid}
+                                        setSelectedValueMethod={setSelectedValueMethod}
+                                        setBidModalRangeValid={setBidModalRangeValid}
+                                        setAuctionSelectedOption={setAuctionSelectedOption}
+                                        resetBidModalFormInputs={resetBidModalFormInputs}
+                                    />,
+                                );
                                 switches.push(<div style={{minWidth: 8}} />);
                             } else {
                                 continue;
                             }
                         } else {
-                            switches.push(generateAdvertCard(advertId, index, art));
+                            switches.push(
+                                <AdvertCard
+                                    id={advertId}
+                                    index={index}
+                                    art={art}
+                                    doc={doc}
+                                    selectValue={selectValue}
+                                    copiedAdvertsSettings={copiedAdvertsSettings}
+                                    setChangedDoc={setChangedDoc}
+                                    setShowScheduleModalOpen={setShowScheduleModalOpen}
+                                    genTempSchedule={genTempSchedule}
+                                    manageAdvertsActivityCallFunc={manageAdvertsActivityCallFunc}
+                                    setArtsStatsByDayData={setArtsStatsByDayData}
+                                    updateColumnWidth={updateColumnWidth}
+                                    filteredData={filteredData}
+                                    setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                    wordsFetchUpdate={wordsFetchUpdate}
+                                    setFetchedPlacements={setFetchedPlacements}
+                                    currentParsingProgress={currentParsingProgress}
+                                    setCurrentParsingProgress={setCurrentParsingProgress}
+                                    selectedValueMethodOptions={selectedValueMethodOptions}
+                                    columnDataAuction={columnDataAuction}
+                                    auctionOptions={auctionOptions}
+                                    auctionSelectedOption={auctionSelectedOption}
+                                    openBidModalForm={openBidModalForm}
+                                    openBudgetModalForm={openBudgetModalForm}
+                                    setDateRange={setDateRange}
+                                    setModalOpenFromAdvertId={setModalOpenFromAdvertId}
+                                    setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                    dateRange={dateRange}
+                                    bidModalMaxBid={bidModalMaxBid}
+                                    recalc={recalc}
+                                    filterByButton={filterByButton}
+                                    setScheduleInput={setScheduleInput}
+                                    selectedValueMethod={selectedValueMethod}
+                                    bidModalRange={bidModalRange}
+                                    desiredSumInputValue={desiredSumInputValue}
+                                    ordersInputValue={ordersInputValue}
+                                    bidModalDeleteModeSelected={bidModalDeleteModeSelected}
+                                    bidModalBidStepInputValue={bidModalBidStepInputValue}
+                                    bidModalDRRInputValue={bidModalDRRInputValue}
+                                    bidModalStocksThresholdInputValue={
+                                        bidModalStocksThresholdInputValue
+                                    }
+                                    setBidModalDRRInputValue={setBidModalDRRInputValue}
+                                    bidModalMaxBidValid={bidModalMaxBidValid}
+                                    setBidModalDRRInputValidationValue={
+                                        setBidModalDRRInputValidationValue
+                                    }
+                                    bidModalRangeValid={bidModalRangeValid}
+                                    bidModalDRRInputValidationValue={
+                                        bidModalDRRInputValidationValue
+                                    }
+                                    setBidModalRange={setBidModalRange}
+                                    setBidModalMaxBid={setBidModalMaxBid}
+                                    setBidModalMaxBidValid={setBidModalMaxBidValid}
+                                    setSelectedValueMethod={setSelectedValueMethod}
+                                    setBidModalRangeValid={setBidModalRangeValid}
+                                    setAuctionSelectedOption={setAuctionSelectedOption}
+                                    resetBidModalFormInputs={resetBidModalFormInputs}
+                                />,
+                            );
                             switches.push(<div style={{minWidth: 8}} />);
                         }
                     }
@@ -4527,7 +3249,6 @@ export const MassAdvertPage = ({
 
         setSelectedCampaign(selectValue[0]);
         setWordsFetchUpdate(true);
-        setAdvertsBidsLogFetchUpdate(true);
     }, [selectValue]);
 
     useEffect(() => {
@@ -4588,7 +3309,6 @@ export const MassAdvertPage = ({
                 setChangedDoc(resData);
                 setChangedDocUpdateType(true);
                 setWordsFetchUpdate(true);
-                setAdvertsBidsLogFetchUpdate(true);
                 // console.log(response ? response['data'] : undefined);
             })
             .catch((error) => console.error(error));
@@ -5343,8 +4063,6 @@ export const MassAdvertPage = ({
     const [firstRecalc, setFirstRecalc] = useState(false);
     const [wordsFetchUpdate, setWordsFetchUpdate] = useState(false);
     useEffect(() => {
-        console.log('here');
-
         if (!wordsFetchUpdate || !selectValue[0] || !firstRecalc) return;
         const fetchWords = async () => {
             const params = {
@@ -5375,47 +4093,6 @@ export const MassAdvertPage = ({
 
         fetchWords();
     }, [wordsFetchUpdate, firstRecalc]);
-
-    const [advertsBidsLogFetchUpdate, setAdvertsBidsLogFetchUpdate] = useState(false);
-    // useEffect(() => {
-    //     console.log('here adverts');
-
-    //     if (!advertsBidsLogFetchUpdate || !selectValue[0] || !firstRecalc) return;
-    //     console.log('here adverts 2');
-    //     const fetchAdvertsBidsLog = async () => {
-    //         const params = {
-    //             uid: getUid(),
-    //             campaignName: selectValue[0],
-    //         };
-    //         console.log(params);
-    //         console.log('here adverts 3');
-
-    //         try {
-    //             const res = await callApi('getAdvertBidsLogs', params);
-    //             if (!res) throw 'its undefined';
-    //             const advertsBidsLog = res['data'];
-    //             console.log(res);
-
-    //             // console.log(wordsForAdverts);
-
-    //             if (doc.adverts[selectValue[0]] && advertsBidsLog) {
-    //                 for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
-    //                     doc.adverts[selectValue[0]][advertId].bidLog = advertsBidsLog[advertId] ?? {
-    //                         bids: [],
-    //                     };
-    //                 }
-    //                 setChangedDoc(doc);
-    //             }
-    //         } catch (error) {
-    //             console.error('Error fetching adverts bids logs:', error);
-    //         } finally {
-    //             setAdvertsBidsLogFetchUpdate(false);
-    //         }
-    //     };
-
-    //     fetchAdvertsBidsLog();
-    // }, [advertsBidsLogFetchUpdate, firstRecalc]);
-    // const [secondRecalcForSticky, setSecondRecalcForSticky] = useState(false);
 
     const openBudgetModalForm = () => {
         setSelectedButton('');
@@ -5454,1746 +4131,6 @@ export const MassAdvertPage = ({
     };
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
-
-    const columnDataSemantics = [
-        {
-            name: 'preset',
-            valueType: 'text',
-            placeholder: 'Пресет',
-            render: ({value, row}) => {
-                const {cluster} = row;
-
-                const bad =
-                    semanticsModalSemanticsItemsValuePresets.includes(value) &&
-                    semanticsModalSemanticsMinusItemsValuePresets.includes(value);
-
-                const isSelected =
-                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                              .phrase
-                        : '') == cluster;
-
-                const multiplePresetInstancesThowItIsNotIncluded =
-                    semanticsModalSemanticsItemsValuePresets.filter((item) => item == value)
-                        .length > 1 && !isSelected;
-
-                return (
-                    <div
-                        style={{
-                            maxWidth: 100,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        {bad ? (
-                            <Button
-                                size="xs"
-                                view={'flat-danger'}
-                                onClick={() =>
-                                    filterByButtonClusters(value, false, 'preset', 'include')
-                                }
-                            >
-                                {value}
-                            </Button>
-                        ) : (
-                            <Button
-                                size="xs"
-                                view={
-                                    multiplePresetInstancesThowItIsNotIncluded
-                                        ? 'flat-warning'
-                                        : 'flat'
-                                }
-                                onClick={() =>
-                                    filterByButtonClusters(value, true, 'preset', 'include')
-                                }
-                            >
-                                <Text color="primary">{value}</Text>
-                            </Button>
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
-            additionalNodes: [] as any[],
-            width: 200,
-            name: 'cluster',
-            placeholder: 'Кластер',
-            valueType: 'text',
-            render: ({value}) => {
-                if (value.summary !== undefined) {
-                    return <Text>{`Всего: ${value.summary}`}</Text>;
-                }
-
-                let valueWrapped = value;
-                let curStrLen = 0;
-                if (value.length > 30) {
-                    valueWrapped = '';
-                    const titleArr = value.split(' ');
-                    for (const word of titleArr) {
-                        valueWrapped += word;
-                        curStrLen += word.length;
-                        if (curStrLen > 40) {
-                            valueWrapped += '\n';
-                            curStrLen = 0;
-                        } else {
-                            valueWrapped += ' ';
-                            curStrLen++;
-                        }
-                    }
-                }
-
-                const isSelected =
-                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                              .phrase
-                        : '') == value;
-
-                const {type, status} = doc.adverts[selectValue[0]][modalOpenFromAdvertId] ?? {};
-
-                const mapAuctionsTypes = {
-                    Выдача: 'firstPage',
-                    'Аукцион Авто': 'auto',
-                    'Аукцион Поиска': 'search',
-                };
-
-                const auction = doc.fetchedPlacements[value]
-                    ? doc.fetchedPlacements[value].cpms[mapAuctionsTypes[auctionSelectedOption]] ??
-                      []
-                    : [];
-
-                return (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                        }}
-                    >
-                        <Text style={{whiteSpace: 'pre-wrap'}}>{valueWrapped}</Text>
-                        <div style={{width: 8}} />
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button
-                                size="xs"
-                                view="outlined"
-                                href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${value}`}
-                                target="_blank"
-                            >
-                                <Icon data={Magnifier} />
-                            </Button>
-                            <div style={{width: 4}} />
-                            <Popover
-                                onOpenChange={(open) => {
-                                    if (open) resetBidModalFormInputs(false);
-                                }}
-                                placement={'bottom-start'}
-                                content={
-                                    <Card
-                                        view="clear"
-                                        style={{
-                                            height: 20,
-                                            overflow: 'auto',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Card
-                                            view="clear"
-                                            style={{
-                                                position: 'absolute',
-                                                maxHeight: '30em',
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                top: -10,
-                                                left: -10,
-                                            }}
-                                        >
-                                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                                <Card
-                                                    // theme="warning"
-                                                    style={{
-                                                        height: 'fit-content',
-                                                        width: 'fit-content',
-                                                        boxShadow:
-                                                            'var(--g-color-base-background) 0px 2px 8px',
-                                                    }}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            overflow: 'auto',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            justifyContent: 'space-between',
-                                                            padding: 5,
-                                                        }}
-                                                    >
-                                                        <RadioButton
-                                                            value={auctionSelectedOption}
-                                                            options={auctionOptions}
-                                                            onUpdate={(value) => {
-                                                                setAuctionSelectedOption(value);
-                                                            }}
-                                                        />
-                                                    </Card>
-                                                </Card>
-                                                <div style={{minHeight: 12}} />
-                                                <div
-                                                    style={{display: 'flex', flexDirection: 'row'}}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            maxWidth: '60em',
-                                                            maxHeight: '30em',
-                                                            height: 'fit-content',
-                                                            overflow: 'auto',
-                                                            boxShadow:
-                                                                'var(--g-color-base-background) 0px 2px 8px',
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            style={{
-                                                                background:
-                                                                    'var(--g-color-base-background)',
-                                                            }}
-                                                        >
-                                                            <DataTable
-                                                                settings={{
-                                                                    displayIndices: false,
-                                                                    stickyHead: MOVING,
-                                                                    stickyFooter: MOVING,
-                                                                    highlightRows: true,
-                                                                }}
-                                                                footerData={[
-                                                                    {
-                                                                        cpm: `${auctionSelectedOption}, ${
-                                                                            auction
-                                                                                ? auction.length
-                                                                                : 0
-                                                                        } шт.`,
-                                                                    },
-                                                                ]}
-                                                                theme="yandex-cloud"
-                                                                onRowClick={(row, index, event) => {
-                                                                    console.log(row, index, event);
-                                                                }}
-                                                                rowClassName={(
-                                                                    _row,
-                                                                    index,
-                                                                    isFooterData,
-                                                                ) =>
-                                                                    isFooterData
-                                                                        ? b('tableRow_footer')
-                                                                        : b('tableRow_' + index)
-                                                                }
-                                                                columns={columnDataAuction}
-                                                                data={auction}
-                                                            />
-                                                        </Card>
-                                                    </Card>
-                                                    <div style={{minWidth: 12}} />
-                                                    <Card
-                                                        view="outlined"
-                                                        // theme="warning"
-                                                        style={{
-                                                            height: 'fit-content',
-                                                            boxShadow:
-                                                                'var(--g-color-base-background) 0px 2px 8px',
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            style={{
-                                                                background:
-                                                                    'var(--yc-color-base-background)',
-                                                                // height: '100%',
-                                                                width: 240,
-                                                                overflow: 'auto',
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                justifyContent: 'space-between',
-                                                                paddingTop: 20,
-                                                            }}
-                                                        >
-                                                            <div
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    flexDirection: 'column',
-                                                                    width: '100%',
-                                                                    justifyContent: 'center',
-                                                                    alignItems: 'center',
-                                                                }}
-                                                            >
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Метод'}
-                                                                    </Text>
-                                                                    <Select
-                                                                        onUpdate={(nextValue) => {
-                                                                            setSelectedValueMethod(
-                                                                                nextValue,
-                                                                            );
-                                                                            if (
-                                                                                nextValue[0] ==
-                                                                                'По ДРР'
-                                                                            ) {
-                                                                                setBidModalRange({
-                                                                                    from: 0,
-                                                                                    to: 0,
-                                                                                });
-                                                                            } else {
-                                                                                setBidModalRange({
-                                                                                    from: 50,
-                                                                                    to: 50,
-                                                                                });
-                                                                            }
-                                                                        }}
-                                                                        options={
-                                                                            selectedValueMethodOptions
-                                                                        }
-                                                                        renderControl={({
-                                                                            onClick,
-                                                                            onKeyDown,
-                                                                            ref,
-                                                                        }) => {
-                                                                            const temp = {};
-                                                                            for (
-                                                                                let i = 0;
-                                                                                i <
-                                                                                selectedValueMethodOptions.length;
-                                                                                i++
-                                                                            ) {
-                                                                                const {
-                                                                                    value,
-                                                                                    content,
-                                                                                } =
-                                                                                    selectedValueMethodOptions[
-                                                                                        i
-                                                                                    ];
-                                                                                temp[value] =
-                                                                                    content;
-                                                                            }
-                                                                            return (
-                                                                                <Button
-                                                                                    style={{
-                                                                                        width: '100%',
-                                                                                    }}
-                                                                                    ref={ref}
-                                                                                    view="outlined"
-                                                                                    onClick={
-                                                                                        onClick
-                                                                                    }
-                                                                                    extraProps={{
-                                                                                        onKeyDown,
-                                                                                    }}
-                                                                                >
-                                                                                    {
-                                                                                        temp[
-                                                                                            selectedValueMethod[0]
-                                                                                        ]
-                                                                                    }
-                                                                                    <Icon
-                                                                                        data={
-                                                                                            ChevronDown
-                                                                                        }
-                                                                                    />
-                                                                                </Button>
-                                                                            );
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Макс. ставка'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalMaxBid,
-                                                                        )}
-                                                                        onUpdate={(val) => {
-                                                                            const intVal =
-                                                                                Number(val);
-
-                                                                            setBidModalMaxBidValid(
-                                                                                intVal >= 125,
-                                                                            );
-
-                                                                            setBidModalMaxBid(
-                                                                                intVal,
-                                                                            );
-                                                                        }}
-                                                                        validationState={
-                                                                            bidModalMaxBidValid
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Позиция'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        disabled={
-                                                                            selectedValueMethod[0] ==
-                                                                                'drr' ||
-                                                                            selectedValueMethod[0] ==
-                                                                                'cpo'
-                                                                        }
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalRange.to,
-                                                                        )}
-                                                                        onUpdate={(val) => {
-                                                                            const intVal =
-                                                                                Number(val);
-
-                                                                            setBidModalRange(() => {
-                                                                                setBidModalRangeValid(
-                                                                                    intVal > 0,
-                                                                                );
-                                                                                return {
-                                                                                    from: intVal,
-                                                                                    to: intVal,
-                                                                                };
-                                                                            });
-                                                                        }}
-                                                                        validationState={
-                                                                            bidModalRangeValid
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {selectedValueMethod[0] ==
-                                                                        'cpo'
-                                                                            ? 'Целевой CPO'
-                                                                            : 'Целевой ДРР'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalDRRInputValue,
-                                                                        )}
-                                                                        onChange={(val) => {
-                                                                            const cpo = Number(
-                                                                                val.target.value,
-                                                                            );
-                                                                            if (cpo < 0)
-                                                                                setBidModalDRRInputValidationValue(
-                                                                                    false,
-                                                                                );
-                                                                            else
-                                                                                setBidModalDRRInputValidationValue(
-                                                                                    true,
-                                                                                );
-                                                                            setBidModalDRRInputValue(
-                                                                                cpo,
-                                                                            );
-                                                                        }}
-                                                                        errorMessage={
-                                                                            'Введите не менее 0'
-                                                                        }
-                                                                        validationState={
-                                                                            bidModalDRRInputValidationValue
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 8}} />
-
-                                                                {generateModalButtonWithActions(
-                                                                    {
-                                                                        disabled:
-                                                                            !modalOpenFromAdvertId,
-                                                                        placeholder: 'Установить',
-                                                                        icon: CloudArrowUpIn,
-                                                                        view: 'outlined-success',
-                                                                        onClick: () => {
-                                                                            const params = {
-                                                                                uid: getUid(),
-                                                                                campaignName:
-                                                                                    selectValue[0],
-                                                                                data: {
-                                                                                    advertsIds: {},
-                                                                                    mode: 'Автоставки',
-                                                                                    stocksThreshold:
-                                                                                        bidModalStocksThresholdInputValue,
-                                                                                    placementsRange:
-                                                                                        bidModalRange,
-                                                                                    maxBid: bidModalMaxBid,
-                                                                                    autoBidsMode:
-                                                                                        selectedValueMethod[0],
-                                                                                    desiredOrders:
-                                                                                        parseInt(
-                                                                                            ordersInputValue,
-                                                                                        ),
-                                                                                    desiredSum:
-                                                                                        parseInt(
-                                                                                            desiredSumInputValue,
-                                                                                        ),
-                                                                                },
-                                                                            };
-
-                                                                            params.data.advertsIds[
-                                                                                modalOpenFromAdvertId
-                                                                            ] = {
-                                                                                desiredDRR:
-                                                                                    bidModalDRRInputValue,
-                                                                                bidStep:
-                                                                                    bidModalBidStepInputValue,
-
-                                                                                advertId:
-                                                                                    modalOpenFromAdvertId,
-                                                                            };
-
-                                                                            if (
-                                                                                !doc
-                                                                                    .advertsAutoBidsRules[
-                                                                                    selectValue[0]
-                                                                                ][
-                                                                                    modalOpenFromAdvertId
-                                                                                ]
-                                                                            )
-                                                                                doc.advertsAutoBidsRules[
-                                                                                    selectValue[0]
-                                                                                ][
-                                                                                    modalOpenFromAdvertId
-                                                                                ] = {};
-                                                                            doc.advertsAutoBidsRules[
-                                                                                selectValue[0]
-                                                                            ][
-                                                                                modalOpenFromAdvertId
-                                                                            ] =
-                                                                                bidModalDeleteModeSelected
-                                                                                    ? undefined
-                                                                                    : {
-                                                                                          desiredOrders:
-                                                                                              parseInt(
-                                                                                                  ordersInputValue,
-                                                                                              ),
-                                                                                          desiredSum:
-                                                                                              parseInt(
-                                                                                                  desiredSumInputValue,
-                                                                                              ),
-
-                                                                                          desiredDRR:
-                                                                                              bidModalDRRInputValue,
-                                                                                          placementsRange:
-                                                                                              bidModalRange,
-                                                                                          maxBid: bidModalMaxBid,
-                                                                                          autoBidsMode:
-                                                                                              selectedValueMethod[0],
-                                                                                      };
-
-                                                                            console.log(params);
-
-                                                                            //////////////////////////////////
-                                                                            callApi(
-                                                                                'setAdvertsCPMs',
-                                                                                params,
-                                                                            );
-                                                                            setChangedDoc(doc);
-                                                                            //////////////////////////////////
-                                                                        },
-                                                                    },
-                                                                    selectedButton,
-                                                                    setSelectedButton,
-                                                                )}
-                                                            </div>
-                                                            <div style={{minHeight: 16}} />
-                                                            <Button
-                                                                selected
-                                                                onClick={() =>
-                                                                    filterByButton(
-                                                                        modalOpenFromAdvertId,
-                                                                        'adverts',
-                                                                    )
-                                                                }
-                                                                // style=x{{position: 'relative', top: -2}}
-                                                                width="max"
-                                                                pin="brick-brick"
-                                                                view={
-                                                                    status
-                                                                        ? status == 9
-                                                                            ? 'flat-success'
-                                                                            : status == 11
-                                                                            ? 'flat-danger'
-                                                                            : 'flat-warning'
-                                                                        : 'flat'
-                                                                }
-                                                            >
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'row',
-                                                                        alignItems: 'center',
-                                                                    }}
-                                                                >
-                                                                    <Icon
-                                                                        data={
-                                                                            type == 8
-                                                                                ? Rocket
-                                                                                : Magnifier
-                                                                        }
-                                                                        size={11}
-                                                                    />
-                                                                    <div style={{width: 2}} />
-                                                                    {modalOpenFromAdvertId}
-                                                                </div>
-                                                            </Button>
-                                                        </Card>
-                                                    </Card>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </Card>
-                                }
-                            >
-                                <Button
-                                    size="xs"
-                                    view={'outlined'}
-                                    onClick={() => {}}
-                                    disabled={!doc.fetchedPlacements[value]}
-                                >
-                                    <Icon data={Eye} />
-                                </Button>
-                            </Popover>
-                            <div style={{width: 4}} />
-                            <Button
-                                size="xs"
-                                view={isSelected ? 'outlined-success' : 'outlined'}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    if (
-                                        !doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ]
-                                    )
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = {
-                                            phrase: '',
-                                        };
-
-                                    if (isSelected) {
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = undefined;
-                                    } else {
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ].phrase = value;
-                                    }
-
-                                    setChangedDoc(doc);
-
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            mode: isSelected ? 'Удалить' : 'Установить',
-                                            advertsIds: {},
-                                        },
-                                    };
-                                    params.data.advertsIds[modalOpenFromAdvertId] = {};
-                                    params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
-                                    console.log(params);
-
-                                    callApi('updateAdvertsSelectedPhrases', params);
-                                }}
-                            >
-                                <Icon data={ArrowShapeUp} />
-                            </Button>
-                            <div style={{width: 4}} />
-                            <Button
-                                size="xs"
-                                view={
-                                    semanticsModalSemanticsPlusItemsValue.includes(value)
-                                        ? 'outlined-warning'
-                                        : 'outlined'
-                                }
-                                onClick={() => {
-                                    let val = Array.from(semanticsModalSemanticsPlusItemsValue);
-                                    const cluster = value;
-                                    if (!val.includes(cluster)) {
-                                        val.push(cluster);
-                                    } else {
-                                        val = val.filter((value) => value != cluster);
-                                    }
-
-                                    setSemanticsModalSemanticsPlusItemsValue(val);
-                                }}
-                            >
-                                <Icon data={Plus} />
-                            </Button>
-                        </div>
-                    </div>
-                );
-            },
-        },
-        {
-            name: 'freq',
-            placeholder: 'Частота',
-            render: ({value, row}) => {
-                const {freqTrend} = row;
-                return (
-                    <Tooltip content={`${freqTrend > 0 ? '+' : ''}${freqTrend}`}>
-                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                            <Text>{value}</Text>
-                            {freqTrend ? (
-                                <Text
-                                    color={
-                                        freqTrend > 0
-                                            ? 'positive'
-                                            : freqTrend < 0
-                                            ? 'danger'
-                                            : 'primary'
-                                    }
-                                >
-                                    <Icon data={freqTrend > 0 ? CaretUp : CaretDown} />
-                                </Text>
-                            ) : (
-                                <> </>
-                            )}
-                        </div>
-                    </Tooltip>
-                );
-            },
-        },
-        {
-            name: 'count',
-            placeholder: 'Показов, шт',
-        },
-        {
-            name: 'clicks',
-            placeholder: 'Кликов, шт',
-        },
-        {
-            name: 'ctr',
-            placeholder: 'CTR, %',
-            render: renderAsPercent,
-        },
-        {
-            name: 'sum',
-            placeholder: 'Расход, ₽',
-        },
-        {
-            name: 'cpc',
-            placeholder: 'CPC, ₽',
-        },
-        {
-            name: 'placements',
-            placeholder: 'Позиция, №',
-            render: ({value, row}) => {
-                if (value === null) return;
-                const {cluster} = row;
-                return (
-                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                        <Button
-                            size="xs"
-                            view="flat"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                parseFirst10Pages(
-                                    cluster,
-                                    setFetchedPlacements,
-                                    setCurrentParsingProgress,
-                                );
-                            }}
-                        >
-                            {doc.fetchedPlacements[cluster] &&
-                            doc.campaigns[selectValue[0]][semanticsModalOpenFromArt] ? (
-                                doc.fetchedPlacements[cluster].data[
-                                    doc.campaigns[selectValue[0]][semanticsModalOpenFromArt].nmId
-                                ] ? (
-                                    doc.fetchedPlacements[cluster].data[
-                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
-                                            .nmId
-                                    ].log &&
-                                    doc.fetchedPlacements[cluster].data[
-                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
-                                            .nmId
-                                    ].log.position !== undefined ? (
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <Text color="secondary">{`${
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].log.position + 1
-                                            }`}</Text>
-                                            <div style={{width: 3}} />
-                                            <Icon data={ArrowRight} size={13}></Icon>
-                                            <div style={{width: 3}} />
-                                            {
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].index
-                                            }
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].index
-                                            }
-                                        </>
-                                    )
-                                ) : (
-                                    'Нет в выдаче'
-                                )
-                            ) : (
-                                '№'
-                            )}
-                            <Icon size={12} data={LayoutHeader} />
-                        </Button>
-                        {currentParsingProgress[cluster] &&
-                        currentParsingProgress[cluster].progress !== undefined &&
-                        currentParsingProgress[cluster].progress !=
-                            currentParsingProgress[cluster].max ? (
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <div style={{width: 4}} />
-                                {currentParsingProgress[cluster].error ? (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        {`${
-                                            currentParsingProgress[cluster].progress / 100
-                                        }/20 стр.`}
-                                        <div style={{width: 3}} />
-                                        <Icon size={12} data={TriangleExclamation} />
-                                    </div>
-                                ) : (
-                                    <Spin size="xs" />
-                                )}
-                            </div>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-                );
-            },
-        },
-    ];
-    const columnDataSemantics2 = [
-        {
-            name: 'preset',
-            valueType: 'text',
-            placeholder: 'Пресет',
-            render: ({value}) => {
-                const bad =
-                    semanticsModalSemanticsItemsValuePresets.includes(value) &&
-                    semanticsModalSemanticsMinusItemsValuePresets.includes(value);
-                return (
-                    <div
-                        style={{
-                            maxWidth: 100,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        {bad ? (
-                            <Button
-                                size="xs"
-                                view={'flat-danger'}
-                                onClick={() =>
-                                    filterByButtonClusters(value, true, 'preset', 'include')
-                                }
-                            >
-                                {value}
-                            </Button>
-                        ) : (
-                            <Button
-                                size="xs"
-                                view={'flat'}
-                                onClick={() =>
-                                    filterByButtonClusters(value, false, 'preset', 'include')
-                                }
-                            >
-                                <Text color="primary">{value}</Text>
-                            </Button>
-                        )}
-                    </div>
-                );
-            },
-        },
-        {
-            additionalNodes: [] as any[],
-            width: 200,
-            name: 'cluster',
-            placeholder: 'Кластер',
-            valueType: 'text',
-            render: ({value}) => {
-                if (value.summary !== undefined) {
-                    return <Text>{`Всего: ${value.summary}`}</Text>;
-                }
-
-                let valueWrapped = value;
-                let curStrLen = 0;
-                if (value.length > 30) {
-                    valueWrapped = '';
-                    const titleArr = value.split(' ');
-                    for (const word of titleArr) {
-                        valueWrapped += word;
-                        curStrLen += word.length;
-                        if (curStrLen > 40) {
-                            valueWrapped += '\n';
-                            curStrLen = 0;
-                        } else {
-                            valueWrapped += ' ';
-                            curStrLen++;
-                        }
-                    }
-                }
-
-                const isSelected =
-                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                              .phrase
-                        : '') == value;
-
-                const {type, status} = doc.adverts[selectValue[0]][modalOpenFromAdvertId] ?? {};
-
-                const mapAuctionsTypes = {
-                    Выдача: 'firstPage',
-                    'Аукцион Авто': 'auto',
-                    'Аукцион Поиска': 'search',
-                };
-
-                const auction = doc.fetchedPlacements[value]
-                    ? doc.fetchedPlacements[value].cpms[mapAuctionsTypes[auctionSelectedOption]] ??
-                      []
-                    : [];
-
-                return (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                        }}
-                    >
-                        <Text style={{whiteSpace: 'pre-wrap'}}>{valueWrapped}</Text>
-                        <div style={{width: 8}} />
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            <Button
-                                size="xs"
-                                view="outlined"
-                                href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${value}`}
-                                target="_blank"
-                            >
-                                <Icon data={Magnifier} />
-                            </Button>
-                            <div style={{width: 4}} />
-                            <Popover
-                                onOpenChange={(open) => {
-                                    if (open) resetBidModalFormInputs(false);
-                                }}
-                                placement={'bottom-start'}
-                                content={
-                                    <Card
-                                        view="clear"
-                                        style={{
-                                            height: 20,
-                                            overflow: 'auto',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Card
-                                            view="clear"
-                                            style={{
-                                                position: 'absolute',
-                                                maxHeight: '30em',
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                top: -10,
-                                                left: -10,
-                                            }}
-                                        >
-                                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                                <Card
-                                                    // theme="warning"
-                                                    style={{
-                                                        height: 'fit-content',
-                                                        width: 'fit-content',
-                                                        boxShadow:
-                                                            'var(--g-color-base-background) 0px 2px 8px',
-                                                    }}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            overflow: 'auto',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            justifyContent: 'space-between',
-                                                            padding: 5,
-                                                        }}
-                                                    >
-                                                        <RadioButton
-                                                            value={auctionSelectedOption}
-                                                            options={auctionOptions}
-                                                            onUpdate={(value) => {
-                                                                setAuctionSelectedOption(value);
-                                                            }}
-                                                        />
-                                                    </Card>
-                                                </Card>
-                                                <div style={{minHeight: 12}} />
-                                                <div
-                                                    style={{display: 'flex', flexDirection: 'row'}}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            maxWidth: '60em',
-                                                            maxHeight: '30em',
-                                                            height: 'fit-content',
-                                                            overflow: 'auto',
-                                                            boxShadow:
-                                                                'var(--g-color-base-background) 0px 2px 8px',
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            style={{
-                                                                background:
-                                                                    'var(--g-color-base-background)',
-                                                            }}
-                                                        >
-                                                            <DataTable
-                                                                settings={{
-                                                                    displayIndices: false,
-                                                                    stickyHead: MOVING,
-                                                                    stickyFooter: MOVING,
-                                                                    highlightRows: true,
-                                                                }}
-                                                                footerData={[
-                                                                    {
-                                                                        cpm: `${auctionSelectedOption}, ${
-                                                                            auction
-                                                                                ? auction.length
-                                                                                : 0
-                                                                        } шт.`,
-                                                                    },
-                                                                ]}
-                                                                theme="yandex-cloud"
-                                                                onRowClick={(row, index, event) => {
-                                                                    console.log(row, index, event);
-                                                                }}
-                                                                rowClassName={(
-                                                                    _row,
-                                                                    index,
-                                                                    isFooterData,
-                                                                ) =>
-                                                                    isFooterData
-                                                                        ? b('tableRow_footer')
-                                                                        : b('tableRow_' + index)
-                                                                }
-                                                                columns={columnDataAuction}
-                                                                data={auction}
-                                                            />
-                                                        </Card>
-                                                    </Card>
-                                                    <div style={{minWidth: 12}} />
-                                                    <Card
-                                                        view="outlined"
-                                                        // theme="warning"
-                                                        style={{
-                                                            height: 'fit-content',
-                                                            boxShadow:
-                                                                'var(--g-color-base-background) 0px 2px 8px',
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            style={{
-                                                                background:
-                                                                    'var(--yc-color-base-background)',
-                                                                // height: '100%',
-                                                                width: 240,
-                                                                overflow: 'auto',
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                justifyContent: 'space-between',
-                                                                paddingTop: 20,
-                                                            }}
-                                                        >
-                                                            <div
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    flexDirection: 'column',
-                                                                    width: '100%',
-                                                                    justifyContent: 'center',
-                                                                    alignItems: 'center',
-                                                                }}
-                                                            >
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Метод'}
-                                                                    </Text>
-                                                                    <Select
-                                                                        onUpdate={(nextValue) => {
-                                                                            setSelectedValueMethod(
-                                                                                nextValue,
-                                                                            );
-                                                                            if (
-                                                                                nextValue[0] ==
-                                                                                'По ДРР'
-                                                                            ) {
-                                                                                setBidModalRange({
-                                                                                    from: 0,
-                                                                                    to: 0,
-                                                                                });
-                                                                            } else {
-                                                                                setBidModalRange({
-                                                                                    from: 50,
-                                                                                    to: 50,
-                                                                                });
-                                                                            }
-                                                                        }}
-                                                                        options={
-                                                                            selectedValueMethodOptions
-                                                                        }
-                                                                        renderControl={({
-                                                                            onClick,
-                                                                            onKeyDown,
-                                                                            ref,
-                                                                        }) => {
-                                                                            const temp = {};
-                                                                            for (
-                                                                                let i = 0;
-                                                                                i <
-                                                                                selectedValueMethodOptions.length;
-                                                                                i++
-                                                                            ) {
-                                                                                const {
-                                                                                    value,
-                                                                                    content,
-                                                                                } =
-                                                                                    selectedValueMethodOptions[
-                                                                                        i
-                                                                                    ];
-                                                                                temp[value] =
-                                                                                    content;
-                                                                            }
-                                                                            return (
-                                                                                <Button
-                                                                                    style={{
-                                                                                        width: '100%',
-                                                                                    }}
-                                                                                    ref={ref}
-                                                                                    view="outlined"
-                                                                                    onClick={
-                                                                                        onClick
-                                                                                    }
-                                                                                    extraProps={{
-                                                                                        onKeyDown,
-                                                                                    }}
-                                                                                >
-                                                                                    {
-                                                                                        temp[
-                                                                                            selectedValueMethod[0]
-                                                                                        ]
-                                                                                    }
-                                                                                    <Icon
-                                                                                        data={
-                                                                                            ChevronDown
-                                                                                        }
-                                                                                    />
-                                                                                </Button>
-                                                                            );
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Макс. ставка'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalMaxBid,
-                                                                        )}
-                                                                        onUpdate={(val) => {
-                                                                            const intVal =
-                                                                                Number(val);
-
-                                                                            setBidModalMaxBidValid(
-                                                                                intVal >= 125,
-                                                                            );
-
-                                                                            setBidModalMaxBid(
-                                                                                intVal,
-                                                                            );
-                                                                        }}
-                                                                        validationState={
-                                                                            bidModalMaxBidValid
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Позиция'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        disabled={
-                                                                            selectedValueMethod[0] ==
-                                                                                'drr' ||
-                                                                            selectedValueMethod[0] ==
-                                                                                'cpo'
-                                                                        }
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalRange.to,
-                                                                        )}
-                                                                        onUpdate={(val) => {
-                                                                            const intVal =
-                                                                                Number(val);
-
-                                                                            setBidModalRange(() => {
-                                                                                setBidModalRangeValid(
-                                                                                    intVal > 0,
-                                                                                );
-                                                                                return {
-                                                                                    from: intVal,
-                                                                                    to: intVal,
-                                                                                };
-                                                                            });
-                                                                        }}
-                                                                        validationState={
-                                                                            bidModalRangeValid
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {selectedValueMethod[0] ==
-                                                                        'cpo'
-                                                                            ? 'Целевой CPO'
-                                                                            : 'Целевой ДРР'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalDRRInputValue,
-                                                                        )}
-                                                                        onChange={(val) => {
-                                                                            const cpo = Number(
-                                                                                val.target.value,
-                                                                            );
-                                                                            if (cpo < 0)
-                                                                                setBidModalDRRInputValidationValue(
-                                                                                    false,
-                                                                                );
-                                                                            else
-                                                                                setBidModalDRRInputValidationValue(
-                                                                                    true,
-                                                                                );
-                                                                            setBidModalDRRInputValue(
-                                                                                cpo,
-                                                                            );
-                                                                        }}
-                                                                        errorMessage={
-                                                                            'Введите не менее 0'
-                                                                        }
-                                                                        validationState={
-                                                                            bidModalDRRInputValidationValue
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 8}} />
-
-                                                                {generateModalButtonWithActions(
-                                                                    {
-                                                                        disabled:
-                                                                            !modalOpenFromAdvertId,
-                                                                        placeholder: 'Установить',
-                                                                        icon: CloudArrowUpIn,
-                                                                        view: 'outlined-success',
-                                                                        onClick: () => {
-                                                                            const params = {
-                                                                                uid: getUid(),
-                                                                                campaignName:
-                                                                                    selectValue[0],
-                                                                                data: {
-                                                                                    advertsIds: {},
-                                                                                    mode: 'Автоставки',
-                                                                                    stocksThreshold:
-                                                                                        bidModalStocksThresholdInputValue,
-                                                                                    placementsRange:
-                                                                                        bidModalRange,
-                                                                                    maxBid: bidModalMaxBid,
-                                                                                    autoBidsMode:
-                                                                                        selectedValueMethod[0],
-                                                                                    desiredOrders:
-                                                                                        parseInt(
-                                                                                            ordersInputValue,
-                                                                                        ),
-                                                                                    desiredSum:
-                                                                                        parseInt(
-                                                                                            desiredSumInputValue,
-                                                                                        ),
-                                                                                },
-                                                                            };
-
-                                                                            params.data.advertsIds[
-                                                                                modalOpenFromAdvertId
-                                                                            ] = {
-                                                                                desiredDRR:
-                                                                                    bidModalDRRInputValue,
-                                                                                bidStep:
-                                                                                    bidModalBidStepInputValue,
-
-                                                                                advertId:
-                                                                                    modalOpenFromAdvertId,
-                                                                            };
-
-                                                                            if (
-                                                                                !doc
-                                                                                    .advertsAutoBidsRules[
-                                                                                    selectValue[0]
-                                                                                ][
-                                                                                    modalOpenFromAdvertId
-                                                                                ]
-                                                                            )
-                                                                                doc.advertsAutoBidsRules[
-                                                                                    selectValue[0]
-                                                                                ][
-                                                                                    modalOpenFromAdvertId
-                                                                                ] = {};
-                                                                            doc.advertsAutoBidsRules[
-                                                                                selectValue[0]
-                                                                            ][
-                                                                                modalOpenFromAdvertId
-                                                                            ] =
-                                                                                bidModalDeleteModeSelected
-                                                                                    ? undefined
-                                                                                    : {
-                                                                                          desiredOrders:
-                                                                                              parseInt(
-                                                                                                  ordersInputValue,
-                                                                                              ),
-                                                                                          desiredSum:
-                                                                                              parseInt(
-                                                                                                  desiredSumInputValue,
-                                                                                              ),
-
-                                                                                          desiredDRR:
-                                                                                              bidModalDRRInputValue,
-                                                                                          placementsRange:
-                                                                                              bidModalRange,
-                                                                                          maxBid: bidModalMaxBid,
-                                                                                          autoBidsMode:
-                                                                                              selectedValueMethod[0],
-                                                                                      };
-
-                                                                            console.log(params);
-
-                                                                            //////////////////////////////////
-                                                                            callApi(
-                                                                                'setAdvertsCPMs',
-                                                                                params,
-                                                                            );
-                                                                            setChangedDoc(doc);
-                                                                            //////////////////////////////////
-                                                                        },
-                                                                    },
-                                                                    selectedButton,
-                                                                    setSelectedButton,
-                                                                )}
-                                                            </div>
-                                                            <div style={{minHeight: 16}} />
-                                                            <Button
-                                                                selected
-                                                                onClick={() =>
-                                                                    filterByButton(
-                                                                        modalOpenFromAdvertId,
-                                                                        'adverts',
-                                                                    )
-                                                                }
-                                                                // style=x{{position: 'relative', top: -2}}
-                                                                width="max"
-                                                                pin="brick-brick"
-                                                                view={
-                                                                    status
-                                                                        ? status == 9
-                                                                            ? 'flat-success'
-                                                                            : status == 11
-                                                                            ? 'flat-danger'
-                                                                            : 'flat-warning'
-                                                                        : 'flat'
-                                                                }
-                                                            >
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'row',
-                                                                        alignItems: 'center',
-                                                                    }}
-                                                                >
-                                                                    <Icon
-                                                                        data={
-                                                                            type == 8
-                                                                                ? Rocket
-                                                                                : Magnifier
-                                                                        }
-                                                                        size={11}
-                                                                    />
-                                                                    <div style={{width: 2}} />
-                                                                    {modalOpenFromAdvertId}
-                                                                </div>
-                                                            </Button>
-                                                        </Card>
-                                                    </Card>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </Card>
-                                }
-                            >
-                                <Button
-                                    size="xs"
-                                    view={'outlined'}
-                                    onClick={() => {}}
-                                    disabled={!doc.fetchedPlacements[value]}
-                                >
-                                    <Icon data={Eye} />
-                                </Button>
-                            </Popover>
-                            <div style={{width: 4}} />
-                            <Button
-                                size="xs"
-                                view={isSelected ? 'outlined-success' : 'outlined'}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    if (
-                                        !doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ]
-                                    )
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = {
-                                            phrase: '',
-                                        };
-
-                                    if (isSelected) {
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = undefined;
-                                    } else {
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ].phrase = value;
-                                    }
-
-                                    setChangedDoc(doc);
-
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            mode: isSelected ? 'Удалить' : 'Установить',
-                                            advertsIds: {},
-                                        },
-                                    };
-                                    params.data.advertsIds[modalOpenFromAdvertId] = {};
-                                    params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
-                                    console.log(params);
-
-                                    callApi('updateAdvertsSelectedPhrases', params);
-                                }}
-                            >
-                                <Icon data={ArrowShapeUp} />
-                            </Button>
-                            <div style={{width: 4}} />
-                            <Button
-                                size="xs"
-                                view={
-                                    semanticsModalSemanticsPlusItemsValue.includes(value)
-                                        ? 'outlined-warning'
-                                        : 'outlined'
-                                }
-                                onClick={() => {
-                                    let val = Array.from(semanticsModalSemanticsPlusItemsValue);
-                                    const cluster = value;
-                                    if (!val.includes(cluster)) {
-                                        val.push(cluster);
-                                    } else {
-                                        val = val.filter((value) => value != cluster);
-                                    }
-
-                                    setSemanticsModalSemanticsPlusItemsValue(val);
-                                }}
-                            >
-                                <Icon data={Plus} />
-                            </Button>
-                        </div>
-                    </div>
-                );
-            },
-        },
-        {
-            name: 'freq',
-            placeholder: 'Частота',
-            render: ({value, row}) => {
-                const {freqTrend} = row;
-                return (
-                    <Tooltip content={`${freqTrend > 0 ? '+' : ''}${freqTrend}`}>
-                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                            <Text>{value}</Text>
-                            {freqTrend ? (
-                                <Text
-                                    color={
-                                        freqTrend > 0
-                                            ? 'positive'
-                                            : freqTrend < 0
-                                            ? 'danger'
-                                            : 'primary'
-                                    }
-                                >
-                                    <Icon data={freqTrend > 0 ? CaretUp : CaretDown} />
-                                </Text>
-                            ) : (
-                                <> </>
-                            )}
-                        </div>
-                    </Tooltip>
-                );
-            },
-        },
-        {
-            name: 'count',
-            placeholder: 'Показов, шт',
-        },
-        {
-            name: 'clicks',
-            placeholder: 'Кликов, шт',
-        },
-        {
-            name: 'ctr',
-            placeholder: 'CTR, %',
-            render: renderAsPercent,
-        },
-        {
-            name: 'sum',
-            placeholder: 'Расход, ₽',
-        },
-        {
-            name: 'cpc',
-            placeholder: 'CPC, ₽',
-        },
-        {
-            name: 'placements',
-            placeholder: 'Позиция, №',
-            render: ({value, row}) => {
-                if (value === null) return;
-                const {cluster} = row;
-                return (
-                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                        <Button
-                            size="xs"
-                            view="flat"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                parseFirst10Pages(
-                                    cluster,
-                                    setFetchedPlacements,
-                                    setCurrentParsingProgress,
-                                );
-                            }}
-                        >
-                            {doc.fetchedPlacements[cluster] &&
-                            doc.campaigns[selectValue[0]][semanticsModalOpenFromArt] ? (
-                                doc.fetchedPlacements[cluster].data[
-                                    doc.campaigns[selectValue[0]][semanticsModalOpenFromArt].nmId
-                                ] ? (
-                                    doc.fetchedPlacements[cluster].data[
-                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
-                                            .nmId
-                                    ].log &&
-                                    doc.fetchedPlacements[cluster].data[
-                                        doc.campaigns[selectValue[0]][semanticsModalOpenFromArt]
-                                            .nmId
-                                    ].log.position !== undefined ? (
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <Text color="secondary">{`${
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].log.position + 1
-                                            }`}</Text>
-                                            <div style={{width: 3}} />
-                                            <Icon data={ArrowRight} size={13}></Icon>
-                                            <div style={{width: 3}} />
-                                            {
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].index
-                                            }
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {
-                                                doc.fetchedPlacements[cluster].data[
-                                                    doc.campaigns[selectValue[0]][
-                                                        semanticsModalOpenFromArt
-                                                    ].nmId
-                                                ].index
-                                            }
-                                        </>
-                                    )
-                                ) : (
-                                    'Нет в выдаче'
-                                )
-                            ) : (
-                                '№'
-                            )}
-                            <Icon size={12} data={LayoutHeader} />
-                        </Button>
-                        {currentParsingProgress[cluster] &&
-                        currentParsingProgress[cluster].progress !== undefined &&
-                        currentParsingProgress[cluster].progress !=
-                            currentParsingProgress[cluster].max ? (
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <div style={{width: 4}} />
-                                {currentParsingProgress[cluster].error ? (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        {`${
-                                            currentParsingProgress[cluster].progress / 100
-                                        }/20 стр.`}
-                                        <div style={{width: 3}} />
-                                        <Icon size={12} data={TriangleExclamation} />
-                                    </div>
-                                ) : (
-                                    <Spin size="xs" />
-                                )}
-                            </div>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-                );
-            },
-        },
-    ];
 
     const genTextColumn = (textArray) => {
         const wrapped = [] as any[];
@@ -7448,46 +4385,6 @@ export const MassAdvertPage = ({
     //     setAuctionFilters,
     //     filterAuctionData,
     // );
-
-    const renameFirstColumn = (colss, newName: string, additionalNodes = [] as any[]) => {
-        const index = 1;
-        const columnDataSemanticsCopy = Array.from(colss) as any[];
-        columnDataSemanticsCopy[index].placeholder = newName;
-        columnDataSemanticsCopy[index].additionalNodes = additionalNodes;
-        return columnDataSemanticsCopy;
-    };
-    const generateMassAddDelButton = ({placeholder, array, mode}) => {
-        return (
-            <Button
-                style={{marginLeft: 8}}
-                view="outlined"
-                onClick={() => {
-                    const val = [] as any[];
-                    if (mode == 'add') {
-                        val.push(...Array.from(semanticsModalSemanticsPlusItemsValue));
-                        for (let i = 0; i < array.length; i++) {
-                            const cluster = array[i].cluster;
-                            if (val.includes(cluster)) continue;
-                            val.push(cluster);
-                        }
-                    } else if (mode == 'del') {
-                        const clustersToDel = [] as string[];
-                        for (const clusterData of array) clustersToDel.push(clusterData.cluster);
-                        for (let i = 0; i < semanticsModalSemanticsPlusItemsValue.length; i++) {
-                            const cluster = semanticsModalSemanticsPlusItemsValue[i];
-                            if (clustersToDel.includes(cluster)) continue;
-                            if (val.includes(cluster)) continue;
-                            val.push(cluster);
-                        }
-                    }
-
-                    setSemanticsModalSemanticsPlusItemsValue(val);
-                }}
-            >
-                {placeholder}
-            </Button>
-        );
-    };
     // console.log(columnsSemanticsTemplate);
 
     if (changedDoc) {
@@ -8403,7 +5300,76 @@ export const MassAdvertPage = ({
                                                 event.stopPropagation();
                                             }}
                                         >
-                                            {generateAdvertCard(advertId, -1, '')}
+                                            <AdvertCard
+                                                id={advertId}
+                                                index={-1}
+                                                art={''}
+                                                doc={doc}
+                                                selectValue={selectValue}
+                                                copiedAdvertsSettings={copiedAdvertsSettings}
+                                                setChangedDoc={setChangedDoc}
+                                                setShowScheduleModalOpen={setShowScheduleModalOpen}
+                                                genTempSchedule={genTempSchedule}
+                                                manageAdvertsActivityCallFunc={
+                                                    manageAdvertsActivityCallFunc
+                                                }
+                                                setArtsStatsByDayData={setArtsStatsByDayData}
+                                                updateColumnWidth={updateColumnWidth}
+                                                filteredData={filteredData}
+                                                setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                                wordsFetchUpdate={wordsFetchUpdate}
+                                                setFetchedPlacements={setFetchedPlacements}
+                                                currentParsingProgress={currentParsingProgress}
+                                                setCurrentParsingProgress={
+                                                    setCurrentParsingProgress
+                                                }
+                                                selectedValueMethodOptions={
+                                                    selectedValueMethodOptions
+                                                }
+                                                columnDataAuction={columnDataAuction}
+                                                auctionOptions={auctionOptions}
+                                                auctionSelectedOption={auctionSelectedOption}
+                                                openBidModalForm={openBidModalForm}
+                                                openBudgetModalForm={openBudgetModalForm}
+                                                setDateRange={setDateRange}
+                                                setModalOpenFromAdvertId={setModalOpenFromAdvertId}
+                                                setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                                dateRange={dateRange}
+                                                bidModalMaxBid={bidModalMaxBid}
+                                                recalc={recalc}
+                                                filterByButton={filterByButton}
+                                                setScheduleInput={setScheduleInput}
+                                                selectedValueMethod={selectedValueMethod}
+                                                bidModalRange={bidModalRange}
+                                                desiredSumInputValue={desiredSumInputValue}
+                                                ordersInputValue={ordersInputValue}
+                                                bidModalDeleteModeSelected={
+                                                    bidModalDeleteModeSelected
+                                                }
+                                                bidModalBidStepInputValue={
+                                                    bidModalBidStepInputValue
+                                                }
+                                                bidModalDRRInputValue={bidModalDRRInputValue}
+                                                bidModalStocksThresholdInputValue={
+                                                    bidModalStocksThresholdInputValue
+                                                }
+                                                setBidModalDRRInputValue={setBidModalDRRInputValue}
+                                                bidModalMaxBidValid={bidModalMaxBidValid}
+                                                setBidModalDRRInputValidationValue={
+                                                    setBidModalDRRInputValidationValue
+                                                }
+                                                bidModalRangeValid={bidModalRangeValid}
+                                                bidModalDRRInputValidationValue={
+                                                    bidModalDRRInputValidationValue
+                                                }
+                                                setBidModalRange={setBidModalRange}
+                                                setBidModalMaxBid={setBidModalMaxBid}
+                                                setBidModalMaxBidValid={setBidModalMaxBidValid}
+                                                setSelectedValueMethod={setSelectedValueMethod}
+                                                setBidModalRangeValid={setBidModalRangeValid}
+                                                setAuctionSelectedOption={setAuctionSelectedOption}
+                                                resetBidModalFormInputs={resetBidModalFormInputs}
+                                            />
                                             <div style={{minWidth: 8}} />
                                             <Button
                                                 view={
@@ -9454,28 +6420,12 @@ export const MassAdvertPage = ({
                             </Card>
                         </div>
                     </Modal>
-                    <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="action"
-                        size="l"
-                        onClick={() => {
-                            // setSemanticsModalSemanticsInputValue(500);
-                            // setSemanticsModalSwitchValue('Пополнить');
-                            // setSemanticsModalSemanticsInputValidationValue(true);
-                            setPlusPhrasesModalFormOpen(true);
-                            const plusPhrasesTemplatesTemp: any[] = [];
-                            for (const [name, _] of Object.entries(
-                                doc.plusPhrasesTemplates[selectValue[0]],
-                            )) {
-                                plusPhrasesTemplatesTemp.push(name);
-                            }
-
-                            setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
-                        }}
-                    >
-                        <Icon data={Magnifier} />
-                        <Text variant="subheader-1">Фразы</Text>
-                    </Button>
+                    <PhrasesModal
+                        selectValue={selectValue}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                        getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                    />
                     <Button
                         style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                         view="action"
@@ -9515,849 +6465,6 @@ export const MassAdvertPage = ({
                             setAvailableAutoSalesPending,
                         }}
                     />
-
-                    <Modal
-                        open={semanticsModalFormOpen}
-                        onClose={() => {
-                            setSemanticsModalFormOpen(false);
-                            setModalOpenFromAdvertId('');
-                        }}
-                    >
-                        <motion.div
-                            onAnimationStart={async () => {
-                                await new Promise((resolve) => setTimeout(resolve, 300));
-                                clustersFilterDataActive(
-                                    {cluster: {val: '', mode: 'include'}},
-                                    semanticsModalSemanticsItemsValue,
-                                );
-                                clustersFilterDataMinus(
-                                    {cluster: {val: '', mode: 'include'}},
-                                    semanticsModalSemanticsMinusItemsValue,
-                                );
-                            }}
-                            animate={{width: semanticsModalFormOpen ? '80vw' : 0}}
-                            style={{
-                                height: '90vh',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                margin: 20,
-                                alignItems: 'start',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        marginRight: 8,
-                                        display: 'flex',
-                                        width: '100%',
-                                        flexDirection: 'column',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <TextInput
-                                        placeholder="Имя"
-                                        hasClear
-                                        value={
-                                            semanticsModalSemanticsPlusItemsTemplateNameSaveValue
-                                        }
-                                        onUpdate={(val) => {
-                                            setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                                                val,
-                                            );
-                                        }}
-                                    />
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            marginTop: 8,
-                                            width: '100%',
-                                        }}
-                                    >
-                                        <TextInput
-                                            label="Показы перв."
-                                            hasClear
-                                            value={String(semanticsModalSemanticsThresholdValue)}
-                                            onUpdate={(val) => {
-                                                setSemanticsModalSemanticsThresholdValue(
-                                                    Number(val),
-                                                );
-                                            }}
-                                            type="number"
-                                        />
-                                        <div style={{minWidth: 8}} />
-                                        <TextInput
-                                            label="CTR перв."
-                                            hasClear
-                                            value={semanticsModalSemanticsCTRThresholdValue}
-                                            onUpdate={(val) => {
-                                                val = val.replace(',', '.');
-
-                                                const numberVal = Number(val);
-                                                const valid = !isNaN(numberVal);
-
-                                                setSemanticsModalSemanticsCTRThresholdValueValid(
-                                                    valid,
-                                                );
-                                                setSemanticsModalSemanticsCTRThresholdValue(val);
-                                            }}
-                                            validationState={
-                                                !semanticsModalSemanticsCTRThresholdValueValid
-                                                    ? 'invalid'
-                                                    : undefined
-                                            }
-                                        />
-                                        <div style={{minWidth: 8}} />
-                                        <TextInput
-                                            label="Показы втор."
-                                            hasClear
-                                            value={String(
-                                                semanticsModalSemanticsSecondThresholdValue,
-                                            )}
-                                            onUpdate={(val) => {
-                                                setSemanticsModalSemanticsSecondThresholdValue(
-                                                    Number(val),
-                                                );
-                                            }}
-                                            type="number"
-                                        />
-                                        <div style={{minWidth: 8}} />
-                                        <TextInput
-                                            label="CTR втор."
-                                            hasClear
-                                            value={semanticsModalSemanticsSecondCTRThresholdValue}
-                                            onUpdate={(val) => {
-                                                val = val.replace(',', '.');
-
-                                                const numberVal = Number(val);
-                                                const valid = !isNaN(numberVal);
-
-                                                setSemanticsModalSemanticsSecondCTRThresholdValueValid(
-                                                    valid,
-                                                );
-                                                setSemanticsModalSemanticsSecondCTRThresholdValue(
-                                                    val,
-                                                );
-                                            }}
-                                            validationState={
-                                                !semanticsModalSemanticsSecondCTRThresholdValueValid
-                                                    ? 'invalid'
-                                                    : undefined
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            marginBottom: 8,
-                                        }}
-                                    >
-                                        <Button
-                                            onClick={() => {
-                                                const name =
-                                                    semanticsModalSemanticsPlusItemsTemplateNameSaveValue.trim();
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {
-                                                        mode: 'Установить',
-                                                        isFixed: semanticsModalIsFixed,
-                                                        name: name,
-                                                        clusters:
-                                                            semanticsModalSemanticsPlusItemsValue,
-                                                        threshold:
-                                                            semanticsModalSemanticsThresholdValue,
-                                                        ctrThreshold: Number(
-                                                            semanticsModalSemanticsCTRThresholdValue,
-                                                        ),
-                                                        secondThreshold:
-                                                            semanticsModalSemanticsSecondThresholdValue,
-                                                        secondCtrThreshold:
-                                                            semanticsModalSemanticsSecondCTRThresholdValue,
-                                                        autoPhrasesTemplate: {
-                                                            includes:
-                                                                semanticsAutoPhrasesModalIncludesList,
-                                                            notIncludes:
-                                                                semanticsAutoPhrasesModalNotIncludesList,
-                                                        },
-                                                    },
-                                                };
-
-                                                doc.plusPhrasesTemplates[selectValue[0]][name] = {
-                                                    isFixed: semanticsModalIsFixed,
-                                                    name: name,
-                                                    clusters: semanticsModalSemanticsPlusItemsValue,
-                                                    threshold:
-                                                        semanticsModalSemanticsThresholdValue,
-                                                    ctrThreshold: Number(
-                                                        semanticsModalSemanticsCTRThresholdValue,
-                                                    ),
-                                                    secondThreshold:
-                                                        semanticsModalSemanticsSecondThresholdValue,
-                                                    secondCtrThreshold:
-                                                        semanticsModalSemanticsSecondCTRThresholdValue,
-                                                    autoPhrasesTemplate: {
-                                                        includes:
-                                                            semanticsAutoPhrasesModalIncludesList,
-                                                        notIncludes:
-                                                            semanticsAutoPhrasesModalNotIncludesList,
-                                                    },
-                                                };
-                                                {
-                                                    // ADDING TEMPLATE TO ART
-                                                    if (
-                                                        semanticsModalOpenFromArt &&
-                                                        semanticsModalOpenFromArt != ''
-                                                    ) {
-                                                        const advertId = modalOpenFromAdvertId;
-
-                                                        const paramsAddToArt = {
-                                                            uid: getUid(),
-                                                            campaignName: selectValue[0],
-                                                            data: {advertsIds: {}},
-                                                        };
-                                                        paramsAddToArt.data.advertsIds[advertId] = {
-                                                            mode: 'Установить',
-                                                            templateName: name,
-                                                            advertId: advertId,
-                                                        };
-                                                        callApi(
-                                                            'setAdvertsPlusPhrasesTemplates',
-                                                            paramsAddToArt,
-                                                        );
-
-                                                        if (
-                                                            !doc.advertsPlusPhrasesTemplates[
-                                                                selectValue[0]
-                                                            ][advertId]
-                                                        )
-                                                            doc.advertsPlusPhrasesTemplates[
-                                                                selectValue[0]
-                                                            ][advertId] = {};
-
-                                                        doc.advertsPlusPhrasesTemplates[
-                                                            selectValue[0]
-                                                        ][advertId].templateName = name;
-                                                    }
-                                                }
-
-                                                console.log(params);
-
-                                                setChangedDoc(doc);
-
-                                                callApi('setPlusPhraseTemplate', params);
-
-                                                setSemanticsModalFormOpen(false);
-                                            }}
-                                            disabled={
-                                                !semanticsModalSemanticsCTRThresholdValueValid ||
-                                                !semanticsModalSemanticsSecondCTRThresholdValueValid
-                                            }
-                                        >
-                                            Сохранить
-                                        </Button>
-                                        <div style={{minWidth: 8}} />
-                                        <Button
-                                            selected={semanticsModalIsFixed}
-                                            onClick={() =>
-                                                setSemanticsModalIsFixed(!semanticsModalIsFixed)
-                                            }
-                                        >
-                                            {`Фикс. ${!semanticsModalIsFixed ? 'выкл.' : 'вкл.'}`}
-                                        </Button>
-                                        <div style={{minWidth: 8}} />
-                                        <Button
-                                            view={
-                                                semanticsAutoPhrasesModalIncludesList.length ||
-                                                semanticsAutoPhrasesModalNotIncludesList.length
-                                                    ? 'flat-success'
-                                                    : 'normal'
-                                            }
-                                            selected={
-                                                semanticsAutoPhrasesModalIncludesList.length ||
-                                                semanticsAutoPhrasesModalNotIncludesList.length
-                                                    ? true
-                                                    : undefined
-                                            }
-                                            onClick={() => {
-                                                setSemanticsAutoPhrasesModalFormOpen(
-                                                    !semanticsAutoPhrasesModalFormOpen,
-                                                );
-                                            }}
-                                        >
-                                            {`Автофразы`}
-                                        </Button>
-                                        <Modal
-                                            open={semanticsAutoPhrasesModalFormOpen}
-                                            onClose={() => {
-                                                setSemanticsAutoPhrasesModalFormOpen(false);
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    height: 'calc(60vh + 24px)',
-                                                    width: '60vw',
-                                                    justifyContent: 'space-between',
-                                                    margin: '30px 30px',
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        justifyContent: 'space-between',
-                                                    }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            height: '60vh',
-                                                            width: '48%',
-                                                        }}
-                                                    >
-                                                        <Text variant="header-1">
-                                                            Фразы должны содержать
-                                                        </Text>
-                                                        <div style={{height: 8}} />
-                                                        <TextInput
-                                                            value={
-                                                                semanticsAutoPhrasesModalIncludesListInput
-                                                            }
-                                                            onKeyPress={(e) => {
-                                                                if (e.key === 'Enter') {
-                                                                    if (
-                                                                        !semanticsAutoPhrasesModalIncludesList.includes(
-                                                                            semanticsAutoPhrasesModalIncludesListInput,
-                                                                        ) &&
-                                                                        semanticsAutoPhrasesModalIncludesListInput !=
-                                                                            ''
-                                                                    )
-                                                                        semanticsAutoPhrasesModalIncludesList.push(
-                                                                            semanticsAutoPhrasesModalIncludesListInput,
-                                                                        );
-                                                                    setSemanticsAutoPhrasesModalIncludesListInput(
-                                                                        '',
-                                                                    );
-                                                                }
-                                                            }}
-                                                            onUpdate={(value) => {
-                                                                setSemanticsAutoPhrasesModalIncludesListInput(
-                                                                    value,
-                                                                );
-                                                            }}
-                                                            placeholder={' Вводите правила сюда'}
-                                                        />
-                                                        <div style={{height: 8}} />
-                                                        <List
-                                                            itemHeight={(item) => {
-                                                                return (
-                                                                    20 *
-                                                                        Math.ceil(
-                                                                            item.length / 60,
-                                                                        ) +
-                                                                    20
-                                                                );
-                                                            }}
-                                                            renderItem={(item) => {
-                                                                if (!item) return;
-                                                                return (
-                                                                    <div
-                                                                        style={{
-                                                                            display: 'flex',
-                                                                            flexDirection: 'row',
-                                                                            justifyContent:
-                                                                                'space-between',
-                                                                            margin: '0 8px',
-                                                                            width: '100%',
-                                                                        }}
-                                                                        title={item}
-                                                                    >
-                                                                        <div
-                                                                            style={{
-                                                                                textWrap: 'wrap',
-                                                                            }}
-                                                                        >
-                                                                            <Text>{item}</Text>
-                                                                        </div>
-                                                                        <div
-                                                                            style={{
-                                                                                display: 'flex',
-                                                                                flexDirection:
-                                                                                    'row',
-                                                                            }}
-                                                                        >
-                                                                            <Button
-                                                                                size="xs"
-                                                                                view="flat"
-                                                                                onClick={() => {
-                                                                                    setSemanticsAutoPhrasesModalIncludesListInput(
-                                                                                        item,
-                                                                                    );
-                                                                                }}
-                                                                            >
-                                                                                <Icon
-                                                                                    data={Pencil}
-                                                                                    size={14}
-                                                                                ></Icon>
-                                                                            </Button>
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            }}
-                                                            filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalIncludesList.length} фразах`}
-                                                            onItemClick={(rule) => {
-                                                                let val = Array.from(
-                                                                    semanticsAutoPhrasesModalIncludesList,
-                                                                );
-                                                                val = val.filter(
-                                                                    (value) => value != rule,
-                                                                );
-                                                                setSemanticsAutoPhrasesModalIncludesList(
-                                                                    val,
-                                                                );
-                                                            }}
-                                                            items={
-                                                                semanticsAutoPhrasesModalIncludesList
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            height: '60vh',
-                                                            width: '48%',
-                                                        }}
-                                                    >
-                                                        <Text variant="header-1">
-                                                            Фразы не должны содержать
-                                                        </Text>
-                                                        <div style={{height: 8}} />
-                                                        <TextInput
-                                                            value={
-                                                                semanticsAutoPhrasesModalNotIncludesListInput
-                                                            }
-                                                            onKeyPress={(e) => {
-                                                                if (e.key === 'Enter') {
-                                                                    const arr = Array.from(
-                                                                        semanticsAutoPhrasesModalNotIncludesList as any[],
-                                                                    );
-                                                                    if (
-                                                                        !arr.includes(
-                                                                            semanticsAutoPhrasesModalNotIncludesListInput,
-                                                                        ) &&
-                                                                        semanticsAutoPhrasesModalNotIncludesListInput !=
-                                                                            ''
-                                                                    ) {
-                                                                        arr.push(
-                                                                            semanticsAutoPhrasesModalNotIncludesListInput,
-                                                                        );
-                                                                        setSemanticsAutoPhrasesModalNotIncludesList(
-                                                                            arr,
-                                                                        );
-                                                                    }
-                                                                    setSemanticsAutoPhrasesModalNotIncludesListInput(
-                                                                        '',
-                                                                    );
-                                                                    console.log(
-                                                                        semanticsAutoPhrasesModalNotIncludesList,
-                                                                    );
-                                                                }
-                                                            }}
-                                                            onUpdate={(value) => {
-                                                                setSemanticsAutoPhrasesModalNotIncludesListInput(
-                                                                    value,
-                                                                );
-                                                            }}
-                                                            placeholder={' Вводите правила сюда'}
-                                                        />
-                                                        <div style={{height: 8}} />
-                                                        <List
-                                                            filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalNotIncludesList.length} фразах`}
-                                                            onItemClick={(rule) => {
-                                                                let val = Array.from(
-                                                                    semanticsAutoPhrasesModalNotIncludesList,
-                                                                );
-                                                                val = val.filter(
-                                                                    (value) => value != rule,
-                                                                );
-                                                                setSemanticsAutoPhrasesModalNotIncludesList(
-                                                                    val,
-                                                                );
-                                                            }}
-                                                            items={
-                                                                semanticsAutoPhrasesModalNotIncludesList
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    style={{marginTop: 8}}
-                                                    pin="circle-circle"
-                                                    view="action"
-                                                    onClick={() =>
-                                                        setSemanticsAutoPhrasesModalFormOpen(false)
-                                                    }
-                                                >
-                                                    Закрыть
-                                                </Button>
-                                            </div>
-                                        </Modal>
-                                    </div>
-
-                                    <Button
-                                        width={'max'}
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            for (
-                                                let i = 0;
-                                                i <
-                                                    semanticsModalSemanticsItemsFiltratedValue.length &&
-                                                i < 10;
-                                                i++
-                                            ) {
-                                                parseFirst10Pages(
-                                                    semanticsModalSemanticsItemsFiltratedValue[i]
-                                                        .cluster,
-                                                    setFetchedPlacements,
-                                                    setCurrentParsingProgress,
-                                                );
-                                            }
-                                        }}
-                                    >
-                                        Парсер выдачи первых 10 фраз
-                                        <Icon size={12} data={LayoutHeader} />
-                                    </Button>
-                                </div>
-                            </div>
-                            <Card
-                                theme="success"
-                                style={{
-                                    height: 'calc(60vh - 96px)',
-                                    width: '100%',
-                                    overflow: 'auto',
-                                }}
-                            >
-                                <TheTable
-                                    columnData={renameFirstColumn(
-                                        columnDataSemantics,
-                                        'Фразы в показах',
-                                        [
-                                            generateMassAddDelButton({
-                                                placeholder: 'Добавить все',
-                                                array: semanticsModalSemanticsItemsFiltratedValue,
-                                                mode: 'add',
-                                            }),
-                                            generateMassAddDelButton({
-                                                placeholder: 'Удалить все',
-                                                array: semanticsModalSemanticsItemsFiltratedValue,
-                                                mode: 'del',
-                                            }),
-                                        ],
-                                    )}
-                                    data={semanticsModalSemanticsItemsFiltratedValue}
-                                    filters={clustersFiltersActive}
-                                    setFilters={setClustersFiltersActive}
-                                    filterData={clustersFilterDataActive}
-                                    footerData={[semanticsFilteredSummary.active]}
-                                />
-                            </Card>
-                            <Card
-                                theme="danger"
-                                style={{
-                                    height: 'calc(40vh - 96px)',
-                                    overflow: 'auto',
-                                    width: '100%',
-                                }}
-                            >
-                                <TheTable
-                                    columnData={renameFirstColumn(
-                                        columnDataSemantics2,
-                                        'Исключенные фразы',
-                                        [
-                                            generateMassAddDelButton({
-                                                placeholder: 'Добавить все',
-                                                array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                                                mode: 'add',
-                                            }),
-                                            generateMassAddDelButton({
-                                                placeholder: 'Удалить все',
-                                                array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                                                mode: 'del',
-                                            }),
-                                        ],
-                                    )}
-                                    data={semanticsModalSemanticsMinusItemsFiltratedValue}
-                                    filters={clustersFiltersMinus}
-                                    setFilters={setClustersFiltersMinus}
-                                    filterData={clustersFilterDataMinus}
-                                    footerData={[semanticsFilteredSummary.minus]}
-                                />
-                            </Card>
-                        </motion.div>
-                    </Modal>
-                    <Modal
-                        open={plusPhrasesModalFormOpen}
-                        onClose={() => setPlusPhrasesModalFormOpen(false)}
-                    >
-                        <Card
-                            // view="raised"
-                            view="clear"
-                            style={{
-                                width: '80em',
-                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
-                                // animation: '3s linear 1s slidein',
-                                // maxWidth: '15vw',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                backgroundColor: 'none',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    height: '50%',
-                                    width: '100%',
-
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    margin: '16px 0',
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        margin: '8px 0',
-                                    }}
-                                    variant="display-2"
-                                >
-                                    Шаблоны
-                                </Text>
-
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        width: '80%',
-                                        flexWrap: 'wrap',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        marginBottom: 8,
-                                    }}
-                                >
-                                    <List
-                                        onItemClick={(item) => {
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                data: {advertsIds: {}},
-                                            };
-                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                            for (const [id, advertData] of Object.entries(
-                                                uniqueAdverts,
-                                            )) {
-                                                if (!id || !advertData) continue;
-                                                const {advertId} = advertData as any;
-                                                params.data.advertsIds[advertId] = {
-                                                    advertId: advertId,
-                                                    mode: 'Установить',
-                                                    templateName: item,
-                                                };
-
-                                                if (
-                                                    !doc.advertsPlusPhrasesTemplates[
-                                                        selectValue[0]
-                                                    ][advertId]
-                                                )
-                                                    doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                                                        advertId
-                                                    ] = {};
-                                                doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                                                    advertId
-                                                ].templateName = item;
-                                            }
-
-                                            console.log(params);
-
-                                            /////////////////////////
-                                            callApi('setAdvertsPlusPhrasesTemplates', params);
-                                            setChangedDoc(doc);
-                                            /////////////////////////
-                                            setPlusPhrasesModalFormOpen(false);
-                                        }}
-                                        renderItem={(item, isItemActive) => {
-                                            return (
-                                                <div
-                                                    style={{
-                                                        padding: 8,
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'center',
-                                                        width: '100%',
-                                                    }}
-                                                >
-                                                    <Text>{item}</Text>
-                                                    {isItemActive ? (
-                                                        <Button
-                                                            size="xs"
-                                                            view="flat"
-                                                            onClick={(event) => {
-                                                                event.stopPropagation();
-                                                                const params = {
-                                                                    uid: getUid(),
-                                                                    campaignName: selectValue[0],
-                                                                    data: {
-                                                                        mode: 'Удалить',
-                                                                        name: item,
-                                                                    },
-                                                                };
-                                                                const paramsAddToArt = {
-                                                                    uid: getUid(),
-                                                                    campaignName: selectValue[0],
-                                                                    data: {advertsIds: {}},
-                                                                };
-
-                                                                delete doc.plusPhrasesTemplates[
-                                                                    selectValue[0]
-                                                                ][item];
-                                                                setPlusPhrasesTemplatesLabels(
-                                                                    (val) => {
-                                                                        return val.filter(
-                                                                            (name) => {
-                                                                                return name != item;
-                                                                            },
-                                                                        );
-                                                                    },
-                                                                );
-
-                                                                if (
-                                                                    doc.advertsPlusPhrasesTemplates[
-                                                                        selectValue[0]
-                                                                    ]
-                                                                )
-                                                                    for (const [
-                                                                        advertId,
-                                                                        advertData,
-                                                                    ] of Object.entries(
-                                                                        doc
-                                                                            .advertsPlusPhrasesTemplates[
-                                                                            selectValue[0]
-                                                                        ],
-                                                                    )) {
-                                                                        if (
-                                                                            !advertId ||
-                                                                            !advertData
-                                                                        )
-                                                                            continue;
-                                                                        if (
-                                                                            advertData[
-                                                                                'templateName'
-                                                                            ] == item
-                                                                        ) {
-                                                                            doc.advertsPlusPhrasesTemplates[
-                                                                                selectValue[0]
-                                                                            ][advertId] = undefined;
-                                                                            paramsAddToArt.data.advertsIds[
-                                                                                advertId
-                                                                            ] = {
-                                                                                mode: 'Удалить',
-                                                                                templateName: item,
-                                                                            };
-                                                                        }
-                                                                    }
-                                                                console.log(paramsAddToArt);
-                                                                console.log(params);
-
-                                                                callApi(
-                                                                    'setAdvertsPlusPhrasesTemplates',
-                                                                    paramsAddToArt,
-                                                                );
-
-                                                                /////////////////////////
-                                                                callApi(
-                                                                    'setPlusPhraseTemplate',
-                                                                    params,
-                                                                );
-                                                                setChangedDoc(doc);
-                                                                /////////////////////////
-                                                            }}
-                                                        >
-                                                            <Icon data={TrashBin} />
-                                                        </Button>
-                                                    ) : (
-                                                        <></>
-                                                    )}
-                                                </div>
-                                            );
-                                        }}
-                                        filterPlaceholder={`Поиск в ${plusPhrasesTemplatesLabels.length} шаблонах`}
-                                        items={plusPhrasesTemplatesLabels}
-                                        itemsHeight={300}
-                                        itemHeight={28}
-                                    />
-                                </div>
-                                {generateModalButtonWithActions(
-                                    {
-                                        view: 'flat-danger',
-                                        icon: TrashBin,
-                                        placeholder: 'Удалить',
-                                        onClick: () => {
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                data: {advertsIds: {}},
-                                            };
-                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                            for (const [id, advertData] of Object.entries(
-                                                uniqueAdverts,
-                                            )) {
-                                                if (!id || !advertData) continue;
-                                                const {advertId} = advertData as any;
-                                                params.data.advertsIds[advertId] = {
-                                                    advertId: advertId,
-                                                    mode: 'Удалить',
-                                                };
-
-                                                doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                                                    advertId
-                                                ] = undefined;
-                                            }
-                                            console.log(params);
-
-                                            /////////////////////////
-                                            callApi('setAdvertsPlusPhrasesTemplates', params);
-                                            setChangedDoc(doc);
-                                            /////////////////////////
-                                            setPlusPhrasesModalFormOpen(false);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                            </div>
-                        </Card>
-                    </Modal>
                     <div style={{marginRight: 8}}>
                         <Select
                             className={b('selectCampaign')}
@@ -10435,8 +6542,6 @@ export const MassAdvertPage = ({
                                 } else {
                                     setSwitchingCampaignsFlag(false);
                                 }
-                                setWarningBeforeDeleteConfirmationRow(0);
-                                setWarningBeforeDeleteConfirmation(false);
                                 recalc(dateRange, nextValue[0], filters);
                                 setPagesCurrent(1);
                                 setCopiedAdvertsSettings({advertId: 0});
@@ -10882,7 +6987,7 @@ const generateCard = (args) => {
     );
 };
 
-const parseFirst10Pages = async (
+export const parseFirst10Pages = async (
     searchPhrase,
     setFetchedPlacements,
     setCurrentParsingProgress,
