@@ -238,7 +238,7 @@ export const DeliveryPage = ({
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
-    const [warehouseNames, setWarehouseNames] = useState([] as string[]);
+    const [warehouseNames, setWarehouseNames] = useState([] as any[]);
     const [sortingType, setSortingType] = useState('');
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0], userInfo);
@@ -877,8 +877,9 @@ export const DeliveryPage = ({
 
             if (doc.deliveryData[selectValue[0]]) {
                 if (warehouseNames) {
-                    for (let i = 0; i < warehouseNames.length; i++) {
-                        const warehouse = warehouseNames[i];
+                    const allWarehouses = [{name: 'all', visible: true}].concat(warehouseNames);
+                    for (let i = 0; i < allWarehouses.length; i++) {
+                        const warehouse = allWarehouses[i];
                         if (!warehouse['visible']) continue;
                         const name = warehouse['name'] ?? '';
                         columnsTemp.push({

@@ -695,7 +695,17 @@ export const PricesPage = ({
         {
             name: 'allExpences',
             placeholder: 'Итого расходы, ₽',
-            render: (args) => renderSlashPercent(args, 'rozPrice'),
+            render: (args) =>
+                ((args) => {
+                    const {value, row} = args;
+                    const {rozPrice} = row;
+                    if (value === undefined) return undefined;
+                    return (
+                        <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
+                            {`${value} / ${getRoundValue(value * 100, rozPrice)}%`}
+                        </Text>
+                    );
+                })(args),
         },
     ];
 
