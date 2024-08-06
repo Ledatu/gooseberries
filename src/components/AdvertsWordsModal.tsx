@@ -35,6 +35,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import {getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
 import DataTable from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
+import {AutoPhrasesWordsSelection} from './AutoPhrasesWordsSelection';
 
 export const AdvertsWordsModal = ({
     doc,
@@ -2518,80 +2519,13 @@ export const AdvertsWordsModal = ({
                                         style={{
                                             display: 'flex',
                                             flexDirection: 'column',
-                                            height: 'calc(80vh + 40px)',
+                                            height: 'calc(60vh + 40px)',
                                             width: '60vw',
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
                                             margin: '30px 30px',
                                         }}
                                     >
-                                        <Card
-                                            view="outlined"
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                height: 'calc(20vh)',
-                                                justifyContent: 'space-between',
-                                                width: '100%',
-                                                marginBottom: 16,
-                                            }}
-                                        >
-                                            <List
-                                                filterPlaceholder="Поиск"
-                                                items={separetedWords}
-                                                renderItem={(item) => {
-                                                    return (
-                                                        <div
-                                                            style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'row',
-                                                                width: '100%',
-                                                                justifyContent: 'space-between',
-                                                                padding: '0px 8px',
-                                                            }}
-                                                        >
-                                                            {item}
-                                                            <div
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    flexDirection: 'row',
-                                                                }}
-                                                            >
-                                                                <Button
-                                                                    view="outlined"
-                                                                    size="xs"
-                                                                    onClick={() => {
-                                                                        setSemanticsAutoPhrasesModalIncludesList(
-                                                                            (current) =>
-                                                                                current.concat([
-                                                                                    item,
-                                                                                ]),
-                                                                        );
-                                                                    }}
-                                                                >
-                                                                    Содержит
-                                                                </Button>
-                                                                <div style={{minWidth: 8}} />
-                                                                <Button
-                                                                    view="outlined"
-                                                                    size="xs"
-                                                                    onClick={() => {
-                                                                        setSemanticsAutoPhrasesModalNotIncludesList(
-                                                                            (current) =>
-                                                                                current.concat([
-                                                                                    item,
-                                                                                ]),
-                                                                        );
-                                                                    }}
-                                                                >
-                                                                    Не содержит
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                }}
-                                            />
-                                        </Card>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -2608,9 +2542,26 @@ export const AdvertsWordsModal = ({
                                                     width: '100%',
                                                 }}
                                             >
-                                                <Text variant="header-1">
-                                                    Фразы должны содержать
-                                                </Text>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-between',
+                                                        width: '100%',
+                                                    }}
+                                                >
+                                                    <Text variant="header-1">
+                                                        Фразы должны содержать
+                                                    </Text>
+                                                    <div style={{minWidth: 8}} />
+                                                    <AutoPhrasesWordsSelection
+                                                        items={separetedWords}
+                                                        setItems={setSeparetedWords}
+                                                        setAutoPhrasesArray={
+                                                            setSemanticsAutoPhrasesModalIncludesList
+                                                        }
+                                                    />
+                                                </div>
                                                 <div style={{height: 8}} />
                                                 <TextInput
                                                     value={
@@ -2713,9 +2664,26 @@ export const AdvertsWordsModal = ({
                                                     width: '100%',
                                                 }}
                                             >
-                                                <Text variant="header-1">
-                                                    Фразы не должны содержать
-                                                </Text>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-between',
+                                                        width: '100%',
+                                                    }}
+                                                >
+                                                    <Text variant="header-1">
+                                                        Фразы должны содержать
+                                                    </Text>
+                                                    <div style={{minWidth: 8}} />
+                                                    <AutoPhrasesWordsSelection
+                                                        items={separetedWords}
+                                                        setItems={setSeparetedWords}
+                                                        setAutoPhrasesArray={
+                                                            setSemanticsAutoPhrasesModalNotIncludesList
+                                                        }
+                                                    />
+                                                </div>
                                                 <div style={{height: 8}} />
                                                 <TextInput
                                                     value={
