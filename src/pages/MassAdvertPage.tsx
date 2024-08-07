@@ -211,7 +211,7 @@ export const MassAdvertPage = ({
 
     const [budgetInputValue, setBudgetInputValue] = useState(1000);
     const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
-    const [bidInputValue, setBidInputValue] = useState(125);
+    const [bidInputValue, setBidInputValue] = useState(100);
     const [bidInputValidationValue, setBidInputValidationValue] = useState(true);
     const advertTypeSwitchValues: any[] = [
         {value: 'Авто', content: 'Авто'},
@@ -511,7 +511,7 @@ export const MassAdvertPage = ({
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
     const [bidModalFormOpen, setBidModalFormOpen] = useState(false);
-    const [bidModalBidInputValue, setBidModalBidInputValue] = useState(125);
+    const [bidModalBidInputValue, setBidModalBidInputValue] = useState(100);
     const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
     const [bidModalDeleteModeSelected, setBidModalDeleteModeSelected] = useState(false);
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
@@ -2782,7 +2782,7 @@ export const MassAdvertPage = ({
                                                                                 Number(val);
 
                                                                             setBidModalMaxBidValid(
-                                                                                intVal >= 125,
+                                                                                intVal >= 100,
                                                                             );
 
                                                                             setBidModalMaxBid(
@@ -4104,7 +4104,7 @@ export const MassAdvertPage = ({
     };
     const resetBidModalFormInputs = (clearModaladvertId = true) => {
         setSelectedButton('');
-        setBidModalBidInputValue(125);
+        setBidModalBidInputValue(100);
         setBidModalSwitchValue('Установить');
         setOrdersInputValue('');
         setOrdersInputValueValid(true);
@@ -4299,7 +4299,7 @@ export const MassAdvertPage = ({
                         view="flat"
                         onClick={() => {
                             const maxBid = (value as number) + 1;
-                            setBidModalMaxBidValid(maxBid >= 125);
+                            setBidModalMaxBidValid(maxBid >= 100);
                             setBidModalMaxBid(maxBid);
                         }}
                     >
@@ -4881,7 +4881,7 @@ export const MassAdvertPage = ({
                             setAdvertTypeSwitchValue(['Авто']);
                             setBudgetInputValue(1000);
                             setBudgetInputValidationValue(true);
-                            setBidInputValue(125);
+                            setBidInputValue(100);
                             setBidInputValidationValue(true);
                             setModalFormOpen(false);
                         }}
@@ -4920,7 +4920,7 @@ export const MassAdvertPage = ({
                                     options={advertTypeSwitchValues}
                                     onUpdate={(val) => {
                                         setAdvertTypeSwitchValue(val);
-                                        setBidInputValue(val[0] == 'Авто' ? 125 : 250);
+                                        setBidInputValue(val[0] == 'Авто' ? 100 : 150);
                                     }}
                                 />
                                 <div
@@ -4973,11 +4973,11 @@ export const MassAdvertPage = ({
                                             value={String(bidInputValue)}
                                             onChange={(val) => {
                                                 const bid = Number(val.target.value);
-                                                if (bid < 125) setBidInputValidationValue(false);
+                                                if (bid < 100) setBidInputValidationValue(false);
                                                 else setBidInputValidationValue(true);
                                                 setBidInputValue(bid);
                                             }}
-                                            errorMessage={'Введите не менее 125'}
+                                            errorMessage={'Введите не менее 100'}
                                             validationState={
                                                 bidInputValidationValue ? undefined : 'invalid'
                                             }
@@ -5783,7 +5783,7 @@ export const MassAdvertPage = ({
                                         options={bidModalSwitchValues}
                                         onUpdate={(val) => {
                                             setBidModalSwitchValue(val);
-                                            setBidModalBidInputValue(125);
+                                            setBidModalBidInputValue(100);
                                             // setBidModalAnalyticsSwitchValue(14);
                                             setBidModalBidInputValidationValue(true);
                                             setBidModalDeleteModeSelected(false);
@@ -5880,7 +5880,7 @@ export const MassAdvertPage = ({
                                                     value={String(bidModalBidInputValue)}
                                                     onChange={(val) => {
                                                         const bid = Number(val.target.value);
-                                                        if (bid < 125)
+                                                        if (bid < 100)
                                                             setBidModalBidInputValidationValue(
                                                                 false,
                                                             );
@@ -5890,7 +5890,7 @@ export const MassAdvertPage = ({
                                                             );
                                                         setBidModalBidInputValue(bid);
                                                     }}
-                                                    errorMessage={'Введите не менее 125'}
+                                                    errorMessage={'Введите не менее 100'}
                                                     validationState={
                                                         bidModalBidInputValidationValue
                                                             ? undefined
@@ -5924,7 +5924,6 @@ export const MassAdvertPage = ({
                                                         alignItems: 'bottom',
                                                     }}
                                                 >
-                                                    {' '}
                                                     <div
                                                         style={{
                                                             display: 'flex',
@@ -6020,12 +6019,12 @@ export const MassAdvertPage = ({
                                                                 const intVal = Number(val);
 
                                                                 setBidModalMaxBidValid(
-                                                                    intVal >= 125,
+                                                                    intVal >= 100,
                                                                 );
 
                                                                 setBidModalMaxBid(intVal);
                                                             }}
-                                                            // errorMessage={'Введите не менее 125'}
+                                                            errorMessage={'Введите не менее 100'}
                                                             validationState={
                                                                 bidModalMaxBidValid
                                                                     ? undefined

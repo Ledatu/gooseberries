@@ -660,7 +660,7 @@ export const AdvertsWordsModal = ({
                                                                                 Number(val);
 
                                                                             setBidModalMaxBidValid(
-                                                                                intVal >= 125,
+                                                                                intVal >= 100,
                                                                             );
 
                                                                             setBidModalMaxBid(
@@ -1512,7 +1512,7 @@ export const AdvertsWordsModal = ({
                                                                                 Number(val);
 
                                                                             setBidModalMaxBidValid(
-                                                                                intVal >= 125,
+                                                                                intVal >= 100,
                                                                             );
 
                                                                             setBidModalMaxBid(
