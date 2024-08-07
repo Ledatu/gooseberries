@@ -2673,7 +2673,7 @@ export const AdvertsWordsModal = ({
                                                     }}
                                                 >
                                                     <Text variant="header-1">
-                                                        Фразы должны содержать
+                                                        Фразы не должны содержать
                                                     </Text>
                                                     <div style={{minWidth: 8}} />
                                                     <AutoPhrasesWordsSelection
