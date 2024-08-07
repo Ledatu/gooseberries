@@ -274,6 +274,15 @@ export const AdvertsWordsModal = ({
                 if (!temp.includes(word)) temp.push(word);
             }
         }
+        for (const row of semanticsModalSemanticsMinusItemsFiltratedValue) {
+            const {cluster, freq} = row;
+            const words = (cluster as string).split(' ');
+            for (const word of words) {
+                if (!separetedWordsObj[word]) separetedWordsObj[word] = 0;
+                separetedWordsObj[word] += freq;
+                if (!temp.includes(word)) temp.push(word);
+            }
+        }
         temp.sort((a, b) => separetedWordsObj[b] - separetedWordsObj[a]);
         setSeparetedWords(
             temp.filter(
@@ -284,6 +293,7 @@ export const AdvertsWordsModal = ({
         );
     }, [
         semanticsModalSemanticsItemsFiltratedValue,
+        semanticsModalSemanticsMinusItemsFiltratedValue,
         semanticsAutoPhrasesModalIncludesList,
         semanticsAutoPhrasesModalNotIncludesList,
     ]);
