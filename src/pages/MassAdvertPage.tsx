@@ -4061,6 +4061,7 @@ export const MassAdvertPage = ({
         {
             value: 'obor',
             content: 'Оборачиваемость',
+            disabled: true,
         },
         {
             value: 'sum',
