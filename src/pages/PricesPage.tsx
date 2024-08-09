@@ -698,13 +698,9 @@ export const PricesPage = ({
             render: (args) =>
                 ((args) => {
                     const {value, row} = args;
-                    const {rozPrice} = row;
+                    const {primeCost} = row;
                     if (value === undefined) return undefined;
-                    return (
-                        <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
-                            {`${value} / ${getRoundValue(value * 100, rozPrice)}%`}
-                        </Text>
-                    );
+                    return `${value} / ${getRoundValue((value - primeCost) * 100, primeCost)}%`;
                 })(args),
         },
     ];
