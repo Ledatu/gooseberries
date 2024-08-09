@@ -3162,6 +3162,7 @@ export const MassAdvertPage = ({
                 );
             },
         },
+        {name: 'romi', placeholder: 'ROMI, %', render: renderAsPercent},
         {
             name: 'cpo',
             placeholder: 'CPO, ₽',
@@ -3232,6 +3233,7 @@ export const MassAdvertPage = ({
         analytics: 0,
         stocks: 0,
         sum_orders: 0,
+        romi: 0,
         adverts: 0,
         semantics: null,
     });
@@ -3455,6 +3457,7 @@ export const MassAdvertPage = ({
                 sales: 0,
                 sum_sales: 0,
                 openCardCount: 0,
+                romi: 0,
                 addToCartPercent: 0,
                 addToCartCount: 0,
                 cartToOrderPercent: 0,
@@ -3587,6 +3590,7 @@ export const MassAdvertPage = ({
                     false,
                     artInfo.sum,
                 );
+                artInfo.romi = getRoundValue(artInfo.analytics - artInfo.sum, artInfo.sum, true);
 
                 summaryTemp.sum_orders += artInfo.sum_orders;
                 summaryTemp.sum += artInfo.sum;
@@ -3922,6 +3926,7 @@ export const MassAdvertPage = ({
             adverts: 0,
             semantics: null,
             budget: 0,
+            romi: 0,
             openCardCount: 0,
             addToCartPercent: 0,
             addToCartCount: 0,
@@ -4018,6 +4023,13 @@ export const MassAdvertPage = ({
             false,
             filteredSummaryTemp.sum,
         );
+
+        filteredSummaryTemp.romi = getRoundValue(
+            filteredSummaryTemp.analytics - filteredSummaryTemp.sum,
+            filteredSummaryTemp.sum,
+            true,
+        );
+
         setFilteredSummary(filteredSummaryTemp);
 
         setFilteredData(temp);
