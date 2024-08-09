@@ -295,6 +295,11 @@ export const AnalyticsPage = ({
             planType: 'avg',
             isReverseGrad: true,
         },
+        romi: {
+            planType: 'avg',
+            placeholder: 'ROMI, %',
+            render: (args) => renderWithGraph(args, 'romi', 'ROMI, %', ['romi'], renderAsPercent),
+        },
         stocks: {
             placeholder: 'Остаток, шт.',
             render: (args) => renderWithGraph(args, 'stocks', 'Остаток, шт.'),
@@ -759,6 +764,13 @@ export const AnalyticsPage = ({
                     true,
                     tempTypeRow['sum'] ? 1 : 0,
                 );
+
+                tempTypeRow['romi'] = getRoundValue(
+                    tempTypeRow['profit'] - tempTypeRow['sum'],
+                    tempTypeRow['sum'],
+                    true,
+                );
+
                 tempTypeRow['stocks'] = dateStats['stocks'];
                 tempTypeRow['skuInStock'] = dateStats['skuInStock'];
                 tempTypeRow['primeCost'] = dateStats['primeCost'];
@@ -838,6 +850,7 @@ export const AnalyticsPage = ({
                 sum: 0,
                 buyoutsPercent: 0,
                 expectedSales: 0,
+                romi: 0,
                 addToCartPercent: 0,
                 cartToOrderPercent: 0,
                 addToCartCount: 0,
@@ -981,6 +994,7 @@ export const AnalyticsPage = ({
                 'drr_sales',
                 getRoundValue(row['sum'], row['sum_sales'], true, row['sum'] ? 1 : 0),
             );
+            summaryAdd(row, 'romi', getRoundValue(row['profit'] - row['sum'], row['sum'], true));
             summaryAdd(row, 'rentabelnost', getRoundValue(row['profit'], row['sum_orders'], true));
 
             const getDate = (inputDate) => {
@@ -1016,6 +1030,11 @@ export const AnalyticsPage = ({
                 summaries[entity]['sum_sales'],
                 true,
                 summaries[entity]['sum'] ? 1 : 0,
+            );
+            summaries[entity]['romi'] = getRoundValue(
+                summaries[entity]['profit'] - summaries[entity]['sum'],
+                summaries[entity]['sum'],
+                true,
             );
             summaries[entity]['rentabelnost'] = getRoundValue(
                 summaries[entity]['profit'],
@@ -1099,6 +1118,12 @@ export const AnalyticsPage = ({
                 summaries['filteredSummaryTemp']['sum_sales'],
                 true,
                 summaries['filteredSummaryTemp']['sum'] ? 1 : 0,
+            );
+            summaries['filteredSummaryTemp']['romi'] = getRoundValue(
+                summaries['filteredSummaryTemp']['profit'] -
+                    summaries['filteredSummaryTemp']['sum'],
+                summaries['filteredSummaryTemp']['sum'],
+                true,
             );
             summaries['filteredSummaryTemp']['rentabelnost'] = getRoundValue(
                 summaries['filteredSummaryTemp']['profit'],
