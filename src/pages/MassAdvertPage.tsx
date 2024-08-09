@@ -3590,7 +3590,7 @@ export const MassAdvertPage = ({
                     false,
                     artInfo.sum,
                 );
-                artInfo.romi = getRoundValue(artInfo.analytics - artInfo.sum, artInfo.sum, true);
+                artInfo.romi = getRoundValue(artInfo.analytics, artInfo.sum, true);
 
                 summaryTemp.sum_orders += artInfo.sum_orders;
                 summaryTemp.sum += artInfo.sum;
@@ -4025,7 +4025,7 @@ export const MassAdvertPage = ({
         );
 
         filteredSummaryTemp.romi = getRoundValue(
-            filteredSummaryTemp.analytics - filteredSummaryTemp.sum,
+            filteredSummaryTemp.analytics,
             filteredSummaryTemp.sum,
             true,
         );
@@ -4057,6 +4057,10 @@ export const MassAdvertPage = ({
         {
             value: 'orders',
             content: 'Цель по заказам',
+        },
+        {
+            value: 'obor',
+            content: 'Оборачиваемость',
         },
         {
             value: 'sum',

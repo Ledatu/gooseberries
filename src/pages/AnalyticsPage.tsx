@@ -766,7 +766,7 @@ export const AnalyticsPage = ({
                 );
 
                 tempTypeRow['romi'] = getRoundValue(
-                    tempTypeRow['profit'] - tempTypeRow['sum'],
+                    tempTypeRow['profit'],
                     tempTypeRow['sum'],
                     true,
                 );
@@ -994,7 +994,7 @@ export const AnalyticsPage = ({
                 'drr_sales',
                 getRoundValue(row['sum'], row['sum_sales'], true, row['sum'] ? 1 : 0),
             );
-            summaryAdd(row, 'romi', getRoundValue(row['profit'] - row['sum'], row['sum'], true));
+            summaryAdd(row, 'romi', getRoundValue(row['profit'], row['sum'], true));
             summaryAdd(row, 'rentabelnost', getRoundValue(row['profit'], row['sum_orders'], true));
 
             const getDate = (inputDate) => {
@@ -1032,7 +1032,7 @@ export const AnalyticsPage = ({
                 summaries[entity]['sum'] ? 1 : 0,
             );
             summaries[entity]['romi'] = getRoundValue(
-                summaries[entity]['profit'] - summaries[entity]['sum'],
+                summaries[entity]['profit'],
                 summaries[entity]['sum'],
                 true,
             );
@@ -1120,8 +1120,7 @@ export const AnalyticsPage = ({
                 summaries['filteredSummaryTemp']['sum'] ? 1 : 0,
             );
             summaries['filteredSummaryTemp']['romi'] = getRoundValue(
-                summaries['filteredSummaryTemp']['profit'] -
-                    summaries['filteredSummaryTemp']['sum'],
+                summaries['filteredSummaryTemp']['profit'],
                 summaries['filteredSummaryTemp']['sum'],
                 true,
             );
