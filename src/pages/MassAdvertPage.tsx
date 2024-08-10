@@ -512,6 +512,9 @@ export const MassAdvertPage = ({
 
     const [bidModalFormOpen, setBidModalFormOpen] = useState(false);
     const [bidModalBidInputValue, setBidModalBidInputValue] = useState(100);
+    const [bidModalDesiredOborInputValue, setBidModalDesiredOborInputValue] = useState('');
+    const [bidModalDesiredOborInputValueValid, setBidModalDesiredOborInputValueValid] =
+        useState(true);
     const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
     const [bidModalDeleteModeSelected, setBidModalDeleteModeSelected] = useState(false);
     const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
@@ -4061,7 +4064,6 @@ export const MassAdvertPage = ({
         {
             value: 'obor',
             content: 'Оборачиваемость',
-            disabled: true,
         },
         {
             value: 'sum',
@@ -4125,6 +4127,8 @@ export const MassAdvertPage = ({
         setBidModalSwitchValue('Установить');
         setOrdersInputValue('');
         setOrdersInputValueValid(true);
+        setBidModalDesiredOborInputValue('');
+        setBidModalDesiredOborInputValueValid(true);
         setDesiredSumInputValue('');
         setDesiredSumInputValueValid(true);
         setBidModalBidInputValidationValue(true);
@@ -5801,6 +5805,8 @@ export const MassAdvertPage = ({
                                         onUpdate={(val) => {
                                             setBidModalSwitchValue(val);
                                             setBidModalBidInputValue(100);
+                                            setBidModalDesiredOborInputValue('');
+                                            setBidModalDesiredOborInputValueValid(true);
                                             // setBidModalAnalyticsSwitchValue(14);
                                             setBidModalBidInputValidationValue(true);
                                             setBidModalDeleteModeSelected(false);
@@ -6106,7 +6112,8 @@ export const MassAdvertPage = ({
                                                         }}
                                                     />
                                                     {selectedValueMethod[0] != 'orders' &&
-                                                    selectedValueMethod[0] != 'sum' ? (
+                                                    selectedValueMethod[0] != 'sum' &&
+                                                    selectedValueMethod[0] != 'obor' ? (
                                                         <div
                                                             style={{
                                                                 display: 'flex',
@@ -6169,6 +6176,27 @@ export const MassAdvertPage = ({
                                                                 selectedValueMethod[0] != 'orders',
                                                             placeholder: 'Цель по заказам',
                                                             validationState: ordersInputValueValid,
+                                                        })
+                                                    ) : (
+                                                        <></>
+                                                    )}
+                                                    {selectedValueMethod[0] == 'obor' ? (
+                                                        generateTextInputWithNoteOnTop({
+                                                            value: bidModalDesiredOborInputValue,
+                                                            onUpdateHandler: (val) => {
+                                                                const valid = !isNaN(parseInt(val));
+                                                                setBidModalDesiredOborInputValueValid(
+                                                                    valid,
+                                                                );
+                                                                setBidModalDesiredOborInputValue(
+                                                                    val,
+                                                                );
+                                                            },
+                                                            disabled:
+                                                                selectedValueMethod[0] != 'obor',
+                                                            placeholder: 'Оборачиваемость',
+                                                            validationState:
+                                                                bidModalDesiredOborInputValueValid,
                                                         })
                                                     ) : (
                                                         <></>
@@ -6321,6 +6349,9 @@ export const MassAdvertPage = ({
                                                         desiredSum: parseInt(desiredSumInputValue),
                                                         maxBid: bidModalMaxBid,
                                                         autoBidsMode: selectedValueMethod[0],
+                                                        desiredObor: parseInt(
+                                                            bidModalDesiredOborInputValue,
+                                                        ),
                                                     },
                                                 };
                                                 const uniqueAdverts =
