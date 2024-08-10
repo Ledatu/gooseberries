@@ -6415,6 +6415,9 @@ export const MassAdvertPage = ({
                                                                       parseInt(
                                                                           desiredSumInputValue,
                                                                       ),
+                                                                  desiredObor: parseInt(
+                                                                      bidModalDesiredOborInputValue,
+                                                                  ),
 
                                                                   autoBidsMode:
                                                                       selectedValueMethod[0],

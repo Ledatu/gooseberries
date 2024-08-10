@@ -627,6 +627,7 @@ export const AdvertCard = ({
                                 drrAI.autoBidsMode != 'orders' &&
                                 drrAI.autoBidsMode != 'drr' &&
                                 drrAI.autoBidsMode != 'sum' &&
+                                drrAI.autoBidsMode != 'obor' &&
                                 drrAI.autoBidsMode != 'cpo' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
                                         {`План №: ${drrAI.placementsRange.from} (${
@@ -652,7 +653,11 @@ export const AdvertCard = ({
                                 )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'obor' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Обор. (${drrAI.desiredObor}) Заказы (${drrAI.desiredOrders})`}
+                                        {`Обор. (${drrAI.desiredObor}) Заказы (${
+                                            !isNaN(drrAI.desiredOrders) && drrAI.desiredOrders
+                                                ? drrAI.desiredOrders
+                                                : 'Нет. инф.'
+                                        })`}
                                     </Text>
                                 ) : (
                                     <></>
