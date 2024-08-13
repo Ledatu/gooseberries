@@ -1,4 +1,4 @@
-import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import {
     Spin,
     Button,
@@ -4329,7 +4329,7 @@ export const MassAdvertPage = ({
     // );
     // console.log(columnsSemanticsTemplate);
 
-    const balance = useMemo(() => {
+    const balance = (() => {
         const map = {balance: 'Счет', bonus: 'Бонусы', net: 'Баланс'};
 
         const temp = doc
@@ -4352,7 +4352,7 @@ export const MassAdvertPage = ({
                     );
             }
         return arr.join(' ');
-    }, [doc, selectValue]);
+    })();
 
     if (changedDoc) {
         setChangedDoc(undefined);
