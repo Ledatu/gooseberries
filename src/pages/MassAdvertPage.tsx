@@ -1,4 +1,4 @@
-import React, {ReactNode, useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {
     Spin,
     Button,
@@ -4329,6 +4329,31 @@ export const MassAdvertPage = ({
     // );
     // console.log(columnsSemanticsTemplate);
 
+    const balance = useMemo(() => {
+        const map = {balance: 'Счет', bonus: 'Бонусы', net: 'Баланс'};
+
+        const temp = doc
+            ? doc.balances
+                ? doc.balances[selectValue[0]]
+                    ? doc.balances[selectValue[0]].data
+                        ? doc.balances[selectValue[0]].data.slice(-1)[0]
+                            ? doc.balances[selectValue[0]].data.slice(-1)[0].balance
+                            : undefined
+                        : undefined
+                    : undefined
+                : undefined
+            : undefined;
+        const arr = [] as string[];
+        if (temp)
+            for (const [type, val] of Object.entries(temp)) {
+                if (val)
+                    arr.push(
+                        map[type] + ': ' + new Intl.NumberFormat('ru-RU').format(val as number),
+                    );
+            }
+        return arr.join(' ');
+    }, [doc, selectValue]);
+
     if (changedDoc) {
         setChangedDoc(undefined);
         setChangedDocUpdateType(false);
@@ -5734,53 +5759,7 @@ export const MassAdvertPage = ({
                             }
                         >
                             <Button view="outlined-success" size="l">
-                                <Text variant="subheader-1">
-                                    {`Баланс: ${new Intl.NumberFormat('ru-RU').format(
-                                        doc
-                                            ? doc.balances
-                                                ? doc.balances[selectValue[0]]
-                                                    ? doc.balances[selectValue[0]].data
-                                                        ? doc.balances[selectValue[0]].data.slice(
-                                                              -1,
-                                                          )[0]
-                                                            ? doc.balances[
-                                                                  selectValue[0]
-                                                              ].data.slice(-1)[0].balance.net ?? 0
-                                                            : 0
-                                                        : 0
-                                                    : 0
-                                                : 0
-                                            : 0,
-                                    )}
-                            Бонусы: ${new Intl.NumberFormat('ru-RU').format(
-                                doc
-                                    ? doc.balances
-                                        ? doc.balances[selectValue[0]]
-                                            ? doc.balances[selectValue[0]].data
-                                                ? doc.balances[selectValue[0]].data.slice(-1)[0]
-                                                    ? doc.balances[selectValue[0]].data.slice(-1)[0]
-                                                          .balance.bonus ?? 0
-                                                    : 0
-                                                : 0
-                                            : 0
-                                        : 0
-                                    : 0,
-                            )} 
-                            Счет: ${new Intl.NumberFormat('ru-RU').format(
-                                doc
-                                    ? doc.balances
-                                        ? doc.balances[selectValue[0]]
-                                            ? doc.balances[selectValue[0]].data
-                                                ? doc.balances[selectValue[0]].data.slice(-1)[0]
-                                                    ? doc.balances[selectValue[0]].data.slice(-1)[0]
-                                                          .balance.balance ?? 0
-                                                    : 0
-                                                : 0
-                                            : 0
-                                        : 0
-                                    : 0,
-                            )}`}
-                                </Text>
+                                <Text variant="subheader-1">{balance}</Text>
                             </Button>
                         </Popover>
                     </div>
@@ -5828,7 +5807,6 @@ export const MassAdvertPage = ({
                             onClick={updateTheData}
                         >
                             <Icon data={ArrowsRotateLeft} />
-                            <Text variant="subheader-1">Обновить</Text>
                         </Button>
                         <div style={{width: 8}} />
                         {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}

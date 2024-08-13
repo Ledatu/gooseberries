@@ -1082,6 +1082,7 @@ export const PricesPage = ({
         console.log(doc);
         recalc(selectValue[0]);
         setFirstRecalc(true);
+        setSwitchingCampaignsFlag(false);
     }
 
     return (

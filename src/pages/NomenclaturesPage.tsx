@@ -601,6 +601,7 @@ export const NomenclaturesPage = ({
         setChangedDoc(undefined);
         setChangedDocUpdateType(false);
         recalc();
+        setSwitchingCampaignsFlag(false);
     }
 
     if (!doc) return <Spin />;

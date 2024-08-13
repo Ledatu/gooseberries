@@ -1294,6 +1294,7 @@ export const AnalyticsPage = ({
         console.log(doc);
         recalc(dateRange, selectValue[0]);
         setFirstRecalc(true);
+        setSwitchingCampaignsFlag(false);
     }
 
     const colors = [
