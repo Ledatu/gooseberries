@@ -11,6 +11,7 @@ import {
     Calendar,
     Play,
     Magnifier,
+    ChartAreaStacked,
     Rocket,
     Pause,
     LayoutList,
@@ -22,6 +23,7 @@ import {getLocaleDateString, getRoundValue} from 'src/utilities/getRoundValue';
 import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {AdvertsWordsModal} from './AdvertsWordsModal';
+import {AdvertsBidsModal} from './AdvertsBidsModal';
 
 export const AdvertCard = ({
     id,
@@ -46,7 +48,6 @@ export const AdvertCard = ({
     columnDataAuction,
     auctionOptions,
     auctionSelectedOption,
-    openBidModalForm,
     openBudgetModalForm,
     setDateRange,
     setModalOpenFromAdvertId,
@@ -60,8 +61,6 @@ export const AdvertCard = ({
     bidModalRange,
     desiredSumInputValue,
     ordersInputValue,
-    bidModalDeleteModeSelected,
-    bidModalBidStepInputValue,
     bidModalDRRInputValue,
     bidModalStocksThresholdInputValue,
     setBidModalDRRInputValue,
@@ -75,7 +74,6 @@ export const AdvertCard = ({
     setSelectedValueMethod,
     setBidModalRangeValid,
     setAuctionSelectedOption,
-    resetBidModalFormInputs,
 }) => {
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
     const [advertsBidsLogFetchUpdate, setAdvertsBidsLogFetchUpdate] = useState(false);
@@ -497,125 +495,38 @@ export const AdvertCard = ({
                         alignItems: 'start',
                     }}
                 >
-                    <Popover
-                        onOpenChange={async (open) => {
-                            if (!open) {
-                                return;
-                            }
-                            const params = {
-                                uid: getUid(),
-                                campaignName: selectValue[0],
-                                advertId: advertId,
-                                startDate: getLocaleDateString(dateRange[0], 10),
-                                endDate: getLocaleDateString(dateRange[1], 10),
-                            };
-                            console.log(params);
-
-                            try {
-                                setAdvertsBidsLogFetchUpdate(true);
-                                const res = await callApi('getAdvertBidsLogsForAdvertId', params);
-                                if (!res) throw 'its undefined';
-                                const advertsBidsLog = res['data'];
-                                console.log(res);
-
-                                if (advertsBidsLog)
-                                    advertsBidsLog.bids = advertsBidsLog.bids.reverse();
-
-                                // console.log(wordsForAdverts);
-
-                                doc.adverts[selectValue[0]][advertId].bidLog = advertsBidsLog ?? {
-                                    bids: [],
-                                };
-
-                                setChangedDoc(doc);
-                            } catch (error) {
-                                console.error('Error fetching adverts bids logs:', error);
-                            } finally {
-                                setAdvertsBidsLogFetchUpdate(false);
-                            }
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            width: '100%',
                         }}
-                        content={
-                            <div
-                                style={{
-                                    height: 'calc(48em - 60px)',
-                                    width: '72em',
-                                    overflow: 'auto',
-                                    display: 'flex',
-                                }}
-                            >
-                                <Card
-                                    view="outlined"
-                                    theme="warning"
-                                    style={{
-                                        position: 'absolute',
-                                        height: '48em',
-                                        width: '72em',
-                                        overflow: 'auto',
-                                        top: -10,
-                                        left: -10,
-                                        display: 'flex',
-                                    }}
-                                >
-                                    <motion.div
-                                        style={{
-                                            left: 0,
-                                            top: 0,
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            width: '100%',
-                                            height: '100%',
-                                            position: 'absolute',
-                                            background: 'var(--g-color-base-background)',
-                                        }}
-                                    >
-                                        <Loader size="l" />
-                                    </motion.div>
-                                    <motion.div
-                                        animate={{opacity: advertsBidsLogFetchUpdate ? 0 : 1}}
-                                        transition={{duration: 0.2, ease: 'easeIn'}}
-                                        style={{
-                                            display: advertsBidsLogFetchUpdate ? 'none' : 'flex',
-                                            pointerEvents: advertsBidsLogFetchUpdate
-                                                ? 'none'
-                                                : undefined,
-                                            cursor: 'default',
-                                            position: 'absolute',
-                                            left: 0,
-                                            top: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                        }}
-                                    >
-                                        <ChartKit type="yagr" data={yagrData} />
-                                    </motion.div>
-                                </Card>
-                            </div>
-                        }
                     >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                width: '100%',
-                            }}
+                        <AdvertsBidsModal
+                            selectValue={selectValue}
+                            doc={doc}
+                            setChangedDoc={setChangedDoc}
+                            getUniqueAdvertIdsFromThePage={undefined}
+                            advertId={advertId}
                         >
                             <Button
                                 pin="brick-round"
                                 size="xs"
                                 view="flat"
                                 onClick={() => {
-                                    openBidModalForm();
                                     setModalOpenFromAdvertId(advertId);
                                 }}
                             >
                                 <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} / ${
-                                    drrAI !== undefined ? `${drrAI.maxBid}` : 'Автоставки выкл.'
+                                    drrAI !== undefined
+                                        ? `${drrAI.maxBid ?? 'Нет инф.'}`
+                                        : 'Автоставки выкл.'
                                 }`}</Text>
-                                {drrAI !== undefined && drrAI.autoBidsMode != 'bestPlacement' ? (
+                                {drrAI !== undefined ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`План ${drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
+                                        {`${drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
                                             drrAI.desiredDRR
                                         }`}
                                     </Text>
@@ -630,34 +541,34 @@ export const AdvertCard = ({
                                 drrAI.autoBidsMode != 'obor' &&
                                 drrAI.autoBidsMode != 'cpo' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`План №: ${drrAI.placementsRange.from} (${
-                                            drrAI.autoBidsMode == 'auction' ? 'Аукцион' : 'Выдача'
-                                        })`}
+                                        {`${
+                                            drrAI.autoBidsMode == 'auction' ? 'Аукцион:' : 'Выдача:'
+                                        } ${drrAI.placementsRange.from}`}
                                     </Text>
                                 ) : (
                                     <></>
                                 )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'bestPlacement' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        Метод: Лучшая позиция
+                                        Топ позиция
                                     </Text>
                                 ) : (
                                     <></>
                                 )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'orders' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Заказы (${drrAI.desiredOrders})`}
+                                        {`Заказы: ${drrAI.desiredOrders}`}
                                     </Text>
                                 ) : (
                                     <></>
                                 )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'obor' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Обор. (${drrAI.desiredObor}) Заказы (${
+                                        {`Обор: ${drrAI.desiredObor} Заказы: ${
                                             !isNaN(drrAI.desiredOrders) && drrAI.desiredOrders
                                                 ? drrAI.desiredOrders
                                                 : 'Нет. инф.'
-                                        })`}
+                                        }`}
                                     </Text>
                                 ) : (
                                     <></>
@@ -670,8 +581,115 @@ export const AdvertCard = ({
                                     <></>
                                 )}
                             </Button>
-                        </div>
-                    </Popover>
+                        </AdvertsBidsModal>
+
+                        <Popover
+                            onOpenChange={async (open) => {
+                                if (!open) {
+                                    return;
+                                }
+                                const params = {
+                                    uid: getUid(),
+                                    campaignName: selectValue[0],
+                                    advertId: advertId,
+                                    startDate: getLocaleDateString(dateRange[0], 10),
+                                    endDate: getLocaleDateString(dateRange[1], 10),
+                                };
+                                console.log(params);
+
+                                try {
+                                    setAdvertsBidsLogFetchUpdate(true);
+                                    const res = await callApi(
+                                        'getAdvertBidsLogsForAdvertId',
+                                        params,
+                                    );
+                                    if (!res) throw 'its undefined';
+                                    const advertsBidsLog = res['data'];
+                                    console.log(res);
+
+                                    if (advertsBidsLog)
+                                        advertsBidsLog.bids = advertsBidsLog.bids.reverse();
+
+                                    // console.log(wordsForAdverts);
+
+                                    doc.adverts[selectValue[0]][advertId].bidLog =
+                                        advertsBidsLog ?? {
+                                            bids: [],
+                                        };
+
+                                    setChangedDoc(doc);
+                                } catch (error) {
+                                    console.error('Error fetching adverts bids logs:', error);
+                                } finally {
+                                    setAdvertsBidsLogFetchUpdate(false);
+                                }
+                            }}
+                            content={
+                                <div
+                                    style={{
+                                        height: 'calc(48em - 60px)',
+                                        width: '72em',
+                                        overflow: 'auto',
+                                        display: 'flex',
+                                    }}
+                                >
+                                    <Card
+                                        view="outlined"
+                                        theme="warning"
+                                        style={{
+                                            position: 'absolute',
+                                            height: '48em',
+                                            width: '72em',
+                                            overflow: 'auto',
+                                            top: -10,
+                                            left: -10,
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <motion.div
+                                            style={{
+                                                left: 0,
+                                                top: 0,
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                width: '100%',
+                                                height: '100%',
+                                                position: 'absolute',
+                                                background: 'var(--g-color-base-background)',
+                                            }}
+                                        >
+                                            <Loader size="l" />
+                                        </motion.div>
+                                        <motion.div
+                                            animate={{opacity: advertsBidsLogFetchUpdate ? 0 : 1}}
+                                            transition={{duration: 0.2, ease: 'easeIn'}}
+                                            style={{
+                                                display: advertsBidsLogFetchUpdate
+                                                    ? 'none'
+                                                    : 'flex',
+                                                pointerEvents: advertsBidsLogFetchUpdate
+                                                    ? 'none'
+                                                    : undefined,
+                                                cursor: 'default',
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                            }}
+                                        >
+                                            <ChartKit type="yagr" data={yagrData} />
+                                        </motion.div>
+                                    </Card>
+                                </div>
+                            }
+                        >
+                            <Button pin="round-brick" size="xs" view="flat">
+                                <Icon data={ChartAreaStacked} size={11} />
+                            </Button>
+                        </Popover>
+                    </div>
                     <Popover
                         content={
                             <div
@@ -745,8 +763,6 @@ export const AdvertCard = ({
                             bidModalRange={bidModalRange}
                             desiredSumInputValue={desiredSumInputValue}
                             ordersInputValue={ordersInputValue}
-                            bidModalDeleteModeSelected={bidModalDeleteModeSelected}
-                            bidModalBidStepInputValue={bidModalBidStepInputValue}
                             bidModalDRRInputValue={bidModalDRRInputValue}
                             bidModalStocksThresholdInputValue={bidModalStocksThresholdInputValue}
                             setBidModalDRRInputValue={setBidModalDRRInputValue}
@@ -760,7 +776,6 @@ export const AdvertCard = ({
                             setSelectedValueMethod={setSelectedValueMethod}
                             setBidModalRangeValid={setBidModalRangeValid}
                             setAuctionSelectedOption={setAuctionSelectedOption}
-                            resetBidModalFormInputs={resetBidModalFormInputs}
                         />
                         <div style={{height: 4}} />
                         <div style={{display: 'flex', flexDirection: 'row'}}>

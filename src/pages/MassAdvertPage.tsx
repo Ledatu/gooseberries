@@ -29,7 +29,6 @@ import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
 import {
-    Key,
     Rocket,
     Comment,
     Magnifier,
@@ -70,7 +69,6 @@ settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
 import {
-    generateTextInputWithNoteOnTop,
     getLocaleDateString,
     getNormalDateRange,
     getRoundValue,
@@ -80,11 +78,11 @@ import {
 import TheTable, {compare} from 'src/components/TheTable';
 import {RangePicker} from 'src/components/RangePicker';
 import {AutoSalesModal} from 'src/components/AutoSalesModal';
-import {AutoSalesUploadModal} from 'src/components/AutoSalesUploadModal';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
 import {User} from './Dashboard';
 import {PhrasesModal} from 'src/components/PhrasesModal';
 import {AdvertCard} from 'src/components/AdvertCard';
+import {AdvertsBidsModal} from 'src/components/AdvertsBidsModal';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo: User) => {
     const [doc, setDocument] = useState<any>();
@@ -138,13 +136,21 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo:
 };
 
 export const MassAdvertPage = ({
-    selectedCampaign,
-    setSelectedCampaign,
+    selectValue,
+    setSwitchingCampaignsFlag,
     userInfo,
+    refetchAutoSales,
+    setRefetchAutoSales,
+    dzhemRefetch,
+    setDzhemRefetch,
 }: {
-    selectedCampaign: string;
-    setSelectedCampaign: Function;
+    selectValue: string[];
+    setSwitchingCampaignsFlag: Function;
     userInfo: User;
+    refetchAutoSales: boolean;
+    setRefetchAutoSales: Function;
+    dzhemRefetch: boolean;
+    setDzhemRefetch: Function;
 }) => {
     const cardStyle = {
         minWidth: '10em',
@@ -201,7 +207,6 @@ export const MassAdvertPage = ({
     const [autoSalesModalOpen, setAutoSalesModalOpen] = useState(false);
     const [autoSalesProfits, setAutoSalesProfits] = useState({});
     const [filterAutoSales, setFilterAutoSales] = useState(false);
-    const [refetchAutoSales, setRefetchAutoSales] = useState(false);
 
     const [placementsDisplayPhrase, setPlacementsDisplayPhrase] = useState('');
 
@@ -510,106 +515,15 @@ export const MassAdvertPage = ({
     const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
-    const [bidModalFormOpen, setBidModalFormOpen] = useState(false);
-    const [bidModalBidInputValue, setBidModalBidInputValue] = useState(100);
-    const [bidModalDesiredOborInputValue, setBidModalDesiredOborInputValue] = useState('');
-    const [bidModalDesiredOborInputValueValid, setBidModalDesiredOborInputValueValid] =
-        useState(true);
-    const [bidModalBidInputValidationValue, setBidModalBidInputValidationValue] = useState(true);
-    const [bidModalDeleteModeSelected, setBidModalDeleteModeSelected] = useState(false);
-    const [bidModalBidStepInputValue, setBidModalBidStepInputValue] = useState(5);
-    const [ordersInputValue, setOrdersInputValue] = useState('');
-    const [ordersInputValueValid, setOrdersInputValueValid] = useState(true);
-    const [desiredSumInputValue, setDesiredSumInputValue] = useState('');
-    const [desiredSumInputValueValid, setDesiredSumInputValueValid] = useState(true);
+    const [ordersInputValue] = useState('');
+    const [desiredSumInputValue] = useState('');
     const [bidModalRange, setBidModalRange] = useState({from: 50, to: 50});
     const [bidModalRangeValid, setBidModalRangeValid] = useState(true);
     const [bidModalMaxBid, setBidModalMaxBid] = useState(500);
     const [bidModalMaxBidValid, setBidModalMaxBidValid] = useState(true);
-    const [bidModalBidStepInputValidationValue, setBidModalBidStepInputValidationValue] =
-        useState(true);
-    const [bidModalStocksThresholdInputValue, setBidModalStocksThresholdInputValue] = useState(5);
-    const [
-        bidModalStocksThresholdInputValidationValue,
-        setBidModalStocksThresholdInputValidationValue,
-    ] = useState(true);
+    const [bidModalStocksThresholdInputValue] = useState(5);
     const [bidModalDRRInputValue, setBidModalDRRInputValue] = useState(10);
     const [bidModalDRRInputValidationValue, setBidModalDRRInputValidationValue] = useState(true);
-
-    const bidModalSwitchValues: any[] = [
-        {value: 'Установить', content: 'Установить'},
-        {value: 'Автоставки', content: 'Автоставки'},
-    ];
-    const [bidModalSwitchValue, setBidModalSwitchValue] = React.useState('Установить');
-    // const bidModalAnalyticsSwitchValues: any[] = [
-    //     {
-    //         value: 1,
-    //         content: (
-    //             <div
-    //                 style={{
-    //                     display: 'flex',
-    //                     flexDirection: 'row',
-    //                     justifyContent: 'center',
-    //                     alignItems: 'center',
-    //                 }}
-    //             >
-    //                 1<div style={{width: 2}} />
-    //                 <Icon size={12} data={Calendar}></Icon>
-    //             </div>
-    //         ),
-    //     },
-    //     {
-    //         value: 7,
-    //         content: (
-    //             <div
-    //                 style={{
-    //                     display: 'flex',
-    //                     flexDirection: 'row',
-    //                     justifyContent: 'center',
-    //                     alignItems: 'center',
-    //                 }}
-    //             >
-    //                 7<div style={{width: 2}} />
-    //                 <Icon size={12} data={Calendar}></Icon>
-    //             </div>
-    //         ),
-    //     },
-    //     {
-    //         value: 14,
-    //         content: (
-    //             <div
-    //                 style={{
-    //                     display: 'flex',
-    //                     flexDirection: 'row',
-    //                     justifyContent: 'center',
-    //                     alignItems: 'center',
-    //                 }}
-    //             >
-    //                 14
-    //                 <div style={{width: 2}} />
-    //                 <Icon size={12} data={Calendar}></Icon>
-    //             </div>
-    //         ),
-    //     },
-    //     {
-    //         value: 30,
-    //         content: (
-    //             <div
-    //                 style={{
-    //                     display: 'flex',
-    //                     flexDirection: 'row',
-    //                     justifyContent: 'center',
-    //                     alignItems: 'center',
-    //                 }}
-    //             >
-    //                 30
-    //                 <div style={{width: 2}} />
-    //                 <Icon size={12} data={Calendar}></Icon>
-    //             </div>
-    //         ),
-    //     },
-    // ];
-    // const [bidModalAnalyticsSwitchValue, setBidModalAnalyticsSwitchValue] = React.useState(14);
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -1425,7 +1339,6 @@ export const MassAdvertPage = ({
                                         columnDataAuction={columnDataAuction}
                                         auctionOptions={auctionOptions}
                                         auctionSelectedOption={auctionSelectedOption}
-                                        openBidModalForm={openBidModalForm}
                                         openBudgetModalForm={openBudgetModalForm}
                                         setDateRange={setDateRange}
                                         setModalOpenFromAdvertId={setModalOpenFromAdvertId}
@@ -1439,8 +1352,6 @@ export const MassAdvertPage = ({
                                         bidModalRange={bidModalRange}
                                         desiredSumInputValue={desiredSumInputValue}
                                         ordersInputValue={ordersInputValue}
-                                        bidModalDeleteModeSelected={bidModalDeleteModeSelected}
-                                        bidModalBidStepInputValue={bidModalBidStepInputValue}
                                         bidModalDRRInputValue={bidModalDRRInputValue}
                                         bidModalStocksThresholdInputValue={
                                             bidModalStocksThresholdInputValue
@@ -1460,7 +1371,6 @@ export const MassAdvertPage = ({
                                         setSelectedValueMethod={setSelectedValueMethod}
                                         setBidModalRangeValid={setBidModalRangeValid}
                                         setAuctionSelectedOption={setAuctionSelectedOption}
-                                        resetBidModalFormInputs={resetBidModalFormInputs}
                                     />,
                                 );
                                 switches.push(<div style={{minWidth: 8}} />);
@@ -1495,7 +1405,6 @@ export const MassAdvertPage = ({
                                         columnDataAuction={columnDataAuction}
                                         auctionOptions={auctionOptions}
                                         auctionSelectedOption={auctionSelectedOption}
-                                        openBidModalForm={openBidModalForm}
                                         openBudgetModalForm={openBudgetModalForm}
                                         setDateRange={setDateRange}
                                         setModalOpenFromAdvertId={setModalOpenFromAdvertId}
@@ -1509,8 +1418,6 @@ export const MassAdvertPage = ({
                                         bidModalRange={bidModalRange}
                                         desiredSumInputValue={desiredSumInputValue}
                                         ordersInputValue={ordersInputValue}
-                                        bidModalDeleteModeSelected={bidModalDeleteModeSelected}
-                                        bidModalBidStepInputValue={bidModalBidStepInputValue}
                                         bidModalDRRInputValue={bidModalDRRInputValue}
                                         bidModalStocksThresholdInputValue={
                                             bidModalStocksThresholdInputValue
@@ -1530,7 +1437,6 @@ export const MassAdvertPage = ({
                                         setSelectedValueMethod={setSelectedValueMethod}
                                         setBidModalRangeValid={setBidModalRangeValid}
                                         setAuctionSelectedOption={setAuctionSelectedOption}
-                                        resetBidModalFormInputs={resetBidModalFormInputs}
                                     />,
                                 );
                                 switches.push(<div style={{minWidth: 8}} />);
@@ -1562,7 +1468,6 @@ export const MassAdvertPage = ({
                                     columnDataAuction={columnDataAuction}
                                     auctionOptions={auctionOptions}
                                     auctionSelectedOption={auctionSelectedOption}
-                                    openBidModalForm={openBidModalForm}
                                     openBudgetModalForm={openBudgetModalForm}
                                     setDateRange={setDateRange}
                                     setModalOpenFromAdvertId={setModalOpenFromAdvertId}
@@ -1576,8 +1481,6 @@ export const MassAdvertPage = ({
                                     bidModalRange={bidModalRange}
                                     desiredSumInputValue={desiredSumInputValue}
                                     ordersInputValue={ordersInputValue}
-                                    bidModalDeleteModeSelected={bidModalDeleteModeSelected}
-                                    bidModalBidStepInputValue={bidModalBidStepInputValue}
                                     bidModalDRRInputValue={bidModalDRRInputValue}
                                     bidModalStocksThresholdInputValue={
                                         bidModalStocksThresholdInputValue
@@ -1597,7 +1500,6 @@ export const MassAdvertPage = ({
                                     setSelectedValueMethod={setSelectedValueMethod}
                                     setBidModalRangeValid={setBidModalRangeValid}
                                     setAuctionSelectedOption={setAuctionSelectedOption}
-                                    resetBidModalFormInputs={resetBidModalFormInputs}
                                 />,
                             );
                             switches.push(<div style={{minWidth: 8}} />);
@@ -2533,9 +2435,6 @@ export const MassAdvertPage = ({
                             }}
                         >
                             <Popover
-                                onOpenChange={(open) => {
-                                    if (open) resetBidModalFormInputs();
-                                }}
                                 placement={'bottom-start'}
                                 content={
                                     <Card
@@ -2776,6 +2675,16 @@ export const MassAdvertPage = ({
                                                                         {'Макс. ставка'}
                                                                     </Text>
                                                                     <TextInput
+                                                                        disabled={
+                                                                            selectedValueMethod[0] ==
+                                                                                'drr' ||
+                                                                            selectedValueMethod[0] ==
+                                                                                'orders' ||
+                                                                            selectedValueMethod[0] ==
+                                                                                'obor' ||
+                                                                            selectedValueMethod[0] ==
+                                                                                'sum'
+                                                                        }
                                                                         type="number"
                                                                         value={String(
                                                                             bidModalMaxBid,
@@ -2930,8 +2839,6 @@ export const MassAdvertPage = ({
                                                                             ] = {
                                                                                 desiredDRR:
                                                                                     bidModalDRRInputValue,
-                                                                                bidStep:
-                                                                                    bidModalBidStepInputValue,
 
                                                                                 advertId: advertId,
                                                                             };
@@ -2947,27 +2854,24 @@ export const MassAdvertPage = ({
                                                                                 ][advertId] = {};
                                                                             doc.advertsAutoBidsRules[
                                                                                 selectValue[0]
-                                                                            ][advertId] =
-                                                                                bidModalDeleteModeSelected
-                                                                                    ? undefined
-                                                                                    : {
-                                                                                          desiredOrders:
-                                                                                              parseInt(
-                                                                                                  ordersInputValue,
-                                                                                              ),
-                                                                                          desiredSum:
-                                                                                              parseInt(
-                                                                                                  desiredSumInputValue,
-                                                                                              ),
+                                                                            ][advertId] = {
+                                                                                desiredOrders:
+                                                                                    parseInt(
+                                                                                        ordersInputValue,
+                                                                                    ),
+                                                                                desiredSum:
+                                                                                    parseInt(
+                                                                                        desiredSumInputValue,
+                                                                                    ),
 
-                                                                                          desiredDRR:
-                                                                                              bidModalDRRInputValue,
-                                                                                          placementsRange:
-                                                                                              bidModalRange,
-                                                                                          maxBid: bidModalMaxBid,
-                                                                                          autoBidsMode:
-                                                                                              selectedValueMethod[0],
-                                                                                      };
+                                                                                desiredDRR:
+                                                                                    bidModalDRRInputValue,
+                                                                                placementsRange:
+                                                                                    bidModalRange,
+                                                                                maxBid: bidModalMaxBid,
+                                                                                autoBidsMode:
+                                                                                    selectedValueMethod[0],
+                                                                            };
 
                                                                             console.log(params);
 
@@ -3244,16 +3148,57 @@ export const MassAdvertPage = ({
     // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [doc, setUserDoc] = React.useState(getUserDoc());
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>(
-        selectedCampaign && selectedCampaign != '' ? [selectedCampaign] : [],
-    );
 
     useEffect(() => {
-        if (!selectValue[0]) return;
-
-        setSelectedCampaign(selectValue[0]);
+        if (!selectValue || !doc) return;
         setWordsFetchUpdate(true);
+        if (!Object.keys(doc['campaigns'][selectValue[0]]).length) {
+            callApi(
+                'getMassAdvertsNew',
+                {
+                    uid: getUid(),
+                    dateRange: {from: '2023', to: '2024'},
+                    campaignName: selectValue,
+                },
+                true,
+            ).then(async (res) => {
+                if (!res) return;
+                const resData = res['data'];
+                doc['campaigns'][selectValue[0]] = resData['campaigns'][selectValue[0]];
+                doc['balances'][selectValue[0]] = resData['balances'][selectValue[0]];
+                doc['plusPhrasesTemplates'][selectValue[0]] =
+                    resData['plusPhrasesTemplates'][selectValue[0]];
+                doc['advertsPlusPhrasesTemplates'][selectValue[0]] =
+                    resData['advertsPlusPhrasesTemplates'][selectValue[0]];
+                doc['advertsBudgetsToKeep'][selectValue[0]] =
+                    resData['advertsBudgetsToKeep'][selectValue[0]];
+                doc['advertsSelectedPhrases'][selectValue[0]] =
+                    resData['advertsSelectedPhrases'][selectValue[0]];
+                doc['advertsAutoBidsRules'][selectValue[0]] =
+                    resData['advertsAutoBidsRules'][selectValue[0]];
+                doc['adverts'][selectValue[0]] = resData['adverts'][selectValue[0]];
+                doc['placementsAuctions'][selectValue[0]] =
+                    resData['placementsAuctions'][selectValue[0]];
+                // doc['dzhemData'][selectValue[0]] =
+                // resData['dzhemData'][selectValue[0]];
+                doc['advertsSchedules'][selectValue[0]] =
+                    resData['advertsSchedules'][selectValue[0]];
+                doc['dzhemData'][selectValue[0]] = resData['dzhemData'][selectValue[0]];
+                doc['autoSales'][selectValue[0]] = resData['autoSales'][selectValue[0]];
+
+                setChangedDoc(doc);
+
+                // recalc(dateRange, nextValue[0]);
+
+                setSwitchingCampaignsFlag(false);
+                console.log(doc);
+            });
+        } else {
+            setSwitchingCampaignsFlag(false);
+        }
+        recalc(dateRange, selectValue[0], filters);
+        setPagesCurrent(1);
+        setCopiedAdvertsSettings({advertId: 0});
     }, [selectValue]);
 
     useEffect(() => {
@@ -3289,7 +3234,8 @@ export const MassAdvertPage = ({
             });
 
         setRefetchAutoSales(false);
-    }, [selectValue, refetchAutoSales]);
+        setDzhemRefetch(false);
+    }, [selectValue, refetchAutoSales, dzhemRefetch]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0], userInfo);
     const getCampaignName = () => {
@@ -3415,7 +3361,8 @@ export const MassAdvertPage = ({
         };
 
         const _selectedCampaignName = selected == '' ? selectValue[0] : selected;
-        const campaignData = doc ? (doc.campaigns ? doc.campaigns[_selectedCampaignName] : {}) : {};
+        const campaignData =
+            (doc ? (doc.campaigns ? doc.campaigns[_selectedCampaignName] : {}) : {}) ?? {};
         const temp = {};
         for (const [art, artData] of Object.entries(campaignData)) {
             if (!art || !artData) continue;
@@ -4042,7 +3989,6 @@ export const MassAdvertPage = ({
         setPagesTotal(Math.ceil(temp.length));
     };
 
-    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
     const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = React.useState(false);
     const [selectedValueMethodOptions] = React.useState<SelectOption<any>[]>([
         {
@@ -4059,7 +4005,11 @@ export const MassAdvertPage = ({
         },
         {
             value: 'orders',
-            content: 'Цель по заказам',
+            content: 'Заказы',
+        },
+        {
+            value: 'sum_orders',
+            content: 'Сумма заказов',
         },
         {
             value: 'obor',
@@ -4120,35 +4070,6 @@ export const MassAdvertPage = ({
         setBudgetModalBudgetInputValidationValue(true);
         setModalOpenFromAdvertId('');
         setBudgetModalFormOpen(true);
-    };
-    const resetBidModalFormInputs = (clearModaladvertId = true) => {
-        setSelectedButton('');
-        setBidModalBidInputValue(100);
-        setBidModalSwitchValue('Установить');
-        setOrdersInputValue('');
-        setOrdersInputValueValid(true);
-        setBidModalDesiredOborInputValue('');
-        setBidModalDesiredOborInputValueValid(true);
-        setDesiredSumInputValue('');
-        setDesiredSumInputValueValid(true);
-        setBidModalBidInputValidationValue(true);
-        setBidModalDeleteModeSelected(false);
-        setBidModalBidStepInputValue(5);
-        if (clearModaladvertId) setModalOpenFromAdvertId('');
-        setBidModalRange({from: 50, to: 50});
-        setSelectedValueMethod([selectedValueMethodOptions[0].value]);
-        setBidModalRangeValid(true);
-        setBidModalMaxBid(500);
-        setBidModalMaxBidValid(true);
-        setBidModalBidStepInputValidationValue(true);
-        setBidModalStocksThresholdInputValue(5);
-        setBidModalStocksThresholdInputValidationValue(true);
-        setBidModalDRRInputValue(10);
-        setBidModalDRRInputValidationValue(true);
-    };
-    const openBidModalForm = () => {
-        resetBidModalFormInputs();
-        setBidModalFormOpen(true);
     };
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
@@ -4636,26 +4557,6 @@ export const MassAdvertPage = ({
     }
 
     if (!firstRecalc) {
-        const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(doc['campaigns'])) {
-            if (
-                userInfo.campaignNames.includes('all') ||
-                userInfo.campaignNames.includes(campaignName)
-            ) {
-                campaignsNames.push({
-                    value: campaignName,
-                    content: campaignName,
-                });
-            }
-        }
-        console.log(campaignsNames);
-        setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected =
-            selectedCampaign && selectedCampaign != ''
-                ? selectedCampaign
-                : campaignsNames[0]['value'];
-        setSelectValue([selected]);
-
         console.log(doc);
 
         for (let i = 0; i < columnData.length; i++) {
@@ -4666,7 +4567,7 @@ export const MassAdvertPage = ({
         }
         setFilters(filters);
 
-        recalc(dateRange, selected);
+        recalc(dateRange, selectValue[0]);
 
         setFirstRecalc(true);
     }
@@ -5350,7 +5251,6 @@ export const MassAdvertPage = ({
                                                 columnDataAuction={columnDataAuction}
                                                 auctionOptions={auctionOptions}
                                                 auctionSelectedOption={auctionSelectedOption}
-                                                openBidModalForm={openBidModalForm}
                                                 openBudgetModalForm={openBudgetModalForm}
                                                 setDateRange={setDateRange}
                                                 setModalOpenFromAdvertId={setModalOpenFromAdvertId}
@@ -5364,12 +5264,6 @@ export const MassAdvertPage = ({
                                                 bidModalRange={bidModalRange}
                                                 desiredSumInputValue={desiredSumInputValue}
                                                 ordersInputValue={ordersInputValue}
-                                                bidModalDeleteModeSelected={
-                                                    bidModalDeleteModeSelected
-                                                }
-                                                bidModalBidStepInputValue={
-                                                    bidModalBidStepInputValue
-                                                }
                                                 bidModalDRRInputValue={bidModalDRRInputValue}
                                                 bidModalStocksThresholdInputValue={
                                                     bidModalStocksThresholdInputValue
@@ -5389,7 +5283,6 @@ export const MassAdvertPage = ({
                                                 setSelectedValueMethod={setSelectedValueMethod}
                                                 setBidModalRangeValid={setBidModalRangeValid}
                                                 setAuctionSelectedOption={setAuctionSelectedOption}
-                                                resetBidModalFormInputs={resetBidModalFormInputs}
                                             />
                                             <div style={{minWidth: 8}} />
                                             <Button
@@ -5748,728 +5641,22 @@ export const MassAdvertPage = ({
                             </div>
                         </div>
                     </Modal>
-                    <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="action"
-                        size="l"
-                        onClick={openBidModalForm}
+                    <AdvertsBidsModal
+                        selectValue={selectValue}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                        getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                        advertId={undefined}
                     >
-                        <Icon data={ChartLine} />
-                        <Text variant="subheader-1">Ставки</Text>
-                    </Button>
-                    <Modal
-                        open={bidModalFormOpen}
-                        onClose={() => {
-                            setBidModalFormOpen(false);
-                            setModalOpenFromAdvertId('');
-                        }}
-                    >
-                        <div>
-                            <Card
-                                // view="raised"
-                                view="clear"
-                                style={{
-                                    width: 400,
-                                    // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
-                                    // animation: '3s linear 1s slidein',
-                                    // maxWidth: '15vw',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    backgroundColor: 'none',
-                                }}
-                            >
-                                <motion.div
-                                    style={{
-                                        height: '50%',
-                                        width: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        margin: '16px 0',
-                                    }}
-                                >
-                                    <Text
-                                        style={{
-                                            margin: '8px 0',
-                                        }}
-                                        variant="display-2"
-                                    >
-                                        Ставки
-                                    </Text>
-                                    <RadioButton
-                                        style={{marginTop: 4}}
-                                        defaultValue={bidModalSwitchValue}
-                                        options={bidModalSwitchValues}
-                                        onUpdate={(val) => {
-                                            setBidModalSwitchValue(val);
-                                            setBidModalBidInputValue(100);
-                                            setBidModalDesiredOborInputValue('');
-                                            setBidModalDesiredOborInputValueValid(true);
-                                            // setBidModalAnalyticsSwitchValue(14);
-                                            setBidModalBidInputValidationValue(true);
-                                            setBidModalDeleteModeSelected(false);
-                                            setBidModalFormOpen(true);
-                                            setBidModalBidStepInputValue(5);
-                                            setOrdersInputValue('');
-                                            setOrdersInputValueValid(true);
-                                            setDesiredSumInputValue('');
-                                            setDesiredSumInputValueValid(true);
-                                            setBidModalRange({from: 50, to: 50});
-                                            setBidModalRangeValid(true);
-                                            setBidModalMaxBid(500);
-                                            setBidModalMaxBidValid(true);
-                                            setBidModalBidStepInputValidationValue(true);
-                                            setBidModalDRRInputValue(10);
-                                            setBidModalDRRInputValidationValue(true);
-                                        }}
-                                    />
-
-                                    <motion.div
-                                        layout
-                                        // className={
-                                        //     bidModalDeleteModeSelected ? 'fade-in' : 'fade-out'
-                                        // }
-                                        animate={{
-                                            height: bidModalDeleteModeSelected
-                                                ? 8
-                                                : bidModalSwitchValue == 'Установить'
-                                                ? 40
-                                                : 166,
-                                            opacity: bidModalDeleteModeSelected ? 0 : 1,
-                                        }}
-                                        transition={{duration: 0.1}}
-                                        style={{
-                                            overflow: 'hidden',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            width: '100%',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <motion.div
-                                            layout
-                                            animate={{
-                                                y: !bidModalDeleteModeSelected
-                                                    ? bidModalSwitchValue == 'Установить'
-                                                        ? 76
-                                                        : -16
-                                                    : 77,
-                                                // x: !bidModalDeleteModeSelected
-                                                //     ? bidModalSwitchValue == 'Установить'
-                                                //         ? 59
-                                                //         : -20
-                                                //     : -100,
-                                            }}
-                                            transition={{
-                                                duration: 0.1,
-                                                ease: 'easeInOut',
-                                                // ease: [0.67, 0.83, 0.67, 0.17],
-                                                // type: 'spring',
-                                                // duration: 4,
-                                                // stiffness: 30,
-                                                // damping: 15,
-                                            }}
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                width: '100%',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <motion.div
-                                                layout
-                                                animate={{
-                                                    opacity:
-                                                        bidModalSwitchValue == 'Установить' ? 1 : 0,
-                                                }}
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    width: '100%',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                <TextInput
-                                                    style={{
-                                                        maxWidth: '70%',
-                                                        margin: '4px 0',
-                                                    }}
-                                                    type="number"
-                                                    value={String(bidModalBidInputValue)}
-                                                    onChange={(val) => {
-                                                        const bid = Number(val.target.value);
-                                                        if (bid < 100)
-                                                            setBidModalBidInputValidationValue(
-                                                                false,
-                                                            );
-                                                        else
-                                                            setBidModalBidInputValidationValue(
-                                                                true,
-                                                            );
-                                                        setBidModalBidInputValue(bid);
-                                                    }}
-                                                    errorMessage={'Введите не менее 100'}
-                                                    validationState={
-                                                        bidModalBidInputValidationValue
-                                                            ? undefined
-                                                            : 'invalid'
-                                                    }
-                                                    label="Ставка"
-                                                />
-                                            </motion.div>
-                                            <motion.div
-                                                layout
-                                                animate={{
-                                                    opacity:
-                                                        bidModalSwitchValue != 'Установить' &&
-                                                        !bidModalDeleteModeSelected
-                                                            ? 1
-                                                            : 0,
-                                                }}
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    width: '100%',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        maxWidth: '70%',
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'bottom',
-                                                    }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            margin: '4px 0',
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            style={{marginLeft: 4}}
-                                                            variant="subheader-1"
-                                                        >
-                                                            {'Метод'}
-                                                        </Text>
-                                                        <Select
-                                                            onUpdate={(nextValue) => {
-                                                                setSelectedValueMethod(nextValue);
-                                                                if (nextValue[0] == 'По ДРР') {
-                                                                    setBidModalRange({
-                                                                        from: 0,
-                                                                        to: 0,
-                                                                    });
-                                                                } else {
-                                                                    setBidModalRange({
-                                                                        from: 50,
-                                                                        to: 50,
-                                                                    });
-                                                                }
-                                                            }}
-                                                            options={selectedValueMethodOptions}
-                                                            renderControl={({
-                                                                onClick,
-                                                                onKeyDown,
-                                                                ref,
-                                                            }) => {
-                                                                const temp = {};
-                                                                for (
-                                                                    let i = 0;
-                                                                    i <
-                                                                    selectedValueMethodOptions.length;
-                                                                    i++
-                                                                ) {
-                                                                    const {value, content} =
-                                                                        selectedValueMethodOptions[
-                                                                            i
-                                                                        ];
-                                                                    temp[value] = content;
-                                                                }
-                                                                return (
-                                                                    <Button
-                                                                        style={{width: '100%'}}
-                                                                        // width="max"
-                                                                        ref={ref}
-                                                                        view="outlined"
-                                                                        onClick={onClick}
-                                                                        extraProps={{
-                                                                            onKeyDown,
-                                                                        }}
-                                                                    >
-                                                                        {
-                                                                            temp[
-                                                                                selectedValueMethod[0]
-                                                                            ]
-                                                                        }
-                                                                        <Icon data={ChevronDown} />
-                                                                    </Button>
-                                                                );
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <div style={{width: 8}} />
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            margin: '4px 0',
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            style={{marginLeft: 4}}
-                                                            variant="subheader-1"
-                                                        >
-                                                            {'Макс. ставка'}
-                                                        </Text>
-                                                        <TextInput
-                                                            style={
-                                                                {
-                                                                    // maxWidth: '50%',
-                                                                }
-                                                            }
-                                                            type="number"
-                                                            value={String(bidModalMaxBid)}
-                                                            onUpdate={(val) => {
-                                                                const intVal = Number(val);
-
-                                                                setBidModalMaxBidValid(
-                                                                    intVal >= 100,
-                                                                );
-
-                                                                setBidModalMaxBid(intVal);
-                                                            }}
-                                                            errorMessage={'Введите не менее 100'}
-                                                            validationState={
-                                                                bidModalMaxBidValid
-                                                                    ? undefined
-                                                                    : 'invalid'
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                        maxWidth: '70%',
-                                                        justifyContent: 'center',
-                                                        margin: '4px 0',
-                                                    }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            style={{marginLeft: 4}}
-                                                            variant="subheader-1"
-                                                        >
-                                                            {selectedValueMethod[0] == 'cpo'
-                                                                ? 'Целевой CPO'
-                                                                : 'Целевой ДРР'}
-                                                        </Text>
-                                                        <TextInput
-                                                            type="number"
-                                                            value={String(bidModalDRRInputValue)}
-                                                            onChange={(val) => {
-                                                                const cpo = Number(
-                                                                    val.target.value,
-                                                                );
-                                                                if (cpo < 0)
-                                                                    setBidModalDRRInputValidationValue(
-                                                                        false,
-                                                                    );
-                                                                else
-                                                                    setBidModalDRRInputValidationValue(
-                                                                        true,
-                                                                    );
-                                                                setBidModalDRRInputValue(cpo);
-                                                            }}
-                                                            errorMessage={'Введите не менее 0'}
-                                                            validationState={
-                                                                bidModalDRRInputValidationValue
-                                                                    ? undefined
-                                                                    : 'invalid'
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div
-                                                        style={{
-                                                            width: 8,
-                                                        }}
-                                                    />
-                                                    {selectedValueMethod[0] != 'orders' &&
-                                                    selectedValueMethod[0] != 'sum' &&
-                                                    selectedValueMethod[0] != 'obor' ? (
-                                                        <div
-                                                            style={{
-                                                                display: 'flex',
-                                                                // selectedValueMethod[0] ==
-                                                                // 'Под Позицию'
-                                                                //     ? 'flex'
-                                                                //     : 'none',
-                                                                flexDirection: 'column',
-                                                            }}
-                                                        >
-                                                            <Text
-                                                                style={{marginLeft: 4}}
-                                                                variant="subheader-1"
-                                                            >
-                                                                {'Позиция'}
-                                                            </Text>
-                                                            <TextInput
-                                                                disabled={
-                                                                    selectedValueMethod[0] ==
-                                                                        'drr' ||
-                                                                    selectedValueMethod[0] ==
-                                                                        'cpo' ||
-                                                                    selectedValueMethod[0] ==
-                                                                        'bestPlacement'
-                                                                }
-                                                                type="number"
-                                                                value={String(bidModalRange.to)}
-                                                                onUpdate={(val) => {
-                                                                    const intVal = Number(val);
-
-                                                                    setBidModalRange(() => {
-                                                                        setBidModalRangeValid(
-                                                                            intVal > 0,
-                                                                        );
-                                                                        return {
-                                                                            from: intVal,
-                                                                            to: intVal,
-                                                                        };
-                                                                    });
-                                                                }}
-                                                                validationState={
-                                                                    bidModalRangeValid
-                                                                        ? undefined
-                                                                        : 'invalid'
-                                                                }
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        <></>
-                                                    )}
-                                                    {selectedValueMethod[0] == 'orders' ? (
-                                                        generateTextInputWithNoteOnTop({
-                                                            value: ordersInputValue,
-                                                            onUpdateHandler: (val) => {
-                                                                const valid = !isNaN(parseInt(val));
-                                                                setOrdersInputValueValid(valid);
-                                                                setOrdersInputValue(val);
-                                                            },
-                                                            disabled:
-                                                                selectedValueMethod[0] != 'orders',
-                                                            placeholder: 'Цель по заказам',
-                                                            validationState: ordersInputValueValid,
-                                                        })
-                                                    ) : (
-                                                        <></>
-                                                    )}
-                                                    {selectedValueMethod[0] == 'obor' ? (
-                                                        generateTextInputWithNoteOnTop({
-                                                            value: bidModalDesiredOborInputValue,
-                                                            onUpdateHandler: (val) => {
-                                                                const valid = !isNaN(parseInt(val));
-                                                                setBidModalDesiredOborInputValueValid(
-                                                                    valid,
-                                                                );
-                                                                setBidModalDesiredOborInputValue(
-                                                                    val,
-                                                                );
-                                                            },
-                                                            disabled:
-                                                                selectedValueMethod[0] != 'obor',
-                                                            placeholder: 'Оборачиваемость',
-                                                            validationState:
-                                                                bidModalDesiredOborInputValueValid,
-                                                        })
-                                                    ) : (
-                                                        <></>
-                                                    )}
-                                                    {selectedValueMethod[0] == 'sum' ? (
-                                                        generateTextInputWithNoteOnTop({
-                                                            value: desiredSumInputValue,
-                                                            onUpdateHandler: (val) => {
-                                                                const valid = !isNaN(parseInt(val));
-                                                                setDesiredSumInputValueValid(valid);
-                                                                setDesiredSumInputValue(val);
-                                                            },
-                                                            disabled:
-                                                                selectedValueMethod[0] != 'sum',
-                                                            placeholder: 'Плановый расход',
-                                                            validationState:
-                                                                desiredSumInputValueValid,
-                                                        })
-                                                    ) : (
-                                                        <></>
-                                                    )}
-                                                </div>
-                                                <div style={{minHeight: 8}} />
-
-                                                <TextInput
-                                                    style={{
-                                                        opacity: 0,
-                                                        pointerEvents: 'none',
-                                                        maxWidth: '70%',
-                                                        margin: '4px 0',
-                                                    }}
-                                                    type="number"
-                                                    value={String(
-                                                        bidModalStocksThresholdInputValue,
-                                                    )}
-                                                    onChange={(val) => {
-                                                        const stocksThreshold = Number(
-                                                            val.target.value,
-                                                        );
-                                                        if (stocksThreshold < 0)
-                                                            setBidModalStocksThresholdInputValidationValue(
-                                                                false,
-                                                            );
-                                                        else
-                                                            setBidModalStocksThresholdInputValidationValue(
-                                                                true,
-                                                            );
-                                                        setBidModalStocksThresholdInputValue(
-                                                            stocksThreshold,
-                                                        );
-                                                    }}
-                                                    errorMessage={'Введите не менее 0'}
-                                                    validationState={
-                                                        bidModalStocksThresholdInputValidationValue
-                                                            ? undefined
-                                                            : 'invalid'
-                                                    }
-                                                    label="Мин. остаток"
-                                                />
-
-                                                <TextInput
-                                                    style={{
-                                                        maxWidth: '70%',
-                                                        margin: '4px 0',
-                                                        display: 'none',
-                                                    }}
-                                                    type="number"
-                                                    value={String(bidModalBidStepInputValue)}
-                                                    onChange={(val) => {
-                                                        const bidStep = Number(val.target.value);
-                                                        if (bidStep < 0)
-                                                            setBidModalBidStepInputValidationValue(
-                                                                false,
-                                                            );
-                                                        else
-                                                            setBidModalBidStepInputValidationValue(
-                                                                true,
-                                                            );
-                                                        setBidModalBidStepInputValue(bidStep);
-                                                    }}
-                                                    errorMessage={'Введите не менее 0'}
-                                                    validationState={
-                                                        bidModalBidStepInputValidationValue
-                                                            ? undefined
-                                                            : 'invalid'
-                                                    }
-                                                    label="Шаг ставки"
-                                                />
-                                                {/* <Text variant="subheader-1">Аналитика</Text>
-                                                <RadioButton
-                                                    style={{margin: '0 2px 0 4px'}}
-                                                    defaultValue={String(
-                                                        bidModalAnalyticsSwitchValue,
-                                                    )}
-                                                    options={bidModalAnalyticsSwitchValues}
-                                                    onUpdate={(val) => {
-                                                        setBidModalAnalyticsSwitchValue(
-                                                            parseInt(val),
-                                                        );
-                                                    }}
-                                                /> */}
-                                            </motion.div>
-                                        </motion.div>
-                                    </motion.div>
-                                    <div
-                                        style={{
-                                            marginTop: 8,
-                                            width: '100%',
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            position: 'relative',
-                                        }}
-                                    >
-                                        <Button
-                                            style={{
-                                                marginBottom: 8,
-                                                maxWidth: '50%',
-                                            }}
-                                            pin="circle-circle"
-                                            size="l"
-                                            width="max"
-                                            disabled={
-                                                !bidModalBidInputValidationValue ||
-                                                !bidModalStocksThresholdInputValidationValue ||
-                                                !bidModalRangeValid ||
-                                                !bidModalMaxBidValid
-                                            }
-                                            // view="action"
-                                            view={
-                                                bidModalDeleteModeSelected
-                                                    ? 'outlined-danger'
-                                                    : 'action'
-                                            }
-                                            // selected
-                                            onClick={() => {
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {
-                                                        advertsIds: {},
-                                                        mode: bidModalDeleteModeSelected
-                                                            ? 'Удалить правила'
-                                                            : bidModalSwitchValue,
-                                                        stocksThreshold:
-                                                            bidModalStocksThresholdInputValue,
-                                                        placementsRange: bidModalRange,
-                                                        desiredOrders: parseInt(ordersInputValue),
-                                                        desiredSum: parseInt(desiredSumInputValue),
-                                                        maxBid: bidModalMaxBid,
-                                                        autoBidsMode: selectedValueMethod[0],
-                                                        desiredObor: parseInt(
-                                                            bidModalDesiredOborInputValue,
-                                                        ),
-                                                    },
-                                                };
-                                                const uniqueAdverts =
-                                                    getUniqueAdvertIdsFromThePage();
-                                                for (const [id, advertData] of Object.entries(
-                                                    uniqueAdverts,
-                                                )) {
-                                                    if (!id || !advertData) continue;
-                                                    const {advertId} = advertData as any;
-                                                    if (
-                                                        modalOpenFromAdvertId != '' &&
-                                                        modalOpenFromAdvertId
-                                                    ) {
-                                                        if (id != modalOpenFromAdvertId) continue;
-                                                    }
-
-                                                    params.data.advertsIds[advertId] = {
-                                                        advertId: advertId,
-                                                        bid: bidModalBidInputValue,
-                                                    };
-                                                    if (bidModalSwitchValue == 'Установить') {
-                                                        params.data.advertsIds[advertId] = {
-                                                            bid: bidModalBidInputValue,
-                                                            advertId: advertId,
-                                                        };
-                                                    } else if (
-                                                        bidModalSwitchValue == 'Автоставки'
-                                                    ) {
-                                                        if (!bidModalDeleteModeSelected) {
-                                                            params.data.advertsIds[advertId] = {
-                                                                desiredDRR: bidModalDRRInputValue,
-                                                                bidStep: bidModalBidStepInputValue,
-
-                                                                advertId: advertId,
-                                                            };
-                                                        } else {
-                                                            params.data.advertsIds[advertId] = {
-                                                                advertId: advertId,
-                                                            };
-                                                        }
-
-                                                        if (
-                                                            !doc.advertsAutoBidsRules[
-                                                                selectValue[0]
-                                                            ][advertId]
-                                                        )
-                                                            doc.advertsAutoBidsRules[
-                                                                selectValue[0]
-                                                            ][advertId] = {};
-                                                        doc.advertsAutoBidsRules[selectValue[0]][
-                                                            advertId
-                                                        ] = bidModalDeleteModeSelected
-                                                            ? undefined
-                                                            : {
-                                                                  desiredDRR: bidModalDRRInputValue,
-                                                                  placementsRange: bidModalRange,
-                                                                  maxBid: bidModalMaxBid,
-                                                                  desiredOrders:
-                                                                      parseInt(ordersInputValue),
-                                                                  desiredSum:
-                                                                      parseInt(
-                                                                          desiredSumInputValue,
-                                                                      ),
-                                                                  desiredObor: parseInt(
-                                                                      bidModalDesiredOborInputValue,
-                                                                  ),
-
-                                                                  autoBidsMode:
-                                                                      selectedValueMethod[0],
-                                                              };
-                                                    }
-                                                }
-
-                                                console.log(params);
-
-                                                //////////////////////////////////
-                                                callApi('setAdvertsCPMs', params);
-                                                setChangedDoc(doc);
-                                                //////////////////////////////////
-
-                                                setBidModalFormOpen(false);
-                                            }}
-                                        >
-                                            {bidModalSwitchValue == 'Автоставки'
-                                                ? !bidModalDeleteModeSelected
-                                                    ? 'Задать правила'
-                                                    : 'Удалить правила'
-                                                : 'Отправить'}
-                                        </Button>
-                                        {bidModalSwitchValue == 'Автоставки' ? (
-                                            <Button
-                                                style={{
-                                                    position: 'absolute',
-                                                    marginLeft: '70%',
-                                                    marginBottom: 8,
-                                                }}
-                                                pin="circle-circle"
-                                                view={
-                                                    bidModalDeleteModeSelected
-                                                        ? 'flat-warning'
-                                                        : undefined
-                                                }
-                                                selected={bidModalDeleteModeSelected}
-                                                // view="action"
-                                                onClick={() => {
-                                                    setBidModalDeleteModeSelected((val) => !val);
-                                                }}
-                                            >
-                                                <Icon data={TrashBin}></Icon>
-                                            </Button>
-                                        ) : (
-                                            <></>
-                                        )}
-                                    </div>
-                                </motion.div>
-                            </Card>
-                        </div>
-                    </Modal>
+                        <Button
+                            style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                            view="action"
+                            size="l"
+                        >
+                            <Icon data={ChartLine} />
+                            <Text variant="subheader-1">Ставки</Text>
+                        </Button>
+                    </AdvertsBidsModal>
                     <PhrasesModal
                         selectValue={selectValue}
                         doc={doc}
@@ -6515,94 +5702,7 @@ export const MassAdvertPage = ({
                             setAvailableAutoSalesPending,
                         }}
                     />
-                    <div style={{marginRight: 8}}>
-                        <Select
-                            className={b('selectCampaign')}
-                            value={selectValue}
-                            placeholder="Values"
-                            options={selectOptions}
-                            renderControl={({onClick, onKeyDown, ref}) => {
-                                return (
-                                    <Button
-                                        loading={switchingCampaignsFlag}
-                                        ref={ref}
-                                        size="l"
-                                        view="action"
-                                        onClick={onClick}
-                                        extraProps={{
-                                            onKeyDown,
-                                        }}
-                                    >
-                                        <Icon data={Key} />
-                                        <Text variant="subheader-1">{selectValue[0]}</Text>
-                                        <Icon data={ChevronDown} />
-                                    </Button>
-                                );
-                            }}
-                            onUpdate={(nextValue) => {
-                                setSwitchingCampaignsFlag(true);
-                                setSelectValue(nextValue);
 
-                                if (!Object.keys(doc['campaigns'][nextValue[0]]).length) {
-                                    callApi(
-                                        'getMassAdvertsNew',
-                                        {
-                                            uid: getUid(),
-                                            dateRange: {from: '2023', to: '2024'},
-                                            campaignName: nextValue,
-                                        },
-                                        true,
-                                    ).then(async (res) => {
-                                        if (!res) return;
-                                        const resData = res['data'];
-                                        doc['campaigns'][nextValue[0]] =
-                                            resData['campaigns'][nextValue[0]];
-                                        doc['balances'][nextValue[0]] =
-                                            resData['balances'][nextValue[0]];
-                                        doc['plusPhrasesTemplates'][nextValue[0]] =
-                                            resData['plusPhrasesTemplates'][nextValue[0]];
-                                        doc['advertsPlusPhrasesTemplates'][nextValue[0]] =
-                                            resData['advertsPlusPhrasesTemplates'][nextValue[0]];
-                                        doc['advertsBudgetsToKeep'][nextValue[0]] =
-                                            resData['advertsBudgetsToKeep'][nextValue[0]];
-                                        doc['advertsSelectedPhrases'][nextValue[0]] =
-                                            resData['advertsSelectedPhrases'][nextValue[0]];
-                                        doc['advertsAutoBidsRules'][nextValue[0]] =
-                                            resData['advertsAutoBidsRules'][nextValue[0]];
-                                        doc['adverts'][nextValue[0]] =
-                                            resData['adverts'][nextValue[0]];
-                                        doc['placementsAuctions'][nextValue[0]] =
-                                            resData['placementsAuctions'][nextValue[0]];
-                                        // doc['dzhemData'][nextValue[0]] =
-                                        // resData['dzhemData'][nextValue[0]];
-                                        doc['advertsSchedules'][nextValue[0]] =
-                                            resData['advertsSchedules'][nextValue[0]];
-                                        doc['dzhemData'][nextValue[0]] =
-                                            resData['dzhemData'][nextValue[0]];
-                                        doc['autoSales'][nextValue[0]] =
-                                            resData['autoSales'][nextValue[0]];
-
-                                        setChangedDoc(doc);
-
-                                        // recalc(dateRange, nextValue[0]);
-
-                                        setSwitchingCampaignsFlag(false);
-                                        console.log(doc);
-                                    });
-                                } else {
-                                    setSwitchingCampaignsFlag(false);
-                                }
-                                recalc(dateRange, nextValue[0], filters);
-                                setPagesCurrent(1);
-                                setCopiedAdvertsSettings({advertId: 0});
-                            }}
-                        />
-                    </div>
-                    {switchingCampaignsFlag ? (
-                        <Spin style={{marginRight: 8, marginBottom: 8}} />
-                    ) : (
-                        <></>
-                    )}
                     <div style={{marginRight: 8, marginBottom: '8px'}}>
                         <Popover
                             placement={'bottom'}
@@ -6733,13 +5833,6 @@ export const MassAdvertPage = ({
                         <div style={{width: 8}} />
                         {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
                     </div>
-                    <AutoSalesUploadModal
-                        params={{
-                            getUid,
-                            selectValue,
-                            setRefetchAutoSales,
-                        }}
-                    />
                     <RangePicker
                         args={{
                             recalc,

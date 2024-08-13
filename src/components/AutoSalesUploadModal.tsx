@@ -1,13 +1,12 @@
-import {Button, Icon, Loader, Modal, Text} from '@gravity-ui/uikit';
+import {Button, Icon, Loader, Text} from '@gravity-ui/uikit';
 import axios from 'axios';
 import React, {useEffect, useId, useState} from 'react';
-import {FileArrowUp, TagRuble} from '@gravity-ui/icons';
+import {FileArrowUp} from '@gravity-ui/icons';
 import {RangeCalendar} from '@gravity-ui/date-components';
 import {motion} from 'framer-motion';
+import {getUid} from 'src/utilities/callApi';
 
-export const AutoSalesUploadModal = ({params}) => {
-    const {getUid, selectValue, setRefetchAutoSales} = params;
-
+export const AutoSalesUploadModal = ({selectValue, setRefetchAutoSales, setUploadModalOpen}) => {
     const [autoSalesUploadModalOpen, setAutoSalesUploadModalOpen] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [dateRange, setDateRange] = useState([] as any[]);
@@ -76,6 +75,7 @@ export const AutoSalesUploadModal = ({params}) => {
             const response = await axios.post(url, formData, config);
             console.log(response.data);
             if (response) {
+                setUploadModalOpen(false);
                 setTimeout(() => {
                     setAutoSalesUploadModalOpen(false);
                     setUploadProgress(0);
@@ -111,155 +111,134 @@ export const AutoSalesUploadModal = ({params}) => {
     }
 
     return (
-        <div style={{display: 'flex', flexDirection: 'row'}}>
-            <Button
-                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                size="l"
-                view="action"
-                onClick={() => {
-                    setAutoSalesUploadModalOpen(true);
+        <motion.div
+            style={{
+                marginTop: 4,
+                flexWrap: 'nowrap',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: 'none',
+                width: '100%',
+            }}
+        >
+            <motion.div
+                animate={{height: currentStep < 3 ? 36 : 0}}
+                style={{height: 36, overflow: 'hidden', width: '100%'}}
+            >
+                <Button width="max" size="l" view="outlined" onClick={() => setCurrentStep(1)}>
+                    <Text variant="subheader-1">
+                        {startDate && endDate
+                            ? `${startDate.toLocaleDateString(
+                                  'ru-RU',
+                              )} - ${endDate.toLocaleDateString('ru-RU')}`
+                            : 'Выберите даты акции'}
+                    </Text>
+                </Button>
+            </motion.div>
+            <motion.div
+                animate={{height: currentStep == 1 ? 250 : 0}}
+                style={{
+                    overflow: 'hidden',
+                    height: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                 }}
             >
-                <Icon data={TagRuble} />
-                <Text variant="subheader-1">Загрузить акции</Text>
-            </Button>
-            <Modal
-                open={autoSalesUploadModalOpen}
-                onClose={() => {
-                    setAutoSalesUploadModalOpen(false);
+                <RangeCalendar
+                    size="m"
+                    timeZone="Europe/Moscow"
+                    onUpdate={(val) => {
+                        const range = [val.start.toDate(), val.end.toDate()];
+                        setDateRange(range);
+                        setCurrentStep(2);
+                    }}
+                />
+            </motion.div>
+            <motion.div
+                animate={{height: currentStep == 2 ? 44 : currentStep == 3 ? 80 : 0}}
+                style={{
+                    height: 0,
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'end',
+                    alignItems: 'center',
                 }}
             >
-                <motion.div
+                <div
                     style={{
-                        margin: 20,
-                        flexWrap: 'nowrap',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: 'none',
                     }}
                 >
-                    <motion.div
-                        animate={{height: currentStep < 3 ? 36 : 0}}
-                        style={{height: 36, overflow: 'hidden'}}
-                    >
-                        <Button size="l" view="outlined" onClick={() => setCurrentStep(1)}>
-                            <Text variant="subheader-1">
-                                {startDate && endDate
-                                    ? `${startDate.toLocaleDateString(
-                                          'ru-RU',
-                                      )} - ${endDate.toLocaleDateString('ru-RU')}`
-                                    : 'Выберите даты акции'}
-                            </Text>
-                        </Button>
-                    </motion.div>
-                    <motion.div
-                        animate={{height: currentStep == 1 ? 250 : 0}}
-                        style={{
-                            overflow: 'hidden',
-                            height: 0,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <RangeCalendar
-                            size="m"
-                            timeZone="Europe/Moscow"
-                            onUpdate={(val) => {
-                                const range = [val.start.toDate(), val.end.toDate()];
-                                setDateRange(range);
-                                setCurrentStep(2);
+                    <Text variant="header-1">{saleName}</Text>
+                    <Loader />
+                </div>
+                <div style={{minHeight: 8}} />
+                <form encType="multipart/form-data">
+                    <label htmlFor={uploadId}>
+                        <Button
+                            disabled={!startDate || !endDate}
+                            size="l"
+                            onClick={() => {
+                                setCurrentStep(3);
+                                setUploadProgress(0);
+                                (document.getElementById(uploadId) as HTMLInputElement).value = '';
                             }}
-                        />
-                    </motion.div>
-                    <motion.div
-                        animate={{height: currentStep == 2 ? 44 : currentStep == 3 ? 80 : 0}}
-                        style={{
-                            height: 0,
-                            overflow: 'hidden',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'end',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <div
                             style={{
+                                cursor: 'pointer',
+                                position: 'relative',
+                                overflow: 'hidden',
                                 display: 'flex',
                                 flexDirection: 'row',
                                 alignItems: 'center',
                             }}
+                            selected={uploadProgress === 100 || uploadProgress === -1}
+                            view={
+                                uploadProgress === 100
+                                    ? 'flat-success'
+                                    : uploadProgress === -1
+                                    ? 'flat-danger'
+                                    : 'outlined-success'
+                            }
                         >
-                            <Text variant="header-1">{saleName}</Text>
-                            <Loader />
-                        </div>
-                        <div style={{minHeight: 8}} />
-                        <form encType="multipart/form-data">
-                            <label htmlFor={uploadId}>
-                                <Button
-                                    disabled={!startDate || !endDate}
-                                    size="l"
-                                    onClick={() => {
-                                        setCurrentStep(3);
-                                        setUploadProgress(0);
-                                        (
-                                            document.getElementById(uploadId) as HTMLInputElement
-                                        ).value = '';
-                                    }}
-                                    style={{
-                                        cursor: 'pointer',
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}
-                                    selected={uploadProgress === 100 || uploadProgress === -1}
-                                    view={
-                                        uploadProgress === 100
-                                            ? 'flat-success'
-                                            : uploadProgress === -1
-                                            ? 'flat-danger'
-                                            : 'outlined-success'
-                                    }
-                                >
-                                    <Text
-                                        variant="subheader-1"
+                            <Text
+                                variant="subheader-1"
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Icon data={FileArrowUp} size={20} />
+                                <div style={{minWidth: 3}} />
+                                Загрузить файл акции
+                                {!startDate || !endDate ? (
+                                    <></>
+                                ) : (
+                                    <input
+                                        id={uploadId}
                                         style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
+                                            opacity: 0,
+                                            position: 'absolute',
+                                            height: 40,
+                                            left: 0,
                                         }}
-                                    >
-                                        <Icon data={FileArrowUp} size={20} />
-                                        <div style={{minWidth: 3}} />
-                                        Загрузить файл акции
-                                        {!startDate || !endDate ? (
-                                            <></>
-                                        ) : (
-                                            <input
-                                                id={uploadId}
-                                                style={{
-                                                    opacity: 0,
-                                                    position: 'absolute',
-                                                    height: 40,
-                                                    left: 0,
-                                                }}
-                                                type="file"
-                                                accept=".xls,.xlsx"
-                                                onChange={handleChange}
-                                            />
-                                        )}
-                                    </Text>
-                                </Button>
-                            </label>
-                        </form>
-                    </motion.div>
-                </motion.div>
-            </Modal>
-        </div>
+                                        type="file"
+                                        accept=".xls,.xlsx"
+                                        onChange={handleChange}
+                                    />
+                                )}
+                            </Text>
+                        </Button>
+                    </label>
+                </form>
+            </motion.div>
+        </motion.div>
     );
 };

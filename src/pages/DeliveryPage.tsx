@@ -2,7 +2,6 @@ import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
 import {
     Spin,
     Select,
-    SelectOption,
     Icon,
     Button,
     Text,
@@ -17,13 +16,8 @@ import {
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
-import block from 'bem-cn-lite';
-
-const b = block('app');
-
 import {
     ChevronDown,
-    Key,
     ArrowsRotateLeft,
     Tag,
     Calculator,
@@ -85,12 +79,12 @@ const getUserDoc = (
 };
 
 export const DeliveryPage = ({
-    selectedCampaign,
-    setSelectedCampaign,
+    selectValue,
+    setSwitchingCampaignsFlag,
     userInfo,
 }: {
-    selectedCampaign: string;
-    setSelectedCampaign: Function;
+    selectValue: string[];
+    setSwitchingCampaignsFlag: Function;
     userInfo: User;
 }) => {
     const today = new Date(
@@ -219,16 +213,58 @@ export const DeliveryPage = ({
         );
     };
 
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>(
-        selectedCampaign != '' ? [selectedCampaign] : [],
-    );
-
     useEffect(() => {
-        setSelectedCampaign(selectValue[0]);
+        if (!selectValue) return;
+
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selectValue[0],
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+
+        if (!doc) return;
+
+        setSwitchingCampaignsFlag(true);
+        if (!Object.keys(doc['deliveryData'][selectValue[0]]).length) {
+            callApi(
+                'getDeliveryOrders',
+                {
+                    uid: getUid(),
+                    campaignName: selectValue,
+                    dateRange: getNormalDateRange(dateRange),
+                    data: {primeCostType: primeCostType[0], useMyStocks},
+                },
+                true,
+            ).then((res) => {
+                if (!res) return;
+                const resData = res['data'];
+                doc['deliveryData'][selectValue[0]] = resData['deliveryData'][selectValue[0]];
+                doc['tariffs'][selectValue[0]] = resData['tariffs'][selectValue[0]];
+
+                setChangedDoc(doc);
+
+                setSwitchingCampaignsFlag(false);
+                console.log(doc);
+            });
+        } else {
+            setSwitchingCampaignsFlag(false);
+        }
+        recalc(selectValue[0], filters);
+        setPagesCurrent(1);
     }, [selectValue]);
 
-    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
     const [updatingFlag, setUpdatingFlag] = useState(false);
 
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
@@ -901,32 +937,12 @@ export const DeliveryPage = ({
     ];
 
     if (!firstRecalc) {
-        const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(doc['deliveryData'])) {
-            if (
-                userInfo.campaignNames.includes('all') ||
-                userInfo.campaignNames.includes(campaignName)
-            ) {
-                campaignsNames.push({
-                    value: campaignName,
-                    content: campaignName,
-                });
-            }
-        }
-        console.log(campaignsNames);
-        setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected =
-            selectedCampaign && selectedCampaign != ''
-                ? selectedCampaign
-                : campaignsNames[0]['value'];
-        setSelectValue([selected]);
-
         console.log(doc);
 
         setAvailableTagsPending(true);
         callApi('getAllTags', {
             uid: getUid(),
-            campaignName: selected,
+            campaignName: selectValue[0],
         })
             .then((res) => {
                 if (!res) throw 'no response';
@@ -941,7 +957,7 @@ export const DeliveryPage = ({
                 setAvailableTagsPending(false);
             });
 
-        recalc(selected);
+        recalc(selectValue[0]);
         setFirstRecalc(true);
     }
 
@@ -964,81 +980,6 @@ export const DeliveryPage = ({
                         flexWrap: 'wrap',
                     }}
                 >
-                    <Select
-                        className={b('selectCampaign')}
-                        value={selectValue}
-                        placeholder="Values"
-                        options={selectOptions}
-                        renderControl={({onClick, onKeyDown, ref}) => {
-                            return (
-                                <Button
-                                    loading={switchingCampaignsFlag}
-                                    ref={ref}
-                                    size="l"
-                                    view="action"
-                                    onClick={onClick}
-                                    extraProps={{
-                                        onKeyDown,
-                                    }}
-                                >
-                                    <Icon data={Key} />
-                                    <Text variant="subheader-1">{selectValue[0]}</Text>
-                                    <Icon data={ChevronDown} />
-                                </Button>
-                            );
-                        }}
-                        onUpdate={(nextValue) => {
-                            setSwitchingCampaignsFlag(true);
-                            setAvailableTagsPending(true);
-                            callApi('getAllTags', {
-                                uid: getUid(),
-                                campaignName: nextValue[0],
-                            })
-                                .then((res) => {
-                                    if (!res) throw 'no response';
-                                    const {tags} = res['data'] ?? {};
-                                    tags.sort();
-                                    setAvailableTags(tags ?? []);
-                                })
-                                .catch((e) => {
-                                    console.log(e);
-                                })
-                                .finally(() => {
-                                    setAvailableTagsPending(false);
-                                });
-
-                            if (!Object.keys(doc['deliveryData'][nextValue[0]]).length) {
-                                callApi(
-                                    'getDeliveryOrders',
-                                    {
-                                        uid: getUid(),
-                                        campaignName: nextValue,
-                                        dateRange: getNormalDateRange(dateRange),
-                                        data: {primeCostType: primeCostType[0], useMyStocks},
-                                    },
-                                    true,
-                                ).then((res) => {
-                                    if (!res) return;
-                                    const resData = res['data'];
-                                    doc['deliveryData'][nextValue[0]] =
-                                        resData['deliveryData'][nextValue[0]];
-                                    doc['tariffs'][nextValue[0]] = resData['tariffs'][nextValue[0]];
-
-                                    setChangedDoc(doc);
-                                    setSelectValue(nextValue);
-
-                                    setSwitchingCampaignsFlag(false);
-                                    console.log(doc);
-                                });
-                            } else {
-                                setSelectValue(nextValue);
-                                setSwitchingCampaignsFlag(false);
-                            }
-                            recalc(nextValue[0], filters);
-                            setPagesCurrent(1);
-                        }}
-                    />
-
                     <div
                         style={{
                             marginBottom: 8,
@@ -1047,19 +988,6 @@ export const DeliveryPage = ({
                             alignItems: 'center',
                         }}
                     >
-                        <motion.div
-                            style={{
-                                overflow: 'hidden',
-                                marginTop: 4,
-                            }}
-                            animate={{
-                                maxWidth: switchingCampaignsFlag ? 40 : 0,
-                                opacity: switchingCampaignsFlag ? 1 : 0,
-                            }}
-                        >
-                            <Spin style={{marginLeft: 8}} />
-                        </motion.div>
-                        <div style={{minWidth: 8}} />
                         <Button
                             style={{cursor: 'pointer'}}
                             view="action"

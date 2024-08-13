@@ -1,8 +1,6 @@
 import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
 import {
     Spin,
-    Select,
-    SelectOption,
     Icon,
     Button,
     Text,
@@ -19,20 +17,7 @@ import '../App.scss';
 
 const {ipAddress} = require('../ipAddress');
 
-import block from 'bem-cn-lite';
-
-const b = block('app');
-
-import {
-    FileArrowUp,
-    FileArrowDown,
-    ChevronDown,
-    Key,
-    Pencil,
-    CloudArrowUpIn,
-    TrashBin,
-    Tag,
-} from '@gravity-ui/icons';
+import {FileArrowUp, FileArrowDown, Pencil, CloudArrowUpIn, TrashBin, Tag} from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
@@ -75,12 +60,12 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo:
 };
 
 export const NomenclaturesPage = ({
-    selectedCampaign,
-    setSelectedCampaign,
+    selectValue,
+    setSwitchingCampaignsFlag,
     userInfo,
 }: {
-    selectedCampaign: string;
-    setSelectedCampaign: Function;
+    selectValue: string[];
+    setSwitchingCampaignsFlag: Function;
     userInfo: User;
 }) => {
     const uploadId = useId();
@@ -329,11 +314,6 @@ export const NomenclaturesPage = ({
         },
     ];
 
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>(
-        selectedCampaign != '' ? [selectedCampaign] : [],
-    );
-    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
@@ -347,7 +327,50 @@ export const NomenclaturesPage = ({
     };
 
     useEffect(() => {
-        setSelectedCampaign(selectValue[0]);
+        setSwitchingCampaignsFlag(true);
+
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selectValue[0],
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+
+        if (!Object.keys(doc['nomenclatures'][selectValue[0]]).length) {
+            callApi(
+                'getNomenclatures',
+                {
+                    uid: getUid(),
+                    campaignName: selectValue,
+                },
+                true,
+            ).then((res) => {
+                if (!res) return;
+                const resData = res['data'];
+                doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
+                doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
+
+                setChangedDoc(doc);
+
+                setSwitchingCampaignsFlag(false);
+                console.log(doc);
+            });
+        } else {
+            setSwitchingCampaignsFlag(false);
+        }
+        recalc(selectValue[0], filters);
+        setPagesCurrent(1);
     }, [selectValue]);
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0], userInfo);
@@ -582,47 +605,8 @@ export const NomenclaturesPage = ({
 
     if (!doc) return <Spin />;
     if (!firstRecalc) {
-        const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(doc['nomenclatures'])) {
-            if (
-                userInfo.campaignNames.includes('all') ||
-                userInfo.campaignNames.includes(campaignName)
-            ) {
-                campaignsNames.push({
-                    value: campaignName,
-                    content: campaignName,
-                });
-            }
-        }
-        console.log(campaignsNames);
-        setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected =
-            selectedCampaign && selectedCampaign != ''
-                ? selectedCampaign
-                : campaignsNames[0]['value'];
-        setSelectValue([selected]);
-
         console.log(doc);
-
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selected,
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
-
-        recalc(selected);
+        recalc(selectValue[0]);
         setFirstRecalc(true);
     }
 
@@ -780,86 +764,6 @@ export const NomenclaturesPage = ({
                                 </div>
                             </Card>
                         </Modal>
-                        <Select
-                            className={b('selectCampaign')}
-                            value={selectValue}
-                            placeholder="Values"
-                            options={selectOptions}
-                            renderControl={({onClick, onKeyDown, ref}) => {
-                                return (
-                                    <Button
-                                        loading={switchingCampaignsFlag}
-                                        ref={ref}
-                                        size="l"
-                                        view="action"
-                                        onClick={onClick}
-                                        extraProps={{
-                                            onKeyDown,
-                                        }}
-                                    >
-                                        <Icon data={Key} />
-                                        <Text variant="subheader-1">{selectValue[0]}</Text>
-                                        <Icon data={ChevronDown} />
-                                    </Button>
-                                );
-                            }}
-                            onUpdate={(nextValue) => {
-                                setSwitchingCampaignsFlag(true);
-
-                                setAvailableTagsPending(true);
-                                callApi('getAllTags', {
-                                    uid: getUid(),
-                                    campaignName: nextValue[0],
-                                })
-                                    .then((res) => {
-                                        if (!res) throw 'no response';
-                                        const {tags} = res['data'] ?? {};
-                                        tags.sort();
-                                        setAvailableTags(tags ?? []);
-                                    })
-                                    .catch((e) => {
-                                        console.log(e);
-                                    })
-                                    .finally(() => {
-                                        setAvailableTagsPending(false);
-                                    });
-
-                                if (!Object.keys(doc['nomenclatures'][nextValue[0]]).length) {
-                                    callApi(
-                                        'getNomenclatures',
-                                        {
-                                            uid: getUid(),
-                                            campaignName: nextValue,
-                                        },
-                                        true,
-                                    ).then((res) => {
-                                        if (!res) return;
-                                        const resData = res['data'];
-                                        doc['nomenclatures'][nextValue[0]] =
-                                            resData['nomenclatures'][nextValue[0]];
-                                        doc['artsData'][nextValue[0]] =
-                                            resData['artsData'][nextValue[0]];
-
-                                        setChangedDoc(doc);
-                                        setSelectValue(nextValue);
-
-                                        setSwitchingCampaignsFlag(false);
-                                        console.log(doc);
-                                    });
-                                } else {
-                                    setSelectValue(nextValue);
-                                    setSwitchingCampaignsFlag(false);
-                                }
-                                recalc(nextValue[0], filters);
-                                setPagesCurrent(1);
-                            }}
-                        />
-                        {switchingCampaignsFlag ? (
-                            <Spin style={{marginLeft: 8, marginBottom: 8}} />
-                        ) : (
-                            <></>
-                        )}
-                        <div style={{minWidth: 8}} />
 
                         <Button
                             style={{cursor: 'pointer', marginBottom: '8px'}}

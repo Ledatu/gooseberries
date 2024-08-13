@@ -57,8 +57,6 @@ export const AdvertsWordsModal = ({
     bidModalRange,
     desiredSumInputValue,
     ordersInputValue,
-    bidModalDeleteModeSelected,
-    bidModalBidStepInputValue,
     bidModalDRRInputValue,
     bidModalStocksThresholdInputValue,
     setBidModalDRRInputValue,
@@ -72,7 +70,6 @@ export const AdvertsWordsModal = ({
     setSelectedValueMethod,
     setBidModalRangeValid,
     setAuctionSelectedOption,
-    resetBidModalFormInputs,
 }) => {
     const [open, setOpen] = useState(false);
     const [semanticsAutoPhrasesModalFormOpen, setSemanticsAutoPhrasesModalFormOpen] =
@@ -427,9 +424,6 @@ export const AdvertsWordsModal = ({
                             </Button>
                             <div style={{width: 4}} />
                             <Popover
-                                onOpenChange={(open) => {
-                                    if (open) resetBidModalFormInputs(false);
-                                }}
                                 placement={'bottom-start'}
                                 content={
                                     <Card
@@ -816,8 +810,6 @@ export const AdvertsWordsModal = ({
                                                                             ] = {
                                                                                 desiredDRR:
                                                                                     bidModalDRRInputValue,
-                                                                                bidStep:
-                                                                                    bidModalBidStepInputValue,
 
                                                                                 advertId:
                                                                                     modalOpenFromAdvertId,
@@ -840,27 +832,24 @@ export const AdvertsWordsModal = ({
                                                                                 selectValue[0]
                                                                             ][
                                                                                 modalOpenFromAdvertId
-                                                                            ] =
-                                                                                bidModalDeleteModeSelected
-                                                                                    ? undefined
-                                                                                    : {
-                                                                                          desiredOrders:
-                                                                                              parseInt(
-                                                                                                  ordersInputValue,
-                                                                                              ),
-                                                                                          desiredSum:
-                                                                                              parseInt(
-                                                                                                  desiredSumInputValue,
-                                                                                              ),
+                                                                            ] = {
+                                                                                desiredOrders:
+                                                                                    parseInt(
+                                                                                        ordersInputValue,
+                                                                                    ),
+                                                                                desiredSum:
+                                                                                    parseInt(
+                                                                                        desiredSumInputValue,
+                                                                                    ),
 
-                                                                                          desiredDRR:
-                                                                                              bidModalDRRInputValue,
-                                                                                          placementsRange:
-                                                                                              bidModalRange,
-                                                                                          maxBid: bidModalMaxBid,
-                                                                                          autoBidsMode:
-                                                                                              selectedValueMethod[0],
-                                                                                      };
+                                                                                desiredDRR:
+                                                                                    bidModalDRRInputValue,
+                                                                                placementsRange:
+                                                                                    bidModalRange,
+                                                                                maxBid: bidModalMaxBid,
+                                                                                autoBidsMode:
+                                                                                    selectedValueMethod[0],
+                                                                            };
 
                                                                             console.log(params);
 
@@ -1279,9 +1268,6 @@ export const AdvertsWordsModal = ({
                             </Button>
                             <div style={{width: 4}} />
                             <Popover
-                                onOpenChange={(open) => {
-                                    if (open) resetBidModalFormInputs(false);
-                                }}
                                 placement={'bottom-start'}
                                 content={
                                     <Card
@@ -1668,8 +1654,6 @@ export const AdvertsWordsModal = ({
                                                                             ] = {
                                                                                 desiredDRR:
                                                                                     bidModalDRRInputValue,
-                                                                                bidStep:
-                                                                                    bidModalBidStepInputValue,
 
                                                                                 advertId:
                                                                                     modalOpenFromAdvertId,
@@ -1692,27 +1676,24 @@ export const AdvertsWordsModal = ({
                                                                                 selectValue[0]
                                                                             ][
                                                                                 modalOpenFromAdvertId
-                                                                            ] =
-                                                                                bidModalDeleteModeSelected
-                                                                                    ? undefined
-                                                                                    : {
-                                                                                          desiredOrders:
-                                                                                              parseInt(
-                                                                                                  ordersInputValue,
-                                                                                              ),
-                                                                                          desiredSum:
-                                                                                              parseInt(
-                                                                                                  desiredSumInputValue,
-                                                                                              ),
+                                                                            ] = {
+                                                                                desiredOrders:
+                                                                                    parseInt(
+                                                                                        ordersInputValue,
+                                                                                    ),
+                                                                                desiredSum:
+                                                                                    parseInt(
+                                                                                        desiredSumInputValue,
+                                                                                    ),
 
-                                                                                          desiredDRR:
-                                                                                              bidModalDRRInputValue,
-                                                                                          placementsRange:
-                                                                                              bidModalRange,
-                                                                                          maxBid: bidModalMaxBid,
-                                                                                          autoBidsMode:
-                                                                                              selectedValueMethod[0],
-                                                                                      };
+                                                                                desiredDRR:
+                                                                                    bidModalDRRInputValue,
+                                                                                placementsRange:
+                                                                                    bidModalRange,
+                                                                                maxBid: bidModalMaxBid,
+                                                                                autoBidsMode:
+                                                                                    selectedValueMethod[0],
+                                                                            };
 
                                                                             console.log(params);
 

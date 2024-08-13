@@ -2,7 +2,6 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import block from 'bem-cn-lite';
 import {
     ThemeProvider,
-    // Button,
     Text,
     RadioButton,
     RadioButtonOption,
@@ -13,7 +12,6 @@ import {
     Modal,
     TextArea,
     List,
-    // Tabs,
 } from '@gravity-ui/uikit';
 import '../App.scss';
 import Userfront from '@userfront/toolkit';
@@ -30,6 +28,8 @@ import {AnalyticsPage} from './AnalyticsPage';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {DeliveryPage} from './DeliveryPage';
 import {SEOPage} from './SEOPage';
+import {UploadModal} from 'src/components/UploadModal';
+import {SelectCampaign} from 'src/components/SelectCampaign';
 
 const b = block('app');
 
@@ -57,24 +57,33 @@ export const Dashboard = () => {
         localStorage.setItem('theme', JSON.stringify(theme));
     }, [theme]);
 
+    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
+
     const [userInfo, setUserInfo] = useState({} as User);
     useEffect(() => {
-        if (Userfront.user.userUuid === '4a1f2828-9a1e-4bbf-8e07-208ba676a806')
-            setUserInfo({
-                uuid: '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                roles: ['admin'],
-                modules: ['all'],
-                campaignNames: ['all'],
-            });
-        else
-            callApi('getUserInfo', {uid: Userfront.user.userUuid})
-                .then((response) => {
-                    if (!response || !response['data']) return;
-                    const info: User = response.data;
-                    setUserInfo(info);
-                })
-                .catch((e) => console.log('Error occured while fetching user info', e));
+        callApi('getUserInfo', {uid: Userfront.user.userUuid})
+            .then((response) => {
+                if (!response || !response['data']) return;
+                const info: User = response.data;
+                setUserInfo(info);
+            })
+            .catch((e) => console.log('Error occured while fetching user info', e));
     }, []);
+
+    const [selectValue, setSelectValue] = useState(['']);
+    const [refetchAutoSales, setRefetchAutoSales] = useState(false);
+    const [dzhemRefetch, setDzhemRefetch] = useState(false);
+
+    const selectOptions = useMemo(() => {
+        if (!userInfo || !userInfo.campaignNames) return [];
+        const temp = [] as any[];
+        for (const campaignName of userInfo.campaignNames) {
+            if (campaignName == 'all') continue;
+            temp.push({value: campaignName, content: campaignName});
+        }
+        setSelectValue([temp[0] ? temp[0]['value'] ?? '' : '']);
+        return temp;
+    }, [userInfo]);
 
     const optionsTheme: RadioButtonOption[] = [
         {value: 'dark', content: <Icon data={Moon}></Icon>},
@@ -89,7 +98,6 @@ export const Dashboard = () => {
     // const [page, setPage] = useState('analytics');
     // const [page, setPage] = useState('delivery');
 
-    const [selectedCampaign, setSelectedCampaign] = useState('');
     const modules = useMemo(() => userInfo.modules ?? [], [userInfo]);
 
     const [page, setPage] = useState(modules.includes('all') ? 'massAdvert' : modules[0]);
@@ -182,7 +190,7 @@ export const Dashboard = () => {
 
             const params = {
                 uid: getUid(),
-                campaignName: selectedCampaign,
+                campaignName: selectValue,
                 data: {
                     note: note,
                     tags: tagsAddedForCurrentNote,
@@ -296,7 +304,7 @@ export const Dashboard = () => {
                                             try {
                                                 const res = await callApi('getAllTags', {
                                                     uid: getUid(),
-                                                    campaignName: selectedCampaign,
+                                                    campaignName: selectValue,
                                                 });
 
                                                 if (!res) throw 'no response';
@@ -454,6 +462,23 @@ export const Dashboard = () => {
                                             setTheme(val === 'light' ? Theme.Light : Theme.Dark);
                                         }}
                                     />
+                                    <div style={{minWidth: 8}} />
+                                    <UploadModal
+                                        userInfo={userInfo}
+                                        selectOptions={selectOptions}
+                                        selectValue={selectValue}
+                                        setRefetchAutoSales={setRefetchAutoSales}
+                                        setDzhemRefetch={setDzhemRefetch}
+                                    />
+                                    <div style={{minWidth: 8}} />
+                                    <SelectCampaign
+                                        userInfo={userInfo}
+                                        selectOptions={selectOptions}
+                                        selectValue={selectValue}
+                                        setSelectValue={setSelectValue}
+                                        switchingCampaignsFlag={switchingCampaignsFlag}
+                                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -469,9 +494,13 @@ export const Dashboard = () => {
                 >
                     <PageElem
                         page={page}
-                        selectedCampaign={selectedCampaign}
-                        setSelectedCampaign={setSelectedCampaign}
+                        selectValue={selectValue}
                         userInfo={userInfo}
+                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                        refetchAutoSales={refetchAutoSales}
+                        setRefetchAutoSales={setRefetchAutoSales}
+                        dzhemRefetch={dzhemRefetch}
+                        setDzhemRefetch={setDzhemRefetch}
                     />
                 </div>
             </div>
@@ -479,41 +508,54 @@ export const Dashboard = () => {
     );
 };
 
-const PageElem = ({page, selectedCampaign, setSelectedCampaign, userInfo}) => {
+const PageElem = ({
+    page,
+    selectValue,
+    userInfo,
+    setSwitchingCampaignsFlag,
+    refetchAutoSales,
+    setRefetchAutoSales,
+    dzhemRefetch,
+    setDzhemRefetch,
+}) => {
     const pages = {
         delivery: (
             <DeliveryPage
-                selectedCampaign={selectedCampaign}
-                setSelectedCampaign={setSelectedCampaign}
+                selectValue={selectValue}
                 userInfo={userInfo}
+                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
         massAdvert: (
             <MassAdvertPage
-                selectedCampaign={selectedCampaign}
-                setSelectedCampaign={setSelectedCampaign}
+                selectValue={selectValue}
                 userInfo={userInfo}
+                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                refetchAutoSales={refetchAutoSales}
+                setRefetchAutoSales={setRefetchAutoSales}
+                dzhemRefetch={dzhemRefetch}
+                setDzhemRefetch={setDzhemRefetch}
             />
         ),
         prices: (
             <PricesPage
-                selectedCampaign={selectedCampaign}
-                setSelectedCampaign={setSelectedCampaign}
+                selectValue={selectValue}
                 userInfo={userInfo}
+                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
         nomenclatures: (
             <NomenclaturesPage
-                selectedCampaign={selectedCampaign}
-                setSelectedCampaign={setSelectedCampaign}
+                selectValue={selectValue}
                 userInfo={userInfo}
+                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
         analytics: (
             <AnalyticsPage
-                selectedCampaign={selectedCampaign}
-                setSelectedCampaign={setSelectedCampaign}
+                selectValue={selectValue}
                 userInfo={userInfo}
+                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
         seo: <SEOPage />,

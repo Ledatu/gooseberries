@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
     Spin,
-    SelectOption,
     Icon,
     Button,
     Text,
@@ -45,7 +44,6 @@ import {CalcAutoPlansModal} from 'src/components/CalcAutoPlansModal';
 import {AnalyticsCalcModal} from 'src/components/AnalyticsCalcModal';
 import {PlansUpload} from 'src/components/PlansUpload';
 import {ColumnsEdit} from 'src/components/ColumsEdit';
-import {CampaignSelect} from 'src/components/CampaignSelect';
 import {User} from './Dashboard';
 
 const getUserDoc = (
@@ -89,12 +87,12 @@ const getUserDoc = (
 };
 
 export const AnalyticsPage = ({
-    selectedCampaign,
-    setSelectedCampaign,
+    selectValue,
+    setSwitchingCampaignsFlag,
     userInfo,
 }: {
-    selectedCampaign: string;
-    setSelectedCampaign: Function;
+    selectValue: string[];
+    setSwitchingCampaignsFlag: Function;
     userInfo: User;
 }) => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
@@ -680,10 +678,6 @@ export const AnalyticsPage = ({
         return temp;
     })();
 
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>(
-        selectedCampaign != '' ? [selectedCampaign] : [],
-    );
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
@@ -694,7 +688,30 @@ export const AnalyticsPage = ({
     };
 
     useEffect(() => {
-        setSelectedCampaign(selectValue[0]);
+        if (!selectValue || !doc) return;
+        const params = {
+            uid: getUid(),
+            campaignName: selectValue[0],
+            dateRange: getNormalDateRange(dateRange),
+        };
+
+        if (!Object.keys(doc['analyticsData'][selectValue[0]]).length) {
+            callApi('getAnalytics', params, true).then((res) => {
+                if (!res) return;
+                const resData = res['data'];
+                doc['analyticsData'][selectValue[0]] = resData['analyticsData'][selectValue[0]];
+                doc['plansData'][selectValue[0]] = resData['plansData'][selectValue[0]];
+
+                setChangedDoc(doc);
+
+                setSwitchingCampaignsFlag(false);
+                console.log(doc);
+            });
+        } else {
+            setSwitchingCampaignsFlag(false);
+        }
+        recalc(dateRange, selectValue[0], filters);
+        setPagesCurrent(1);
     }, [selectValue]);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0], userInfo);
@@ -1274,29 +1291,8 @@ export const AnalyticsPage = ({
 
     if (!doc) return <Spin />;
     if (!firstRecalc) {
-        const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(doc['analyticsData'])) {
-            if (
-                userInfo.campaignNames.includes('all') ||
-                userInfo.campaignNames.includes(campaignName)
-            ) {
-                campaignsNames.push({
-                    value: campaignName,
-                    content: campaignName,
-                });
-            }
-        }
-        console.log(campaignsNames);
-        setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected =
-            selectedCampaign && selectedCampaign != ''
-                ? selectedCampaign
-                : campaignsNames[0]['value'];
-        setSelectValue([selected]);
-
         console.log(doc);
-
-        recalc(dateRange, selected);
+        recalc(dateRange, selectValue[0]);
         setFirstRecalc(true);
     }
 
@@ -1709,18 +1705,6 @@ export const AnalyticsPage = ({
                         height: 44,
                     }}
                 >
-                    <CampaignSelect
-                        selectValue={selectValue}
-                        setSelectValue={setSelectValue}
-                        selectOptions={selectOptions}
-                        dateRange={dateRange}
-                        doc={doc}
-                        setChangedDoc={setChangedDoc}
-                        recalc={recalc}
-                        filters={filters}
-                        setPagesCurrent={setPagesCurrent}
-                    />
-                    <div style={{minWidth: 8}} />
                     <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
                     <CalcAutoPlansModal
                         filteredData={filteredData}

@@ -2,7 +2,6 @@ import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import {
     Spin,
     Select,
-    SelectOption,
     Icon,
     Button,
     Text,
@@ -18,14 +17,9 @@ import {
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
-import block from 'bem-cn-lite';
-
-const b = block('app');
-
 import {
     ChevronDown,
     Tag,
-    Key,
     ArrowsRotateLeft,
     Box,
     Copy,
@@ -94,12 +88,12 @@ const getUserDoc = (
 };
 
 export const PricesPage = ({
-    selectedCampaign,
-    setSelectedCampaign,
+    selectValue,
+    setSwitchingCampaignsFlag,
     userInfo,
 }: {
-    selectedCampaign: string;
-    setSelectedCampaign: Function;
+    selectValue: string[];
+    setSwitchingCampaignsFlag: Function;
     userInfo: User;
 }) => {
     const today = new Date(
@@ -771,14 +765,8 @@ export const PricesPage = ({
 
     const [updatePricesModalOpen, setUpdatePricesModalOpen] = useState(false);
 
-    const [selectOptions, setSelectOptions] = React.useState<SelectOption<any>[]>([]);
-    const [selectValue, setSelectValue] = React.useState<string[]>(
-        selectedCampaign != '' ? [selectedCampaign] : [],
-    );
-
     useEffect(() => {
-        setSelectedCampaign(selectValue[0]);
-
+        if (!selectValue) return;
         const params = {uid: getUid(), campaignName: selectValue[0]};
         setGroupingFetching(true);
         callApi('getPricesGrouping', params).then((res) => {
@@ -790,9 +778,56 @@ export const PricesPage = ({
             ]);
             setGroupingFetching(false);
         });
+        setSwitchingCampaignsFlag(true);
+
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selectValue[0],
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+
+        if (!doc) return;
+
+        if (!Object.keys(doc['pricesData'][selectValue[0]]).length) {
+            callApi(
+                'getPricesMM',
+                {
+                    uid: getUid(),
+                    campaignName: selectValue,
+                    dateRange: getNormalDateRange(dateRange),
+                },
+                true,
+            ).then((res) => {
+                if (!res) return;
+                const resData = res['data'];
+                doc['pricesData'][selectValue[0]] = resData['pricesData'][selectValue[0]];
+                doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
+                doc['fixArtPrices'][selectValue[0]] = resData['fixArtPrices'][selectValue[0]];
+
+                setChangedDoc(doc);
+
+                setSwitchingCampaignsFlag(false);
+                console.log(doc);
+            });
+        } else {
+            setSwitchingCampaignsFlag(false);
+        }
+        recalc(selectValue[0], filters);
+        setPagesCurrent(1);
     }, [selectValue]);
 
-    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false);
     const [updatingFlag, setUpdatingFlag] = useState(false);
     const [calculatingFlag, setCalculatingFlag] = useState(false);
 
@@ -1044,46 +1079,8 @@ export const PricesPage = ({
 
     if (!doc) return <Spin />;
     if (!firstRecalc) {
-        const campaignsNames: object[] = [];
-        for (const [campaignName, _] of Object.entries(doc['pricesData'])) {
-            if (
-                userInfo.campaignNames.includes('all') ||
-                userInfo.campaignNames.includes(campaignName)
-            ) {
-                campaignsNames.push({
-                    value: campaignName,
-                    content: campaignName,
-                });
-            }
-        }
-        console.log(campaignsNames);
-        setSelectOptions(campaignsNames as SelectOption<any>[]);
-        const selected =
-            selectedCampaign && selectedCampaign != ''
-                ? selectedCampaign
-                : campaignsNames[0]['value'];
-        setSelectValue([selected]);
         console.log(doc);
-
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selected,
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
-
-        recalc(selected);
+        recalc(selectValue[0]);
         setFirstRecalc(true);
     }
 
@@ -1106,84 +1103,6 @@ export const PricesPage = ({
                         flexWrap: 'wrap',
                     }}
                 >
-                    <Select
-                        className={b('selectCampaign')}
-                        value={selectValue}
-                        placeholder="Values"
-                        options={selectOptions}
-                        renderControl={({onClick, onKeyDown, ref}) => {
-                            return (
-                                <Button
-                                    loading={switchingCampaignsFlag}
-                                    ref={ref}
-                                    size="l"
-                                    view="action"
-                                    onClick={onClick}
-                                    extraProps={{
-                                        onKeyDown,
-                                    }}
-                                >
-                                    <Icon data={Key} />
-                                    <Text variant="subheader-1">{selectValue[0]}</Text>
-                                    <Icon data={ChevronDown} />
-                                </Button>
-                            );
-                        }}
-                        onUpdate={(nextValue) => {
-                            setSwitchingCampaignsFlag(true);
-
-                            setAvailableTagsPending(true);
-                            callApi('getAllTags', {
-                                uid: getUid(),
-                                campaignName: nextValue[0],
-                            })
-                                .then((res) => {
-                                    if (!res) throw 'no response';
-                                    const {tags} = res['data'] ?? {};
-                                    tags.sort();
-                                    setAvailableTags(tags ?? []);
-                                })
-                                .catch((e) => {
-                                    console.log(e);
-                                })
-                                .finally(() => {
-                                    setAvailableTagsPending(false);
-                                });
-
-                            if (!Object.keys(doc['pricesData'][nextValue[0]]).length) {
-                                callApi(
-                                    'getPricesMM',
-                                    {
-                                        uid: getUid(),
-                                        campaignName: nextValue,
-                                        dateRange: getNormalDateRange(dateRange),
-                                    },
-                                    true,
-                                ).then((res) => {
-                                    if (!res) return;
-                                    const resData = res['data'];
-                                    doc['pricesData'][nextValue[0]] =
-                                        resData['pricesData'][nextValue[0]];
-                                    doc['artsData'][nextValue[0]] =
-                                        resData['artsData'][nextValue[0]];
-                                    doc['fixArtPrices'][nextValue[0]] =
-                                        resData['fixArtPrices'][nextValue[0]];
-
-                                    setChangedDoc(doc);
-                                    setSelectValue(nextValue);
-
-                                    setSwitchingCampaignsFlag(false);
-                                    console.log(doc);
-                                });
-                            } else {
-                                setSelectValue(nextValue);
-                                setSwitchingCampaignsFlag(false);
-                            }
-                            recalc(nextValue[0], filters);
-                            setPagesCurrent(1);
-                        }}
-                    />
-
                     <div
                         style={{
                             marginBottom: 8,
@@ -1192,18 +1111,6 @@ export const PricesPage = ({
                             alignItems: 'center',
                         }}
                     >
-                        <motion.div
-                            style={{
-                                overflow: 'hidden',
-                                marginTop: 4,
-                            }}
-                            animate={{
-                                maxWidth: switchingCampaignsFlag ? 40 : 0,
-                                opacity: switchingCampaignsFlag ? 1 : 0,
-                            }}
-                        >
-                            <Spin style={{marginLeft: 8}} />
-                        </motion.div>
                         <div style={{minWidth: 8}} />
                         <Button
                             style={{cursor: 'pointer'}}
