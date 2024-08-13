@@ -562,6 +562,13 @@ export const AdvertCard = ({
                                 ) : (
                                     <></>
                                 )}
+                                {drrAI !== undefined && drrAI.autoBidsMode == 'sum_orders' ? (
+                                    <Text style={{marginLeft: 4}} variant="caption-2">
+                                        {`Сумм. заказов: ${drrAI.desiredSumOrders}`}
+                                    </Text>
+                                ) : (
+                                    <></>
+                                )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'obor' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
                                         {`Обор: ${drrAI.desiredObor} Заказы: ${

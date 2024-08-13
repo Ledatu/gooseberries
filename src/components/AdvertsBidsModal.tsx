@@ -395,7 +395,10 @@ export const AdvertsBidsModal = ({
                                             from: parseInt(placementsInputValue),
                                             to: parseInt(placementsInputValue),
                                         },
-                                        desiredOrders: parseInt(ordersInputValue),
+                                        desiredOrders:
+                                            autoBidderOption[0] == 'obor'
+                                                ? null
+                                                : parseInt(ordersInputValue),
                                         desiredDRR: parseInt(drrInputValue),
                                         desiredSum: parseInt(sumInputValue),
                                         desiredObor: parseInt(oborInputValue),
@@ -423,7 +426,10 @@ export const AdvertsBidsModal = ({
                                                       from: parseInt(placementsInputValue),
                                                       to: parseInt(placementsInputValue),
                                                   },
-                                                  desiredOrders: parseInt(ordersInputValue),
+                                                  desiredOrders:
+                                                      autoBidderOption[0] == 'obor'
+                                                          ? null
+                                                          : parseInt(ordersInputValue),
                                                   desiredSum: parseInt(sumInputValue),
                                                   desiredObor: parseInt(oborInputValue),
                                                   desiredSumOrders: parseInt(sumOrdersInputValue),
