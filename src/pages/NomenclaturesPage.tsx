@@ -347,28 +347,31 @@ export const NomenclaturesPage = ({
                 setAvailableTagsPending(false);
             });
 
-        if (!Object.keys(doc['nomenclatures'][selectValue[0]]).length) {
-            callApi(
-                'getNomenclatures',
-                {
-                    uid: getUid(),
-                    campaignName: selectValue,
-                },
-                true,
-            ).then((res) => {
-                if (!res) return;
-                const resData = res['data'];
-                doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
-                doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
+        if (doc)
+            if (!Object.keys(doc['nomenclatures'][selectValue[0]]).length) {
+                callApi(
+                    'getNomenclatures',
+                    {
+                        uid: getUid(),
+                        campaignName: selectValue,
+                    },
+                    true,
+                ).then((res) => {
+                    if (!res) return;
+                    const resData = res['data'];
+                    doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
+                    doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
 
-                setChangedDoc(doc);
+                    setChangedDoc(doc);
 
+                    setSwitchingCampaignsFlag(false);
+                    console.log(doc);
+                });
+            } else {
                 setSwitchingCampaignsFlag(false);
-                console.log(doc);
-            });
-        } else {
-            setSwitchingCampaignsFlag(false);
-        }
+            }
+        setSwitchingCampaignsFlag(false);
+
         recalc(selectValue[0], filters);
         setPagesCurrent(1);
     }, [selectValue]);
