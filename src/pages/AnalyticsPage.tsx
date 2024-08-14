@@ -764,7 +764,12 @@ export const AnalyticsPage = ({
                 tempTypeRow['addToCartPercent'] = dateStats['addToCartPercent'];
                 tempTypeRow['cartToOrderPercent'] = dateStats['cartToOrderPercent'];
                 tempTypeRow['storageCost'] = dateStats['storageCost'];
-                tempTypeRow['buyoutsPercent'] = dateStats['buyoutsPercent'];
+                tempTypeRow['buyoutsPercent'] = getRoundValue(
+                    tempTypeRow['sales'],
+                    tempTypeRow['orders'],
+                    true,
+                    1,
+                );
 
                 tempTypeRow['expectedSales'] = dateStats['expectedSales'];
 
