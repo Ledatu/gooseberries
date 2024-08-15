@@ -391,10 +391,16 @@ export const AdvertsBidsModal = ({
                                     data: {
                                         mode: modalOption,
                                         autoBidsMode: autoBidderOption[0],
-                                        placementsRange: {
-                                            from: parseInt(placementsInputValue),
-                                            to: parseInt(placementsInputValue),
-                                        },
+                                        placementsRange:
+                                            autoBidderOption[0] == 'auction'
+                                                ? {
+                                                      from: parseInt(auctionInputValue),
+                                                      to: parseInt(auctionInputValue),
+                                                  }
+                                                : {
+                                                      from: parseInt(placementsInputValue),
+                                                      to: parseInt(placementsInputValue),
+                                                  },
                                         desiredOrders:
                                             autoBidderOption[0] == 'obor'
                                                 ? null
@@ -422,10 +428,18 @@ export const AdvertsBidsModal = ({
                                             : {
                                                   mode: modalOption,
                                                   autoBidsMode: autoBidderOption[0],
-                                                  placementsRange: {
-                                                      from: parseInt(placementsInputValue),
-                                                      to: parseInt(placementsInputValue),
-                                                  },
+                                                  placementsRange:
+                                                      autoBidderOption[0] == 'auction'
+                                                          ? {
+                                                                from: parseInt(auctionInputValue),
+                                                                to: parseInt(auctionInputValue),
+                                                            }
+                                                          : {
+                                                                from: parseInt(
+                                                                    placementsInputValue,
+                                                                ),
+                                                                to: parseInt(placementsInputValue),
+                                                            },
                                                   desiredOrders:
                                                       autoBidderOption[0] == 'obor'
                                                           ? null
