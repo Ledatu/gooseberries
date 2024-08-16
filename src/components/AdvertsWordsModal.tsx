@@ -398,10 +398,13 @@ export const AdvertsWordsModal = ({
                     'Аукцион Поиска': 'search',
                 };
 
-                const auction = doc.fetchedPlacements[value]
-                    ? doc.fetchedPlacements[value].cpms[mapAuctionsTypes[auctionSelectedOption]] ??
-                      []
-                    : [];
+                const auction = (
+                    doc.fetchedPlacements[value]
+                        ? doc.fetchedPlacements[value].cpms[
+                              mapAuctionsTypes[auctionSelectedOption]
+                          ] ?? []
+                        : []
+                ).slice(0, 100);
 
                 return (
                     <div
