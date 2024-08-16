@@ -24,8 +24,8 @@ export const AdvertsBidsModal = ({
     const [selectedButton, setSelectedButton] = useState('');
     const [open, setOpen] = useState(false);
     const modalOptions = [
-        {value: 'Установить', content: 'Установить'},
         {value: 'Автоставки', content: 'Автоставки'},
+        {value: 'Установить', content: 'Установить'},
     ];
     const [modalOption, setModalOption] = useState(modalOptions[0].value);
 

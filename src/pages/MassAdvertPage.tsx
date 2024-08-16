@@ -83,57 +83,7 @@ import {User} from './Dashboard';
 import {PhrasesModal} from 'src/components/PhrasesModal';
 import {AdvertCard} from 'src/components/AdvertCard';
 import {AdvertsBidsModal} from 'src/components/AdvertsBidsModal';
-
-const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo: User) => {
-    const [doc, setDocument] = useState<any>();
-
-    if (docum) {
-        console.log(docum, mode, selectValue);
-
-        if (mode) {
-            doc['campaigns'][selectValue] = docum['campaigns'][selectValue];
-            doc['balances'][selectValue] = docum['balances'][selectValue];
-            doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
-            doc['advertsPlusPhrasesTemplates'][selectValue] =
-                docum['advertsPlusPhrasesTemplates'][selectValue];
-            doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
-            doc['adverts'][selectValue] = docum['adverts'][selectValue];
-            doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
-            doc['advertsSelectedPhrases'][selectValue] =
-                docum['advertsSelectedPhrases'][selectValue];
-            doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
-            doc['autoSales'][selectValue] = docum['autoSales'][selectValue];
-
-            if (
-                doc['dzhemData'] &&
-                doc['dzhemData'][selectValue] &&
-                docum['dzhemData'] &&
-                docum['dzhemData'][selectValue]
-            )
-                doc['dzhemData'][selectValue] = docum['dzhemData'][selectValue];
-        }
-        setDocument(docum);
-    }
-
-    const params = {
-        uid: getUid(),
-        dateRange: {from: '2023', to: '2024'},
-        campaignName:
-            selectValue != ''
-                ? selectValue
-                : userInfo.campaignNames.includes('all')
-                ? 'ОТК ПРОИЗВОДСТВО'
-                : userInfo.campaignNames[0],
-    };
-    console.log(params);
-
-    useEffect(() => {
-        callApi('getMassAdvertsNew', params, true)
-            .then((response) => setDocument(response ? response['data'] : undefined))
-            .catch((error) => console.error(error));
-    }, []);
-    return doc;
-};
+import {AdvertsBudgetsModal} from 'src/components/AdvertsBudgetsModal';
 
 export const MassAdvertPage = ({
     selectValue,
@@ -189,8 +139,6 @@ export const MassAdvertPage = ({
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
 
-    const [changedDoc, setChangedDoc] = useState<any>(undefined);
-    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
     const [filters, setFilters] = useState({undef: false});
@@ -204,7 +152,6 @@ export const MassAdvertPage = ({
     const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
     const [availableAutoSales, setAvailableAutoSales] = useState({});
     const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
-    const [autoSalesModalOpen, setAutoSalesModalOpen] = useState(false);
     const [autoSalesProfits, setAutoSalesProfits] = useState({});
     const [filterAutoSales, setFilterAutoSales] = useState(false);
 
@@ -225,16 +172,6 @@ export const MassAdvertPage = ({
     const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState(['Авто']);
 
     const [copiedAdvertsSettings, setCopiedAdvertsSettings] = useState({advertId: 0});
-
-    const [budgetModalFormOpen, setBudgetModalFormOpen] = useState(false);
-    const [budgetModalBudgetInputValue, setBudgetModalBudgetInputValue] = useState(1000);
-    const [budgetModalBudgetInputValidationValue, setBudgetModalBudgetInputValidationValue] =
-        useState(true);
-    const budgetModalSwitchValues: any[] = [
-        {value: 'Пополнить', content: 'Пополнить'},
-        {value: 'Установить лимит', content: 'Установить лимит'},
-    ];
-    const [budgetModalSwitchValue, setBudgetModalSwitchValue] = React.useState('Пополнить');
 
     const artsStatsByDayModeSwitchValues: any[] = [
         {value: 'Статистика по дням', content: 'Статистика по дням'},
@@ -1339,7 +1276,6 @@ export const MassAdvertPage = ({
                                         columnDataAuction={columnDataAuction}
                                         auctionOptions={auctionOptions}
                                         auctionSelectedOption={auctionSelectedOption}
-                                        openBudgetModalForm={openBudgetModalForm}
                                         setDateRange={setDateRange}
                                         setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                         setShowArtStatsModalOpen={setShowArtStatsModalOpen}
@@ -1405,7 +1341,6 @@ export const MassAdvertPage = ({
                                         columnDataAuction={columnDataAuction}
                                         auctionOptions={auctionOptions}
                                         auctionSelectedOption={auctionSelectedOption}
-                                        openBudgetModalForm={openBudgetModalForm}
                                         setDateRange={setDateRange}
                                         setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                         setShowArtStatsModalOpen={setShowArtStatsModalOpen}
@@ -1468,7 +1403,6 @@ export const MassAdvertPage = ({
                                     columnDataAuction={columnDataAuction}
                                     auctionOptions={auctionOptions}
                                     auctionSelectedOption={auctionSelectedOption}
-                                    openBudgetModalForm={openBudgetModalForm}
                                     setDateRange={setDateRange}
                                     setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                     setShowArtStatsModalOpen={setShowArtStatsModalOpen}
@@ -3152,50 +3086,54 @@ export const MassAdvertPage = ({
     useEffect(() => {
         if (!selectValue || !doc) return;
         setWordsFetchUpdate(true);
-        if (!Object.keys(doc['campaigns'][selectValue[0]]).length) {
-            callApi(
-                'getMassAdvertsNew',
-                {
-                    uid: getUid(),
-                    dateRange: {from: '2023', to: '2024'},
-                    campaignName: selectValue,
-                },
-                true,
-            ).then(async (res) => {
-                if (!res) return;
-                const resData = res['data'];
-                doc['campaigns'][selectValue[0]] = resData['campaigns'][selectValue[0]];
-                doc['balances'][selectValue[0]] = resData['balances'][selectValue[0]];
-                doc['plusPhrasesTemplates'][selectValue[0]] =
-                    resData['plusPhrasesTemplates'][selectValue[0]];
-                doc['advertsPlusPhrasesTemplates'][selectValue[0]] =
-                    resData['advertsPlusPhrasesTemplates'][selectValue[0]];
-                doc['advertsBudgetsToKeep'][selectValue[0]] =
-                    resData['advertsBudgetsToKeep'][selectValue[0]];
-                doc['advertsSelectedPhrases'][selectValue[0]] =
-                    resData['advertsSelectedPhrases'][selectValue[0]];
-                doc['advertsAutoBidsRules'][selectValue[0]] =
-                    resData['advertsAutoBidsRules'][selectValue[0]];
-                doc['adverts'][selectValue[0]] = resData['adverts'][selectValue[0]];
-                doc['placementsAuctions'][selectValue[0]] =
-                    resData['placementsAuctions'][selectValue[0]];
-                // doc['dzhemData'][selectValue[0]] =
-                // resData['dzhemData'][selectValue[0]];
-                doc['advertsSchedules'][selectValue[0]] =
-                    resData['advertsSchedules'][selectValue[0]];
-                doc['dzhemData'][selectValue[0]] = resData['dzhemData'][selectValue[0]];
-                doc['autoSales'][selectValue[0]] = resData['autoSales'][selectValue[0]];
+        callApi(
+            'getMassAdvertsNew',
+            {
+                uid: getUid(),
+                dateRange: {from: '2023', to: '2024'},
+                campaignName: selectValue[0],
+            },
+            true,
+        ).then(async (res) => {
+            if (!res) return;
+            const resData = res['data'];
 
-                setChangedDoc(doc);
+            setChangedDoc(resData);
 
-                // recalc(dateRange, nextValue[0]);
+            // for (const [docKey, _] of Object.entries(doc)) {
+            //     doc[docKey] = {};
+            // }
 
-                setSwitchingCampaignsFlag(false);
-                console.log(doc);
-            });
-        } else {
+            // doc['campaigns'][selectValue[0]] = resData['campaigns'][selectValue[0]];
+            // doc['balances'][selectValue[0]] = resData['balances'][selectValue[0]];
+            // doc['plusPhrasesTemplates'][selectValue[0]] =
+            //     resData['plusPhrasesTemplates'][selectValue[0]];
+            // doc['advertsPlusPhrasesTemplates'][selectValue[0]] =
+            //     resData['advertsPlusPhrasesTemplates'][selectValue[0]];
+            // doc['advertsBudgetsToKeep'][selectValue[0]] =
+            //     resData['advertsBudgetsToKeep'][selectValue[0]];
+            // doc['advertsSelectedPhrases'][selectValue[0]] =
+            //     resData['advertsSelectedPhrases'][selectValue[0]];
+            // doc['advertsAutoBidsRules'][selectValue[0]] =
+            //     resData['advertsAutoBidsRules'][selectValue[0]];
+            // doc['adverts'][selectValue[0]] = resData['adverts'][selectValue[0]];
+            // doc['placementsAuctions'][selectValue[0]] =
+            //     resData['placementsAuctions'][selectValue[0]];
+            // // doc['dzhemData'][selectValue[0]] =
+            // // resData['dzhemData'][selectValue[0]];
+            // doc['advertsSchedules'][selectValue[0]] =
+            //     resData['advertsSchedules'][selectValue[0]];
+            // doc['dzhemData'][selectValue[0]] = resData['dzhemData'][selectValue[0]];
+            // doc['autoSales'][selectValue[0]] = resData['autoSales'][selectValue[0]];
+
+            // setChangedDoc(doc);
+
+            // recalc(dateRange, selectValue[0]);
+
             setSwitchingCampaignsFlag(false);
-        }
+            // console.log(res);
+        });
+
         recalc(dateRange, selectValue[0], filters);
         setPagesCurrent(1);
         setCopiedAdvertsSettings({advertId: 0});
@@ -3237,7 +3175,30 @@ export const MassAdvertPage = ({
         setDzhemRefetch(false);
     }, [selectValue, refetchAutoSales, dzhemRefetch]);
 
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0], userInfo);
+    const [doc, setChangedDoc] = useState(undefined as any);
+
+    useEffect(() => {
+        const params = {
+            uid: getUid(),
+            dateRange: {from: '2023', to: '2024'},
+            campaignName:
+                selectValue[0] != ''
+                    ? selectValue[0]
+                    : userInfo.campaignNames.includes('all')
+                    ? 'ОТК ПРОИЗВОДСТВО'
+                    : userInfo.campaignNames[0],
+        };
+        console.log(params);
+
+        callApi('getMassAdvertsNew', params, true)
+            .then((response) => setChangedDoc(response ? response['data'] : undefined))
+            .catch((error) => console.error(error));
+    }, []);
+
+    useEffect(() => {
+        recalc(dateRange);
+    }, [doc, selectValue]);
+
     const getCampaignName = () => {
         return selectValue[0];
     };
@@ -3258,7 +3219,6 @@ export const MassAdvertPage = ({
                 if (!response) return;
                 const resData = response['data'];
                 setChangedDoc(resData);
-                setChangedDocUpdateType(true);
                 setWordsFetchUpdate(true);
                 // console.log(response ? response['data'] : undefined);
             })
@@ -4062,16 +4022,6 @@ export const MassAdvertPage = ({
 
         fetchWords();
     }, [wordsFetchUpdate, firstRecalc]);
-
-    const openBudgetModalForm = () => {
-        setSelectedButton('');
-        setBudgetModalBudgetInputValue(1000);
-        setBudgetModalSwitchValue('Пополнить');
-        setBudgetModalBudgetInputValidationValue(true);
-        setModalOpenFromAdvertId('');
-        setBudgetModalFormOpen(true);
-    };
-
     const [changedColumns, setChangedColumns] = useState<any>(false);
 
     const genTextColumn = (textArray) => {
@@ -4353,12 +4303,6 @@ export const MassAdvertPage = ({
             }
         return arr.join(' ');
     })();
-
-    if (changedDoc) {
-        setChangedDoc(undefined);
-        setChangedDocUpdateType(false);
-        recalc(dateRange);
-    }
 
     if (changedColumns) {
         setChangedColumns(false);
@@ -5038,166 +4982,22 @@ export const MassAdvertPage = ({
                             </div>
                         </Card>
                     </Modal>
-                    <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="action"
-                        size="l"
-                        onClick={openBudgetModalForm}
+                    <AdvertsBudgetsModal
+                        selectValue={selectValue}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                        getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                        advertId={undefined}
                     >
-                        <Icon data={CircleRuble} />
-                        <Text variant="subheader-1">Бюджет</Text>
-                    </Button>
-                    <Modal open={budgetModalFormOpen} onClose={() => setBudgetModalFormOpen(false)}>
-                        <Card
-                            // view="raised"
-                            view="clear"
-                            style={{
-                                width: 300,
-                                // animation: '1s cubic-bezier(0.1, -0.6, 0.2, 0)',
-                                // animation: '3s linear 1s slidein',
-                                // maxWidth: '15vw',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                backgroundColor: 'none',
-                            }}
+                        <Button
+                            style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                            view="action"
+                            size="l"
                         >
-                            <div
-                                style={{
-                                    height: '50%',
-                                    width: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    margin: '16px 0',
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        margin: '8px 0',
-                                    }}
-                                    variant="display-2"
-                                >
-                                    Бюджет
-                                </Text>
-                                <RadioButton
-                                    style={{margin: '4px 0'}}
-                                    defaultValue={budgetModalSwitchValue}
-                                    options={budgetModalSwitchValues}
-                                    onUpdate={(val) => {
-                                        setBudgetModalSwitchValue(val);
-                                        setBudgetModalBudgetInputValue(1000);
-                                        setBudgetModalBudgetInputValidationValue(true);
-                                        setSelectedButton('');
-                                    }}
-                                />
-                                <TextInput
-                                    hasClear={budgetModalSwitchValue == 'Установить лимит'}
-                                    style={{
-                                        maxWidth: '70%',
-                                        margin: '4px 0',
-                                    }}
-                                    type="number"
-                                    value={String(budgetModalBudgetInputValue)}
-                                    onChange={(val) => {
-                                        const budget = Number(val.target.value);
-
-                                        if (
-                                            budget == 0 &&
-                                            budgetModalSwitchValue == 'Установить лимит'
-                                        )
-                                            setBudgetModalBudgetInputValidationValue(true);
-                                        else if (budget < 1000) {
-                                            setBudgetModalBudgetInputValidationValue(false);
-                                        } else {
-                                            setBudgetModalBudgetInputValidationValue(true);
-                                        }
-                                        setSelectedButton('');
-                                        setBudgetModalBudgetInputValue(budget);
-                                    }}
-                                    errorMessage={'Введите не менее 500'}
-                                    validationState={
-                                        budgetModalBudgetInputValidationValue
-                                            ? undefined
-                                            : 'invalid'
-                                    }
-                                    label="Бюджет"
-                                />
-                                {generateModalButtonWithActions(
-                                    {
-                                        style: {margin: '8px 0'},
-                                        placeholder:
-                                            budgetModalSwitchValue == 'Установить лимит'
-                                                ? budgetModalBudgetInputValue != 0
-                                                    ? 'Отправить'
-                                                    : 'Удалить лимит'
-                                                : 'Отправить',
-                                        disabled: !budgetModalBudgetInputValidationValue,
-                                        icon:
-                                            budgetModalSwitchValue == 'Установить лимит'
-                                                ? budgetModalBudgetInputValue != 0
-                                                    ? CloudArrowUpIn
-                                                    : TrashBin
-                                                : CloudArrowUpIn,
-                                        view:
-                                            budgetModalSwitchValue == 'Установить лимит'
-                                                ? budgetModalBudgetInputValue != 0
-                                                    ? 'outlined-success'
-                                                    : 'outlined-danger'
-                                                : 'outlined-success',
-                                        onClick: () => {
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    mode: budgetModalSwitchValue,
-                                                    advertsIds: {},
-                                                },
-                                            };
-
-                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                            for (const [id, advertData] of Object.entries(
-                                                uniqueAdverts,
-                                            )) {
-                                                if (!id || !advertData) continue;
-                                                const {advertId} = advertData as any;
-                                                if (
-                                                    modalOpenFromAdvertId != '' &&
-                                                    modalOpenFromAdvertId
-                                                ) {
-                                                    if (id != modalOpenFromAdvertId) continue;
-                                                }
-
-                                                params.data.advertsIds[advertId] = {
-                                                    advertId: advertId,
-                                                    budget: budgetModalBudgetInputValue,
-                                                };
-
-                                                if (budgetModalSwitchValue == 'Установить лимит') {
-                                                    doc.advertsBudgetsToKeep[selectValue[0]][
-                                                        advertId
-                                                    ] = budgetModalBudgetInputValue
-                                                        ? budgetModalBudgetInputValue
-                                                        : undefined;
-                                                }
-                                            }
-                                            console.log(params);
-
-                                            //////////////////////////////////
-                                            callApi('depositAdvertsBudgets', params);
-                                            setChangedDoc(doc);
-                                            //////////////////////////////////
-
-                                            setBudgetModalFormOpen(false);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                            </div>
-                        </Card>
-                    </Modal>
+                            <Icon data={CircleRuble} />
+                            <Text variant="subheader-1">Бюджет</Text>
+                        </Button>
+                    </AdvertsBudgetsModal>
                     <Modal
                         open={advertsArtsListModalFromOpen}
                         onClose={() => {
@@ -5276,7 +5076,6 @@ export const MassAdvertPage = ({
                                                 columnDataAuction={columnDataAuction}
                                                 auctionOptions={auctionOptions}
                                                 auctionSelectedOption={auctionSelectedOption}
-                                                openBudgetModalForm={openBudgetModalForm}
                                                 setDateRange={setDateRange}
                                                 setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                                 setShowArtStatsModalOpen={setShowArtStatsModalOpen}
@@ -5702,23 +5501,9 @@ export const MassAdvertPage = ({
                         <Text variant="subheader-1">График</Text>
                     </Button>
                     <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
-                    <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="action"
-                        loading={availableAutoSalesPending}
-                        size="l"
-                        onClick={async () => {
-                            setAutoSalesModalOpen(true);
-                        }}
-                    >
-                        <Icon data={TagRuble} />
-                        <Text variant="subheader-1">Рассчитать акции</Text>
-                    </Button>
                     <AutoSalesModal
                         params={{
-                            autoSalesModalOpen,
-                            setAutoSalesModalOpen,
-                            getUid,
+                            availableAutoSalesPending,
                             selectValue,
                             availableAutoSales,
                             filteredData,

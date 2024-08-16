@@ -24,6 +24,7 @@ import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {AdvertsWordsModal} from './AdvertsWordsModal';
 import {AdvertsBidsModal} from './AdvertsBidsModal';
+import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 
 export const AdvertCard = ({
     id,
@@ -48,7 +49,6 @@ export const AdvertCard = ({
     columnDataAuction,
     auctionOptions,
     auctionSelectedOption,
-    openBudgetModalForm,
     setDateRange,
     setModalOpenFromAdvertId,
     setShowArtStatsModalOpen,
@@ -732,21 +732,30 @@ export const AdvertCard = ({
                                 alignItems: 'center',
                             }}
                         >
-                            <Button
-                                pin="brick-round"
-                                size="xs"
-                                view="flat"
-                                onClick={() => {
-                                    openBudgetModalForm();
-                                    setModalOpenFromAdvertId(advertId);
-                                }}
+                            <AdvertsBudgetsModal
+                                selectValue={selectValue}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                getUniqueAdvertIdsFromThePage={undefined}
+                                advertId={advertId}
                             >
-                                <Text variant="caption-2">{`Баланс: ${
-                                    curBudget !== undefined ? curBudget : 'Нет инф.'
-                                } / ${
-                                    budgetToKeep !== undefined ? budgetToKeep : 'Бюджет не задан.'
-                                }`}</Text>
-                            </Button>
+                                <Button
+                                    pin="brick-round"
+                                    size="xs"
+                                    view="flat"
+                                    onClick={() => {
+                                        setModalOpenFromAdvertId(advertId);
+                                    }}
+                                >
+                                    <Text variant="caption-2">{`Баланс: ${
+                                        curBudget !== undefined ? curBudget : 'Нет инф.'
+                                    } / ${
+                                        budgetToKeep !== undefined
+                                            ? budgetToKeep
+                                            : 'Бюджет не задан.'
+                                    }`}</Text>
+                                </Button>
+                            </AdvertsBudgetsModal>
                         </div>
                     </Popover>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
