@@ -3,7 +3,7 @@ import {CloudArrowUpIn, TrashBin} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useState, Children, isValidElement, ReactElement, useMemo, useEffect} from 'react';
 import {TextTitleWrapper} from './TextTitleWrapper';
-import {getUid} from 'src/utilities/callApi';
+import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 
 export const AdvertsBudgetsModal = ({
