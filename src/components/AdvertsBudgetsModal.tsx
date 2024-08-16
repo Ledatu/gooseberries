@@ -78,12 +78,12 @@ export const AdvertsBudgetsModal = ({
     const [budgetInputValue, setBudgetInputValue] = useState('');
     const budgetInputValueValid = useMemo(() => {
         const temp = parseInt(budgetInputValue);
-        return temp && temp >= 500 && !isNaN(temp) && isFinite(temp);
+        return temp && temp >= 1000 && !isNaN(temp) && isFinite(temp);
     }, [budgetInputValue]);
 
     useEffect(() => {
         setBudgetModalOption([budgetModalOptions[0].value]);
-        setBudgetInputValue('500');
+        setBudgetInputValue('1000');
     }, [open]);
 
     const transition = useMemo(() => {
