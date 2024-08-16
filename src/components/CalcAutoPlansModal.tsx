@@ -148,7 +148,7 @@ export const CalcAutoPlansModal = ({
                                         .finally(() => {
                                             setCalculatingAutoPlansFlag(false);
                                         });
-                                    setChangedDoc(doc);
+                                    setChangedDoc({...doc});
                                     //////////////////////////////////
 
                                     setAutoPlanModalOpen(false);
@@ -198,7 +198,7 @@ export const CalcAutoPlansModal = ({
                                         .finally(() => {
                                             setCalculatingAutoPlansFlag(false);
                                         });
-                                    setChangedDoc(doc);
+                                    setChangedDoc({...doc});
                                     //////////////////////////////////
 
                                     setAutoPlanModalOpen(false);

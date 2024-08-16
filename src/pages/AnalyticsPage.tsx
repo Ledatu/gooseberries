@@ -702,7 +702,7 @@ export const AnalyticsPage = ({
                 doc['analyticsData'][selectValue[0]] = resData['analyticsData'][selectValue[0]];
                 doc['plansData'][selectValue[0]] = resData['plansData'][selectValue[0]];
 
-                setChangedDoc(doc);
+                setChangedDoc({...doc});
 
                 setSwitchingCampaignsFlag(false);
                 console.log(doc);
@@ -1635,7 +1635,7 @@ export const AnalyticsPage = ({
 
                                 //////////////////////////////////
                                 callApi('setPlanForKey', params);
-                                setChangedDoc(doc);
+                                setChangedDoc({...doc});
                                 //////////////////////////////////
 
                                 setPlanModalOpen(false);
@@ -1681,7 +1681,7 @@ export const AnalyticsPage = ({
 
                                 //////////////////////////////////
                                 callApi('setPlanForKey', params);
-                                setChangedDoc(doc);
+                                setChangedDoc({...doc});
                                 //////////////////////////////////
 
                                 setPlanModalOpen(false);

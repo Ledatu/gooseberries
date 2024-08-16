@@ -144,7 +144,7 @@ export const AdvertsBudgetsModal = ({
                     <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
                     {generateModalButtonWithActions(
                         {
-                            disabled: true,
+                            disabled: !budgetInputValueValid,
                             placeholder: {
                                 purchase: 'Пополнить',
                                 setBudgetToKeep: 'Установить',
@@ -170,9 +170,10 @@ export const AdvertsBudgetsModal = ({
                                 };
 
                                 for (const id of advertIds) {
-                                    if (budgetModalOption[0] == 'deleteBudgetToKeep')
+                                    if (budgetModalOption[0] == 'deleteBudgetToKeep') {
                                         doc.advertsBudgetsToKeep[selectValue[0]][id] = undefined;
-                                    else if (budgetModalOption[0] == 'setBudgetToKeep')
+                                        console.log(doc.advertsBudgetsToKeep[selectValue[0]][id]);
+                                    } else if (budgetModalOption[0] == 'setBudgetToKeep')
                                         doc.advertsBudgetsToKeep[selectValue[0]][id] =
                                             parseInt(budgetInputValue);
                                 }
@@ -180,8 +181,8 @@ export const AdvertsBudgetsModal = ({
                                 console.log(params);
 
                                 //////////////////////////////////
-                                // callApi('setAdvertsCPMs', params);
-                                setChangedDoc(doc);
+                                callApi('depositAdvertsBudgets', params);
+                                setChangedDoc({...doc});
                                 setOpen(false);
                                 //////////////////////////////////
                             },

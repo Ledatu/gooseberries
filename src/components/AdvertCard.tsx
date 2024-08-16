@@ -99,7 +99,7 @@ export const AdvertCard = ({
         console.log(params);
         callApi('copyAdvertsSettings', params)
             .then(() => {
-                setChangedDoc(doc);
+                setChangedDoc({...doc});
             })
             .catch((error) => {
                 console.log('error copiyng:', error);
@@ -432,7 +432,7 @@ export const AdvertCard = ({
                                     doc.adverts[selectValue[0]][advertId].status =
                                         status == 11 ? 9 : 11;
                                 }
-                                setChangedDoc(doc);
+                                setChangedDoc({...doc});
                             }}
                             // style={{position: 'relative', top: -2}}
                             disabled={status === undefined}
@@ -624,7 +624,7 @@ export const AdvertCard = ({
                                             bids: [],
                                         };
 
-                                    setChangedDoc(doc);
+                                    setChangedDoc({...doc});
                                 } catch (error) {
                                     console.error('Error fetching adverts bids logs:', error);
                                 } finally {
@@ -1152,7 +1152,7 @@ export const AdvertCard = ({
                                 if (res['data']['status'] == 'ok') {
                                     doc.adverts[selectValue[0]][advertId] = undefined;
                                 }
-                                setChangedDoc(doc);
+                                setChangedDoc({...doc});
                             }}
                         >
                             Удалить

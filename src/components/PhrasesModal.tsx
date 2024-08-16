@@ -106,7 +106,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
 
                                     /////////////////////////
                                     callApi('setAdvertsPlusPhrasesTemplates', params);
-                                    setChangedDoc(doc);
+                                    setChangedDoc({...doc});
                                     /////////////////////////
                                     setOpen(false);
                                 }}
@@ -192,7 +192,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
 
                                                         /////////////////////////
                                                         callApi('setPlusPhraseTemplate', params);
-                                                        setChangedDoc(doc);
+                                                        setChangedDoc({...doc});
                                                         /////////////////////////
                                                     }}
                                                 >
@@ -237,7 +237,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
 
                                     /////////////////////////
                                     callApi('setAdvertsPlusPhrasesTemplates', params);
-                                    setChangedDoc(doc);
+                                    setChangedDoc({...doc});
                                     /////////////////////////
                                     setOpen(false);
                                 },

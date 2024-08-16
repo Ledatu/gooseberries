@@ -235,7 +235,7 @@ export const AnalyticsCalcModal = ({
                                     doc['plansData'][selectValue[0]] =
                                         resData['plansData'][selectValue[0]];
 
-                                    setChangedDoc(doc);
+                                    setChangedDoc({...doc});
                                     setCalculatingFlag(false);
                                     console.log(doc);
                                 });

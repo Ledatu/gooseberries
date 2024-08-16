@@ -362,7 +362,7 @@ export const NomenclaturesPage = ({
                     doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
                     doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
 
-                    setChangedDoc(doc);
+                    setChangedDoc({...doc});
 
                     setSwitchingCampaignsFlag(false);
                     console.log(doc);
@@ -428,7 +428,7 @@ export const NomenclaturesPage = ({
                     const resData = res['data'];
                     doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
                     doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
-                    setChangedDoc(doc);
+                    setChangedDoc({...doc});
                     console.log(doc);
                 });
             })
@@ -751,7 +751,7 @@ export const NomenclaturesPage = ({
                                                     doc['artsData'][selectValue[0]] =
                                                         resData['artsData'][selectValue[0]];
 
-                                                    setChangedDoc(doc);
+                                                    setChangedDoc({...doc});
 
                                                     console.log(doc);
                                                 });
@@ -902,7 +902,7 @@ export const NomenclaturesPage = ({
                                                         ].tags.push(tag);
                                                 }
 
-                                                setChangedDoc(doc);
+                                                setChangedDoc({...doc});
 
                                                 callApi('setTags', params);
 
@@ -966,7 +966,7 @@ export const NomenclaturesPage = ({
                                                     ].tags.filter((val) => val != tag);
                                                 }
 
-                                                setChangedDoc(doc);
+                                                setChangedDoc({...doc});
 
                                                 callApi('setTags', params);
 

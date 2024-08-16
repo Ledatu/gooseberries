@@ -49,7 +49,7 @@ export const PlansUpload = ({selectValue, doc, setChangedDoc}) => {
             if (response) {
                 const resData = response['data'];
                 doc['plansData'][selectValue[0]] = resData;
-                setChangedDoc(doc);
+                setChangedDoc({...doc});
 
                 setTimeout(() => {
                     setUploadProgress(0);

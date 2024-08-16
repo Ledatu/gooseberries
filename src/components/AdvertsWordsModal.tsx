@@ -861,7 +861,7 @@ export const AdvertsWordsModal = ({
                                                                                 'setAdvertsCPMs',
                                                                                 params,
                                                                             );
-                                                                            setChangedDoc(doc);
+                                                                            setChangedDoc({...doc});
                                                                             //////////////////////////////////
                                                                         },
                                                                     },
@@ -954,7 +954,7 @@ export const AdvertsWordsModal = ({
                                         ].phrase = value;
                                     }
 
-                                    setChangedDoc(doc);
+                                    setChangedDoc({...doc});
 
                                     const params = {
                                         uid: getUid(),
@@ -1705,7 +1705,7 @@ export const AdvertsWordsModal = ({
                                                                                 'setAdvertsCPMs',
                                                                                 params,
                                                                             );
-                                                                            setChangedDoc(doc);
+                                                                            setChangedDoc({...doc});
                                                                             //////////////////////////////////
                                                                         },
                                                                     },
@@ -1798,7 +1798,7 @@ export const AdvertsWordsModal = ({
                                         ].phrase = value;
                                     }
 
-                                    setChangedDoc(doc);
+                                    setChangedDoc({...doc});
 
                                     const params = {
                                         uid: getUid(),
@@ -2461,7 +2461,7 @@ export const AdvertsWordsModal = ({
 
                                         console.log(params);
 
-                                        setChangedDoc(doc);
+                                        setChangedDoc({...doc});
 
                                         callApi('setPlusPhraseTemplate', params);
 

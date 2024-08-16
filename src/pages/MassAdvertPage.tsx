@@ -722,7 +722,7 @@ export const MassAdvertPage = ({
                                             console.log(params);
 
                                             delete doc.autoSales[selectValue[0]][nmId];
-                                            setChangedDoc(doc);
+                                            setChangedDoc({...doc});
 
                                             callApi('deleteAutoSaleFromNmIds', params);
                                         }}
@@ -1201,7 +1201,7 @@ export const MassAdvertPage = ({
 
                                   console.log(params);
                                   setAutoSalesProfits(tempAutoSales);
-                                  setChangedDoc(doc);
+                                  setChangedDoc({...doc});
 
                                   callApi('setAutoSales', params);
                               }}
@@ -1544,7 +1544,7 @@ export const MassAdvertPage = ({
                                             autoSaleName,
                                             fixedPrices: {dateRange},
                                         };
-                                        setChangedDoc(doc);
+                                        setChangedDoc({...doc});
 
                                         callApi('setAutoSales', params);
 
@@ -2105,7 +2105,7 @@ export const MassAdvertPage = ({
                                 }
                             }
                             console.log(params);
-                            setChangedDoc(doc);
+                            setChangedDoc({...doc});
                             callApi('updateAdvertsSelectedPhrases', params);
                         }}
                     >
@@ -2146,7 +2146,7 @@ export const MassAdvertPage = ({
                                 );
                             }
 
-                            setChangedDoc(doc);
+                            setChangedDoc({...doc});
                         }}
                     >
                         <Icon size={12} data={ArrowRotateLeft} />
@@ -2814,7 +2814,7 @@ export const MassAdvertPage = ({
                                                                                 'setAdvertsCPMs',
                                                                                 params,
                                                                             );
-                                                                            setChangedDoc(doc);
+                                                                            setChangedDoc({...doc});
                                                                             //////////////////////////////////
                                                                         },
                                                                     },
@@ -2908,7 +2908,7 @@ export const MassAdvertPage = ({
                                             ].phrase = phrase;
                                         }
 
-                                        setChangedDoc(doc);
+                                        setChangedDoc({...doc});
 
                                         const params = {
                                             uid: getUid(),
@@ -3126,7 +3126,7 @@ export const MassAdvertPage = ({
             // doc['dzhemData'][selectValue[0]] = resData['dzhemData'][selectValue[0]];
             // doc['autoSales'][selectValue[0]] = resData['autoSales'][selectValue[0]];
 
-            // setChangedDoc(doc);
+            // setChangedDoc({...doc});
 
             // recalc(dateRange, selectValue[0]);
 
@@ -3251,7 +3251,7 @@ export const MassAdvertPage = ({
         }
 
         console.log(doc);
-        setChangedDoc(doc);
+        setChangedDoc({...doc});
 
         setFetchedPlacements(undefined);
     }
@@ -4011,7 +4011,7 @@ export const MassAdvertPage = ({
                         doc.adverts[selectValue[0]][advertId].words =
                             wordsForAdverts.words[advertId] ?? {};
                     }
-                    setChangedDoc(doc);
+                    setChangedDoc({...doc});
                 }
             } catch (error) {
                 console.error('Error fetching words for adverts:', error);
@@ -4515,7 +4515,7 @@ export const MassAdvertPage = ({
                 resData['placementsAuctions'][selectValue[0]];
             doc['advertsSchedules'][selectValue[0]] = resData['advertsSchedules'][selectValue[0]];
 
-            setChangedDoc(doc);
+            setChangedDoc({...doc});
 
             setDateChangeRecalc(false);
             setFetchingDataFromServerFlag(false);
@@ -4597,7 +4597,7 @@ export const MassAdvertPage = ({
                 }
             }
             await new Promise((resolve) => setTimeout(resolve, 500));
-            setChangedDoc(doc);
+            setChangedDoc({...doc});
         }
         setManageModalInProgress(false);
     };
@@ -4968,7 +4968,7 @@ export const MassAdvertPage = ({
                                                             }
                                                         }
 
-                                                    setChangedDoc(doc);
+                                                    setChangedDoc({...doc});
                                                 }
                                             } catch (error) {
                                                 console.log(error);
@@ -5186,7 +5186,7 @@ export const MassAdvertPage = ({
 
                                                         setAdvertsArtsListModalFromOpen(false);
                                                     }
-                                                    setChangedDoc(doc);
+                                                    setChangedDoc({...doc});
                                                 }}
                                             >
                                                 <Icon data={rkListMode == 'add' ? Plus : Xmark} />
@@ -5403,7 +5403,7 @@ export const MassAdvertPage = ({
 
                                             //////////////////////////////////
                                             callApi('setAdvertsSchedules', params);
-                                            setChangedDoc(doc);
+                                            setChangedDoc({...doc});
                                             //////////////////////////////////
 
                                             setShowScheduleModalOpen(false);
@@ -5453,7 +5453,7 @@ export const MassAdvertPage = ({
 
                                             //////////////////////////////////
                                             callApi('setAdvertsSchedules', params);
-                                            setChangedDoc(doc);
+                                            setChangedDoc({...doc});
                                             //////////////////////////////////
 
                                             setShowScheduleModalOpen(false);

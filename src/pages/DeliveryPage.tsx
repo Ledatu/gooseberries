@@ -253,7 +253,7 @@ export const DeliveryPage = ({
                 doc['deliveryData'][selectValue[0]] = resData['deliveryData'][selectValue[0]];
                 doc['tariffs'][selectValue[0]] = resData['tariffs'][selectValue[0]];
 
-                setChangedDoc(doc);
+                setChangedDoc({...doc});
 
                 setSwitchingCampaignsFlag(false);
                 console.log(doc);
@@ -313,7 +313,7 @@ export const DeliveryPage = ({
 
             doc.deliveryData[selectValue[0]][art].byWarehouses[warehouse] = tempWarehouseData;
 
-            setChangedDoc(doc);
+            setChangedDoc({...doc});
         }
     };
 
@@ -376,7 +376,7 @@ export const DeliveryPage = ({
             doc['deliveryData'][selectValue[0]] = resData['deliveryData'][selectValue[0]];
             doc['tariffs'][selectValue[0]] = resData['tariffs'][selectValue[0]];
 
-            setChangedDoc(doc);
+            setChangedDoc({...doc});
 
             setDateChangeRecalc(false);
             setUpdatingFlag(false);

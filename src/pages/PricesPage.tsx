@@ -752,7 +752,7 @@ export const PricesPage = ({
             }
         }
 
-        setChangedDoc(doc);
+        setChangedDoc({...doc});
 
         callApi('manageFixPricesActivity', params);
     };
@@ -816,7 +816,7 @@ export const PricesPage = ({
                 doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
                 doc['fixArtPrices'][selectValue[0]] = resData['fixArtPrices'][selectValue[0]];
 
-                setChangedDoc(doc);
+                setChangedDoc({...doc});
 
                 setSwitchingCampaignsFlag(false);
                 console.log(doc);
@@ -859,7 +859,7 @@ export const PricesPage = ({
             doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
             doc['fixArtPrices'][selectValue[0]] = resData['fixArtPrices'][selectValue[0]];
 
-            setChangedDoc(doc);
+            setChangedDoc({...doc});
 
             setDateChangeRecalc(false);
             setUpdatingFlag(false);
@@ -1496,7 +1496,7 @@ export const PricesPage = ({
 
                                                 setLastCalcOldData(tempOldData);
 
-                                                setChangedDoc(doc);
+                                                setChangedDoc({...doc});
                                                 setCalculatingFlag(false);
                                                 console.log(doc);
                                             });
@@ -1733,7 +1733,7 @@ export const PricesPage = ({
                                                     params.updatePricesParams.data.push(nmIdData);
                                                 }
 
-                                                setChangedDoc(doc);
+                                                setChangedDoc({...doc});
 
                                                 console.log(params);
                                                 console.log(paramsFix);

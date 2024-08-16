@@ -456,7 +456,7 @@ export const AdvertsBidsModal = ({
 
                                 //////////////////////////////////
                                 callApi('setAdvertsCPMs', params);
-                                setChangedDoc(doc);
+                                setChangedDoc({...doc});
                                 setOpen(false);
                                 //////////////////////////////////
                             },

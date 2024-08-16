@@ -559,7 +559,7 @@
 
 //                     console.log(params);
 
-//                     setChangedDoc(doc);
+//                     setChangedDoc({...doc});
 
 //                     callApi('setPlusPhraseTemplate', params);
 
