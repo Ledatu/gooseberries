@@ -4330,6 +4330,12 @@ export const MassAdvertPage = ({
         return arr.join(' ');
     })();
 
+    if (changedDoc) {
+        setChangedDoc(undefined);
+        setChangedDocUpdateType(false);
+        recalc(dateRange);
+    }
+
     if (changedColumns) {
         setChangedColumns(false);
     }
