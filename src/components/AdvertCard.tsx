@@ -1,4 +1,4 @@
-import {Button, Card, Icon, Text, Popover, Loader} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Text} from '@gravity-ui/uikit';
 import {
     TrashBin,
     Clock,
@@ -18,11 +18,11 @@ import {motion} from 'framer-motion';
 import React, {useState} from 'react';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {getLocaleDateString, getRoundValue} from 'src/utilities/getRoundValue';
-import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {AdvertsWordsModal} from './AdvertsWordsModal';
 import {AdvertsBidsModal} from './AdvertsBidsModal';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
+import {ChartModal} from './ChartModal';
 
 export const AdvertCard = ({
     id,
@@ -73,7 +73,6 @@ export const AdvertCard = ({
     setAuctionSelectedOption,
 }) => {
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
-    const [advertsBidsLogFetchUpdate, setAdvertsBidsLogFetchUpdate] = useState(false);
 
     const setCopiedParams = (advertId) => {
         console.log(advertId, 'params will be set from', copiedAdvertsSettings.advertId);
@@ -107,124 +106,13 @@ export const AdvertCard = ({
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
     const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
     if (!advertData) return <></>;
-    const {advertId, status, budget, bidLog, daysInWork, type, budgetLog, pregenerated, cpm} =
-        advertData;
+    const {advertId, status, budget, daysInWork, type, budgetLog, pregenerated, cpm} = advertData;
     if (![4, 9, 11].includes(status)) return <></>;
 
     const curCpm = cpm;
 
     const curBudget = budget;
     // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
-
-    const timeline: any[] = [];
-    const graphsData: any[] = [];
-    const graphsDataPosition: any[] = [];
-    const graphsDataPositionAuction: any[] = [];
-    const graphsDataPositionOrganic: any[] = [];
-    const bidLogType = bidLog;
-    if (bidLogType) {
-        for (let i = 1; i < bidLogType.bids.length; i++) {
-            const {val} = bidLogType.bids[i - 1];
-            const {time, index, cpmIndex, position} = bidLogType.bids[i];
-            if (!time || !val) continue;
-
-            // curCpm = val;
-
-            const timeObj = new Date(time);
-            const rbd = new Date(dateRange[1]);
-            rbd.setHours(23, 59, 59);
-            if (timeObj < dateRange[0] || timeObj > rbd) continue;
-            timeline.push(timeObj.getTime());
-            graphsData.push(val);
-
-            if (index == -1 || !index) graphsDataPosition.push(null);
-            else graphsDataPosition.push(index);
-
-            if (cpmIndex == -1 || !index) graphsDataPositionAuction.push(null);
-            else graphsDataPositionAuction.push(cpmIndex);
-
-            if (position == -1 || !position) graphsDataPositionOrganic.push(null);
-            else graphsDataPositionOrganic.push(position);
-        }
-    }
-    const yagrData: YagrWidgetData = {
-        data: {
-            timeline: timeline,
-            graphs: [
-                {
-                    id: '0',
-                    name: 'Ставка',
-                    color: '#5fb8a5',
-                    data: graphsData,
-                },
-                {
-                    id: '1',
-                    name: 'Позиция',
-                    color: '#4aa1f2',
-                    scale: 'r',
-                    data: graphsDataPosition,
-                },
-                {
-                    id: '2',
-                    name: 'Позиция в аукционе',
-                    color: '#9a63d1',
-                    scale: 'r',
-                    data: graphsDataPositionAuction,
-                },
-                {
-                    id: '3',
-                    name: 'Органическая позиция',
-                    color: '#708da6',
-                    scale: 'r2',
-                    data: graphsDataPositionOrganic,
-                },
-            ],
-        },
-
-        libraryConfig: {
-            chart: {
-                series: {
-                    spanGaps: false,
-                    type: 'line',
-                    interpolation: 'smooth',
-                },
-            },
-            axes: {
-                y: {
-                    label: 'Ставка',
-                    precision: 'auto',
-                    show: true,
-                },
-                r: {
-                    label: 'Выдача',
-                    side: 'right',
-                    precision: 'auto',
-                    show: true,
-                },
-                r1: {
-                    label: 'Аукцион',
-                    side: 'right',
-                    precision: 'auto',
-                    show: true,
-                },
-                r2: {
-                    label: 'Органика',
-                    side: 'right',
-                    precision: 'auto',
-                    show: true,
-                },
-                x: {
-                    label: 'Время',
-                    precision: 'auto',
-                    show: true,
-                },
-            },
-            scales: {},
-            title: {
-                text: 'Изменение ставки',
-            },
-        },
-    };
 
     const timelineBudget: any[] = [];
     const graphsDataBudgets: any[] = [];
@@ -571,11 +459,8 @@ export const AdvertCard = ({
                             </Button>
                         </AdvertsBidsModal>
 
-                        <Popover
-                            onOpenChange={async (open) => {
-                                if (!open) {
-                                    return;
-                                }
+                        <ChartModal
+                            fetchingFunction={async () => {
                                 const params = {
                                     uid: getUid(),
                                     campaignName: selectValue[0],
@@ -586,7 +471,6 @@ export const AdvertCard = ({
                                 console.log(params);
 
                                 try {
-                                    setAdvertsBidsLogFetchUpdate(true);
                                     const res = await callApi(
                                         'getAdvertBidsLogsForAdvertId',
                                         params,
@@ -598,147 +482,165 @@ export const AdvertCard = ({
                                     if (advertsBidsLog)
                                         advertsBidsLog.bids = advertsBidsLog.bids.reverse();
 
-                                    // console.log(wordsForAdverts);
+                                    const bidLog = advertsBidsLog ? advertsBidsLog.bids : [];
 
-                                    doc.adverts[selectValue[0]][advertId].bidLog =
-                                        advertsBidsLog ?? {
-                                            bids: [],
-                                        };
+                                    const timeline: any[] = [];
+                                    const graphsData: any[] = [];
+                                    const graphsDataPosition: any[] = [];
+                                    const graphsDataPositionAuction: any[] = [];
+                                    const graphsDataPositionOrganic: any[] = [];
+                                    for (let i = 1; i < bidLog.length; i++) {
+                                        const {val} = bidLog[i - 1];
+                                        const {time, index, cpmIndex, position} = bidLog[i];
+                                        if (!time || !val) continue;
 
-                                    setChangedDoc({...doc});
+                                        // curCpm = val;
+
+                                        const timeObj = new Date(time);
+                                        const rbd = new Date(dateRange[1]);
+                                        rbd.setHours(23, 59, 59);
+                                        if (timeObj < dateRange[0] || timeObj > rbd) continue;
+                                        timeline.push(timeObj.getTime());
+                                        graphsData.push(val);
+
+                                        if (index == -1 || !index) graphsDataPosition.push(null);
+                                        else graphsDataPosition.push(index);
+
+                                        if (cpmIndex == -1 || !index)
+                                            graphsDataPositionAuction.push(null);
+                                        else graphsDataPositionAuction.push(cpmIndex);
+
+                                        if (position == -1 || !position)
+                                            graphsDataPositionOrganic.push(null);
+                                        else graphsDataPositionOrganic.push(position);
+                                    }
+                                    const yagrData: YagrWidgetData = {
+                                        data: {
+                                            timeline: timeline,
+                                            graphs: [
+                                                {
+                                                    id: '0',
+                                                    name: 'Ставка',
+                                                    color: '#5fb8a5',
+                                                    data: graphsData,
+                                                },
+                                                {
+                                                    id: '1',
+                                                    name: 'Позиция',
+                                                    color: '#4aa1f2',
+                                                    scale: 'r',
+                                                    data: graphsDataPosition,
+                                                },
+                                                {
+                                                    id: '2',
+                                                    name: 'Позиция в аукционе',
+                                                    color: '#9a63d1',
+                                                    scale: 'r',
+                                                    data: graphsDataPositionAuction,
+                                                },
+                                                {
+                                                    id: '3',
+                                                    name: 'Органическая позиция',
+                                                    color: '#708da6',
+                                                    scale: 'r2',
+                                                    data: graphsDataPositionOrganic,
+                                                },
+                                            ],
+                                        },
+
+                                        libraryConfig: {
+                                            chart: {
+                                                series: {
+                                                    spanGaps: false,
+                                                    type: 'line',
+                                                    interpolation: 'smooth',
+                                                },
+                                            },
+                                            axes: {
+                                                y: {
+                                                    label: 'Ставка',
+                                                    precision: 'auto',
+                                                    show: true,
+                                                },
+                                                r: {
+                                                    label: 'Выдача',
+                                                    side: 'right',
+                                                    precision: 'auto',
+                                                    show: true,
+                                                },
+                                                r1: {
+                                                    label: 'Аукцион',
+                                                    side: 'right',
+                                                    precision: 'auto',
+                                                    show: true,
+                                                },
+                                                r2: {
+                                                    label: 'Органика',
+                                                    side: 'right',
+                                                    precision: 'auto',
+                                                    show: true,
+                                                },
+                                                x: {
+                                                    label: 'Время',
+                                                    precision: 'auto',
+                                                    show: true,
+                                                },
+                                            },
+                                            scales: {},
+                                            title: {
+                                                text: 'Изменение ставки',
+                                            },
+                                        },
+                                    };
+                                    return yagrData;
                                 } catch (error) {
                                     console.error('Error fetching adverts bids logs:', error);
-                                } finally {
-                                    setAdvertsBidsLogFetchUpdate(false);
+                                    return {} as YagrWidgetData;
                                 }
                             }}
-                            content={
-                                <div
-                                    style={{
-                                        height: 'calc(48em - 60px)',
-                                        width: '72em',
-                                        overflow: 'auto',
-                                        display: 'flex',
-                                    }}
-                                >
-                                    <Card
-                                        view="outlined"
-                                        theme="warning"
-                                        style={{
-                                            position: 'absolute',
-                                            height: '48em',
-                                            width: '72em',
-                                            overflow: 'auto',
-                                            top: -10,
-                                            left: -10,
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <motion.div
-                                            style={{
-                                                left: 0,
-                                                top: 0,
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                width: '100%',
-                                                height: '100%',
-                                                position: 'absolute',
-                                                background: 'var(--g-color-base-background)',
-                                            }}
-                                        >
-                                            <Loader size="l" />
-                                        </motion.div>
-                                        <motion.div
-                                            animate={{opacity: advertsBidsLogFetchUpdate ? 0 : 1}}
-                                            transition={{duration: 0.2, ease: 'easeIn'}}
-                                            style={{
-                                                display: advertsBidsLogFetchUpdate
-                                                    ? 'none'
-                                                    : 'flex',
-                                                pointerEvents: advertsBidsLogFetchUpdate
-                                                    ? 'none'
-                                                    : undefined,
-                                                cursor: 'default',
-                                                position: 'absolute',
-                                                left: 0,
-                                                top: 0,
-                                                width: '100%',
-                                                height: '100%',
-                                            }}
-                                        >
-                                            <ChartKit type="yagr" data={yagrData} />
-                                        </motion.div>
-                                    </Card>
-                                </div>
-                            }
                         >
                             <Button pin="round-brick" size="xs" view="flat">
                                 <Icon data={ChartAreaStacked} size={11} />
                             </Button>
-                        </Popover>
+                        </ChartModal>
                     </div>
-                    <Popover
-                        content={
-                            <div
-                                style={{
-                                    height: 'calc(30em - 60px)',
-                                    width: '600em',
-                                    overflow: 'auto',
-                                    display: 'flex',
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                        }}
+                    >
+                        <AdvertsBudgetsModal
+                            selectValue={selectValue}
+                            doc={doc}
+                            setChangedDoc={setChangedDoc}
+                            getUniqueAdvertIdsFromThePage={undefined}
+                            advertId={advertId}
+                        >
+                            <Button
+                                pin="brick-round"
+                                size="xs"
+                                view="flat"
+                                onClick={() => {
+                                    setModalOpenFromAdvertId(advertId);
                                 }}
                             >
-                                <Card
-                                    view="outlined"
-                                    theme="warning"
-                                    style={{
-                                        position: 'absolute',
-                                        height: '30em',
-                                        width: '60em',
-                                        overflow: 'auto',
-                                        top: -10,
-                                        left: -10,
-                                        display: 'flex',
-                                    }}
-                                >
-                                    <ChartKit type="yagr" data={yagrBudgetData} />
-                                </Card>
-                            </div>
-                        }
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <AdvertsBudgetsModal
-                                selectValue={selectValue}
-                                doc={doc}
-                                setChangedDoc={setChangedDoc}
-                                getUniqueAdvertIdsFromThePage={undefined}
-                                advertId={advertId}
-                            >
-                                <Button
-                                    pin="brick-round"
-                                    size="xs"
-                                    view="flat"
-                                    onClick={() => {
-                                        setModalOpenFromAdvertId(advertId);
-                                    }}
-                                >
-                                    <Text variant="caption-2">{`Баланс: ${
-                                        curBudget !== undefined ? curBudget : 'Нет инф.'
-                                    } / ${
-                                        budgetToKeep !== undefined
-                                            ? budgetToKeep
-                                            : 'Бюджет не задан.'
-                                    }`}</Text>
-                                </Button>
-                            </AdvertsBudgetsModal>
-                        </div>
-                    </Popover>
+                                <Text variant="caption-2">{`Баланс: ${
+                                    curBudget !== undefined ? curBudget : 'Нет инф.'
+                                } / ${
+                                    budgetToKeep !== undefined ? budgetToKeep : 'Бюджет не задан.'
+                                }`}</Text>
+                            </Button>
+                        </AdvertsBudgetsModal>
+                        <ChartModal data={yagrBudgetData}>
+                            <Button pin="round-brick" size="xs" view="flat">
+                                <Icon data={ChartAreaStacked} size={11} />
+                            </Button>
+                        </ChartModal>
+                    </div>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         <AdvertsWordsModal
                             doc={doc}
