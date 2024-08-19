@@ -3,10 +3,12 @@ import {
     Card,
     Icon,
     List,
+    Loader,
     Modal,
     Popover,
     RadioButton,
     Select,
+    Skeleton,
     Spin,
     Text,
     TextInput,
@@ -42,7 +44,6 @@ export const AdvertsWordsModal = ({
     selectValue,
     advertId,
     art,
-    advertSemantics,
     setChangedDoc,
     setFetchedPlacements,
     currentParsingProgress,
@@ -72,6 +73,161 @@ export const AdvertsWordsModal = ({
     setAuctionSelectedOption,
 }) => {
     const [open, setOpen] = useState(false);
+
+    const [wordsFetchUpdate, setWordsFetchUpdate] = useState(false);
+    const [advertsWords, setAdwertsWords] = useState({});
+
+    const advertSemantics = {
+        clusters: advertsWords ? advertsWords['clusters'] ?? [] : [],
+        excluded: advertsWords ? advertsWords['excluded'] ?? [] : [],
+    };
+
+    useEffect(() => {
+        if (wordsFetchUpdate) return;
+        setSemanticsModalOpenFromArt(art);
+
+        if (autoPhrasesTemplate) {
+            setSemanticsAutoPhrasesModalIncludesList(autoPhrasesTemplate.includes ?? []);
+            setSemanticsAutoPhrasesModalNotIncludesList(autoPhrasesTemplate.notIncludes ?? []);
+        } else {
+            setSemanticsAutoPhrasesModalIncludesList([]);
+            setSemanticsAutoPhrasesModalNotIncludesList([]);
+        }
+        setSemanticsAutoPhrasesModalIncludesListInput('');
+        setSemanticsAutoPhrasesModalNotIncludesListInput('');
+
+        setSemanticsModalSemanticsItemsValue(() => {
+            const temp = advertSemantics.clusters;
+            temp.sort((a, b) => {
+                const key = 'count';
+                const valA = a[key] ?? 0;
+                const valB = b[key] ?? 0;
+                return valB - valA;
+            });
+
+            const tempPresets = [] as any[];
+            for (const [_cluster, clusterData] of Object.entries(temp)) {
+                const {preset, freq} = (clusterData as {
+                    preset: string;
+                    cluster: string;
+                    freq: object;
+                }) ?? {
+                    preset: undefined,
+                    freq: undefined,
+                    cluster: undefined,
+                };
+                if (preset) tempPresets.push(preset);
+                if (freq && freq['val']) {
+                    temp[_cluster].freq = freq['val'];
+                    temp[_cluster].freqTrend = freq['trend'];
+                }
+            }
+            setSemanticsModalSemanticsItemsValuePresets(tempPresets);
+
+            setSemanticsModalSemanticsItemsFiltratedValue(temp);
+            return temp;
+        });
+        setSemanticsModalSemanticsMinusItemsValue(() => {
+            const temp = advertSemantics.excluded;
+            temp.sort((a, b) => {
+                const freqA = a.freq ? a.freq.val : 0;
+                const freqB = b.freq ? b.freq.val : 0;
+                return freqB - freqA;
+            });
+
+            const tempPresets = [] as any[];
+            for (const [_cluster, clusterData] of Object.entries(temp)) {
+                const {preset, freq} = (clusterData as {
+                    preset: string;
+                    cluster: string;
+                    freq: object;
+                }) ?? {
+                    preset: undefined,
+                    freq: undefined,
+                    cluster: undefined,
+                };
+                if (preset) tempPresets.push(preset);
+                if (freq && freq['val']) {
+                    temp[_cluster].freq = freq['val'];
+                    temp[_cluster].freqTrend = freq['trend'];
+                }
+            }
+            setSemanticsModalSemanticsMinusItemsValuePresets(tempPresets);
+
+            setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
+            return temp;
+        });
+
+        const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].threshold
+            : 1;
+        setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+        const plusCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].ctrThreshold
+            : 0;
+        setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
+
+        const plusSecondThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].secondThreshold
+            : 0;
+        setSemanticsModalSemanticsSecondThresholdValue(plusSecondThreshold);
+
+        const plusSecondCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].secondCtrThreshold
+            : 0;
+        setSemanticsModalSemanticsSecondCTRThresholdValue(plusSecondCTRThreshold);
+
+        const isFixed = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].isFixed ?? false
+            : false;
+        setSemanticsModalIsFixed(isFixed);
+
+        setClustersFiltersActive({undef: false});
+        setClustersFiltersMinus({undef: false});
+
+        // // console.log(value.plus);
+        setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+            plusPhrasesTemplate ?? `Новый шаблон`,
+        );
+        const plusItems = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].clusters
+            : [];
+        setSemanticsModalSemanticsPlusItemsValue(plusItems);
+    }, [wordsFetchUpdate]);
+
+    useEffect(() => {
+        if (!open) {
+            setAdwertsWords({});
+            return;
+        }
+
+        const fetchWords = async () => {
+            setWordsFetchUpdate(true);
+            const params = {
+                uid: getUid(),
+                campaignName: selectValue[0],
+                advertId: advertId,
+            };
+            console.log(params);
+
+            try {
+                const res = await callApi('getWordsForAdvertId', params);
+                if (!res) throw 'its undefined';
+                const words = res['data'];
+                console.log(words);
+
+                setAdwertsWords(words ?? {});
+            } catch (error) {
+                console.error('Error fetching words for advertId:', error);
+            } finally {
+                setWordsFetchUpdate(false);
+            }
+        };
+
+        fetchWords();
+    }, [open]);
+
     const [semanticsAutoPhrasesModalFormOpen, setSemanticsAutoPhrasesModalFormOpen] =
         useState(false);
     const [semanticsAutoPhrasesModalIncludesList, setSemanticsAutoPhrasesModalIncludesList] =
@@ -88,7 +244,6 @@ export const AdvertsWordsModal = ({
     ] = useState('');
 
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
-    const [modalOpenFromAdvertId, setModalOpenFromAdvertId] = useState('');
 
     const [semanticsModalSemanticsItemsValue, setSemanticsModalSemanticsItemsValue] = useState<
         any[]
@@ -308,9 +463,8 @@ export const AdvertsWordsModal = ({
                     semanticsModalSemanticsMinusItemsValuePresets.includes(value);
 
                 const isSelected =
-                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                              .phrase
+                    (doc['advertsSelectedPhrases'][selectValue[0]][advertId]
+                        ? doc['advertsSelectedPhrases'][selectValue[0]][advertId].phrase
                         : '') == cluster;
 
                 const multiplePresetInstancesThowItIsNotIncluded =
@@ -385,12 +539,11 @@ export const AdvertsWordsModal = ({
                 }
 
                 const isSelected =
-                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                              .phrase
+                    (doc['advertsSelectedPhrases'][selectValue[0]][advertId]
+                        ? doc['advertsSelectedPhrases'][selectValue[0]][advertId].phrase
                         : '') == value;
 
-                const {type, status} = doc.adverts[selectValue[0]][modalOpenFromAdvertId] ?? {};
+                const {type, status} = doc.adverts[selectValue[0]][advertId] ?? {};
 
                 const mapAuctionsTypes = {
                     Выдача: 'firstPage',
@@ -777,8 +930,7 @@ export const AdvertsWordsModal = ({
 
                                                                 {generateModalButtonWithActions(
                                                                     {
-                                                                        disabled:
-                                                                            !modalOpenFromAdvertId,
+                                                                        disabled: !advertId,
                                                                         placeholder: 'Установить',
                                                                         icon: CloudArrowUpIn,
                                                                         view: 'outlined-success',
@@ -809,33 +961,26 @@ export const AdvertsWordsModal = ({
                                                                             };
 
                                                                             params.data.advertsIds[
-                                                                                modalOpenFromAdvertId
+                                                                                advertId
                                                                             ] = {
                                                                                 desiredDRR:
                                                                                     bidModalDRRInputValue,
 
-                                                                                advertId:
-                                                                                    modalOpenFromAdvertId,
+                                                                                advertId: advertId,
                                                                             };
 
                                                                             if (
                                                                                 !doc
                                                                                     .advertsAutoBidsRules[
                                                                                     selectValue[0]
-                                                                                ][
-                                                                                    modalOpenFromAdvertId
-                                                                                ]
+                                                                                ][advertId]
                                                                             )
                                                                                 doc.advertsAutoBidsRules[
                                                                                     selectValue[0]
-                                                                                ][
-                                                                                    modalOpenFromAdvertId
-                                                                                ] = {};
+                                                                                ][advertId] = {};
                                                                             doc.advertsAutoBidsRules[
                                                                                 selectValue[0]
-                                                                            ][
-                                                                                modalOpenFromAdvertId
-                                                                            ] = {
+                                                                            ][advertId] = {
                                                                                 desiredOrders:
                                                                                     parseInt(
                                                                                         ordersInputValue,
@@ -874,7 +1019,7 @@ export const AdvertsWordsModal = ({
                                                                 selected
                                                                 onClick={() =>
                                                                     filterByButton(
-                                                                        modalOpenFromAdvertId,
+                                                                        advertId,
                                                                         'adverts',
                                                                     )
                                                                 }
@@ -907,7 +1052,7 @@ export const AdvertsWordsModal = ({
                                                                         size={11}
                                                                     />
                                                                     <div style={{width: 2}} />
-                                                                    {modalOpenFromAdvertId}
+                                                                    {advertId}
                                                                 </div>
                                                             </Button>
                                                         </Card>
@@ -933,24 +1078,17 @@ export const AdvertsWordsModal = ({
                                 view={isSelected ? 'outlined-success' : 'outlined'}
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    if (
-                                        !doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ]
-                                    )
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = {
+                                    if (!doc['advertsSelectedPhrases'][selectValue[0]][advertId])
+                                        doc['advertsSelectedPhrases'][selectValue[0]][advertId] = {
                                             phrase: '',
                                         };
 
                                     if (isSelected) {
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = undefined;
+                                        doc['advertsSelectedPhrases'][selectValue[0]][advertId] =
+                                            undefined;
                                     } else {
                                         doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
+                                            advertId
                                         ].phrase = value;
                                     }
 
@@ -964,8 +1102,8 @@ export const AdvertsWordsModal = ({
                                             advertsIds: {},
                                         },
                                     };
-                                    params.data.advertsIds[modalOpenFromAdvertId] = {};
-                                    params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
+                                    params.data.advertsIds[advertId] = {};
+                                    params.data.advertsIds[advertId].phrase = value;
                                     console.log(params);
 
                                     callApi('updateAdvertsSelectedPhrases', params);
@@ -1232,12 +1370,11 @@ export const AdvertsWordsModal = ({
                 }
 
                 const isSelected =
-                    (doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                        ? doc['advertsSelectedPhrases'][selectValue[0]][modalOpenFromAdvertId]
-                              .phrase
+                    (doc['advertsSelectedPhrases'][selectValue[0]][advertId]
+                        ? doc['advertsSelectedPhrases'][selectValue[0]][advertId].phrase
                         : '') == value;
 
-                const {type, status} = doc.adverts[selectValue[0]][modalOpenFromAdvertId] ?? {};
+                const {type, status} = doc.adverts[selectValue[0]][advertId] ?? {};
 
                 const mapAuctionsTypes = {
                     Выдача: 'firstPage',
@@ -1621,8 +1758,7 @@ export const AdvertsWordsModal = ({
 
                                                                 {generateModalButtonWithActions(
                                                                     {
-                                                                        disabled:
-                                                                            !modalOpenFromAdvertId,
+                                                                        disabled: !advertId,
                                                                         placeholder: 'Установить',
                                                                         icon: CloudArrowUpIn,
                                                                         view: 'outlined-success',
@@ -1653,33 +1789,26 @@ export const AdvertsWordsModal = ({
                                                                             };
 
                                                                             params.data.advertsIds[
-                                                                                modalOpenFromAdvertId
+                                                                                advertId
                                                                             ] = {
                                                                                 desiredDRR:
                                                                                     bidModalDRRInputValue,
 
-                                                                                advertId:
-                                                                                    modalOpenFromAdvertId,
+                                                                                advertId: advertId,
                                                                             };
 
                                                                             if (
                                                                                 !doc
                                                                                     .advertsAutoBidsRules[
                                                                                     selectValue[0]
-                                                                                ][
-                                                                                    modalOpenFromAdvertId
-                                                                                ]
+                                                                                ][advertId]
                                                                             )
                                                                                 doc.advertsAutoBidsRules[
                                                                                     selectValue[0]
-                                                                                ][
-                                                                                    modalOpenFromAdvertId
-                                                                                ] = {};
+                                                                                ][advertId] = {};
                                                                             doc.advertsAutoBidsRules[
                                                                                 selectValue[0]
-                                                                            ][
-                                                                                modalOpenFromAdvertId
-                                                                            ] = {
+                                                                            ][advertId] = {
                                                                                 desiredOrders:
                                                                                     parseInt(
                                                                                         ordersInputValue,
@@ -1718,7 +1847,7 @@ export const AdvertsWordsModal = ({
                                                                 selected
                                                                 onClick={() =>
                                                                     filterByButton(
-                                                                        modalOpenFromAdvertId,
+                                                                        advertId,
                                                                         'adverts',
                                                                     )
                                                                 }
@@ -1751,7 +1880,7 @@ export const AdvertsWordsModal = ({
                                                                         size={11}
                                                                     />
                                                                     <div style={{width: 2}} />
-                                                                    {modalOpenFromAdvertId}
+                                                                    {advertId}
                                                                 </div>
                                                             </Button>
                                                         </Card>
@@ -1777,24 +1906,17 @@ export const AdvertsWordsModal = ({
                                 view={isSelected ? 'outlined-success' : 'outlined'}
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    if (
-                                        !doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ]
-                                    )
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = {
+                                    if (!doc['advertsSelectedPhrases'][selectValue[0]][advertId])
+                                        doc['advertsSelectedPhrases'][selectValue[0]][advertId] = {
                                             phrase: '',
                                         };
 
                                     if (isSelected) {
-                                        doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
-                                        ] = undefined;
+                                        doc['advertsSelectedPhrases'][selectValue[0]][advertId] =
+                                            undefined;
                                     } else {
                                         doc['advertsSelectedPhrases'][selectValue[0]][
-                                            modalOpenFromAdvertId
+                                            advertId
                                         ].phrase = value;
                                     }
 
@@ -1808,8 +1930,8 @@ export const AdvertsWordsModal = ({
                                             advertsIds: {},
                                         },
                                     };
-                                    params.data.advertsIds[modalOpenFromAdvertId] = {};
-                                    params.data.advertsIds[modalOpenFromAdvertId].phrase = value;
+                                    params.data.advertsIds[advertId] = {};
+                                    params.data.advertsIds[advertId].phrase = value;
                                     console.log(params);
 
                                     callApi('updateAdvertsSelectedPhrases', params);
@@ -2081,147 +2203,18 @@ export const AdvertsWordsModal = ({
                 view={themeToUse}
                 onClick={() => {
                     setOpen(true);
-
-                    setSemanticsModalOpenFromArt(art);
-                    setModalOpenFromAdvertId(advertId);
-
-                    if (autoPhrasesTemplate) {
-                        setSemanticsAutoPhrasesModalIncludesList(
-                            autoPhrasesTemplate.includes ?? [],
-                        );
-                        setSemanticsAutoPhrasesModalNotIncludesList(
-                            autoPhrasesTemplate.notIncludes ?? [],
-                        );
-                    } else {
-                        setSemanticsAutoPhrasesModalIncludesList([]);
-                        setSemanticsAutoPhrasesModalNotIncludesList([]);
-                    }
-                    setSemanticsAutoPhrasesModalIncludesListInput('');
-                    setSemanticsAutoPhrasesModalNotIncludesListInput('');
-
-                    setSemanticsModalSemanticsItemsValue(() => {
-                        const temp = advertSemantics.clusters;
-                        temp.sort((a, b) => {
-                            const key = 'count';
-                            const valA = a[key] ?? 0;
-                            const valB = b[key] ?? 0;
-                            return valB - valA;
-                        });
-
-                        const tempPresets = [] as any[];
-                        for (const [_cluster, clusterData] of Object.entries(temp)) {
-                            const {preset, freq} = (clusterData as {
-                                preset: string;
-                                cluster: string;
-                                freq: object;
-                            }) ?? {
-                                preset: undefined,
-                                freq: undefined,
-                                cluster: undefined,
-                            };
-                            if (preset) tempPresets.push(preset);
-                            if (freq && freq['val']) {
-                                temp[_cluster].freq = freq['val'];
-                                temp[_cluster].freqTrend = freq['trend'];
-                            }
-                        }
-                        setSemanticsModalSemanticsItemsValuePresets(tempPresets);
-
-                        setSemanticsModalSemanticsItemsFiltratedValue(temp);
-                        return temp;
-                    });
-                    setSemanticsModalSemanticsMinusItemsValue(() => {
-                        const temp = advertSemantics.excluded;
-                        temp.sort((a, b) => {
-                            const freqA = a.freq ? a.freq.val : 0;
-                            const freqB = b.freq ? b.freq.val : 0;
-                            return freqB - freqA;
-                        });
-
-                        const tempPresets = [] as any[];
-                        for (const [_cluster, clusterData] of Object.entries(temp)) {
-                            const {preset, freq} = (clusterData as {
-                                preset: string;
-                                cluster: string;
-                                freq: object;
-                            }) ?? {
-                                preset: undefined,
-                                freq: undefined,
-                                cluster: undefined,
-                            };
-                            if (preset) tempPresets.push(preset);
-                            if (freq && freq['val']) {
-                                temp[_cluster].freq = freq['val'];
-                                temp[_cluster].freqTrend = freq['trend'];
-                            }
-                        }
-                        setSemanticsModalSemanticsMinusItemsValuePresets(tempPresets);
-
-                        setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
-                        return temp;
-                    });
-
-                    const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][
-                        plusPhrasesTemplate
-                    ]
-                        ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].threshold
-                        : 1;
-                    setSemanticsModalSemanticsThresholdValue(plusThreshold);
-
-                    const plusCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][
-                        plusPhrasesTemplate
-                    ]
-                        ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].ctrThreshold
-                        : 0;
-                    setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
-
-                    const plusSecondThreshold = doc.plusPhrasesTemplates[selectValue[0]][
-                        plusPhrasesTemplate
-                    ]
-                        ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                              .secondThreshold
-                        : 0;
-                    setSemanticsModalSemanticsSecondThresholdValue(plusSecondThreshold);
-
-                    const plusSecondCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][
-                        plusPhrasesTemplate
-                    ]
-                        ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                              .secondCtrThreshold
-                        : 0;
-                    setSemanticsModalSemanticsSecondCTRThresholdValue(plusSecondCTRThreshold);
-
-                    const isFixed = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                        ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].isFixed ??
-                          false
-                        : false;
-                    setSemanticsModalIsFixed(isFixed);
-
-                    setClustersFiltersActive({undef: false});
-                    setClustersFiltersMinus({undef: false});
-
-                    // // console.log(value.plus);
-                    setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                        plusPhrasesTemplate ?? `Новый шаблон`,
-                    );
-                    const plusItems = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-                        ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].clusters
-                        : [];
-                    setSemanticsModalSemanticsPlusItemsValue(plusItems);
-
-                    // setSemanticsModalTextAreaValue('');
-                    // setSemanticsModalTextAreaAddMode(false);
                 }}
             >
                 <Text variant="caption-2">
                     {themeToUse != 'normal' ? plusPhrasesTemplate : 'Фразы'}
                 </Text>
             </Button>
+            {wordsFetchUpdate ? <Skeleton style={{marginLeft: 5, width: 60}} /> : <></>}
+            <div style={{height: 4}} />
             <Modal
                 open={open}
                 onClose={() => {
                     setOpen(false);
-                    setModalOpenFromAdvertId('');
                 }}
             >
                 <motion.div
@@ -2427,8 +2420,6 @@ export const AdvertsWordsModal = ({
                                                 semanticsModalOpenFromArt &&
                                                 semanticsModalOpenFromArt != ''
                                             ) {
-                                                const advertId = modalOpenFromAdvertId;
-
                                                 const paramsAddToArt = {
                                                     uid: getUid(),
                                                     campaignName: selectValue[0],
@@ -2817,66 +2808,88 @@ export const AdvertsWordsModal = ({
                             </Button>
                         </div>
                     </div>
-                    <Card
-                        theme="success"
+                    <div
                         style={{
-                            height: 'calc(60vh - 96px)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                             width: '100%',
-                            overflow: 'auto',
+                            height: '100%',
                         }}
                     >
-                        <TheTable
-                            columnData={renameFirstColumn(columnDataSemantics, 'Фразы в показах', [
-                                generateMassAddDelButton({
-                                    placeholder: 'Добавить все',
-                                    array: semanticsModalSemanticsItemsFiltratedValue,
-                                    mode: 'add',
-                                }),
-                                generateMassAddDelButton({
-                                    placeholder: 'Удалить все',
-                                    array: semanticsModalSemanticsItemsFiltratedValue,
-                                    mode: 'del',
-                                }),
-                            ])}
-                            data={semanticsModalSemanticsItemsFiltratedValue}
-                            filters={clustersFiltersActive}
-                            setFilters={setClustersFiltersActive}
-                            filterData={clustersFilterDataActive}
-                            footerData={[semanticsFilteredSummary.active]}
-                        />
-                    </Card>
-                    <Card
-                        theme="danger"
-                        style={{
-                            height: 'calc(40vh - 96px)',
-                            overflow: 'auto',
-                            width: '100%',
-                        }}
-                    >
-                        <TheTable
-                            columnData={renameFirstColumn(
-                                columnDataSemantics2,
-                                'Исключенные фразы',
-                                [
-                                    generateMassAddDelButton({
-                                        placeholder: 'Добавить все',
-                                        array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                                        mode: 'add',
-                                    }),
-                                    generateMassAddDelButton({
-                                        placeholder: 'Удалить все',
-                                        array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                                        mode: 'del',
-                                    }),
-                                ],
-                            )}
-                            data={semanticsModalSemanticsMinusItemsFiltratedValue}
-                            filters={clustersFiltersMinus}
-                            setFilters={setClustersFiltersMinus}
-                            filterData={clustersFilterDataMinus}
-                            footerData={[semanticsFilteredSummary.minus]}
-                        />
-                    </Card>
+                        {wordsFetchUpdate ? (
+                            <Loader size="l" />
+                        ) : (
+                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <Card
+                                    theme="success"
+                                    style={{
+                                        height: 'calc(60vh - 96px)',
+                                        width: '100%',
+                                        overflow: 'auto',
+                                    }}
+                                >
+                                    <TheTable
+                                        columnData={renameFirstColumn(
+                                            columnDataSemantics,
+                                            'Фразы в показах',
+                                            [
+                                                generateMassAddDelButton({
+                                                    placeholder: 'Добавить все',
+                                                    array: semanticsModalSemanticsItemsFiltratedValue,
+                                                    mode: 'add',
+                                                }),
+                                                generateMassAddDelButton({
+                                                    placeholder: 'Удалить все',
+                                                    array: semanticsModalSemanticsItemsFiltratedValue,
+                                                    mode: 'del',
+                                                }),
+                                            ],
+                                        )}
+                                        data={semanticsModalSemanticsItemsFiltratedValue}
+                                        filters={clustersFiltersActive}
+                                        setFilters={setClustersFiltersActive}
+                                        filterData={clustersFilterDataActive}
+                                        footerData={[semanticsFilteredSummary.active]}
+                                    />
+                                </Card>
+                                <div style={{minHeight: 8}} />
+                                <Card
+                                    theme="danger"
+                                    style={{
+                                        height: 'calc(40vh - 96px)',
+                                        overflow: 'auto',
+                                        width: '100%',
+                                    }}
+                                >
+                                    <TheTable
+                                        columnData={renameFirstColumn(
+                                            columnDataSemantics2,
+                                            'Исключенные фразы',
+                                            [
+                                                generateMassAddDelButton({
+                                                    placeholder: 'Добавить все',
+                                                    array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                                    mode: 'add',
+                                                }),
+                                                generateMassAddDelButton({
+                                                    placeholder: 'Удалить все',
+                                                    array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                                    mode: 'del',
+                                                }),
+                                            ],
+                                        )}
+                                        data={semanticsModalSemanticsMinusItemsFiltratedValue}
+                                        filters={clustersFiltersMinus}
+                                        setFilters={setClustersFiltersMinus}
+                                        filterData={clustersFilterDataMinus}
+                                        footerData={[semanticsFilteredSummary.minus]}
+                                    />
+                                </Card>
+                            </div>
+                        )}
+                    </div>
                 </motion.div>
             </Modal>
         </div>

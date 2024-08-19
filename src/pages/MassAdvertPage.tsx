@@ -85,6 +85,57 @@ import {AdvertCard} from 'src/components/AdvertCard';
 import {AdvertsBidsModal} from 'src/components/AdvertsBidsModal';
 import {AdvertsBudgetsModal} from 'src/components/AdvertsBudgetsModal';
 
+const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo: User) => {
+    const [doc, setDocument] = useState<any>();
+
+    if (docum) {
+        console.log(docum, mode, selectValue);
+
+        if (mode) {
+            doc['campaigns'][selectValue] = docum['campaigns'][selectValue];
+            doc['balances'][selectValue] = docum['balances'][selectValue];
+            doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
+            doc['advertsPlusPhrasesTemplates'][selectValue] =
+                docum['advertsPlusPhrasesTemplates'][selectValue];
+            doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
+            doc['adverts'][selectValue] = docum['adverts'][selectValue];
+            doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
+            doc['advertsSelectedPhrases'][selectValue] =
+                docum['advertsSelectedPhrases'][selectValue];
+            doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
+            doc['autoSales'][selectValue] = docum['autoSales'][selectValue];
+
+            if (
+                doc['dzhemData'] &&
+                doc['dzhemData'][selectValue] &&
+                docum['dzhemData'] &&
+                docum['dzhemData'][selectValue]
+            )
+                doc['dzhemData'][selectValue] = docum['dzhemData'][selectValue];
+        }
+        setDocument(docum);
+    }
+
+    const params = {
+        uid: getUid(),
+        dateRange: {from: '2023', to: '2024'},
+        campaignName:
+            selectValue != ''
+                ? selectValue
+                : userInfo.campaignNames.includes('all')
+                ? 'ОТК ПРОИЗВОДСТВО'
+                : userInfo.campaignNames[0],
+    };
+    console.log(params);
+
+    useEffect(() => {
+        callApi('getMassAdvertsNew', params, true)
+            .then((response) => setDocument(response ? response['data'] : undefined))
+            .catch((error) => console.error(error));
+    }, []);
+    return doc;
+};
+
 export const MassAdvertPage = ({
     selectValue,
     setSwitchingCampaignsFlag,
@@ -1268,7 +1319,6 @@ export const MassAdvertPage = ({
                                         updateColumnWidth={updateColumnWidth}
                                         filteredData={filteredData}
                                         setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                        wordsFetchUpdate={wordsFetchUpdate}
                                         setFetchedPlacements={setFetchedPlacements}
                                         currentParsingProgress={currentParsingProgress}
                                         setCurrentParsingProgress={setCurrentParsingProgress}
@@ -1333,7 +1383,6 @@ export const MassAdvertPage = ({
                                         updateColumnWidth={updateColumnWidth}
                                         filteredData={filteredData}
                                         setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                        wordsFetchUpdate={wordsFetchUpdate}
                                         setFetchedPlacements={setFetchedPlacements}
                                         currentParsingProgress={currentParsingProgress}
                                         setCurrentParsingProgress={setCurrentParsingProgress}
@@ -1395,7 +1444,6 @@ export const MassAdvertPage = ({
                                     updateColumnWidth={updateColumnWidth}
                                     filteredData={filteredData}
                                     setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                    wordsFetchUpdate={wordsFetchUpdate}
                                     setFetchedPlacements={setFetchedPlacements}
                                     currentParsingProgress={currentParsingProgress}
                                     setCurrentParsingProgress={setCurrentParsingProgress}
@@ -3083,61 +3131,57 @@ export const MassAdvertPage = ({
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [doc, setUserDoc] = React.useState(getUserDoc());
 
-    // useEffect(() => {
-    //     if (!selectValue || !doc) return;
-    //     setWordsFetchUpdate(true);
-    //     callApi(
-    //         'getMassAdvertsNew',
-    //         {
-    //             uid: getUid(),
-    //             dateRange: {from: '2023', to: '2024'},
-    //             campaignName: selectValue[0],
-    //         },
-    //         true,
-    //     ).then(async (res) => {
-    //         if (!res) return;
-    //         const resData = res['data'];
+    useEffect(() => {
+        if (!selectValue || !doc) return;
+        setWordsFetchUpdate(true);
+        if (!Object.keys(doc['campaigns'][selectValue[0]]).length) {
+            callApi(
+                'getMassAdvertsNew',
+                {
+                    uid: getUid(),
+                    dateRange: {from: '2023', to: '2024'},
+                    campaignName: selectValue,
+                },
+                true,
+            ).then(async (res) => {
+                if (!res) return;
+                const resData = res['data'];
+                doc['campaigns'][selectValue[0]] = resData['campaigns'][selectValue[0]];
+                doc['balances'][selectValue[0]] = resData['balances'][selectValue[0]];
+                doc['plusPhrasesTemplates'][selectValue[0]] =
+                    resData['plusPhrasesTemplates'][selectValue[0]];
+                doc['advertsPlusPhrasesTemplates'][selectValue[0]] =
+                    resData['advertsPlusPhrasesTemplates'][selectValue[0]];
+                doc['advertsBudgetsToKeep'][selectValue[0]] =
+                    resData['advertsBudgetsToKeep'][selectValue[0]];
+                doc['advertsSelectedPhrases'][selectValue[0]] =
+                    resData['advertsSelectedPhrases'][selectValue[0]];
+                doc['advertsAutoBidsRules'][selectValue[0]] =
+                    resData['advertsAutoBidsRules'][selectValue[0]];
+                doc['adverts'][selectValue[0]] = resData['adverts'][selectValue[0]];
+                doc['placementsAuctions'][selectValue[0]] =
+                    resData['placementsAuctions'][selectValue[0]];
+                // doc['dzhemData'][selectValue[0]] =
+                // resData['dzhemData'][selectValue[0]];
+                doc['advertsSchedules'][selectValue[0]] =
+                    resData['advertsSchedules'][selectValue[0]];
+                doc['dzhemData'][selectValue[0]] = resData['dzhemData'][selectValue[0]];
+                doc['autoSales'][selectValue[0]] = resData['autoSales'][selectValue[0]];
 
-    //         setChangedDoc(resData);
+                setChangedDoc(doc);
 
-    //         // for (const [docKey, _] of Object.entries(doc)) {
-    //         //     doc[docKey] = {};
-    //         // }
+                // recalc(dateRange, nextValue[0]);
 
-    //         // doc['campaigns'][selectValue[0]] = resData['campaigns'][selectValue[0]];
-    //         // doc['balances'][selectValue[0]] = resData['balances'][selectValue[0]];
-    //         // doc['plusPhrasesTemplates'][selectValue[0]] =
-    //         //     resData['plusPhrasesTemplates'][selectValue[0]];
-    //         // doc['advertsPlusPhrasesTemplates'][selectValue[0]] =
-    //         //     resData['advertsPlusPhrasesTemplates'][selectValue[0]];
-    //         // doc['advertsBudgetsToKeep'][selectValue[0]] =
-    //         //     resData['advertsBudgetsToKeep'][selectValue[0]];
-    //         // doc['advertsSelectedPhrases'][selectValue[0]] =
-    //         //     resData['advertsSelectedPhrases'][selectValue[0]];
-    //         // doc['advertsAutoBidsRules'][selectValue[0]] =
-    //         //     resData['advertsAutoBidsRules'][selectValue[0]];
-    //         // doc['adverts'][selectValue[0]] = resData['adverts'][selectValue[0]];
-    //         // doc['placementsAuctions'][selectValue[0]] =
-    //         //     resData['placementsAuctions'][selectValue[0]];
-    //         // // doc['dzhemData'][selectValue[0]] =
-    //         // // resData['dzhemData'][selectValue[0]];
-    //         // doc['advertsSchedules'][selectValue[0]] =
-    //         //     resData['advertsSchedules'][selectValue[0]];
-    //         // doc['dzhemData'][selectValue[0]] = resData['dzhemData'][selectValue[0]];
-    //         // doc['autoSales'][selectValue[0]] = resData['autoSales'][selectValue[0]];
-
-    //         // setChangedDoc({...doc});
-
-    //         // recalc(dateRange, selectValue[0]);
-
-    //         setSwitchingCampaignsFlag(false);
-    //         // console.log(res);
-    //     });
-
-    //     recalc(dateRange, selectValue[0], filters);
-    //     setPagesCurrent(1);
-    //     setCopiedAdvertsSettings({advertId: 0});
-    // }, [selectValue]);
+                setSwitchingCampaignsFlag(false);
+                console.log(doc);
+            });
+        } else {
+            setSwitchingCampaignsFlag(false);
+        }
+        recalc(dateRange, selectValue[0], filters);
+        setPagesCurrent(1);
+        setCopiedAdvertsSettings({advertId: 0});
+    }, [selectValue]);
 
     useEffect(() => {
         if (!selectValue[0]) return;
@@ -3175,33 +3219,10 @@ export const MassAdvertPage = ({
         setDzhemRefetch(false);
     }, [selectValue, refetchAutoSales, dzhemRefetch]);
 
-    const [doc, setChangedDoc] = useState(undefined as any);
+    const [changedDoc, setChangedDoc] = useState<any>(undefined);
+    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
-    useEffect(() => {
-        setSwitchingCampaignsFlag(true);
-        const params = {
-            uid: getUid(),
-            dateRange: {from: '2023', to: '2024'},
-            campaignName:
-                selectValue[0] != ''
-                    ? selectValue[0]
-                    : userInfo.campaignNames.includes('all')
-                    ? 'ОТК ПРОИЗВОДСТВО'
-                    : userInfo.campaignNames[0],
-        };
-        console.log(params);
-
-        callApi('getMassAdvertsNew', params, true)
-            .then((response) => setChangedDoc(response ? response['data'] : undefined))
-            .catch((error) => console.error(error))
-            .finally(() => {
-                setSwitchingCampaignsFlag(false);
-            });
-    }, [selectValue]);
-
-    useEffect(() => {
-        recalc(dateRange, selectValue[0], filters);
-    }, [[doc]]);
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0], userInfo);
 
     const getCampaignName = () => {
         return selectValue[0];
@@ -3223,6 +3244,7 @@ export const MassAdvertPage = ({
                 if (!response) return;
                 const resData = response['data'];
                 setChangedDoc(resData);
+                setChangedDocUpdateType(true);
                 setWordsFetchUpdate(true);
                 // console.log(response ? response['data'] : undefined);
             })
@@ -5068,7 +5090,6 @@ export const MassAdvertPage = ({
                                                 updateColumnWidth={updateColumnWidth}
                                                 filteredData={filteredData}
                                                 setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                                wordsFetchUpdate={wordsFetchUpdate}
                                                 setFetchedPlacements={setFetchedPlacements}
                                                 currentParsingProgress={currentParsingProgress}
                                                 setCurrentParsingProgress={

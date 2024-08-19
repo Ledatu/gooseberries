@@ -1,12 +1,10 @@
-import {Button, Card, Icon, Text, Label, Popover, Loader, Skeleton} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Text, Popover, Loader} from '@gravity-ui/uikit';
 import {
     TrashBin,
     Clock,
     Xmark,
     ArrowDownToSquare,
     Copy,
-    EyeSlash,
-    Eye,
     Ban,
     Calendar,
     Play,
@@ -41,7 +39,6 @@ export const AdvertCard = ({
     updateColumnWidth,
     filteredData,
     setCopiedAdvertsSettings,
-    wordsFetchUpdate,
     setFetchedPlacements,
     currentParsingProgress,
     setCurrentParsingProgress,
@@ -110,30 +107,14 @@ export const AdvertCard = ({
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
     const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
     if (!advertData) return <></>;
-    const {
-        advertId,
-        status,
-        words,
-        budget,
-        bidLog,
-        daysInWork,
-        type,
-        budgetLog,
-        pregenerated,
-        cpm,
-    } = advertData;
+    const {advertId, status, budget, bidLog, daysInWork, type, budgetLog, pregenerated, cpm} =
+        advertData;
     if (![4, 9, 11].includes(status)) return <></>;
 
-    const semantics = words;
     const curCpm = cpm;
 
     const curBudget = budget;
     // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
-
-    const advertSemantics = {
-        clusters: semantics ? semantics.clusters ?? [] : [],
-        excluded: semantics ? semantics.excluded ?? [] : [],
-    };
 
     const timeline: any[] = [];
     const graphsData: any[] = [];
@@ -764,7 +745,6 @@ export const AdvertCard = ({
                             selectValue={selectValue}
                             advertId={advertId}
                             art={art}
-                            advertSemantics={advertSemantics}
                             setChangedDoc={setChangedDoc}
                             setFetchedPlacements={setFetchedPlacements}
                             currentParsingProgress={currentParsingProgress}
@@ -793,56 +773,6 @@ export const AdvertCard = ({
                             setBidModalRangeValid={setBidModalRangeValid}
                             setAuctionSelectedOption={setAuctionSelectedOption}
                         />
-                        <div style={{height: 4}} />
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
-                            {advertSemantics.clusters.length ? (
-                                <>
-                                    <div style={{width: 5}} />
-                                    <Label theme="clear">
-                                        <Text
-                                            variant="caption-2"
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            {advertSemantics.clusters.length}
-                                            <div style={{width: 3}} />
-                                            <Icon size={11} data={Eye} />
-                                        </Text>
-                                    </Label>
-                                </>
-                            ) : wordsFetchUpdate ? (
-                                <Skeleton style={{marginLeft: 5, width: 60}} />
-                            ) : (
-                                <></>
-                            )}
-                            {advertSemantics.excluded.length ? (
-                                <>
-                                    <div style={{width: 5}} />
-                                    <Label theme="clear">
-                                        <Text
-                                            variant="caption-2"
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            {advertSemantics.excluded.length}
-                                            <div style={{width: 3}} />
-                                            <Icon size={11} data={EyeSlash} />
-                                        </Text>
-                                    </Label>
-                                </>
-                            ) : (
-                                <></>
-                            )}
-                            <div style={{width: 5}} />
-                        </div>
                     </div>
                     <div
                         style={{
