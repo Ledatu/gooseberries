@@ -211,7 +211,7 @@ export const AdvertsWordsModal = ({
             console.log(params);
 
             try {
-                const res = await callApi('getWordsForAdvertId', params);
+                const res = await callApi('getWordsForAdvertId', params, true);
                 if (!res) throw 'its undefined';
                 const words = res['data'];
                 console.log(words);
