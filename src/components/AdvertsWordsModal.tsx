@@ -198,7 +198,6 @@ export const AdvertsWordsModal = ({
 
     useEffect(() => {
         if (!open) {
-            setAdwertsWords({});
             return;
         }
 
@@ -224,8 +223,7 @@ export const AdvertsWordsModal = ({
                 setWordsFetchUpdate(false);
             }
         };
-
-        fetchWords();
+        if (!Object.keys(advertsWords).length) fetchWords();
     }, [open]);
 
     const [semanticsAutoPhrasesModalFormOpen, setSemanticsAutoPhrasesModalFormOpen] =
