@@ -198,6 +198,7 @@ export const AdvertsWordsModal = ({
 
     useEffect(() => {
         if (!open) {
+            setAdwertsWords({});
             return;
         }
 
