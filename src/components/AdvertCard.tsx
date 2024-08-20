@@ -218,7 +218,7 @@ export const AdvertCard = ({
         <Card
             theme={pregenerated ? 'warning' : 'normal'}
             style={{
-                height: 106.5,
+                height: 110.5,
                 width: 'fit-content',
             }}
             // view="raised"

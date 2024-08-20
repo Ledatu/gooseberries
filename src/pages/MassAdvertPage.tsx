@@ -1493,7 +1493,7 @@ export const MassAdvertPage = ({
                     switches.push(
                         <Card
                             style={{
-                                height: 106.5,
+                                height: 110.5,
                                 width: 'fit-content',
                                 display: 'flex',
                                 flexDirection: 'column',
