@@ -194,7 +194,7 @@ export const AdvertsWordsModal = ({
             ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].clusters
             : [];
         setSemanticsModalSemanticsPlusItemsValue(plusItems);
-    }, [wordsFetchUpdate]);
+    }, [advertsWords]);
 
     useEffect(() => {
         const fetchWords = async () => {
