@@ -98,6 +98,26 @@ export const Dashboard = () => {
     const [refetchAutoSales, setRefetchAutoSales] = useState(false);
     const [dzhemRefetch, setDzhemRefetch] = useState(false);
 
+    useEffect(() => {
+        setAvailableTagsPending(true);
+        callApi('getAllTags', {
+            uid: getUid(),
+            campaignName: selectValue[0],
+        })
+            .then((res) => {
+                if (!res) throw 'no response';
+                const {tags} = res['data'] ?? {};
+                tags.sort();
+                setAvailableTags(tags ?? []);
+            })
+            .catch((e) => {
+                console.log(e);
+            })
+            .finally(() => {
+                setAvailableTagsPending(false);
+            });
+    }, [selectValue]);
+
     const selectOptions = useMemo(() => {
         if (!userInfo || !userInfo.campaignNames) return [];
         const temp = [] as any[];
@@ -320,30 +340,10 @@ export const Dashboard = () => {
                                 >
                                     <div style={{minWidth: 32}} />
                                     <Button
+                                        loading={availableTagsPending}
                                         size="l"
                                         onClick={async () => {
                                             setNotesModalOpen((val) => !val);
-                                            setAvailableTagsPending(true);
-
-                                            try {
-                                                const res = await callApi('getAllTags', {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue,
-                                                });
-
-                                                if (!res) throw 'no response';
-
-                                                const {tags} = res['data'] ?? {};
-
-                                                tags.sort();
-
-                                                setAvailableTags(tags ?? []);
-
-                                                setAvailableTagsPending(false);
-                                            } catch (e) {
-                                                console.log(e);
-                                                setAvailableTagsPending(false);
-                                            }
                                         }}
                                     >
                                         <Icon data={PencilToSquare} />
