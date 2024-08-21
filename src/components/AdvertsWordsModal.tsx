@@ -197,11 +197,6 @@ export const AdvertsWordsModal = ({
     }, [wordsFetchUpdate]);
 
     useEffect(() => {
-        if (!open) {
-            if (Object.keys(advertsWords)) setAdwertsWords({});
-            return;
-        }
-
         const fetchWords = async () => {
             setWordsFetchUpdate(true);
             const params = {
@@ -224,7 +219,7 @@ export const AdvertsWordsModal = ({
                 setWordsFetchUpdate(false);
             }
         };
-        fetchWords();
+        if (open) fetchWords();
     }, [open]);
 
     const [semanticsAutoPhrasesModalFormOpen, setSemanticsAutoPhrasesModalFormOpen] =
@@ -2214,6 +2209,7 @@ export const AdvertsWordsModal = ({
                 open={open}
                 onClose={() => {
                     setOpen(false);
+                    setAdwertsWords({});
                 }}
             >
                 <motion.div
