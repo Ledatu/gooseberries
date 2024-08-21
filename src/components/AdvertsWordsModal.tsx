@@ -262,17 +262,16 @@ export const AdvertsWordsModal = ({
     };
 
     useEffect(() => {
-        const fetchWords = async () => {
-            setWordsFetchUpdate(true);
-            const params = {
-                uid: getUid(),
-                campaignName: selectValue[0],
-                advertId: advertId,
-            };
-            console.log(params);
+        setWordsFetchUpdate(true);
+        const params = {
+            uid: getUid(),
+            campaignName: selectValue[0],
+            advertId: advertId,
+        };
+        console.log(params);
 
-            try {
-                const res = await callApi('getWordsForAdvertId', params, true);
+        callApi('getWordsForAdvertId', params, true)
+            .then((res) => {
                 if (!res) throw 'its undefined';
                 const advertSemantics = res['data'];
                 console.log(advertSemantics);
@@ -399,13 +398,9 @@ export const AdvertsWordsModal = ({
                     ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].clusters
                     : [];
                 setSemanticsModalSemanticsPlusItemsValue(plusItems);
-            } catch (error) {
-                console.error('Error fetching words for advertId:', error);
-            } finally {
-                setWordsFetchUpdate(false);
-            }
-        };
-        if (open) fetchWords();
+            })
+            .catch((error) => console.error('Error fetching words for advertId:', error))
+            .finally(() => setWordsFetchUpdate(false));
     }, [open]);
 
     const [separetedWords, setSeparetedWords] = useState([] as string[]);
