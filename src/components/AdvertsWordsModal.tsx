@@ -219,8 +219,8 @@ export const AdvertsWordsModal = ({
                 setWordsFetchUpdate(false);
             }
         };
-        if (open) fetchWords();
-    }, [open]);
+        if (open && !Object.keys(advertsWords).length) fetchWords();
+    }, [open, advertsWords]);
 
     const [semanticsAutoPhrasesModalFormOpen, setSemanticsAutoPhrasesModalFormOpen] =
         useState(false);
