@@ -75,152 +75,6 @@ export const AdvertsWordsModal = ({
     const [open, setOpen] = useState(false);
 
     const [wordsFetchUpdate, setWordsFetchUpdate] = useState(false);
-    const [advertsWords, setAdwertsWords] = useState({});
-
-    const advertSemantics = {
-        clusters: advertsWords ? advertsWords['clusters'] ?? [] : [],
-        excluded: advertsWords ? advertsWords['excluded'] ?? [] : [],
-    };
-
-    useEffect(() => {
-        if (wordsFetchUpdate) return;
-        setSemanticsModalOpenFromArt(art);
-
-        if (autoPhrasesTemplate) {
-            setSemanticsAutoPhrasesModalIncludesList(autoPhrasesTemplate.includes ?? []);
-            setSemanticsAutoPhrasesModalNotIncludesList(autoPhrasesTemplate.notIncludes ?? []);
-        } else {
-            setSemanticsAutoPhrasesModalIncludesList([]);
-            setSemanticsAutoPhrasesModalNotIncludesList([]);
-        }
-        setSemanticsAutoPhrasesModalIncludesListInput('');
-        setSemanticsAutoPhrasesModalNotIncludesListInput('');
-
-        setSemanticsModalSemanticsItemsValue(() => {
-            const temp = advertSemantics.clusters;
-            temp.sort((a, b) => {
-                const key = 'count';
-                const valA = a[key] ?? 0;
-                const valB = b[key] ?? 0;
-                return valB - valA;
-            });
-
-            const tempPresets = [] as any[];
-            for (const [_cluster, clusterData] of Object.entries(temp)) {
-                const {preset, freq} = (clusterData as {
-                    preset: string;
-                    cluster: string;
-                    freq: object;
-                }) ?? {
-                    preset: undefined,
-                    freq: undefined,
-                    cluster: undefined,
-                };
-                if (preset) tempPresets.push(preset);
-                if (freq && freq['val']) {
-                    temp[_cluster].freq = freq['val'];
-                    temp[_cluster].freqTrend = freq['trend'];
-                }
-            }
-            setSemanticsModalSemanticsItemsValuePresets(tempPresets);
-
-            setSemanticsModalSemanticsItemsFiltratedValue(temp);
-            return temp;
-        });
-        setSemanticsModalSemanticsMinusItemsValue(() => {
-            const temp = advertSemantics.excluded;
-            temp.sort((a, b) => {
-                const freqA = a.freq ? a.freq.val : 0;
-                const freqB = b.freq ? b.freq.val : 0;
-                return freqB - freqA;
-            });
-
-            const tempPresets = [] as any[];
-            for (const [_cluster, clusterData] of Object.entries(temp)) {
-                const {preset, freq} = (clusterData as {
-                    preset: string;
-                    cluster: string;
-                    freq: object;
-                }) ?? {
-                    preset: undefined,
-                    freq: undefined,
-                    cluster: undefined,
-                };
-                if (preset) tempPresets.push(preset);
-                if (freq && freq['val']) {
-                    temp[_cluster].freq = freq['val'];
-                    temp[_cluster].freqTrend = freq['trend'];
-                }
-            }
-            setSemanticsModalSemanticsMinusItemsValuePresets(tempPresets);
-
-            setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
-            return temp;
-        });
-
-        const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].threshold
-            : 1;
-        setSemanticsModalSemanticsThresholdValue(plusThreshold);
-
-        const plusCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].ctrThreshold
-            : 0;
-        setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
-
-        const plusSecondThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].secondThreshold
-            : 0;
-        setSemanticsModalSemanticsSecondThresholdValue(plusSecondThreshold);
-
-        const plusSecondCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].secondCtrThreshold
-            : 0;
-        setSemanticsModalSemanticsSecondCTRThresholdValue(plusSecondCTRThreshold);
-
-        const isFixed = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].isFixed ?? false
-            : false;
-        setSemanticsModalIsFixed(isFixed);
-
-        setClustersFiltersActive({undef: false});
-        setClustersFiltersMinus({undef: false});
-
-        // // console.log(value.plus);
-        setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-            plusPhrasesTemplate ?? `Новый шаблон`,
-        );
-        const plusItems = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
-            ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].clusters
-            : [];
-        setSemanticsModalSemanticsPlusItemsValue(plusItems);
-    }, [advertsWords]);
-
-    useEffect(() => {
-        const fetchWords = async () => {
-            setWordsFetchUpdate(true);
-            const params = {
-                uid: getUid(),
-                campaignName: selectValue[0],
-                advertId: advertId,
-            };
-            console.log(params);
-
-            try {
-                const res = await callApi('getWordsForAdvertId', params, true);
-                if (!res) throw 'its undefined';
-                const words = res['data'];
-                console.log(words);
-
-                setAdwertsWords(words ?? {});
-            } catch (error) {
-                console.error('Error fetching words for advertId:', error);
-            } finally {
-                setWordsFetchUpdate(false);
-            }
-        };
-        if (open && !Object.keys(advertsWords).length) fetchWords();
-    }, [open, advertsWords]);
 
     const [semanticsAutoPhrasesModalFormOpen, setSemanticsAutoPhrasesModalFormOpen] =
         useState(false);
@@ -406,6 +260,153 @@ export const AdvertsWordsModal = ({
         semanticsFilteredSummary.minus.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
+
+    useEffect(() => {
+        const fetchWords = async () => {
+            setWordsFetchUpdate(true);
+            const params = {
+                uid: getUid(),
+                campaignName: selectValue[0],
+                advertId: advertId,
+            };
+            console.log(params);
+
+            try {
+                const res = await callApi('getWordsForAdvertId', params, true);
+                if (!res) throw 'its undefined';
+                const advertSemantics = res['data'];
+                console.log(advertSemantics);
+                setSemanticsModalOpenFromArt(art);
+
+                if (autoPhrasesTemplate) {
+                    setSemanticsAutoPhrasesModalIncludesList(autoPhrasesTemplate.includes ?? []);
+                    setSemanticsAutoPhrasesModalNotIncludesList(
+                        autoPhrasesTemplate.notIncludes ?? [],
+                    );
+                } else {
+                    setSemanticsAutoPhrasesModalIncludesList([]);
+                    setSemanticsAutoPhrasesModalNotIncludesList([]);
+                }
+                setSemanticsAutoPhrasesModalIncludesListInput('');
+                setSemanticsAutoPhrasesModalNotIncludesListInput('');
+
+                console.log(advertSemantics);
+
+                setSemanticsModalSemanticsItemsValue(() => {
+                    const temp = advertSemantics.clusters;
+                    temp.sort((a, b) => {
+                        const key = 'count';
+                        const valA = a[key] ?? 0;
+                        const valB = b[key] ?? 0;
+                        return valB - valA;
+                    });
+
+                    // console.log(temp);
+
+                    const tempPresets = [] as any[];
+                    for (const [_cluster, clusterData] of Object.entries(temp)) {
+                        const {preset, freq} = (clusterData as {
+                            preset: string;
+                            cluster: string;
+                            freq: object;
+                        }) ?? {
+                            preset: undefined,
+                            freq: undefined,
+                            cluster: undefined,
+                        };
+                        if (preset) tempPresets.push(preset);
+                        if (freq && freq['val']) {
+                            temp[_cluster].freq = freq['val'];
+                            temp[_cluster].freqTrend = freq['trend'];
+                        }
+                    }
+                    setSemanticsModalSemanticsItemsValuePresets(tempPresets);
+
+                    setSemanticsModalSemanticsItemsFiltratedValue(temp);
+                    return temp;
+                });
+                setSemanticsModalSemanticsMinusItemsValue(() => {
+                    const temp = advertSemantics.excluded;
+                    temp.sort((a, b) => {
+                        const freqA = a.freq ? a.freq.val : 0;
+                        const freqB = b.freq ? b.freq.val : 0;
+                        return freqB - freqA;
+                    });
+
+                    const tempPresets = [] as any[];
+                    for (const [_cluster, clusterData] of Object.entries(temp)) {
+                        const {preset, freq} = (clusterData as {
+                            preset: string;
+                            cluster: string;
+                            freq: object;
+                        }) ?? {
+                            preset: undefined,
+                            freq: undefined,
+                            cluster: undefined,
+                        };
+                        if (preset) tempPresets.push(preset);
+                        if (freq && freq['val']) {
+                            temp[_cluster].freq = freq['val'];
+                            temp[_cluster].freqTrend = freq['trend'];
+                        }
+                    }
+                    setSemanticsModalSemanticsMinusItemsValuePresets(tempPresets);
+
+                    setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
+                    return temp;
+                });
+
+                const plusThreshold = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].threshold
+                    : 1;
+                setSemanticsModalSemanticsThresholdValue(plusThreshold);
+
+                const plusCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][
+                    plusPhrasesTemplate
+                ]
+                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].ctrThreshold
+                    : 0;
+                setSemanticsModalSemanticsCTRThresholdValue(plusCTRThreshold);
+
+                const plusSecondThreshold = doc.plusPhrasesTemplates[selectValue[0]][
+                    plusPhrasesTemplate
+                ]
+                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].secondThreshold
+                    : 0;
+                setSemanticsModalSemanticsSecondThresholdValue(plusSecondThreshold);
+
+                const plusSecondCTRThreshold = doc.plusPhrasesTemplates[selectValue[0]][
+                    plusPhrasesTemplate
+                ]
+                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                          .secondCtrThreshold
+                    : 0;
+                setSemanticsModalSemanticsSecondCTRThresholdValue(plusSecondCTRThreshold);
+
+                const isFixed = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].isFixed ?? false
+                    : false;
+                setSemanticsModalIsFixed(isFixed);
+
+                setClustersFiltersActive({undef: false});
+                setClustersFiltersMinus({undef: false});
+
+                // // console.log(value.plus);
+                setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
+                    plusPhrasesTemplate ?? `Новый шаблон`,
+                );
+                const plusItems = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
+                    ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].clusters
+                    : [];
+                setSemanticsModalSemanticsPlusItemsValue(plusItems);
+            } catch (error) {
+                console.error('Error fetching words for advertId:', error);
+            } finally {
+                setWordsFetchUpdate(false);
+            }
+        };
+        if (open) fetchWords();
+    }, [open]);
 
     const [separetedWords, setSeparetedWords] = useState([] as string[]);
     useEffect(() => {
@@ -2209,7 +2210,6 @@ export const AdvertsWordsModal = ({
                 open={open}
                 onClose={() => {
                     setOpen(false);
-                    setAdwertsWords({});
                 }}
             >
                 <motion.div
