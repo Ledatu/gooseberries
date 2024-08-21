@@ -198,7 +198,7 @@ export const AdvertsWordsModal = ({
 
     useEffect(() => {
         if (!open) {
-            setAdwertsWords({});
+            if (Object.keys(advertsWords)) setAdwertsWords({});
             return;
         }
 
