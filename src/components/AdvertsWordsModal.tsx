@@ -2214,17 +2214,6 @@ export const AdvertsWordsModal = ({
                 }}
             >
                 <motion.div
-                    onAnimationStart={async () => {
-                        await new Promise((resolve) => setTimeout(resolve, 300));
-                        clustersFilterDataActive(
-                            {cluster: {val: '', mode: 'include'}},
-                            semanticsModalSemanticsItemsValue,
-                        );
-                        clustersFilterDataMinus(
-                            {cluster: {val: '', mode: 'include'}},
-                            semanticsModalSemanticsMinusItemsValue,
-                        );
-                    }}
                     animate={{width: open ? '80vw' : 0}}
                     style={{
                         height: '90vh',
