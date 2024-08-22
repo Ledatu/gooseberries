@@ -526,7 +526,7 @@ export const AdvertCard = ({
                                                 },
                                                 {
                                                     id: '1',
-                                                    name: 'Позиция',
+                                                    name: 'Выдача',
                                                     color: '#4aa1f2',
                                                     scale: 'r',
                                                     data: graphsDataPosition,

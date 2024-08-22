@@ -3987,7 +3987,7 @@ export const MassAdvertPage = ({
         },
         {
             value: 'bestPlacement',
-            content: 'Лучшая позиция',
+            content: 'Топ позиция',
         },
         {
             value: 'orders',
