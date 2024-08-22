@@ -277,8 +277,8 @@ export const AdvertsWordsModal = ({
                 if (!res) throw 'its undefined';
                 const words = res['data'];
                 const advertSemantics = {
-                    excluded: words ? words['excluded'] : [],
-                    clusters: words ? words['clusters'] : [],
+                    excluded: words ? words['excluded'] ?? [] : [],
+                    clusters: words ? words['clusters'] ?? [] : [],
                 };
                 console.log(advertSemantics);
                 setSemanticsModalOpenFromArt(art);
