@@ -327,7 +327,7 @@ export const AdvertsWordsModal = ({
                     }
                     setSemanticsModalSemanticsItemsValuePresets(tempPresets);
 
-                    setSemanticsModalSemanticsItemsFiltratedValue(temp);
+                    clustersFilterDataActive(clustersFiltersActive, temp);
                     return temp;
                 });
                 setSemanticsModalSemanticsMinusItemsValue(() => {
@@ -357,7 +357,7 @@ export const AdvertsWordsModal = ({
                     }
                     setSemanticsModalSemanticsMinusItemsValuePresets(tempPresets);
 
-                    setSemanticsModalSemanticsMinusItemsFiltratedValue(temp);
+                    clustersFilterDataMinus(clustersFiltersMinus, temp);
                     return temp;
                 });
 
