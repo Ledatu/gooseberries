@@ -262,6 +262,8 @@ export const AdvertsWordsModal = ({
     };
 
     useEffect(() => {
+        if (!open) return;
+
         setWordsFetchUpdate(true);
         const params = {
             uid: getUid(),
@@ -273,7 +275,11 @@ export const AdvertsWordsModal = ({
         callApi('getWordsForAdvertId', params, true)
             .then((res) => {
                 if (!res) throw 'its undefined';
-                const advertSemantics = res['data'];
+                const words = res['data'];
+                const advertSemantics = {
+                    excluded: words ? words['excluded'] : [],
+                    clusters: words ? words['clusters'] : [],
+                };
                 console.log(advertSemantics);
                 setSemanticsModalOpenFromArt(art);
 
