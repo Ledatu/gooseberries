@@ -21,7 +21,6 @@ import {
 import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
-
 import block from 'bem-cn-lite';
 
 import DataTable, {Column} from '@gravity-ui/react-data-table';
@@ -67,7 +66,7 @@ import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
 import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from 'src/utilities/callApi';
-import axios from 'axios';
+import axios, {CancelTokenSource} from 'axios';
 import {
     getLocaleDateString,
     getNormalDateRange,
@@ -123,16 +122,16 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo:
             selectValue != ''
                 ? selectValue
                 : userInfo.campaignNames.includes('all')
-                ? 'ОТК ПРОИЗВОДСТВО'
+                ? userInfo.campaignNames[1]
                 : userInfo.campaignNames[0],
     };
     console.log(params);
 
-    useEffect(() => {
-        callApi('getMassAdvertsNew', params, true)
-            .then((response) => setDocument(response ? response['data'] : undefined))
-            .catch((error) => console.error(error));
-    }, []);
+    // useEffect(() => {
+    //     callApi('getMassAdvertsNew', params, true)
+    //         .then((response) => setDocument(response ? response['data'] : undefined))
+    //         .catch((error) => console.error(error));
+    // }, []);
     return doc;
 };
 
@@ -3131,56 +3130,55 @@ export const MassAdvertPage = ({
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [doc, setUserDoc] = React.useState(getUserDoc());
 
+    const cancelTokenRef = useRef<CancelTokenSource | null>(null);
+
     useEffect(() => {
-        if (!selectValue || !doc) return;
-        setWordsFetchUpdate(true);
-        if (!Object.keys(doc['campaigns'][selectValue[0]]).length) {
-            callApi(
-                'getMassAdvertsNew',
-                {
-                    uid: getUid(),
-                    dateRange: {from: '2023', to: '2024'},
-                    campaignName: selectValue,
-                },
-                true,
-            ).then(async (res) => {
+        if (!selectValue) return;
+        if (!selectValue[0] || selectValue[0] == '') return;
+
+        // Cancel the previous request if it exists
+        if (cancelTokenRef.current) {
+            cancelTokenRef.current.cancel('Operation canceled due to new request.');
+        }
+
+        // Create a new cancel token
+        cancelTokenRef.current = axios.CancelToken.source();
+
+        callApi(
+            'getMassAdvertsNew',
+            {
+                uid: getUid(),
+                dateRange: {from: '2023', to: '2024'},
+                campaignName: selectValue[0],
+            },
+            true,
+            cancelTokenRef.current.token, // Pass the cancel token to the API call
+        )
+            .then((res) => {
                 if (!res) return;
                 const resData = res['data'];
-                doc['campaigns'][selectValue[0]] = resData['campaigns'][selectValue[0]];
-                doc['balances'][selectValue[0]] = resData['balances'][selectValue[0]];
-                doc['plusPhrasesTemplates'][selectValue[0]] =
-                    resData['plusPhrasesTemplates'][selectValue[0]];
-                doc['advertsPlusPhrasesTemplates'][selectValue[0]] =
-                    resData['advertsPlusPhrasesTemplates'][selectValue[0]];
-                doc['advertsBudgetsToKeep'][selectValue[0]] =
-                    resData['advertsBudgetsToKeep'][selectValue[0]];
-                doc['advertsSelectedPhrases'][selectValue[0]] =
-                    resData['advertsSelectedPhrases'][selectValue[0]];
-                doc['advertsAutoBidsRules'][selectValue[0]] =
-                    resData['advertsAutoBidsRules'][selectValue[0]];
-                doc['adverts'][selectValue[0]] = resData['adverts'][selectValue[0]];
-                doc['placementsAuctions'][selectValue[0]] =
-                    resData['placementsAuctions'][selectValue[0]];
-                // doc['dzhemData'][selectValue[0]] =
-                // resData['dzhemData'][selectValue[0]];
-                doc['advertsSchedules'][selectValue[0]] =
-                    resData['advertsSchedules'][selectValue[0]];
-                doc['dzhemData'][selectValue[0]] = resData['dzhemData'][selectValue[0]];
-                doc['autoSales'][selectValue[0]] = resData['autoSales'][selectValue[0]];
-
-                setChangedDoc(doc);
-
-                // recalc(dateRange, nextValue[0]);
-
-                setSwitchingCampaignsFlag(false);
+                setChangedDoc({...resData});
+                recalc(dateRange, selectValue[0], filters, resData);
                 console.log(doc);
+            })
+            .catch((e) => {
+                if (!axios.isCancel(e)) {
+                    console.log(e);
+                }
+            })
+            .finally(() => {
+                setSwitchingCampaignsFlag(false);
             });
-        } else {
-            setSwitchingCampaignsFlag(false);
-        }
-        recalc(dateRange, selectValue[0], filters);
+
         setPagesCurrent(1);
         setCopiedAdvertsSettings({advertId: 0});
+
+        // Cleanup function to cancel the request on component unmount or before the next useEffect call
+        return () => {
+            if (cancelTokenRef.current) {
+                cancelTokenRef.current.cancel('Component unmounted or selectValue changed.');
+            }
+        };
     }, [selectValue]);
 
     useEffect(() => {
@@ -3245,7 +3243,6 @@ export const MassAdvertPage = ({
                 const resData = response['data'];
                 setChangedDoc(resData);
                 setChangedDocUpdateType(true);
-                setWordsFetchUpdate(true);
                 // console.log(response ? response['data'] : undefined);
             })
             .catch((error) => console.error(error));
@@ -3325,7 +3322,12 @@ export const MassAdvertPage = ({
         }
         return result;
     };
-    const recalc = (daterng, selected = '', withfFilters = {}) => {
+    const recalc = (
+        daterng,
+        selected = '',
+        withfFilters = {},
+        campaignData_ = undefined as any,
+    ) => {
         const [startDate, endDate] = daterng;
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(0, 0, 0, 0);
@@ -3348,7 +3350,9 @@ export const MassAdvertPage = ({
 
         const _selectedCampaignName = selected == '' ? selectValue[0] : selected;
         const campaignData =
-            (doc ? (doc.campaigns ? doc.campaigns[_selectedCampaignName] : {}) : {}) ?? {};
+            campaignData_ && campaignData_.campaigns
+                ? campaignData_.campaigns[_selectedCampaignName]
+                : (doc ? (doc.campaigns ? doc.campaigns[_selectedCampaignName] : {}) : {}) ?? {};
         const temp = {};
         for (const [art, artData] of Object.entries(campaignData)) {
             if (!art || !artData) continue;
@@ -4016,38 +4020,7 @@ export const MassAdvertPage = ({
     ]);
     const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['placements']);
     const [firstRecalc, setFirstRecalc] = useState(false);
-    const [wordsFetchUpdate, setWordsFetchUpdate] = useState(false);
-    useEffect(() => {
-        if (!wordsFetchUpdate || !selectValue[0] || !firstRecalc) return;
-        const fetchWords = async () => {
-            const params = {
-                uid: getUid(),
-                campaignName: selectValue[0],
-            };
-            console.log(params);
 
-            try {
-                const res = await callApi('getWordsForAdvertId', params);
-                if (!res) throw 'its undefined';
-                const wordsForAdverts = res['data'];
-                // console.log(wordsForAdverts);
-
-                if (doc.adverts[selectValue[0]] && wordsForAdverts) {
-                    for (const [advertId, _] of Object.entries(doc.adverts[selectValue[0]])) {
-                        doc.adverts[selectValue[0]][advertId].words =
-                            wordsForAdverts.words[advertId] ?? {};
-                    }
-                    setChangedDoc({...doc});
-                }
-            } catch (error) {
-                console.error('Error fetching words for adverts:', error);
-            } finally {
-                setWordsFetchUpdate(false);
-            }
-        };
-
-        fetchWords();
-    }, [wordsFetchUpdate, firstRecalc]);
     const [changedColumns, setChangedColumns] = useState<any>(false);
 
     const genTextColumn = (textArray) => {
