@@ -3144,6 +3144,7 @@ export const MassAdvertPage = ({
         // Create a new cancel token
         cancelTokenRef.current = axios.CancelToken.source();
 
+        setSwitchingCampaignsFlag(true);
         callApi(
             'getMassAdvertsNew',
             {
@@ -3157,16 +3158,15 @@ export const MassAdvertPage = ({
             .then((res) => {
                 if (!res) return;
                 const resData = res['data'];
-                setChangedDoc({...resData});
-                recalc(dateRange, selectValue[0], filters, resData);
-                console.log(doc);
+                setChangedDoc(resData);
+                setSwitchingCampaignsFlag(false);
+                // recalc(dateRange, selectValue[0], filters, resData);
+                console.log(resData);
             })
             .catch((e) => {
                 if (!axios.isCancel(e)) {
                     console.log(e);
                 }
-            })
-            .finally(() => {
                 setSwitchingCampaignsFlag(false);
             });
 
@@ -3349,12 +3349,19 @@ export const MassAdvertPage = ({
         };
 
         const _selectedCampaignName = selected == '' ? selectValue[0] : selected;
-        const campaignData =
-            campaignData_ && campaignData_.campaigns
-                ? campaignData_.campaigns[_selectedCampaignName]
-                : (doc ? (doc.campaigns ? doc.campaigns[_selectedCampaignName] : {}) : {}) ?? {};
+        let campaignData = doc;
+        if (campaignData_) campaignData = campaignData_;
+        if (
+            !campaignData ||
+            !campaignData.campaigns[_selectedCampaignName] ||
+            !campaignData.adverts[_selectedCampaignName]
+        )
+            return;
+
         const temp = {};
-        for (const [art, artData] of Object.entries(campaignData)) {
+        for (const [art, artData] of Object.entries(
+            campaignData.campaigns[_selectedCampaignName],
+        )) {
             if (!art || !artData) continue;
             const artInfo = {
                 art: '',
@@ -3432,7 +3439,7 @@ export const MassAdvertPage = ({
 
                     for (const [advertId, _] of Object.entries(advertsOfType)) {
                         if (!advertId) continue;
-                        const advertData = doc.adverts[_selectedCampaignName][advertId];
+                        const advertData = campaignData.adverts[_selectedCampaignName][advertId];
                         if (!advertData) continue;
                         const status = advertData['status'];
                         if (![4, 9, 11].includes(status)) continue;
@@ -3444,11 +3451,11 @@ export const MassAdvertPage = ({
                         artInfo.semantics[advertId] = advertData['words'];
 
                         artInfo.drrAI[advertId] =
-                            doc.advertsAutoBidsRules[_selectedCampaignName][advertId];
+                            campaignData.advertsAutoBidsRules[_selectedCampaignName][advertId];
                         artInfo.budgetToKeep[advertId] =
-                            doc.advertsBudgetsToKeep[_selectedCampaignName][advertId];
+                            campaignData.advertsBudgetsToKeep[_selectedCampaignName][advertId];
                         artInfo.advertsSelectedPhrases[advertId] =
-                            doc.advertsSelectedPhrases[_selectedCampaignName][advertId];
+                            campaignData.advertsSelectedPhrases[_selectedCampaignName][advertId];
                         artInfo.bidLog[advertId] = advertData['bidLog'];
                     }
                 }
@@ -3568,6 +3575,7 @@ export const MassAdvertPage = ({
         )}%`;
 
         setSummary(summaryTemp);
+
         setTableData(temp);
 
         filterTableData(withfFilters, temp);
@@ -3708,6 +3716,12 @@ export const MassAdvertPage = ({
     ) => {
         const temp = [] as any;
         const usefilterAutoSales = _filterAutoSales ?? filterAutoSales;
+        console.log(
+            tableData,
+            data,
+            Object.keys(tableData).length ? tableData : data,
+            withfFilters['undef'] ? withfFilters : filters,
+        );
 
         for (const [art, artInfo] of Object.entries(
             Object.keys(tableData).length ? tableData : data,
@@ -4306,7 +4320,7 @@ export const MassAdvertPage = ({
     if (changedDoc) {
         setChangedDoc(undefined);
         setChangedDocUpdateType(false);
-        recalc(dateRange);
+        recalc(dateRange, selectValue[0], filters, changedDoc);
     }
 
     if (changedColumns) {
@@ -4541,7 +4555,7 @@ export const MassAdvertPage = ({
         }
         setFilters(filters);
 
-        recalc(dateRange, selectValue[0]);
+        // recalc(dateRange, selectValue[0]);
 
         setFirstRecalc(true);
     }
