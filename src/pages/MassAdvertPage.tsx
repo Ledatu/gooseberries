@@ -3144,7 +3144,7 @@ export const MassAdvertPage = ({
         // Create a new cancel token
         cancelTokenRef.current = axios.CancelToken.source();
 
-        setSwitchingCampaignsFlag(true);
+        if (doc) setSwitchingCampaignsFlag(true);
         callApi(
             'getMassAdvertsNew',
             {
