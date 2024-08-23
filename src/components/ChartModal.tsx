@@ -30,7 +30,7 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
             } finally {
                 setDataFetching(false);
             }
-        }
+        } else if (!yagrData && data) setYagrData(data);
     };
 
     useEffect(() => {
