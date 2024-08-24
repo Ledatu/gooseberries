@@ -114,106 +114,6 @@ export const AdvertCard = ({
     const curBudget = budget;
     // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
-    const timelineBudget: any[] = [];
-    const graphsDataBudgets: any[] = [];
-    const graphsDataBudgetsDiv: any[] = [];
-    const graphsDataBudgetsDivHours = {};
-    if (budgetLog) {
-        for (let i = 0; i < budgetLog.length; i++) {
-            const {budget, time} = budgetLog[i];
-            if (!time || !budget) continue;
-
-            const timeObj = new Date(time);
-
-            timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
-
-            const lbd = new Date(dateRange[0]);
-            lbd.setHours(0, 0, 0, 0);
-            const rbd = new Date(dateRange[1]);
-            rbd.setHours(23, 59, 59);
-            if (timeObj < lbd || timeObj > rbd) continue;
-            timelineBudget.push(timeObj.getTime());
-            graphsDataBudgets.push(budget);
-
-            const hour = time.slice(0, 13);
-            if (!graphsDataBudgetsDivHours[hour]) graphsDataBudgetsDivHours[hour] = budget;
-        }
-        let prevHour = '';
-        for (let i = 0; i < timelineBudget.length; i++) {
-            const dateObj = new Date(timelineBudget[i]);
-            const time = dateObj.toISOString();
-            if (dateObj.getMinutes() != 0) {
-                graphsDataBudgetsDiv.push(null);
-                continue;
-            }
-            const hour = time.slice(0, 13);
-            if (prevHour == '') {
-                graphsDataBudgetsDiv.push(null);
-                prevHour = hour;
-                continue;
-            }
-
-            const spent = graphsDataBudgetsDivHours[prevHour] - graphsDataBudgetsDivHours[hour];
-            graphsDataBudgetsDiv.push(spent);
-
-            prevHour = hour;
-        }
-    }
-
-    const yagrBudgetData = {
-        data: {
-            timeline: timelineBudget,
-            graphs: [
-                {
-                    id: '0',
-                    name: 'Баланс',
-                    scale: 'y',
-                    color: '#ffbe5c',
-                    data: graphsDataBudgets,
-                },
-                {
-                    id: '1',
-                    type: 'column',
-                    data: graphsDataBudgetsDiv,
-                    name: 'Расход',
-                    scale: 'r',
-                },
-            ],
-        },
-
-        libraryConfig: {
-            chart: {
-                series: {
-                    spanGaps: false,
-                    type: 'line',
-                    interpolation: 'smooth',
-                },
-            },
-            axes: {
-                y: {
-                    label: 'Баланс',
-                    precision: 'auto',
-                    show: true,
-                },
-                r: {
-                    label: 'Расход',
-                    precision: 'auto',
-                    side: 'right',
-                    show: true,
-                },
-                x: {
-                    label: 'Время',
-                    precision: 'auto',
-                    show: true,
-                },
-            },
-            scales: {y: {min: 0}, r: {min: 0}},
-            title: {
-                text: 'Изменение баланса',
-            },
-        },
-    } as YagrWidgetData;
-
     return (
         <Card
             theme={pregenerated ? 'warning' : 'normal'}
@@ -635,7 +535,119 @@ export const AdvertCard = ({
                                 }`}</Text>
                             </Button>
                         </AdvertsBudgetsModal>
-                        <ChartModal data={yagrBudgetData}>
+                        <ChartModal
+                            fetchingFunction={() => {
+                                return new Promise((resolve) => {
+                                    const timelineBudget: any[] = [];
+                                    const graphsDataBudgets: any[] = [];
+                                    const graphsDataBudgetsDiv: any[] = [];
+                                    const graphsDataBudgetsDivHours = {};
+                                    if (budgetLog) {
+                                        for (let i = 0; i < budgetLog.length; i++) {
+                                            const {budget, time} = budgetLog[i];
+                                            if (!time || !budget) continue;
+
+                                            const timeObj = new Date(time);
+
+                                            timeObj.setMinutes(
+                                                Math.floor(timeObj.getMinutes() / 15) * 15,
+                                            );
+
+                                            const lbd = new Date(dateRange[0]);
+                                            lbd.setHours(0, 0, 0, 0);
+                                            const rbd = new Date(dateRange[1]);
+                                            rbd.setHours(23, 59, 59);
+                                            if (timeObj < lbd || timeObj > rbd) continue;
+                                            timelineBudget.push(timeObj.getTime());
+                                            graphsDataBudgets.push(budget);
+
+                                            const hour = time.slice(0, 13);
+                                            if (!graphsDataBudgetsDivHours[hour])
+                                                graphsDataBudgetsDivHours[hour] = budget;
+                                        }
+                                        let prevHour = '';
+                                        for (let i = 0; i < timelineBudget.length; i++) {
+                                            const dateObj = new Date(timelineBudget[i]);
+                                            const time = dateObj.toISOString();
+                                            if (dateObj.getMinutes() != 0) {
+                                                graphsDataBudgetsDiv.push(null);
+                                                continue;
+                                            }
+                                            const hour = time.slice(0, 13);
+                                            if (prevHour == '') {
+                                                graphsDataBudgetsDiv.push(null);
+                                                prevHour = hour;
+                                                continue;
+                                            }
+
+                                            const spent =
+                                                graphsDataBudgetsDivHours[prevHour] -
+                                                graphsDataBudgetsDivHours[hour];
+                                            graphsDataBudgetsDiv.push(spent);
+
+                                            prevHour = hour;
+                                        }
+                                    }
+
+                                    const yagrBudgetData = {
+                                        data: {
+                                            timeline: timelineBudget,
+                                            graphs: [
+                                                {
+                                                    id: '0',
+                                                    name: 'Баланс',
+                                                    scale: 'y',
+                                                    color: '#ffbe5c',
+                                                    data: graphsDataBudgets,
+                                                },
+                                                {
+                                                    id: '1',
+                                                    type: 'column',
+                                                    data: graphsDataBudgetsDiv,
+                                                    name: 'Расход',
+                                                    scale: 'r',
+                                                },
+                                            ],
+                                        },
+
+                                        libraryConfig: {
+                                            chart: {
+                                                series: {
+                                                    spanGaps: false,
+                                                    type: 'line',
+                                                    interpolation: 'smooth',
+                                                },
+                                            },
+                                            axes: {
+                                                y: {
+                                                    label: 'Баланс',
+                                                    precision: 'auto',
+                                                    show: true,
+                                                },
+                                                r: {
+                                                    label: 'Расход',
+                                                    precision: 'auto',
+                                                    side: 'right',
+                                                    show: true,
+                                                },
+                                                x: {
+                                                    label: 'Время',
+                                                    precision: 'auto',
+                                                    show: true,
+                                                },
+                                            },
+                                            scales: {y: {min: 0}, r: {min: 0}},
+                                            title: {
+                                                text: 'Изменение баланса',
+                                            },
+                                        },
+                                    } as YagrWidgetData;
+
+                                    resolve(yagrBudgetData);
+                                    return yagrBudgetData;
+                                });
+                            }}
+                        >
                             <Button pin="round-brick" size="xs" view="flat">
                                 <Icon data={ChartAreaStacked} size={11} />
                             </Button>
