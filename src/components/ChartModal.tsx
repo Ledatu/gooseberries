@@ -47,7 +47,7 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
             formatter: (value) => new Date(value as number).toLocaleString('ru-RU') ?? '',
         });
         setYagrData(yagrData);
-    }, [open, dataFetching]);
+    }, [open, dataFetching, yagrData]);
 
     const handleClose = () => {
         setOpen(false);
