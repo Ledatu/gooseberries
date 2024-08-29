@@ -56,6 +56,12 @@ export const getNormalDateRange = (dateRange) => {
     return res;
 };
 
+export const defaultRender = ({value}: {value?: any}, valueType = 'number') => {
+    return typeof value === 'number' && valueType != 'text'
+        ? new Intl.NumberFormat('ru-RU').format(value)
+        : value;
+};
+
 export const renderSlashPercent = ({value, row}, key) => {
     const keyVal = row[key];
     if (value === undefined) return undefined;
@@ -67,9 +73,10 @@ export const renderSlashPercent = ({value, row}, key) => {
     );
 };
 
-export const renderAsPercent = ({value}) => {
+export const renderAsPercent = (args) => {
+    const {value} = args;
     if (value === undefined) return undefined;
-    return <Text>{value}%</Text>;
+    return <Text>{defaultRender(args)}%</Text>;
 };
 
 export const renderAsDate = ({value}) => {

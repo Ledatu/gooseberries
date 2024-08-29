@@ -24,10 +24,11 @@ import {
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
-import TheTable, {compare, defaultRender} from 'src/components/TheTable';
+import TheTable, {compare} from 'src/components/TheTable';
 import {RangePicker} from 'src/components/RangePicker';
 import {
     daysInMonth,
+    defaultRender,
     getDateFromLocaleMonthName,
     getDateFromLocaleString,
     getLocaleDateString,
@@ -751,7 +752,7 @@ export const AnalyticsPage = ({
                 tempTypeRow['sum_orders'] = dateStats['sum_orders'];
                 tempTypeRow['sales'] = dateStats['sales'];
                 tempTypeRow['sum_sales'] = dateStats['sum_sales'];
-                tempTypeRow['profit'] = dateStats['profit'];
+                tempTypeRow['profit'] = Math.round(dateStats['profit']);
                 tempTypeRow['rentabelnost'] = dateStats['rentabelnost'];
                 tempTypeRow['clicks'] = dateStats['clicks'];
                 tempTypeRow['sppPrice'] = dateStats['sppPrice'];

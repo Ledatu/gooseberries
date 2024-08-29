@@ -11,10 +11,11 @@ import {
 } from '@gravity-ui/uikit';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
-import TheTable, {compare, defaultRender} from 'src/components/TheTable';
+import TheTable, {compare} from 'src/components/TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
 
 import {FileArrowDown, Function, Minus, ArrowRotateLeft} from '@gravity-ui/icons';
+import {defaultRender} from 'src/utilities/getRoundValue';
 
 export const SEOPage = () => {
     const [isInputDown, setIsInputDown] = useState(true);

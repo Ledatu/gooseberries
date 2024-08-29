@@ -33,8 +33,9 @@ import {
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
-import TheTable, {compare, defaultRender} from 'src/components/TheTable';
+import TheTable, {compare} from 'src/components/TheTable';
 import {
+    defaultRender,
     generateTextInputWithNoteOnTop,
     getNormalDateRange,
     getRoundValue,

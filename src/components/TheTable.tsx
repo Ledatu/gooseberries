@@ -7,6 +7,7 @@ import useWindowDimensions from 'src/hooks/useWindowDimensions';
 import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
 import {Button, DropdownMenu, Icon, Text} from '@gravity-ui/uikit';
 import {DelayedTextInput} from '@gravity-ui/components';
+import {defaultRender} from 'src/utilities/getRoundValue';
 
 const b = block('the-table');
 
@@ -19,12 +20,6 @@ interface TheTableProps {
     footerData?: any[];
     onRowClick?: (row: any, index: number, event: React.MouseEvent<HTMLTableRowElement>) => void;
 }
-
-export const defaultRender = ({value}: {value?: any}, valueType = 'number') => {
-    return typeof value === 'number' && valueType != 'text'
-        ? new Intl.NumberFormat('ru-RU').format(value)
-        : value;
-};
 
 export default function TheTable({
     columnData,

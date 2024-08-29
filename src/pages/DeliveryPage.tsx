@@ -30,10 +30,10 @@ import {
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
-import {getNormalDateRange, getRoundValue} from 'src/utilities/getRoundValue';
+import {defaultRender, getNormalDateRange, getRoundValue} from 'src/utilities/getRoundValue';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
-import TheTable, {compare, defaultRender, generateFilterTextInput} from 'src/components/TheTable';
+import TheTable, {compare, generateFilterTextInput} from 'src/components/TheTable';
 import axios from 'axios';
 import {User} from './Dashboard';
 import {WarehousesEdit} from 'src/components/WarehousesEdit';
