@@ -30,6 +30,7 @@ import {DeliveryPage} from './DeliveryPage';
 import {SEOPage} from './SEOPage';
 import {UploadModal} from 'src/components/UploadModal';
 import {SelectCampaign} from 'src/components/SelectCampaign';
+import {BuyersPage} from './BuyersPage';
 
 const b = block('app');
 
@@ -43,6 +44,7 @@ export interface User {
     roles: string[];
     modules: string[];
     campaignNames: string[];
+    subscription: boolean;
 }
 
 export const Dashboard = () => {
@@ -66,6 +68,7 @@ export const Dashboard = () => {
                 uuid: '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
                 roles: ['admin'],
                 modules: ['all'],
+                subscription: false,
                 campaignNames: [
                     'all',
                     'ОТК ПРОИЗВОДСТВО',
@@ -213,6 +216,11 @@ export const Dashboard = () => {
             id: 'nomenclatures',
             title: 'Товары',
             disabled: !modules.includes('all') && !modules.includes('nomenclatures'),
+        },
+        {
+            id: 'buyers',
+            title: 'Покупатели',
+            disabled: !modules.includes('all') && !modules.includes('buyers'),
         },
         {
             id: 'seo',
@@ -578,6 +586,13 @@ const PageElem = ({
         ),
         analytics: (
             <AnalyticsPage
+                selectValue={selectValue}
+                userInfo={userInfo}
+                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+            />
+        ),
+        buyers: (
+            <BuyersPage
                 selectValue={selectValue}
                 userInfo={userInfo}
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
