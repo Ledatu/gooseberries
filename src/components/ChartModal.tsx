@@ -2,7 +2,7 @@ import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {Card, Loader, Modal} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
-import React, {Children, isValidElement, ReactElement, useEffect, useState} from 'react';
+import React, {Children, isValidElement, ReactElement, useState} from 'react';
 
 interface ChartModalInterface {
     children: ReactElement | ReactElement[];
@@ -18,36 +18,34 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
 
     const handleOpen = async () => {
         setOpen(true);
-
+        let tempData = undefined as any;
         if (!yagrData && fetchingFunction) {
             setDataFetching(true);
             try {
-                const fetchedData = await fetchingFunction();
-                setYagrData(fetchedData);
+                tempData = await fetchingFunction();
             } catch (error) {
                 console.error('Error fetching data:', error);
                 // Optionally, handle the error state here
             } finally {
                 setDataFetching(false);
             }
-        } else if (!yagrData && data) setYagrData(data);
-    };
+        } else if (!yagrData && data) tempData = data;
 
-    useEffect(() => {
-        if (!open || !yagrData || addTime === false || dataFetching) return;
-        const newYagrData = {...yagrData};
-        const timeline = newYagrData.data.timeline;
-        newYagrData.data.graphs.push({
-            id: '4',
-            name: 'Дата и время',
-            cursorOptions: {markersSize: 0},
-            scale: 'time',
-            color: '#0000',
-            data: timeline,
-            formatter: (value) => new Date(value as number).toLocaleString('ru-RU') ?? '',
-        });
-        setYagrData(yagrData);
-    }, [open, dataFetching, yagrData]);
+        if (addTime !== false) {
+            const timeline = tempData.data.timeline;
+            tempData.data.graphs.push({
+                id: '4',
+                name: 'Дата и время',
+                cursorOptions: {markersSize: 0},
+                scale: 'time',
+                color: '#0000',
+                data: timeline,
+                formatter: (value) => new Date(value as number).toLocaleString('ru-RU') ?? '',
+            });
+        }
+
+        setYagrData(tempData);
+    };
 
     const handleClose = () => {
         setOpen(false);

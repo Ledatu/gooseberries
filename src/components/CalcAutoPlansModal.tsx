@@ -7,19 +7,19 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import {getMonthName} from 'src/utilities/getRoundValue';
 
 export const CalcAutoPlansModal = ({
-    columnDataReversed,
     selectValue,
     entityKeysLastCalc,
     colors,
     doc,
     setChangedDoc,
+    columnDataReversed,
     filteredData,
 }) => {
     const [autoPlanModalOpen, setAutoPlanModalOpen] = useState(false);
-    const [currenrPlanModalMetrics, setCurrenrPlanModalMetrics] = useState([] as any[]);
     const [planModalPlanValue, setPlanModalPlanValue] = useState('');
     const [planModalPlanValueValid, setPlanModalPlanValueValid] = useState(false);
     const [calculatingAutoPlansFlag, setCalculatingAutoPlansFlag] = useState(false);
+    const [currenrPlanModalMetrics, setCurrenrPlanModalMetrics] = useState([] as any[]);
     const [selectedButton, setSelectedButton] = useState('');
 
     return (
