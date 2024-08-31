@@ -56,6 +56,15 @@ export const Dashboard = () => {
             : Theme.Dark;
     const [theme, setTheme] = useState(initialTheme);
 
+    const [currentTime, setCurrentTime] = useState(new Date());
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCurrentTime(new Date()); // Update the current time every minute
+        }, 60000); // 60000 ms = 1 minute
+
+        return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+    }, []);
+
     useEffect(() => {
         localStorage.setItem('theme', JSON.stringify(theme));
     }, [theme]);
@@ -537,7 +546,7 @@ export const Dashboard = () => {
                     }}
                 >
                     {campaignInfo.includes(selectValue[0]) &&
-                    new Date() >= new Date('2024-08-31T21:00:00.000Z') ? (
+                    currentTime >= new Date('2024-08-31T21:00:00.000Z') ? (
                         <NoSubscriptionPage setSwitchingCampaignsFlag={setSwitchingCampaignsFlag} />
                     ) : (
                         <PageElem
