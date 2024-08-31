@@ -31,6 +31,7 @@ import {SEOPage} from './SEOPage';
 import {UploadModal} from 'src/components/UploadModal';
 import {SelectCampaign} from 'src/components/SelectCampaign';
 import {BuyersPage} from './BuyersPage';
+import {NoSubscriptionPage} from './NoSubscriptionPage';
 
 const b = block('app');
 
@@ -62,6 +63,16 @@ export const Dashboard = () => {
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
 
     const [userInfo, setUserInfo] = useState({} as User);
+    const [campaignInfo] = useState([
+        'ИП Иосифова Р. И.',
+        'ИП Иосифов А. М.',
+        'ИП Иосифов М.С.',
+        'ИП Галилова',
+        'ИП Мартыненко',
+        'ИП Иосифов С.М. (домашка)',
+        'ООО Лаванда (18+)',
+        'ТОРГМАКСИМУМ',
+    ]);
     useEffect(() => {
         if (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806') {
             setUserInfo({
@@ -525,16 +536,21 @@ export const Dashboard = () => {
                         position: 'relative',
                     }}
                 >
-                    <PageElem
-                        page={page}
-                        selectValue={selectValue}
-                        userInfo={userInfo}
-                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-                        refetchAutoSales={refetchAutoSales}
-                        setRefetchAutoSales={setRefetchAutoSales}
-                        dzhemRefetch={dzhemRefetch}
-                        setDzhemRefetch={setDzhemRefetch}
-                    />
+                    {campaignInfo.includes(selectValue[0]) &&
+                    new Date() >= new Date('2024-08-31T21:00:00.000Z') ? (
+                        <NoSubscriptionPage setSwitchingCampaignsFlag={setSwitchingCampaignsFlag} />
+                    ) : (
+                        <PageElem
+                            page={page}
+                            selectValue={selectValue}
+                            userInfo={userInfo}
+                            setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                            refetchAutoSales={refetchAutoSales}
+                            setRefetchAutoSales={setRefetchAutoSales}
+                            dzhemRefetch={dzhemRefetch}
+                            setDzhemRefetch={setDzhemRefetch}
+                        />
+                    )}
                 </div>
             </div>
         </ThemeProvider>
