@@ -32,7 +32,7 @@ import {
     getDateFromLocaleMonthName,
     getDateFromLocaleString,
     getLocaleDateString,
-    getMonthName,
+    getMonth,
     getNormalDateRange,
     getRoundValue,
     renderAsPercent,
@@ -46,6 +46,7 @@ import {AnalyticsCalcModal} from 'src/components/AnalyticsCalcModal';
 import {PlansUpload} from 'src/components/PlansUpload';
 import {ColumnsEdit} from 'src/components/ColumsEdit';
 import {User} from './Dashboard';
+import {ManageDeletionOfOldPlansModal} from 'src/components/ManageDeletionOfOldPlansModal';
 
 const getUserDoc = (
     dateRange,
@@ -436,7 +437,7 @@ export const AnalyticsPage = ({
             }
 
             const _entity = argEntity != '' ? argEntity : entity;
-            const monthName = getMonthName(date);
+            const monthName = getMonth(date);
 
             const {dayPlan} =
                 doc.plansData[selectValue[0]][_entity] &&
@@ -1602,7 +1603,7 @@ export const AnalyticsPage = ({
                             icon: CloudArrowUpIn,
                             view: 'outlined-success',
                             onClick: () => {
-                                const monthName = getMonthName(new Date());
+                                const monthName = getMonth(new Date());
                                 const dayPlan = getPlanDay(planModalKey);
                                 const params = {
                                     uid: getUid(),
@@ -1651,7 +1652,7 @@ export const AnalyticsPage = ({
                             icon: TrashBin,
                             view: 'outlined-danger',
                             onClick: () => {
-                                const monthName = getMonthName(new Date());
+                                const monthName = getMonth(new Date());
                                 const dayPlan = getPlanDay();
                                 const params = {
                                     uid: getUid(),
@@ -1721,6 +1722,16 @@ export const AnalyticsPage = ({
                         colors={colors}
                         doc={doc}
                         setChangedDoc={setChangedDoc}
+                    />
+                    <div style={{minWidth: 8}} />
+                    <ManageDeletionOfOldPlansModal
+                        columnDataReversed={columnDataReversed}
+                        selectValue={selectValue}
+                        colors={colors}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                        dateRange={dateRange}
+                        filteredData={filteredData}
                     />
                     <div style={{minWidth: 8}} />
                     <AnalyticsCalcModal

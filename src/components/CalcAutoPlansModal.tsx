@@ -4,7 +4,7 @@ import React, {useState} from 'react';
 import {motion} from 'framer-motion';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {getMonthName} from 'src/utilities/getRoundValue';
+import {getMonth} from 'src/utilities/getRoundValue';
 
 export const CalcAutoPlansModal = ({
     selectValue,
@@ -110,7 +110,7 @@ export const CalcAutoPlansModal = ({
                                 icon: CloudArrowUpIn,
                                 view: 'outlined-success',
                                 onClick: () => {
-                                    const monthName = getMonthName(new Date());
+                                    const monthName = getMonth(new Date());
                                     const percentage = planModalPlanValue;
                                     const params = {
                                         uid: getUid(),
@@ -163,7 +163,7 @@ export const CalcAutoPlansModal = ({
                                 icon: TrashBin,
                                 view: 'outlined-danger',
                                 onClick: () => {
-                                    const monthName = getMonthName(new Date());
+                                    const monthName = getMonth(new Date());
                                     const percentage = planModalPlanValue;
                                     const params = {
                                         uid: getUid(),

@@ -89,10 +89,15 @@ export const daysInMonth = function (date) {
     return d.getDate();
 };
 
-export const getMonthName = (date) => {
-    return date.toLocaleString('ru-RU', {
-        month: 'short',
+export const getMonth = (inputDate) => {
+    const date = new Date(inputDate);
+    let str = date.toLocaleString('ru-RU', {
+        month: 'long',
     });
+    const year = date.getFullYear();
+    // Capitalize the first letter
+    str = `${str.charAt(0).toUpperCase() + str.slice(1)} ${year}`;
+    return str;
 };
 
 export const generateTextInputWithNoteOnTop = ({
