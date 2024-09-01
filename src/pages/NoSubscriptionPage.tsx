@@ -19,7 +19,7 @@ export const NoSubscriptionPage = ({setSwitchingCampaignsFlag}) => {
         >
             <AccessDenied />
             <Text variant="display-2" style={{width: 600}}>
-                Cпасибо, что вы пользуетесь Aurum! Для продолжения работы с сервисом, вам необходимо
+                Спасибо, что пользуетесь AURUM! Для продолжения работы с сервисом, вам необходимо
                 оплатить подписку на месяц.
             </Text>
         </div>
