@@ -17,6 +17,7 @@ interface TheTableProps {
     filters: any;
     setFilters: (filters: any) => void;
     filterData: any;
+    emptyDataMessage?: string;
     footerData?: any[];
     onRowClick?: (row: any, index: number, event: React.MouseEvent<HTMLTableRowElement>) => void;
 }
@@ -27,6 +28,7 @@ export default function TheTable({
     filters,
     setFilters,
     filterData,
+    emptyDataMessage,
     footerData = [],
     onRowClick,
 }: TheTableProps) {
@@ -95,6 +97,7 @@ export default function TheTable({
     return (
         <div className={b()}>
             <DataTable
+                emptyDataMessage={emptyDataMessage ?? 'Нет данных.'}
                 startIndex={1}
                 settings={{
                     stickyHead: MOVING,

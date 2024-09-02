@@ -2,8 +2,9 @@ import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {Button, Loader, Pagination, Icon, TextArea, Text, Card} from '@gravity-ui/uikit';
-import {Star, PencilToLine} from '@gravity-ui/icons';
+import {Star} from '@gravity-ui/icons';
 import {renderAsDate} from 'src/utilities/getRoundValue';
+import {AnswerFeedbackModal} from './AnswerFeedbackModal';
 
 export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
     const [filters, setFilters] = useState({});
@@ -144,26 +145,10 @@ export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
         {
             name: 'answer',
             placeholder: 'Ответ',
-            render: ({value}) => {
-                if (!value)
-                    return (
-                        <Button size="xs">
-                            Добавить ответ
-                            <Icon data={PencilToLine} />
-                        </Button>
-                    );
-                const color =
-                    value > 3
-                        ? 'outlined-success'
-                        : value == 3
-                        ? 'outlined-warning'
-                        : 'outlined-danger';
-                return (
-                    <Button size="xs" view={color} selected pin="circle-circle">
-                        {value}
-                        <Icon data={Star} size={11} />
-                    </Button>
-                );
+            render: ({value, row}) => {
+                const {id} = row;
+                if (!value) return <AnswerFeedbackModal selectValue={selectValue} id={id} />;
+                return value;
             },
         },
         {

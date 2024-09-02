@@ -1,6 +1,8 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {User} from './Dashboard';
 import {RadioButton} from '@gravity-ui/uikit';
+import {BuyersFeedbacksPage} from 'src/components/BuyersFeedbacksPage';
+import {AutoFeedbackAnsweringPage} from 'src/components/AutoFeedbackAnsweringPage';
 
 export const BuyersPage = ({
     selectValue,
@@ -16,11 +18,17 @@ export const BuyersPage = ({
         {content: 'Вопросы', value: 'questions'},
         {content: 'Автоответы', value: 'automation'},
     ];
+    const [selectedPage, setSelectedPage] = useState(sectionOptions[0].value);
 
     useEffect(() => {
         setSwitchingCampaignsFlag(false);
         console.log(userInfo);
     }, [selectValue]);
+
+    const pagesMap = {
+        feedbacks: <BuyersFeedbacksPage selectValue={selectValue} />,
+        automation: <AutoFeedbackAnsweringPage selectValue={selectValue} />,
+    };
 
     return (
         <div style={{display: 'flex', flexDirection: 'column', width: '100%', height: '100%'}}>
@@ -32,7 +40,12 @@ export const BuyersPage = ({
                     justifyContent: 'end',
                 }}
             >
-                <RadioButton options={sectionOptions} size="l" />
+                <RadioButton
+                    value={selectedPage}
+                    onUpdate={(val) => setSelectedPage(val)}
+                    options={sectionOptions}
+                    size="l"
+                />
             </div>
             <div style={{minHeight: 16}} />
             <div
@@ -44,7 +57,9 @@ export const BuyersPage = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}
-            ></div>
+            >
+                {pagesMap[selectedPage]}
+            </div>
         </div>
     );
 };
