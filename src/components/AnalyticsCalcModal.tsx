@@ -55,7 +55,7 @@ export const AnalyticsCalcModal = ({
                 }}
             >
                 <Icon data={Calculator} />
-                <Text variant="subheader-1">Рассчитать</Text>
+                <Text variant="subheader-1">Отчет</Text>
             </Button>
             <motion.div
                 style={{
@@ -247,7 +247,7 @@ export const AnalyticsCalcModal = ({
                             }}
                         >
                             <Icon data={Calculator} />
-                            <Text variant="subheader-1">Рассчитать</Text>
+                            <Text variant="subheader-1">Сгенерировать</Text>
                         </Button>
                     </div>
                 </Card>

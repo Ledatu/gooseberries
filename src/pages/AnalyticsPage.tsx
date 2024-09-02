@@ -1713,6 +1713,15 @@ export const AnalyticsPage = ({
                         height: 44,
                     }}
                 >
+                    <AnalyticsCalcModal
+                        setPagesCurrent={setPagesCurrent}
+                        doc={doc}
+                        setChangedDoc={setChangedDoc}
+                        setEntityKeysLastCalc={setEntityKeysLastCalc}
+                        selectValue={selectValue}
+                        dateRange={dateRange}
+                    />
+                    <div style={{minWidth: 8}} />
                     <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
                     <CalcAutoPlansModal
                         filteredData={filteredData}
@@ -1732,15 +1741,6 @@ export const AnalyticsPage = ({
                         setChangedDoc={setChangedDoc}
                         dateRange={dateRange}
                         filteredData={filteredData}
-                    />
-                    <div style={{minWidth: 8}} />
-                    <AnalyticsCalcModal
-                        setPagesCurrent={setPagesCurrent}
-                        doc={doc}
-                        setChangedDoc={setChangedDoc}
-                        setEntityKeysLastCalc={setEntityKeysLastCalc}
-                        selectValue={selectValue}
-                        dateRange={dateRange}
                     />
                 </div>
                 <div
