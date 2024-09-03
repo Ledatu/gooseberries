@@ -1,10 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {Button, Loader, Pagination, Icon, Card, Text} from '@gravity-ui/uikit';
-import {Star} from '@gravity-ui/icons';
+import {Button, Loader, Pagination, Card} from '@gravity-ui/uikit';
 
-export const AutoFeedbackAnsweringPage = ({selectValue}: {selectValue: string[]}) => {
+export const AutoFeedbackAnsweringPage = ({
+    selectValue,
+    refetch,
+}: {
+    selectValue: string[];
+    refetch: boolean;
+}) => {
     const [filters, setFilters] = useState({});
     const [data, setData] = useState(null as any);
     const [filteredData, setFilteredData] = useState([] as any[]);
@@ -25,7 +30,7 @@ export const AutoFeedbackAnsweringPage = ({selectValue}: {selectValue: string[]}
             .catch((e) => {
                 console.log(e);
             });
-    }, [selectValue]);
+    }, [selectValue, refetch]);
 
     const filterData = (withfFilters = {}, tableData = {}) => {
         const temp = [] as any;
@@ -70,36 +75,38 @@ export const AutoFeedbackAnsweringPage = ({selectValue}: {selectValue: string[]}
     }, [filteredData, currentPage]);
 
     const columns = [
-        {name: 'name', placeholder: 'Название'},
-        {name: 'priority', placeholder: 'Приоритет'},
-        {name: 'answerTemplate', placeholder: 'Шаблон ответа'},
-        {name: 'feedbackAge', placeholder: 'Возраст отзыва'},
-        {name: 'feedbackLength', placeholder: 'Длина отзыва'},
+        {name: 'name', placeholder: 'Название', },
+        // {name: 'priority', placeholder: 'Приоритет'},
+        {name: 'text', placeholder: 'Шаблон ответа'},
+        // {name: 'feedbackAge', placeholder: 'Возраст отзыва'},
+        // {name: 'feedbackLength', placeholder: 'Длина отзыва'},
         {
             name: 'productValuation',
             placeholder: 'Оценка',
-            render: ({value}) => {
-                if (!value) return undefined;
-                const color =
-                    value > 3
-                        ? 'outlined-success'
-                        : value == 3
-                        ? 'outlined-warning'
-                        : 'outlined-danger';
+            render: ({row}) => {
+                const {ratingFrom, ratingTo} = row;
+
+                if (!ratingFrom || !ratingTo) return undefined;
                 return (
-                    <Button size="xs" view={color} selected pin="circle-circle">
-                        {value}
-                        <Icon data={Star} size={11} />
+                    <Button size="xs" selected pin="circle-circle">
+                        {`${ratingFrom} - ${ratingTo}`}
                     </Button>
                 );
             },
         },
-        {name: 'containsMedia', placeholder: 'Фото или видео'},
-        {name: 'minusWords', placeholder: 'Минус слова'},
-        {name: 'keyWords', placeholder: 'Ключевые слова'},
-        {name: 'tags', placeholder: 'Теги'},
-        {name: 'arts', placeholder: 'Артикулы'},
-        {name: 'brands', placeholder: 'Бренды'},
+        // {name: 'containsMedia', placeholder: 'Фото или видео'},
+        {name: 'doNotContain', placeholder: 'Минус слова'},
+        {name: 'contains', placeholder: 'Ключевые слова'},
+        {
+            name: 'tags',
+            placeholder: 'Теги',
+            render: ({value}) => {
+                if (!value) return undefined;
+                return value.join(', ');
+            },
+        },
+        // {name: 'arts', placeholder: 'Артикулы'},
+        // {name: 'brands', placeholder: 'Бренды'},
     ];
 
     return data ? (
@@ -115,17 +122,11 @@ export const AutoFeedbackAnsweringPage = ({selectValue}: {selectValue: string[]}
             <Card
                 style={{
                     boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                    width: '100%',
                     position: 'relative',
                     overflow: 'auto',
                     maxHeight: 'calc(100vh - 68px - 32px - 36px - 16px - 48px)',
                 }}
             >
-                <div style={{position: 'relative', top: 0, left: 0, display: 'flex'}}>
-                    <Button view="action" size="l">
-                        <Text variant="subheader-1">Добавить</Text>
-                    </Button>
-                </div>
                 <TheTable
                     emptyDataMessage="У вас еще нет сохраненных шаблонов."
                     columnData={columns}

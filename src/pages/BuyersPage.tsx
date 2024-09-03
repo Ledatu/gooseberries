@@ -3,6 +3,7 @@ import {User} from './Dashboard';
 import {RadioButton} from '@gravity-ui/uikit';
 import {BuyersFeedbacksPage} from 'src/components/BuyersFeedbacksPage';
 import {AutoFeedbackAnsweringPage} from 'src/components/AutoFeedbackAnsweringPage';
+import {AutoFeedbackTemplateCreationModal} from 'src/components/AutoFeedbackTemplateCreationModal';
 
 export const BuyersPage = ({
     selectValue,
@@ -25,9 +26,26 @@ export const BuyersPage = ({
         console.log(userInfo);
     }, [selectValue]);
 
+    const [refetch, setRefetch] = useState(false);
+
     const pagesMap = {
-        feedbacks: <BuyersFeedbacksPage selectValue={selectValue} />,
-        automation: <AutoFeedbackAnsweringPage selectValue={selectValue} />,
+        feedbacks: {
+            page: <BuyersFeedbacksPage selectValue={selectValue} />,
+            additionalNodes: <div />,
+        },
+        questions: {
+            page: <div />,
+            additionalNodes: <div />,
+        },
+        automation: {
+            page: <AutoFeedbackAnsweringPage selectValue={selectValue} refetch={refetch} />,
+            additionalNodes: (
+                <AutoFeedbackTemplateCreationModal
+                    selectValue={selectValue}
+                    setRefetch={setRefetch}
+                />
+            ),
+        },
     };
 
     return (
@@ -37,9 +55,10 @@ export const BuyersPage = ({
                     display: 'flex',
                     flexDirection: 'row',
                     width: '100%',
-                    justifyContent: 'end',
+                    justifyContent: 'space-between',
                 }}
             >
+                {pagesMap[selectedPage]?.additionalNodes}
                 <RadioButton
                     value={selectedPage}
                     onUpdate={(val) => setSelectedPage(val)}
@@ -58,7 +77,7 @@ export const BuyersPage = ({
                     alignItems: 'center',
                 }}
             >
-                {pagesMap[selectedPage]}
+                {pagesMap[selectedPage]?.page}
             </div>
         </div>
     );
