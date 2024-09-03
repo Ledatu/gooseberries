@@ -75,7 +75,7 @@ export const AutoFeedbackAnsweringPage = ({
     }, [filteredData, currentPage]);
 
     const columns = [
-        {name: 'name', placeholder: 'Название', },
+        {name: 'name', placeholder: 'Название'},
         // {name: 'priority', placeholder: 'Приоритет'},
         {name: 'text', placeholder: 'Шаблон ответа'},
         // {name: 'feedbackAge', placeholder: 'Возраст отзыва'},
