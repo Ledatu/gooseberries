@@ -63,16 +63,7 @@ export const Dashboard = () => {
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
 
     const [userInfo, setUserInfo] = useState({} as User);
-    const [campaignInfo] = useState([
-        'ИП Иосифова Р. И.',
-        'ИП Иосифов А. М.',
-        'ИП Иосифов М.С.',
-        'ИП Галилова',
-        'ИП Мартыненко',
-        'ИП Иосифов С.М. (домашка)',
-        'ООО Лаванда (18+)',
-        'ТОРГМАКСИМУМ',
-    ]);
+    const [campaignInfo] = useState([] as string[]);
     useEffect(() => {
         if (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806') {
             setUserInfo({
