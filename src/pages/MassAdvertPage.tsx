@@ -1513,7 +1513,7 @@ export const MassAdvertPage = ({
                                 <Text variant="subheader-1">{profitsData.autoSaleName}</Text>
                             </Button>
                             <Button view="outlined" size="xs" pin="clear-clear" width="max">
-                                <Text color={profitsData.profit > 0 ? 'positive' : 'danger'}>
+                                <Text color={profitsData.oldProfit > 0 ? 'positive' : 'danger'}>
                                     {`${new Intl.NumberFormat('ru-RU').format(
                                         profitsData.oldProfit,
                                     )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
