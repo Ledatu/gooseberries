@@ -307,6 +307,7 @@ export const AdvertCard = ({
                                 drrAI.autoBidsMode != 'orders' &&
                                 drrAI.autoBidsMode != 'drr' &&
                                 drrAI.autoBidsMode != 'sum' &&
+                                drrAI.autoBidsMode != 'sum_orders' &&
                                 drrAI.autoBidsMode != 'obor' &&
                                 drrAI.autoBidsMode != 'cpo' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
