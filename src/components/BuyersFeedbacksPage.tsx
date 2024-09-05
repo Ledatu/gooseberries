@@ -110,9 +110,7 @@ export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
         {name: 'supplierArticle', placeholder: 'Артикул'},
         {name: 'brandName', placeholder: 'Бренд'},
         {name: 'size', placeholder: 'Размер'},
-        {name: 'imtId', placeholder: 'ID КТ', valueType: 'text'},
         {name: 'nmId', placeholder: 'Артикул WB', valueType: 'text'},
-        {name: 'subjectId', placeholder: 'Предмет'},
         {name: 'userName', placeholder: 'Имя'},
         {
             name: 'text',
@@ -176,12 +174,6 @@ export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
         {name: 'photoLinks', placeholder: 'Фото'},
         {name: 'video', placeholder: 'Видео'},
         {name: 'wasViewed', placeholder: 'Просмотрен ли отзыв'},
-        {name: 'supplierFeedbackValuation', placeholder: 'Оценка отзыва продавцом'},
-        {name: 'isAbleSupplierFeedbackValuation', placeholder: 'Можно ли оценить'},
-        {name: 'supplierProductValuation', placeholder: 'Оценка товара продавцом'},
-        {name: 'isAbleReturnProductOrders', placeholder: 'Доступен возврат'},
-        {name: 'returnProductOrdersDate', placeholder: 'Дата возврата', render: renderAsDate},
-        {name: 'bables', placeholder: 'Теги покупателя'},
     ];
 
     return data ? (
