@@ -89,6 +89,7 @@ export const Dashboard = () => {
                     'КС',
                     'ТД',
                     'ГР',
+                    'БП',
                 ],
             });
         } else
