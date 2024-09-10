@@ -16,27 +16,35 @@ export const LoginPage = () => {
                 justifyContent: 'center',
             }}
         >
-            <motion.div>
+            <motion.div animate={{y: -40}} transition={{delay: 0.4}}>
                 <Card
                     style={{
-                        width: 400,
-                        height: 500,
+                        width: 300,
+                        height: 400,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        flexDirection: 'column',
                         borderRadius: 20,
                         boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
                     }}
                 >
-                    <img src={logo} style={{height: '40%'}} />
-                    <TelegramLoginButton
-                        botName={'AurumSkyNetBot'}
-                        usePic={false}
-                        buttonSize={'large'}
-                        dataOnauth={(data) => {
-                            console.log(data);
-                        }}
+                    <motion.img
+                        src={logo}
+                        style={{height: '30%'}}
+                        animate={{rotate: 120, height: '40%'}}
+                        // transition={{duration: 0.2}}
                     />
+                    <motion.div animate={{marginTop: 16}}>
+                        <TelegramLoginButton
+                            botName={'AurumSkyNetBot'}
+                            usePic={false}
+                            buttonSize={'large'}
+                            dataOnauth={(data) => {
+                                console.log(data);
+                            }}
+                        />
+                    </motion.div>
                 </Card>
             </motion.div>
         </div>
