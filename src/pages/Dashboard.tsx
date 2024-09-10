@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import block from 'bem-cn-lite';
 import {
-    ThemeProvider,
     Text,
     RadioButton,
     RadioButtonOption,
@@ -48,7 +47,7 @@ export interface User {
     subscription: boolean;
 }
 
-export const Dashboard = () => {
+export const Dashboard = ({setThemeAurum}) => {
     const themeVal = localStorage.getItem('theme');
     const initialTheme =
         themeVal !== 'undefined' && themeVal !== 'null' && themeVal
@@ -58,6 +57,7 @@ export const Dashboard = () => {
 
     useEffect(() => {
         localStorage.setItem('theme', JSON.stringify(theme));
+        setThemeAurum(theme);
     }, [theme]);
 
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
@@ -260,292 +260,289 @@ export const Dashboard = () => {
     };
 
     return (
-        <ThemeProvider theme={theme}>
-            <div className={b()}>
-                {/* <TextInput style={{width: '300px'}} placeholder="Ola, Ledatu!" /> */}
+        <div className={b()}>
+            {/* <TextInput style={{width: '300px'}} placeholder="Ola, Ledatu!" /> */}
 
+            <div
+                style={{
+                    display: 'flex',
+                    width: '100%',
+                    position: 'absolute',
+                    top: 0,
+                    justifyContent: 'space-around',
+                    flexWrap: 'wrap',
+                }}
+            >
                 <div
                     style={{
-                        display: 'flex',
                         width: '100%',
-                        position: 'absolute',
-                        top: 0,
-                        justifyContent: 'space-around',
-                        flexWrap: 'wrap',
+                        // boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
+                        // background: '#00000022',
+                        background: '#0000',
                     }}
                 >
                     <div
                         style={{
                             width: '100%',
-                            // boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
-                            // background: '#00000022',
-                            background: '#0000',
+                            boxShadow: 'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
                         }}
                     >
                         <div
                             style={{
-                                width: '100%',
-                                boxShadow:
-                                    'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
+                                padding: '0px 10vw',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                flexWrap: 'wrap',
+                                alignItems: 'center',
                             }}
                         >
                             <div
                                 style={{
-                                    padding: '0px 10vw',
                                     display: 'flex',
                                     flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    flexWrap: 'wrap',
                                     alignItems: 'center',
                                 }}
                             >
                                 <div
                                     style={{
+                                        height: 68,
+                                        alignItems: 'center',
                                         display: 'flex',
                                         flexDirection: 'row',
-                                        alignItems: 'center',
+                                        boxShadow:
+                                            '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                                     }}
                                 >
-                                    <div
-                                        style={{
-                                            height: 68,
-                                            alignItems: 'center',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            boxShadow:
-                                                '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
-                                        }}
-                                    >
-                                        <img
-                                            style={{height: 'calc(100% - 24px)'}}
-                                            src={textLogo}
-                                            alt="Aurum logo"
-                                        />
-                                        <div style={{minWidth: 32}} />
-                                    </div>
+                                    <img
+                                        style={{height: 'calc(100% - 24px)'}}
+                                        src={textLogo}
+                                        alt="Aurum logo"
+                                    />
                                     <div style={{minWidth: 32}} />
-                                    <div
-                                        style={{
-                                            boxShadow:
-                                                'inset 0px -9px 0px -8px ' +
-                                                (theme == Theme.Dark ? '#2d2c33' : '#fff'),
-                                        }}
-                                    >
-                                        <Tabs
-                                            wrapTo={renderTabItem}
-                                            activeTab={page}
-                                            items={optionsPages}
-                                            onSelectTab={(val) => {
-                                                setPage(val);
-                                            }}
-                                        />
-                                    </div>
                                 </div>
+                                <div style={{minWidth: 32}} />
                                 <div
                                     style={{
-                                        height: 68,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
                                         boxShadow:
-                                            '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                                            'inset 0px -9px 0px -8px ' +
+                                            (theme == Theme.Dark ? '#2d2c33' : '#fff'),
                                     }}
                                 >
-                                    <div style={{minWidth: 32}} />
-                                    <Button
-                                        loading={availableTagsPending}
-                                        size="l"
-                                        onClick={async () => {
-                                            setNotesModalOpen((val) => !val);
+                                    <Tabs
+                                        wrapTo={renderTabItem}
+                                        activeTab={page}
+                                        items={optionsPages}
+                                        onSelectTab={(val) => {
+                                            setPage(val);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                style={{
+                                    height: 68,
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    boxShadow:
+                                        '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                                }}
+                            >
+                                <div style={{minWidth: 32}} />
+                                <Button
+                                    loading={availableTagsPending}
+                                    size="l"
+                                    onClick={async () => {
+                                        setNotesModalOpen((val) => !val);
+                                    }}
+                                >
+                                    <Icon data={PencilToSquare} />
+                                </Button>
+                                <Modal open={notesModalOpen} onClose={() => saveNote()}>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            width: '30em',
                                         }}
                                     >
-                                        <Icon data={PencilToSquare} />
-                                    </Button>
-                                    <Modal open={notesModalOpen} onClose={() => saveNote()}>
+                                        <div
+                                            style={{
+                                                width: '100%',
+                                                display: 'flex',
+                                                height: 36,
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                position: 'relative',
+                                            }}
+                                        >
+                                            <Text variant="subheader-1" color="secondary">
+                                                {new Date().toLocaleString('ru-RU', {
+                                                    day: '2-digit',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
+                                            </Text>
+                                            <div style={{position: 'absolute', left: 8}}>
+                                                <Button
+                                                    view="flat-success"
+                                                    size="s"
+                                                    onClick={() => saveNoteToTheServer()}
+                                                >
+                                                    <Icon data={Check} />
+                                                </Button>
+                                            </div>
+                                            <div style={{position: 'absolute', right: 8}}>
+                                                <Button
+                                                    view="flat"
+                                                    size="s"
+                                                    onClick={() => saveNote()}
+                                                >
+                                                    <Icon data={Xmark} />
+                                                </Button>
+                                            </div>
+                                            <div style={{position: 'absolute', right: 40}}>
+                                                <Button
+                                                    view="flat-danger"
+                                                    size="s"
+                                                    onClick={() => {
+                                                        if (notesTextArea.current)
+                                                            notesTextArea.current.value = '';
+
+                                                        setTagsAddedForCurrentNote([]);
+                                                    }}
+                                                >
+                                                    <Icon data={TrashBin} />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <TextArea
+                                            defaultValue={currentNote}
+                                            controlRef={notesTextArea}
+                                            autoFocus
+                                            rows={20}
+                                        />
+                                        <div style={{minHeight: 8}} />
+                                        <div></div>
                                         <div
                                             style={{
                                                 display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                width: '30em',
+                                                width: 'calc(100% - 16px)',
+                                                height: 200,
                                             }}
                                         >
-                                            <div
-                                                style={{
-                                                    width: '100%',
-                                                    display: 'flex',
-                                                    height: 36,
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    position: 'relative',
-                                                }}
-                                            >
-                                                <Text variant="subheader-1" color="secondary">
-                                                    {new Date().toLocaleString('ru-RU', {
-                                                        day: '2-digit',
-                                                        month: 'long',
-                                                        year: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                    })}
-                                                </Text>
-                                                <div style={{position: 'absolute', left: 8}}>
-                                                    <Button
-                                                        view="flat-success"
-                                                        size="s"
-                                                        onClick={() => saveNoteToTheServer()}
-                                                    >
-                                                        <Icon data={Check} />
-                                                    </Button>
-                                                </div>
-                                                <div style={{position: 'absolute', right: 8}}>
-                                                    <Button
-                                                        view="flat"
-                                                        size="s"
-                                                        onClick={() => saveNote()}
-                                                    >
-                                                        <Icon data={Xmark} />
-                                                    </Button>
-                                                </div>
-                                                <div style={{position: 'absolute', right: 40}}>
-                                                    <Button
-                                                        view="flat-danger"
-                                                        size="s"
-                                                        onClick={() => {
-                                                            if (notesTextArea.current)
-                                                                notesTextArea.current.value = '';
-
-                                                            setTagsAddedForCurrentNote([]);
-                                                        }}
-                                                    >
-                                                        <Icon data={TrashBin} />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                            <TextArea
-                                                defaultValue={currentNote}
-                                                controlRef={notesTextArea}
-                                                autoFocus
-                                                rows={20}
-                                            />
-                                            <div style={{minHeight: 8}} />
-                                            <div></div>
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    width: 'calc(100% - 16px)',
-                                                    height: 200,
-                                                }}
-                                            >
-                                                <List
-                                                    filterPlaceholder="Введите имя тега"
-                                                    emptyPlaceholder="Такой тег отсутствует"
-                                                    loading={availableTagsPending}
-                                                    items={availableTags}
-                                                    renderItem={(item) => {
-                                                        return (
-                                                            <Button
-                                                                size="xs"
-                                                                pin="circle-circle"
-                                                                selected={tagsAddedForCurrentNote.includes(
+                                            <List
+                                                filterPlaceholder="Введите имя тега"
+                                                emptyPlaceholder="Такой тег отсутствует"
+                                                loading={availableTagsPending}
+                                                items={availableTags}
+                                                renderItem={(item) => {
+                                                    return (
+                                                        <Button
+                                                            size="xs"
+                                                            pin="circle-circle"
+                                                            selected={tagsAddedForCurrentNote.includes(
+                                                                item,
+                                                            )}
+                                                            view={
+                                                                tagsAddedForCurrentNote.includes(
                                                                     item,
-                                                                )}
-                                                                view={
-                                                                    tagsAddedForCurrentNote.includes(
-                                                                        item,
-                                                                    )
-                                                                        ? 'outlined-info'
-                                                                        : 'outlined'
-                                                                }
-                                                            >
-                                                                {item.toUpperCase()}
-                                                            </Button>
+                                                                )
+                                                                    ? 'outlined-info'
+                                                                    : 'outlined'
+                                                            }
+                                                        >
+                                                            {item.toUpperCase()}
+                                                        </Button>
+                                                    );
+                                                }}
+                                                onItemClick={(item) => {
+                                                    let tempArr =
+                                                        Array.from(tagsAddedForCurrentNote);
+                                                    if (tempArr.includes(item)) {
+                                                        tempArr = tempArr.filter(
+                                                            (value) => value != item,
                                                         );
-                                                    }}
-                                                    onItemClick={(item) => {
-                                                        let tempArr =
-                                                            Array.from(tagsAddedForCurrentNote);
-                                                        if (tempArr.includes(item)) {
-                                                            tempArr = tempArr.filter(
-                                                                (value) => value != item,
-                                                            );
-                                                        } else {
-                                                            tempArr.push(item);
-                                                        }
+                                                    } else {
+                                                        tempArr.push(item);
+                                                    }
 
-                                                        setTagsAddedForCurrentNote(tempArr);
-                                                    }}
-                                                />
-                                            </div>
+                                                    setTagsAddedForCurrentNote(tempArr);
+                                                }}
+                                            />
                                         </div>
-                                    </Modal>
-                                    <div style={{minWidth: 8}} />
-                                    <Button
-                                        size="l"
-                                        onClick={() => {
-                                            Userfront.logout();
-                                        }}
-                                    >
-                                        {Userfront.user.email?.split('@')[0] ?? ''}
-                                    </Button>
-                                    <div style={{minWidth: 8}} />
-                                    <RadioButton
-                                        size="l"
-                                        name="themeRadioButton"
-                                        defaultValue={theme}
-                                        options={optionsTheme}
-                                        onUpdate={async (val) => {
-                                            setTheme(val === 'light' ? Theme.Light : Theme.Dark);
-                                        }}
-                                    />
-                                    <div style={{minWidth: 8}} />
-                                    <UploadModal
-                                        userInfo={userInfo}
-                                        selectOptions={selectOptions}
-                                        selectValue={selectValue}
-                                        setRefetchAutoSales={setRefetchAutoSales}
-                                        setDzhemRefetch={setDzhemRefetch}
-                                    />
-                                    <div style={{minWidth: 8}} />
-                                    <SelectCampaign
-                                        userInfo={userInfo}
-                                        selectOptions={selectOptions}
-                                        selectValue={selectValue}
-                                        setSelectValue={setSelectValue}
-                                        switchingCampaignsFlag={switchingCampaignsFlag}
-                                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-                                    />
-                                </div>
+                                    </div>
+                                </Modal>
+                                <div style={{minWidth: 8}} />
+                                <Button
+                                    size="l"
+                                    onClick={() => {
+                                        Userfront.logout();
+                                    }}
+                                >
+                                    {Userfront.user.email?.split('@')[0] ?? ''}
+                                </Button>
+                                <div style={{minWidth: 8}} />
+                                <RadioButton
+                                    size="l"
+                                    name="themeRadioButton"
+                                    defaultValue={theme}
+                                    options={optionsTheme}
+                                    onUpdate={async (val) => {
+                                        setTheme(val === 'light' ? Theme.Light : Theme.Dark);
+                                    }}
+                                />
+                                <div style={{minWidth: 8}} />
+                                <UploadModal
+                                    userInfo={userInfo}
+                                    selectOptions={selectOptions}
+                                    selectValue={selectValue}
+                                    setRefetchAutoSales={setRefetchAutoSales}
+                                    setDzhemRefetch={setDzhemRefetch}
+                                />
+                                <div style={{minWidth: 8}} />
+                                <SelectCampaign
+                                    userInfo={userInfo}
+                                    selectOptions={selectOptions}
+                                    selectValue={selectValue}
+                                    setSelectValue={setSelectValue}
+                                    switchingCampaignsFlag={switchingCampaignsFlag}
+                                    setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
-                <div
-                    style={{
-                        marginTop: 62,
-                        justifyContent: 'center',
-                        width: 'calc(100vw - 80px)',
-                        position: 'relative',
-                    }}
-                >
-                    {campaignInfo.includes(selectValue[0]) && !userInfo.roles.includes('admin') ? (
-                        <NoSubscriptionPage setSwitchingCampaignsFlag={setSwitchingCampaignsFlag} />
-                    ) : (
-                        <PageElem
-                            page={page}
-                            selectValue={selectValue}
-                            userInfo={userInfo}
-                            setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-                            refetchAutoSales={refetchAutoSales}
-                            setRefetchAutoSales={setRefetchAutoSales}
-                            dzhemRefetch={dzhemRefetch}
-                            setDzhemRefetch={setDzhemRefetch}
-                        />
-                    )}
-                </div>
             </div>
-        </ThemeProvider>
+            <div
+                style={{
+                    marginTop: 62,
+                    justifyContent: 'center',
+                    width: 'calc(100vw - 80px)',
+                    position: 'relative',
+                }}
+            >
+                {campaignInfo.includes(selectValue[0]) && !userInfo.roles.includes('admin') ? (
+                    <NoSubscriptionPage setSwitchingCampaignsFlag={setSwitchingCampaignsFlag} />
+                ) : (
+                    <PageElem
+                        page={page}
+                        selectValue={selectValue}
+                        userInfo={userInfo}
+                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                        refetchAutoSales={refetchAutoSales}
+                        setRefetchAutoSales={setRefetchAutoSales}
+                        dzhemRefetch={dzhemRefetch}
+                        setDzhemRefetch={setDzhemRefetch}
+                    />
+                )}
+            </div>
+        </div>
     );
 };
 

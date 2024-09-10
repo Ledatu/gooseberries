@@ -2216,7 +2216,6 @@ export const AdvertsWordsModal = ({
                 <motion.div
                     animate={{width: open ? '80vw' : 0}}
                     style={{
-                        height: '90vh',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
@@ -2800,7 +2799,7 @@ export const AdvertsWordsModal = ({
                             alignItems: 'center',
                             justifyContent: 'center',
                             width: '100%',
-                            height: '100%',
+                            height: 'calc(90vh - 72px)',
                         }}
                     >
                         {wordsFetchUpdate ? (
@@ -2810,9 +2809,9 @@ export const AdvertsWordsModal = ({
                                 <Card
                                     theme="success"
                                     style={{
-                                        height: 'calc(60vh - 96px)',
+                                        height: 'calc(55vh)',
                                         width: '100%',
-                                        overflow: 'auto',
+                                        overflowX: 'scroll',
                                     }}
                                 >
                                     <TheTable
@@ -2843,8 +2842,8 @@ export const AdvertsWordsModal = ({
                                 <Card
                                     theme="danger"
                                     style={{
-                                        height: 'calc(40vh - 96px)',
-                                        overflow: 'auto',
+                                        height: 'calc(35vh - 96px)',
+                                        overflowX: 'scroll',
                                         width: '100%',
                                     }}
                                 >

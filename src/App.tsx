@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     BrowserRouter as Router,
     Routes,
@@ -9,37 +9,42 @@ import {
     // useNavigate,
 } from 'react-router-dom';
 import Userfront, {SignupForm, LoginForm, PasswordResetForm} from '@userfront/toolkit';
-import {Button, Link} from '@gravity-ui/uikit';
+import {Button, Link, ThemeProvider} from '@gravity-ui/uikit';
 import {Dashboard} from './pages/Dashboard';
 import '@gravity-ui/uikit/styles/styles.scss';
+import {LoginPage} from './pages/LoginPage';
 
 Userfront.init('xbr4jv4b');
 
 export const App = () => {
+    const [themeAurum, setThemeAurum] = useState();
     return (
-        <Router>
-            <Routes>
-                <Route path="/signup" element={<SignUpElem />} />
-                <Route path="/login" element={<LoginElem />} />
-                <Route path="/reset" element={<PasswordResetElem />} />
-                <Route
-                    path="/userinfo"
-                    element={
-                        <RequireAuth>
-                            <DashboardElem />
-                        </RequireAuth>
-                    }
-                />
-                <Route
-                    path="*"
-                    element={
-                        <RequireAuth>
-                            <Dashboard />
-                        </RequireAuth>
-                    }
-                />
-            </Routes>
-        </Router>
+        <ThemeProvider theme={themeAurum}>
+            <Router>
+                <Routes>
+                    <Route path="/signup" element={<SignUpElem />} />
+                    <Route path="/logi" element={<LoginPage />} />
+                    <Route path="/login" element={<LoginElem />} />
+                    <Route path="/reset" element={<PasswordResetElem />} />
+                    <Route
+                        path="/userinfo"
+                        element={
+                            <RequireAuth>
+                                <DashboardElem />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path="*"
+                        element={
+                            <RequireAuth>
+                                <Dashboard setThemeAurum={setThemeAurum} />
+                            </RequireAuth>
+                        }
+                    />
+                </Routes>
+            </Router>
+        </ThemeProvider>
     );
 };
 
