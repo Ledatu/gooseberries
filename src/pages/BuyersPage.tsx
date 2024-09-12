@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {User} from './Dashboard';
 import {RadioButton} from '@gravity-ui/uikit';
 import {BuyersFeedbacksPage} from 'src/components/BuyersFeedbacksPage';
 import {AutoFeedbackAnsweringPage} from 'src/components/AutoFeedbackAnsweringPage';
@@ -8,11 +7,9 @@ import {AutoFeedbackTemplateCreationModal} from 'src/components/AutoFeedbackTemp
 export const BuyersPage = ({
     selectValue,
     setSwitchingCampaignsFlag,
-    userInfo,
 }: {
     selectValue: string[];
     setSwitchingCampaignsFlag: Function;
-    userInfo: User;
 }) => {
     const sectionOptions = [
         {content: 'Отзывы', value: 'feedbacks'},
@@ -23,7 +20,6 @@ export const BuyersPage = ({
 
     useEffect(() => {
         setSwitchingCampaignsFlag(false);
-        console.log(userInfo);
     }, [selectValue]);
 
     const [refetch, setRefetch] = useState(false);

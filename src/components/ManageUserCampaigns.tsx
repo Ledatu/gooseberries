@@ -7,10 +7,24 @@ import {AddMemberModal} from './AddMemberModal';
 
 const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId}) => {
     return (
-        <Card style={{display: 'flex', flexDirection: 'row'}}>
-            <img src="photo_url" style={{height: 40}} />
-            <Text variant="subheader-1">@{username}</Text>
+        <Card
+            style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 100,
+            }}
+        >
+            <img src={photoUrl} style={{height: 36, borderRadius: 100, marginRight: 4}} />
+            <div style={{display: 'flex', flexDirection: 'column'}}>
+                <Text variant="subheader-1">{`${firstName ?? ''} ${lastName ?? ''}`}</Text>
+                <Text variant="subheader-1">@{username}</Text>
+            </div>
             <Button
+                view="flat"
+                style={{margin: '0 4px'}}
+                pin="circle-circle"
                 onClick={() => {
                     console.log(_id, firstName, lastName, username, photoUrl, sellerId);
                 }}
@@ -54,6 +68,7 @@ const CampaignInfo = ({sellerId, name, ownerId, memberDetails}) => {
                     </Button>
                 </AddMemberModal>
             </div>
+            <div style={{minHeight: 8}} />
             <div style={{display: 'flex', flexDirection: 'row'}}>{members}</div>
         </div>
     );
@@ -80,7 +95,7 @@ export const ManageUserCampaigns = () => {
                         memberDetails={campaign?.memberDetails}
                     />,
                 );
-                campaignsInfosTemp.push(<div style={{minHeight: 8}} />);
+                campaignsInfosTemp.push(<div style={{minHeight: 16}} />);
             }
         setCampaignsInfos(campaignsInfosTemp);
     }, [user]);

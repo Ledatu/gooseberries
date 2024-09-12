@@ -20,6 +20,16 @@ export const AddMemberModal = ({children}: AddMemberModalInterface) => {
         seo: false,
     });
 
+    const mapModules = {
+        massAdvert: 'Реклама',
+        analytics: 'Аналитика',
+        delivery: 'Поставки',
+        prices: 'Цены',
+        nomenclatures: 'Товары',
+        buyers: 'Покупатели',
+        seo: 'SEO',
+    };
+
     const modules = useMemo(() => {
         const modulesTemp = [] as string[];
         for (const [key, enabled] of Object.entries(modulesEnabled)) {
@@ -34,8 +44,9 @@ export const AddMemberModal = ({children}: AddMemberModalInterface) => {
         for (const [key, enabled] of Object.entries(modulesEnabled)) {
             modulesSwitchesTemp.push(
                 <Switch
+                    size="l"
                     checked={enabled}
-                    content={key}
+                    content={mapModules[key]}
                     onUpdate={(val) =>
                         setModulesEnabled((cur) => {
                             cur[key] = val;
@@ -46,12 +57,22 @@ export const AddMemberModal = ({children}: AddMemberModalInterface) => {
             );
             modulesSwitchesTemp.push(<div style={{minHeight: 8}} />);
         }
+        modulesSwitchesTemp.pop();
         return modulesSwitchesTemp;
     }, [modulesEnabled]);
 
     const handleOpen = async () => {
         setOpen(true);
         setUsername('');
+        setModulesEnabled({
+            massAdvert: false,
+            analytics: false,
+            delivery: false,
+            prices: false,
+            nomenclatures: false,
+            buyers: false,
+            seo: false,
+        });
     };
 
     const handleClose = () => {
@@ -82,7 +103,7 @@ export const AddMemberModal = ({children}: AddMemberModalInterface) => {
             <Modal open={open} onClose={handleClose}>
                 <Card>
                     <motion.div
-                        animate={{height: open ? 126 : 0}}
+                        animate={{height: open ? 304 : 0}}
                         style={{
                             height: 0,
                             width: 300,
@@ -99,7 +120,7 @@ export const AddMemberModal = ({children}: AddMemberModalInterface) => {
                             size="l"
                             placeholder="Введите <@Имя пользователя>"
                         />
-                        {modulesSwitches}
+                        <div style={{marginLeft: 8}}>{modulesSwitches}</div>
                         <Button
                             size="l"
                             view="outlined-success"

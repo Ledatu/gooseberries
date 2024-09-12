@@ -9,7 +9,7 @@ export const ApiPage = () => {
             style={{
                 display: 'flex',
                 flexDirection: 'column',
-                width: '100vw',
+                width: '100%',
                 height: 'calc(100vh - 100px)',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -19,7 +19,6 @@ export const ApiPage = () => {
             <AddApiModal>
                 <div
                     style={{
-                        width: '100%',
                         display: 'flex',
                         flexDirection: 'row',
                         justifyContent: 'center',

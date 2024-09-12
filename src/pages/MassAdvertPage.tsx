@@ -78,13 +78,14 @@ import TheTable, {compare} from 'src/components/TheTable';
 import {RangePicker} from 'src/components/RangePicker';
 import {AutoSalesModal} from 'src/components/AutoSalesModal';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
-import {User} from './Dashboard';
 import {PhrasesModal} from 'src/components/PhrasesModal';
 import {AdvertCard} from 'src/components/AdvertCard';
 import {AdvertsBidsModal} from 'src/components/AdvertsBidsModal';
 import {AdvertsBudgetsModal} from 'src/components/AdvertsBudgetsModal';
+import {useUser} from 'src/components/RequireAuth';
 
-const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo: User) => {
+const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
+    const {campaigns} = useUser();
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
@@ -118,12 +119,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo:
     const params = {
         uid: getUid(),
         dateRange: {from: '2023', to: '2024'},
-        campaignName:
-            selectValue != ''
-                ? selectValue
-                : userInfo.campaignNames.includes('all')
-                ? userInfo.campaignNames[1]
-                : userInfo.campaignNames[0],
+        campaignName: selectValue != '' ? selectValue : campaigns[0]?.name,
     };
     console.log(params);
 
@@ -138,7 +134,6 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo:
 export const MassAdvertPage = ({
     selectValue,
     setSwitchingCampaignsFlag,
-    userInfo,
     refetchAutoSales,
     setRefetchAutoSales,
     dzhemRefetch,
@@ -146,7 +141,6 @@ export const MassAdvertPage = ({
 }: {
     selectValue: string[];
     setSwitchingCampaignsFlag: Function;
-    userInfo: User;
     refetchAutoSales: boolean;
     setRefetchAutoSales: Function;
     dzhemRefetch: boolean;
@@ -3153,6 +3147,7 @@ export const MassAdvertPage = ({
                 campaignName: selectValue[0],
             },
             true,
+            false,
             cancelTokenRef.current.token, // Pass the cancel token to the API call
         )
             .then((res) => {
@@ -3220,7 +3215,7 @@ export const MassAdvertPage = ({
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
 
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0], userInfo);
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 
     const getCampaignName = () => {
         return selectValue[0];

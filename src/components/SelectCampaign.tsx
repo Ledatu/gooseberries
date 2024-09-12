@@ -2,25 +2,20 @@ import {Button, Icon, Select, Spin, Text} from '@gravity-ui/uikit';
 import {Key, ChevronDown} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React from 'react';
-import {User} from 'src/pages/Dashboard';
 
 export const SelectCampaign = ({
-    userInfo,
     selectOptions,
     selectValue,
     setSelectValue,
     switchingCampaignsFlag,
     setSwitchingCampaignsFlag,
 }: {
-    userInfo: User;
     selectOptions: any[];
     selectValue: string[];
     setSelectValue: Function;
     switchingCampaignsFlag: boolean;
     setSwitchingCampaignsFlag: Function;
 }) => {
-    console.log(userInfo);
-
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
             <Select

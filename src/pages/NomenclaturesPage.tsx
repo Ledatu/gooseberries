@@ -24,9 +24,10 @@ import axios from 'axios';
 import TheTable, {compare} from 'src/components/TheTable';
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import {getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
-import {User} from './Dashboard';
+import {useUser} from 'src/components/RequireAuth';
 
-const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo: User) => {
+const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
+    const {campaigns} = useUser();
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
@@ -44,12 +45,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo:
             'getNomenclatures',
             {
                 uid: getUid(),
-                campaignName:
-                    selectValue != ''
-                        ? selectValue
-                        : userInfo.campaignNames.includes('all')
-                        ? 'ОТК ПРОИЗВОДСТВО'
-                        : userInfo.campaignNames[0],
+                campaignName: selectValue != '' ? selectValue : campaigns[0]?.name,
             },
             true,
         )
@@ -62,11 +58,9 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '', userInfo:
 export const NomenclaturesPage = ({
     selectValue,
     setSwitchingCampaignsFlag,
-    userInfo,
 }: {
     selectValue: string[];
     setSwitchingCampaignsFlag: Function;
-    userInfo: User;
 }) => {
     const uploadId = useId();
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -376,7 +370,7 @@ export const NomenclaturesPage = ({
         setPagesCurrent(1);
     }, [selectValue]);
 
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0], userInfo);
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 
     function handleChange(event) {
         const file = event.target.files[0];

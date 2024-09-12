@@ -45,15 +45,10 @@ import {
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
-import {User} from './Dashboard';
+import {useUser} from 'src/components/RequireAuth';
 
-const getUserDoc = (
-    dateRange,
-    docum = undefined,
-    mode = false,
-    selectValue = '',
-    userInfo: User,
-) => {
+const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
+    const {campaigns} = useUser();
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
@@ -73,12 +68,7 @@ const getUserDoc = (
             {
                 uid: getUid(),
                 dateRange: getNormalDateRange(dateRange),
-                campaignName:
-                    selectValue != ''
-                        ? selectValue
-                        : userInfo.campaignNames.includes('all')
-                        ? 'ОТК ПРОИЗВОДСТВО'
-                        : userInfo.campaignNames[0],
+                campaignName: selectValue != '' ? selectValue : campaigns[0]?.name,
             },
             true,
         )
@@ -91,11 +81,9 @@ const getUserDoc = (
 export const PricesPage = ({
     selectValue,
     setSwitchingCampaignsFlag,
-    userInfo,
 }: {
     selectValue: string[];
     setSwitchingCampaignsFlag: Function;
-    userInfo: User;
 }) => {
     const today = new Date(
         new Date()
@@ -837,7 +825,7 @@ export const PricesPage = ({
 
     const [lastCalcOldData, setLastCalcOldData] = useState({});
 
-    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0], userInfo);
+    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
     if (dateChangeRecalc) {
         setUpdatingFlag(true);

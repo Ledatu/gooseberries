@@ -2,18 +2,15 @@ import {Button, Icon, Modal, Select} from '@gravity-ui/uikit';
 import React, {useEffect, useMemo, useState} from 'react';
 import {FileArrowUp, ChevronDown, Key} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-import {User} from 'src/pages/Dashboard';
 import {AutoSalesUploadModal} from './AutoSalesUploadModal';
 import {DzhemUpload} from './DzhemUpload';
 
 export const UploadModal = ({
-    userInfo,
     selectOptions,
     selectValue,
     setRefetchAutoSales,
     setDzhemRefetch,
 }: {
-    userInfo: User;
     selectOptions: any[];
     selectValue: string[];
     setRefetchAutoSales: Function;
@@ -35,8 +32,6 @@ export const UploadModal = ({
         ];
     }, []);
     const [uploadOption, setUploadOption] = useState([uploadOptions[0].value]);
-
-    console.log(userInfo);
 
     useEffect(() => {
         setCurrentStep(0);

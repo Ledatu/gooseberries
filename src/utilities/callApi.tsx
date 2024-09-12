@@ -3,7 +3,13 @@ import axios from 'axios';
 
 const {ipAddress} = require('../ipAddress');
 
-export default async function callApi(endpoint, params, retry = false, cancelToken = null as any) {
+export default async function callApi(
+    endpoint,
+    params,
+    retry = false,
+    thr = false,
+    cancelToken = null as any,
+) {
     const token =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
     const maxRetries = retry ? 5 : 1;
@@ -28,6 +34,7 @@ export default async function callApi(endpoint, params, retry = false, cancelTok
             if (attempt < maxRetries - 1) {
                 await delay(3000);
             } else {
+                if (thr) throw new Error(error);
                 return undefined;
             }
         }

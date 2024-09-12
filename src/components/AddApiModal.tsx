@@ -1,12 +1,15 @@
 import {Button, Card, Modal, TextInput, Text} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useState} from 'react';
+import callApi from 'src/utilities/callApi';
+import {useUser} from './RequireAuth';
 
 interface AddApiModalInterface {
     children: ReactElement | ReactElement[];
 }
 
 export const AddApiModal = ({children}: AddApiModalInterface) => {
+    const {user} = useUser();
     const [open, setOpen] = useState(false);
 
     const [name, setName] = useState('');
@@ -74,7 +77,18 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                             view="outlined-success"
                             selected
                             disabled={name === '' || key === ''}
-                            onClick={() => {}}
+                            onClick={() => {
+                                const params = {
+                                    user_id: user?._id,
+                                    campaignName: name,
+                                    apiKey: key,
+                                };
+                                callApi('createCampaign', params, false, true)
+                                    .catch((e) => {
+                                        alert(e);
+                                    })
+                                    .finally(() => handleClose());
+                            }}
                         >
                             <Text variant="subheader-1">Добавить магазин</Text>
                         </Button>

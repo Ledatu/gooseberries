@@ -45,16 +45,11 @@ import {CalcAutoPlansModal} from 'src/components/CalcAutoPlansModal';
 import {AnalyticsCalcModal} from 'src/components/AnalyticsCalcModal';
 import {PlansUpload} from 'src/components/PlansUpload';
 import {ColumnsEdit} from 'src/components/ColumsEdit';
-import {User} from './Dashboard';
 import {ManageDeletionOfOldPlansModal} from 'src/components/ManageDeletionOfOldPlansModal';
+import {useUser} from 'src/components/RequireAuth';
 
-const getUserDoc = (
-    dateRange,
-    docum = undefined,
-    mode = false,
-    selectValue = '',
-    userInfo: User,
-) => {
+const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
+    const {campaigns} = useUser();
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
@@ -73,12 +68,7 @@ const getUserDoc = (
             {
                 uid: getUid(),
                 dateRange: getNormalDateRange(dateRange),
-                campaignName:
-                    selectValue != ''
-                        ? selectValue
-                        : userInfo.campaignNames.includes('all')
-                        ? 'ОТК ПРОИЗВОДСТВО'
-                        : userInfo.campaignNames[0],
+                campaignName: selectValue != '' ? selectValue : campaigns[0]?.name,
             },
             true,
         )
@@ -91,11 +81,9 @@ const getUserDoc = (
 export const AnalyticsPage = ({
     selectValue,
     setSwitchingCampaignsFlag,
-    userInfo,
 }: {
     selectValue: string[];
     setSwitchingCampaignsFlag: Function;
-    userInfo: User;
 }) => {
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
     const [selectedButton, setSelectedButton] = useState('');
@@ -716,7 +704,7 @@ export const AnalyticsPage = ({
         setPagesCurrent(1);
     }, [selectValue]);
 
-    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0], userInfo);
+    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
     const recalc = (dateRange, selected = '', withfFilters = {}) => {
         const [startDate, endDate] = dateRange;

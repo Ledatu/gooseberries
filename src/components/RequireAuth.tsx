@@ -11,9 +11,77 @@ export const useUser = () => useContext(UserContext);
 function RequireAuth({children}) {
     const location = useLocation();
     const [isAuthenticated, setIsAuthenticated] = useState(null as any); // Loading state
-    const [userInfo, setUserInfo] = useState(null as any); // Store user info
+    // const [userInfo, setUserInfo] = useState(null as any); // Store user info
+    const [userInfo, setUserInfo] = useState({
+        valid: true,
+        user: {
+            _id: 933839157,
+            first_name: 'Данила',
+            username: 'Ledatu',
+            photo_url: 'https://t.me/i/userpic/320/J7y4AiRca6o1a3L1GSrHlBfhznJPXnWqFh8zJKdpaqE.jpg',
+            __v: 0,
+        },
+        campaigns: [
+            {
+                _id: '66e2fe0c31666f89d3df0f17',
+                seller_id: '0f9c9368-1b08-40ed-b4ad-47524a0afb2d',
+                owner_id: 933839157,
+                name: 'ИП Валерий',
+                memberDetails: [
+                    {
+                        _id: 933839157,
+                        first_name: 'Данила',
+                        username: 'Ledatu',
+                        photo_url:
+                            'https://t.me/i/userpic/320/J7y4AiRca6o1a3L1GSrHlBfhznJPXnWqFh8zJKdpaqE.jpg',
+                        __v: 0,
+                    },
+                    {
+                        _id: 566810027,
+                        __v: 0,
+                        first_name: 'Кирилл',
+                        photo_url:
+                            'https://t.me/i/userpic/320/S3qklarHi9krJwMntSI2sxLbqhEsMk5NWrXRUrtZNBU.jpg',
+                        username: 'ilovedilucsomuch',
+                    },
+                ],
+                isOwner: true,
+                userModules: [],
+            },
+            {
+                _id: '66e2ff0bc9150e871c76f724',
+                seller_id: 'e8d8163c-d66f-4f63-9841-151bb133d5ec',
+                owner_id: 933839157,
+                name: 'Текстиль',
+                memberDetails: [
+                    {
+                        _id: 933839157,
+                        first_name: 'Данила',
+                        username: 'Ledatu',
+                        photo_url:
+                            'https://t.me/i/userpic/320/J7y4AiRca6o1a3L1GSrHlBfhznJPXnWqFh8zJKdpaqE.jpg',
+                        __v: 0,
+                    },
+                    {
+                        _id: 566810027,
+                        __v: 0,
+                        first_name: 'Кирилл',
+                        photo_url:
+                            'https://t.me/i/userpic/320/S3qklarHi9krJwMntSI2sxLbqhEsMk5NWrXRUrtZNBU.jpg',
+                        username: 'ilovedilucsomuch',
+                    },
+                ],
+                isOwner: true,
+                userModules: [],
+            },
+        ],
+    }); // Store user info
 
     useEffect(() => {
+        if (userInfo) {
+            setIsAuthenticated(true);
+            return;
+        }
         // Function to check if the token is valid
         const checkTokenValidity = async () => {
             const authToken = localStorage.getItem('authToken'); // Or use cookies if using them

@@ -13,7 +13,6 @@ import {
     List,
 } from '@gravity-ui/uikit';
 import '../App.scss';
-import Userfront from '@userfront/toolkit';
 import {MassAdvertPage} from './MassAdvertPage';
 // import {db} from '../utilities/firebase-config';
 import textLogo from '../assets/textLogo.png';
@@ -30,7 +29,6 @@ import {SEOPage} from './SEOPage';
 import {UploadModal} from 'src/components/UploadModal';
 import {SelectCampaign} from 'src/components/SelectCampaign';
 import {BuyersPage} from './BuyersPage';
-import {NoSubscriptionPage} from './NoSubscriptionPage';
 
 import {useUser} from 'src/components/RequireAuth';
 import {ApiPage} from './ApiPage';
@@ -66,46 +64,6 @@ export const Dashboard = ({setThemeAurum}) => {
 
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
 
-    const [userInfo, setUserInfo] = useState({} as User);
-    const [campaignInfo] = useState([] as string[]);
-    useEffect(() => {
-        if (Userfront.user.userUuid == '4a1f2828-9a1e-4bbf-8e07-208ba676a806') {
-            setUserInfo({
-                uuid: '4a1f2828-9a1e-4bbf-8e07-208ba676a806',
-                roles: ['admin'],
-                modules: ['all'],
-                subscription: false,
-                campaignNames: [
-                    'all',
-                    'ОТК ПРОИЗВОДСТВО',
-                    'Сальвадор37',
-                    'Текстиль',
-                    'ИП Валерий',
-                    'ИП Артем',
-                    'ИП Оксана',
-                    'ИП Иосифова Р. И.',
-                    'ИП Иосифов А. М.',
-                    'ИП Иосифов М.С.',
-                    'ИП Галилова',
-                    'ИП Мартыненко',
-                    'ТОРГМАКСИМУМ',
-                    'ТПК',
-                    'КС',
-                    'ТД',
-                    'ГР',
-                    'БП',
-                ],
-            });
-        } else
-            callApi('getUserInfo', {uid: Userfront.user.userUuid})
-                .then((response) => {
-                    if (!response || !response['data']) return;
-                    const info: User = response.data;
-                    setUserInfo(info);
-                })
-                .catch((e) => console.log('Error occured while fetching user info', e));
-    }, []);
-
     const [selectValue, setSelectValue] = useState(['']);
     const [refetchAutoSales, setRefetchAutoSales] = useState(false);
     const [dzhemRefetch, setDzhemRefetch] = useState(false);
@@ -131,15 +89,15 @@ export const Dashboard = ({setThemeAurum}) => {
     }, [selectValue]);
 
     const selectOptions = useMemo(() => {
-        if (!userInfo || !userInfo.campaignNames) return [];
+        if (!user || !user.campaigns) return [];
         const temp = [] as any[];
-        for (const campaignName of userInfo.campaignNames) {
-            if (campaignName == 'all') continue;
-            temp.push({value: campaignName, content: campaignName});
+        for (const campaignInfo of user.campaigns) {
+            const {name} = campaignInfo;
+            temp.push({value: name, content: name});
         }
         setSelectValue([temp[0] ? temp[0]['value'] ?? '' : '']);
         return temp;
-    }, [userInfo]);
+    }, [user]);
 
     const optionsTheme: RadioButtonOption[] = [
         {value: 'dark', content: <Icon data={Moon}></Icon>},
@@ -154,7 +112,14 @@ export const Dashboard = ({setThemeAurum}) => {
     // const [page, setPage] = useState('analytics');
     // const [page, setPage] = useState('delivery');
 
-    const modules = useMemo(() => userInfo.modules ?? [], [userInfo]);
+    const modules = useMemo(() => {
+        const {campaigns} = user;
+        for (const campaign of campaigns) {
+            if (campaign.name === selectValue[0])
+                return campaign.isOwner ? ['all'] : campaign.userModules;
+        }
+        return [];
+    }, [user]);
 
     const [page, setPage] = useState(modules.includes('all') ? 'massAdvert' : modules[0]);
     useEffect(() => setPage(modules.includes('all') ? 'massAdvert' : modules[0]), [modules]);
@@ -500,7 +465,6 @@ export const Dashboard = ({setThemeAurum}) => {
                                 />
                                 <div style={{minWidth: 8}} />
                                 <UploadModal
-                                    userInfo={userInfo}
                                     selectOptions={selectOptions}
                                     selectValue={selectValue}
                                     setRefetchAutoSales={setRefetchAutoSales}
@@ -508,7 +472,6 @@ export const Dashboard = ({setThemeAurum}) => {
                                 />
                                 <div style={{minWidth: 8}} />
                                 <SelectCampaign
-                                    userInfo={userInfo}
                                     selectOptions={selectOptions}
                                     selectValue={selectValue}
                                     setSelectValue={setSelectValue}
@@ -528,20 +491,15 @@ export const Dashboard = ({setThemeAurum}) => {
                     position: 'relative',
                 }}
             >
-                {campaignInfo.includes(selectValue[0]) && !userInfo.roles.includes('admin') ? (
-                    <NoSubscriptionPage setSwitchingCampaignsFlag={setSwitchingCampaignsFlag} />
-                ) : (
-                    <PageElem
-                        page={page}
-                        selectValue={selectValue}
-                        userInfo={userInfo}
-                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-                        refetchAutoSales={refetchAutoSales}
-                        setRefetchAutoSales={setRefetchAutoSales}
-                        dzhemRefetch={dzhemRefetch}
-                        setDzhemRefetch={setDzhemRefetch}
-                    />
-                )}
+                <PageElem
+                    page={page}
+                    selectValue={selectValue}
+                    setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                    refetchAutoSales={refetchAutoSales}
+                    setRefetchAutoSales={setRefetchAutoSales}
+                    dzhemRefetch={dzhemRefetch}
+                    setDzhemRefetch={setDzhemRefetch}
+                />
             </div>
         </div>
     );
@@ -550,7 +508,6 @@ export const Dashboard = ({setThemeAurum}) => {
 const PageElem = ({
     page,
     selectValue,
-    userInfo,
     setSwitchingCampaignsFlag,
     refetchAutoSales,
     setRefetchAutoSales,
@@ -561,14 +518,12 @@ const PageElem = ({
         delivery: (
             <DeliveryPage
                 selectValue={selectValue}
-                userInfo={userInfo}
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
         massAdvert: (
             <MassAdvertPage
                 selectValue={selectValue}
-                userInfo={userInfo}
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
                 refetchAutoSales={refetchAutoSales}
                 setRefetchAutoSales={setRefetchAutoSales}
@@ -579,28 +534,24 @@ const PageElem = ({
         prices: (
             <PricesPage
                 selectValue={selectValue}
-                userInfo={userInfo}
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
         nomenclatures: (
             <NomenclaturesPage
                 selectValue={selectValue}
-                userInfo={userInfo}
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
         analytics: (
             <AnalyticsPage
                 selectValue={selectValue}
-                userInfo={userInfo}
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
         buyers: (
             <BuyersPage
                 selectValue={selectValue}
-                userInfo={userInfo}
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
