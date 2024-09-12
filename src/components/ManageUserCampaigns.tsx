@@ -35,12 +35,12 @@ const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId}) =>
     );
 };
 
-const CampaignInfo = ({sellerId, name, ownerId, memberDetails}) => {
-    const members = [] as any[];
-    for (const member of memberDetails) {
+const CampaignInfo = ({sellerId, name, ownerId, members}) => {
+    const membersInfo = [] as any[];
+    for (const member of members) {
         const {_id} = member;
         if (_id === ownerId) continue;
-        members.push(
+        membersInfo.push(
             <MemberInfo
                 _id={_id}
                 firstName={member?.first_name}
@@ -50,7 +50,7 @@ const CampaignInfo = ({sellerId, name, ownerId, memberDetails}) => {
                 sellerId={sellerId}
             />,
         );
-        members.push(<div style={{minWidth: 8}} />);
+        membersInfo.push(<div style={{minWidth: 8}} />);
     }
 
     return (
@@ -69,7 +69,7 @@ const CampaignInfo = ({sellerId, name, ownerId, memberDetails}) => {
                 </AddMemberModal>
             </div>
             <div style={{minHeight: 8}} />
-            <div style={{display: 'flex', flexDirection: 'row'}}>{members}</div>
+            <div style={{display: 'flex', flexDirection: 'row'}}>{membersInfo}</div>
         </div>
     );
 };
@@ -92,7 +92,7 @@ export const ManageUserCampaigns = () => {
                         sellerId={campaign?.seller_id}
                         name={campaign?.name}
                         ownerId={campaign?.owner_id}
-                        memberDetails={campaign?.memberDetails}
+                        members={campaign?.members}
                     />,
                 );
                 campaignsInfosTemp.push(<div style={{minHeight: 16}} />);
