@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {useLocation, Navigate} from 'react-router-dom';
 import axios from 'axios';
+import callApi from 'src/utilities/callApi';
 
 function RequireAuth({children}) {
     const location = useLocation();
@@ -19,7 +20,8 @@ function RequireAuth({children}) {
 
             try {
                 // Call the backend API to verify the token and get user info
-                const response = await axios.post('/verifyToken', {token: authToken});
+                const response = await callApi('verifyToken', {token: authToken});
+                if (!response) throw new Error('error occured');
 
                 console.log('verifyToken', response);
 
