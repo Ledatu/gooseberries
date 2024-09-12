@@ -1,6 +1,6 @@
 import {Card} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
-import React from 'react';
+import React, {useState} from 'react';
 import logo from '../assets/logo512.png';
 import TelegramLoginButton from 'src/components/TelegramLoginButton';
 import callApi from 'src/utilities/callApi';
@@ -24,6 +24,19 @@ async function handleTelegramLogin(authData) {
 
 export const LoginPage = () => {
     const location = useLocation();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authAttempted, setAuthAttempted] = useState(false); // Track if auth was attempted
+
+    const handleLogin = async (authData) => {
+        const valid = await handleTelegramLogin(authData);
+        setAuthAttempted(true); // Mark that we've attempted authentication
+        setIsAuthenticated(valid); // Update authentication state based on login success
+    };
+
+    // If authenticated, navigate to the dashboard
+    if (authAttempted && isAuthenticated) {
+        return <Navigate to="/dashboard" state={{from: location}} replace />;
+    }
 
     return (
         <div
@@ -53,30 +66,22 @@ export const LoginPage = () => {
                         src={logo}
                         style={{height: '30%'}}
                         animate={{rotate: 120, height: '40%'}}
-                        // transition={{duration: 0.2}}
                     />
                     <motion.div animate={{marginTop: 16}}>
                         <TelegramLoginButton
                             botName={'AurumSkyNetBot'}
                             usePic={false}
                             buttonSize={'large'}
-                            dataOnauth={(data) => {
-                                handleTelegramLogin(data).then((valid) => {
-                                    return (
-                                        valid && (
-                                            <Navigate
-                                                to="/dashboard"
-                                                state={{from: location}}
-                                                replace
-                                            />
-                                        )
-                                    );
-                                });
-                            }}
+                            dataOnauth={(data) => handleLogin(data)}
                         />
                     </motion.div>
                 </Card>
             </motion.div>
+            {authAttempted && !isAuthenticated && (
+                <div style={{color: 'red', marginTop: 20}}>
+                    Authentication failed. Please try again.
+                </div>
+            )}
         </div>
     );
 };
