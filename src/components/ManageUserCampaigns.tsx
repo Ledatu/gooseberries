@@ -4,6 +4,7 @@ import {TextInput, Text, Button, Card, Icon} from '@gravity-ui/uikit';
 import {Pencil} from '@gravity-ui/icons';
 import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
+import {ManageUserModal} from './ManageUserModal';
 
 const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId}) => {
     return (
@@ -21,16 +22,11 @@ const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId}) =>
                 <Text variant="subheader-1">{`${firstName ?? ''} ${lastName ?? ''}`}</Text>
                 <Text variant="subheader-1">@{username}</Text>
             </div>
-            <Button
-                view="flat"
-                style={{margin: '0 4px'}}
-                pin="circle-circle"
-                onClick={() => {
-                    console.log(_id, firstName, lastName, username, photoUrl, sellerId);
-                }}
-            >
-                <Icon data={Pencil} />
-            </Button>
+            <ManageUserModal sellerId={sellerId} memberInfo={{_id}}>
+                <Button view="flat" style={{margin: '0 4px'}} pin="circle-circle">
+                    <Icon data={Pencil} />
+                </Button>
+            </ManageUserModal>
         </Card>
     );
 };
