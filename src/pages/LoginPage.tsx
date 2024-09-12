@@ -4,10 +4,11 @@ import React from 'react';
 import logo from '../assets/logo512.png';
 import TelegramLoginButton from 'src/components/TelegramLoginButton';
 import callApi from 'src/utilities/callApi';
-import {Navigate} from 'react-router-dom';
+import {Navigate, useLocation} from 'react-router-dom';
 
 async function handleTelegramLogin(authData) {
     try {
+        const location = useLocation();
         const response = await callApi('loginUser', authData);
         console.log('login user', response);
 
