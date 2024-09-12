@@ -38,15 +38,14 @@ const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId}) =>
 const CampaignInfo = ({sellerId, name, ownerId, members}) => {
     const membersInfo = [] as any[];
     for (const member of members) {
-        const {_id} = member;
-        if (_id === ownerId) continue;
+        if (member?.member_id?._id === ownerId) continue;
         membersInfo.push(
             <MemberInfo
-                _id={_id}
-                firstName={member?.first_name}
-                lastName={member?.last_name}
-                username={member?.username}
-                photoUrl={member?.photo_url}
+                _id={member?.member_id?._id}
+                firstName={member?.member_id?.first_name}
+                lastName={member?.member_id?.last_name}
+                username={member?.member_id?.username}
+                photoUrl={member?.member_id?.photo_url}
                 sellerId={sellerId}
             />,
         );
