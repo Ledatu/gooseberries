@@ -41,9 +41,14 @@ const CampaignInfo = ({sellerId, name, ownerId, memberDetails}) => {
     return (
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <div style={{display: 'flex', flexDirection: 'row'}}>
-                <TextInput disabled value={name} />
-                <Button view="outlined">
+                <TextInput disabled value={name} size="l" />
+                <div style={{minWidth: 8}} />
+                <Button view="outlined" size="l">
                     <Text variant="subheader-1">Изменить API ключ</Text>
+                </Button>
+                <div style={{minWidth: 8}} />
+                <Button view="outlined">
+                    <Text variant="subheader-1">Добавить сотрудника</Text>
                 </Button>
             </div>
             <div style={{display: 'flex', flexDirection: 'row'}}>{members}</div>

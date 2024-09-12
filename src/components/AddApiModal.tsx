@@ -69,12 +69,12 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                             size="l"
                             placeholder="Вставьте API ключ"
                         />
-
                         <Button
                             size="l"
                             view="outlined-success"
                             selected
                             disabled={name === '' || key === ''}
+                            onClick={() => {}}
                         >
                             <Text variant="subheader-1">Добавить магазин</Text>
                         </Button>
