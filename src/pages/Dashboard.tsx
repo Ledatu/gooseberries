@@ -50,7 +50,7 @@ export interface User {
 
 export const Dashboard = ({setThemeAurum}) => {
     const {userInfo} = useUser();
-    const {user} = userInfo ?? {};
+    const {user, campaigns} = userInfo ?? {};
     const themeVal = localStorage.getItem('theme');
     const initialTheme =
         themeVal !== 'undefined' && themeVal !== 'null' && themeVal
@@ -90,15 +90,15 @@ export const Dashboard = ({setThemeAurum}) => {
     }, [selectValue]);
 
     const selectOptions = useMemo(() => {
-        if (!user || !user.campaigns) return [];
+        if (!campaigns) return [];
         const temp = [] as any[];
-        for (const campaignInfo of user.campaigns) {
+        for (const campaignInfo of campaigns) {
             const {name} = campaignInfo;
             temp.push({value: name, content: name});
         }
         setSelectValue([temp[0] ? temp[0]['value'] ?? '' : '']);
         return temp;
-    }, [user]);
+    }, [campaigns]);
 
     const optionsTheme: RadioButtonOption[] = [
         {value: 'dark', content: <Icon data={Moon}></Icon>},
@@ -114,13 +114,13 @@ export const Dashboard = ({setThemeAurum}) => {
     // const [page, setPage] = useState('delivery');
 
     const modules = useMemo(() => {
-        const {campaigns} = user;
+        if (!campaigns) return [];
         for (const campaign of campaigns) {
             if (campaign.name === selectValue[0])
                 return campaign.isOwner ? ['all'] : campaign.userModules;
         }
         return [];
-    }, [user]);
+    }, [campaigns]);
 
     const [page, setPage] = useState(modules.includes('all') ? 'massAdvert' : modules[0]);
     useEffect(() => setPage(modules.includes('all') ? 'massAdvert' : modules[0]), [modules]);

@@ -99,7 +99,7 @@ export const ManageUserCampaigns = () => {
                 campaignsInfosTemp.push(<div style={{minHeight: 16}} />);
             }
         setCampaignsInfos(campaignsInfosTemp);
-    }, [user]);
+    }, [campaigns]);
     return (
         <div
             style={{
