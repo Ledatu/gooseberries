@@ -1,6 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, {createContext, useContext, useState, useEffect} from 'react';
 import {useLocation, Navigate} from 'react-router-dom';
 import callApi from 'src/utilities/callApi';
+
+// Create a Context for the user info
+const UserContext = createContext(null as any);
+
+// Custom hook to use the UserContext
+export const useUser = () => useContext(UserContext);
 
 function RequireAuth({children}) {
     const location = useLocation();
@@ -20,7 +26,7 @@ function RequireAuth({children}) {
             try {
                 // Call the backend API to verify the token and get user info
                 const response = await callApi('verifyToken', {token: authToken});
-                if (!response) throw new Error('error occured');
+                if (!response) throw new Error('error occurred');
 
                 console.log('verifyToken', response);
 
@@ -48,16 +54,11 @@ function RequireAuth({children}) {
 
     if (!isAuthenticated) {
         // If not authenticated, redirect to login page
-        return <Navigate to="/logi" state={{from: location}} replace />;
+        return <Navigate to="/login" state={{from: location}} replace />;
     }
 
-    // If authenticated, render the children components with user info
-    return (
-        <div>
-            <p>Welcome, {userInfo.username}!</p> {/* Display user info */}
-            {children}
-        </div>
-    );
+    // If authenticated, provide user info to children using Context
+    return <UserContext.Provider value={userInfo}>{children}</UserContext.Provider>;
 }
 
 export default RequireAuth;

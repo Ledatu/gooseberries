@@ -35,7 +35,7 @@ export const LoginPage = () => {
 
     // If authenticated, navigate to the dashboard
     if (authAttempted && isAuthenticated) {
-        return <Navigate to="/dashboard" state={{from: location}} replace />;
+        return <Navigate to="/" state={{from: location}} replace />;
     }
 
     return (

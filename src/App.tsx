@@ -12,7 +12,7 @@ export const App = () => {
         <ThemeProvider theme={themeAurum}>
             <Router>
                 <Routes>
-                    <Route path="/logi" element={<LoginPage />} />
+                    <Route path="/login" element={<LoginPage />} />
                     <Route
                         path="*"
                         element={

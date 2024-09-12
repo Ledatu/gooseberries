@@ -32,6 +32,8 @@ import {SelectCampaign} from 'src/components/SelectCampaign';
 import {BuyersPage} from './BuyersPage';
 import {NoSubscriptionPage} from './NoSubscriptionPage';
 
+import {useUser} from 'src/components/RequireAuth';
+
 const b = block('app');
 
 enum Theme {
@@ -48,6 +50,7 @@ export interface User {
 }
 
 export const Dashboard = ({setThemeAurum}) => {
+    const user = useUser();
     const themeVal = localStorage.getItem('theme');
     const initialTheme =
         themeVal !== 'undefined' && themeVal !== 'null' && themeVal
@@ -479,14 +482,7 @@ export const Dashboard = ({setThemeAurum}) => {
                                     </div>
                                 </Modal>
                                 <div style={{minWidth: 8}} />
-                                <Button
-                                    size="l"
-                                    onClick={() => {
-                                        Userfront.logout();
-                                    }}
-                                >
-                                    {Userfront.user.email?.split('@')[0] ?? ''}
-                                </Button>
+                                <Button size="l">{user?.username}</Button>
                                 <div style={{minWidth: 8}} />
                                 <RadioButton
                                     size="l"
