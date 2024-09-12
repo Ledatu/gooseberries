@@ -3,6 +3,22 @@ import {motion} from 'framer-motion';
 import React from 'react';
 import logo from '../assets/logo512.png';
 import TelegramLoginButton from 'src/components/TelegramLoginButton';
+import callApi from 'src/utilities/callApi';
+import {Navigate} from 'react-router-dom';
+
+async function handleTelegramLogin(authData) {
+    try {
+        const response = await callApi('/loginUser', authData);
+        // Save the token from the server response
+        if (!response) return false;
+        const {token} = response.data;
+        localStorage.setItem('authToken', token); // Alternatively, use cookies
+        return true;
+    } catch (error) {
+        console.error('Authentication failed', error);
+        return false;
+    }
+}
 
 export const LoginPage = () => {
     return (
@@ -41,7 +57,9 @@ export const LoginPage = () => {
                             usePic={false}
                             buttonSize={'large'}
                             dataOnauth={(data) => {
-                                console.log(data);
+                                handleTelegramLogin(data).then(() => {
+                                    return <Navigate to="/" state={{from: location}} replace />;
+                                });
                             }}
                         />
                     </motion.div>
