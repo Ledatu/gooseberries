@@ -3,6 +3,7 @@ import {useUser} from './RequireAuth';
 import {TextInput, Text, Button, Card, Icon} from '@gravity-ui/uikit';
 import {Pencil} from '@gravity-ui/icons';
 import {Identity} from '@gravity-ui/illustrations';
+import {AddMemberModal} from './AddMemberModal';
 
 const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId}) => {
     return (
@@ -47,9 +48,11 @@ const CampaignInfo = ({sellerId, name, ownerId, memberDetails}) => {
                     <Text variant="subheader-1">Изменить API ключ</Text>
                 </Button>
                 <div style={{minWidth: 8}} />
-                <Button view="outlined">
-                    <Text variant="subheader-1">Добавить сотрудника</Text>
-                </Button>
+                <AddMemberModal>
+                    <Button view="outlined" size="l">
+                        <Text variant="subheader-1">Добавить сотрудника</Text>
+                    </Button>
+                </AddMemberModal>
             </div>
             <div style={{display: 'flex', flexDirection: 'row'}}>{members}</div>
         </div>
