@@ -32,7 +32,6 @@ export const AddMemberModal = ({children}: AddMemberModalInterface) => {
     const modulesSwitches = useMemo(() => {
         const modulesSwitchesTemp = [] as any[];
         for (const [key, enabled] of Object.entries(modulesEnabled)) {
-            if (!enabled) continue;
             modulesSwitchesTemp.push(
                 <Switch
                     checked={enabled}
