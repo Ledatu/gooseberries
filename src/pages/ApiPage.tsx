@@ -10,7 +10,7 @@ export const ApiPage = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 width: '100vw',
-                height: 'calc(100vh - 70px)',
+                height: 'calc(100vh - 100px)',
                 justifyContent: 'center',
                 alignItems: 'center',
             }}
