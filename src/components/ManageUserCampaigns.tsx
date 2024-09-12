@@ -75,7 +75,8 @@ const CampaignInfo = ({sellerId, name, ownerId, memberDetails}) => {
 };
 
 export const ManageUserCampaigns = () => {
-    const user = useUser();
+    const {userInfo} = useUser();
+    const {user} = userInfo ?? {};
     const {campaigns} = user ?? ([] as any[]);
     const [campaignsInfos, setCampaignsInfos] = useState([] as any[]);
 

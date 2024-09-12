@@ -1,12 +1,17 @@
 import {Button, Card, Modal, TextInput, Text, Switch} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useMemo, useState} from 'react';
+import callApi from 'src/utilities/callApi';
+import {useUser} from './RequireAuth';
 
 interface AddMemberModalInterface {
     children: ReactElement | ReactElement[];
 }
 
 export const AddMemberModal = ({children}: AddMemberModalInterface) => {
+    const {userInfo, refetchUser} = useUser();
+    const {user} = userInfo;
+
     const [open, setOpen] = useState(false);
 
     const [username, setUsername] = useState('');
@@ -127,7 +132,14 @@ export const AddMemberModal = ({children}: AddMemberModalInterface) => {
                             selected
                             disabled={!modules.length || username === ''}
                             onClick={() => {
-                                console.log(username, modules);
+                                const params = {
+                                    user_id: user._id,
+                                    member_username: username,
+                                    modules,
+                                };
+                                callApi('addMemberToCampaign', params).then(() => {
+                                    refetchUser();
+                                });
                             }}
                         >
                             <Text variant="subheader-1">Добавить сотрудника</Text>

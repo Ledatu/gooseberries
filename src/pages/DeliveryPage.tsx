@@ -39,7 +39,8 @@ import {WarehousesEdit} from 'src/components/WarehousesEdit';
 import {useUser} from 'src/components/RequireAuth';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
-    const {campaigns} = useUser();
+    const {userInfo} = useUser();
+    const {campaigns} = userInfo ?? {};
     const [doc, setDocument] = useState<any>();
 
     if (docum) {

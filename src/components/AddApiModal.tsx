@@ -9,7 +9,8 @@ interface AddApiModalInterface {
 }
 
 export const AddApiModal = ({children}: AddApiModalInterface) => {
-    const {user} = useUser();
+    const {userInfo} = useUser();
+    const {user} = userInfo ?? {};
     const [open, setOpen] = useState(false);
 
     const [name, setName] = useState('');
