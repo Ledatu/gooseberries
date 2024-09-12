@@ -9,6 +9,8 @@ import {Navigate} from 'react-router-dom';
 async function handleTelegramLogin(authData) {
     try {
         const response = await callApi('loginUser', authData);
+        console.log('login user', response);
+
         // Save the token from the server response
         if (!response) return false;
         const {token} = response.data;
