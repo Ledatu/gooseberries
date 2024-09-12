@@ -52,10 +52,13 @@ const CampaignInfo = ({sellerId, name, ownerId, memberDetails}) => {
 };
 
 export const ManageUserCampaigns = () => {
-    const {campaigns} = useUser() ?? ([] as any[]);
+    const user = useUser();
+    const {campaigns} = user ?? ([] as any[]);
     const [campaignsInfos, setCampaignsInfos] = useState([] as any[]);
 
     useEffect(() => {
+        console.log(user, campaigns);
+
         const campaignsInfosTemp = [] as any[];
         if (campaigns && campaigns.length)
             for (const campaign of campaigns) {
@@ -72,7 +75,7 @@ export const ManageUserCampaigns = () => {
                 campaignsInfosTemp.push(<div style={{minHeight: 8}} />);
             }
         setCampaignsInfos(campaignsInfosTemp);
-    }, [campaigns]);
+    }, [user]);
     return (
         <div
             style={{
