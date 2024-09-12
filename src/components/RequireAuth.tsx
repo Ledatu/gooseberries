@@ -21,6 +21,8 @@ function RequireAuth({children}) {
                 // Call the backend API to verify the token and get user info
                 const response = await axios.post('/verifyToken', {token: authToken});
 
+                console.log('verifyToken', response);
+
                 if (response.data.valid) {
                     setIsAuthenticated(true); // Token is valid, set authenticated
                     setUserInfo(response.data.user); // Store user info
