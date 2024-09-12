@@ -50,7 +50,9 @@ export interface User {
 
 export const Dashboard = ({setThemeAurum}) => {
     const {userInfo} = useUser();
+
     const {user, campaigns} = userInfo ?? {};
+    console.log(userInfo, user, campaigns);
     const themeVal = localStorage.getItem('theme');
     const initialTheme =
         themeVal !== 'undefined' && themeVal !== 'null' && themeVal
