@@ -45,7 +45,7 @@ function RequireAuth({children}) {
 
     if (!isAuthenticated) {
         // If not authenticated, redirect to login page
-        return <Navigate to="/login" state={{from: location}} replace />;
+        return <Navigate to="/logi" state={{from: location}} replace />;
     }
 
     // If authenticated, render the children components with user info

@@ -13,7 +13,7 @@ async function handleTelegramLogin(authData) {
         if (!response) return false;
         const {token} = response.data;
         localStorage.setItem('authToken', token); // Alternatively, use cookies
-        return true;
+        return <Navigate to="/dashboard" state={{from: location}} replace />;
     } catch (error) {
         console.error('Authentication failed', error);
         return false;
@@ -57,9 +57,7 @@ export const LoginPage = () => {
                             usePic={false}
                             buttonSize={'large'}
                             dataOnauth={(data) => {
-                                handleTelegramLogin(data).then(() => {
-                                    return <Navigate to="/" state={{from: location}} replace />;
-                                });
+                                handleTelegramLogin(data);
                             }}
                         />
                     </motion.div>
