@@ -33,6 +33,7 @@ import {BuyersPage} from './BuyersPage';
 import {NoSubscriptionPage} from './NoSubscriptionPage';
 
 import {useUser} from 'src/components/RequireAuth';
+import {ApiPage} from './ApiPage';
 
 const b = block('app');
 
@@ -233,6 +234,10 @@ export const Dashboard = ({setThemeAurum}) => {
             id: 'seo',
             title: 'SEO',
             disabled: !modules.includes('all') && !modules.includes('seo'),
+        },
+        {
+            id: 'api',
+            title: 'APIs',
         },
     ];
 
@@ -600,6 +605,7 @@ const PageElem = ({
             />
         ),
         seo: <SEOPage />,
+        api: <ApiPage />,
     };
     return pages[page] ?? <></>;
 };

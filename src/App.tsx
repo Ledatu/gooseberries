@@ -5,7 +5,6 @@ import '@gravity-ui/uikit/styles/styles.scss';
 import {LoginPage} from './pages/LoginPage';
 import RequireAuth from './components/RequireAuth';
 import {ThemeProvider} from '@gravity-ui/uikit';
-import {ApiPage} from './pages/ApiPage';
 
 export const App = () => {
     const [themeAurum, setThemeAurum] = useState();
@@ -14,7 +13,7 @@ export const App = () => {
             <Router>
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
-                    <Route path="/apis" element={<ApiPage />} />
+                    {/* <Route path="/apis" element={<ApiPage />} /> */}
                     <Route
                         path="*"
                         element={
