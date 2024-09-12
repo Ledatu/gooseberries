@@ -8,7 +8,6 @@ import {Navigate, useLocation} from 'react-router-dom';
 
 async function handleTelegramLogin(authData) {
     try {
-        const location = useLocation();
         const response = await callApi('loginUser', authData);
         console.log('login user', response);
 
@@ -16,7 +15,7 @@ async function handleTelegramLogin(authData) {
         if (!response) return false;
         const {token} = response.data;
         localStorage.setItem('authToken', token); // Alternatively, use cookies
-        return <Navigate to="/dashboard" state={{from: location}} replace />;
+        return true;
     } catch (error) {
         console.error('Authentication failed', error);
         return false;
@@ -24,6 +23,8 @@ async function handleTelegramLogin(authData) {
 }
 
 export const LoginPage = () => {
+    const location = useLocation();
+
     return (
         <div
             style={{
@@ -60,7 +61,17 @@ export const LoginPage = () => {
                             usePic={false}
                             buttonSize={'large'}
                             dataOnauth={(data) => {
-                                handleTelegramLogin(data);
+                                handleTelegramLogin(data).then((valid) => {
+                                    return (
+                                        valid && (
+                                            <Navigate
+                                                to="/dashboard"
+                                                state={{from: location}}
+                                                replace
+                                            />
+                                        )
+                                    );
+                                });
                             }}
                         />
                     </motion.div>
