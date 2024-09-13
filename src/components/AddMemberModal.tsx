@@ -81,7 +81,7 @@ export const AddMemberModal = ({
         setModulesEnabled((cur) => {
             const res = {};
             for (const key of Object.keys(cur)) {
-                res[key] = addedMember?.modules.includes(key);
+                res[key] = addedMember?.modules?.includes(key);
             }
             return res as any;
         });
