@@ -12,7 +12,6 @@ import {
     TextArea,
     List,
 } from '@gravity-ui/uikit';
-import {MobileHeader} from '@gravity-ui/navigation';
 import '../App.scss';
 import {MassAdvertPage} from './MassAdvertPage';
 // import {db} from '../utilities/firebase-config';
@@ -260,18 +259,29 @@ export const Dashboard = ({setThemeAurum}) => {
                     <div
                         style={{
                             width: '100%',
-                            // boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
-                            // background: '#00000022',
+                            boxShadow: 'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
                             background: '#0000',
                         }}
                     >
-                        <MobileHeader
-                            logo={{icon: textLogo, text: ''} as any}
-                            burgerMenu={{
-                                onItemClick: (a) => setPage(a),
-                                items: optionsPages,
+                        <div
+                            style={{
+                                margin: '0 32px',
+                                boxShadow:
+                                    'inset 0px -9px 0px -8px ' +
+                                    (theme == Theme.Dark ? '#2d2c33' : '#fff'),
                             }}
-                        />
+                        >
+                            <Tabs
+                                wrapTo={renderTabItem}
+                                activeTab={page}
+                                items={optionsPages.filter((item) =>
+                                    ['massAdvert', 'api'].includes(item.id),
+                                )}
+                                onSelectTab={(val) => {
+                                    setPage(val);
+                                }}
+                            />
+                        </div>
                     </div>
                 ) : (
                     <div
