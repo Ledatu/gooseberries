@@ -261,11 +261,29 @@ export const Dashboard = ({setThemeAurum}) => {
                             width: '100%',
                             boxShadow: 'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
                             background: '#0000',
+                            display: 'flex',
+                            flexDirection: 'row',
                         }}
                     >
                         <div
                             style={{
-                                margin: '0 32px',
+                                height: 68,
+                                alignItems: 'center',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                boxShadow: '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                            }}
+                        >
+                            <img
+                                style={{height: 'calc(100% - 24px)'}}
+                                src={textLogo}
+                                alt="Aurum logo"
+                            />
+                            <div style={{minWidth: 32}} />
+                        </div>
+                        <div style={{minWidth: 32}} />
+                        <div
+                            style={{
                                 boxShadow:
                                     'inset 0px -9px 0px -8px ' +
                                     (theme == Theme.Dark ? '#2d2c33' : '#fff'),
