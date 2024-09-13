@@ -78,7 +78,7 @@ export const ManageUserModal = ({
         setModulesEnabled((cur) => {
             const res = {};
             for (const key of Object.keys(cur)) {
-                res[key] = modules.includes('all') || modules.includes('key');
+                res[key] = modules.includes('all') || modules.includes(key);
             }
             return res as any;
         });
@@ -136,10 +136,12 @@ export const ManageUserModal = ({
                                     member_id: memberInfo?._id,
                                     newModules: newModules,
                                 };
-                                callApi('updateModulesForUserInCampaign', params).then((res) => {
-                                    console.log(res);
-                                    refetchUser();
-                                });
+                                callApi('updateModulesForUserInCampaign', params)
+                                    .then((res) => {
+                                        console.log(res);
+                                        refetchUser();
+                                    })
+                                    .then(() => handleClose());
                             }}
                         >
                             <Text variant="subheader-1">Сохранить</Text>
