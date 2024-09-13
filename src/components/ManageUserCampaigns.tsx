@@ -6,7 +6,7 @@ import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
 import {ManageUserModal} from './ManageUserModal';
 
-const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId}) => {
+const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, modules}) => {
     return (
         <Card
             style={{
@@ -22,7 +22,7 @@ const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId}) =>
                 <Text variant="subheader-1">{`${firstName ?? ''} ${lastName ?? ''}`}</Text>
                 <Text variant="subheader-1">@{username}</Text>
             </div>
-            <ManageUserModal sellerId={sellerId} memberInfo={{_id}}>
+            <ManageUserModal sellerId={sellerId} memberInfo={{_id}} modules={modules}>
                 <Button view="flat" style={{margin: '0 4px'}} pin="circle-circle">
                     <Icon data={Pencil} />
                 </Button>
@@ -43,10 +43,12 @@ const CampaignInfo = ({sellerId, name, ownerId, members}) => {
                 username={member?.member_id?.username}
                 photoUrl={member?.member_id?.photo_url}
                 sellerId={sellerId}
+                modules={member?.modules}
             />,
         );
         membersInfo.push(<div style={{minWidth: 8}} />);
     }
+    membersInfo.pop();
 
     return (
         <div style={{display: 'flex', flexDirection: 'column'}}>

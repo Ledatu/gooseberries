@@ -7,10 +7,16 @@ import {useUser} from './RequireAuth';
 interface ManageUserModalInterface {
     sellerId: string;
     memberInfo: any;
+    modules: string[];
     children: ReactElement | ReactElement[];
 }
 
-export const ManageUserModal = ({sellerId, memberInfo, children}: ManageUserModalInterface) => {
+export const ManageUserModal = ({
+    sellerId,
+    memberInfo,
+    modules,
+    children,
+}: ManageUserModalInterface) => {
     const {userInfo, refetchUser} = useUser();
     const {user} = userInfo;
 
@@ -36,13 +42,13 @@ export const ManageUserModal = ({sellerId, memberInfo, children}: ManageUserModa
         seo: 'SEO',
     };
 
-    const modules = useMemo(() => {
-        const modulesTemp = [] as string[];
+    const newModules = useMemo(() => {
+        const newModulesTemp = [] as string[];
         for (const [key, enabled] of Object.entries(modulesEnabled)) {
             if (!enabled) continue;
-            modulesTemp.push(key);
+            newModulesTemp.push(key);
         }
-        return modulesTemp;
+        return newModulesTemp;
     }, [modulesEnabled]);
 
     const modulesSwitches = useMemo(() => {
@@ -69,14 +75,12 @@ export const ManageUserModal = ({sellerId, memberInfo, children}: ManageUserModa
 
     const handleOpen = async () => {
         setOpen(true);
-        setModulesEnabled({
-            massAdvert: false,
-            analytics: false,
-            delivery: false,
-            prices: false,
-            nomenclatures: false,
-            buyers: false,
-            seo: false,
+        setModulesEnabled((cur) => {
+            const res = {};
+            for (const key of Object.keys(cur)) {
+                res[key] = modules.includes('all') || modules.includes('key');
+            }
+            return res as any;
         });
     };
 
@@ -130,7 +134,7 @@ export const ManageUserModal = ({sellerId, memberInfo, children}: ManageUserModa
                                     user_id: user._id,
                                     seller_id: sellerId,
                                     member_id: memberInfo?._id,
-                                    newModules: modules,
+                                    newModules: newModules,
                                 };
                                 callApi('updateModulesForUserInCampaign', params).then(() => {
                                     refetchUser();
