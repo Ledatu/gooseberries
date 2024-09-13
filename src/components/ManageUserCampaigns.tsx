@@ -21,7 +21,7 @@ const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, mod
             <img src={photoUrl} style={{height: 36, borderRadius: 100, marginRight: 4}} />
             <div style={{display: 'flex', flexDirection: 'column'}}>
                 <Text variant="subheader-1">{`${firstName ?? ''} ${lastName ?? ''}`}</Text>
-                <Link href={`t.me/${username}`} view="secondary">
+                <Link href={`t.me/${username}`} view="primary">
                     @{username}
                 </Link>
             </div>
