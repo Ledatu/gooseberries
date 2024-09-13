@@ -6,9 +6,9 @@ export const LogoLoader = () => {
     return (
         <motion.img
             src={logo}
-            style={{height: 120}}
-            animate={{rotate: 120, height: '40%'}}
-            transition={{repeat: Infinity}}
+            style={{height: 240}}
+            animate={{rotate: 120}}
+            transition={{repeat: Infinity, repeatDelay: 0.5}}
         />
     );
 };
