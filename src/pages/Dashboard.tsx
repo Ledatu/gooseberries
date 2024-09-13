@@ -141,7 +141,7 @@ export const Dashboard = ({setThemeAurum}) => {
                 key={index}
                 style={{
                     // marginBottom: item.id == page ? 1 : 0,
-                    height: 60 - (isMobile ? 8 : 0),
+                    height: 60 - (isMobile ? 16 : 0),
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
