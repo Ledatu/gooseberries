@@ -49,7 +49,7 @@ export const ChangeApiModal = ({sellerId, children}: ChangeApiModalInterface) =>
             <Modal open={open} onClose={handleClose}>
                 <Card>
                     <motion.div
-                        animate={{height: open ? 126 : 0}}
+                        animate={{height: open ? 82 : 0}}
                         style={{
                             height: 0,
                             width: 300,
