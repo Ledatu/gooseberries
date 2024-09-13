@@ -122,7 +122,7 @@ export const Dashboard = ({setThemeAurum}) => {
                 return campaign.isOwner ? ['all'] : campaign.userModules;
         }
         return [];
-    }, [campaigns]);
+    }, [campaigns, selectValue]);
 
     const [page, setPage] = useState(null as any);
     useEffect(

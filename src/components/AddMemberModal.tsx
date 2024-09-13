@@ -139,9 +139,11 @@ export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) =>
                                     member_username: username,
                                     modules,
                                 };
-                                callApi('addMemberToCampaign', params).then(() => {
-                                    refetchUser();
-                                });
+                                callApi('addMemberToCampaign', params)
+                                    .then(() => {
+                                        refetchUser();
+                                    })
+                                    .finally(() => handleClose());
                             }}
                         >
                             <Text variant="subheader-1">Добавить сотрудника</Text>
