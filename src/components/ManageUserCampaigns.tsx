@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useUser} from './RequireAuth';
-import {TextInput, Text, Button, Card, Icon} from '@gravity-ui/uikit';
+import {TextInput, Text, Button, Card, Icon, Link} from '@gravity-ui/uikit';
 import {Pencil} from '@gravity-ui/icons';
 import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
@@ -21,7 +21,9 @@ const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, mod
             <img src={photoUrl} style={{height: 36, borderRadius: 100, marginRight: 4}} />
             <div style={{display: 'flex', flexDirection: 'column'}}>
                 <Text variant="subheader-1">{`${firstName ?? ''} ${lastName ?? ''}`}</Text>
-                <Text variant="subheader-1">@{username}</Text>
+                <Link href={`t.me/${username}`} view="secondary">
+                    @{username}
+                </Link>
             </div>
             <ManageUserModal sellerId={sellerId} memberInfo={{_id}} modules={modules}>
                 <Button view="flat" style={{margin: '0 4px'}} pin="circle-circle">
