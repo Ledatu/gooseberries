@@ -136,7 +136,8 @@ export const ManageUserModal = ({
                                     member_id: memberInfo?._id,
                                     newModules: newModules,
                                 };
-                                callApi('updateModulesForUserInCampaign', params).then(() => {
+                                callApi('updateModulesForUserInCampaign', params).then((res) => {
+                                    console.log(res);
                                     refetchUser();
                                 });
                             }}
