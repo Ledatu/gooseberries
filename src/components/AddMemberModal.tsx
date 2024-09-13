@@ -98,6 +98,11 @@ export const AddMemberModal = ({
             buyers: false,
             seo: false,
         });
+
+        setAddedMember({
+            member_username: '',
+            modules: [],
+        });
     };
 
     const handleClose = () => {
