@@ -141,7 +141,7 @@ export const Dashboard = ({setThemeAurum}) => {
                 key={index}
                 style={{
                     // marginBottom: item.id == page ? 1 : 0,
-                    height: 60,
+                    height: 60 - (isMobile ? 8 : 0),
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -267,22 +267,22 @@ export const Dashboard = ({setThemeAurum}) => {
                     >
                         <div
                             style={{
-                                height: 68,
+                                height: 52,
                                 alignItems: 'center',
                                 display: 'flex',
                                 flexDirection: 'row',
                                 boxShadow: '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                             }}
                         >
-                            <div style={{minWidth: 32}} />
+                            <div style={{minWidth: 24}} />
                             <img
                                 style={{height: 'calc(100% - 24px)'}}
                                 src={textLogo}
                                 alt="Aurum logo"
                             />
-                            <div style={{minWidth: 32}} />
+                            <div style={{minWidth: 24}} />
                         </div>
-                        <div style={{minWidth: 32}} />
+                        <div style={{minWidth: 24}} />
                         <div
                             style={{
                                 boxShadow:
