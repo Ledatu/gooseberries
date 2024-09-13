@@ -112,7 +112,7 @@ export const ManageUserModal = ({
             <Modal open={open} onClose={handleClose}>
                 <Card>
                     <motion.div
-                        animate={{height: open ? 304 : 0}}
+                        animate={{height: open ? 260 : 0}}
                         style={{
                             height: 0,
                             width: 300,
@@ -137,7 +137,7 @@ export const ManageUserModal = ({
                                 size="l"
                                 view="outlined-success"
                                 selected
-                                disabled={!modules.length}
+                                disabled={!newModules.length}
                                 onClick={() => {
                                     const params = {
                                         user_id: user._id,
