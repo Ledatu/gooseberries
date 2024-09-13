@@ -141,7 +141,7 @@ export const ManageUserModal = ({
                                         console.log(res);
                                         refetchUser();
                                     })
-                                    .then(() => handleClose());
+                                    .finally(() => handleClose());
                             }}
                         >
                             <Text variant="subheader-1">Сохранить</Text>

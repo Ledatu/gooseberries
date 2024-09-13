@@ -9,7 +9,7 @@ interface AddApiModalInterface {
 }
 
 export const AddApiModal = ({children}: AddApiModalInterface) => {
-    const {userInfo} = useUser();
+    const {userInfo, refetchUser} = useUser();
     const {user} = userInfo ?? {};
     const [open, setOpen] = useState(false);
 
@@ -85,6 +85,9 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                                     apiKey: key,
                                 };
                                 callApi('createCampaign', params, false, true)
+                                    .then(() => {
+                                        refetchUser();
+                                    })
                                     .catch((e) => {
                                         alert(e);
                                     })
