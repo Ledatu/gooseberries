@@ -124,8 +124,11 @@ export const Dashboard = ({setThemeAurum}) => {
         return [];
     }, [campaigns]);
 
-    const [page, setPage] = useState(modules.includes('all') ? 'massAdvert' : modules[0]);
-    useEffect(() => setPage(modules.includes('all') ? 'massAdvert' : modules[0]), [modules]);
+    const [page, setPage] = useState(null as any);
+    useEffect(
+        () => setPage(page === null ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page),
+        [modules],
+    );
 
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
