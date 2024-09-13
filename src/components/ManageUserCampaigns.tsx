@@ -82,6 +82,8 @@ export const ManageUserCampaigns = () => {
         const campaignsInfosTemp = [] as any[];
         if (campaigns && campaigns.length)
             for (const campaign of campaigns) {
+                console.log(campaign, campaign?.seller_id);
+
                 const {isOwner} = campaign ?? {};
                 if (!isOwner) continue;
                 campaignsInfosTemp.push(
