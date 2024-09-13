@@ -117,7 +117,7 @@ export const ManageUserCampaigns = () => {
                 alignItems: 'center',
             }}
         >
-            {!campaigns || !campaigns.length ? <Identity /> : <></>}
+            {!campaignsInfos || !campaignsInfos.length ? <Identity /> : <></>}
             {campaignsInfos}
         </div>
     );
