@@ -5,6 +5,7 @@ import {Pencil} from '@gravity-ui/icons';
 import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
 import {ManageUserModal} from './ManageUserModal';
+import {ChangeApiModal} from './ChangeApiModal';
 
 const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, modules}) => {
     return (
@@ -55,9 +56,11 @@ const CampaignInfo = ({sellerId, name, ownerId, members}) => {
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 <TextInput disabled value={name} size="l" />
                 <div style={{minWidth: 8}} />
-                <Button view="outlined" size="l">
-                    <Text variant="subheader-1">Изменить API ключ</Text>
-                </Button>
+                <ChangeApiModal sellerId={sellerId}>
+                    <Button view="outlined" size="l">
+                        <Text variant="subheader-1">Изменить API ключ</Text>
+                    </Button>
+                </ChangeApiModal>
                 <div style={{minWidth: 8}} />
                 <AddMemberModal sellerId={sellerId}>
                     <Button view="outlined" size="l">
