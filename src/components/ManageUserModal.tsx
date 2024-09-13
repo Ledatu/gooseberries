@@ -124,28 +124,52 @@ export const ManageUserModal = ({
                         }}
                     >
                         <div style={{marginLeft: 8}}>{modulesSwitches}</div>
-                        <Button
-                            size="l"
-                            view="outlined-success"
-                            selected
-                            disabled={!modules.length}
-                            onClick={() => {
-                                const params = {
-                                    user_id: user._id,
-                                    seller_id: sellerId,
-                                    member_id: memberInfo?._id,
-                                    newModules: newModules,
-                                };
-                                callApi('updateModulesForUserInCampaign', params)
-                                    .then((res) => {
-                                        console.log(res);
-                                        refetchUser();
-                                    })
-                                    .finally(() => handleClose());
-                            }}
-                        >
-                            <Text variant="subheader-1">Сохранить</Text>
-                        </Button>
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Button
+                                size="l"
+                                view="outlined-success"
+                                selected
+                                disabled={!modules.length}
+                                onClick={() => {
+                                    const params = {
+                                        user_id: user._id,
+                                        seller_id: sellerId,
+                                        member_id: memberInfo?._id,
+                                        newModules: newModules,
+                                    };
+                                    callApi('updateModulesForUserInCampaign', params)
+                                        .then((res) => {
+                                            console.log(res);
+                                            refetchUser();
+                                        })
+                                        .finally(() => handleClose());
+                                }}
+                            >
+                                <Text variant="subheader-1">Сохранить</Text>
+                            </Button>
+                            <div style={{minWidth: 8}}></div>
+                            <Button
+                                size="l"
+                                view="outlined-success"
+                                selected
+                                disabled={!modules.length}
+                                onClick={() => {
+                                    const params = {
+                                        user_id: user._id,
+                                        seller_id: sellerId,
+                                        member_id: memberInfo?._id,
+                                    };
+                                    callApi('removeMemberFromCampaign', params)
+                                        .then((res) => {
+                                            console.log(res);
+                                            refetchUser();
+                                        })
+                                        .finally(() => handleClose());
+                                }}
+                            >
+                                <Text variant="subheader-1">Удалить</Text>
+                            </Button>
+                        </div>
                     </motion.div>
                 </Card>
             </Modal>
