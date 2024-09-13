@@ -141,13 +141,14 @@ export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) =>
                             />
                             <motion.div
                                 animate={{
-                                    width: !modules.length || username === '' ? 0 : 36,
-                                    marginLeft: !modules.length || username === '' ? 0 : 8,
+                                    width: modules.length || username !== '' ? 36 : 0,
+                                    marginLeft: modules.length || username !== '' ? 8 : 0,
                                 }}
                                 style={{width: 0}}
                             >
-                                <Button size="l" onClick={clearFields}>
+                                <Button view="outlined" size="l" onClick={clearFields}>
                                     <Icon data={TrashBin} />
+                                    Очистить
                                 </Button>
                             </motion.div>
                         </div>
@@ -161,7 +162,7 @@ export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) =>
                                 const params = {
                                     user_id: user._id,
                                     seller_id: sellerId,
-                                    member_username: username,
+                                    member_username: username.replace(/@/g, ''),
                                     modules,
                                 };
                                 callApi('addMemberToCampaign', params)
