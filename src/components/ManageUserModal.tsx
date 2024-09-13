@@ -124,8 +124,16 @@ export const ManageUserModal = ({
                         }}
                     >
                         <div style={{marginLeft: 8}}>{modulesSwitches}</div>
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                width: '100%',
+                                justifyContent: 'space-between',
+                            }}
+                        >
                             <Button
+                                width="max"
                                 size="l"
                                 view="outlined-success"
                                 selected
@@ -149,8 +157,9 @@ export const ManageUserModal = ({
                             </Button>
                             <div style={{minWidth: 8}}></div>
                             <Button
+                                width="max"
                                 size="l"
-                                view="outlined-success"
+                                view="outlined-danger"
                                 selected
                                 disabled={!modules.length}
                                 onClick={() => {
