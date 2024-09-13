@@ -32,7 +32,7 @@ const MemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, mod
     );
 };
 
-const CampaignInfo = ({sellerId, name, ownerId, members}) => {
+const CampaignInfo = ({sellerId, name, ownerId, members, addedMember, setAddedMember}) => {
     const membersInfo = [] as any[];
     for (const member of members) {
         if (member?.member_id?._id === ownerId) continue;
@@ -62,7 +62,11 @@ const CampaignInfo = ({sellerId, name, ownerId, members}) => {
                     </Button>
                 </ChangeApiModal>
                 <div style={{minWidth: 8}} />
-                <AddMemberModal sellerId={sellerId}>
+                <AddMemberModal
+                    sellerId={sellerId}
+                    addedMember={addedMember}
+                    setAddedMember={setAddedMember}
+                >
                     <Button view="outlined" size="l">
                         <Text variant="subheader-1">Добавить сотрудника</Text>
                     </Button>
@@ -78,6 +82,7 @@ export const ManageUserCampaigns = () => {
     const {userInfo} = useUser();
     const {user, campaigns} = userInfo ?? {};
     const [campaignsInfos, setCampaignsInfos] = useState([] as any[]);
+    const [addedMember, setAddedMember] = useState({} as any);
 
     useEffect(() => {
         console.log(user, campaigns);
@@ -95,6 +100,8 @@ export const ManageUserCampaigns = () => {
                         name={campaign?.name}
                         ownerId={campaign?.owner_id}
                         members={campaign?.members}
+                        addedMember={addedMember}
+                        setAddedMember={setAddedMember}
                     />,
                 );
                 campaignsInfosTemp.push(<div style={{minHeight: 16}} />);

@@ -8,9 +8,16 @@ import {useUser} from './RequireAuth';
 interface AddMemberModalInterface {
     children: ReactElement | ReactElement[];
     sellerId: string;
+    addedMember: any;
+    setAddedMember: Function;
 }
 
-export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) => {
+export const AddMemberModal = ({
+    children,
+    sellerId,
+    addedMember,
+    setAddedMember,
+}: AddMemberModalInterface) => {
     const {userInfo, refetchUser} = useUser();
     const {user} = userInfo;
 
@@ -70,6 +77,14 @@ export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) =>
 
     const handleOpen = async () => {
         setOpen(true);
+        setUsername(addedMember?.member_username);
+        setModulesEnabled((cur) => {
+            const res = {};
+            for (const key of Object.keys(cur)) {
+                res[key] = addedMember?.modules.includes(key);
+            }
+            return res as any;
+        });
     };
 
     const clearFields = () => {
@@ -141,7 +156,7 @@ export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) =>
                             />
                             <motion.div
                                 animate={{
-                                    width: modules.length || username !== '' ? 36 : 0,
+                                    width: modules.length || username !== '' ? 114 : 0,
                                     marginLeft: modules.length || username !== '' ? 8 : 0,
                                 }}
                                 style={{width: 0}}
@@ -167,6 +182,10 @@ export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) =>
                                 };
                                 callApi('addMemberToCampaign', params)
                                     .then(() => {
+                                        setAddedMember({
+                                            member_username: username.replace(/@/g, ''),
+                                            modules,
+                                        });
                                         refetchUser();
                                     })
                                     .finally(() => handleClose());
