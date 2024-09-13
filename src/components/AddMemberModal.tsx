@@ -6,9 +6,10 @@ import {useUser} from './RequireAuth';
 
 interface AddMemberModalInterface {
     children: ReactElement | ReactElement[];
+    sellerId: string;
 }
 
-export const AddMemberModal = ({children}: AddMemberModalInterface) => {
+export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) => {
     const {userInfo, refetchUser} = useUser();
     const {user} = userInfo;
 
@@ -134,6 +135,7 @@ export const AddMemberModal = ({children}: AddMemberModalInterface) => {
                             onClick={() => {
                                 const params = {
                                     user_id: user._id,
+                                    seller_id: sellerId,
                                     member_username: username,
                                     modules,
                                 };

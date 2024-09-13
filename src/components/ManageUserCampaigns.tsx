@@ -59,7 +59,7 @@ const CampaignInfo = ({sellerId, name, ownerId, members}) => {
                     <Text variant="subheader-1">Изменить API ключ</Text>
                 </Button>
                 <div style={{minWidth: 8}} />
-                <AddMemberModal>
+                <AddMemberModal sellerId={sellerId}>
                     <Button view="outlined" size="l">
                         <Text variant="subheader-1">Добавить сотрудника</Text>
                     </Button>
