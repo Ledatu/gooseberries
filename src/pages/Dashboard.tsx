@@ -274,6 +274,7 @@ export const Dashboard = ({setThemeAurum}) => {
                                 boxShadow: '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                             }}
                         >
+                            <div style={{minWidth: 32}} />
                             <img
                                 style={{height: 'calc(100% - 24px)'}}
                                 src={textLogo}

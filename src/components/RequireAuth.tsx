@@ -1,6 +1,7 @@
 import React, {createContext, useContext, useState, useEffect, useCallback} from 'react';
 import {useLocation, Navigate} from 'react-router-dom';
 import callApi from 'src/utilities/callApi';
+import {LogoLoader} from './LogoLoader';
 
 // Create a Context for the user info
 const UserContext = createContext(null as any);
@@ -53,7 +54,20 @@ function RequireAuth({children}) {
 
     if (isAuthenticated === null) {
         // While checking authentication status, show a loading indicator or nothing
-        return <div>Loading...</div>;
+        return (
+            <div
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <LogoLoader />
+            </div>
+        );
     }
 
     if (!isAuthenticated) {
