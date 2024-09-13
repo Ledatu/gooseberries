@@ -77,7 +77,7 @@ export const AddMemberModal = ({
 
     const handleOpen = async () => {
         setOpen(true);
-        setUsername(addedMember?.member_username);
+        setUsername(addedMember?.member_username ?? '');
         setModulesEnabled((cur) => {
             const res = {};
             for (const key of Object.keys(cur)) {
