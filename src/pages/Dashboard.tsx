@@ -208,7 +208,7 @@ export const Dashboard = ({setThemeAurum}) => {
         },
         {
             id: 'api',
-            title: 'APIs',
+            title: 'Магазины',
         },
     ];
 
