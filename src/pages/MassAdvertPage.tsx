@@ -83,6 +83,8 @@ import {AdvertCard} from 'src/components/AdvertCard';
 import {AdvertsBidsModal} from 'src/components/AdvertsBidsModal';
 import {AdvertsBudgetsModal} from 'src/components/AdvertsBudgetsModal';
 import {useUser} from 'src/components/RequireAuth';
+import {LogoLoader} from 'src/components/LogoLoader';
+import {useMediaQuery} from 'src/hooks/useMediaQuery';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -147,6 +149,8 @@ export const MassAdvertPage = ({
     dzhemRefetch: boolean;
     setDzhemRefetch: Function;
 }) => {
+    const isMobile = useMediaQuery('(max-width: 768px)');
+
     const cardStyle = {
         minWidth: '10em',
         height: '10em',
@@ -4324,7 +4328,20 @@ export const MassAdvertPage = ({
     }
 
     if (!doc)
-        return (
+        return isMobile ? (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                    height: '100%',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <LogoLoader />
+            </div>
+        ) : (
             <div
                 style={{
                     display: 'flex',
