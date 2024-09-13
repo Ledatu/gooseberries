@@ -161,7 +161,6 @@ export const ManageUserModal = ({
                                 size="l"
                                 view="outlined-danger"
                                 selected
-                                disabled={!modules.length}
                                 onClick={() => {
                                     const params = {
                                         user_id: user._id,
