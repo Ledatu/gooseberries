@@ -1,4 +1,5 @@
-import {Button, Card, Modal, TextInput, Text, Switch} from '@gravity-ui/uikit';
+import {Button, Card, Modal, TextInput, Text, Switch, Icon} from '@gravity-ui/uikit';
+import {TrashBin} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useMemo, useState} from 'react';
 import callApi from 'src/utilities/callApi';
@@ -69,6 +70,9 @@ export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) =>
 
     const handleOpen = async () => {
         setOpen(true);
+    };
+
+    const clearFields = () => {
         setUsername('');
         setModulesEnabled({
             massAdvert: false,
@@ -120,12 +124,33 @@ export const AddMemberModal = ({children, sellerId}: AddMemberModalInterface) =>
                             justifyContent: 'space-between',
                         }}
                     >
-                        <TextInput
-                            value={username}
-                            onUpdate={(val) => setUsername(val)}
-                            size="l"
-                            placeholder="Введите <@Имя пользователя>"
-                        />
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                width: '100%',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <TextInput
+                                style={{width: '100%'}}
+                                value={username}
+                                onUpdate={(val) => setUsername(val)}
+                                size="l"
+                                placeholder="Введите <@Имя пользователя>"
+                            />
+                            <motion.div
+                                animate={{
+                                    width: !modules.length || username === '' ? 0 : 36,
+                                    marginLeft: !modules.length || username === '' ? 0 : 8,
+                                }}
+                                style={{width: 0}}
+                            >
+                                <Button size="l" onClick={clearFields}>
+                                    <Icon data={TrashBin} />
+                                </Button>
+                            </motion.div>
+                        </div>
                         <div style={{marginLeft: 8}}>{modulesSwitches}</div>
                         <Button
                             size="l"
