@@ -11,7 +11,6 @@ export const ApiPage = () => {
                 flexDirection: 'column',
                 width: '100%',
                 height: 'calc(100vh - 100px)',
-                justifyContent: 'center',
                 alignItems: 'center',
             }}
         >
