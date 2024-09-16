@@ -293,6 +293,11 @@ export const NomenclaturesPage = ({
             additionalNodes: [generateEditButton('prefObor')],
         },
         {
+            name: 'minStocks',
+            placeholder: 'Мин. остаток, шт.',
+            additionalNodes: [generateEditButton('minStocks')],
+        },
+        {
             name: 'primeCost1',
             placeholder: 'Себестоимость 1, ₽',
             additionalNodes: [generateEditButton('primeCost1')],
@@ -460,6 +465,7 @@ export const NomenclaturesPage = ({
                 tax: undefined,
                 expences: undefined,
                 prefObor: undefined,
+                minStocks: 0,
                 logistics: 0,
                 photos: undefined,
                 spp: 0,
@@ -503,6 +509,7 @@ export const NomenclaturesPage = ({
             artInfo.tax = artDataUploaded['tax'];
             artInfo.expences = artDataUploaded['expences'];
             artInfo.prefObor = artDataUploaded['prefObor'];
+            artInfo.minStocks = artDataUploaded['minStocks'];
             artInfo.primeCost1 = artDataUploaded['prices']
                 ? artDataUploaded['prices']['Себестоимость 1']
                 : undefined;
@@ -622,6 +629,7 @@ export const NomenclaturesPage = ({
         tax: {name: 'Ставка налога, %', type: 'number'},
         expences: {name: 'Дополнительные расходы, %', type: 'number'},
         prefObor: {name: 'Оборачиваемость, дней', type: 'number'},
+        minStocks: {name: 'Мин. остаток, шт.', type: 'number'},
         primeCost1: {name: 'Себестоимость 1, ₽', type: 'number'},
         primeCost2: {name: 'Себестоимость 2, ₽', type: 'number'},
         primeCost3: {name: 'Себестоимость 3, ₽', type: 'number'},

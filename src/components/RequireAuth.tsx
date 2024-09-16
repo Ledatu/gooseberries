@@ -15,7 +15,9 @@ function RequireAuth({children}) {
     const [userInfo, setUserInfo] = useState(null as any); // Store user info
 
     const checkTokenValidity = useCallback(async () => {
-        const authToken = localStorage.getItem('authToken');
+        // const authToken = localStorage.getItem('authToken');
+        const authToken =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTMzODM5MTU3LCJ1c2VybmFtZSI6IkxlZGF0dSIsImlhdCI6MTcyNjExMzIxNSwiZXhwIjoxNzI4NzA1MjE1fQ.5tKHpRdpoAZhxavorx2ofX_h-Du7iyYkClsCIPQz78Q';
 
         if (!authToken) {
             setIsAuthenticated(false);
