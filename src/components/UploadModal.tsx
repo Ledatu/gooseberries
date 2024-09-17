@@ -58,6 +58,8 @@ export const UploadModal = ({
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
             <Button
+                pin="clear-round"
+                view="flat"
                 size="l"
                 onClick={() => {
                     setUploadModalOpen(true);

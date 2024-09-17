@@ -1,17 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import block from 'bem-cn-lite';
-import {
-    Text,
-    RadioButton,
-    RadioButtonOption,
-    Icon,
-    Tabs,
-    Link,
-    Button,
-    Modal,
-    TextArea,
-    List,
-} from '@gravity-ui/uikit';
+import {Text, Icon, Tabs, Link, Button, Modal, TextArea, List} from '@gravity-ui/uikit';
 import '../App.scss';
 import {MassAdvertPage} from './MassAdvertPage';
 // import {db} from '../utilities/firebase-config';
@@ -19,7 +8,7 @@ import textLogo from '../assets/textLogo.png';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
-import {Sun, Moon, PencilToSquare, Xmark, Check, TrashBin} from '@gravity-ui/icons';
+import {PencilToSquare, Xmark, Check, TrashBin} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
@@ -33,6 +22,7 @@ import {BuyersPage} from './BuyersPage';
 import {useUser} from 'src/components/RequireAuth';
 import {ApiPage} from './ApiPage';
 import {useMediaQuery} from 'src/hooks/useMediaQuery';
+import {UserPopup} from 'src/components/UserPopup';
 
 const b = block('app');
 
@@ -52,14 +42,13 @@ export interface User {
 export const Dashboard = ({setThemeAurum}) => {
     const {userInfo} = useUser();
 
-    const {user, campaigns} = userInfo ?? {};
-    console.log(userInfo, user, campaigns);
+    const {campaigns} = userInfo ?? {};
     const themeVal = localStorage.getItem('theme');
     const initialTheme =
         themeVal !== 'undefined' && themeVal !== 'null' && themeVal
             ? JSON.parse(themeVal)
             : Theme.Dark;
-    const [theme, setTheme] = useState(initialTheme);
+    const [theme] = useState(initialTheme);
 
     useEffect(() => {
         localStorage.setItem('theme', JSON.stringify(theme));
@@ -103,10 +92,10 @@ export const Dashboard = ({setThemeAurum}) => {
         return temp;
     }, [campaigns]);
 
-    const optionsTheme: RadioButtonOption[] = [
-        {value: 'dark', content: <Icon data={Moon}></Icon>},
-        {value: 'light', content: <Icon data={Sun}></Icon>},
-    ];
+    // const optionsTheme: RadioButtonOption[] = [
+    //     {value: 'dark', content: <Icon data={Moon}></Icon>},
+    //     {value: 'light', content: <Icon data={Sun}></Icon>},
+    // ];
 
     const [availableTags, setAvailableTags] = useState([] as any[]);
     const [tagsAddedForCurrentNote, setTagsAddedForCurrentNote] = useState([] as any[]);
@@ -116,13 +105,17 @@ export const Dashboard = ({setThemeAurum}) => {
     // const [page, setPage] = useState('analytics');
     // const [page, setPage] = useState('delivery');
 
-    const modules = useMemo(() => {
-        if (!campaigns) return [];
+    const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
+
+    const [modules, setModules] = useState([] as any[]);
+    useEffect(() => {
+        if (!campaigns) return;
         for (const campaign of campaigns) {
-            if (campaign.name === selectValue[0])
-                return campaign.isOwner ? ['all'] : campaign.userModules;
+            if (campaign.name === selectValue[0]) {
+                setSubscriptionExpDate(campaign.subscriptionUntil);
+                setModules(campaign.isOwner ? ['all'] : campaign.userModules);
+            }
         }
-        return [];
     }, [campaigns, selectValue]);
 
     const [page, setPage] = useState(null as any);
@@ -157,13 +150,7 @@ export const Dashboard = ({setThemeAurum}) => {
                         setPage(item.id);
                     }}
                 >
-                    <Text
-                        style={{
-                            fontSize: 20,
-                            fontWeight: 400,
-                        }}
-                        color={item.disabled ? 'secondary' : undefined}
-                    >
+                    <Text variant="body-3" color={item.disabled ? 'secondary' : undefined}>
                         {item.title}
                     </Text>
                 </Link>
@@ -267,7 +254,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     >
                         <div
                             style={{
-                                height: 52,
+                                height: 68,
                                 alignItems: 'center',
                                 display: 'flex',
                                 flexDirection: 'row',
@@ -320,7 +307,7 @@ export const Dashboard = ({setThemeAurum}) => {
                         >
                             <div
                                 style={{
-                                    padding: '0px 10vw',
+                                    padding: '0px 40px',
                                     display: 'flex',
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
@@ -345,6 +332,7 @@ export const Dashboard = ({setThemeAurum}) => {
                                                 '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                                         }}
                                     >
+                                        <div style={{minWidth: 12}} />
                                         <img
                                             style={{height: 'calc(100% - 24px)'}}
                                             src={textLogo}
@@ -380,8 +368,10 @@ export const Dashboard = ({setThemeAurum}) => {
                                             '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                                     }}
                                 >
-                                    <div style={{minWidth: 32}} />
+                                    <div style={{minWidth: 12}} />
                                     <Button
+                                        pin="round-brick"
+                                        view="flat"
                                         loading={availableTagsPending}
                                         size="l"
                                         onClick={async () => {
@@ -509,19 +499,6 @@ export const Dashboard = ({setThemeAurum}) => {
                                             </div>
                                         </div>
                                     </Modal>
-                                    <div style={{minWidth: 8}} />
-                                    <Button size="l">{user?.username}</Button>
-                                    <div style={{minWidth: 8}} />
-                                    <RadioButton
-                                        size="l"
-                                        name="themeRadioButton"
-                                        defaultValue={theme}
-                                        options={optionsTheme}
-                                        onUpdate={async (val) => {
-                                            setTheme(val === 'light' ? Theme.Light : Theme.Dark);
-                                        }}
-                                    />
-                                    <div style={{minWidth: 8}} />
                                     <UploadModal
                                         selectOptions={selectOptions}
                                         selectValue={selectValue}
@@ -529,13 +506,26 @@ export const Dashboard = ({setThemeAurum}) => {
                                         setDzhemRefetch={setDzhemRefetch}
                                     />
                                     <div style={{minWidth: 8}} />
-                                    <SelectCampaign
-                                        selectOptions={selectOptions}
-                                        selectValue={selectValue}
-                                        setSelectValue={setSelectValue}
-                                        switchingCampaignsFlag={switchingCampaignsFlag}
-                                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-                                    />
+                                    <UserPopup />
+                                    <div
+                                        style={{
+                                            height: 68,
+                                            alignItems: 'center',
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            boxShadow:
+                                                '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                                        }}
+                                    >
+                                        <SelectCampaign
+                                            selectOptions={selectOptions}
+                                            selectValue={selectValue}
+                                            setSelectValue={setSelectValue}
+                                            switchingCampaignsFlag={switchingCampaignsFlag}
+                                            setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                                            subscriptionExpDate={subscriptionExpDate}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
