@@ -70,7 +70,8 @@ export const SelectCampaign = ({
                                 >
                                     <Text variant="subheader-1">{selectValue[0]}</Text>
                                     <Text variant="caption-2">
-                                        {subscriptionExpDate
+                                        {subscriptionExpDate &&
+                                        subscriptionExpDate !== '2100-01-01T00:00:00.000Z'
                                             ? `Подписка до ${new Date(
                                                   subscriptionExpDate,
                                               ).toLocaleDateString('ru-RU')}`
