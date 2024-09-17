@@ -107,15 +107,15 @@ export const Dashboard = ({setThemeAurum}) => {
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
 
-    const [modules, setModules] = useState([] as any[]);
-    useEffect(() => {
-        if (!campaigns) return;
+    const modules = useMemo(() => {
+        if (!campaigns) return [];
         for (const campaign of campaigns) {
             if (campaign.name === selectValue[0]) {
                 setSubscriptionExpDate(campaign.subscriptionUntil);
-                setModules(campaign.isOwner ? ['all'] : campaign.userModules);
+                return campaign.isOwner ? ['all'] : campaign.userModules ?? [];
             }
         }
+        return [];
     }, [campaigns, selectValue]);
 
     const [page, setPage] = useState(null as any);

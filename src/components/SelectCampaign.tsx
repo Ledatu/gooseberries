@@ -69,7 +69,7 @@ export const SelectCampaign = ({
                                     }}
                                 >
                                     <Text variant="subheader-1">{selectValue[0]}</Text>
-                                    <Text variant="caption-1">
+                                    <Text variant="caption-2">
                                         {subscriptionExpDate
                                             ? `Подписка до ${new Date(
                                                   subscriptionExpDate,
