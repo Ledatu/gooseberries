@@ -883,7 +883,7 @@ export const DeliveryPage = ({
                                             element.href = URL.createObjectURL(blob);
                                             element.download = `Поставка ${
                                                 selectValue[0]
-                                            } ${new Date()
+                                            } ${warehouseName} ${new Date()
                                                 .toLocaleDateString('ru-RU')
                                                 .slice(0, 10)}.zip`;
                                             // simulate link click
