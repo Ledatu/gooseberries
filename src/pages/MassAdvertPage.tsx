@@ -1504,13 +1504,24 @@ export const MassAdvertPage = ({
                                 <Text variant="subheader-1">{profitsData.autoSaleName}</Text>
                             </Button>
                             <Button view="outlined" size="xs" pin="clear-clear" width="max">
-                                <Text color={profitsData.oldProfit > 0 ? 'positive' : 'danger'}>
-                                    {`${new Intl.NumberFormat('ru-RU').format(
-                                        profitsData.oldProfit,
-                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                        getRoundValue(profitsData.oldRentabelnost, 1, true),
-                                    )}%`}
-                                </Text>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        width: '100%',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <Text color={profitsData.oldProfit > 0 ? 'positive' : 'danger'}>
+                                        {`${new Intl.NumberFormat('ru-RU').format(
+                                            profitsData.oldProfit,
+                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                            getRoundValue(profitsData.oldRentabelnost, 1, true),
+                                        )}%`}
+                                    </Text>
+                                    <div style={{minWidth: 8}} />
+                                    <Text>{`${profitsData.oldRozPrices} ₽`}</Text>
+                                </div>
                             </Button>
 
                             <Text
@@ -1531,18 +1542,29 @@ export const MassAdvertPage = ({
                                 <Icon data={ArrowShapeDown} />
                             </Text>
                             <Button view="outlined" size="xs" pin="clear-clear" width="max">
-                                <Text color={profitsData.profit > 0 ? 'positive' : 'danger'}>
-                                    {`${new Intl.NumberFormat('ru-RU').format(
-                                        profitsData.profit,
-                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                        getRoundValue(profitsData.rentabelnost, 1, true),
-                                    )}%`}
-                                </Text>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        width: '100%',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <Text color={profitsData.profit > 0 ? 'positive' : 'danger'}>
+                                        {`${new Intl.NumberFormat('ru-RU').format(
+                                            profitsData.profit,
+                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                            getRoundValue(profitsData.rentabelnost, 1, true),
+                                        )}%`}
+                                    </Text>
+                                    <div style={{minWidth: 8}} />
+                                    <Text>{`${profitsData.rozPrice} ₽`}</Text>
+                                </div>
                             </Button>
                             <div
                                 style={{
                                     minHeight: 0.5,
-                                    marginTop: 5,
+                                    marginTop: 10,
                                     width: '100%',
                                     background: 'var(--yc-color-base-generic-hover)',
                                 }}
