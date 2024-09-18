@@ -88,7 +88,11 @@ export const Dashboard = ({setThemeAurum}) => {
             const {name} = campaignInfo;
             temp.push({value: name, content: name});
         }
-        setSelectValue([temp[0] ? temp[0]['value'] ?? '' : '']);
+
+        const tempCampaign =
+            selectValue[0] == '' ? (temp[0] ? temp[0]['value'] ?? '' : '') : selectValue[0];
+
+        setSelectValue([tempCampaign]);
         return temp;
     }, [campaigns]);
 
