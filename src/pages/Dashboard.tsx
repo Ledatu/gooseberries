@@ -40,7 +40,7 @@ export interface User {
 }
 
 export const Dashboard = ({setThemeAurum}) => {
-    const {userInfo} = useUser();
+    const {userInfo, refetchUser} = useUser();
 
     const {campaigns} = userInfo ?? {};
     const themeVal = localStorage.getItem('theme');
@@ -148,6 +148,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     onClick={() => {
                         if (item.disabled) return;
                         setPage(item.id);
+                        refetchUser();
                     }}
                 >
                     <Text variant="body-3" color={item.disabled ? 'secondary' : undefined}>

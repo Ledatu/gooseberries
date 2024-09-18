@@ -52,6 +52,13 @@ function RequireAuth({children}) {
         await checkTokenValidity(); // Reuse the token checking logic
     };
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refetchUser();
+        }, 120 * 1000); // 120000ms = 2 minutes
+        return () => clearInterval(interval);
+    }, []);
+
     if (isAuthenticated === null) {
         // While checking authentication status, show a loading indicator or nothing
         return (
