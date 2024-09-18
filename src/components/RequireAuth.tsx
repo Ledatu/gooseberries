@@ -55,7 +55,7 @@ function RequireAuth({children}) {
     useEffect(() => {
         const interval = setInterval(() => {
             refetchUser();
-        }, 120 * 1000); // 120000ms = 2 minutes
+        }, 5 * 60 * 1000); // 120000ms = 2 minutes
         return () => clearInterval(interval);
     }, []);
 
