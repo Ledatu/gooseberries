@@ -82,13 +82,10 @@ import {PhrasesModal} from 'src/components/PhrasesModal';
 import {AdvertCard} from 'src/components/AdvertCard';
 import {AdvertsBidsModal} from 'src/components/AdvertsBidsModal';
 import {AdvertsBudgetsModal} from 'src/components/AdvertsBudgetsModal';
-import {useUser} from 'src/components/RequireAuth';
 import {LogoLoader} from 'src/components/LogoLoader';
 import {useMediaQuery} from 'src/hooks/useMediaQuery';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
-    const {userInfo} = useUser();
-    const {campaigns} = userInfo ?? {};
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
@@ -119,12 +116,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
         setDocument(docum);
     }
 
-    const params = {
-        uid: getUid(),
-        dateRange: {from: '2023', to: '2024'},
-        campaignName: selectValue != '' ? selectValue : campaigns[0]?.name,
-    };
-    console.log(params);
+    // console.log(params);
 
     // useEffect(() => {
     //     callApi('getMassAdvertsNew', params, true)
@@ -3144,18 +3136,17 @@ export const MassAdvertPage = ({
         cancelTokenRef.current = axios.CancelToken.source();
 
         if (doc) setSwitchingCampaignsFlag(true);
-        callApi(
-            'getMassAdvertsNew',
-            {
-                uid: getUid(),
-                dateRange: {from: '2023', to: '2024'},
-                campaignName: selectValue[0],
-            },
-            true,
-            false,
-            cancelTokenRef.current.token, // Pass the cancel token to the API call
-        )
+        const params = {
+            uid: getUid(),
+            dateRange: {from: '2023', to: '2024'},
+            campaignName: selectValue[0],
+        };
+        console.log(params);
+
+        axios
+            .post(`https://aurum-mp.ru/api/getMassAdvertsNew`, params)
             .then((res) => {
+                console.log(res);
                 if (!res) return;
                 const resData = res['data'];
                 setChangedDoc(resData);
