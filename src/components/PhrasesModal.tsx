@@ -227,7 +227,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                                         const {advertId} = advertData as any;
                                         params.data.advertsIds[advertId] = {
                                             advertId: advertId,
-                                            mode: 'Удалить',
+                                            mode: 'Убрать шаблон управления фразами с РК',
                                         };
 
                                         doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId] =

@@ -175,14 +175,14 @@ export const Dashboard = ({setThemeAurum}) => {
             disabled: !modules.includes('all') && !modules.includes('analytics'),
         },
         {
-            id: 'delivery',
-            title: 'Поставки',
-            disabled: !modules.includes('all') && !modules.includes('delivery'),
-        },
-        {
             id: 'prices',
             title: 'Цены',
             disabled: !modules.includes('all') && !modules.includes('prices'),
+        },
+        {
+            id: 'delivery',
+            title: 'Поставки',
+            disabled: !modules.includes('all') && !modules.includes('delivery'),
         },
         {
             id: 'nomenclatures',
