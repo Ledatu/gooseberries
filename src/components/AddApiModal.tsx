@@ -1,4 +1,4 @@
-import {Button, Card, Modal, TextInput, Text, Link, Popover} from '@gravity-ui/uikit';
+import {Button, Card, Modal, TextInput, Text, Link} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useState} from 'react';
 import callApi from 'src/utilities/callApi';
@@ -49,7 +49,43 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
         <>
             {triggerButton}
             <Modal open={open} onClose={handleClose}>
-                <Card>
+                <Card
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Card
+                        style={{
+                            background: 'var(--g-color-base-background)',
+                            height: 300,
+                            width: 300,
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%',
+                                borderRadius: 9,
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <img src={screen} style={{height: '100%'}} />
+                        </div>
+                    </Card>
+                    <Text
+                        variant="caption-2"
+                        color="secondary"
+                        style={{
+                            margin: '8px',
+                        }}
+                    >
+                        Так должны выглядеть настройки API токена.
+                    </Text>
                     <motion.div
                         animate={{height: open ? 208 : 0}}
                         style={{
@@ -103,52 +139,12 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                             Получение данных после добавления API токена обычно занимает около трех
                             часов, пожалуйста, подождите перед использованием.
                         </Text>
-                        <Popover
-                            delayOpening={0}
-                            placement={'bottom'}
-                            content={
-                                <Card
-                                    view="clear"
-                                    style={{
-                                        height: 20,
-                                        overflow: 'auto',
-                                        display: 'flex',
-                                    }}
-                                >
-                                    <Card
-                                        style={{
-                                            background: 'var(--g-color-base-background)',
-                                            position: 'absolute',
-                                            height: 400,
-                                            width: 400,
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            top: -1,
-                                            left: -184,
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                height: '100%',
-                                                borderRadius: 9,
-                                                overflow: 'hidden',
-                                            }}
-                                        >
-                                            <img src={screen} style={{height: '100%'}} />
-                                        </div>
-                                    </Card>
-                                </Card>
-                            }
+                        <Link
+                            href="https://seller.wildberries.ru/supplier-settings/access-to-api"
+                            target="_blank"
                         >
-                            <Link
-                                href="https://seller.wildberries.ru/supplier-settings/access-to-api"
-                                target="_blank"
-                            >
-                                Сгенерируйте API токен здесь
-                            </Link>
-                        </Popover>
+                            Сгенерируйте API токен здесь
+                        </Link>
                     </motion.div>
                 </Card>
             </Modal>
