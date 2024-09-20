@@ -138,7 +138,7 @@ export const Dashboard = ({setThemeAurum}) => {
                 key={index}
                 style={{
                     // marginBottom: item.id == page ? 1 : 0,
-                    height: 60 - (isMobile ? 16 : 0),
+                    height: 60,
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -237,17 +237,13 @@ export const Dashboard = ({setThemeAurum}) => {
         <div className={b()}>
             {/* <TextInput style={{width: '300px'}} placeholder="Ola, Ledatu!" /> */}
 
-            <div
-                style={{
-                    display: 'flex',
-                    width: '100%',
-                    position: 'absolute',
-                    top: 0,
-                    justifyContent: 'space-around',
-                    flexWrap: 'wrap',
-                }}
-            >
-                {isMobile ? (
+            {isMobile ? (
+                <div
+                    style={{
+                        display: 'flex',
+                        width: '100vw',
+                    }}
+                >
                     <div
                         style={{
                             width: '100%',
@@ -259,24 +255,49 @@ export const Dashboard = ({setThemeAurum}) => {
                     >
                         <div
                             style={{
+                                width: '100%',
+                                position: 'absolute',
+                                top: 0,
                                 height: 68,
                                 alignItems: 'center',
+                                justifyContent: 'space-between',
                                 display: 'flex',
                                 flexDirection: 'row',
-                                boxShadow: '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                             }}
                         >
-                            <div style={{minWidth: 24}} />
-                            <img
-                                style={{height: 'calc(100% - 24px)'}}
-                                src={textLogo}
-                                alt="Aurum logo"
+                            <div
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    flexDirection: 'row',
+                                    height: 68,
+                                }}
+                            >
+                                <div style={{minWidth: 24}} />
+                                <img
+                                    style={{height: 'calc(100% - 24px)'}}
+                                    src={textLogo}
+                                    alt="Aurum logo"
+                                />
+                            </div>
+                            <SelectCampaign
+                                selectOptions={selectOptions}
+                                selectValue={selectValue}
+                                setSelectValue={setSelectValue}
+                                switchingCampaignsFlag={switchingCampaignsFlag}
+                                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                                subscriptionExpDate={subscriptionExpDate}
                             />
-                            <div style={{minWidth: 24}} />
                         </div>
-                        <div style={{minWidth: 24}} />
                         <div
                             style={{
+                                position: 'absolute',
+                                bottom: 0,
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'center',
                                 boxShadow:
                                     'inset 0px -9px 0px -8px ' +
                                     (theme == Theme.Dark ? '#2d2c33' : '#fff'),
@@ -294,7 +315,18 @@ export const Dashboard = ({setThemeAurum}) => {
                             />
                         </div>
                     </div>
-                ) : (
+                </div>
+            ) : (
+                <div
+                    style={{
+                        display: 'flex',
+                        width: '100%',
+                        justifyContent: 'space-around',
+                        flexWrap: 'wrap',
+                        position: 'absolute',
+                        top: 0,
+                    }}
+                >
                     <div
                         style={{
                             width: '100%',
@@ -544,8 +576,8 @@ export const Dashboard = ({setThemeAurum}) => {
                             </div>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
             <div
                 style={{
                     marginTop: 62,

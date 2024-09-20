@@ -4692,19 +4692,12 @@ export const MassAdvertPage = ({
                     cardStyle,
                 })}
             </div>
-            <div
-                style={{
-                    display: 'flex',
-                    width: '100%',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                }}
-            >
+            {!isMobile ? (
                 <div
                     style={{
                         display: 'flex',
-                        justifyContent: 'start',
+                        width: '100%',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
                         flexWrap: 'wrap',
                     }}
@@ -4712,135 +4705,51 @@ export const MassAdvertPage = ({
                     <div
                         style={{
                             display: 'flex',
-                            flexDirection: 'row',
+                            justifyContent: 'start',
                             alignItems: 'center',
-                            marginBottom: 8,
+                            flexWrap: 'wrap',
                         }}
                     >
-                        <Button
-                            loading={manageModalInProgress}
-                            view="action"
-                            size="l"
-                            style={{cursor: 'pointer'}}
-                            onClick={() => {
-                                setManageModalOpen(true);
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginBottom: 8,
+                            }}
+                        >
+                            <Button
+                                loading={manageModalInProgress}
+                                view="action"
+                                size="l"
+                                style={{cursor: 'pointer'}}
+                                onClick={() => {
+                                    setManageModalOpen(true);
+                                    setSelectedButton('');
+                                }}
+                            >
+                                <Icon data={Play} />
+                                <Text variant="subheader-1">Управление</Text>
+                            </Button>
+                            <div style={{width: 8}} />
+                            {manageModalInProgress ? <Spin style={{marginRight: 8}} /> : <></>}
+                        </div>
+                        <Modal
+                            open={manageModalOpen}
+                            onClose={() => {
+                                setManageModalOpen(false);
                                 setSelectedButton('');
                             }}
                         >
-                            <Icon data={Play} />
-                            <Text variant="subheader-1">Управление</Text>
-                        </Button>
-                        <div style={{width: 8}} />
-                        {manageModalInProgress ? <Spin style={{marginRight: 8}} /> : <></>}
-                    </div>
-                    <Modal
-                        open={manageModalOpen}
-                        onClose={() => {
-                            setManageModalOpen(false);
-                            setSelectedButton('');
-                        }}
-                    >
-                        <Card
-                            view="clear"
-                            style={{
-                                width: 300,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                backgroundColor: 'none',
-                            }}
-                        >
-                            <Text
+                            <Card
+                                view="clear"
                                 style={{
-                                    margin: '8px 0',
-                                }}
-                                variant="display-2"
-                            >
-                                Управление
-                            </Text>
-                            {generateModalButtonWithActions(
-                                {
-                                    placeholder: 'Запуск',
-                                    icon: Play,
-                                    view: 'outlined-success',
-                                    onClick: () => {
-                                        manageAdvertsActivityOnClick('start', 9);
-                                    },
-                                },
-                                selectedButton,
-                                setSelectedButton,
-                            )}
-                            {generateModalButtonWithActions(
-                                {
-                                    placeholder: 'Приостановить',
-                                    icon: Pause,
-                                    view: 'outlined-warning',
-                                    onClick: () => {
-                                        manageAdvertsActivityOnClick('pause', 11);
-                                    },
-                                },
-                                selectedButton,
-                                setSelectedButton,
-                            )}
-                            {generateModalButtonWithActions(
-                                {
-                                    placeholder: 'Завершить',
-                                    icon: TrashBin,
-                                    view: 'outlined-danger',
-                                    onClick: () => {
-                                        manageAdvertsActivityOnClick('stop', undefined);
-                                    },
-                                },
-                                selectedButton,
-                                setSelectedButton,
-                            )}
-                            <div style={{height: 16}} />
-                        </Card>
-                    </Modal>
-                    <Button
-                        view="action"
-                        size="l"
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        onClick={() => {
-                            setModalFormOpen(true);
-                            setSelectedButton('');
-                            setCreateAdvertsMode(false);
-                        }}
-                    >
-                        <Icon data={SlidersVertical} />
-                        <Text variant="subheader-1">Создать</Text>
-                    </Button>
-                    <Modal
-                        open={modalFormOpen}
-                        onClose={() => {
-                            setAdvertTypeSwitchValue(['Авто']);
-                            setBudgetInputValue(1000);
-                            setBudgetInputValidationValue(true);
-                            setBidInputValue(100);
-                            setBidInputValidationValue(true);
-                            setModalFormOpen(false);
-                        }}
-                    >
-                        <Card
-                            view="clear"
-                            style={{
-                                width: 300,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                backgroundColor: 'none',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    height: '50%',
-                                    width: '100%',
+                                    width: 300,
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    margin: '16px 0',
+                                    justifyContent: 'space-between',
+                                    backgroundColor: 'none',
                                 }}
                             >
                                 <Text
@@ -4849,797 +4758,954 @@ export const MassAdvertPage = ({
                                     }}
                                     variant="display-2"
                                 >
-                                    Параметры
+                                    Управление
                                 </Text>
-                                <Select
-                                    value={advertTypeSwitchValue}
-                                    options={advertTypeSwitchValues}
-                                    onUpdate={(val) => {
-                                        setAdvertTypeSwitchValue(val);
-                                        setBidInputValue(val[0] == 'Авто' ? 100 : 150);
-                                    }}
-                                />
-                                <div
-                                    style={{
-                                        display:
-                                            advertTypeSwitchValue[0] == 'Авто' ? 'flex' : 'none',
-                                        flexDirection: 'column',
-                                        maxWidth: '70%',
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            margin: '4px 0',
-                                        }}
-                                    >
-                                        <Text style={{marginLeft: 4}} variant="subheader-1">
-                                            {'Бюджет'}
-                                        </Text>
-                                        <TextInput
-                                            type="number"
-                                            value={String(budgetInputValue)}
-                                            onChange={(val) => {
-                                                const budget = Number(val.target.value);
-                                                if (budget < 1000)
-                                                    setBudgetInputValidationValue(false);
-                                                else setBudgetInputValidationValue(true);
-                                                setBudgetInputValue(budget);
-                                            }}
-                                            errorMessage={'Введите не менее 500'}
-                                            validationState={
-                                                budgetInputValidationValue ? undefined : 'invalid'
-                                            }
-                                        />
-                                    </div>
-                                    <div style={{width: 16}} />
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            margin: '4px 0',
-                                        }}
-                                    >
-                                        <Text style={{marginLeft: 4}} variant="subheader-1">
-                                            {'Ставка'}
-                                        </Text>
-                                        <TextInput
-                                            type="number"
-                                            value={String(bidInputValue)}
-                                            onChange={(val) => {
-                                                const bid = Number(val.target.value);
-                                                if (bid < 100) setBidInputValidationValue(false);
-                                                else setBidInputValidationValue(true);
-                                                setBidInputValue(bid);
-                                            }}
-                                            errorMessage={'Введите не менее 100'}
-                                            validationState={
-                                                bidInputValidationValue ? undefined : 'invalid'
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                                <Checkbox
-                                    style={{margin: '8px 0'}}
-                                    checked={createAdvertsMode}
-                                    onUpdate={(val) => setCreateAdvertsMode(val)}
-                                >
-                                    Создание РК 1к1
-                                </Checkbox>
                                 {generateModalButtonWithActions(
                                     {
                                         placeholder: 'Запуск',
-                                        icon: CloudArrowUpIn,
+                                        icon: Play,
                                         view: 'outlined-success',
-                                        onClick: async () => {
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    arts: {},
-                                                    mode: createAdvertsMode, // true -- one to one false -- one to many
-                                                    budget: budgetInputValue,
-                                                    bid: bidInputValue,
-                                                    type: advertTypeSwitchValue[0],
-                                                },
-                                            };
-                                            for (let i = 0; i < filteredData.length; i++) {
-                                                const {art, nmId} = filteredData[i];
-                                                if (art === undefined || nmId === undefined)
-                                                    continue;
-                                                params.data.arts[art] = {art, nmId};
-                                            }
-                                            console.log(params);
-                                            setModalFormOpen(false);
-
-                                            //////////////////////////////////
-                                            try {
-                                                const res = await callApi(
-                                                    'createMassAdverts',
-                                                    params,
-                                                );
-
-                                                if (res) {
-                                                    const advertsInfosPregenerated = res['data'];
-                                                    if (advertsInfosPregenerated)
-                                                        for (const [
-                                                            advertId,
-                                                            advertsData,
-                                                        ] of Object.entries(
-                                                            advertsInfosPregenerated,
-                                                        )) {
-                                                            if (!advertId || !advertsData) continue;
-                                                            advertsData['daysInWork'] = 1;
-                                                            doc.adverts[selectValue[0]][advertId] =
-                                                                advertsData;
-
-                                                            const type = advertsData['type'];
-                                                            let nms = [] as any[];
-                                                            if (type == 8) {
-                                                                nms = advertsData['autoParams']
-                                                                    ? advertsData['autoParams']
-                                                                          .nms ?? []
-                                                                    : [];
-                                                            } else if (type == 9) {
-                                                                nms = advertsData['unitedParams']
-                                                                    ? advertsData['unitedParams'][0]
-                                                                          .nms ?? []
-                                                                    : [];
-                                                            }
-
-                                                            for (const [
-                                                                art,
-                                                                artData,
-                                                            ] of Object.entries(
-                                                                doc.campaigns[selectValue[0]],
-                                                            )) {
-                                                                if (!art || !artData) continue;
-                                                                if (nms.includes(artData['nmId'])) {
-                                                                    if (
-                                                                        !doc.campaigns[
-                                                                            selectValue[0]
-                                                                        ][art]['adverts']
-                                                                    )
-                                                                        doc.campaigns[
-                                                                            selectValue[0]
-                                                                        ][art]['adverts'] = {};
-                                                                    doc.campaigns[selectValue[0]][
-                                                                        art
-                                                                    ]['adverts'][advertId] = {
-                                                                        advertId: advertId,
-                                                                    };
-                                                                }
-                                                            }
-                                                        }
-
-                                                    setChangedDoc({...doc});
-                                                }
-                                            } catch (error) {
-                                                console.log(error);
-                                            }
-                                            //////////////////////////////////
+                                        onClick: () => {
+                                            manageAdvertsActivityOnClick('start', 9);
                                         },
                                     },
                                     selectedButton,
                                     setSelectedButton,
                                 )}
-                            </div>
-                        </Card>
-                    </Modal>
-                    <AdvertsBudgetsModal
-                        selectValue={selectValue}
-                        doc={doc}
-                        setChangedDoc={setChangedDoc}
-                        getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                        advertId={undefined}
-                    >
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Приостановить',
+                                        icon: Pause,
+                                        view: 'outlined-warning',
+                                        onClick: () => {
+                                            manageAdvertsActivityOnClick('pause', 11);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                {generateModalButtonWithActions(
+                                    {
+                                        placeholder: 'Завершить',
+                                        icon: TrashBin,
+                                        view: 'outlined-danger',
+                                        onClick: () => {
+                                            manageAdvertsActivityOnClick('stop', undefined);
+                                        },
+                                    },
+                                    selectedButton,
+                                    setSelectedButton,
+                                )}
+                                <div style={{height: 16}} />
+                            </Card>
+                        </Modal>
                         <Button
-                            style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                             view="action"
                             size="l"
-                        >
-                            <Icon data={CircleRuble} />
-                            <Text variant="subheader-1">Бюджет</Text>
-                        </Button>
-                    </AdvertsBudgetsModal>
-                    <Modal
-                        open={advertsArtsListModalFromOpen}
-                        onClose={() => {
-                            setAdvertsArtsListModalFromOpen(false);
-                            setSemanticsModalOpenFromArt('');
-                        }}
-                    >
-                        <div
-                            style={{
-                                margin: 20,
-                                width: '30vw',
-                                height: '60vh',
-                                overflow: 'scroll',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
+                            style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                            onClick={() => {
+                                setModalFormOpen(true);
+                                setSelectedButton('');
+                                setCreateAdvertsMode(false);
                             }}
                         >
-                            <Text
+                            <Icon data={SlidersVertical} />
+                            <Text variant="subheader-1">Создать</Text>
+                        </Button>
+                        <Modal
+                            open={modalFormOpen}
+                            onClose={() => {
+                                setAdvertTypeSwitchValue(['Авто']);
+                                setBudgetInputValue(1000);
+                                setBudgetInputValidationValue(true);
+                                setBidInputValue(100);
+                                setBidInputValidationValue(true);
+                                setModalFormOpen(false);
+                            }}
+                        >
+                            <Card
+                                view="clear"
                                 style={{
-                                    margin: '8px 0',
+                                    width: 300,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    backgroundColor: 'none',
                                 }}
-                                variant="display-2"
                             >
-                                {rkListMode == 'add'
-                                    ? 'Добавить артикул в РК'
-                                    : 'Удалить артикул из РК'}
-                            </Text>
-                            <List
-                                filterPlaceholder={`Поиск по Id кампании среди ${rkList.length} шт.`}
-                                items={rkList}
-                                itemHeight={112}
-                                renderItem={(advertId) => {
-                                    return (
+                                <div
+                                    style={{
+                                        height: '50%',
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        margin: '16px 0',
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            margin: '8px 0',
+                                        }}
+                                        variant="display-2"
+                                    >
+                                        Параметры
+                                    </Text>
+                                    <Select
+                                        value={advertTypeSwitchValue}
+                                        options={advertTypeSwitchValues}
+                                        onUpdate={(val) => {
+                                            setAdvertTypeSwitchValue(val);
+                                            setBidInputValue(val[0] == 'Авто' ? 100 : 150);
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            display:
+                                                advertTypeSwitchValue[0] == 'Авто'
+                                                    ? 'flex'
+                                                    : 'none',
+                                            flexDirection: 'column',
+                                            maxWidth: '70%',
+                                        }}
+                                    >
                                         <div
                                             style={{
-                                                padding: '0 16px',
                                                 display: 'flex',
+                                                flexDirection: 'column',
                                                 margin: '4px 0',
-                                                flexDirection: 'row',
-                                                height: 96,
-                                                width: '100%',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                            }}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
                                             }}
                                         >
-                                            <AdvertCard
-                                                id={advertId}
-                                                index={-1}
-                                                art={''}
-                                                doc={doc}
-                                                selectValue={selectValue}
-                                                copiedAdvertsSettings={copiedAdvertsSettings}
-                                                setChangedDoc={setChangedDoc}
-                                                setShowScheduleModalOpen={setShowScheduleModalOpen}
-                                                genTempSchedule={genTempSchedule}
-                                                manageAdvertsActivityCallFunc={
-                                                    manageAdvertsActivityCallFunc
+                                            <Text style={{marginLeft: 4}} variant="subheader-1">
+                                                {'Бюджет'}
+                                            </Text>
+                                            <TextInput
+                                                type="number"
+                                                value={String(budgetInputValue)}
+                                                onChange={(val) => {
+                                                    const budget = Number(val.target.value);
+                                                    if (budget < 1000)
+                                                        setBudgetInputValidationValue(false);
+                                                    else setBudgetInputValidationValue(true);
+                                                    setBudgetInputValue(budget);
+                                                }}
+                                                errorMessage={'Введите не менее 500'}
+                                                validationState={
+                                                    budgetInputValidationValue
+                                                        ? undefined
+                                                        : 'invalid'
                                                 }
-                                                setArtsStatsByDayData={setArtsStatsByDayData}
-                                                updateColumnWidth={updateColumnWidth}
-                                                filteredData={filteredData}
-                                                setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                                setFetchedPlacements={setFetchedPlacements}
-                                                currentParsingProgress={currentParsingProgress}
-                                                setCurrentParsingProgress={
-                                                    setCurrentParsingProgress
-                                                }
-                                                selectedValueMethodOptions={
-                                                    selectedValueMethodOptions
-                                                }
-                                                columnDataAuction={columnDataAuction}
-                                                auctionOptions={auctionOptions}
-                                                auctionSelectedOption={auctionSelectedOption}
-                                                setDateRange={setDateRange}
-                                                setModalOpenFromAdvertId={setModalOpenFromAdvertId}
-                                                setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                                dateRange={dateRange}
-                                                bidModalMaxBid={bidModalMaxBid}
-                                                recalc={recalc}
-                                                filterByButton={filterByButton}
-                                                setScheduleInput={setScheduleInput}
-                                                selectedValueMethod={selectedValueMethod}
-                                                bidModalRange={bidModalRange}
-                                                desiredSumInputValue={desiredSumInputValue}
-                                                ordersInputValue={ordersInputValue}
-                                                bidModalDRRInputValue={bidModalDRRInputValue}
-                                                bidModalStocksThresholdInputValue={
-                                                    bidModalStocksThresholdInputValue
-                                                }
-                                                setBidModalDRRInputValue={setBidModalDRRInputValue}
-                                                bidModalMaxBidValid={bidModalMaxBidValid}
-                                                setBidModalDRRInputValidationValue={
-                                                    setBidModalDRRInputValidationValue
-                                                }
-                                                bidModalRangeValid={bidModalRangeValid}
-                                                bidModalDRRInputValidationValue={
-                                                    bidModalDRRInputValidationValue
-                                                }
-                                                setBidModalRange={setBidModalRange}
-                                                setBidModalMaxBid={setBidModalMaxBid}
-                                                setBidModalMaxBidValid={setBidModalMaxBidValid}
-                                                setSelectedValueMethod={setSelectedValueMethod}
-                                                setBidModalRangeValid={setBidModalRangeValid}
-                                                setAuctionSelectedOption={setAuctionSelectedOption}
                                             />
-                                            <div style={{minWidth: 8}} />
-                                            <Button
-                                                view={
-                                                    rkListMode == 'add'
-                                                        ? 'outlined-success'
-                                                        : 'outlined-danger'
+                                        </div>
+                                        <div style={{width: 16}} />
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                margin: '4px 0',
+                                            }}
+                                        >
+                                            <Text style={{marginLeft: 4}} variant="subheader-1">
+                                                {'Ставка'}
+                                            </Text>
+                                            <TextInput
+                                                type="number"
+                                                value={String(bidInputValue)}
+                                                onChange={(val) => {
+                                                    const bid = Number(val.target.value);
+                                                    if (bid < 100)
+                                                        setBidInputValidationValue(false);
+                                                    else setBidInputValidationValue(true);
+                                                    setBidInputValue(bid);
+                                                }}
+                                                errorMessage={'Введите не менее 100'}
+                                                validationState={
+                                                    bidInputValidationValue ? undefined : 'invalid'
                                                 }
-                                                disabled={
-                                                    !doc.adverts[selectValue[0]][advertId] ||
-                                                    doc.adverts[selectValue[0]][advertId].type != 8
+                                            />
+                                        </div>
+                                    </div>
+                                    <Checkbox
+                                        style={{margin: '8px 0'}}
+                                        checked={createAdvertsMode}
+                                        onUpdate={(val) => setCreateAdvertsMode(val)}
+                                    >
+                                        Создание РК 1к1
+                                    </Checkbox>
+                                    {generateModalButtonWithActions(
+                                        {
+                                            placeholder: 'Запуск',
+                                            icon: CloudArrowUpIn,
+                                            view: 'outlined-success',
+                                            onClick: async () => {
+                                                const params = {
+                                                    uid: getUid(),
+                                                    campaignName: selectValue[0],
+                                                    data: {
+                                                        arts: {},
+                                                        mode: createAdvertsMode, // true -- one to one false -- one to many
+                                                        budget: budgetInputValue,
+                                                        bid: bidInputValue,
+                                                        type: advertTypeSwitchValue[0],
+                                                    },
+                                                };
+                                                for (let i = 0; i < filteredData.length; i++) {
+                                                    const {art, nmId} = filteredData[i];
+                                                    if (art === undefined || nmId === undefined)
+                                                        continue;
+                                                    params.data.arts[art] = {art, nmId};
                                                 }
-                                                onClick={async () => {
-                                                    const params = {
-                                                        uid: getUid(),
-                                                        campaignName: selectValue[0],
-                                                        data: {
-                                                            advertsIds: {},
-                                                            mode: rkListMode,
-                                                        },
-                                                    };
-                                                    params.data.advertsIds[advertId] = {
-                                                        advertId: advertId,
-                                                        art: semanticsModalOpenFromArt,
-                                                    };
+                                                console.log(params);
+                                                setModalFormOpen(false);
 
-                                                    console.log(params);
-
+                                                //////////////////////////////////
+                                                try {
                                                     const res = await callApi(
-                                                        'manageAdvertsNMs',
+                                                        'createMassAdverts',
                                                         params,
                                                     );
-                                                    console.log(res);
-                                                    if (!res || res['data'] === undefined) {
-                                                        return;
-                                                    }
 
-                                                    if (res['data']['status'] == 'ok') {
-                                                        if (
-                                                            !doc.campaigns[selectValue[0]][
-                                                                semanticsModalOpenFromArt
-                                                            ].adverts
-                                                        )
-                                                            doc.campaigns[selectValue[0]][
-                                                                semanticsModalOpenFromArt
-                                                            ].adverts = {};
+                                                    if (res) {
+                                                        const advertsInfosPregenerated =
+                                                            res['data'];
+                                                        if (advertsInfosPregenerated)
+                                                            for (const [
+                                                                advertId,
+                                                                advertsData,
+                                                            ] of Object.entries(
+                                                                advertsInfosPregenerated,
+                                                            )) {
+                                                                if (!advertId || !advertsData)
+                                                                    continue;
+                                                                advertsData['daysInWork'] = 1;
+                                                                doc.adverts[selectValue[0]][
+                                                                    advertId
+                                                                ] = advertsData;
 
-                                                        doc.campaigns[selectValue[0]][
-                                                            semanticsModalOpenFromArt
-                                                        ].adverts[advertId] =
-                                                            rkListMode == 'add'
-                                                                ? {advertId: advertId}
-                                                                : undefined;
-
-                                                        if (rkListMode == 'delete') {
-                                                            delete doc.campaigns[selectValue[0]][
-                                                                semanticsModalOpenFromArt
-                                                            ].adverts[advertId];
-                                                            const adverts =
-                                                                doc.campaigns[selectValue[0]][
-                                                                    semanticsModalOpenFromArt
-                                                                ].adverts;
-                                                            if (adverts) {
-                                                                const temp = [] as any[];
-                                                                for (const [
-                                                                    _,
-                                                                    advertData,
-                                                                ] of Object.entries(adverts)) {
-                                                                    if (!advertData) continue;
-                                                                    temp.push(
-                                                                        advertData['advertId'],
-                                                                    );
+                                                                const type = advertsData['type'];
+                                                                let nms = [] as any[];
+                                                                if (type == 8) {
+                                                                    nms = advertsData['autoParams']
+                                                                        ? advertsData['autoParams']
+                                                                              .nms ?? []
+                                                                        : [];
+                                                                } else if (type == 9) {
+                                                                    nms = advertsData[
+                                                                        'unitedParams'
+                                                                    ]
+                                                                        ? advertsData[
+                                                                              'unitedParams'
+                                                                          ][0].nms ?? []
+                                                                        : [];
                                                                 }
-                                                                setRkList(temp);
-                                                            }
-                                                        }
 
-                                                        setAdvertsArtsListModalFromOpen(false);
+                                                                for (const [
+                                                                    art,
+                                                                    artData,
+                                                                ] of Object.entries(
+                                                                    doc.campaigns[selectValue[0]],
+                                                                )) {
+                                                                    if (!art || !artData) continue;
+                                                                    if (
+                                                                        nms.includes(
+                                                                            artData['nmId'],
+                                                                        )
+                                                                    ) {
+                                                                        if (
+                                                                            !doc.campaigns[
+                                                                                selectValue[0]
+                                                                            ][art]['adverts']
+                                                                        )
+                                                                            doc.campaigns[
+                                                                                selectValue[0]
+                                                                            ][art]['adverts'] = {};
+                                                                        doc.campaigns[
+                                                                            selectValue[0]
+                                                                        ][art]['adverts'][
+                                                                            advertId
+                                                                        ] = {
+                                                                            advertId: advertId,
+                                                                        };
+                                                                    }
+                                                                }
+                                                            }
+
+                                                        setChangedDoc({...doc});
                                                     }
-                                                    setChangedDoc({...doc});
-                                                }}
-                                            >
-                                                <Icon data={rkListMode == 'add' ? Plus : Xmark} />
-                                            </Button>
-                                        </div>
-                                    );
-                                }}
-                            />
-                        </div>
-                    </Modal>
-                    <Modal open={showDzhemModalOpen} onClose={() => setShowDzhemModalOpen(false)}>
-                        <motion.div
-                            onAnimationStart={async () => {
-                                await new Promise((resolve) => setTimeout(resolve, 300));
-                                dzhemDataFilter({freq: {val: '', mode: 'include'}}, dzhemData);
-                            }}
-                            animate={{height: showDzhemModalOpen ? '60em' : 0}}
-                            style={{
-                                margin: 20,
-                                maxWidth: '90vw',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Text variant="header-2" style={{marginBottom: 8}}>
-                                Статистика Джема
-                            </Text>
-                            <Card
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                                    overflow: 'auto',
-                                }}
-                            >
-                                <TheTable
-                                    columnData={columnDataDzhem}
-                                    data={dzhemDataFilteredData}
-                                    filters={dzhemDataFilters}
-                                    setFilters={setDzhemDataFilters}
-                                    filterData={dzhemDataFilter}
-                                    footerData={[dzhemDataFilteredSummary]}
-                                />
+                                                } catch (error) {
+                                                    console.log(error);
+                                                }
+                                                //////////////////////////////////
+                                            },
+                                        },
+                                        selectedButton,
+                                        setSelectedButton,
+                                    )}
+                                </div>
                             </Card>
-                        </motion.div>
-                    </Modal>
-                    <Modal
-                        open={showArtStatsModalOpen}
-                        onClose={() => setShowArtStatsModalOpen(false)}
-                    >
-                        <motion.div
-                            onAnimationStart={async () => {
-                                await new Promise((resolve) => setTimeout(resolve, 300));
-                                artsStatsByDayDataFilter(
-                                    {sum: {val: '', mode: 'include'}},
-                                    artsStatsByDayData,
-                                );
-                            }}
-                            animate={{maxHeight: showArtStatsModalOpen ? '60em' : 0}}
-                            style={{
-                                margin: 20,
-                                maxWidth: '90vw',
-                                // maxHeight: '60em',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
+                        </Modal>
+                        <AdvertsBudgetsModal
+                            selectValue={selectValue}
+                            doc={doc}
+                            setChangedDoc={setChangedDoc}
+                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                            advertId={undefined}
+                        >
+                            <Button
+                                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                                view="action"
+                                size="l"
+                            >
+                                <Icon data={CircleRuble} />
+                                <Text variant="subheader-1">Бюджет</Text>
+                            </Button>
+                        </AdvertsBudgetsModal>
+                        <Modal
+                            open={advertsArtsListModalFromOpen}
+                            onClose={() => {
+                                setAdvertsArtsListModalFromOpen(false);
+                                setSemanticsModalOpenFromArt('');
                             }}
                         >
                             <div
                                 style={{
+                                    margin: 20,
+                                    width: '30vw',
+                                    height: '60vh',
+                                    overflow: 'scroll',
                                     display: 'flex',
-                                    flexDirection: 'row',
-                                    margin: '8px 0',
+                                    flexDirection: 'column',
                                     alignItems: 'center',
                                 }}
                             >
-                                {/* <Text variant="display-2">Статистика по</Text> */}
-                                <Select
-                                    className={b('selectCampaign')}
-                                    value={artsStatsByDayModeSwitchValue}
-                                    placeholder="Values"
-                                    options={artsStatsByDayModeSwitchValues}
-                                    renderControl={({onClick, onKeyDown, ref}) => {
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    {rkListMode == 'add'
+                                        ? 'Добавить артикул в РК'
+                                        : 'Удалить артикул из РК'}
+                                </Text>
+                                <List
+                                    filterPlaceholder={`Поиск по Id кампании среди ${rkList.length} шт.`}
+                                    items={rkList}
+                                    itemHeight={112}
+                                    renderItem={(advertId) => {
                                         return (
-                                            <Button
+                                            <div
                                                 style={{
-                                                    marginTop: 12,
+                                                    padding: '0 16px',
+                                                    display: 'flex',
+                                                    margin: '4px 0',
+                                                    flexDirection: 'row',
+                                                    height: 96,
+                                                    width: '100%',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
                                                 }}
-                                                ref={ref}
-                                                size="xl"
-                                                view="outlined"
-                                                onClick={onClick}
-                                                extraProps={{
-                                                    onKeyDown,
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
                                                 }}
                                             >
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
+                                                <AdvertCard
+                                                    id={advertId}
+                                                    index={-1}
+                                                    art={''}
+                                                    doc={doc}
+                                                    selectValue={selectValue}
+                                                    copiedAdvertsSettings={copiedAdvertsSettings}
+                                                    setChangedDoc={setChangedDoc}
+                                                    setShowScheduleModalOpen={
+                                                        setShowScheduleModalOpen
+                                                    }
+                                                    genTempSchedule={genTempSchedule}
+                                                    manageAdvertsActivityCallFunc={
+                                                        manageAdvertsActivityCallFunc
+                                                    }
+                                                    setArtsStatsByDayData={setArtsStatsByDayData}
+                                                    updateColumnWidth={updateColumnWidth}
+                                                    filteredData={filteredData}
+                                                    setCopiedAdvertsSettings={
+                                                        setCopiedAdvertsSettings
+                                                    }
+                                                    setFetchedPlacements={setFetchedPlacements}
+                                                    currentParsingProgress={currentParsingProgress}
+                                                    setCurrentParsingProgress={
+                                                        setCurrentParsingProgress
+                                                    }
+                                                    selectedValueMethodOptions={
+                                                        selectedValueMethodOptions
+                                                    }
+                                                    columnDataAuction={columnDataAuction}
+                                                    auctionOptions={auctionOptions}
+                                                    auctionSelectedOption={auctionSelectedOption}
+                                                    setDateRange={setDateRange}
+                                                    setModalOpenFromAdvertId={
+                                                        setModalOpenFromAdvertId
+                                                    }
+                                                    setShowArtStatsModalOpen={
+                                                        setShowArtStatsModalOpen
+                                                    }
+                                                    dateRange={dateRange}
+                                                    bidModalMaxBid={bidModalMaxBid}
+                                                    recalc={recalc}
+                                                    filterByButton={filterByButton}
+                                                    setScheduleInput={setScheduleInput}
+                                                    selectedValueMethod={selectedValueMethod}
+                                                    bidModalRange={bidModalRange}
+                                                    desiredSumInputValue={desiredSumInputValue}
+                                                    ordersInputValue={ordersInputValue}
+                                                    bidModalDRRInputValue={bidModalDRRInputValue}
+                                                    bidModalStocksThresholdInputValue={
+                                                        bidModalStocksThresholdInputValue
+                                                    }
+                                                    setBidModalDRRInputValue={
+                                                        setBidModalDRRInputValue
+                                                    }
+                                                    bidModalMaxBidValid={bidModalMaxBidValid}
+                                                    setBidModalDRRInputValidationValue={
+                                                        setBidModalDRRInputValidationValue
+                                                    }
+                                                    bidModalRangeValid={bidModalRangeValid}
+                                                    bidModalDRRInputValidationValue={
+                                                        bidModalDRRInputValidationValue
+                                                    }
+                                                    setBidModalRange={setBidModalRange}
+                                                    setBidModalMaxBid={setBidModalMaxBid}
+                                                    setBidModalMaxBidValid={setBidModalMaxBidValid}
+                                                    setSelectedValueMethod={setSelectedValueMethod}
+                                                    setBidModalRangeValid={setBidModalRangeValid}
+                                                    setAuctionSelectedOption={
+                                                        setAuctionSelectedOption
+                                                    }
+                                                />
+                                                <div style={{minWidth: 8}} />
+                                                <Button
+                                                    view={
+                                                        rkListMode == 'add'
+                                                            ? 'outlined-success'
+                                                            : 'outlined-danger'
+                                                    }
+                                                    disabled={
+                                                        !doc.adverts[selectValue[0]][advertId] ||
+                                                        doc.adverts[selectValue[0]][advertId]
+                                                            .type != 8
+                                                    }
+                                                    onClick={async () => {
+                                                        const params = {
+                                                            uid: getUid(),
+                                                            campaignName: selectValue[0],
+                                                            data: {
+                                                                advertsIds: {},
+                                                                mode: rkListMode,
+                                                            },
+                                                        };
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                            art: semanticsModalOpenFromArt,
+                                                        };
+
+                                                        console.log(params);
+
+                                                        const res = await callApi(
+                                                            'manageAdvertsNMs',
+                                                            params,
+                                                        );
+                                                        console.log(res);
+                                                        if (!res || res['data'] === undefined) {
+                                                            return;
+                                                        }
+
+                                                        if (res['data']['status'] == 'ok') {
+                                                            if (
+                                                                !doc.campaigns[selectValue[0]][
+                                                                    semanticsModalOpenFromArt
+                                                                ].adverts
+                                                            )
+                                                                doc.campaigns[selectValue[0]][
+                                                                    semanticsModalOpenFromArt
+                                                                ].adverts = {};
+
+                                                            doc.campaigns[selectValue[0]][
+                                                                semanticsModalOpenFromArt
+                                                            ].adverts[advertId] =
+                                                                rkListMode == 'add'
+                                                                    ? {advertId: advertId}
+                                                                    : undefined;
+
+                                                            if (rkListMode == 'delete') {
+                                                                delete doc.campaigns[
+                                                                    selectValue[0]
+                                                                ][semanticsModalOpenFromArt]
+                                                                    .adverts[advertId];
+                                                                const adverts =
+                                                                    doc.campaigns[selectValue[0]][
+                                                                        semanticsModalOpenFromArt
+                                                                    ].adverts;
+                                                                if (adverts) {
+                                                                    const temp = [] as any[];
+                                                                    for (const [
+                                                                        _,
+                                                                        advertData,
+                                                                    ] of Object.entries(adverts)) {
+                                                                        if (!advertData) continue;
+                                                                        temp.push(
+                                                                            advertData['advertId'],
+                                                                        );
+                                                                    }
+                                                                    setRkList(temp);
+                                                                }
+                                                            }
+
+                                                            setAdvertsArtsListModalFromOpen(false);
+                                                        }
+                                                        setChangedDoc({...doc});
                                                     }}
                                                 >
-                                                    <Text
-                                                        variant="display-2"
-                                                        style={{marginBottom: 8}}
-                                                    >
-                                                        {artsStatsByDayModeSwitchValue[0]}
-                                                    </Text>
-                                                    <div style={{width: 4}} />
-                                                    <Icon size={26} data={ChevronDown} />
-                                                </div>
-                                            </Button>
+                                                    <Icon
+                                                        data={rkListMode == 'add' ? Plus : Xmark}
+                                                    />
+                                                </Button>
+                                            </div>
                                         );
-                                    }}
-                                    onUpdate={(nextValue) => {
-                                        setArtsStatsByDayModeSwitchValue(nextValue);
                                     }}
                                 />
                             </div>
-                            <div style={{minHeight: 8}} />
-                            <Card
+                        </Modal>
+                        <Modal
+                            open={showDzhemModalOpen}
+                            onClose={() => setShowDzhemModalOpen(false)}
+                        >
+                            <motion.div
+                                onAnimationStart={async () => {
+                                    await new Promise((resolve) => setTimeout(resolve, 300));
+                                    dzhemDataFilter({freq: {val: '', mode: 'include'}}, dzhemData);
+                                }}
+                                animate={{height: showDzhemModalOpen ? '60em' : 0}}
                                 style={{
-                                    overflow: 'auto',
-                                    width: '100%',
-                                    height: '100%',
+                                    margin: 20,
+                                    maxWidth: '90vw',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
                                 }}
                             >
-                                <TheTable
-                                    columnData={columnDataArtByDayStats}
-                                    data={artsStatsByDayFilteredData}
-                                    filters={artsStatsByDayFilters}
-                                    setFilters={setArtsStatsByDayFilters}
-                                    filterData={artsStatsByDayDataFilter}
-                                    footerData={[artsStatsByDayFilteredSummary]}
-                                />
-                            </Card>
-                        </motion.div>
-                    </Modal>
-                    <Modal
-                        open={showScheduleModalOpen}
-                        onClose={() => {
-                            setShowScheduleModalOpen(false);
-                            setModalOpenFromAdvertId('');
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                padding: 20,
+                                <Text variant="header-2" style={{marginBottom: 8}}>
+                                    Статистика Джема
+                                </Text>
+                                <Card
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        boxShadow:
+                                            'inset 0px 0px 10px var(--g-color-base-background)',
+                                        overflow: 'auto',
+                                    }}
+                                >
+                                    <TheTable
+                                        columnData={columnDataDzhem}
+                                        data={dzhemDataFilteredData}
+                                        filters={dzhemDataFilters}
+                                        setFilters={setDzhemDataFilters}
+                                        filterData={dzhemDataFilter}
+                                        footerData={[dzhemDataFilteredSummary]}
+                                    />
+                                </Card>
+                            </motion.div>
+                        </Modal>
+                        <Modal
+                            open={showArtStatsModalOpen}
+                            onClose={() => setShowArtStatsModalOpen(false)}
+                        >
+                            <motion.div
+                                onAnimationStart={async () => {
+                                    await new Promise((resolve) => setTimeout(resolve, 300));
+                                    artsStatsByDayDataFilter(
+                                        {sum: {val: '', mode: 'include'}},
+                                        artsStatsByDayData,
+                                    );
+                                }}
+                                animate={{maxHeight: showArtStatsModalOpen ? '60em' : 0}}
+                                style={{
+                                    margin: 20,
+                                    maxWidth: '90vw',
+                                    // maxHeight: '60em',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        margin: '8px 0',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    {/* <Text variant="display-2">Статистика по</Text> */}
+                                    <Select
+                                        className={b('selectCampaign')}
+                                        value={artsStatsByDayModeSwitchValue}
+                                        placeholder="Values"
+                                        options={artsStatsByDayModeSwitchValues}
+                                        renderControl={({onClick, onKeyDown, ref}) => {
+                                            return (
+                                                <Button
+                                                    style={{
+                                                        marginTop: 12,
+                                                    }}
+                                                    ref={ref}
+                                                    size="xl"
+                                                    view="outlined"
+                                                    onClick={onClick}
+                                                    extraProps={{
+                                                        onKeyDown,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            variant="display-2"
+                                                            style={{marginBottom: 8}}
+                                                        >
+                                                            {artsStatsByDayModeSwitchValue[0]}
+                                                        </Text>
+                                                        <div style={{width: 4}} />
+                                                        <Icon size={26} data={ChevronDown} />
+                                                    </div>
+                                                </Button>
+                                            );
+                                        }}
+                                        onUpdate={(nextValue) => {
+                                            setArtsStatsByDayModeSwitchValue(nextValue);
+                                        }}
+                                    />
+                                </div>
+                                <div style={{minHeight: 8}} />
+                                <Card
+                                    style={{
+                                        overflow: 'auto',
+                                        width: '100%',
+                                        height: '100%',
+                                    }}
+                                >
+                                    <TheTable
+                                        columnData={columnDataArtByDayStats}
+                                        data={artsStatsByDayFilteredData}
+                                        filters={artsStatsByDayFilters}
+                                        setFilters={setArtsStatsByDayFilters}
+                                        filterData={artsStatsByDayDataFilter}
+                                        footerData={[artsStatsByDayFilteredSummary]}
+                                    />
+                                </Card>
+                            </motion.div>
+                        </Modal>
+                        <Modal
+                            open={showScheduleModalOpen}
+                            onClose={() => {
+                                setShowScheduleModalOpen(false);
+                                setModalOpenFromAdvertId('');
                             }}
                         >
-                            <Text
-                                style={{
-                                    margin: '8px 0',
-                                }}
-                                variant="display-2"
-                            >
-                                График работы
-                            </Text>
-                            <div style={{minHeight: 8}} />
-                            {generateScheduleInput({scheduleInput, setScheduleInput})}
-                            <div style={{minHeight: 16}} />
                             <div
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    width: '100%',
-                                    justifyContent: 'space-around',
+                                    alignItems: 'center',
+                                    padding: 20,
                                 }}
                             >
-                                {generateModalButtonWithActions(
-                                    {
-                                        style: {margin: '8px 0'},
-                                        placeholder: 'Установить',
-                                        icon: CloudArrowUpIn,
-                                        view: 'outlined-success',
-                                        onClick: () => {
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    schedule: scheduleInput,
-                                                    mode: 'Установить',
-                                                    advertsIds: {},
-                                                },
-                                            };
-                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                            for (const [id, advertData] of Object.entries(
-                                                uniqueAdverts,
-                                            )) {
-                                                if (!id || !advertData) continue;
-                                                const {advertId} = advertData as any;
-                                                if (
-                                                    modalOpenFromAdvertId != '' &&
-                                                    modalOpenFromAdvertId
-                                                ) {
-                                                    if (id != modalOpenFromAdvertId) continue;
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    График работы
+                                </Text>
+                                <div style={{minHeight: 8}} />
+                                {generateScheduleInput({scheduleInput, setScheduleInput})}
+                                <div style={{minHeight: 16}} />
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        width: '100%',
+                                        justifyContent: 'space-around',
+                                    }}
+                                >
+                                    {generateModalButtonWithActions(
+                                        {
+                                            style: {margin: '8px 0'},
+                                            placeholder: 'Установить',
+                                            icon: CloudArrowUpIn,
+                                            view: 'outlined-success',
+                                            onClick: () => {
+                                                const params = {
+                                                    uid: getUid(),
+                                                    campaignName: selectValue[0],
+                                                    data: {
+                                                        schedule: scheduleInput,
+                                                        mode: 'Установить',
+                                                        advertsIds: {},
+                                                    },
+                                                };
+                                                const uniqueAdverts =
+                                                    getUniqueAdvertIdsFromThePage();
+                                                for (const [id, advertData] of Object.entries(
+                                                    uniqueAdverts,
+                                                )) {
+                                                    if (!id || !advertData) continue;
+                                                    const {advertId} = advertData as any;
+                                                    if (
+                                                        modalOpenFromAdvertId != '' &&
+                                                        modalOpenFromAdvertId
+                                                    ) {
+                                                        if (id != modalOpenFromAdvertId) continue;
+                                                    }
+
+                                                    params.data.advertsIds[advertId] = {
+                                                        advertId: advertId,
+                                                    };
+
+                                                    doc.advertsSchedules[selectValue[0]][advertId] =
+                                                        {};
+                                                    doc.advertsSchedules[selectValue[0]][advertId] =
+                                                        {
+                                                            schedule: scheduleInput,
+                                                        };
+                                                }
+                                                console.log(params);
+
+                                                //////////////////////////////////
+                                                callApi('setAdvertsSchedules', params);
+                                                setChangedDoc({...doc});
+                                                //////////////////////////////////
+
+                                                setShowScheduleModalOpen(false);
+                                            },
+                                        },
+                                        selectedButton,
+                                        setSelectedButton,
+                                    )}
+                                    {generateModalButtonWithActions(
+                                        {
+                                            style: {margin: '8px 0'},
+                                            placeholder: 'Удалить',
+                                            icon: TrashBin,
+                                            view: 'outlined-danger',
+                                            onClick: () => {
+                                                const params = {
+                                                    uid: getUid(),
+                                                    campaignName: selectValue[0],
+                                                    data: {
+                                                        mode: 'Удалить',
+                                                        advertsIds: {},
+                                                    },
+                                                };
+                                                const uniqueAdverts =
+                                                    getUniqueAdvertIdsFromThePage();
+                                                for (const [id, advertData] of Object.entries(
+                                                    uniqueAdverts,
+                                                )) {
+                                                    if (!id || !advertData) continue;
+                                                    const {advertId} = advertData as any;
+                                                    if (
+                                                        modalOpenFromAdvertId != '' &&
+                                                        modalOpenFromAdvertId
+                                                    ) {
+                                                        if (id != modalOpenFromAdvertId) continue;
+                                                    }
+
+                                                    params.data.advertsIds[advertId] = {
+                                                        advertId: advertId,
+                                                    };
+
+                                                    delete doc.advertsSchedules[selectValue[0]][
+                                                        advertId
+                                                    ];
                                                 }
 
-                                                params.data.advertsIds[advertId] = {
-                                                    advertId: advertId,
-                                                };
+                                                console.log(params);
 
-                                                doc.advertsSchedules[selectValue[0]][advertId] = {};
-                                                doc.advertsSchedules[selectValue[0]][advertId] = {
-                                                    schedule: scheduleInput,
-                                                };
-                                            }
-                                            console.log(params);
+                                                //////////////////////////////////
+                                                callApi('setAdvertsSchedules', params);
+                                                setChangedDoc({...doc});
+                                                //////////////////////////////////
 
-                                            //////////////////////////////////
-                                            callApi('setAdvertsSchedules', params);
-                                            setChangedDoc({...doc});
-                                            //////////////////////////////////
-
-                                            setShowScheduleModalOpen(false);
+                                                setShowScheduleModalOpen(false);
+                                            },
                                         },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                {generateModalButtonWithActions(
-                                    {
-                                        style: {margin: '8px 0'},
-                                        placeholder: 'Удалить',
-                                        icon: TrashBin,
-                                        view: 'outlined-danger',
-                                        onClick: () => {
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                data: {
-                                                    mode: 'Удалить',
-                                                    advertsIds: {},
-                                                },
-                                            };
-                                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                            for (const [id, advertData] of Object.entries(
-                                                uniqueAdverts,
-                                            )) {
-                                                if (!id || !advertData) continue;
-                                                const {advertId} = advertData as any;
-                                                if (
-                                                    modalOpenFromAdvertId != '' &&
-                                                    modalOpenFromAdvertId
-                                                ) {
-                                                    if (id != modalOpenFromAdvertId) continue;
-                                                }
-
-                                                params.data.advertsIds[advertId] = {
-                                                    advertId: advertId,
-                                                };
-
-                                                delete doc.advertsSchedules[selectValue[0]][
-                                                    advertId
-                                                ];
-                                            }
-
-                                            console.log(params);
-
-                                            //////////////////////////////////
-                                            callApi('setAdvertsSchedules', params);
-                                            setChangedDoc({...doc});
-                                            //////////////////////////////////
-
-                                            setShowScheduleModalOpen(false);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
+                                        selectedButton,
+                                        setSelectedButton,
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    </Modal>
-                    <AdvertsBidsModal
-                        selectValue={selectValue}
-                        doc={doc}
-                        setChangedDoc={setChangedDoc}
-                        getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                        advertId={undefined}
-                    >
+                        </Modal>
+                        <AdvertsBidsModal
+                            selectValue={selectValue}
+                            doc={doc}
+                            setChangedDoc={setChangedDoc}
+                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                            advertId={undefined}
+                        >
+                            <Button
+                                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                                view="action"
+                                size="l"
+                            >
+                                <Icon data={ChartLine} />
+                                <Text variant="subheader-1">Ставки</Text>
+                            </Button>
+                        </AdvertsBidsModal>
+                        <PhrasesModal
+                            selectValue={selectValue}
+                            doc={doc}
+                            setChangedDoc={setChangedDoc}
+                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                        />
                         <Button
                             style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                             view="action"
                             size="l"
+                            onClick={() => {
+                                setShowScheduleModalOpen(true);
+                                setModalOpenFromAdvertId('');
+                                setScheduleInput(genTempSchedule());
+                            }}
                         >
-                            <Icon data={ChartLine} />
-                            <Text variant="subheader-1">Ставки</Text>
+                            <Icon data={Clock} />
+                            <Text variant="subheader-1">График</Text>
                         </Button>
-                    </AdvertsBidsModal>
-                    <PhrasesModal
-                        selectValue={selectValue}
-                        doc={doc}
-                        setChangedDoc={setChangedDoc}
-                        getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                    />
-                    <Button
-                        style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                        view="action"
-                        size="l"
-                        onClick={() => {
-                            setShowScheduleModalOpen(true);
-                            setModalOpenFromAdvertId('');
-                            setScheduleInput(genTempSchedule());
-                        }}
-                    >
-                        <Icon data={Clock} />
-                        <Text variant="subheader-1">График</Text>
-                    </Button>
-                    <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
-                    <AutoSalesModal
-                        params={{
-                            availableAutoSalesPending,
-                            selectValue,
-                            availableAutoSales,
-                            filteredData,
-                            autoSalesProfits,
-                            setAutoSalesProfits,
-                            setAvailableAutoSalesPending,
-                        }}
-                    />
+                        <TagsFilterModal
+                            filterByButton={filterByButton}
+                            selectValue={selectValue}
+                        />
+                        <AutoSalesModal
+                            params={{
+                                availableAutoSalesPending,
+                                selectValue,
+                                availableAutoSales,
+                                filteredData,
+                                autoSalesProfits,
+                                setAutoSalesProfits,
+                                setAvailableAutoSalesPending,
+                            }}
+                        />
 
-                    <div style={{marginRight: 8, marginBottom: '8px'}}>
-                        <Popover
-                            placement={'bottom'}
-                            content={
-                                <div
-                                    style={{
-                                        height: 'calc(30em - 60px)',
-                                        width: '60em',
-                                        overflow: 'auto',
-                                        display: 'flex',
-                                    }}
-                                >
-                                    <Card
-                                        view="outlined"
-                                        theme="warning"
+                        <div style={{marginRight: 8, marginBottom: '8px'}}>
+                            <Popover
+                                placement={'bottom'}
+                                content={
+                                    <div
                                         style={{
-                                            position: 'absolute',
-                                            height: '30em',
+                                            height: 'calc(30em - 60px)',
                                             width: '60em',
                                             overflow: 'auto',
-                                            top: -10,
-                                            left: -200,
                                             display: 'flex',
                                         }}
                                     >
-                                        <ChartKit type="yagr" data={getBalanceYagrData()} />
-                                    </Card>
-                                </div>
-                            }
+                                        <Card
+                                            view="outlined"
+                                            theme="warning"
+                                            style={{
+                                                position: 'absolute',
+                                                height: '30em',
+                                                width: '60em',
+                                                overflow: 'auto',
+                                                top: -10,
+                                                left: -200,
+                                                display: 'flex',
+                                            }}
+                                        >
+                                            <ChartKit type="yagr" data={getBalanceYagrData()} />
+                                        </Card>
+                                    </div>
+                                }
+                            >
+                                <Button view="outlined-success" size="l">
+                                    <Text variant="subheader-1">{balance}</Text>
+                                </Button>
+                            </Popover>
+                        </div>
+                    </div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                        }}
+                    >
+                        <Button
+                            size="l"
+                            style={{
+                                marginBottom: 8,
+                            }}
+                            view="action"
+                            onClick={() => {
+                                setFilters(() => {
+                                    const newFilters = {undef: true};
+                                    for (const [key, filterData] of Object.entries(
+                                        filters as any,
+                                    )) {
+                                        if (key == 'undef' || !key || !filterData) continue;
+                                        newFilters[key] = {
+                                            val: '',
+                                            compMode: filterData['compMode'] ?? 'include',
+                                        };
+                                    }
+                                    filterTableData(newFilters);
+                                    return newFilters;
+                                });
+                            }}
                         >
-                            <Button view="outlined-success" size="l">
-                                <Text variant="subheader-1">{balance}</Text>
+                            <Icon data={TrashBin} />
+                            <Text variant="subheader-1">Очистить фильтры</Text>
+                        </Button>
+                        <div style={{width: 8}} />
+                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <Button
+                                style={{
+                                    marginBottom: 8,
+                                }}
+                                loading={fetchingDataFromServerFlag}
+                                size="l"
+                                view="action"
+                                onClick={updateTheData}
+                            >
+                                <Icon data={ArrowsRotateLeft} />
                             </Button>
-                        </Popover>
+                            <div style={{width: 8}} />
+                            {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
+                        </div>
+                        <RangePicker
+                            args={{
+                                recalc,
+                                dateRange,
+                                setDateRange,
+                                anchorRef,
+                            }}
+                        />
                     </div>
                 </div>
+            ) : (
                 <div
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
-                        flexWrap: 'wrap',
+                        width: '100%',
+                        justifyContent: 'center',
                     }}
                 >
-                    <Button
-                        size="l"
-                        style={{
-                            marginBottom: 8,
-                        }}
-                        view="action"
-                        onClick={() => {
-                            setFilters(() => {
-                                const newFilters = {undef: true};
-                                for (const [key, filterData] of Object.entries(filters as any)) {
-                                    if (key == 'undef' || !key || !filterData) continue;
-                                    newFilters[key] = {
-                                        val: '',
-                                        compMode: filterData['compMode'] ?? 'include',
-                                    };
-                                }
-                                filterTableData(newFilters);
-                                return newFilters;
-                            });
-                        }}
-                    >
-                        <Icon data={TrashBin} />
-                        <Text variant="subheader-1">Очистить фильтры</Text>
-                    </Button>
-                    <div style={{width: 8}} />
-                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                        <Button
-                            style={{
-                                marginBottom: 8,
-                            }}
-                            loading={fetchingDataFromServerFlag}
-                            size="l"
-                            view="action"
-                            onClick={updateTheData}
-                        >
-                            <Icon data={ArrowsRotateLeft} />
-                        </Button>
-                        <div style={{width: 8}} />
-                        {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
-                    </div>
                     <RangePicker
                         args={{
                             recalc,
@@ -5649,52 +5715,59 @@ export const MassAdvertPage = ({
                         }}
                     />
                 </div>
-            </div>
+            )}
 
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <Card
+            {isMobile ? (
+                <></>
+            ) : (
+                <div
                     style={{
                         width: '100%',
-                        maxHeight: 'calc(100vh - 10em - 68px - 32px - 36px - 48px - 30px)',
-                        boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                        overflow: 'auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
                     }}
                 >
-                    <TheTable
-                        columnData={columnData}
-                        data={paginatedData}
-                        filters={filters}
-                        setFilters={setFilters}
-                        filterData={filterTableData}
-                        footerData={[filteredSummary]}
-                    />
-                </Card>
-                <div style={{height: 8}} />
-                <Pagination
-                    showInput
-                    total={pagesTotal}
-                    page={pagesCurrent}
-                    pageSize={300}
-                    onUpdate={(page) => {
-                        setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 300, page * 300);
-                        setFilteredSummary((row) => {
-                            const temp = row;
-                            temp.art = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length} ID КТ: ${temp.uniqueImtIds}`;
+                    <Card
+                        style={{
+                            width: '100%',
+                            maxHeight: 'calc(100vh - 10em - 68px - 32px - 36px - 48px - 30px)',
+                            boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
+                            overflow: 'auto',
+                        }}
+                    >
+                        <TheTable
+                            columnData={columnData}
+                            data={paginatedData}
+                            filters={filters}
+                            setFilters={setFilters}
+                            filterData={filterTableData}
+                            footerData={[filteredSummary]}
+                        />
+                    </Card>
+                    <div style={{height: 8}} />
+                    <Pagination
+                        showInput
+                        total={pagesTotal}
+                        page={pagesCurrent}
+                        pageSize={300}
+                        onUpdate={(page) => {
+                            setPagesCurrent(page);
+                            const paginatedDataTemp = filteredData.slice(
+                                (page - 1) * 300,
+                                page * 300,
+                            );
+                            setFilteredSummary((row) => {
+                                const temp = row;
+                                temp.art = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length} ID КТ: ${temp.uniqueImtIds}`;
 
-                            return temp;
-                        });
-                        setPaginatedData(paginatedDataTemp);
-                    }}
-                />
-            </div>
+                                return temp;
+                            });
+                            setPaginatedData(paginatedDataTemp);
+                        }}
+                    />
+                </div>
+            )}
         </div>
     );
 };
