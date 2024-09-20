@@ -214,7 +214,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                             {
                                 view: 'flat-danger',
                                 icon: TrashBin,
-                                placeholder: 'Удалить',
+                                placeholder: 'Убрать шаблон управления фразами с РК',
                                 onClick: () => {
                                     const params = {
                                         uid: getUid(),
@@ -227,7 +227,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                                         const {advertId} = advertData as any;
                                         params.data.advertsIds[advertId] = {
                                             advertId: advertId,
-                                            mode: 'Убрать шаблон управления фразами с РК',
+                                            mode: 'Удалить',
                                         };
 
                                         doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId] =

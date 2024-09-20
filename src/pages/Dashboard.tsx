@@ -8,7 +8,7 @@ import textLogo from '../assets/textLogo.png';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
-import {PencilToSquare, Xmark, Check, TrashBin} from '@gravity-ui/icons';
+import {PencilToSquare, Xmark, Check, TrashBin, Comment} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
@@ -510,6 +510,15 @@ export const Dashboard = ({setThemeAurum}) => {
                                         setRefetchAutoSales={setRefetchAutoSales}
                                         setDzhemRefetch={setDzhemRefetch}
                                     />
+                                    <Button
+                                        href="https://t.me/AurumSkyNetSupportBot"
+                                        target="_blank"
+                                        view="flat"
+                                        size="l"
+                                        pin="clear-round"
+                                    >
+                                        <Icon data={Comment} />
+                                    </Button>
                                     <div style={{minWidth: 8}} />
                                     <UserPopup />
                                     <div
