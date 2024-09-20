@@ -283,13 +283,13 @@ export const NomenclaturesPage = ({
         },
         {
             name: 'expences',
-            placeholder: 'Дополнительные расходы, %',
+            placeholder: 'Доп. расходы, %',
             additionalNodes: [generateEditButton('expences')],
             render: renderAsPercent,
         },
         {
             name: 'prefObor',
-            placeholder: 'Оборачиваемость, дней',
+            placeholder: 'План. оборачиваемость, д.',
             additionalNodes: [generateEditButton('prefObor')],
         },
         {
@@ -627,8 +627,8 @@ export const NomenclaturesPage = ({
         ktr: {name: 'КТР WB, %', type: 'number'},
         commision: {name: 'Коммисия WB, %', type: 'number'},
         tax: {name: 'Ставка налога, %', type: 'number'},
-        expences: {name: 'Дополнительные расходы, %', type: 'number'},
-        prefObor: {name: 'Оборачиваемость, дней', type: 'number'},
+        expences: {name: 'Доп. расходы, %', type: 'number'},
+        prefObor: {name: 'План. оборачиваемость, д.', type: 'number'},
         minStocks: {name: 'Мин. остаток, шт.', type: 'number'},
         primeCost1: {name: 'Себестоимость 1, ₽', type: 'number'},
         primeCost2: {name: 'Себестоимость 2, ₽', type: 'number'},
