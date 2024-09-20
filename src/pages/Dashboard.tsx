@@ -256,9 +256,10 @@ export const Dashboard = ({setThemeAurum}) => {
                         <div
                             style={{
                                 width: '100%',
-                                position: 'absolute',
+                                position: 'fixed',
                                 top: 0,
                                 height: 68,
+                                background: '#2d2c33',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 display: 'flex',
@@ -267,6 +268,7 @@ export const Dashboard = ({setThemeAurum}) => {
                         >
                             <div
                                 style={{
+                                    background: '#2d2c33',
                                     width: '100%',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -290,30 +292,32 @@ export const Dashboard = ({setThemeAurum}) => {
                                 subscriptionExpDate={subscriptionExpDate}
                             />
                         </div>
-                        <div
-                            style={{
-                                position: 'absolute',
-                                bottom: 0,
-                                width: '100%',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                boxShadow:
-                                    'inset 0px -9px 0px -8px ' +
-                                    (theme == Theme.Dark ? '#2d2c33' : '#fff'),
+                    </div>
+                    <div
+                        style={{
+                            position: 'fixed',
+                            bottom: 0,
+                            zIndex: 10,
+                            width: '100%',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            boxShadow:
+                                'inset 0px -9px 0px -8px ' +
+                                (theme == Theme.Dark ? '#2d2c33' : '#fff'),
+                            background: '#2d2c33',
+                        }}
+                    >
+                        <Tabs
+                            wrapTo={renderTabItem}
+                            activeTab={page}
+                            items={optionsPages.filter((item) =>
+                                ['massAdvert', 'api'].includes(item.id),
+                            )}
+                            onSelectTab={(val) => {
+                                setPage(val);
                             }}
-                        >
-                            <Tabs
-                                wrapTo={renderTabItem}
-                                activeTab={page}
-                                items={optionsPages.filter((item) =>
-                                    ['massAdvert', 'api'].includes(item.id),
-                                )}
-                                onSelectTab={(val) => {
-                                    setPage(val);
-                                }}
-                            />
-                        </div>
+                        />
                     </div>
                 </div>
             ) : (
@@ -581,6 +585,7 @@ export const Dashboard = ({setThemeAurum}) => {
             <div
                 style={{
                     marginTop: 62,
+                    marginBottom: 80,
                     justifyContent: 'center',
                     width: 'calc(100vw - 80px)',
                     position: 'relative',
