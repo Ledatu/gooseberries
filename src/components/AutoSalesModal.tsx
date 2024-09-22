@@ -134,14 +134,14 @@ export const AutoSalesModal = ({params}) => {
                                 minValue={dateTimeParse(
                                     new Date(
                                         availableAutoSales[autoSaleName[0]]
-                                            ? availableAutoSales[autoSaleName[0]].startDate
+                                            ? availableAutoSales[autoSaleName[0]].startDateTime
                                             : '',
                                     ),
                                 )}
                                 maxValue={dateTimeParse(
                                     new Date(
                                         availableAutoSales[autoSaleName[0]]
-                                            ? availableAutoSales[autoSaleName[0]].endDate
+                                            ? availableAutoSales[autoSaleName[0]].endDateTime
                                             : '',
                                     ),
                                 )}

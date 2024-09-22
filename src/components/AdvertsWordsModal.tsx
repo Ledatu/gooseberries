@@ -38,6 +38,7 @@ import {getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
 import DataTable from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 import {AutoPhrasesWordsSelection} from './AutoPhrasesWordsSelection';
+import {TextTitleWrapper} from './TextTitleWrapper';
 
 export const AdvertsWordsModal = ({
     doc,
@@ -2276,67 +2277,153 @@ export const AdvertsWordsModal = ({
                                     width: '100%',
                                 }}
                             >
-                                <TextInput
-                                    label="Показы перв."
-                                    hasClear
-                                    value={String(semanticsModalSemanticsThresholdValue)}
-                                    onUpdate={(val) => {
-                                        setSemanticsModalSemanticsThresholdValue(Number(val));
+                                <TextTitleWrapper
+                                    title={'Первичная фильтрация фраз если показы больше или равно'}
+                                    style={{
+                                        width: '100%',
+                                        border: '1px solid var(--yc-color-base-generic-hover)',
+                                        borderRadius: 8,
                                     }}
-                                    type="number"
-                                />
+                                >
+                                    <>
+                                        <div
+                                            style={{
+                                                background: 'var(--yc-color-base-generic-hover)',
+                                                height: 0.5,
+                                                width: '100%',
+                                            }}
+                                        />
+                                        <TextInput
+                                            view="clear"
+                                            hasClear
+                                            style={{width: '90%'}}
+                                            value={String(semanticsModalSemanticsThresholdValue)}
+                                            onUpdate={(val) => {
+                                                setSemanticsModalSemanticsThresholdValue(
+                                                    Number(val),
+                                                );
+                                            }}
+                                            type="number"
+                                        />
+                                    </>
+                                </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
-                                <TextInput
-                                    label="CTR перв."
-                                    hasClear
-                                    value={semanticsModalSemanticsCTRThresholdValue}
-                                    onUpdate={(val) => {
-                                        val = val.replace(',', '.');
-
-                                        const numberVal = Number(val);
-                                        const valid = !isNaN(numberVal);
-
-                                        setSemanticsModalSemanticsCTRThresholdValueValid(valid);
-                                        setSemanticsModalSemanticsCTRThresholdValue(val);
+                                <TextTitleWrapper
+                                    title={'Первичная фильтрация фраз если %CTR меньше или равно'}
+                                    style={{
+                                        width: '100%',
+                                        border: '1px solid var(--yc-color-base-generic-hover)',
+                                        borderRadius: 8,
                                     }}
-                                    validationState={
-                                        !semanticsModalSemanticsCTRThresholdValueValid
-                                            ? 'invalid'
-                                            : undefined
-                                    }
-                                />
+                                >
+                                    <>
+                                        <div
+                                            style={{
+                                                background: 'var(--yc-color-base-generic-hover)',
+                                                height: 0.5,
+                                                width: '100%',
+                                            }}
+                                        />
+                                        <TextInput
+                                            hasClear
+                                            style={{width: '90%'}}
+                                            view="clear"
+                                            value={semanticsModalSemanticsCTRThresholdValue}
+                                            onUpdate={(val) => {
+                                                val = val.replace(',', '.');
+
+                                                const numberVal = Number(val);
+                                                const valid = !isNaN(numberVal);
+
+                                                setSemanticsModalSemanticsCTRThresholdValueValid(
+                                                    valid,
+                                                );
+                                                setSemanticsModalSemanticsCTRThresholdValue(val);
+                                            }}
+                                            validationState={
+                                                !semanticsModalSemanticsCTRThresholdValueValid
+                                                    ? 'invalid'
+                                                    : undefined
+                                            }
+                                        />
+                                    </>
+                                </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
-                                <TextInput
-                                    label="Показы втор."
-                                    hasClear
-                                    value={String(semanticsModalSemanticsSecondThresholdValue)}
-                                    onUpdate={(val) => {
-                                        setSemanticsModalSemanticsSecondThresholdValue(Number(val));
+                                <TextTitleWrapper
+                                    title={'Первичная фильтрация фраз если показы больше или равно'}
+                                    style={{
+                                        width: '100%',
+                                        border: '1px solid var(--yc-color-base-generic-hover)',
+                                        borderRadius: 8,
                                     }}
-                                    type="number"
-                                />
+                                >
+                                    <>
+                                        <div
+                                            style={{
+                                                background: 'var(--yc-color-base-generic-hover)',
+                                                height: 0.5,
+                                                width: '100%',
+                                            }}
+                                        />
+                                        <TextInput
+                                            view="clear"
+                                            hasClear
+                                            style={{width: '90%'}}
+                                            value={String(
+                                                semanticsModalSemanticsSecondThresholdValue,
+                                            )}
+                                            onUpdate={(val) => {
+                                                setSemanticsModalSemanticsSecondThresholdValue(
+                                                    Number(val),
+                                                );
+                                            }}
+                                            type="number"
+                                        />
+                                    </>
+                                </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
-                                <TextInput
-                                    label="CTR втор."
-                                    hasClear
-                                    value={semanticsModalSemanticsSecondCTRThresholdValue}
-                                    onUpdate={(val) => {
-                                        val = val.replace(',', '.');
-
-                                        const numberVal = Number(val);
-                                        const valid = !isNaN(numberVal);
-
-                                        setSemanticsModalSemanticsSecondCTRThresholdValueValid(
-                                            valid,
-                                        );
-                                        setSemanticsModalSemanticsSecondCTRThresholdValue(val);
+                                <TextTitleWrapper
+                                    title={'Вторичная фильтрация фраз если %CTR меньше или равно'}
+                                    style={{
+                                        width: '100%',
+                                        border: '1px solid var(--yc-color-base-generic-hover)',
+                                        borderRadius: 8,
                                     }}
-                                    validationState={
-                                        !semanticsModalSemanticsSecondCTRThresholdValueValid
-                                            ? 'invalid'
-                                            : undefined
-                                    }
-                                />
+                                >
+                                    <>
+                                        <div
+                                            style={{
+                                                background: 'var(--yc-color-base-generic-hover)',
+                                                height: 0.5,
+                                                width: '100%',
+                                            }}
+                                        />
+                                        <TextInput
+                                            hasClear
+                                            style={{width: '90%'}}
+                                            view="clear"
+                                            value={semanticsModalSemanticsSecondCTRThresholdValue}
+                                            onUpdate={(val) => {
+                                                val = val.replace(',', '.');
+
+                                                const numberVal = Number(val);
+                                                const valid = !isNaN(numberVal);
+
+                                                setSemanticsModalSemanticsSecondCTRThresholdValueValid(
+                                                    valid,
+                                                );
+                                                setSemanticsModalSemanticsSecondCTRThresholdValue(
+                                                    val,
+                                                );
+                                            }}
+                                            validationState={
+                                                !semanticsModalSemanticsSecondCTRThresholdValueValid
+                                                    ? 'invalid'
+                                                    : undefined
+                                            }
+                                        />
+                                    </>
+                                </TextTitleWrapper>
                             </div>
                         </div>
                         <div
@@ -2353,104 +2440,7 @@ export const AdvertsWordsModal = ({
                                 }}
                             >
                                 <Button
-                                    onClick={() => {
-                                        const name =
-                                            semanticsModalSemanticsPlusItemsTemplateNameSaveValue.trim();
-                                        const params = {
-                                            uid: getUid(),
-                                            campaignName: selectValue[0],
-                                            data: {
-                                                mode: 'Установить',
-                                                isFixed: semanticsModalIsFixed,
-                                                name: name,
-                                                clusters: semanticsModalSemanticsPlusItemsValue,
-                                                threshold: semanticsModalSemanticsThresholdValue,
-                                                ctrThreshold: Number(
-                                                    semanticsModalSemanticsCTRThresholdValue,
-                                                ),
-                                                secondThreshold:
-                                                    semanticsModalSemanticsSecondThresholdValue,
-                                                secondCtrThreshold:
-                                                    semanticsModalSemanticsSecondCTRThresholdValue,
-                                                autoPhrasesTemplate: {
-                                                    includes: semanticsAutoPhrasesModalIncludesList,
-                                                    notIncludes:
-                                                        semanticsAutoPhrasesModalNotIncludesList,
-                                                },
-                                            },
-                                        };
-
-                                        doc.plusPhrasesTemplates[selectValue[0]][name] = {
-                                            isFixed: semanticsModalIsFixed,
-                                            name: name,
-                                            clusters: semanticsModalSemanticsPlusItemsValue,
-                                            threshold: semanticsModalSemanticsThresholdValue,
-                                            ctrThreshold: Number(
-                                                semanticsModalSemanticsCTRThresholdValue,
-                                            ),
-                                            secondThreshold:
-                                                semanticsModalSemanticsSecondThresholdValue,
-                                            secondCtrThreshold:
-                                                semanticsModalSemanticsSecondCTRThresholdValue,
-                                            autoPhrasesTemplate: {
-                                                includes: semanticsAutoPhrasesModalIncludesList,
-                                                notIncludes:
-                                                    semanticsAutoPhrasesModalNotIncludesList,
-                                            },
-                                        };
-                                        {
-                                            // ADDING TEMPLATE TO ART
-                                            if (
-                                                semanticsModalOpenFromArt &&
-                                                semanticsModalOpenFromArt != ''
-                                            ) {
-                                                const paramsAddToArt = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {advertsIds: {}},
-                                                };
-                                                paramsAddToArt.data.advertsIds[advertId] = {
-                                                    mode: 'Установить',
-                                                    templateName: name,
-                                                    advertId: advertId,
-                                                };
-                                                callApi(
-                                                    'setAdvertsPlusPhrasesTemplates',
-                                                    paramsAddToArt,
-                                                );
-
-                                                if (
-                                                    !doc.advertsPlusPhrasesTemplates[
-                                                        selectValue[0]
-                                                    ][advertId]
-                                                )
-                                                    doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                                                        advertId
-                                                    ] = {};
-
-                                                doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                                                    advertId
-                                                ].templateName = name;
-                                            }
-                                        }
-
-                                        console.log(params);
-
-                                        setChangedDoc({...doc});
-
-                                        callApi('setPlusPhraseTemplate', params);
-
-                                        setOpen(false);
-                                    }}
-                                    disabled={
-                                        !semanticsModalSemanticsCTRThresholdValueValid ||
-                                        !semanticsModalSemanticsSecondCTRThresholdValueValid
-                                    }
-                                >
-                                    Сохранить
-                                </Button>
-                                <div style={{minWidth: 8}} />
-                                <Button
+                                    width="max"
                                     selected={semanticsModalIsFixed}
                                     onClick={() => setSemanticsModalIsFixed(!semanticsModalIsFixed)}
                                 >
@@ -2458,6 +2448,7 @@ export const AdvertsWordsModal = ({
                                 </Button>
                                 <div style={{minWidth: 8}} />
                                 <Button
+                                    width="max"
                                     view={
                                         semanticsAutoPhrasesModalIncludesList.length ||
                                         semanticsAutoPhrasesModalNotIncludesList.length
@@ -2789,6 +2780,103 @@ export const AdvertsWordsModal = ({
                             >
                                 Парсер выдачи первых 10 фраз
                                 <Icon size={12} data={LayoutHeader} />
+                            </Button>
+                            <div style={{minHeight: 8}} />
+                            <Button
+                                onClick={() => {
+                                    const name =
+                                        semanticsModalSemanticsPlusItemsTemplateNameSaveValue.trim();
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {
+                                            mode: 'Установить',
+                                            isFixed: semanticsModalIsFixed,
+                                            name: name,
+                                            clusters: semanticsModalSemanticsPlusItemsValue,
+                                            threshold: semanticsModalSemanticsThresholdValue,
+                                            ctrThreshold: Number(
+                                                semanticsModalSemanticsCTRThresholdValue,
+                                            ),
+                                            secondThreshold:
+                                                semanticsModalSemanticsSecondThresholdValue,
+                                            secondCtrThreshold:
+                                                semanticsModalSemanticsSecondCTRThresholdValue,
+                                            autoPhrasesTemplate: {
+                                                includes: semanticsAutoPhrasesModalIncludesList,
+                                                notIncludes:
+                                                    semanticsAutoPhrasesModalNotIncludesList,
+                                            },
+                                        },
+                                    };
+
+                                    doc.plusPhrasesTemplates[selectValue[0]][name] = {
+                                        isFixed: semanticsModalIsFixed,
+                                        name: name,
+                                        clusters: semanticsModalSemanticsPlusItemsValue,
+                                        threshold: semanticsModalSemanticsThresholdValue,
+                                        ctrThreshold: Number(
+                                            semanticsModalSemanticsCTRThresholdValue,
+                                        ),
+                                        secondThreshold:
+                                            semanticsModalSemanticsSecondThresholdValue,
+                                        secondCtrThreshold:
+                                            semanticsModalSemanticsSecondCTRThresholdValue,
+                                        autoPhrasesTemplate: {
+                                            includes: semanticsAutoPhrasesModalIncludesList,
+                                            notIncludes: semanticsAutoPhrasesModalNotIncludesList,
+                                        },
+                                    };
+                                    {
+                                        // ADDING TEMPLATE TO ART
+                                        if (
+                                            semanticsModalOpenFromArt &&
+                                            semanticsModalOpenFromArt != ''
+                                        ) {
+                                            const paramsAddToArt = {
+                                                uid: getUid(),
+                                                campaignName: selectValue[0],
+                                                data: {advertsIds: {}},
+                                            };
+                                            paramsAddToArt.data.advertsIds[advertId] = {
+                                                mode: 'Установить',
+                                                templateName: name,
+                                                advertId: advertId,
+                                            };
+                                            callApi(
+                                                'setAdvertsPlusPhrasesTemplates',
+                                                paramsAddToArt,
+                                            );
+
+                                            if (
+                                                !doc.advertsPlusPhrasesTemplates[selectValue[0]][
+                                                    advertId
+                                                ]
+                                            )
+                                                doc.advertsPlusPhrasesTemplates[selectValue[0]][
+                                                    advertId
+                                                ] = {};
+
+                                            doc.advertsPlusPhrasesTemplates[selectValue[0]][
+                                                advertId
+                                            ].templateName = name;
+                                        }
+                                    }
+
+                                    console.log(params);
+
+                                    setChangedDoc({...doc});
+
+                                    callApi('setPlusPhraseTemplate', params);
+
+                                    setOpen(false);
+                                }}
+                                disabled={
+                                    !semanticsModalSemanticsCTRThresholdValueValid ||
+                                    !semanticsModalSemanticsSecondCTRThresholdValueValid
+                                }
+                            >
+                                Сохранить
                             </Button>
                         </div>
                     </div>
