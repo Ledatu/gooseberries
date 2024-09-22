@@ -111,6 +111,17 @@ export const Dashboard = ({setThemeAurum}) => {
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
 
+    const modules = useMemo(() => {
+        if (!campaigns) return [];
+        for (const campaign of campaigns) {
+            if (campaign.name === selectValue[0]) {
+                setSubscriptionExpDate(campaign.subscriptionUntil);
+                return campaign.isOwner ? ['all'] : campaign.userModules ?? [];
+            }
+        }
+        return [];
+    }, [campaigns, selectValue]);
+
     const [page, setPage] = useState(null as any);
     useEffect(
         () => setPage(page === null ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page),
