@@ -111,17 +111,6 @@ export const Dashboard = ({setThemeAurum}) => {
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
 
-    const modules = useMemo(() => {
-        if (!campaigns) return [];
-        for (const campaign of campaigns) {
-            if (campaign.name === selectValue[0]) {
-                setSubscriptionExpDate(campaign.subscriptionUntil);
-                return campaign.isOwner ? ['all'] : campaign.userModules ?? [];
-            }
-        }
-        return [];
-    }, [campaigns, selectValue]);
-
     const [page, setPage] = useState(null as any);
     useEffect(
         () => setPage(page === null ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page),
@@ -139,8 +128,8 @@ export const Dashboard = ({setThemeAurum}) => {
             api: 'Магазины',
         };
 
-        document.title = `Aurum - ${titleMap[page]}`;
-    }, [page]);
+        document.title = `${titleMap[page]}: ${selectValue[0]}`;
+    }, [page, selectValue]);
 
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
