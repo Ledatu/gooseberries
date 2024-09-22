@@ -127,6 +127,20 @@ export const Dashboard = ({setThemeAurum}) => {
         () => setPage(page === null ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page),
         [modules],
     );
+    useEffect(() => {
+        const titleMap = {
+            massAdvert: 'Реклама',
+            analytics: 'Аналитика',
+            prices: 'Цены',
+            delivery: 'Поставки',
+            nomenclatures: 'Товары',
+            buyers: 'Покупатели',
+            seo: 'SEO',
+            api: 'Магазины',
+        };
+
+        document.title = `Aurum - ${titleMap[page]}`;
+    }, [page]);
 
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
