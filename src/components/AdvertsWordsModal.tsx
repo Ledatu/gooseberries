@@ -2350,7 +2350,7 @@ export const AdvertsWordsModal = ({
                                 </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
                                 <TextTitleWrapper
-                                    title={'Первичная фильтрация фраз если показы больше или равно'}
+                                    title={'Вторичная фильтрация фраз если показы больше или равно'}
                                     style={{
                                         width: '100%',
                                         border: '1px solid var(--yc-color-base-generic-hover)',
