@@ -452,6 +452,7 @@ export const AdvertsWordsModal = ({
             name: 'preset',
             valueType: 'text',
             placeholder: 'Пресет',
+            constWidth: 100,
             render: ({value, row}) => {
                 const {cluster} = row;
 
@@ -508,7 +509,7 @@ export const AdvertsWordsModal = ({
         },
         {
             additionalNodes: [] as any[],
-            width: 200,
+            constWidth: 400,
             name: 'cluster',
             placeholder: 'Кластер',
             valueType: 'text',
@@ -562,9 +563,10 @@ export const AdvertsWordsModal = ({
                             display: 'flex',
                             flexDirection: 'row',
                             justifyContent: 'space-between',
+                            width: 418,
                         }}
                     >
-                        <Text style={{whiteSpace: 'pre-wrap'}}>{valueWrapped}</Text>
+                        <Text style={{whiteSpace: 'wrap'}}>{valueWrapped}</Text>
                         <div style={{width: 8}} />
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <Button
@@ -1136,6 +1138,7 @@ export const AdvertsWordsModal = ({
             },
         },
         {
+            constWidth: 100,
             name: 'freq',
             placeholder: 'Частота',
             render: ({value, row}) => {
@@ -1165,27 +1168,33 @@ export const AdvertsWordsModal = ({
             },
         },
         {
+            constWidth: 100,
             name: 'count',
             placeholder: 'Показов, шт',
         },
         {
+            constWidth: 100,
             name: 'clicks',
             placeholder: 'Кликов, шт',
         },
         {
+            constWidth: 100,
             name: 'ctr',
             placeholder: 'CTR, %',
             render: renderAsPercent,
         },
         {
+            constWidth: 100,
             name: 'sum',
             placeholder: 'Расход, ₽',
         },
         {
+            constWidth: 100,
             name: 'cpc',
             placeholder: 'CPC, ₽',
         },
         {
+            constWidth: 100,
             name: 'placements',
             placeholder: 'Позиция, №',
             render: ({value, row}) => {
@@ -1298,6 +1307,7 @@ export const AdvertsWordsModal = ({
         {
             name: 'preset',
             valueType: 'text',
+            constWidth: 100,
             placeholder: 'Пресет',
             render: ({value}) => {
                 const bad =
@@ -1339,7 +1349,7 @@ export const AdvertsWordsModal = ({
         },
         {
             additionalNodes: [] as any[],
-            width: 200,
+            constWidth: 400,
             name: 'cluster',
             placeholder: 'Кластер',
             valueType: 'text',
@@ -1389,10 +1399,11 @@ export const AdvertsWordsModal = ({
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
+                            width: 418,
                             justifyContent: 'space-between',
                         }}
                     >
-                        <Text style={{whiteSpace: 'pre-wrap'}}>{valueWrapped}</Text>
+                        <Text style={{whiteSpace: 'wrap'}}>{valueWrapped}</Text>
                         <div style={{width: 8}} />
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <Button
@@ -1964,6 +1975,7 @@ export const AdvertsWordsModal = ({
             },
         },
         {
+            constWidth: 100,
             name: 'freq',
             placeholder: 'Частота',
             render: ({value, row}) => {
@@ -1993,27 +2005,33 @@ export const AdvertsWordsModal = ({
             },
         },
         {
+            constWidth: 100,
             name: 'count',
             placeholder: 'Показов, шт',
         },
         {
+            constWidth: 100,
             name: 'clicks',
             placeholder: 'Кликов, шт',
         },
         {
+            constWidth: 100,
             name: 'ctr',
             placeholder: 'CTR, %',
             render: renderAsPercent,
         },
         {
+            constWidth: 100,
             name: 'sum',
             placeholder: 'Расход, ₽',
         },
         {
+            constWidth: 100,
             name: 'cpc',
             placeholder: 'CPC, ₽',
         },
         {
+            constWidth: 100,
             name: 'placements',
             placeholder: 'Позиция, №',
             render: ({value, row}) => {
@@ -2215,8 +2233,9 @@ export const AdvertsWordsModal = ({
                 }}
             >
                 <motion.div
-                    animate={{width: open ? '80vw' : 0}}
+                    animate={{maxWidth: open ? '90vw' : 0}}
                     style={{
+                        maxWidth: 0,
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
@@ -2226,7 +2245,6 @@ export const AdvertsWordsModal = ({
                 >
                     <div
                         style={{
-                            width: '100%',
                             display: 'flex',
                             flexDirection: 'row',
                             justifyContent: 'space-between',
@@ -2886,7 +2904,7 @@ export const AdvertsWordsModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            width: '100%',
+                            maxWidth: 1552,
                             height: 'calc(90vh - 72px)',
                         }}
                     >
@@ -2897,9 +2915,9 @@ export const AdvertsWordsModal = ({
                                 <Card
                                     theme="success"
                                     style={{
+                                        overflow: 'auto',
+                                        maxWidth: '90vw',
                                         height: 'calc(55vh)',
-                                        width: '100%',
-                                        overflowX: 'scroll',
                                     }}
                                 >
                                     <TheTable
@@ -2931,8 +2949,8 @@ export const AdvertsWordsModal = ({
                                     theme="danger"
                                     style={{
                                         height: 'calc(35vh - 96px)',
-                                        overflowX: 'scroll',
-                                        width: '100%',
+                                        overflow: 'auto',
+                                        maxWidth: '90vw',
                                     }}
                                 >
                                     <TheTable

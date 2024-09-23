@@ -44,6 +44,7 @@ export default function TheTable({
                 name,
                 placeholder,
                 width,
+                constWidth,
                 render,
                 className,
                 valueType,
@@ -81,6 +82,7 @@ export default function TheTable({
                         placeholder,
                         valueType,
                         width,
+                        constWidth,
                         viewportSize,
                         additionalNodes,
                     })
@@ -129,6 +131,7 @@ export const generateFilterTextInput = (args) => {
         name,
         placeholder,
         valueType,
+        constWidth,
         width,
         viewportSize,
         additionalNodes,
@@ -160,7 +163,9 @@ export const generateFilterTextInput = (args) => {
                 flexDirection: 'row',
                 height: 'max-content',
                 alignItems: 'end',
-                minWidth: width ? (minWidth < width ? minWidth : width) : minWidth,
+                minWidth: constWidth ?? width ? (minWidth < width ? minWidth : width) : minWidth,
+                maxWidth: constWidth,
+                width: constWidth,
             }}
             onClick={(event) => {
                 event.stopPropagation();
