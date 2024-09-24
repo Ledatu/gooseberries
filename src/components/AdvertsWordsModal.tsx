@@ -1138,7 +1138,6 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            constWidth: 100,
             name: 'freq',
             placeholder: 'Частота',
             render: ({value, row}) => {
@@ -1168,33 +1167,33 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            constWidth: 100,
+            
             name: 'count',
             placeholder: 'Показов, шт',
         },
         {
-            constWidth: 100,
+            
             name: 'clicks',
             placeholder: 'Кликов, шт',
         },
         {
-            constWidth: 100,
+            
             name: 'ctr',
             placeholder: 'CTR, %',
             render: renderAsPercent,
         },
         {
-            constWidth: 100,
+            
             name: 'sum',
             placeholder: 'Расход, ₽',
         },
         {
-            constWidth: 100,
+            
             name: 'cpc',
             placeholder: 'CPC, ₽',
         },
         {
-            constWidth: 100,
+            
             name: 'placements',
             placeholder: 'Позиция, №',
             render: ({value, row}) => {
@@ -1975,7 +1974,7 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            constWidth: 100,
+            
             name: 'freq',
             placeholder: 'Частота',
             render: ({value, row}) => {
@@ -2005,33 +2004,33 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            constWidth: 100,
+            
             name: 'count',
             placeholder: 'Показов, шт',
         },
         {
-            constWidth: 100,
+            
             name: 'clicks',
             placeholder: 'Кликов, шт',
         },
         {
-            constWidth: 100,
+            
             name: 'ctr',
             placeholder: 'CTR, %',
             render: renderAsPercent,
         },
         {
-            constWidth: 100,
+            
             name: 'sum',
             placeholder: 'Расход, ₽',
         },
         {
-            constWidth: 100,
+            
             name: 'cpc',
             placeholder: 'CPC, ₽',
         },
         {
-            constWidth: 100,
+            
             name: 'placements',
             placeholder: 'Позиция, №',
             render: ({value, row}) => {
