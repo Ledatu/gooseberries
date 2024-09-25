@@ -1167,33 +1167,27 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            
             name: 'count',
             placeholder: 'Показов, шт',
         },
         {
-            
             name: 'clicks',
             placeholder: 'Кликов, шт',
         },
         {
-            
             name: 'ctr',
             placeholder: 'CTR, %',
             render: renderAsPercent,
         },
         {
-            
             name: 'sum',
             placeholder: 'Расход, ₽',
         },
         {
-            
             name: 'cpc',
             placeholder: 'CPC, ₽',
         },
         {
-            
             name: 'placements',
             placeholder: 'Позиция, №',
             render: ({value, row}) => {
@@ -1974,7 +1968,6 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            
             name: 'freq',
             placeholder: 'Частота',
             render: ({value, row}) => {
@@ -2004,33 +1997,27 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            
             name: 'count',
             placeholder: 'Показов, шт',
         },
         {
-            
             name: 'clicks',
             placeholder: 'Кликов, шт',
         },
         {
-            
             name: 'ctr',
             placeholder: 'CTR, %',
             render: renderAsPercent,
         },
         {
-            
             name: 'sum',
             placeholder: 'Расход, ₽',
         },
         {
-            
             name: 'cpc',
             placeholder: 'CPC, ₽',
         },
         {
-            
             name: 'placements',
             placeholder: 'Позиция, №',
             render: ({value, row}) => {
@@ -2246,6 +2233,7 @@ export const AdvertsWordsModal = ({
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
+                            width: '100%',
                             justifyContent: 'space-between',
                         }}
                     >
@@ -2253,17 +2241,17 @@ export const AdvertsWordsModal = ({
                             style={{
                                 marginRight: 8,
                                 display: 'flex',
-                                width: '100%',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
+                                width: '100%',
                                 alignItems: 'center',
                             }}
                         >
                             <div
                                 style={{
                                     display: 'flex',
-                                    flexDirection: 'row',
                                     width: '100%',
+                                    flexDirection: 'row',
                                     alignItems: 'center',
                                 }}
                             >
@@ -2295,11 +2283,14 @@ export const AdvertsWordsModal = ({
                                 }}
                             >
                                 <TextTitleWrapper
-                                    title={'Первичная фильтрация фраз если показы больше или равно'}
+                                    title={
+                                        'Первичная фильтрация фраз\nесли показы больше или равно'
+                                    }
                                     style={{
                                         width: '100%',
                                         border: '1px solid var(--yc-color-base-generic-hover)',
                                         borderRadius: 8,
+                                        whiteSpace: 'pre-wrap',
                                     }}
                                 >
                                     <>
@@ -2313,7 +2304,7 @@ export const AdvertsWordsModal = ({
                                         <TextInput
                                             view="clear"
                                             hasClear
-                                            style={{width: '90%'}}
+                                            style={{width: '90%', margin: '0 5%'}}
                                             value={String(semanticsModalSemanticsThresholdValue)}
                                             onUpdate={(val) => {
                                                 setSemanticsModalSemanticsThresholdValue(
@@ -2326,11 +2317,12 @@ export const AdvertsWordsModal = ({
                                 </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
                                 <TextTitleWrapper
-                                    title={'Первичная фильтрация фраз если %CTR меньше или равно'}
+                                    title={'Первичная фильтрация фраз\nесли %CTR меньше или равно'}
                                     style={{
                                         width: '100%',
                                         border: '1px solid var(--yc-color-base-generic-hover)',
                                         borderRadius: 8,
+                                        whiteSpace: 'pre-wrap',
                                     }}
                                 >
                                     <>
@@ -2343,7 +2335,7 @@ export const AdvertsWordsModal = ({
                                         />
                                         <TextInput
                                             hasClear
-                                            style={{width: '90%'}}
+                                            style={{width: '90%', margin: '0 5%'}}
                                             view="clear"
                                             value={semanticsModalSemanticsCTRThresholdValue}
                                             onUpdate={(val) => {
@@ -2367,11 +2359,14 @@ export const AdvertsWordsModal = ({
                                 </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
                                 <TextTitleWrapper
-                                    title={'Вторичная фильтрация фраз если показы больше или равно'}
+                                    title={
+                                        'Вторичная фильтрация фраз\nесли показы больше или равно'
+                                    }
                                     style={{
                                         width: '100%',
                                         border: '1px solid var(--yc-color-base-generic-hover)',
                                         borderRadius: 8,
+                                        whiteSpace: 'pre-wrap',
                                     }}
                                 >
                                     <>
@@ -2385,7 +2380,7 @@ export const AdvertsWordsModal = ({
                                         <TextInput
                                             view="clear"
                                             hasClear
-                                            style={{width: '90%'}}
+                                            style={{width: '90%', margin: '0 5%'}}
                                             value={String(
                                                 semanticsModalSemanticsSecondThresholdValue,
                                             )}
@@ -2400,11 +2395,12 @@ export const AdvertsWordsModal = ({
                                 </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
                                 <TextTitleWrapper
-                                    title={'Вторичная фильтрация фраз если %CTR меньше или равно'}
+                                    title={'Вторичная фильтрация фраз\nесли %CTR меньше или равно'}
                                     style={{
                                         width: '100%',
                                         border: '1px solid var(--yc-color-base-generic-hover)',
                                         borderRadius: 8,
+                                        whiteSpace: 'pre-wrap',
                                     }}
                                 >
                                     <>
@@ -2417,7 +2413,7 @@ export const AdvertsWordsModal = ({
                                         />
                                         <TextInput
                                             hasClear
-                                            style={{width: '90%'}}
+                                            style={{width: '90%', margin: '0 5%'}}
                                             view="clear"
                                             value={semanticsModalSemanticsSecondCTRThresholdValue}
                                             onUpdate={(val) => {
@@ -2903,7 +2899,7 @@ export const AdvertsWordsModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            maxWidth: 1552,
+                            maxWidth: '90vw',
                             height: 'calc(90vh - 72px)',
                         }}
                     >

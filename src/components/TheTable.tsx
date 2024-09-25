@@ -184,6 +184,7 @@ export const generateFilterTextInput = (args) => {
                     {placeholder}
                 </Text>
                 <DelayedTextInput
+                    style={{width: '100%'}}
                     delay={250}
                     hasClear
                     value={filters[name] ? filters[name].val : ''}

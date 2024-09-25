@@ -19,7 +19,7 @@ export const TextTitleWrapper = ({children, title, padding, style}: TextTitleWra
         return null;
     }
     return (
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', ...style}}>
+        <div style={{display: 'flex', flexDirection: 'column', width: '100%', ...style}}>
             <Text style={{marginLeft: padding ?? 4}} variant="subheader-1">
                 {title}
             </Text>
