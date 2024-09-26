@@ -4066,14 +4066,13 @@ export const MassAdvertPage = ({
 
     const renderGradNumber = (args, footerValue, renderer) => {
         const {value, footer} = args;
-        const perc = getRoundValue(value, footerValue, true, value);
         const color = footer
             ? 'primary'
-            : perc < 33
-            ? 'danger'
-            : perc < 133
+            : value >= footerValue
+            ? 'positive'
+            : value >= footerValue / 2
             ? 'warning'
-            : 'positive';
+            : 'danger';
         return <Text color={color}>{renderer(args)}</Text>;
     };
 
