@@ -255,6 +255,8 @@ export const MassAdvertPage = ({
         addToCartPercent: 0,
         addToCartPercentPrev: 0,
         orders: 0,
+        avgOrders: 0,
+        avgOpenCardCount: 0,
         ordersPrev: 0,
         ordersBetterThanN: 0,
         cartToOrderPercent: 0,
@@ -286,6 +288,8 @@ export const MassAdvertPage = ({
             addToCartPercent: 0,
             addToCartPercentPrev: 0,
             orders: 0,
+            avgOrders: 0,
+            avgOpenCardCount: 0,
             ordersPrev: 0,
             ordersBetterThanN: 0,
             cartToOrderPercent: 0,
@@ -305,9 +309,20 @@ export const MassAdvertPage = ({
                 }
 
                 for (const [key, val] of Object.entries(stat)) {
+                    if (val === undefined) continue;
+
                     if (key == 'phrase') continue;
+
+                    if (key === 'orders')
+                        dzhemDataFilteredSummaryTemp['avgOrders'] +=
+                            isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
+
+                    if (key === 'openCardCount')
+                        dzhemDataFilteredSummaryTemp['avgOpenCardCount'] +=
+                            isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
+
                     dzhemDataFilteredSummaryTemp[key] +=
-                        isFinite(val as number) && !isNaN(val as number) ? val : 0;
+                        isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
                 }
                 count++;
 
@@ -333,6 +348,8 @@ export const MassAdvertPage = ({
             'cartToOrderPercentPrev',
             'minPriceWithSppBySizes',
             'maxPriceWithSppBySizes',
+            'avgOrders',
+            'avgOpenCardCount',
         ])
             dzhemDataFilteredSummaryTemp[key] = getRoundValue(
                 dzhemDataFilteredSummaryTemp[key],
@@ -4079,6 +4096,18 @@ export const MassAdvertPage = ({
     const columnDataDzhem = [
         {placeholder: genTextColumn(['', 'Поисковая фраза']), name: 'phrase', valueType: 'text'},
         {
+            placeholder: genTextColumn(['', 'Переходы, шт.']),
+            name: 'openCardCount',
+            render: (args) =>
+                renderGradNumber(args, dzhemDataFilteredSummary['avgOpenCardCount'], defaultRender),
+        },
+        {
+            placeholder: genTextColumn(['', 'Заказов, шт.']),
+            name: 'orders',
+            render: (args) =>
+                renderGradNumber(args, dzhemDataFilteredSummary['avgOrders'], defaultRender),
+        },
+        {
             placeholder: genTextColumn(['', 'CR в корзину, %']),
             name: 'addToCartPercent',
             render: (args) =>
@@ -4101,158 +4130,71 @@ export const MassAdvertPage = ({
         {
             placeholder: genTextColumn(['', 'Видимость, %']),
             name: 'visibility',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['visibility'], renderAsPercent),
         },
         {
             placeholder: genTextColumn(['', 'Ср. позиция']),
             name: 'avgPosition',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['avgPosition'], defaultRender),
         },
         {
             placeholder: genTextColumn(['', 'Мед. позиция']),
             name: 'medianPosition',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['medianPosition'], defaultRender),
-        },
-        {
-            placeholder: genTextColumn(['', 'Переходы, шт.']),
-            name: 'openCardCount',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['openCardCount'], defaultRender),
         },
         {
             placeholder: genTextColumn(['', 'В корзину, шт.']),
             name: 'addToCartCount',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['addToCartCount'], defaultRender),
         },
-        {
-            placeholder: genTextColumn(['', 'Заказов, шт.']),
-            name: 'orders',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['orders'], defaultRender),
-        },
-
         {
             placeholder: genTextColumn(['CR в корзину, %', '(пр. период)']),
             name: 'addToCartPercentPrev',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['addToCartPercentPrev'],
-                    renderAsPercent,
-                ),
         },
         {
             placeholder: genTextColumn(['CR в заказ, %', '(пр. период)']),
             name: 'cartToOrderPercentPrev',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['cartToOrderPercentPrev'],
-                    renderAsPercent,
-                ),
         },
         {
             placeholder: genTextColumn(['Видимость, %', '(пр. период)']),
             name: 'visibilityPrev',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['visibilityPrev'], renderAsPercent),
         },
         {
             placeholder: genTextColumn(['Ср. позиция', '(пр. период)']),
             name: 'avgPositionPrev',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['avgPositionPrev'], defaultRender),
         },
         {
             placeholder: genTextColumn(['Мед. позиция', '(пр. период)']),
             name: 'medianPositionPrev',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['medianPositionPrev'],
-                    defaultRender,
-                ),
         },
         {
             placeholder: genTextColumn(['Переходы, шт.', '(пр. период)']),
             name: 'openCardCountPrev',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['openCardCountPrev'],
-                    defaultRender,
-                ),
         },
         {
             placeholder: genTextColumn(['В корзину, шт.', '(пр. период)']),
             name: 'addToCartCountPrev',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['addToCartCountPrev'],
-                    defaultRender,
-                ),
         },
         {
             placeholder: genTextColumn(['Заказов, шт.', '(пр. период)']),
             name: 'ordersPrev',
-            render: (args) =>
-                renderGradNumber(args, dzhemDataFilteredSummary['ordersPrev'], defaultRender),
         },
 
         {
             placeholder: genTextColumn(['Переходы, шт.', 'лучше, чем у n% КТ конкурентов']),
             name: 'openCardCountBetterThanN',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['openCardCountBetterThanN'],
-                    renderAsPercent,
-                ),
         },
         {
             placeholder: genTextColumn(['В корзину, шт.', 'лучше, чем у n% КТ конкурентов']),
             name: 'addToCartCountBetterThanN',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['addToCartCountBetterThanN'],
-                    renderAsPercent,
-                ),
         },
         {
             placeholder: genTextColumn(['Заказы, шт.', 'лучше, чем у n% КТ конкурентов']),
             name: 'ordersBetterThanN',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['ordersBetterThanN'],
-                    renderAsPercent,
-                ),
         },
         {
             placeholder: genTextColumn(['Мин. цена со скидкой', '(по размерам)']),
             name: 'minPriceWithSppBySizes',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['minPriceWithSppBySizes'],
-                    defaultRender,
-                ),
         },
         {
             placeholder: genTextColumn(['Макс. цена со скидкой', '(по размерам)']),
             name: 'maxPriceWithSppBySizes',
-            render: (args) =>
-                renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['maxPriceWithSppBySizes'],
-                    defaultRender,
-                ),
         },
     ];
 
