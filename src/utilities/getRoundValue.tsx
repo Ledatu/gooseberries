@@ -85,6 +85,7 @@ export const renderAsDate = ({value}) => {
 };
 
 export const daysInMonth = function (date) {
+    date = new Date(date);
     const d = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     return d.getDate();
 };

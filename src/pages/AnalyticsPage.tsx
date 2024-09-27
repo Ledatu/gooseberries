@@ -411,29 +411,37 @@ export const AnalyticsPage = ({
             const dots = inputDate.split('.').length - 1;
             const dashes = inputDate.split('-').length - 1;
 
+            let type = 'day';
             let date = inputDate;
             if (dashes != 2) {
                 if (dots == 2) {
                     date = getDateFromLocaleString(date);
+                    type = 'day';
                 } else if (dots == 4) {
                     date = getDateFromLocaleString(date.slice(0, 10));
+                    type = 'week';
                 } else if (dots == 0) {
                     const month = date.split(' ');
                     date = getDateFromLocaleMonthName(month[0], month[1]);
+                    type = 'month';
                 }
             } else {
                 date = new Date(inputDate);
+                type = 'day';
             }
 
             const _entity = argEntity != '' ? argEntity : entity;
             const monthName = getMonth(date);
 
-            const {dayPlan} =
+            let {dayPlan} =
                 doc.plansData[selectValue[0]][_entity] &&
                 doc.plansData[selectValue[0]][_entity][key] &&
                 doc.plansData[selectValue[0]][_entity][key][monthName]
                     ? doc.plansData[selectValue[0]][_entity][key][monthName]
                     : {dayPlan: 0};
+
+            if (type == 'week') dayPlan *= 7;
+            if (type == 'month') dayPlan *= daysInMonth(date);
 
             // if (
             //     _entity == '#F.F.+ФУТБОЛКИ-ПОЛО+ЛЕТО+188950637' &&
@@ -506,8 +514,12 @@ export const AnalyticsPage = ({
 
             const _entity = argEntity != '' ? argEntity : entity;
             let res = 0;
-            for (const time of _graphData['timeline']) {
-                const dayPlan = getDayPlanForDate(getLocaleDateString(new Date(time), 10), _entity);
+            for (let i = 0; i < _graphData['timeline'].length; i++) {
+                const time = _graphData['timeline'][i];
+                const type = _graphData['timelineDisplayed'][i];
+                let dayPlan = getDayPlanForDate(getLocaleDateString(new Date(time), 10), _entity);
+                if (type == 'week') dayPlan *= 7;
+                if (type == 'month') dayPlan *= daysInMonth(time);
                 res += dayPlan ?? 0;
             }
             const divider = planType == 'avg' ? _graphData['timeline'].length : 1;
@@ -947,6 +959,7 @@ export const AnalyticsPage = ({
                     sum: 0,
                     graphData: {
                         timeline: [],
+                        timelineDisplayed: [],
                     },
                     trendGraphData: {},
                     buyoutsPercent: 0,
@@ -1014,22 +1027,27 @@ export const AnalyticsPage = ({
                 let date = inputDate;
                 const dots = inputDate.split('.').length - 1;
 
+                let type = 'day';
                 if (dots == 2) {
+                    type = 'day';
                     date = getDateFromLocaleString(date);
                 } else if (dots == 4) {
+                    type = 'week';
                     date = getDateFromLocaleString(date.slice(0, 10));
                 } else if (dots == 0) {
+                    type = 'month';
                     const month = date.split(' ');
-                    console.log(month, date, dots);
+                    // console.log(month, date, dots);
                     date = getDateFromLocaleMonthName(month[0], month[1]);
                 }
-                return date;
+                return [date, type];
             };
 
-            const time = getDate(row['date']);
+            const [time, type] = getDate(row['date']);
 
             time.setHours(0);
             summaries[entity]['graphData']['timeline'].push(time.getTime());
+            summaries[entity]['graphData']['timelineDisplayed'].push(type);
             // console.log(time, summaries[entity]['graphData']['timeline']);
 
             summaries[entity]['drr_orders'] = getRoundValue(
