@@ -3187,8 +3187,7 @@ export const MassAdvertPage = ({
         };
         console.log(params);
 
-        axios
-            .post(`https://aurum-mp.ru/api/getMassAdvertsNew`, params)
+        callApi(`getMassAdvertsNew`, params, true)
             .then((res) => {
                 console.log(res);
                 if (!res) return;
@@ -3199,9 +3198,6 @@ export const MassAdvertPage = ({
                 console.log(resData);
             })
             .catch((e) => {
-                if (!axios.isCancel(e)) {
-                    console.log(e);
-                }
                 setSwitchingCampaignsFlag(false);
             });
 
