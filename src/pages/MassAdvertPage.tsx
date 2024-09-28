@@ -3197,7 +3197,7 @@ export const MassAdvertPage = ({
                 // recalc(dateRange, selectValue[0], filters, resData);
                 console.log(resData);
             })
-            .catch((e) => {
+            .catch(() => {
                 setSwitchingCampaignsFlag(false);
             });
 
