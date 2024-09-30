@@ -5848,8 +5848,7 @@ export const generateModalButtonWithActions = (
     setSelectedButton,
 ) => {
     const {pin, size, view, style, selected, placeholder, icon, onClick, disabled} = params;
-    const isSelected = selectedButton == placeholder;
-    if (onClick || selected) {
+    if (selected || selectedButton || setSelectedButton) {
     }
     return (
         <motion.div
@@ -5860,22 +5859,8 @@ export const generateModalButtonWithActions = (
                 alignItems: 'center',
             }}
         >
-            <motion.div
-                animate={{opacity: isSelected && !disabled ? 1 : 0, x: isSelected ? -16 : 0}}
-            >
-                <Button
-                    pin="circle-circle"
-                    view="flat-success"
-                    onClick={() => {
-                        setSelectedButton('');
-                        onClick();
-                    }}
-                >
-                    <Icon data={Check} />
-                </Button>
-            </motion.div>
             <Button
-                disabled={(!isSelected && selectedButton != '') || disabled}
+                disabled={disabled}
                 style={
                     style ?? {
                         margin: '4px 0px',
@@ -5884,27 +5869,14 @@ export const generateModalButtonWithActions = (
                 pin={pin ?? 'circle-circle'}
                 size={size ?? 'l'}
                 view={view ?? 'action'}
-                selected={isSelected}
+                selected={true}
                 onClick={() => {
-                    setSelectedButton((val) => {
-                        return val == placeholder ? '' : placeholder;
-                    });
+                    onClick();
                 }}
             >
                 <Icon data={icon} />
                 {placeholder}
             </Button>
-            <motion.div
-                animate={{opacity: isSelected && !disabled ? 1 : 0, x: isSelected ? 16 : 0}}
-            >
-                <Button
-                    pin="circle-circle"
-                    view="flat-danger"
-                    onClick={() => setSelectedButton('')}
-                >
-                    <Icon data={Xmark} />
-                </Button>
-            </motion.div>
         </motion.div>
     );
 };
