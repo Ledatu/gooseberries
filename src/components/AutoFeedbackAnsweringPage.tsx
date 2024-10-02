@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {Button, Loader, Pagination, Card} from '@gravity-ui/uikit';
+import {Button, Loader, Pagination, Card, Text} from '@gravity-ui/uikit';
 
 export const AutoFeedbackAnsweringPage = ({
     selectValue,
@@ -77,7 +77,17 @@ export const AutoFeedbackAnsweringPage = ({
     const columns = [
         {name: 'name', placeholder: 'Название'},
         // {name: 'priority', placeholder: 'Приоритет'},
-        {name: 'text', placeholder: 'Шаблон ответа'},
+        {
+            name: 'text',
+            placeholder: 'Шаблон ответа',
+            render: ({value}) => {
+                return (
+                    <div style={{textWrap: 'wrap'}}>
+                        <Text>{value}</Text>
+                    </div>
+                );
+            },
+        },
         // {name: 'feedbackAge', placeholder: 'Возраст отзыва'},
         // {name: 'feedbackLength', placeholder: 'Длина отзыва'},
         {
@@ -124,6 +134,7 @@ export const AutoFeedbackAnsweringPage = ({
                     boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
                     position: 'relative',
                     overflow: 'auto',
+                    width: '100%',
                     maxHeight: 'calc(100vh - 68px - 32px - 36px - 16px - 48px)',
                 }}
             >

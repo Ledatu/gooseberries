@@ -1,12 +1,20 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {Button, Loader, Pagination, Icon, TextArea, Text, Card} from '@gravity-ui/uikit';
+import {Button, Loader, Pagination, Icon, Card, Text, Link, Popover} from '@gravity-ui/uikit';
 import {Star} from '@gravity-ui/icons';
 import {renderAsDate} from 'src/utilities/getRoundValue';
-import {AnswerFeedbackModal} from './AnswerFeedbackModal';
+import {TagsFilterModal} from './TagsFilterModal';
 
-export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
+export const BuyersFeedbacksPage = ({
+    selectValue,
+    sellerId,
+    isAnswered,
+}: {
+    selectValue: string[];
+    sellerId: string;
+    isAnswered: string;
+}) => {
     const [filters, setFilters] = useState({});
     const [data, setData] = useState(null as any);
     const [filteredData, setFilteredData] = useState([] as any[]);
@@ -14,10 +22,13 @@ export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [paginatedData, setPaginatedData] = useState([] as any[]);
 
+    const [pending, setPending] = useState(false);
+
     useEffect(() => {
-        const params = {uid: getUid(), campaignName: selectValue[0]};
+        const params = {uid: getUid(), campaignName: selectValue[0], isAnswered};
         console.log('getFeedbacks', params);
 
+        setPending(true);
         callApi('getFeedbacks', params)
             .then((res) => {
                 if (!res || !res.data) return;
@@ -25,71 +36,120 @@ export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
                 setData(res.data);
             })
             .catch((e) => {
-                setData([
-                    {
-                        id: 'n5um6IUBQOOSTxXoo0gV',
-                        imtId: 4702466,
-                        nmId: 5870243,
-                        subjectId: 390,
-                        userName: 'userName',
-                        text: 'Great product. Thank you',
-                        productValuation: 5,
-                        createdDate: '2023-01-25T11:18:33Z',
-                        updatedDate: '2023-01-26T11:09:54Z',
-                        answer: null,
-                        state: 'none',
-                        productDetails: {
-                            imtId: 4702466,
-                            nmId: 5870243,
-                            productName: 'Case for phone',
-                            supplierArticle: '41058/transparent',
-                            supplierName: 'ГП Реклама и услуги',
-                            brandName: '1000 Catalog',
-                            size: 'size',
-                        },
-                        photoLinks: [
-                            {
-                                fullSize:
-                                    'feedbacks/470/4702466/2dc59933-00b5-4ba5-a11a-96312ef179f1_fs.jpg',
-                                miniSize:
-                                    'feedbacks/470/4702466/2dc59933-00b5-4ba5-a11a-96312ef179f1_ms.jpg',
-                            },
-                        ],
-                        video: null,
-                        wasViewed: true,
-                    },
-                ]);
                 console.log(e);
+            })
+            .finally(() => {
+                setPending(false);
             });
-    }, [selectValue]);
+    }, [selectValue, isAnswered]);
+
+    const [artsData, setArtsData] = useState({});
+    const [artsTags, setArtsTags] = useState({});
+
+    const getArtsData = async () => {
+        if (sellerId == '') setArtsData({});
+        const params = {seller_id: sellerId, key: 'byNmId'};
+        const artsDataTemp = await callApi('getArtsData', params).catch((e) => {
+            console.log(e);
+        });
+        console.log('getArtsData', params, artsDataTemp);
+        if (artsDataTemp && artsDataTemp['data']) setArtsData(artsDataTemp['data']);
+        else setArtsData({});
+    };
+    const getArtsTags = async () => {
+        if (sellerId == '') setArtsTags({});
+        const params = {seller_id: sellerId};
+        const artsTagsTemp = await callApi('getArtsTags', params).catch((e) => {
+            console.log(e);
+        });
+        console.log('getArtsTags', params, artsTagsTemp);
+        if (artsTagsTemp && artsTagsTemp['data']) setArtsTags(artsTagsTemp['data']);
+        else setArtsTags({});
+    };
+    useEffect(() => {
+        getArtsData();
+        getArtsTags();
+    }, [sellerId]);
 
     const filterData = (withfFilters = {}, tableData = {}) => {
         const temp = [] as any;
 
-        for (const [phrase, phraseInfo] of Object.entries(
-            Object.keys(tableData).length ? tableData : data,
-        )) {
-            if (!phrase || !phraseInfo) continue;
+        const tempObj = Object.keys(tableData).length ? tableData : data;
+        if (tempObj)
+            for (const [phrase, phraseInfo] of Object.entries(tempObj)) {
+                if (!phrase || !phraseInfo) continue;
 
-            const tempTypeRow = phraseInfo;
+                const tempTypeRow = phraseInfo;
 
-            let addFlag = true;
-            const useFilters = withfFilters['undef'] ? withfFilters : filters;
-            for (const [filterArg, filterData] of Object.entries(useFilters)) {
-                if (filterArg == 'undef' || !filterData) continue;
-                if (filterData['val'] == '') continue;
-                if (!compare(tempTypeRow[filterArg], filterData)) {
-                    addFlag = false;
-                    break;
+                let addFlag = true;
+                const useFilters = withfFilters['undef'] ? withfFilters : filters;
+                for (const [filterArg, filterData] of Object.entries(useFilters)) {
+                    if (filterArg == 'undef' || !filterData) continue;
+                    if (filterData['val'] == '') continue;
+
+                    if (filterArg == 'nmId') {
+                        const rulesForAnd = filterData['val'].split('+');
+                        // console.log(rulesForAnd);
+                        const nmId = tempTypeRow['nmId'];
+                        let wholeText = '';
+                        const artData = artsData[nmId];
+                        if (artData)
+                            for (const key of [
+                                'art',
+                                'title',
+                                'brand',
+                                'nmId',
+                                'imtId',
+                                'object',
+                            ]) {
+                                wholeText += artData[key] + ' ';
+                            }
+
+                        const tags = artsTags[nmId];
+                        if (tags) {
+                            for (const key of tags) {
+                                wholeText += key + ' ';
+                            }
+                        }
+
+                        let tempFlagInc = 0;
+                        for (let k = 0; k < rulesForAnd.length; k++) {
+                            const ruleForAdd = rulesForAnd[k];
+                            if (ruleForAdd == '') {
+                                tempFlagInc++;
+                                continue;
+                            }
+                            if (
+                                compare(wholeText, {
+                                    val: ruleForAdd,
+                                    compMode: filterData['compMode'],
+                                })
+                            ) {
+                                tempFlagInc++;
+                            }
+                        }
+                        if (tempFlagInc != rulesForAnd.length) {
+                            addFlag = false;
+                            break;
+                        }
+                    } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                }
+
+                if (addFlag) {
+                    temp.push(tempTypeRow);
                 }
             }
 
-            if (addFlag) {
-                temp.push(tempTypeRow);
-            }
-        }
-
         setFilteredData(temp);
+    };
+
+    const filterByButton = (val, key = 'nmId', compMode = 'include') => {
+        filters[key] = {val: String(val) + ' ', compMode: compMode};
+        setFilters(filters);
+        filterData(filters);
     };
 
     useEffect(() => {
@@ -106,19 +166,218 @@ export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
     }, [filteredData, currentPage]);
 
     const columns = [
-        // {name: 'id', placeholder: 'ID Отзыва'},
-        {name: 'supplierArticle', placeholder: 'Артикул'},
-        {name: 'brandName', placeholder: 'Бренд'},
-        {name: 'size', placeholder: 'Размер'},
-        {name: 'nmId', placeholder: 'Артикул WB', valueType: 'text'},
-        {name: 'userName', placeholder: 'Имя'},
         {
-            name: 'text',
-            placeholder: 'Отзыв',
-            render: ({value}) => {
-                return <TextArea style={{width: 250}} size="s" value={value} maxRows={5} />;
+            name: 'nmId',
+            placeholder: 'Артикул',
+            width: 200,
+            render: ({value, footer, index}) => {
+                const {title, brand, object, photos, imtId, art} = artsData[value] ?? {};
+                const nmId = value;
+                const tags = artsTags[nmId] ?? [];
+
+                if (title === undefined) return <div style={{height: 28}}>{value}</div>;
+
+                const imgUrl = photos ? (photos[0] ? photos[0].big : undefined) : undefined;
+
+                let titleWrapped = title;
+                if (title.length > 30) {
+                    let wrapped = false;
+                    titleWrapped = '';
+                    const titleArr = title.split(' ');
+                    for (const word of titleArr) {
+                        titleWrapped += word;
+                        if (titleWrapped.length > 25 && !wrapped) {
+                            titleWrapped += '\n';
+                            wrapped = true;
+                        } else {
+                            titleWrapped += ' ';
+                        }
+                    }
+                }
+
+                /// tags
+                const tagsNodes = [] as any[];
+
+                if (tags) {
+                    for (let i = 0; i < tags.length; i++) {
+                        const tag = tags[i];
+                        if (tag === undefined) continue;
+
+                        tagsNodes.push(
+                            <Button
+                                size="xs"
+                                pin="circle-circle"
+                                selected
+                                view="outlined-info"
+                                onClick={() => filterByButton(tag.toUpperCase())}
+                            >
+                                {tag.toUpperCase()}
+                            </Button>,
+                        );
+                        tagsNodes.push(<div style={{minWidth: 8}} />);
+                    }
+                    tagsNodes.pop();
+                }
+
+                return footer ? (
+                    <div style={{height: 28}}>{value}</div>
+                ) : (
+                    <div
+                        // title={value}
+                        style={{
+                            maxWidth: '20vw',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            zIndex: 40,
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <div
+                            style={{
+                                justifyContent: 'space-between',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                marginRight: 8,
+                                alignItems: 'center',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: `${String(filteredData.length).length * 6}px`,
+                                    // width: 20,
+                                    margin: '0 16px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                {Math.floor((currentPage - 1) * 100 + index + 1)}
+                            </div>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Popover
+                                        behavior={'delayed' as any}
+                                        disabled={value === undefined}
+                                        content={
+                                            <div style={{width: 200}}>
+                                                <img
+                                                    style={{width: '100%', height: 'auto'}}
+                                                    src={imgUrl}
+                                                />
+                                                <></>
+                                            </div>
+                                        }
+                                    >
+                                        <div style={{width: 40}}>
+                                            <img
+                                                style={{width: '100%', height: 'auto'}}
+                                                src={imgUrl}
+                                            />
+                                        </div>
+                                    </Popover>
+                                </div>
+                                <div style={{width: 4}} />
+                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    <div style={{marginLeft: 6}}>
+                                        <Link
+                                            view="primary"
+                                            style={{whiteSpace: 'pre-wrap'}}
+                                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                                            target="_blank"
+                                        >
+                                            <Text variant="subheader-1">{titleWrapped}</Text>
+                                        </Link>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(object)}
+                                        >
+                                            <Text variant="caption-2">{`${object}`}</Text>
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(brand)}
+                                        >
+                                            <Text variant="caption-2">{`${brand}`}</Text>
+                                        </Button>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(nmId)}
+                                        >
+                                            <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
+                                        </Button>
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(imtId)}
+                                        >
+                                            <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
+                                        </Button>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(art)}
+                                        >
+                                            <Text variant="caption-2">{`Артикул: ${art}`}</Text>
+                                        </Button>
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            maxWidth: 'calc(20vw - 46px)',
+                                            overflowX: 'scroll',
+                                        }}
+                                    >
+                                        {tagsNodes}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
             },
+            valueType: 'text',
+            group: true,
         },
+        {name: 'createdDate', placeholder: 'Дата', render: renderAsDate},
         {
             name: 'productValuation',
             placeholder: 'Оценка',
@@ -138,45 +397,35 @@ export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
                 );
             },
         },
-        {name: 'createdDate', placeholder: 'Дата создания', render: renderAsDate},
-        {name: 'updatedDate', placeholder: 'Дата изменения', render: renderAsDate},
+        {name: 'userName', placeholder: 'Имя'},
         {
-            name: 'answer',
-            placeholder: 'Ответ',
-            render: ({value, row}) => {
-                const {id} = row;
-                if (!value) return <AnswerFeedbackModal selectValue={selectValue} id={id} />;
-                return value;
-            },
-        },
-        {
-            name: 'state',
-            placeholder: 'Статус',
+            name: 'text',
+            placeholder: 'Отзыв',
             render: ({value}) => {
-                if (!value) return;
-                const map = {
-                    none: {
-                        color: 'subheader-1',
-                        text: 'Не обработан (новый)',
-                    },
-                    wbRu: {
-                        color: undefined,
-                        text: 'Обработан',
-                    },
-                };
                 return (
-                    <Button view={'flat'} size="xs">
-                        <Text variant={map[value]?.color}>{map[value]?.text}</Text>
-                    </Button>
+                    <div style={{textWrap: 'wrap'}}>
+                        <Text>{value}</Text>
+                    </div>
                 );
             },
         },
-        {name: 'photoLinks', placeholder: 'Фото'},
-        {name: 'video', placeholder: 'Видео'},
-        {name: 'wasViewed', placeholder: 'Просмотрен ли отзыв'},
+        isAnswered == 'answered'
+            ? {
+                  name: 'answer',
+                  placeholder: 'Ответ',
+                  render: ({value}) => {
+                      const {text} = value ?? {};
+                      return (
+                          <div style={{textWrap: 'wrap'}}>
+                              <Text>{text}</Text>
+                          </div>
+                      );
+                  },
+              }
+            : undefined,
     ];
 
-    return data ? (
+    return data && !pending ? (
         <div
             style={{
                 width: '100%',
@@ -184,8 +433,12 @@ export const BuyersFeedbacksPage = ({selectValue}: {selectValue: string[]}) => {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
+                position: 'relative',
             }}
         >
+            <div style={{position: 'absolute', left: 0, top: -44}}>
+                <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
+            </div>
             <Card
                 style={{
                     boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',

@@ -6,14 +6,16 @@ import {AutoFeedbackTemplateCreationModal} from 'src/components/AutoFeedbackTemp
 
 export const BuyersPage = ({
     selectValue,
+    sellerId,
     setSwitchingCampaignsFlag,
 }: {
     selectValue: string[];
+    sellerId: string;
     setSwitchingCampaignsFlag: Function;
 }) => {
     const sectionOptions = [
-        {content: 'Отзывы', value: 'feedbacks'},
-        {content: 'Вопросы', value: 'questions'},
+        {content: 'Необработанные отзывы', value: 'feedbacksUnanswered'},
+        {content: 'Обработанные отзывы', value: 'feedbacksAnswered'},
         {content: 'Автоответы', value: 'automation'},
     ];
     const [selectedPage, setSelectedPage] = useState(sectionOptions[0].value);
@@ -25,8 +27,24 @@ export const BuyersPage = ({
     const [refetch, setRefetch] = useState(false);
 
     const pagesMap = {
-        feedbacks: {
-            page: <BuyersFeedbacksPage selectValue={selectValue} />,
+        feedbacksUnanswered: {
+            page: (
+                <BuyersFeedbacksPage
+                    isAnswered="notAnswered"
+                    sellerId={sellerId}
+                    selectValue={selectValue}
+                />
+            ),
+            additionalNodes: <div />,
+        },
+        feedbacksAnswered: {
+            page: (
+                <BuyersFeedbacksPage
+                    isAnswered="answered"
+                    sellerId={sellerId}
+                    selectValue={selectValue}
+                />
+            ),
             additionalNodes: <div />,
         },
         questions: {
@@ -56,13 +74,14 @@ export const BuyersPage = ({
             >
                 {pagesMap[selectedPage]?.additionalNodes}
                 <RadioButton
+                    style={{marginBottom: 8}}
                     value={selectedPage}
                     onUpdate={(val) => setSelectedPage(val)}
                     options={sectionOptions}
                     size="l"
                 />
             </div>
-            <div style={{minHeight: 16}} />
+            <div style={{minHeight: 4}} />
             <div
                 style={{
                     display: 'flex',

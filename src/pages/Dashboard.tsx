@@ -110,12 +110,14 @@ export const Dashboard = ({setThemeAurum}) => {
     // const [page, setPage] = useState('delivery');
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
+    const [sellerId, setSellerId] = useState('');
 
     const modules = useMemo(() => {
         if (!campaigns) return [];
         for (const campaign of campaigns) {
             if (campaign.name === selectValue[0]) {
                 setSubscriptionExpDate(campaign.subscriptionUntil);
+                setSellerId(campaign?.seller_id);
                 return campaign.isOwner ? ['all'] : campaign.userModules ?? [];
             }
         }
@@ -613,6 +615,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     setRefetchAutoSales={setRefetchAutoSales}
                     dzhemRefetch={dzhemRefetch}
                     setDzhemRefetch={setDzhemRefetch}
+                    sellerId={sellerId}
                 />
             </div>
         </div>
@@ -627,6 +630,7 @@ const PageElem = ({
     setRefetchAutoSales,
     dzhemRefetch,
     setDzhemRefetch,
+    sellerId,
 }) => {
     const pages = {
         delivery: (
@@ -665,6 +669,7 @@ const PageElem = ({
         ),
         buyers: (
             <BuyersPage
+                sellerId={sellerId}
                 selectValue={selectValue}
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
