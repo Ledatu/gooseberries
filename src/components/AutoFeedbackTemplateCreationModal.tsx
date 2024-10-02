@@ -111,7 +111,6 @@ export const AutoFeedbackTemplateCreationModal = ({
                 const {tags} = res['data'] ?? {};
                 tags.sort();
                 setAvailableTags(tags ?? []);
-                setBindingKeys(tags ?? []);
             })
             .catch((e) => {
                 console.log(e);
