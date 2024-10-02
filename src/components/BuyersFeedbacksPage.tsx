@@ -44,7 +44,7 @@ export const BuyersFeedbacksPage = ({
     }, [selectValue, isAnswered]);
 
     const [artsTags, setArtsTags] = useState({});
-    
+
     const [artsData, setArtsData] = useState({});
     const getArtsData = async () => {
         if (sellerId == '') setArtsData({});
