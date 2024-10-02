@@ -112,7 +112,11 @@ export const AutoFeedbackAnsweringPage = ({
             placeholder: 'Теги',
             render: ({value}) => {
                 if (!value) return undefined;
-                return value.join(', ');
+                return (
+                    <div style={{textWrap: 'wrap'}}>
+                        <Text>{value.join(', ')}</Text>
+                    </div>
+                );
             },
         },
         // {name: 'arts', placeholder: 'Артикулы'},

@@ -26,6 +26,7 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
     const [selectedTags, setSelectedTags] = useState([] as string[]);
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [availableTags, setAvailableTags] = useState([] as any[]);
+    const [availableTagsFiltered, setAvailableTagsFiltered] = useState([] as any[]);
 
     useEffect(() => {
         setAvailableTagsPending(true);
@@ -38,6 +39,7 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                 const {tags} = res['data'] ?? {};
                 tags.sort();
                 setAvailableTags(tags ?? []);
+                setAvailableTagsFiltered(tags ?? []);
             })
             .catch((e) => {
                 console.log(e);
@@ -399,6 +401,9 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                             filterPlaceholder="Введите имя тега"
                             emptyPlaceholder="Такой тег отсутствует"
                             items={availableTags}
+                            onFilterEnd={({items}) => {
+                                setAvailableTagsFiltered(items);
+                            }}
                             renderItem={(item) => {
                                 return (
                                     <Button
@@ -429,16 +434,16 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                         <Button
                             style={{margin: 8}}
                             view={
-                                selectedTags.length == availableTags.length
+                                selectedTags.length == availableTagsFiltered.length
                                     ? 'outlined-danger'
                                     : 'outlined-info'
                             }
-                            selected={selectedTags.length == availableTags.length}
+                            selected={selectedTags.length == availableTagsFiltered.length}
                             onClick={() => {
                                 setSelectedTags(
-                                    selectedTags.length == availableTags.length
+                                    selectedTags.length == availableTagsFiltered.length
                                         ? ([] as any[])
-                                        : availableTags,
+                                        : availableTagsFiltered,
                                 );
                             }}
                             pin="circle-circle"
@@ -454,13 +459,13 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                             >
                                 <Icon
                                     data={
-                                        selectedTags.length == availableTags.length
+                                        selectedTags.length == availableTagsFiltered.length
                                             ? TrashBin
                                             : ListCheck
                                     }
                                 />
                                 <div style={{minWidth: 3}} />
-                                {selectedTags.length == availableTags.length
+                                {selectedTags.length == availableTagsFiltered.length
                                     ? 'Очистить'
                                     : `Выбрать все`}
                             </div>
