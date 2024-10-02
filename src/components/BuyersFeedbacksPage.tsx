@@ -43,9 +43,9 @@ export const BuyersFeedbacksPage = ({
             });
     }, [selectValue, isAnswered]);
 
-    const [artsData, setArtsData] = useState({});
     const [artsTags, setArtsTags] = useState({});
-
+    
+    const [artsData, setArtsData] = useState({});
     const getArtsData = async () => {
         if (sellerId == '') setArtsData({});
         const params = {seller_id: sellerId, key: 'byNmId'};

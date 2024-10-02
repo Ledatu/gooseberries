@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {Button, Loader, Pagination, Card, Text} from '@gravity-ui/uikit';
+import {Button, Loader, Pagination, Card, Text, Icon} from '@gravity-ui/uikit';
+import {Pencil, Xmark} from '@gravity-ui/icons';
 
 export const AutoFeedbackAnsweringPage = ({
     selectValue,
@@ -75,7 +76,60 @@ export const AutoFeedbackAnsweringPage = ({
     }, [filteredData, currentPage]);
 
     const columns = [
-        {name: 'name', placeholder: 'Название'},
+        {
+            name: 'name',
+            placeholder: 'Название',
+            render: ({value}) => {
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            width: '100%',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        {value}
+                        <div
+                            style={{
+                                marginLeft: 16,
+                                display: 'flex',
+                                flexDirection: 'row',
+                            }}
+                        >
+                            <Button
+                                size="xs"
+                                onClick={() => {
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        name: value,
+                                    };
+
+                                    console.log('deleteAutoFeedbackTemplate', params);
+
+                                    callApi('deleteAutoFeedbackTemplate', params)
+                                        .then((res) => {
+                                            if (!res || !res.data) return;
+                                            console.log(res);
+                                            setData(res.data);
+                                        })
+                                        .catch((e) => {
+                                            console.log(e);
+                                        });
+                                }}
+                            >
+                                <Icon data={Xmark} />
+                            </Button>
+                            <div style={{minWidth: 8}} />
+                            <Button size="xs">
+                                <Icon data={Pencil} />
+                            </Button>
+                        </div>
+                    </div>
+                );
+            },
+        },
         // {name: 'priority', placeholder: 'Приоритет'},
         {
             name: 'text',
@@ -108,8 +162,8 @@ export const AutoFeedbackAnsweringPage = ({
         {name: 'doNotContain', placeholder: 'Минус слова'},
         {name: 'contains', placeholder: 'Ключевые слова'},
         {
-            name: 'tags',
-            placeholder: 'Теги',
+            name: 'bindingKeys',
+            placeholder: 'Привязка',
             render: ({value}) => {
                 if (!value) return undefined;
                 return (

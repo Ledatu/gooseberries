@@ -55,6 +55,7 @@ export const BuyersPage = ({
             page: <AutoFeedbackAnsweringPage selectValue={selectValue} refetch={refetch} />,
             additionalNodes: (
                 <AutoFeedbackTemplateCreationModal
+                    sellerId={sellerId}
                     selectValue={selectValue}
                     setRefetch={setRefetch}
                 />

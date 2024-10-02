@@ -1,11 +1,21 @@
-import {Button, Icon, Link, List, Modal, Text, TextArea, TextInput} from '@gravity-ui/uikit';
+import {
+    Button,
+    Icon,
+    Link,
+    List,
+    Modal,
+    Select,
+    Text,
+    TextArea,
+    TextInput,
+} from '@gravity-ui/uikit';
 import {Plus, ListCheck, TrashBin, CloudArrowUpIn} from '@gravity-ui/icons';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 
-export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => {
+export const AutoFeedbackTemplateCreationModal = ({sellerId, selectValue, setRefetch}) => {
     const [open, setOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
 
@@ -22,11 +32,52 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
     const [doNotContainTextInput, setDoNotContainTextInput] = useState('');
     const [doNotContainWords, setDoNotContainWords] = useState([] as string[]);
 
-    const [useTags, setUseTags] = useState(false);
-    const [selectedTags, setSelectedTags] = useState([] as string[]);
+    const [artsData, setArtsData] = useState({});
+    const getArtsData = async () => {
+        if (sellerId == '') setArtsData({});
+        const params = {seller_id: sellerId, key: 'byNmId'};
+        const artsDataTemp = await callApi('getArtsData', params).catch((e) => {
+            console.log(e);
+        });
+        console.log('getArtsData', params, artsDataTemp);
+        if (artsDataTemp && artsDataTemp['data']) setArtsData(artsDataTemp['data']);
+        else setArtsData({});
+    };
+    useEffect(() => {
+        getArtsData();
+    }, [sellerId]);
+
+    const bindingOptions = [
+        {value: 'none', content: 'Задать параметры'},
+        {value: 'brand', content: 'Бренд'},
+        {value: 'object', content: 'Тип предмета'},
+        {value: 'title', content: 'Наименование'},
+        {value: 'imtId', content: 'ID КТ'},
+        {value: 'art', content: 'Артикул'},
+        {value: 'tags', content: 'Теги'},
+    ];
+    const [binding, setBinding] = useState(['none']);
     const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [availableTags, setAvailableTags] = useState([] as any[]);
-    const [availableTagsFiltered, setAvailableTagsFiltered] = useState([] as any[]);
+    const [bindingKeys, setBindingKeys] = useState([] as any[]);
+    const [availableBindingKeys, setAvailableBindingKeys] = useState([] as any[]);
+    const [availableBindingKeysFiltered, setAvailableBindingKeysFiltered] = useState([] as any[]);
+
+    useEffect(() => {
+        if (binding[0] == 'tags') setAvailableBindingKeys(availableTags);
+        else {
+            const uniqueKeys = [] as string[];
+            if (artsData)
+                for (const [_, artData] of Object.entries(artsData)) {
+                    if (!artData) continue;
+                    const val = artData[binding[0]];
+                    if (!uniqueKeys.includes(val)) uniqueKeys.push(val);
+                }
+            setAvailableBindingKeys(uniqueKeys);
+            setAvailableBindingKeysFiltered(uniqueKeys);
+        }
+        setBindingKeys([]);
+    }, [binding, artsData]);
 
     useEffect(() => {
         setAvailableTagsPending(true);
@@ -39,7 +90,7 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                 const {tags} = res['data'] ?? {};
                 tags.sort();
                 setAvailableTags(tags ?? []);
-                setAvailableTagsFiltered(tags ?? []);
+                setBindingKeys(tags ?? []);
             })
             .catch((e) => {
                 console.log(e);
@@ -82,9 +133,11 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
         setTemplateName('');
         setRatingFrom('1');
         setRatingTo('5');
-        setUseTags(false);
+        setBinding(['none']);
         setUseWordsFilter(false);
-        setSelectedTags([] as any[]);
+        setBindingKeys([] as any[]);
+        setAvailableBindingKeys([] as any[]);
+        setAvailableBindingKeysFiltered([] as any[]);
         setContainsWords([]);
         setDoNotContainWords([]);
         setContainsTextInput('');
@@ -337,14 +390,41 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                                 Добавить фильтр слова
                             </Button>
                             <div style={{minWidth: 8}} />
-                            <Button
-                                pin="circle-circle"
-                                selected={useTags}
-                                view="outlined-info"
-                                onClick={() => setUseTags(!useTags)}
-                            >
-                                Привязать теги
-                            </Button>
+                            <Select
+                                value={selectValue}
+                                placeholder="Values"
+                                options={bindingOptions}
+                                renderControl={({onClick, onKeyDown, ref}) => {
+                                    const map = {
+                                        none: 'Задать параметры',
+                                        brand: 'Бренд',
+                                        object: 'Тип предмета',
+                                        title: 'Наименование',
+                                        imtId: 'ID КТ',
+                                        art: 'Артикул',
+                                        tags: 'Теги',
+                                    };
+                                    return (
+                                        <Button
+                                            selected={
+                                                binding[0] != 'none' && bindingKeys.length > 0
+                                            }
+                                            view={'outlined-info'}
+                                            pin={'circle-circle'}
+                                            ref={ref}
+                                            onClick={onClick}
+                                            extraProps={{
+                                                onKeyDown,
+                                            }}
+                                        >
+                                            {map[binding[0]]}
+                                        </Button>
+                                    );
+                                }}
+                                onUpdate={(nextValue) => {
+                                    setBinding(nextValue);
+                                }}
+                            />
                         </motion.div>
                         {generateModalButtonWithActions(
                             {
@@ -359,11 +439,11 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                                         data: {
                                             templateName,
                                             templateText,
-                                            useTags,
                                             useWordsFilter,
                                             containsWords,
                                             doNotContainWords,
-                                            selectedTags,
+                                            binding: binding[0],
+                                            bindingKeys,
                                             ratingFrom,
                                             ratingTo,
                                         },
@@ -379,8 +459,8 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                     </motion.div>
                     <motion.div
                         animate={{
-                            width: useTags ? 250 : 0,
-                            left: useTags ? 358 : 350,
+                            width: binding[0] != 'none' ? 250 : 0,
+                            left: binding[0] != 'none' ? 358 : 350,
                             top: 22,
                         }}
                         style={{
@@ -400,50 +480,50 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                             loading={availableTagsPending}
                             filterPlaceholder="Введите имя тега"
                             emptyPlaceholder="Такой тег отсутствует"
-                            items={availableTags}
+                            items={availableBindingKeys}
                             onFilterEnd={({items}) => {
-                                setAvailableTagsFiltered(items);
+                                setAvailableBindingKeysFiltered(items);
                             }}
                             renderItem={(item) => {
                                 return (
                                     <Button
                                         size="xs"
                                         pin="circle-circle"
-                                        selected={selectedTags.includes(item)}
+                                        selected={bindingKeys.includes(item)}
                                         view={
-                                            selectedTags.includes(item)
+                                            bindingKeys.includes(item)
                                                 ? 'outlined-info'
                                                 : 'outlined'
                                         }
                                     >
-                                        {item.toUpperCase()}
+                                        {item}
                                     </Button>
                                 );
                             }}
                             onItemClick={(item) => {
-                                let tempArr = Array.from(selectedTags);
+                                let tempArr = Array.from(bindingKeys);
                                 if (tempArr.includes(item)) {
                                     tempArr = tempArr.filter((value) => value != item);
                                 } else {
                                     tempArr.push(item);
                                 }
 
-                                setSelectedTags(tempArr);
+                                setBindingKeys(tempArr);
                             }}
                         />
                         <Button
                             style={{margin: 8}}
                             view={
-                                selectedTags.length == availableTagsFiltered.length
+                                availableBindingKeysFiltered.length == bindingKeys.length
                                     ? 'outlined-danger'
                                     : 'outlined-info'
                             }
-                            selected={selectedTags.length == availableTagsFiltered.length}
+                            selected={availableBindingKeysFiltered.length == bindingKeys.length}
                             onClick={() => {
-                                setSelectedTags(
-                                    selectedTags.length == availableTagsFiltered.length
+                                setBindingKeys(
+                                    availableBindingKeysFiltered.length == bindingKeys.length
                                         ? ([] as any[])
-                                        : availableTagsFiltered,
+                                        : availableBindingKeysFiltered,
                                 );
                             }}
                             pin="circle-circle"
@@ -459,13 +539,13 @@ export const AutoFeedbackTemplateCreationModal = ({selectValue, setRefetch}) => 
                             >
                                 <Icon
                                     data={
-                                        selectedTags.length == availableTagsFiltered.length
+                                        bindingKeys.length == availableBindingKeysFiltered.length
                                             ? TrashBin
                                             : ListCheck
                                     }
                                 />
                                 <div style={{minWidth: 3}} />
-                                {selectedTags.length == availableTagsFiltered.length
+                                {bindingKeys.length == availableBindingKeysFiltered.length
                                     ? 'Очистить'
                                     : `Выбрать все`}
                             </div>
