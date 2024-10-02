@@ -9,13 +9,35 @@ import {
     TextArea,
     TextInput,
 } from '@gravity-ui/uikit';
-import {Plus, ListCheck, TrashBin, CloudArrowUpIn} from '@gravity-ui/icons';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {ListCheck, TrashBin, CloudArrowUpIn} from '@gravity-ui/icons';
+import React, {
+    Children,
+    isValidElement,
+    ReactElement,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import {motion} from 'framer-motion';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 
-export const AutoFeedbackTemplateCreationModal = ({sellerId, selectValue, setRefetch}) => {
+interface AutoFeedbackTemplateCreationModalInterface {
+    children: ReactElement | ReactElement[];
+    sellerId: string;
+    selectValue: string[];
+    setRefetch: Function;
+    templateValues?: any;
+}
+
+export const AutoFeedbackTemplateCreationModal = ({
+    children,
+    sellerId,
+    selectValue,
+    setRefetch,
+    templateValues,
+}: AutoFeedbackTemplateCreationModalInterface) => {
     const [open, setOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
 
@@ -76,7 +98,6 @@ export const AutoFeedbackTemplateCreationModal = ({sellerId, selectValue, setRef
             setAvailableBindingKeys(uniqueKeys);
             setAvailableBindingKeysFiltered(uniqueKeys);
         }
-        setBindingKeys([]);
     }, [binding, artsData]);
 
     useEffect(() => {
@@ -130,19 +151,20 @@ export const AutoFeedbackTemplateCreationModal = ({sellerId, selectValue, setRef
 
     const handleOpen = () => {
         setOpen(true);
-        setTemplateName('');
-        setRatingFrom('1');
-        setRatingTo('5');
-        setBinding(['none']);
-        setUseWordsFilter(false);
-        setBindingKeys([] as any[]);
+        setTemplateName(templateValues?.name ?? '');
+        if (templateValues?.name != '') setCurrentStep(1);
+        setRatingFrom(templateValues?.ratingFrom ?? '1');
+        setRatingTo(templateValues?.ratingTo ?? '5');
+        setBinding(templateValues?.binding ? [templateValues?.binding] : ['none']);
+        setUseWordsFilter(templateValues?.contains?.length || templateValues?.doNotContain?.length);
+        setBindingKeys(templateValues?.bindingKeys ?? []);
         setAvailableBindingKeys([] as any[]);
         setAvailableBindingKeysFiltered([] as any[]);
-        setContainsWords([]);
-        setDoNotContainWords([]);
+        setContainsWords(templateValues?.contains ?? []);
+        setDoNotContainWords(templateValues?.doNotContain ?? []);
         setContainsTextInput('');
         setDoNotContainTextInput('');
-        setTemplateText('');
+        setTemplateText(templateValues?.text ?? '');
     };
     const handleClose = () => {
         setOpen(false);
@@ -150,12 +172,27 @@ export const AutoFeedbackTemplateCreationModal = ({sellerId, selectValue, setRef
         setRefetch((cur) => !cur);
     };
 
+    // Ensure children is an array, even if only one child is passed
+    const childArray = Children.toArray(children);
+
+    // Find the first valid React element to use as the trigger
+    const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
+        any,
+        any
+    >;
+
+    if (!triggerElement) {
+        console.error('AddApiModal: No valid React element found in children.');
+        return null;
+    }
+
+    const triggerButton = React.cloneElement(triggerElement, {
+        onClick: handleOpen,
+    });
+
     return (
         <div>
-            <Button size="l" onClick={handleOpen} view="action">
-                <Icon data={Plus} />
-                <Text variant="subheader-1">Добавить шаблон</Text>
-            </Button>
+            {triggerButton}
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -422,6 +459,7 @@ export const AutoFeedbackTemplateCreationModal = ({sellerId, selectValue, setRef
                                     );
                                 }}
                                 onUpdate={(nextValue) => {
+                                    setBindingKeys([]);
                                     setBinding(nextValue);
                                 }}
                             />
@@ -478,8 +516,8 @@ export const AutoFeedbackTemplateCreationModal = ({sellerId, selectValue, setRef
                         <List
                             size="l"
                             loading={availableTagsPending}
-                            filterPlaceholder="Введите имя тега"
-                            emptyPlaceholder="Такой тег отсутствует"
+                            filterPlaceholder={`Поиск`}
+                            emptyPlaceholder="Нет результатов"
                             items={availableBindingKeys}
                             onFilterEnd={({items}) => {
                                 setAvailableBindingKeysFiltered(items);

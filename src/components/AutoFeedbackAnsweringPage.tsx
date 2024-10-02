@@ -2,14 +2,15 @@ import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {Button, Loader, Pagination, Card, Text, Icon} from '@gravity-ui/uikit';
-import {Pencil, Xmark} from '@gravity-ui/icons';
+import {Pencil, Xmark, Plus} from '@gravity-ui/icons';
+import {AutoFeedbackTemplateCreationModal} from './AutoFeedbackTemplateCreationModal';
 
 export const AutoFeedbackAnsweringPage = ({
+    sellerId,
     selectValue,
-    refetch,
 }: {
+    sellerId: string;
     selectValue: string[];
-    refetch: boolean;
 }) => {
     const [filters, setFilters] = useState({});
     const [data, setData] = useState(null as any);
@@ -17,6 +18,7 @@ export const AutoFeedbackAnsweringPage = ({
     const paginationSize = 100;
     const [currentPage, setCurrentPage] = useState(1);
     const [paginatedData, setPaginatedData] = useState([] as any[]);
+    const [refetch, setRefetch] = useState(false);
 
     useEffect(() => {
         const params = {uid: getUid(), campaignName: selectValue[0]};
@@ -79,7 +81,7 @@ export const AutoFeedbackAnsweringPage = ({
         {
             name: 'name',
             placeholder: 'Название',
-            render: ({value}) => {
+            render: ({value, row}) => {
                 return (
                     <div
                         style={{
@@ -122,9 +124,16 @@ export const AutoFeedbackAnsweringPage = ({
                                 <Icon data={Xmark} />
                             </Button>
                             <div style={{minWidth: 8}} />
-                            <Button size="xs">
-                                <Icon data={Pencil} />
-                            </Button>
+                            <AutoFeedbackTemplateCreationModal
+                                sellerId={sellerId}
+                                selectValue={selectValue}
+                                setRefetch={setRefetch}
+                                templateValues={row}
+                            >
+                                <Button size="xs">
+                                    <Icon data={Pencil} />
+                                </Button>
+                            </AutoFeedbackTemplateCreationModal>
                         </div>
                     </div>
                 );
@@ -185,8 +194,21 @@ export const AutoFeedbackAnsweringPage = ({
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
+                position: 'relative',
             }}
         >
+            <div style={{position: 'absolute', left: 0, top: -44}}>
+                <AutoFeedbackTemplateCreationModal
+                    sellerId={sellerId}
+                    selectValue={selectValue}
+                    setRefetch={setRefetch}
+                >
+                    <Button size="l" view="action">
+                        <Icon data={Plus} />
+                        <Text variant="subheader-1">Добавить шаблон</Text>
+                    </Button>
+                </AutoFeedbackTemplateCreationModal>
+            </div>
             <Card
                 style={{
                     boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
