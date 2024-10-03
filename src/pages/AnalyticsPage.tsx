@@ -617,6 +617,7 @@ export const AnalyticsPage = ({
     }, [apiPageColumns]);
 
     const [entityKeysLastCalc, setEntityKeysLastCalc] = useState([] as any[]);
+    const [enteredKeysDateTypeLastCalc, setEnteredKeysDateTypeLastCalc] = useState('');
 
     const [filters, setFilters] = useState({undef: false});
 
@@ -1231,8 +1232,10 @@ export const AnalyticsPage = ({
             const {primeCost} = entitySummary;
             primeCostSummaries += primeCost ?? 0;
 
-            if (entity) temp.push(entitySummary);
-            temp.push({entity: entity, isSummary: false, isBlank: true});
+            if (enteredKeysDateTypeLastCalc != 'period') {
+                if (entity) temp.push(entitySummary);
+                temp.push({entity: entity, isSummary: false, isBlank: true});
+            }
         }
 
         summaries['filteredSummaryTemp'].primeCost = primeCostSummaries;
@@ -1277,7 +1280,7 @@ export const AnalyticsPage = ({
             return rowA.entity.localeCompare(rowB.entity, 'ru-RU');
         });
 
-        temp.pop();
+        if (enteredKeysDateTypeLastCalc != 'period') temp.pop();
 
         const paginatedDataTemp = temp.slice(0, 100);
 
@@ -1725,6 +1728,7 @@ export const AnalyticsPage = ({
                         doc={doc}
                         setChangedDoc={setChangedDoc}
                         setEntityKeysLastCalc={setEntityKeysLastCalc}
+                        setEnteredKeysDateTypeLastCalc={setEnteredKeysDateTypeLastCalc}
                         selectValue={selectValue}
                         dateRange={dateRange}
                     />
