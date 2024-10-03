@@ -26,6 +26,7 @@ import {
     Calculator,
     LockOpen,
     Lock,
+    TagRuble,
     CloudArrowUpIn,
     TrashBin,
     Play,
@@ -311,6 +312,10 @@ export const PricesPage = ({
             return false;
         })();
 
+        const hasOld = doc.fixArtPrices[selectValue[0]][nmId]
+            ? doc.fixArtPrices[selectValue[0]][nmId].old
+            : false;
+
         const isPaused = doc.fixArtPrices[selectValue[0]][nmId]
             ? doc.fixArtPrices[selectValue[0]][nmId].paused
             : false;
@@ -412,6 +417,16 @@ export const PricesPage = ({
                             </Text>
                         </Popover>
                     </div>
+                ) : (
+                    <></>
+                )}
+                {hasOld ? (
+                    <Text
+                        style={{marginLeft: 4}}
+                        color={lastCalcOldData[art] === undefined ? 'positive' : 'danger'}
+                    >
+                        <Icon data={TagRuble} />
+                    </Text>
                 ) : (
                     <></>
                 )}
