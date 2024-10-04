@@ -5,7 +5,6 @@ import {
     Text,
     Card,
     Select,
-    SelectOption,
     TextInput,
     Link,
     Icon,
@@ -510,16 +509,6 @@ export const MassAdvertPage = ({
 
     const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
-
-    const [ordersInputValue] = useState('');
-    const [desiredSumInputValue] = useState('');
-    const [bidModalRange, setBidModalRange] = useState({from: 50, to: 50});
-    const [bidModalRangeValid, setBidModalRangeValid] = useState(true);
-    const [bidModalMaxBid, setBidModalMaxBid] = useState(500);
-    const [bidModalMaxBidValid, setBidModalMaxBidValid] = useState(true);
-    const [bidModalStocksThresholdInputValue] = useState(5);
-    const [bidModalDRRInputValue, setBidModalDRRInputValue] = useState(10);
-    const [bidModalDRRInputValidationValue, setBidModalDRRInputValidationValue] = useState(true);
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -1334,7 +1323,6 @@ export const MassAdvertPage = ({
                                         setFetchedPlacements={setFetchedPlacements}
                                         currentParsingProgress={currentParsingProgress}
                                         setCurrentParsingProgress={setCurrentParsingProgress}
-                                        selectedValueMethodOptions={selectedValueMethodOptions}
                                         columnDataAuction={columnDataAuction}
                                         auctionOptions={auctionOptions}
                                         auctionSelectedOption={auctionSelectedOption}
@@ -1342,32 +1330,9 @@ export const MassAdvertPage = ({
                                         setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                         setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                         dateRange={dateRange}
-                                        bidModalMaxBid={bidModalMaxBid}
                                         recalc={recalc}
                                         filterByButton={filterByButton}
                                         setScheduleInput={setScheduleInput}
-                                        selectedValueMethod={selectedValueMethod}
-                                        bidModalRange={bidModalRange}
-                                        desiredSumInputValue={desiredSumInputValue}
-                                        ordersInputValue={ordersInputValue}
-                                        bidModalDRRInputValue={bidModalDRRInputValue}
-                                        bidModalStocksThresholdInputValue={
-                                            bidModalStocksThresholdInputValue
-                                        }
-                                        setBidModalDRRInputValue={setBidModalDRRInputValue}
-                                        bidModalMaxBidValid={bidModalMaxBidValid}
-                                        setBidModalDRRInputValidationValue={
-                                            setBidModalDRRInputValidationValue
-                                        }
-                                        bidModalRangeValid={bidModalRangeValid}
-                                        bidModalDRRInputValidationValue={
-                                            bidModalDRRInputValidationValue
-                                        }
-                                        setBidModalRange={setBidModalRange}
-                                        setBidModalMaxBid={setBidModalMaxBid}
-                                        setBidModalMaxBidValid={setBidModalMaxBidValid}
-                                        setSelectedValueMethod={setSelectedValueMethod}
-                                        setBidModalRangeValid={setBidModalRangeValid}
                                         setAuctionSelectedOption={setAuctionSelectedOption}
                                     />,
                                 );
@@ -1398,7 +1363,6 @@ export const MassAdvertPage = ({
                                         setFetchedPlacements={setFetchedPlacements}
                                         currentParsingProgress={currentParsingProgress}
                                         setCurrentParsingProgress={setCurrentParsingProgress}
-                                        selectedValueMethodOptions={selectedValueMethodOptions}
                                         columnDataAuction={columnDataAuction}
                                         auctionOptions={auctionOptions}
                                         auctionSelectedOption={auctionSelectedOption}
@@ -1406,32 +1370,9 @@ export const MassAdvertPage = ({
                                         setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                         setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                         dateRange={dateRange}
-                                        bidModalMaxBid={bidModalMaxBid}
                                         recalc={recalc}
                                         filterByButton={filterByButton}
                                         setScheduleInput={setScheduleInput}
-                                        selectedValueMethod={selectedValueMethod}
-                                        bidModalRange={bidModalRange}
-                                        desiredSumInputValue={desiredSumInputValue}
-                                        ordersInputValue={ordersInputValue}
-                                        bidModalDRRInputValue={bidModalDRRInputValue}
-                                        bidModalStocksThresholdInputValue={
-                                            bidModalStocksThresholdInputValue
-                                        }
-                                        setBidModalDRRInputValue={setBidModalDRRInputValue}
-                                        bidModalMaxBidValid={bidModalMaxBidValid}
-                                        setBidModalDRRInputValidationValue={
-                                            setBidModalDRRInputValidationValue
-                                        }
-                                        bidModalRangeValid={bidModalRangeValid}
-                                        bidModalDRRInputValidationValue={
-                                            bidModalDRRInputValidationValue
-                                        }
-                                        setBidModalRange={setBidModalRange}
-                                        setBidModalMaxBid={setBidModalMaxBid}
-                                        setBidModalMaxBidValid={setBidModalMaxBidValid}
-                                        setSelectedValueMethod={setSelectedValueMethod}
-                                        setBidModalRangeValid={setBidModalRangeValid}
                                         setAuctionSelectedOption={setAuctionSelectedOption}
                                     />,
                                 );
@@ -1459,7 +1400,6 @@ export const MassAdvertPage = ({
                                     setFetchedPlacements={setFetchedPlacements}
                                     currentParsingProgress={currentParsingProgress}
                                     setCurrentParsingProgress={setCurrentParsingProgress}
-                                    selectedValueMethodOptions={selectedValueMethodOptions}
                                     columnDataAuction={columnDataAuction}
                                     auctionOptions={auctionOptions}
                                     auctionSelectedOption={auctionSelectedOption}
@@ -1467,32 +1407,9 @@ export const MassAdvertPage = ({
                                     setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                     setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                     dateRange={dateRange}
-                                    bidModalMaxBid={bidModalMaxBid}
                                     recalc={recalc}
                                     filterByButton={filterByButton}
                                     setScheduleInput={setScheduleInput}
-                                    selectedValueMethod={selectedValueMethod}
-                                    bidModalRange={bidModalRange}
-                                    desiredSumInputValue={desiredSumInputValue}
-                                    ordersInputValue={ordersInputValue}
-                                    bidModalDRRInputValue={bidModalDRRInputValue}
-                                    bidModalStocksThresholdInputValue={
-                                        bidModalStocksThresholdInputValue
-                                    }
-                                    setBidModalDRRInputValue={setBidModalDRRInputValue}
-                                    bidModalMaxBidValid={bidModalMaxBidValid}
-                                    setBidModalDRRInputValidationValue={
-                                        setBidModalDRRInputValidationValue
-                                    }
-                                    bidModalRangeValid={bidModalRangeValid}
-                                    bidModalDRRInputValidationValue={
-                                        bidModalDRRInputValidationValue
-                                    }
-                                    setBidModalRange={setBidModalRange}
-                                    setBidModalMaxBid={setBidModalMaxBid}
-                                    setBidModalMaxBidValid={setBidModalMaxBidValid}
-                                    setSelectedValueMethod={setSelectedValueMethod}
-                                    setBidModalRangeValid={setBidModalRangeValid}
                                     setAuctionSelectedOption={setAuctionSelectedOption}
                                 />,
                             );
@@ -2367,7 +2284,7 @@ export const MassAdvertPage = ({
                 const moreThatHour =
                     new Date().getTime() / 1000 / 3600 - updateTimeObj.getTime() / 1000 / 3600 > 1;
 
-                const {advertId, type, status} = fistActiveAdvert ?? {};
+                const {advertId} = fistActiveAdvert ?? {};
 
                 // console.log(
                 //     advertId,
@@ -2556,395 +2473,6 @@ export const MassAdvertPage = ({
                                                                 columns={columnDataAuction}
                                                                 data={auction}
                                                             />
-                                                        </Card>
-                                                    </Card>
-                                                    <div style={{minWidth: 12}} />
-                                                    <Card
-                                                        view="outlined"
-                                                        // theme="warning"
-                                                        style={{
-                                                            height: 'fit-content',
-                                                            boxShadow:
-                                                                'var(--g-color-base-background) 0px 2px 8px',
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            style={{
-                                                                background:
-                                                                    'var(--yc-color-base-background)',
-                                                                // height: '100%',
-                                                                width: 240,
-                                                                overflow: 'auto',
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                justifyContent: 'space-between',
-                                                                paddingTop: 20,
-                                                            }}
-                                                        >
-                                                            <div
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    flexDirection: 'column',
-                                                                    width: '100%',
-                                                                    justifyContent: 'center',
-                                                                    alignItems: 'center',
-                                                                }}
-                                                            >
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Метод'}
-                                                                    </Text>
-                                                                    <Select
-                                                                        onUpdate={(nextValue) => {
-                                                                            setSelectedValueMethod(
-                                                                                nextValue,
-                                                                            );
-                                                                            if (
-                                                                                nextValue[0] ==
-                                                                                'По ДРР'
-                                                                            ) {
-                                                                                setBidModalRange({
-                                                                                    from: 0,
-                                                                                    to: 0,
-                                                                                });
-                                                                            } else {
-                                                                                setBidModalRange({
-                                                                                    from: 50,
-                                                                                    to: 50,
-                                                                                });
-                                                                            }
-                                                                        }}
-                                                                        options={
-                                                                            selectedValueMethodOptions
-                                                                        }
-                                                                        renderControl={({
-                                                                            onClick,
-                                                                            onKeyDown,
-                                                                            ref,
-                                                                        }) => {
-                                                                            const temp = {};
-                                                                            for (
-                                                                                let i = 0;
-                                                                                i <
-                                                                                selectedValueMethodOptions.length;
-                                                                                i++
-                                                                            ) {
-                                                                                const {
-                                                                                    value,
-                                                                                    content,
-                                                                                } =
-                                                                                    selectedValueMethodOptions[
-                                                                                        i
-                                                                                    ];
-                                                                                temp[value] =
-                                                                                    content;
-                                                                            }
-                                                                            return (
-                                                                                <Button
-                                                                                    style={{
-                                                                                        width: '100%',
-                                                                                    }}
-                                                                                    ref={ref}
-                                                                                    view="outlined"
-                                                                                    onClick={
-                                                                                        onClick
-                                                                                    }
-                                                                                    extraProps={{
-                                                                                        onKeyDown,
-                                                                                    }}
-                                                                                >
-                                                                                    {
-                                                                                        temp[
-                                                                                            selectedValueMethod[0]
-                                                                                        ]
-                                                                                    }
-                                                                                    <Icon
-                                                                                        data={
-                                                                                            ChevronDown
-                                                                                        }
-                                                                                    />
-                                                                                </Button>
-                                                                            );
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Макс. ставка'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        disabled={
-                                                                            selectedValueMethod[0] ==
-                                                                                'drr' ||
-                                                                            selectedValueMethod[0] ==
-                                                                                'orders' ||
-                                                                            selectedValueMethod[0] ==
-                                                                                'obor' ||
-                                                                            selectedValueMethod[0] ==
-                                                                                'sum'
-                                                                        }
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalMaxBid,
-                                                                        )}
-                                                                        onUpdate={(val) => {
-                                                                            const intVal =
-                                                                                Number(val);
-
-                                                                            setBidModalMaxBidValid(
-                                                                                intVal >= 100,
-                                                                            );
-
-                                                                            setBidModalMaxBid(
-                                                                                intVal,
-                                                                            );
-                                                                        }}
-                                                                        validationState={
-                                                                            bidModalMaxBidValid
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {'Позиция'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        disabled={
-                                                                            selectedValueMethod[0] ==
-                                                                                'drr' ||
-                                                                            selectedValueMethod[0] ==
-                                                                                'cpo'
-                                                                        }
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalRange.to,
-                                                                        )}
-                                                                        onUpdate={(val) => {
-                                                                            const intVal =
-                                                                                Number(val);
-
-                                                                            setBidModalRange(() => {
-                                                                                setBidModalRangeValid(
-                                                                                    intVal > 0,
-                                                                                );
-                                                                                return {
-                                                                                    from: intVal,
-                                                                                    to: intVal,
-                                                                                };
-                                                                            });
-                                                                        }}
-                                                                        validationState={
-                                                                            bidModalRangeValid
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 4}} />
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                    }}
-                                                                >
-                                                                    <Text
-                                                                        style={{marginLeft: 4}}
-                                                                        variant="subheader-1"
-                                                                    >
-                                                                        {selectedValueMethod[0] ==
-                                                                        'cpo'
-                                                                            ? 'Целевой CPO'
-                                                                            : 'Целевой ДРР'}
-                                                                    </Text>
-                                                                    <TextInput
-                                                                        type="number"
-                                                                        value={String(
-                                                                            bidModalDRRInputValue,
-                                                                        )}
-                                                                        onChange={(val) => {
-                                                                            const cpo = Number(
-                                                                                val.target.value,
-                                                                            );
-                                                                            if (cpo < 0)
-                                                                                setBidModalDRRInputValidationValue(
-                                                                                    false,
-                                                                                );
-                                                                            else
-                                                                                setBidModalDRRInputValidationValue(
-                                                                                    true,
-                                                                                );
-                                                                            setBidModalDRRInputValue(
-                                                                                cpo,
-                                                                            );
-                                                                        }}
-                                                                        errorMessage={
-                                                                            'Введите не менее 0'
-                                                                        }
-                                                                        validationState={
-                                                                            bidModalDRRInputValidationValue
-                                                                                ? undefined
-                                                                                : 'invalid'
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div style={{minHeight: 8}} />
-
-                                                                {generateModalButtonWithActions(
-                                                                    {
-                                                                        disabled: !advertId,
-                                                                        placeholder: 'Установить',
-                                                                        icon: CloudArrowUpIn,
-                                                                        view: 'outlined-success',
-                                                                        onClick: () => {
-                                                                            const params = {
-                                                                                uid: getUid(),
-                                                                                campaignName:
-                                                                                    selectValue[0],
-                                                                                data: {
-                                                                                    advertsIds: {},
-                                                                                    mode: 'Автоставки',
-                                                                                    stocksThreshold:
-                                                                                        bidModalStocksThresholdInputValue,
-                                                                                    placementsRange:
-                                                                                        bidModalRange,
-                                                                                    maxBid: bidModalMaxBid,
-                                                                                    autoBidsMode:
-                                                                                        selectedValueMethod[0],
-                                                                                    desiredOrders:
-                                                                                        parseInt(
-                                                                                            ordersInputValue,
-                                                                                        ),
-                                                                                    desiredSum:
-                                                                                        parseInt(
-                                                                                            desiredSumInputValue,
-                                                                                        ),
-                                                                                },
-                                                                            };
-
-                                                                            params.data.advertsIds[
-                                                                                advertId
-                                                                            ] = {
-                                                                                desiredDRR:
-                                                                                    bidModalDRRInputValue,
-
-                                                                                advertId: advertId,
-                                                                            };
-
-                                                                            if (
-                                                                                !doc
-                                                                                    .advertsAutoBidsRules[
-                                                                                    selectValue[0]
-                                                                                ][advertId]
-                                                                            )
-                                                                                doc.advertsAutoBidsRules[
-                                                                                    selectValue[0]
-                                                                                ][advertId] = {};
-                                                                            doc.advertsAutoBidsRules[
-                                                                                selectValue[0]
-                                                                            ][advertId] = {
-                                                                                desiredOrders:
-                                                                                    parseInt(
-                                                                                        ordersInputValue,
-                                                                                    ),
-                                                                                desiredSum:
-                                                                                    parseInt(
-                                                                                        desiredSumInputValue,
-                                                                                    ),
-
-                                                                                desiredDRR:
-                                                                                    bidModalDRRInputValue,
-                                                                                placementsRange:
-                                                                                    bidModalRange,
-                                                                                maxBid: bidModalMaxBid,
-                                                                                autoBidsMode:
-                                                                                    selectedValueMethod[0],
-                                                                            };
-
-                                                                            console.log(params);
-
-                                                                            //////////////////////////////////
-                                                                            callApi(
-                                                                                'setAdvertsCPMs',
-                                                                                params,
-                                                                            );
-                                                                            setChangedDoc({...doc});
-                                                                            //////////////////////////////////
-                                                                        },
-                                                                    },
-                                                                    selectedButton,
-                                                                    setSelectedButton,
-                                                                )}
-                                                            </div>
-                                                            <div style={{minHeight: 16}} />
-                                                            <Button
-                                                                selected
-                                                                onClick={() =>
-                                                                    filterByButton(
-                                                                        advertId,
-                                                                        'adverts',
-                                                                    )
-                                                                }
-                                                                // style=x{{position: 'relative', top: -2}}
-                                                                width="max"
-                                                                pin="brick-brick"
-                                                                view={
-                                                                    status
-                                                                        ? status == 9
-                                                                            ? 'flat-success'
-                                                                            : status == 11
-                                                                            ? 'flat-danger'
-                                                                            : 'flat-warning'
-                                                                        : 'flat'
-                                                                }
-                                                            >
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'row',
-                                                                        alignItems: 'center',
-                                                                    }}
-                                                                >
-                                                                    <Icon
-                                                                        data={
-                                                                            type == 8
-                                                                                ? Rocket
-                                                                                : Magnifier
-                                                                        }
-                                                                        size={11}
-                                                                    />
-                                                                    <div style={{width: 2}} />
-                                                                    {advertId}
-                                                                </div>
-                                                            </Button>
                                                         </Card>
                                                     </Card>
                                                 </div>
@@ -4025,45 +3553,6 @@ export const MassAdvertPage = ({
     };
 
     const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = React.useState(false);
-    const [selectedValueMethodOptions] = React.useState<SelectOption<any>[]>([
-        {
-            value: 'placements',
-            content: 'Место в выдаче',
-        },
-        {
-            value: 'auction',
-            content: 'Позиция в аукционе',
-        },
-        {
-            value: 'bestPlacement',
-            content: 'Топ позиция',
-        },
-        {
-            value: 'orders',
-            content: 'Заказы',
-        },
-        {
-            value: 'sum_orders',
-            content: 'Сумма заказов',
-        },
-        {
-            value: 'obor',
-            content: 'Оборачиваемость',
-        },
-        {
-            value: 'sum',
-            content: 'Плановый расход',
-        },
-        {
-            value: 'drr',
-            content: 'Целевой ДРР',
-        },
-        {
-            value: 'cpo',
-            content: 'Целевой CPO',
-        },
-    ]);
-    const [selectedValueMethod, setSelectedValueMethod] = React.useState<string[]>(['placements']);
     const [firstRecalc, setFirstRecalc] = useState(false);
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
@@ -4245,19 +3734,7 @@ export const MassAdvertPage = ({
             render: ({index, footer}) => {
                 const displayIndex = index + 1;
                 return footer ? undefined : (
-                    <Button
-                        width="max"
-                        size="xs"
-                        view="flat"
-                        onClick={() => {
-                            setSelectedValueMethod(['auction']);
-                            setBidModalRangeValid(displayIndex > 0);
-                            setBidModalRange({
-                                from: displayIndex,
-                                to: displayIndex,
-                            });
-                        }}
-                    >
+                    <Button width="max" size="xs" view="flat">
                         {displayIndex}
                     </Button>
                 );
@@ -4272,15 +3749,7 @@ export const MassAdvertPage = ({
                 return footer ? (
                     value
                 ) : (
-                    <Button
-                        size="xs"
-                        view="flat"
-                        onClick={() => {
-                            const maxBid = (value as number) + 1;
-                            setBidModalMaxBidValid(maxBid >= 100);
-                            setBidModalMaxBid(maxBid);
-                        }}
-                    >
+                    <Button size="xs" view="flat">
                         {advertsType ? (
                             <Icon data={advertsType == 'auto' ? Rocket : Magnifier} size={11} />
                         ) : (
@@ -4299,18 +3768,7 @@ export const MassAdvertPage = ({
                 const {position} = row;
                 const displayIndex = (value as number) + 0;
                 return (
-                    <Button
-                        size="xs"
-                        view="flat"
-                        onClick={() => {
-                            setSelectedValueMethod(['placements']);
-                            setBidModalRangeValid(displayIndex > 0);
-                            setBidModalRange({
-                                from: displayIndex,
-                                to: displayIndex,
-                            });
-                        }}
-                    >
+                    <Button size="xs" view="flat">
                         <div
                             style={{
                                 display: 'flex',
@@ -5196,9 +4654,6 @@ export const MassAdvertPage = ({
                                                     setCurrentParsingProgress={
                                                         setCurrentParsingProgress
                                                     }
-                                                    selectedValueMethodOptions={
-                                                        selectedValueMethodOptions
-                                                    }
                                                     columnDataAuction={columnDataAuction}
                                                     auctionOptions={auctionOptions}
                                                     auctionSelectedOption={auctionSelectedOption}
@@ -5210,34 +4665,9 @@ export const MassAdvertPage = ({
                                                         setShowArtStatsModalOpen
                                                     }
                                                     dateRange={dateRange}
-                                                    bidModalMaxBid={bidModalMaxBid}
                                                     recalc={recalc}
                                                     filterByButton={filterByButton}
                                                     setScheduleInput={setScheduleInput}
-                                                    selectedValueMethod={selectedValueMethod}
-                                                    bidModalRange={bidModalRange}
-                                                    desiredSumInputValue={desiredSumInputValue}
-                                                    ordersInputValue={ordersInputValue}
-                                                    bidModalDRRInputValue={bidModalDRRInputValue}
-                                                    bidModalStocksThresholdInputValue={
-                                                        bidModalStocksThresholdInputValue
-                                                    }
-                                                    setBidModalDRRInputValue={
-                                                        setBidModalDRRInputValue
-                                                    }
-                                                    bidModalMaxBidValid={bidModalMaxBidValid}
-                                                    setBidModalDRRInputValidationValue={
-                                                        setBidModalDRRInputValidationValue
-                                                    }
-                                                    bidModalRangeValid={bidModalRangeValid}
-                                                    bidModalDRRInputValidationValue={
-                                                        bidModalDRRInputValidationValue
-                                                    }
-                                                    setBidModalRange={setBidModalRange}
-                                                    setBidModalMaxBid={setBidModalMaxBid}
-                                                    setBidModalMaxBidValid={setBidModalMaxBidValid}
-                                                    setSelectedValueMethod={setSelectedValueMethod}
-                                                    setBidModalRangeValid={setBidModalRangeValid}
                                                     setAuctionSelectedOption={
                                                         setAuctionSelectedOption
                                                     }

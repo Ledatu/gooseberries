@@ -42,7 +42,6 @@ export const AdvertCard = ({
     setFetchedPlacements,
     currentParsingProgress,
     setCurrentParsingProgress,
-    selectedValueMethodOptions,
     columnDataAuction,
     auctionOptions,
     auctionSelectedOption,
@@ -50,26 +49,9 @@ export const AdvertCard = ({
     setModalOpenFromAdvertId,
     setShowArtStatsModalOpen,
     dateRange,
-    bidModalMaxBid,
     setScheduleInput,
     recalc,
     filterByButton,
-    selectedValueMethod,
-    bidModalRange,
-    desiredSumInputValue,
-    ordersInputValue,
-    bidModalDRRInputValue,
-    bidModalStocksThresholdInputValue,
-    setBidModalDRRInputValue,
-    bidModalMaxBidValid,
-    setBidModalDRRInputValidationValue,
-    bidModalRangeValid,
-    bidModalDRRInputValidationValue,
-    setBidModalRange,
-    setBidModalMaxBid,
-    setBidModalMaxBidValid,
-    setSelectedValueMethod,
-    setBidModalRangeValid,
     setAuctionSelectedOption,
 }) => {
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
@@ -664,28 +646,9 @@ export const AdvertCard = ({
                             setFetchedPlacements={setFetchedPlacements}
                             currentParsingProgress={currentParsingProgress}
                             setCurrentParsingProgress={setCurrentParsingProgress}
-                            selectedValueMethodOptions={selectedValueMethodOptions}
                             columnDataAuction={columnDataAuction}
                             auctionOptions={auctionOptions}
                             auctionSelectedOption={auctionSelectedOption}
-                            bidModalMaxBid={bidModalMaxBid}
-                            filterByButton={filterByButton}
-                            selectedValueMethod={selectedValueMethod}
-                            bidModalRange={bidModalRange}
-                            desiredSumInputValue={desiredSumInputValue}
-                            ordersInputValue={ordersInputValue}
-                            bidModalDRRInputValue={bidModalDRRInputValue}
-                            bidModalStocksThresholdInputValue={bidModalStocksThresholdInputValue}
-                            setBidModalDRRInputValue={setBidModalDRRInputValue}
-                            bidModalMaxBidValid={bidModalMaxBidValid}
-                            setBidModalDRRInputValidationValue={setBidModalDRRInputValidationValue}
-                            bidModalRangeValid={bidModalRangeValid}
-                            bidModalDRRInputValidationValue={bidModalDRRInputValidationValue}
-                            setBidModalRange={setBidModalRange}
-                            setBidModalMaxBid={setBidModalMaxBid}
-                            setBidModalMaxBidValid={setBidModalMaxBidValid}
-                            setSelectedValueMethod={setSelectedValueMethod}
-                            setBidModalRangeValid={setBidModalRangeValid}
                             setAuctionSelectedOption={setAuctionSelectedOption}
                         />
                     </div>
