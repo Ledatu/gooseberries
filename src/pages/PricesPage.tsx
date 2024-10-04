@@ -1676,7 +1676,7 @@ export const PricesPage = ({
                                                         art,
                                                         fixPrices,
                                                     } = filteredData[i];
-                                                    if (nmId && wbPrice && rozPrice > primeCost) {
+                                                    if (nmId && wbPrice && rozPrice >= primeCost) {
                                                         byNmId[nmId] = {
                                                             nmID: nmId,
                                                             price: wbPrice,
