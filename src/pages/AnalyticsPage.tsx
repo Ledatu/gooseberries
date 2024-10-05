@@ -629,7 +629,15 @@ export const AnalyticsPage = ({
 
     const renderFilterByClickButton = ({value}, key) => {
         return (
-            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                }}
+            >
                 <Button
                     style={{height: 'fit-content'}}
                     size="xs"
