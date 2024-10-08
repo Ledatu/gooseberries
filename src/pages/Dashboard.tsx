@@ -23,6 +23,7 @@ import {useUser} from 'src/components/RequireAuth';
 import {ApiPage} from './ApiPage';
 import {useMediaQuery} from 'src/hooks/useMediaQuery';
 import {UserPopup} from 'src/components/UserPopup';
+import {DetailedReportsPage} from './DetailedReportsPage';
 
 const b = block('app');
 
@@ -137,6 +138,7 @@ export const Dashboard = ({setThemeAurum}) => {
             delivery: 'Поставки',
             nomenclatures: 'Товары',
             buyers: 'Покупатели',
+            reports: 'Отчеты',
             seo: 'SEO',
             api: 'Магазины',
         };
@@ -674,6 +676,7 @@ const PageElem = ({
                 setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
             />
         ),
+        reports: <DetailedReportsPage />,
         seo: <SEOPage />,
         api: <ApiPage />,
     };

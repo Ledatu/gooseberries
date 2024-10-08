@@ -1,15 +1,17 @@
 import {RangeCalendar} from '@gravity-ui/date-components';
 import {Button, Card, Popup, Text} from '@gravity-ui/uikit';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 
 export const RangePicker = ({args}) => {
-    const {recalc, dateRange, setDateRange, anchorRef} = args;
+    const {recalc, dateRange, setDateRange} = args;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const [rangePickerOpen, setRangePickerOpen] = useState(false);
 
     const [startDate, endDate] = dateRange;
+
+    const anchorRef = useRef(null);
 
     return (
         <div>

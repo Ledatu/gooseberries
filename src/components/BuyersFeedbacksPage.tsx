@@ -399,8 +399,30 @@ export const BuyersFeedbacksPage = ({
         },
         {name: 'userName', placeholder: 'Имя'},
         {
+            name: 'pros',
+            placeholder: 'Достоинства',
+            render: ({value}) => {
+                return (
+                    <div style={{textWrap: 'wrap'}}>
+                        <Text>{value}</Text>
+                    </div>
+                );
+            },
+        },
+        {
+            name: 'cons',
+            placeholder: 'Недостатки',
+            render: ({value}) => {
+                return (
+                    <div style={{textWrap: 'wrap'}}>
+                        <Text>{value}</Text>
+                    </div>
+                );
+            },
+        },
+        {
             name: 'text',
-            placeholder: 'Отзыв',
+            placeholder: 'Комментарий',
             render: ({value}) => {
                 return (
                     <div style={{textWrap: 'wrap'}}>
