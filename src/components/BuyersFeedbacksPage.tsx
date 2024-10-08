@@ -130,7 +130,7 @@ export const BuyersFeedbacksPage = ({
                         }
                         if (tempFlagInc != rulesForAnd.length) {
                             addFlag = false;
-                            break;
+                            continue;
                         }
                     } else if (!compare(tempTypeRow[filterArg], filterData)) {
                         addFlag = false;
@@ -167,6 +167,7 @@ export const BuyersFeedbacksPage = ({
 
     const columns = [
         {
+            valueType: 'text',
             name: 'nmId',
             placeholder: 'Артикул',
             width: 200,
@@ -374,7 +375,6 @@ export const BuyersFeedbacksPage = ({
                     </div>
                 );
             },
-            valueType: 'text',
             group: true,
         },
         {name: 'createdDate', placeholder: 'Дата', render: renderAsDate},
@@ -397,8 +397,9 @@ export const BuyersFeedbacksPage = ({
                 );
             },
         },
-        {name: 'userName', placeholder: 'Имя'},
+        {name: 'userName', placeholder: 'Имя', valueType: 'text'},
         {
+            valueType: 'text',
             name: 'pros',
             placeholder: 'Достоинства',
             render: ({value}) => {
@@ -410,6 +411,7 @@ export const BuyersFeedbacksPage = ({
             },
         },
         {
+            valueType: 'text',
             name: 'cons',
             placeholder: 'Недостатки',
             render: ({value}) => {
@@ -421,6 +423,7 @@ export const BuyersFeedbacksPage = ({
             },
         },
         {
+            valueType: 'text',
             name: 'text',
             placeholder: 'Комментарий',
             render: ({value}) => {
@@ -433,6 +436,7 @@ export const BuyersFeedbacksPage = ({
         },
         isAnswered == 'answered'
             ? {
+                  valueType: 'text',
                   name: 'answer',
                   placeholder: 'Ответ',
                   render: ({value}) => {
