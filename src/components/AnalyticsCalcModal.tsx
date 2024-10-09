@@ -66,9 +66,17 @@ export const AnalyticsCalcModal = ({
         for (const [key, check] of Object.entries(enteredKeysCheck)) {
             temp.push(<div style={{minHeight: 8}} />);
             temp.push(
-                <Card>
+                <Card
+                    style={{
+                        minHeight: 36,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        padding: '0px 8px',
+                    }}
+                >
                     <Switch
-                        style={{width: '100%', margin: 8}}
+                        style={{width: '100%', height: '100%'}}
                         onUpdate={(val) => {
                             const newVal = {...enteredKeysCheck};
                             newVal[key] = val;
