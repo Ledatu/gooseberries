@@ -1,10 +1,13 @@
-import {Button, Icon, Modal, TextArea} from '@gravity-ui/uikit';
-import {PencilToLine} from '@gravity-ui/icons';
-import React, {useState} from 'react';
+import {Button, Modal, TextArea} from '@gravity-ui/uikit';
+import React, {Children, isValidElement, ReactElement, useState} from 'react';
 import {motion} from 'framer-motion';
-import callApi, {getUid} from 'src/utilities/callApi';
+import callApi from 'src/utilities/callApi';
+import {useUser} from './RequireAuth';
 
-export const AnswerFeedbackModal = ({selectValue, id}) => {
+export const AnswerFeedbackModal = ({children, id, sellerId, setData}) => {
+    const {userInfo} = useUser();
+    const {user} = userInfo;
+
     const [open, setOpen] = useState(false);
     const [text, setText] = useState('');
     const [textValid, setTextValid] = useState(true);
@@ -15,12 +18,27 @@ export const AnswerFeedbackModal = ({selectValue, id}) => {
     };
     const handleClose = () => setOpen(false);
 
+    // Ensure children is an array, even if only one child is passed
+    const childArray = Children.toArray(children);
+
+    // Find the first valid React element to use as the trigger
+    const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
+        any,
+        any
+    >;
+
+    if (!triggerElement) {
+        console.error('AddApiModal: No valid React element found in children.');
+        return null;
+    }
+
+    const triggerButton = React.cloneElement(triggerElement, {
+        onClick: handleOpen,
+    });
+
     return (
         <div>
-            <Button onClick={handleOpen} size="xs">
-                Добавить ответ
-                <Icon data={PencilToLine} />
-            </Button>
+            {triggerButton}
             <Modal open={open} onClose={handleClose}>
                 <motion.div
                     style={{
@@ -32,12 +50,13 @@ export const AnswerFeedbackModal = ({selectValue, id}) => {
                         justifyContent: 'start',
                         alignItems: 'center',
                     }}
-                    animate={{height: open ? 396 : 0}}
+                    animate={{height: open ? 236 : 0}}
                 >
                     <TextArea
+                        autoFocus
                         placeholder="Введите ваш ответ"
                         size="l"
-                        rows={20}
+                        rows={10}
                         validationState={textValid ? undefined : 'invalid'}
                         value={text}
                         onUpdate={(val) => {
@@ -54,15 +73,28 @@ export const AnswerFeedbackModal = ({selectValue, id}) => {
                         size="l"
                         onClick={() => {
                             const params = {
-                                uid: getUid(),
-                                campaignName: selectValue[0],
+                                seller_id: sellerId,
+                                user_id: user?._id,
+                                username: user?.username,
                                 id: id,
                                 text: text,
                             };
-                            callApi('answerFeedback', params);
+                            console.log(new Date(), 'answerFeedback', params);
+                            callApi('answerFeedback', params)
+                                .then(() => {
+                                    setData((old) =>
+                                        old ? old.filter((item) => item.id != id) : [],
+                                    );
+                                })
+                                .catch((e) => {
+                                    alert(e);
+                                })
+                                .finally(() => {
+                                    setOpen(false);
+                                });
                         }}
                     >
-                        Сохранить ответ
+                        Отправить ответ
                     </Button>
                 </motion.div>
             </Modal>

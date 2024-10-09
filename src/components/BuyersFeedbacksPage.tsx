@@ -2,9 +2,10 @@ import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {Button, Loader, Pagination, Icon, Card, Text, Link, Popover} from '@gravity-ui/uikit';
-import {Star} from '@gravity-ui/icons';
+import {Star, PencilToLine} from '@gravity-ui/icons';
 import {renderAsDate} from 'src/utilities/getRoundValue';
 import {TagsFilterModal} from './TagsFilterModal';
+import {AnswerFeedbackModal} from './AnswerFeedbackModal';
 
 export const BuyersFeedbacksPage = ({
     selectValue,
@@ -390,9 +391,9 @@ export const BuyersFeedbacksPage = ({
                         ? 'outlined-warning'
                         : 'outlined-danger';
                 return (
-                    <Button size="xs" view={color} selected pin="circle-circle">
+                    <Button view={color} selected pin="circle-circle">
                         {value}
-                        <Icon data={Star} size={11} />
+                        <Icon data={Star} size={13} />
                     </Button>
                 );
             },
@@ -434,21 +435,35 @@ export const BuyersFeedbacksPage = ({
                 );
             },
         },
-        isAnswered == 'answered'
-            ? {
-                  valueType: 'text',
-                  name: 'answer',
-                  placeholder: 'Ответ',
-                  render: ({value}) => {
-                      const {text} = value ?? {};
-                      return (
-                          <div style={{textWrap: 'wrap'}}>
-                              <Text>{text}</Text>
-                          </div>
-                      );
-                  },
-              }
-            : undefined,
+
+        {
+            valueType: 'text',
+            name: 'answer',
+            placeholder: 'Ответ',
+            render:
+                isAnswered == 'answered'
+                    ? ({value}) => {
+                          const {text} = value ?? {};
+                          return (
+                              <div style={{textWrap: 'wrap'}}>
+                                  <Text>{text}</Text>
+                              </div>
+                          );
+                      }
+                    : ({row}) => {
+                          const {pros, cons, text, id} = row;
+                          const all = pros + cons + text;
+                          if (all == '') return undefined;
+                          return (
+                              <AnswerFeedbackModal sellerId={sellerId} id={id} setData={setData}>
+                                  <Button width="max" pin="circle-circle">
+                                      <Icon data={PencilToLine} size={13} />
+                                      Ответить
+                                  </Button>
+                              </AnswerFeedbackModal>
+                          );
+                      },
+        },
     ];
 
     return data && !pending ? (
