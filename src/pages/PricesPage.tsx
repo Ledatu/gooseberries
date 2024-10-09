@@ -664,12 +664,12 @@ export const PricesPage = ({
         {
             name: 'taxSum',
             placeholder: 'Налог, ₽',
-            render: (args) => renderSlashPercent(args, 'sppPrice'),
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
         },
         {
             name: 'expences',
             placeholder: 'Доп. расходы, ₽',
-            render: (args) => renderSlashPercent(args, 'sppPrice'),
+            render: (args) => renderSlashPercent(args, 'rozPrice'),
         },
         {
             name: 'storageCostForArt',
