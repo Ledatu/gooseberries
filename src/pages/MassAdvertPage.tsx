@@ -3131,7 +3131,10 @@ export const MassAdvertPage = ({
     };
 
     const getBalanceYagrData = () => {
-        const balanceLog = doc.balances[selectValue[0]] ? doc.balances[selectValue[0]].data : {};
+        const balanceLog =
+            doc.balances && doc.balances[selectValue[0]]
+                ? doc.balances[selectValue[0]]?.data ?? {}
+                : {};
         // console.log(balanceLog);
 
         const timelineBudget: any[] = [];
