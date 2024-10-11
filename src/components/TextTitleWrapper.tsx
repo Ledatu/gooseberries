@@ -1,14 +1,21 @@
 import React, {Children, isValidElement, ReactElement} from 'react';
-import {Text} from '@gravity-ui/uikit';
+import {Text, TEXT_VARIANTS} from '@gravity-ui/uikit';
 
 interface TextTitleWrapperInterface {
     children: ReactElement | ReactElement[];
     title: string;
     padding?: number | undefined;
     style?: object | undefined;
+    variant?: (typeof TEXT_VARIANTS)[number];
 }
 
-export const TextTitleWrapper = ({children, title, padding, style}: TextTitleWrapperInterface) => {
+export const TextTitleWrapper = ({
+    children,
+    title,
+    padding,
+    style,
+    variant,
+}: TextTitleWrapperInterface) => {
     const childArray = Children.toArray(children);
 
     // Find the first valid React element to use as the trigger
@@ -20,7 +27,7 @@ export const TextTitleWrapper = ({children, title, padding, style}: TextTitleWra
     }
     return (
         <div style={{display: 'flex', flexDirection: 'column', width: '100%', ...style}}>
-            <Text style={{marginLeft: padding ?? 4}} variant="subheader-1">
+            <Text style={{marginLeft: padding ?? 4}} variant={variant ?? 'subheader-1'}>
                 {title}
             </Text>
             {elem}

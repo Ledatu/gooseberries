@@ -6,7 +6,6 @@ import {
     Text,
     Pagination,
     Modal,
-    Card,
     List,
     TextInput,
     Label,
@@ -25,6 +24,7 @@ import TheTable, {compare} from 'src/components/TheTable';
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import {getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
 import {useUser} from 'src/components/RequireAuth';
+import {NomenclaturesPageEditParameter} from 'src/components/NomenclaturesPageEditParameter';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -68,11 +68,7 @@ export const NomenclaturesPage = ({
 
     const [filters, setFilters] = useState({undef: false});
 
-    const [enteredValueModalOpen, setEnteredValueModalOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
-
-    const [enteredValueKey, setEnteredValueKey] = useState('');
-    const [enteredValue, setEnteredValue] = useState('');
 
     const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
@@ -85,6 +81,33 @@ export const NomenclaturesPage = ({
         setFilters(filters);
         filterTableData(filters);
     };
+
+    const updateInfo = () => {
+        callApi(
+            'getNomenclatures',
+            {
+                uid: getUid(),
+                campaignName: selectValue[0],
+            },
+            true,
+        ).then((res) => {
+            if (!res) return;
+            const resData = res['data'];
+            doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
+            doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
+
+            setChangedDoc({...doc});
+
+            console.log(doc);
+        });
+    };
+
+    const [update, setUpdate] = useState(false);
+    useEffect(() => {
+        if (!update) return;
+        updateInfo();
+        setUpdate(false);
+    }, [update]);
 
     const renderFilterByClickButton = ({value}, key) => {
         return (
@@ -101,7 +124,7 @@ export const NomenclaturesPage = ({
     };
 
     const generateEditButton = (key, onClick = undefined as any) => {
-        return (
+        const triggerButton = (
             <Button
                 style={{marginLeft: 5}}
                 view="outlined"
@@ -109,15 +132,24 @@ export const NomenclaturesPage = ({
                     if (onClick) onClick(event);
                     else {
                         event.stopPropagation();
-                        setEnteredValueModalOpen(true);
-                        setEnteredValue('');
                         setSelectedButton('');
-                        setEnteredValueKey(key);
                     }
                 }}
             >
                 <Icon data={Pencil} />
             </Button>
+        );
+        return onClick ? (
+            triggerButton
+        ) : (
+            <NomenclaturesPageEditParameter
+                setUpdate={setUpdate}
+                selectValue={selectValue}
+                filteredData={filteredData}
+                enteredValueKey={key}
+            >
+                {triggerButton}
+            </NomenclaturesPageEditParameter>
         );
     };
 
@@ -616,25 +648,6 @@ export const NomenclaturesPage = ({
         setFirstRecalc(true);
     }
 
-    const keys = {
-        factoryArt: {name: 'Артикул фабрики', type: 'text'},
-        myStocks: {name: 'Мои остатки, шт.', type: 'number'},
-        multiplicity: {name: 'Кратность короба, шт.', type: 'number'},
-        length: {name: 'Длина, см.', type: 'number'},
-        width: {name: 'Ширина, см.', type: 'number'},
-        height: {name: 'Высота, см.', type: 'number'},
-        weight: {name: 'Вес, кг.', type: 'number'},
-        ktr: {name: 'КТР WB, %', type: 'number'},
-        commision: {name: 'Коммисия WB, %', type: 'number'},
-        tax: {name: 'Ставка налога, %', type: 'number'},
-        expences: {name: 'Доп. расходы, %', type: 'number'},
-        prefObor: {name: 'План. оборачиваемость, д.', type: 'number'},
-        minStocks: {name: 'Мин. остаток, шт.', type: 'number'},
-        primeCost1: {name: 'Себестоимость 1, ₽', type: 'number'},
-        primeCost2: {name: 'Себестоимость 2, ₽', type: 'number'},
-        primeCost3: {name: 'Себестоимость 3, ₽', type: 'number'},
-    };
-
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
             <div
@@ -662,116 +675,6 @@ export const NomenclaturesPage = ({
                             alignItems: 'center',
                         }}
                     >
-                        <Modal
-                            open={enteredValueModalOpen}
-                            onClose={() => {
-                                setEnteredValueModalOpen(false);
-                            }}
-                        >
-                            <Card
-                                view="clear"
-                                style={{
-                                    padding: 20,
-                                    minWidth: 300,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    backgroundColor: 'none',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        height: '50%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        margin: '16px 0',
-                                    }}
-                                >
-                                    <Text
-                                        style={{
-                                            margin: '8px 0',
-                                        }}
-                                        variant="header-2"
-                                    >
-                                        {keys[enteredValueKey] ? keys[enteredValueKey].name : ''}
-                                    </Text>
-                                    <TextInput
-                                        placeholder={'Введите значение'}
-                                        value={enteredValue}
-                                        onUpdate={(val) => {
-                                            setEnteredValue(val);
-                                        }}
-                                    />
-                                    <div style={{minHeight: 8}} />
-                                    {generateModalButtonWithActions(
-                                        {
-                                            view: 'action',
-                                            icon: CloudArrowUpIn,
-                                            placeholder: 'Сохранить',
-                                            onClick: async () => {
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {
-                                                        enteredValue: {},
-                                                        barcodes: [] as any[],
-                                                    },
-                                                };
-
-                                                for (let i = 0; i < filteredData.length; i++) {
-                                                    const row = filteredData[i];
-                                                    const {barcode} = row ?? {};
-                                                    if (barcode === undefined) continue;
-                                                    if (!params.data.barcodes.includes(barcode))
-                                                        params.data.barcodes.push(barcode);
-                                                }
-
-                                                params.data.enteredValue = {
-                                                    key: enteredValueKey,
-                                                    val: enteredValue,
-                                                    type: keys[enteredValueKey].type,
-                                                };
-                                                console.log(params);
-                                                /////////////////////////
-                                                await callApi(
-                                                    'changeUploadedArtsDataForKey',
-                                                    params,
-                                                );
-                                                await callApi(
-                                                    'getNomenclatures',
-                                                    {
-                                                        uid: getUid(),
-                                                        campaignName: selectValue[0],
-                                                    },
-                                                    true,
-                                                ).then((res) => {
-                                                    if (!res) return;
-                                                    const resData = res['data'];
-                                                    doc['nomenclatures'][selectValue[0]] =
-                                                        resData['nomenclatures'][selectValue[0]];
-                                                    doc['artsData'][selectValue[0]] =
-                                                        resData['artsData'][selectValue[0]];
-
-                                                    setChangedDoc({...doc});
-
-                                                    console.log(doc);
-                                                });
-
-                                                setPagesCurrent(1);
-                                                /////////////////////////
-                                                setEnteredValueModalOpen(false);
-                                                setEnteredValueKey('');
-                                            },
-                                        },
-                                        selectedButton,
-                                        setSelectedButton,
-                                    )}
-                                </div>
-                            </Card>
-                        </Modal>
-
                         <Button
                             style={{cursor: 'pointer', marginBottom: '8px'}}
                             view="action"
