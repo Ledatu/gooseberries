@@ -1,43 +1,27 @@
-import {Button, Icon, Loader, Text} from '@gravity-ui/uikit';
+import {Button, Icon, Text} from '@gravity-ui/uikit';
 import axios from 'axios';
 import React, {useEffect, useId, useState} from 'react';
 import {FileArrowUp} from '@gravity-ui/icons';
-import {RangeCalendar} from '@gravity-ui/date-components';
-import {motion} from 'framer-motion';
 import {getUid} from 'src/utilities/callApi';
+import {useUser} from './RequireAuth';
 
-export const AutoSalesUploadModal = ({selectValue, setRefetchAutoSales, setUploadModalOpen}) => {
-    const [autoSalesUploadModalOpen, setAutoSalesUploadModalOpen] = useState(false);
+export const AutoSalesUploadModal = ({selectValue, sellerId, uploaded, setUploaded, promotion}) => {
+    const {userInfo} = useUser();
+    const {user} = userInfo;
+
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [dateRange, setDateRange] = useState([] as any[]);
+    const dateRange = [new Date(promotion?.startDateTime), new Date(promotion?.endDateTime)];
     const [startDate, endDate] = dateRange;
-    const [saleName, setSaleName] = useState('');
     const uploadId = useId();
 
-    const [currentStep, setCurrentStep] = useState(0);
-
     useEffect(() => {
-        setDateRange([]);
-        setSaleName('');
-        setCurrentStep(0);
         setUploadProgress(0);
-    }, [autoSalesUploadModalOpen]);
+    }, [uploaded]);
 
     async function handleChange(event) {
         const file = event.target.files[0];
 
         if (!file) {
-            setUploadProgress(-1);
-            return;
-        }
-
-        let saleNameTemp = file.name;
-        saleNameTemp = saleNameTemp
-            .slice(saleNameTemp.indexOf('_'), saleNameTemp.lastIndexOf('_'))
-            .replace(/_/g, '');
-
-        setSaleName(saleNameTemp);
-        if (!saleNameTemp) {
             setUploadProgress(-1);
             return;
         }
@@ -48,20 +32,17 @@ export const AutoSalesUploadModal = ({selectValue, setRefetchAutoSales, setUploa
 
         formData.append('uid', getUid());
         formData.append('campaignName', selectValue[0]);
-        formData.append('autoSaleName', saleNameTemp);
+        formData.append('seller_id', sellerId);
+        formData.append('promotion_id', promotion?.id);
+        formData.append('autoSaleName', promotion?.name);
+        formData.append('username', user?.username);
+        formData.append('user_id', user?.id);
         formData.append('dateRange', JSON.stringify(dateRange));
         formData.append('file', file);
-        console.log('Вывод пара ключ - значение');
-        for (const [key, val] of formData.entries()) {
-            console.log(key, '-', val);
-        }
-
-        const token =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
 
         const config = {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs`,
             },
             onUploadProgress: function (progressEvent) {
                 const percentCompleted = Math.round(
@@ -73,13 +54,9 @@ export const AutoSalesUploadModal = ({selectValue, setRefetchAutoSales, setUploa
 
         try {
             const response = await axios.post(url, formData, config);
-            console.log(response.data);
             if (response) {
-                setUploadModalOpen(false);
                 setTimeout(() => {
-                    setAutoSalesUploadModalOpen(false);
-                    setUploadProgress(0);
-                    setRefetchAutoSales(true);
+                    setUploaded(true);
                 }, 1 * 1000);
             }
         } catch (error) {
@@ -111,134 +88,65 @@ export const AutoSalesUploadModal = ({selectValue, setRefetchAutoSales, setUploa
     }
 
     return (
-        <motion.div
-            style={{
-                marginTop: 4,
-                flexWrap: 'nowrap',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: 'none',
-                width: '100%',
-            }}
-        >
-            <motion.div
-                animate={{height: currentStep < 3 ? 36 : 0}}
-                style={{height: 36, overflow: 'hidden', width: '100%'}}
-            >
-                <Button width="max" size="l" view="outlined" onClick={() => setCurrentStep(1)}>
-                    <Text variant="subheader-1">
-                        {startDate && endDate
-                            ? `${startDate.toLocaleDateString(
-                                  'ru-RU',
-                              )} - ${endDate.toLocaleDateString('ru-RU')}`
-                            : 'Выберите даты акции'}
-                    </Text>
-                </Button>
-            </motion.div>
-            <motion.div
-                animate={{height: currentStep == 1 ? 250 : 0}}
-                style={{
-                    overflow: 'hidden',
-                    height: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <RangeCalendar
-                    size="m"
-                    timeZone="Europe/Moscow"
-                    onUpdate={(val) => {
-                        const range = [val.start.toDate(), val.end.toDate()];
-                        setDateRange(range);
-                        setCurrentStep(2);
+        <form encType="multipart/form-data" style={{width: '100%'}}>
+            <label htmlFor={uploadId} style={{width: '100%'}}>
+                <Button
+                    width="max"
+                    disabled={!startDate || !endDate}
+                    size="l"
+                    onClick={() => {
+                        setUploadProgress(0);
+                        (document.getElementById(uploadId) as HTMLInputElement).value = '';
                     }}
-                />
-            </motion.div>
-            <motion.div
-                animate={{height: currentStep == 2 ? 44 : currentStep == 3 ? 80 : 0}}
-                style={{
-                    height: 0,
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'end',
-                    alignItems: 'center',
-                }}
-            >
-                <div
                     style={{
+                        cursor: 'pointer',
+                        position: 'relative',
+                        overflow: 'hidden',
                         display: 'flex',
                         flexDirection: 'row',
+                        justifyContent: 'center',
                         alignItems: 'center',
                     }}
+                    selected={uploadProgress === 100 || uploadProgress === -1}
+                    view={
+                        uploadProgress === 100
+                            ? 'flat-success'
+                            : uploadProgress === -1
+                            ? 'flat-danger'
+                            : 'outlined-success'
+                    }
                 >
-                    <Text variant="header-1">{saleName}</Text>
-                    <Loader />
-                </div>
-                <div style={{minHeight: 8}} />
-                <form encType="multipart/form-data">
-                    <label htmlFor={uploadId}>
-                        <Button
-                            disabled={!startDate || !endDate}
-                            size="l"
-                            onClick={() => {
-                                setCurrentStep(3);
-                                setUploadProgress(0);
-                                (document.getElementById(uploadId) as HTMLInputElement).value = '';
-                            }}
-                            style={{
-                                cursor: 'pointer',
-                                position: 'relative',
-                                overflow: 'hidden',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
-                            selected={uploadProgress === 100 || uploadProgress === -1}
-                            view={
-                                uploadProgress === 100
-                                    ? 'flat-success'
-                                    : uploadProgress === -1
-                                    ? 'flat-danger'
-                                    : 'outlined-success'
-                            }
-                        >
-                            <Text
-                                variant="subheader-1"
+                    <Text
+                        variant="subheader-1"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            width: '100%',
+                        }}
+                    >
+                        <Icon data={FileArrowUp} size={20} />
+                        <div style={{minWidth: 3}} />
+                        Загрузить файл акции
+                        {!startDate || !endDate ? (
+                            <></>
+                        ) : (
+                            <input
+                                id={uploadId}
                                 style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
+                                    opacity: 0,
+                                    position: 'absolute',
+                                    height: 40,
+                                    left: 0,
                                 }}
-                            >
-                                <Icon data={FileArrowUp} size={20} />
-                                <div style={{minWidth: 3}} />
-                                Загрузить файл акции
-                                {!startDate || !endDate ? (
-                                    <></>
-                                ) : (
-                                    <input
-                                        id={uploadId}
-                                        style={{
-                                            opacity: 0,
-                                            position: 'absolute',
-                                            height: 40,
-                                            left: 0,
-                                        }}
-                                        type="file"
-                                        accept=".xls,.xlsx"
-                                        onChange={handleChange}
-                                    />
-                                )}
-                            </Text>
-                        </Button>
-                    </label>
-                </form>
-            </motion.div>
-        </motion.div>
+                                type="file"
+                                accept=".xls,.xlsx"
+                                onChange={handleChange}
+                            />
+                        )}
+                    </Text>
+                </Button>
+            </label>
+        </form>
     );
 };

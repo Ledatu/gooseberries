@@ -649,6 +649,7 @@ const PageElem = ({
                 setRefetchAutoSales={setRefetchAutoSales}
                 dzhemRefetch={dzhemRefetch}
                 setDzhemRefetch={setDzhemRefetch}
+                sellerId={sellerId}
             />
         ),
         prices: (

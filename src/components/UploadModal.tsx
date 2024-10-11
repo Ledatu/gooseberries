@@ -2,13 +2,11 @@ import {Button, Icon, Modal, Select} from '@gravity-ui/uikit';
 import React, {useEffect, useMemo, useState} from 'react';
 import {FileArrowUp, ChevronDown, Key} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-import {AutoSalesUploadModal} from './AutoSalesUploadModal';
 import {DzhemUpload} from './DzhemUpload';
 
 export const UploadModal = ({
     selectOptions,
     selectValue,
-    setRefetchAutoSales,
     setDzhemRefetch,
 }: {
     selectOptions: any[];
@@ -28,7 +26,6 @@ export const UploadModal = ({
         return [
             {value: 'undefined', content: 'Выберите тип файла для загрузки'},
             {value: 'uploadDzhem', content: 'Джем'},
-            {value: 'uploadAutoSales', content: 'Акции'},
         ];
     }, []);
     const [uploadOption, setUploadOption] = useState([uploadOptions[0].value]);
@@ -39,13 +36,6 @@ export const UploadModal = ({
     }, [uploadModalOpen]);
 
     const uploadInputs = {
-        uploadAutoSales: (
-            <AutoSalesUploadModal
-                setUploadModalOpen={setUploadModalOpen}
-                selectValue={selectedCampaignForUpload}
-                setRefetchAutoSales={setRefetchAutoSales}
-            />
-        ),
         uploadDzhem: (
             <DzhemUpload
                 setUploadModalOpen={setUploadModalOpen}

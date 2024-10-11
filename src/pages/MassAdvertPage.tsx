@@ -133,6 +133,7 @@ export const MassAdvertPage = ({
     setRefetchAutoSales,
     dzhemRefetch,
     setDzhemRefetch,
+    sellerId,
 }: {
     selectValue: string[];
     setSwitchingCampaignsFlag: Function;
@@ -140,6 +141,7 @@ export const MassAdvertPage = ({
     setRefetchAutoSales: Function;
     dzhemRefetch: boolean;
     setDzhemRefetch: Function;
+    sellerId: string;
 }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -191,8 +193,6 @@ export const MassAdvertPage = ({
     const [modalOpenFromAdvertId, setModalOpenFromAdvertId] = useState('');
 
     const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
-    const [availableAutoSales, setAvailableAutoSales] = useState({});
-    const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
     const [autoSalesProfits, setAutoSalesProfits] = useState({});
     const [filterAutoSales, setFilterAutoSales] = useState(false);
 
@@ -1474,8 +1474,10 @@ export const MassAdvertPage = ({
                                 }}
                                 color={
                                     profitsData.profit == profitsData.oldProfit
+                                        ? 'secondary'
+                                        : profitsData.profit > profitsData.oldProfit
                                         ? 'positive'
-                                        : 'secondary'
+                                        : 'danger'
                                 }
                             >
                                 <Icon data={ArrowShapeDown} />
@@ -2742,22 +2744,6 @@ export const MassAdvertPage = ({
 
     useEffect(() => {
         if (!selectValue[0]) return;
-        setAvailableAutoSalesPending(true);
-        callApi('getAllAvailableAutoSales', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const sales = res['data'] ?? {};
-                setAvailableAutoSales(sales ?? {});
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableAutoSalesPending(false);
-            });
 
         callApi('getAvailableAutoSaleNmIds', {
             uid: getUid(),
@@ -3275,12 +3261,12 @@ export const MassAdvertPage = ({
     ) => {
         const temp = [] as any;
         const usefilterAutoSales = _filterAutoSales ?? filterAutoSales;
-        console.log(
-            tableData,
-            data,
-            Object.keys(tableData).length ? tableData : data,
-            withfFilters['undef'] ? withfFilters : filters,
-        );
+        // console.log(
+        //     tableData,
+        //     data,
+        //     Object.keys(tableData).length ? tableData : data,
+        //     withfFilters['undef'] ? withfFilters : filters,
+        // );
 
         for (const [art, artInfo] of Object.entries(
             Object.keys(tableData).length ? tableData : data,
@@ -5081,15 +5067,10 @@ export const MassAdvertPage = ({
                             selectValue={selectValue}
                         />
                         <AutoSalesModal
-                            params={{
-                                availableAutoSalesPending,
-                                selectValue,
-                                availableAutoSales,
-                                filteredData,
-                                autoSalesProfits,
-                                setAutoSalesProfits,
-                                setAvailableAutoSalesPending,
-                            }}
+                            selectValue={selectValue}
+                            filteredData={filteredData}
+                            setAutoSalesProfits={setAutoSalesProfits}
+                            sellerId={sellerId}
                         />
 
                         <div style={{marginRight: 8, marginBottom: '8px'}}>
