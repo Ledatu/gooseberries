@@ -2897,9 +2897,13 @@ export const MassAdvertPage = ({
         let campaignData = doc;
         if (campaignData_) campaignData = campaignData_;
         if (
-            !campaignData ||
-            !campaignData.campaigns[_selectedCampaignName] ||
-            !campaignData.adverts[_selectedCampaignName]
+            !(
+                campaignData &&
+                campaignData?.campaigns &&
+                campaignData?.campaigns[_selectedCampaignName] &&
+                campaignData?.adverts &&
+                campaignData?.adverts[_selectedCampaignName]
+            )
         )
             return;
 
