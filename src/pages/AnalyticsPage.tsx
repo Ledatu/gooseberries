@@ -1835,7 +1835,7 @@ export const AnalyticsPage = ({
                         setFilteredSummary((row) => {
                             const fstemp = row;
                             fstemp[
-                                'art'
+                                'entity'
                             ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
 
                             return fstemp;
