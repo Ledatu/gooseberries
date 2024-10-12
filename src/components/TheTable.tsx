@@ -11,23 +11,14 @@ import {
     CirclePlus,
     Funnel,
     FunnelXmark,
-    ArrowRotateLeft,
 } from '@gravity-ui/icons';
-import {
-    Button,
-    Card,
-    DropdownMenu,
-    Icon,
-    Pagination,
-    Text,
-    TextInput,
-    Tooltip,
-} from '@gravity-ui/uikit';
+import {Button, Card, DropdownMenu, Icon, Pagination, Text} from '@gravity-ui/uikit';
 import {DelayedTextInput} from '@gravity-ui/components';
 import {defaultRender} from 'src/utilities/getRoundValue';
 import {useUser} from './RequireAuth';
 import callApi from 'src/utilities/callApi';
 import {motion} from 'framer-motion';
+import {PaginationSizeInput} from './PaginationSizeInput';
 
 const b = block('the-table');
 
@@ -69,7 +60,6 @@ export default function TheTable({
 
     const [page, setPage] = useState(1);
     const [paginationSize, setPaginationSize] = useState(defaultPaginationSize as any);
-    const [tempPaginationSize, setTempPaginationSize] = useState(defaultPaginationSize as any);
 
     const [sortedData, setSortedData] = useState(data);
     const [sortState, setSortState] = useState([] as any);
@@ -111,11 +101,9 @@ export default function TheTable({
                 if (!res || !res['data']) return;
                 const data = res['data'];
                 setPaginationSize(data?.paginationSize ?? defaultPaginationSize);
-                setTempPaginationSize(data?.paginationSize ?? defaultPaginationSize);
             })
             .catch((e) => {
                 setPaginationSize(defaultPaginationSize);
-                setTempPaginationSize(defaultPaginationSize);
                 console.log(new Date(), 'error getting pagination size', e);
             })
             .finally(() => {
@@ -210,15 +198,6 @@ export default function TheTable({
         borderRadius: 9,
     };
 
-    const validTempPaginationSize = useMemo(() => {
-        return (
-            !isNaN(Number(tempPaginationSize)) &&
-            tempPaginationSize != '' &&
-            1 <= Number(tempPaginationSize) &&
-            Number(tempPaginationSize) <= 1000
-        );
-    }, [tempPaginationSize]);
-
     const filtersUsed = useMemo(() => {
         for (const [key, val] of Object.entries(filters)) {
             if (!key || !val || key == 'undef') continue;
@@ -296,62 +275,13 @@ export default function TheTable({
                             Очистить
                         </Button>
                     </motion.div>
-                    <Tooltip openDelay={1500} content={'Кол-во строк на странице.'}>
-                        <TextInput
-                            rightContent={
-                                tempPaginationSize != paginationSize ? (
-                                    <Button
-                                        size="xs"
-                                        view="flat-secondary"
-                                        onClick={() => setTempPaginationSize(paginationSize)}
-                                    >
-                                        <Icon data={ArrowRotateLeft} />
-                                    </Button>
-                                ) : undefined
-                            }
-                            validationState={!validTempPaginationSize ? 'invalid' : undefined}
-                            value={tempPaginationSize}
-                            onUpdate={(val) => {
-                                setTempPaginationSize(val);
-                            }}
-                            style={{
-                                width: tempPaginationSize != paginationSize ? 69 : 50,
-                                marginRight: 8,
-                            }}
-                        />
-                    </Tooltip>
-                    <motion.div
-                        style={{width: 0, overflow: 'hidden'}}
-                        animate={{
-                            width:
-                                validTempPaginationSize && tempPaginationSize != paginationSize
-                                    ? 90
-                                    : 0,
-                            marginRight:
-                                validTempPaginationSize && tempPaginationSize != paginationSize
-                                    ? 8
-                                    : 0,
-                        }}
-                    >
-                        <Button
-                            selected
-                            onClick={() => {
-                                const params = {
-                                    user_id: user?._id,
-                                    table_id: tableId,
-                                    pagination_size: parseInt(tempPaginationSize),
-                                };
-                                callApi('updatePaginationSize', params, false, true)
-                                    .catch(() => {})
-                                    .finally(() => {
-                                        setPage(1);
-                                        setFetchPaginationSize(true);
-                                    });
-                            }}
-                        >
-                            Сохранить
-                        </Button>
-                    </motion.div>
+                    <PaginationSizeInput
+                        paginationSize={paginationSize}
+                        setFetchPaginationSize={setFetchPaginationSize}
+                        setPage={setPage}
+                        user={user}
+                        tableId={tableId}
+                    />
                     <Pagination
                         total={sortedData.length}
                         page={page}
