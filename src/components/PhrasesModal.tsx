@@ -1,4 +1,4 @@
-import {Button, Card, Icon, List, Modal, Text} from '@gravity-ui/uikit';
+import {Button, Card, Icon, List, Modal, Text, TextInput} from '@gravity-ui/uikit';
 import {Magnifier, TrashBin} from '@gravity-ui/icons';
 import React, {useState} from 'react';
 import callApi, {getUid} from 'src/utilities/callApi';
@@ -7,7 +7,8 @@ import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertIdsFromThePage}) => {
     const [open, setOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
-    const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState<any[]>([]);
+    const [filterText, setFilterText] = useState('');
+    const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState([] as any[]);
 
     return (
         <div>
@@ -34,9 +35,13 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                 <Card
                     view="clear"
                     style={{
-                        width: '80em',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         backgroundColor: 'none',
@@ -44,13 +49,16 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                 >
                     <div
                         style={{
-                            height: '50%',
-                            width: '100%',
-
+                            width: '80em',
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            margin: '16px 0',
+                            justifyContent: 'space-between',
+                            background: 'var(--yc-color-base-background)',
+                            borderRadius: 60,
+                            padding: '16px 0',
                         }}
                     >
                         <Text
@@ -72,7 +80,16 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                                 marginBottom: 8,
                             }}
                         >
+                            <TextInput
+                                placeholder={`Поиск в ${plusPhrasesTemplatesLabels.length} шаблонах`}
+                                value={filterText}
+                                size="l"
+                                onUpdate={(val) => setFilterText(val)}
+                                hasClear
+                            />
                             <List
+                                size="l"
+                                filterable={false}
                                 onItemClick={(item) => {
                                     const params = {
                                         uid: getUid(),
@@ -204,8 +221,11 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                                         </div>
                                     );
                                 }}
-                                filterPlaceholder={`Поиск в ${plusPhrasesTemplatesLabels.length} шаблонах`}
-                                items={plusPhrasesTemplatesLabels}
+                                items={plusPhrasesTemplatesLabels.filter((item) => {
+                                    return item
+                                        .toLocaleLowerCase()
+                                        .includes(filterText.toLocaleLowerCase());
+                                })}
                                 itemsHeight={300}
                                 itemHeight={28}
                             />
