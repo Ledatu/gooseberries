@@ -87,7 +87,10 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                 <Card
                     view="clear"
                     style={{
-                        margin: 20,
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
                         flexWrap: 'nowrap',
                         display: 'flex',
                         flexDirection: 'row',
@@ -98,23 +101,24 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                 >
                     <motion.div
                         style={{
-                            marginTop: 4,
+                            overflow: 'hidden',
                             flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'row-reverse',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backgroundColor: 'none',
+                            background: 'var(--yc-color-base-background)',
+                            padding: 30,
+                            borderRadius: 30,
                         }}
                     >
                         <motion.div
+                            animate={{height: currentStep ? 382 : 36}}
                             style={{
                                 height: '100%',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                justifyContent: 'space-between',
-                                backgroundColor: 'none',
                                 width: 250,
                             }}
                         >
@@ -259,7 +263,8 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                             >
                                 <div style={{minHeight: 8}} />
                                 <Button
-                                    size="l"
+                                    pin="circle-circle"
+                                    size="xl"
                                     view="action"
                                     disabled={!startDate || !endDate}
                                     onClick={() => {
@@ -329,18 +334,20 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                                 justifyContent: 'space-between',
                                 backgroundColor: 'none',
                                 width: 0,
-                                overflow: 'hidden',
                                 maxHeight: 0,
+                                overflow: currentStep ? undefined : 'hidden',
                             }}
                             animate={{
-                                width: currentStep ? 500 : 0,
+                                width: currentStep ? 555 : 0,
                                 maxHeight: currentStep ? 1000 : 0,
-
                                 marginRight: currentStep ? 16 : 0,
                             }}
                         >
-                            <TextTitleWrapper padding={8} title={'Информация об акции:'}>
-                                <Text variant="body-1">
+                            <TextTitleWrapper padding={12} title={'Информация об акции:'}>
+                                <Text
+                                    variant="body-1"
+                                    style={{whiteSpace: 'pre-wrap', marginLeft: 4}}
+                                >
                                     {availableAutoSales[autoSaleName[0]] ? (
                                         availableAutoSales[autoSaleName[0]].description
                                     ) : (
@@ -348,7 +355,25 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                                     )}
                                 </Text>
                             </TextTitleWrapper>
-                            <TextTitleWrapper padding={8} title={'Преимущества:'}>
+                            <div style={{minHeight: 16}} />
+                            <TextTitleWrapper
+                                padding={12}
+                                title={'Процент участия в акции:'}
+                                style={{
+                                    width: '100%',
+                                }}
+                            >
+                                <div style={{width: '100%', marginLeft: 4}}>
+                                    <ProgressBar
+                                        value={
+                                            availableAutoSales[autoSaleName[0]]
+                                                ?.participationPercentage ?? 0
+                                        }
+                                    />
+                                </div>
+                            </TextTitleWrapper>
+                            <div style={{minHeight: 16}} />
+                            <TextTitleWrapper padding={12} title={'Преимущества:'}>
                                 <div
                                     style={{
                                         display: 'flex',
@@ -382,5 +407,57 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                 </Card>
             </Modal>
         </>
+    );
+};
+
+const ProgressBar = ({value}) => {
+    return (
+        <div
+            style={{
+                width: '100%',
+                marginTop: 4,
+                marginBottom: 4,
+                background: 'var(--g-color-base-generic)',
+                borderRadius: 4,
+            }}
+        >
+            <div
+                style={{
+                    width: 'calc(100% - 26px)',
+                }}
+            >
+                <motion.div
+                    style={{
+                        background: 'var(--g-color-text-positive)',
+                        height: 8,
+                        borderRadius: 4,
+                        position: 'relative',
+                    }}
+                    transition={{duration: 0.8, type: 'spring', damping: 24, stiffness: 200}}
+                    animate={{
+                        width: `${value}%`,
+                    }}
+                >
+                    <Card
+                        style={{
+                            borderRadius: 12,
+                            position: 'absolute',
+                            right: -26,
+                            top: -4,
+                            width: 30,
+                            height: 16,
+                            background: 'var(--g-color-text-positive)',
+                            boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text variant="subheader-1">{value}</Text>
+                    </Card>
+                </motion.div>
+            </div>
+        </div>
     );
 };
