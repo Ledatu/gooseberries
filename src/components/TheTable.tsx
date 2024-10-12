@@ -344,6 +344,7 @@ export default function TheTable({
                                 callApi('updatePaginationSize', params, false, true)
                                     .catch(() => {})
                                     .finally(() => {
+                                        setPage(1);
                                         setFetchPaginationSize(true);
                                     });
                             }}
