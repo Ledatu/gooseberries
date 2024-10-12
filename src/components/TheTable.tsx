@@ -1,17 +1,41 @@
-import React from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import DataTable, {Column} from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 import block from 'bem-cn-lite';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 
-import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
-import {Button, DropdownMenu, Icon, Text} from '@gravity-ui/uikit';
+import {
+    CircleMinusFill,
+    CircleMinus,
+    CirclePlusFill,
+    CirclePlus,
+    Funnel,
+    FunnelXmark,
+    ArrowRotateLeft,
+} from '@gravity-ui/icons';
+import {
+    Button,
+    Card,
+    DropdownMenu,
+    Icon,
+    Pagination,
+    Text,
+    TextInput,
+    Tooltip,
+} from '@gravity-ui/uikit';
 import {DelayedTextInput} from '@gravity-ui/components';
 import {defaultRender} from 'src/utilities/getRoundValue';
+import {useUser} from './RequireAuth';
+import callApi from 'src/utilities/callApi';
+import {motion} from 'framer-motion';
 
 const b = block('the-table');
 
 interface TheTableProps {
+    tableId: string;
+    usePagination: boolean;
+    defaultPaginationSize?: number;
+    onPaginationUpdate?: Function;
     columnData: any[];
     data: any[];
     filters: any;
@@ -19,10 +43,16 @@ interface TheTableProps {
     filterData: any;
     emptyDataMessage?: string;
     footerData?: any[];
+    width?: string | number;
+    height?: string | number;
     onRowClick?: (row: any, index: number, event: React.MouseEvent<HTMLTableRowElement>) => void;
 }
 
 export default function TheTable({
+    tableId,
+    usePagination,
+    defaultPaginationSize,
+    onPaginationUpdate,
     columnData,
     data,
     filters,
@@ -30,8 +60,84 @@ export default function TheTable({
     filterData,
     emptyDataMessage,
     footerData = [],
+    height,
+    width,
     onRowClick,
 }: TheTableProps) {
+    const {userInfo} = useUser();
+    const {user} = userInfo ?? {};
+
+    const [page, setPage] = useState(1);
+    const [paginationSize, setPaginationSize] = useState(defaultPaginationSize as any);
+    const [tempPaginationSize, setTempPaginationSize] = useState(defaultPaginationSize as any);
+
+    const [sortedData, setSortedData] = useState(data);
+    const [sortState, setSortState] = useState([] as any);
+
+    const sortData = () => {
+        if (!sortState) return;
+        let sortedDataTemp = [...data];
+        for (let i = 0; i < sortState?.length; i++) {
+            const {columnId, order} = sortState[i];
+            sortedDataTemp = sortedDataTemp.sort((a, b) => {
+                const av = a[columnId] ?? 0;
+                const bv = b[columnId] ?? 0;
+                if (isNaN(Number(av))) {
+                    return (
+                        String(av)
+                            .toLocaleLowerCase()
+                            .localeCompare(String(bv).toLocaleLowerCase()) * order
+                    );
+                } else return (av - bv) * order;
+            });
+        }
+
+        if (page * paginationSize > sortedData.length) setPage(1);
+
+        setSortedData(sortedDataTemp);
+    };
+
+    useEffect(() => sortData(), [data, sortState]);
+
+    const [fetchPaginationSize, setFetchPaginationSize] = useState(true);
+    useEffect(() => {
+        if (!usePagination || !fetchPaginationSize) return;
+        const params = {
+            user_id: user?._id,
+            table_id: tableId,
+        };
+        callApi('getPaginationSize', params, false, true)
+            .then((res) => {
+                if (!res || !res['data']) return;
+                const data = res['data'];
+                setPaginationSize(data?.paginationSize ?? defaultPaginationSize);
+                setTempPaginationSize(data?.paginationSize ?? defaultPaginationSize);
+            })
+            .catch((e) => {
+                setPaginationSize(defaultPaginationSize);
+                setTempPaginationSize(defaultPaginationSize);
+                console.log(new Date(), 'error getting pagination size', e);
+            })
+            .finally(() => {
+                setFetchPaginationSize(false);
+            });
+    }, [fetchPaginationSize]);
+
+    const [paginatedData, setPaginatedData] = useState([] as any[]);
+    useEffect(() => {
+        let tempPaginatedData = [] as any[];
+        if (!usePagination) {
+            tempPaginatedData = sortedData;
+        } else {
+            tempPaginatedData = sortedData.slice(
+                (page - 1) * paginationSize,
+                page * paginationSize,
+            );
+        }
+        setPaginatedData(tempPaginatedData);
+        if (onPaginationUpdate) onPaginationUpdate({page, paginatedData: tempPaginatedData});
+    }, [paginationSize, sortedData]);
+
     const generateColumns = (columnsInfo) => {
         const columns: Column<any>[] = [];
         if (!columnsInfo && !columnsInfo.length) return columns;
@@ -96,29 +202,177 @@ export default function TheTable({
 
     const columns = generateColumns(columnData);
 
+    const tableCardStyle = {
+        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+        overflow: 'auto',
+        maxHeight: height ?? '100%',
+        maxWidth: width ?? '100%',
+        borderRadius: 9,
+    };
+
+    const validTempPaginationSize = useMemo(() => {
+        return (
+            !isNaN(Number(tempPaginationSize)) &&
+            tempPaginationSize != '' &&
+            1 <= Number(tempPaginationSize) &&
+            Number(tempPaginationSize) <= 1000
+        );
+    }, [tempPaginationSize]);
+
+    const filtersUsed = useMemo(() => {
+        for (const [key, val] of Object.entries(filters)) {
+            if (!key || !val || key == 'undef') continue;
+            if (val['val'] != '') return true;
+        }
+        return false;
+    }, [filters]);
+
     return (
-        <div className={b()}>
-            <DataTable
-                emptyDataMessage={emptyDataMessage ?? 'Нет данных.'}
-                startIndex={1}
-                settings={{
-                    stickyHead: MOVING,
-                    stickyFooter: MOVING,
-                    displayIndices: false,
-                    highlightRows: true,
-                }}
-                theme="yandex-cloud"
-                onRowClick={(row, index, event) => {
-                    if (onRowClick) onRowClick(row, index, event);
-                    else console.log(row);
-                }}
-                rowClassName={(_row, index, isFooterData) =>
-                    isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
-                }
-                data={data}
-                columns={columns}
-                footerData={footerData}
-            />
+        <div style={{height: `calc(${height ?? '100%'} - 16px - 28px)`, width: width ?? '100%'}}>
+            <Card style={tableCardStyle}>
+                <DataTable
+                    emptyDataMessage={emptyDataMessage ?? 'Нет данных.'}
+                    startIndex={1}
+                    onSort={(tempSortState) => setSortState(tempSortState)}
+                    settings={{
+                        externalSort: true,
+                        stickyHead: MOVING,
+                        stickyFooter: MOVING,
+                        displayIndices: false,
+                        highlightRows: true,
+                    }}
+                    theme="yandex-cloud"
+                    onRowClick={(row, index, event) => {
+                        if (onRowClick) onRowClick(row, index, event);
+                        else console.log(row);
+                    }}
+                    rowClassName={(_row, index, isFooterData) =>
+                        isFooterData ? b('tableRow_footer') : b('tableRow_' + index)
+                    }
+                    data={paginatedData}
+                    columns={columns}
+                    footerData={footerData}
+                />
+            </Card>
+            {usePagination ? (
+                <div
+                    style={{
+                        marginTop: 16,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'relative',
+                    }}
+                >
+                    <motion.div
+                        style={{width: 0, overflow: 'hidden'}}
+                        animate={{
+                            width: filtersUsed ? 106 : 0,
+                            marginRight: filtersUsed ? 8 : 0,
+                        }}
+                    >
+                        <Button
+                            selected
+                            onClick={() => {
+                                setFilters(() => {
+                                    const newFilters = {undef: true};
+                                    for (const [key, filterData] of Object.entries(
+                                        filters as any,
+                                    )) {
+                                        if (key == 'undef' || !key || !filterData) continue;
+                                        newFilters[key] = {
+                                            val: '',
+                                            compMode: filterData['compMode'] ?? 'include',
+                                        };
+                                    }
+                                    filterData(newFilters);
+                                    return {...newFilters};
+                                });
+                            }}
+                        >
+                            <Icon data={FunnelXmark} />
+                            Очистить
+                        </Button>
+                    </motion.div>
+                    <Tooltip openDelay={1500} content={'Кол-во строк на странице.'}>
+                        <TextInput
+                            rightContent={
+                                tempPaginationSize != paginationSize ? (
+                                    <Button
+                                        size="xs"
+                                        view="flat-secondary"
+                                        onClick={() => setTempPaginationSize(paginationSize)}
+                                    >
+                                        <Icon data={ArrowRotateLeft} />
+                                    </Button>
+                                ) : undefined
+                            }
+                            validationState={!validTempPaginationSize ? 'invalid' : undefined}
+                            value={tempPaginationSize}
+                            onUpdate={(val) => {
+                                setTempPaginationSize(val);
+                            }}
+                            style={{
+                                width: tempPaginationSize != paginationSize ? 69 : 50,
+                                marginRight: 8,
+                            }}
+                        />
+                    </Tooltip>
+                    <motion.div
+                        style={{width: 0, overflow: 'hidden'}}
+                        animate={{
+                            width:
+                                validTempPaginationSize && tempPaginationSize != paginationSize
+                                    ? 90
+                                    : 0,
+                            marginRight:
+                                validTempPaginationSize && tempPaginationSize != paginationSize
+                                    ? 8
+                                    : 0,
+                        }}
+                    >
+                        <Button
+                            selected
+                            onClick={() => {
+                                const params = {
+                                    user_id: user?._id,
+                                    table_id: tableId,
+                                    pagination_size: parseInt(tempPaginationSize),
+                                };
+                                callApi('updatePaginationSize', params, false, true)
+                                    .catch(() => {})
+                                    .finally(() => {
+                                        setFetchPaginationSize(true);
+                                    });
+                            }}
+                        >
+                            Сохранить
+                        </Button>
+                    </motion.div>
+                    <Pagination
+                        total={sortedData.length}
+                        page={page}
+                        pageSize={paginationSize}
+                        onUpdate={(page) => {
+                            setPage(page);
+
+                            const pagination = paginationSize ?? defaultPaginationSize;
+                            const tempPaginatedData = data.slice(
+                                (page - 1) * pagination,
+                                page * pagination,
+                            );
+                            setPaginatedData(tempPaginatedData);
+
+                            if (onPaginationUpdate)
+                                onPaginationUpdate({page, paginatedData: tempPaginatedData});
+                        }}
+                    />
+                </div>
+            ) : (
+                <></>
+            )}
         </div>
     );
 }
@@ -197,7 +451,7 @@ export const generateFilterTextInput = (args) => {
                                 };
                             filters[name].val = val;
                             filterData(filters);
-                            return filters;
+                            return {...filters};
                         });
                     }}
                     // placeholder={'Фильтр'}
@@ -243,7 +497,7 @@ export const generateFilterTextInput = (args) => {
                                                     };
                                                 filters[name].compMode = 'include';
                                                 filterData(filters);
-                                                return filters;
+                                                return {...filters};
                                             });
                                         },
                                         text: 'Включает',
@@ -269,7 +523,7 @@ export const generateFilterTextInput = (args) => {
                                                     };
                                                 filters[name].compMode = 'not include';
                                                 filterData(filters);
-                                                return filters;
+                                                return {...filters};
                                             });
                                         },
                                         text: 'Не включает',
@@ -298,7 +552,7 @@ export const generateFilterTextInput = (args) => {
                                                     };
                                                 filters[name].compMode = 'equal';
                                                 filterData(filters);
-                                                return filters;
+                                                return {...filters};
                                             });
                                         },
                                         text: 'Равно',
@@ -324,7 +578,7 @@ export const generateFilterTextInput = (args) => {
                                                     };
                                                 filters[name].compMode = 'not equal';
                                                 filterData(filters);
-                                                return filters;
+                                                return {...filters};
                                             });
                                         },
                                         text: 'Не равно',
@@ -354,7 +608,7 @@ export const generateFilterTextInput = (args) => {
                                                           };
                                                       filters[name].compMode = 'bigger';
                                                       filterData(filters);
-                                                      return filters;
+                                                      return {...filters};
                                                   });
                                               },
                                               text: 'Больше',
@@ -381,7 +635,7 @@ export const generateFilterTextInput = (args) => {
                                                           };
                                                       filters[name].compMode = 'not bigger';
                                                       filterData(filters);
-                                                      return filters;
+                                                      return {...filters};
                                                   });
                                               },
                                               text: 'Меньше',

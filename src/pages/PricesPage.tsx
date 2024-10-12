@@ -6,7 +6,6 @@ import {
     Button,
     Text,
     Link,
-    Pagination,
     Modal,
     Card,
     List,
@@ -102,11 +101,9 @@ export const PricesPage = ({
 
     const [filters, setFilters] = useState({undef: false});
 
-    const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
     const [groupingFetching, setGroupingFetching] = useState(false);
 
@@ -259,7 +256,7 @@ export const PricesPage = ({
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
-        setFilters(filters);
+        setFilters({...filters});
         filterTableData(filters);
     };
 
@@ -1047,16 +1044,12 @@ export const PricesPage = ({
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 300);
 
         for (const [key, val] of Object.entries(filteredSummaryTemp)) {
             if (key === undefined || val === undefined || key == 'stock') continue;
             filteredSummaryTemp[key] = getRoundValue(val, temp.length);
         }
 
-        filteredSummaryTemp[
-            'art'
-        ] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
         filteredSummaryTemp['cpo'] = getRoundValue(
             filteredSummaryTemp['sum'],
             filteredSummaryTemp['cpoOrders'],
@@ -1068,10 +1061,6 @@ export const PricesPage = ({
         setFilteredSummary(filteredSummaryTemp);
 
         setFilteredData(temp);
-
-        setPaginatedData(paginatedDataTemp);
-        setPagesCurrent(1);
-        setPagesTotal(Math.ceil(temp.length));
     };
 
     const [firstRecalc, setFirstRecalc] = useState(false);
@@ -1971,28 +1960,6 @@ export const PricesPage = ({
                         </Card>
                     </Modal>
                     <div style={{minWidth: 8}} />
-                    <Button
-                        size="l"
-                        view="action"
-                        onClick={() => {
-                            setFilters(() => {
-                                const newFilters = {undef: true};
-                                for (const [key, filterData] of Object.entries(filters as any)) {
-                                    if (key == 'undef' || !key || !filterData) continue;
-                                    newFilters[key] = {
-                                        val: '',
-                                        compMode: filterData['compMode'] ?? 'include',
-                                    };
-                                }
-                                filterTableData(newFilters);
-                                return newFilters;
-                            });
-                        }}
-                    >
-                        <Icon data={TrashBin} />
-                        <Text variant="subheader-1">Очистить фильтры</Text>
-                    </Button>
-                    <div style={{minWidth: 8}} />
                     <RangePicker
                         args={{
                             recalc: () => setDateChangeRecalc(true),
@@ -2004,53 +1971,31 @@ export const PricesPage = ({
                 </div>
             </div>
 
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <Card
-                    theme={currentPricesCalculatedBasedOn != '' ? 'warning' : undefined}
-                    style={{
-                        width: '100%',
-                        maxHeight: '80vh',
-                        boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                        overflow: 'auto',
-                    }}
-                >
-                    <TheTable
-                        columnData={columnData}
-                        data={paginatedData}
-                        filters={filters}
-                        setFilters={setFilters}
-                        filterData={filterTableData}
-                        footerData={[filteredSummary]}
-                    />
-                </Card>
-                <div style={{height: 8}} />
-                <Pagination
-                    showInput
-                    total={pagesTotal}
-                    page={pagesCurrent}
-                    pageSize={300}
-                    onUpdate={(page) => {
+            <Card theme={currentPricesCalculatedBasedOn != '' ? 'warning' : undefined}>
+                <TheTable
+                    columnData={columnData}
+                    data={filteredData}
+                    filters={filters}
+                    setFilters={setFilters}
+                    filterData={filterTableData}
+                    footerData={[filteredSummary]}
+                    tableId={'prices'}
+                    usePagination={true}
+                    defaultPaginationSize={300}
+                    height={'calc(100vh - 10em - 60px)'}
+                    onPaginationUpdate={({page, paginatedData}) => {
                         setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 300, page * 300);
                         setFilteredSummary((row) => {
                             const fstemp = row;
                             fstemp[
                                 'art'
-                            ] = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;
+                            ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
 
                             return fstemp;
                         });
-                        setPaginatedData(paginatedDataTemp);
                     }}
                 />
-            </div>
+            </Card>
         </div>
     );
 };

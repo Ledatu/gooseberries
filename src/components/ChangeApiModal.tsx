@@ -82,6 +82,8 @@ export const ChangeApiModal = ({sellerId, children}: ChangeApiModalInterface) =>
                                         refetchUser();
                                     })
                                     .catch((e) => {
+                                        console.log(e, e?.response, e?.response?.data);
+
                                         alert(e?.response?.data?.error);
                                     })
                                     .finally(() => handleClose());

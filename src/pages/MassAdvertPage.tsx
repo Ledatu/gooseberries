@@ -12,7 +12,6 @@ import {
     PopoverBehavior,
     Modal,
     Skeleton,
-    Pagination,
     RadioButton,
     List,
     Checkbox,
@@ -507,12 +506,10 @@ export const MassAdvertPage = ({
         return tempScheduleInput;
     };
 
-    const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [paginatedData, setPaginatedData] = useState<any[]>([]);
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
 
     // const paramMap = {
@@ -557,7 +554,7 @@ export const MassAdvertPage = ({
 
     const filterByButton = (val, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val) + ' ', compMode: compMode};
-        setFilters(filters);
+        setFilters({...filters});
         filterTableData(filters);
     };
 
@@ -2731,7 +2728,6 @@ export const MassAdvertPage = ({
                 setSwitchingCampaignsFlag(false);
             });
 
-        setPagesCurrent(1);
         setCopiedAdvertsSettings({advertId: 0});
 
         // Cleanup function to cancel the request on component unmount or before the next useEffect call
@@ -3411,7 +3407,6 @@ export const MassAdvertPage = ({
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 300);
         const filteredSummaryTemp = {
             art: '',
             orders: 0,
@@ -3470,7 +3465,6 @@ export const MassAdvertPage = ({
             filteredSummaryTemp.addToCartCount += row['addToCartCount'];
         }
         filteredSummaryTemp.uniqueImtIds = Math.round(uniqueImtIds.length);
-        filteredSummaryTemp.art = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length} ID КТ: ${filteredSummaryTemp.uniqueImtIds}`;
 
         filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
         filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
@@ -3537,12 +3531,7 @@ export const MassAdvertPage = ({
         );
 
         setFilteredSummary(filteredSummaryTemp);
-
         setFilteredData(temp);
-
-        setPaginatedData(paginatedDataTemp);
-        setPagesCurrent(1);
-        setPagesTotal(Math.ceil(temp.length));
     };
 
     const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = React.useState(false);
@@ -4090,7 +4079,7 @@ export const MassAdvertPage = ({
             if (!filters[name])
                 filters[name] = {val: '', compMode: valueType != 'text' ? 'bigger' : 'include'};
         }
-        setFilters(filters);
+        setFilters({...filters});
 
         // recalc(dateRange, selectValue[0]);
 
@@ -4795,6 +4784,8 @@ export const MassAdvertPage = ({
                                         setFilters={setDzhemDataFilters}
                                         filterData={dzhemDataFilter}
                                         footerData={[dzhemDataFilteredSummary]}
+                                        tableId={''}
+                                        usePagination={false}
                                     />
                                 </Card>
                             </motion.div>
@@ -4888,6 +4879,8 @@ export const MassAdvertPage = ({
                                         setFilters={setArtsStatsByDayFilters}
                                         filterData={artsStatsByDayDataFilter}
                                         footerData={[artsStatsByDayFilteredSummary]}
+                                        tableId={''}
+                                        usePagination={false}
                                     />
                                 </Card>
                             </motion.div>
@@ -5123,33 +5116,6 @@ export const MassAdvertPage = ({
                             flexWrap: 'wrap',
                         }}
                     >
-                        <Button
-                            size="l"
-                            style={{
-                                marginBottom: 8,
-                            }}
-                            view="action"
-                            onClick={() => {
-                                setFilters(() => {
-                                    const newFilters = {undef: true};
-                                    for (const [key, filterData] of Object.entries(
-                                        filters as any,
-                                    )) {
-                                        if (key == 'undef' || !key || !filterData) continue;
-                                        newFilters[key] = {
-                                            val: '',
-                                            compMode: filterData['compMode'] ?? 'include',
-                                        };
-                                    }
-                                    filterTableData(newFilters);
-                                    return newFilters;
-                                });
-                            }}
-                        >
-                            <Icon data={TrashBin} />
-                            <Text variant="subheader-1">Очистить фильтры</Text>
-                        </Button>
-                        <div style={{width: 8}} />
                         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                             <Button
                                 style={{
@@ -5198,53 +5164,28 @@ export const MassAdvertPage = ({
             {isMobile ? (
                 <></>
             ) : (
-                <div
-                    style={{
-                        width: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Card
-                        style={{
-                            width: '100%',
-                            maxHeight: 'calc(100vh - 10em - 68px - 32px - 36px - 48px - 30px)',
-                            boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                            overflow: 'auto',
-                        }}
-                    >
-                        <TheTable
-                            columnData={columnData}
-                            data={paginatedData}
-                            filters={filters}
-                            setFilters={setFilters}
-                            filterData={filterTableData}
-                            footerData={[filteredSummary]}
-                        />
-                    </Card>
-                    <div style={{height: 8}} />
-                    <Pagination
-                        showInput
-                        total={pagesTotal}
-                        page={pagesCurrent}
-                        pageSize={300}
-                        onUpdate={(page) => {
-                            setPagesCurrent(page);
-                            const paginatedDataTemp = filteredData.slice(
-                                (page - 1) * 300,
-                                page * 300,
-                            );
-                            setFilteredSummary((row) => {
-                                const temp = row;
-                                temp.art = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length} ID КТ: ${temp.uniqueImtIds}`;
+                <TheTable
+                    columnData={columnData}
+                    data={filteredData}
+                    filters={filters}
+                    setFilters={setFilters}
+                    filterData={filterTableData}
+                    footerData={[filteredSummary]}
+                    tableId={'massAdverts'}
+                    usePagination={true}
+                    onPaginationUpdate={({page, paginatedData}) => {
+                        setPagesCurrent(page);
+                        setFilteredSummary((row) => {
+                            const temp = row;
+                            temp.art = `На странице: ${paginatedData.length} Всего: ${filteredData.length} ID КТ: ${temp.uniqueImtIds}`;
 
-                                return temp;
-                            });
-                            setPaginatedData(paginatedDataTemp);
-                        }}
-                    />
-                </div>
+                            return temp;
+                        });
+                    }}
+                    defaultPaginationSize={300}
+                    width="100%"
+                    height="calc(100vh - 10em - 68px - 32px - 36px - 70px - 38px)"
+                />
             )}
         </div>
     );

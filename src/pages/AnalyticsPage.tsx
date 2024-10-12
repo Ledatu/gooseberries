@@ -1,16 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-    Spin,
-    Icon,
-    Button,
-    Text,
-    Pagination,
-    List,
-    Popover,
-    Card,
-    Modal,
-    TextInput,
-} from '@gravity-ui/uikit';
+import {Spin, Icon, Button, Text, List, Popover, Card, Modal, TextInput} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
@@ -623,7 +612,7 @@ export const AnalyticsPage = ({
 
     const filterByClick = (val, key, compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
-        setFilters(filters);
+        setFilters({...filters});
         filterTableData(filters);
     };
 
@@ -674,11 +663,8 @@ export const AnalyticsPage = ({
     // monthAgo.setDate(monthAgo.getDate() - 30);
     const [dateRange, setDateRange] = useState([today, today]);
 
-    const [pagesTotal, setPagesTotal] = useState(1);
-    const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
     const columnData = (() => {
         const temp = [] as any[];
@@ -695,7 +681,7 @@ export const AnalyticsPage = ({
 
     const filterByButton = (val, key = 'entity', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
-        setFilters(filters);
+        setFilters({...filters});
         filterTableData(filters);
     };
 
@@ -723,7 +709,6 @@ export const AnalyticsPage = ({
             setSwitchingCampaignsFlag(false);
         }
         recalc(dateRange, selectValue[0], filters);
-        setPagesCurrent(1);
     }, [selectValue]);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
@@ -1290,20 +1275,7 @@ export const AnalyticsPage = ({
 
         if (enteredKeysDateTypeLastCalc != 'period') temp.pop();
 
-        const paginatedDataTemp = temp.slice(0, 100);
-
-        setFilteredSummary((row) => {
-            const fstemp = row;
-            fstemp['entity'] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
-
-            return fstemp;
-        });
-
         setFilteredData(temp);
-
-        setPaginatedData(paginatedDataTemp);
-        setPagesCurrent(1);
-        setPagesTotal(Math.ceil(temp.length));
     };
 
     const [firstRecalc, setFirstRecalc] = useState(false);
@@ -1732,7 +1704,6 @@ export const AnalyticsPage = ({
                     }}
                 >
                     <AnalyticsCalcModal
-                        setPagesCurrent={setPagesCurrent}
                         doc={doc}
                         setChangedDoc={setChangedDoc}
                         setEntityKeysLastCalc={setEntityKeysLastCalc}
@@ -1770,28 +1741,6 @@ export const AnalyticsPage = ({
                         flexWrap: 'wrap',
                     }}
                 >
-                    <Button
-                        size="l"
-                        view="action"
-                        onClick={() => {
-                            setFilters(() => {
-                                const newFilters = {undef: true};
-                                for (const [key, filterData] of Object.entries(filters as any)) {
-                                    if (key == 'undef' || !key || !filterData) continue;
-                                    newFilters[key] = {
-                                        val: '',
-                                        compMode: filterData['compMode'] ?? 'include',
-                                    };
-                                }
-                                filterTableData(newFilters);
-                                return newFilters;
-                            });
-                        }}
-                    >
-                        <Icon data={TrashBin} />
-                        <Text variant="subheader-1">Очистить фильтры</Text>
-                    </Button>
-                    <div style={{minWidth: 8}} />
                     <ColumnsEdit
                         columns={apiPageColumns}
                         setColumns={setApiPageColumns}
@@ -1872,43 +1821,27 @@ export const AnalyticsPage = ({
                     alignItems: 'center',
                 }}
             >
-                <Card
-                    style={{
-                        maxWidth: '100%',
-                        // maxHeight: '80vh',
-                        maxHeight: 'calc(100vh - 10em - 52px)',
-                        boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                        overflow: 'auto',
-                    }}
-                >
-                    <TheTable
-                        columnData={columnData}
-                        data={paginatedData}
-                        filters={filters}
-                        setFilters={setFilters}
-                        filterData={filterTableData}
-                        footerData={[filteredSummary]}
-                    />
-                </Card>
-                <div style={{height: 8}} />
-                <Pagination
-                    showInput
-                    total={pagesTotal}
-                    page={pagesCurrent}
-                    pageSize={100}
-                    onUpdate={(page) => {
-                        setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 100, page * 100);
+                <TheTable
+                    columnData={columnData}
+                    data={filteredData}
+                    filters={filters}
+                    setFilters={setFilters}
+                    filterData={filterTableData}
+                    footerData={[filteredSummary]}
+                    tableId={'analytics'}
+                    usePagination={true}
+                    defaultPaginationSize={100}
+                    onPaginationUpdate={({paginatedData}) => {
                         setFilteredSummary((row) => {
                             const fstemp = row;
                             fstemp[
                                 'art'
-                            ] = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;
+                            ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
 
                             return fstemp;
                         });
-                        setPaginatedData(paginatedDataTemp);
                     }}
+                    height={'calc(100vh - 10em - 52px)'}
                 />
             </div>
         </div>

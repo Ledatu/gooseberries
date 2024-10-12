@@ -225,6 +225,8 @@ export const AutoFeedbackAnsweringPage = ({
                     filters={filters}
                     setFilters={setFilters}
                     filterData={filterData}
+                    tableId={''}
+                    usePagination={false}
                 />
             </Card>
             <div style={{minHeight: 16}} />

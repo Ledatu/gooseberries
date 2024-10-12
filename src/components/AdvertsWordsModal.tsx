@@ -2151,6 +2151,8 @@ export const AdvertsWordsModal = ({
                                         setFilters={setClustersFiltersActive}
                                         filterData={clustersFilterDataActive}
                                         footerData={[semanticsFilteredSummary.active]}
+                                        tableId={''}
+                                        usePagination={false}
                                     />
                                 </Card>
                                 <div style={{minHeight: 8}} />
@@ -2184,6 +2186,8 @@ export const AdvertsWordsModal = ({
                                         setFilters={setClustersFiltersMinus}
                                         filterData={clustersFilterDataMinus}
                                         footerData={[semanticsFilteredSummary.minus]}
+                                        tableId={''}
+                                        usePagination={false}
                                     />
                                 </Card>
                             </div>

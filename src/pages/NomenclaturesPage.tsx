@@ -1,16 +1,5 @@
 import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
-import {
-    Spin,
-    Icon,
-    Button,
-    Text,
-    Pagination,
-    Modal,
-    List,
-    TextInput,
-    Label,
-    Link,
-} from '@gravity-ui/uikit';
+import {Spin, Icon, Button, Text, Modal, List, TextInput, Label, Link} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
@@ -70,15 +59,13 @@ export const NomenclaturesPage = ({
 
     const [selectedButton, setSelectedButton] = useState('');
 
-    const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
-        setFilters(filters);
+        setFilters({...filters});
         filterTableData(filters);
     };
 
@@ -354,7 +341,7 @@ export const NomenclaturesPage = ({
     const [tagsModalOpen, setTagsModalOpen] = useState(false);
     const filterByButton = (val, key = 'tags', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
-        setFilters(filters);
+        setFilters({...filters});
         filterTableData(filters);
     };
 
@@ -612,20 +599,9 @@ export const NomenclaturesPage = ({
         temp.sort((a, b) => {
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 300);
-
-        setFilteredSummary((row) => {
-            const fstemp = row;
-            fstemp['art'] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
-
-            return fstemp;
-        });
 
         setFilteredData(temp);
-
-        setPaginatedData(paginatedDataTemp);
         setPagesCurrent(1);
-        setPagesTotal(Math.ceil(temp.length));
     };
 
     const [tagsModalFormOpen, setTagsModalFormOpen] = useState(false);
@@ -896,28 +872,6 @@ export const NomenclaturesPage = ({
                         marginBottom: 8,
                     }}
                 >
-                    <Button
-                        size="l"
-                        view="action"
-                        onClick={() => {
-                            setFilters(() => {
-                                const newFilters = {undef: true};
-                                for (const [key, filterData] of Object.entries(filters as any)) {
-                                    if (key == 'undef' || !key || !filterData) continue;
-                                    newFilters[key] = {
-                                        val: '',
-                                        compMode: filterData['compMode'] ?? 'include',
-                                    };
-                                }
-                                filterTableData(newFilters);
-                                return newFilters;
-                            });
-                        }}
-                    >
-                        <Icon data={TrashBin} />
-                        <Text variant="subheader-1">Очистить фильтры</Text>
-                    </Button>
-                    <div style={{minWidth: 8}} />
                     <div style={{marginRight: 4}}>
                         <Button
                             size="l"
@@ -996,51 +950,29 @@ export const NomenclaturesPage = ({
                 </div>
             </div>
 
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <div
-                    style={{
-                        width: '100%',
-                        maxHeight: '80vh',
-                        overflow: 'auto',
-                    }}
-                >
-                    <TheTable
-                        columnData={columnData}
-                        data={paginatedData}
-                        filters={filters}
-                        setFilters={setFilters}
-                        filterData={filterTableData}
-                        footerData={[filteredSummary]}
-                    />
-                </div>
-                <div style={{height: 8}} />
-                <Pagination
-                    showInput
-                    total={pagesTotal}
-                    page={pagesCurrent}
-                    pageSize={300}
-                    onUpdate={(page) => {
-                        setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 300, page * 300);
-                        setFilteredSummary((row) => {
-                            const fstemp = row;
-                            fstemp[
-                                'art'
-                            ] = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;
+            <TheTable
+                columnData={columnData}
+                data={filteredData}
+                filters={filters}
+                setFilters={setFilters}
+                filterData={filterTableData}
+                footerData={[filteredSummary]}
+                tableId={'nomenclatures'}
+                usePagination={true}
+                defaultPaginationSize={300}
+                onPaginationUpdate={({page, paginatedData}) => {
+                    setPagesCurrent(page);
+                    setFilteredSummary((row) => {
+                        const fstemp = row;
+                        fstemp[
+                            'art'
+                        ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
 
-                            return fstemp;
-                        });
-                        setPaginatedData(paginatedDataTemp);
-                    }}
-                />
-            </div>
+                        return fstemp;
+                    });
+                }}
+                height={'calc(100vh - 10em - 60px)'}
+            />
         </div>
     );
 };

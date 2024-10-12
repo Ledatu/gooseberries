@@ -6,7 +6,6 @@ import {
     Button,
     Text,
     Link,
-    Pagination,
     Card,
     Modal,
     List,
@@ -21,7 +20,6 @@ import {
     ArrowsRotateLeft,
     Tag,
     Calculator,
-    TrashBin,
     FileArrowDown,
     Box,
     Boxes3,
@@ -93,11 +91,9 @@ export const DeliveryPage = ({
 
     const [filters, setFilters] = useState({undef: false});
 
-    const [pagesTotal, setPagesTotal] = useState(1);
     const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [paginatedData, setPaginatedData] = useState<any[]>([]);
 
     const [splitCountIntoBoxes, setSplitCountIntoBoxes] = useState(true);
 
@@ -109,7 +105,6 @@ export const DeliveryPage = ({
     const orderCountValueTextInput = useRef<HTMLInputElement>(null);
 
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
-    const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
     const [uploadProgress, setUploadProgress] = useState(0);
     const uploadId = useId();
@@ -184,7 +179,7 @@ export const DeliveryPage = ({
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
-        setFilters(filters);
+        setFilters({...filters});
         filterTableData(filters);
     };
 
@@ -348,7 +343,6 @@ export const DeliveryPage = ({
     if (dateChangeRecalc) {
         setUpdatingFlag(true);
         setDateChangeRecalc(false);
-        setCurrentPricesCalculatedBasedOn('');
 
         callApi(
             'getDeliveryOrders',
@@ -527,7 +521,6 @@ export const DeliveryPage = ({
             if (!a.art || !b.art) return false;
             return a.art.localeCompare(b.art, 'ru-RU');
         });
-        const paginatedDataTemp = temp.slice(0, 150);
 
         for (const [key, val] of Object.entries(filteredSummaryTemp)) {
             if (
@@ -554,16 +547,8 @@ export const DeliveryPage = ({
             } else filteredSummaryTemp[key] = getRoundValue(val, temp.length);
         }
 
-        filteredSummaryTemp[
-            'art'
-        ] = `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`;
         setFilteredSummary(filteredSummaryTemp);
-
         setFilteredData(temp);
-
-        setPaginatedData(paginatedDataTemp);
-        setPagesCurrent(1);
-        setPagesTotal(Math.ceil(temp.length));
     };
 
     const [firstRecalc, setFirstRecalc] = useState(false);
@@ -1239,28 +1224,6 @@ export const DeliveryPage = ({
                         setSortingType={setSortingType}
                     />
                     <div style={{minWidth: 8}} />
-                    <Button
-                        size="l"
-                        view="action"
-                        onClick={() => {
-                            setFilters(() => {
-                                const newFilters = {undef: true};
-                                for (const [key, filterData] of Object.entries(filters as any)) {
-                                    if (key == 'undef' || !key || !filterData) continue;
-                                    newFilters[key] = {
-                                        val: '',
-                                        compMode: filterData['compMode'] ?? 'include',
-                                    };
-                                }
-                                filterTableData(newFilters);
-                                return newFilters;
-                            });
-                        }}
-                    >
-                        <Icon data={TrashBin} />
-                        <Text variant="subheader-1">Очистить фильтры</Text>
-                    </Button>
-                    <div style={{minWidth: 8}} />
                     <RangePicker
                         args={{
                             recalc: () => setDateChangeRecalc(true),
@@ -1272,53 +1235,29 @@ export const DeliveryPage = ({
                 </div>
             </div>
 
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <Card
-                    theme={currentPricesCalculatedBasedOn != '' ? 'warning' : undefined}
-                    style={{
-                        width: '100%',
-                        maxHeight: '80vh',
-                        boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                        overflow: 'auto',
-                    }}
-                >
-                    <TheTable
-                        columnData={columnData}
-                        data={paginatedData}
-                        filters={filters}
-                        setFilters={setFilters}
-                        filterData={filterTableData}
-                        footerData={[filteredSummary]}
-                    />
-                </Card>
-                <div style={{height: 8}} />
-                <Pagination
-                    showInput
-                    total={pagesTotal}
-                    page={pagesCurrent}
-                    pageSize={150}
-                    onUpdate={(page) => {
-                        setPagesCurrent(page);
-                        const paginatedDataTemp = filteredData.slice((page - 1) * 150, page * 150);
-                        setFilteredSummary((row) => {
-                            const fstemp = row;
-                            fstemp[
-                                'art'
-                            ] = `На странице: ${paginatedDataTemp.length} Всего: ${filteredData.length}`;
+            <TheTable
+                columnData={columnData}
+                data={filteredData}
+                filters={filters}
+                setFilters={setFilters}
+                filterData={filterTableData}
+                footerData={[filteredSummary]}
+                tableId={'deliveryOrders'}
+                usePagination={true}
+                defaultPaginationSize={150}
+                onPaginationUpdate={({page, paginatedData}) => {
+                    setPagesCurrent(page);
+                    setFilteredSummary((row) => {
+                        const fstemp = row;
+                        fstemp[
+                            'art'
+                        ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
 
-                            return fstemp;
-                        });
-                        setPaginatedData(paginatedDataTemp);
-                    }}
-                />
-            </div>
+                        return fstemp;
+                    });
+                }}
+                height={'calc(100vh - 10em - 60px)'}
+            />
         </div>
     );
 };

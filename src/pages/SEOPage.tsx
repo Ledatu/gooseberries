@@ -1,14 +1,4 @@
-import {
-    Button,
-    Card,
-    Icon,
-    Loader,
-    Pagination,
-    TextInput,
-    Text,
-    Link,
-    Popover,
-} from '@gravity-ui/uikit';
+import {Button, Icon, Loader, TextInput, Text, Link, Popover} from '@gravity-ui/uikit';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
 import TheTable, {compare} from 'src/components/TheTable';
@@ -21,17 +11,12 @@ export const SEOPage = () => {
     const [isInputDown, setIsInputDown] = useState(true);
     const mainInputRef = useRef<HTMLInputElement>(null);
 
-    const pageSize = 300;
-
     const [deletedWords, setDeletedWords] = useState([] as string[]);
 
     const [dataPhrasesTable, setDataPhrasesTable] = useState({});
     const [filtersPhrasesTable, setFiltersPhrasesTable] = useState({undef: false});
     const [filteredDataPhrasesTable, setFilteredDataPhrasesTable] = useState([] as any[]);
     const [filteredSummaryPhrasesTable, setFilteredSummaryPhrasesTable] = useState({});
-    const [paginatedDataPhrasesTable, setPaginatedDataPhrasesTable] = useState([] as any[]);
-    const [pagesTotalPhrasesTable, setPagesTotalPhrasesTable] = useState(1);
-    const [currentPagePhrasesTable, setCurrentPagePhrasesTable] = useState(1);
     const columnsPhrasesTable = [
         {
             name: 'phrase',
@@ -48,9 +33,6 @@ export const SEOPage = () => {
     const [filtersWordsTable, setFiltersWordsTable] = useState({undef: false});
     const [filteredDataWordsTable, setFilteredDataWordsTable] = useState([] as any[]);
     const [filteredSummaryWordsTable, setFilteredSummaryWordsTable] = useState({});
-    const [paginatedDataWordsTable, setPaginatedDataWordsTable] = useState([] as any[]);
-    const [pagesTotalWordsTable, setPagesTotalWordsTable] = useState(1);
-    const [currentPageWordsTable, setCurrentPageWordsTable] = useState(1);
     const columnsWordsTable = [
         {
             name: 'word',
@@ -214,9 +196,7 @@ export const SEOPage = () => {
 
         setFilteredDataWordsTable(temp);
 
-        const paginatedDataTemp = temp.slice(0, 300);
         const filteredSummaryTemp = {
-            word: `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`,
             freq: 0,
         };
 
@@ -225,9 +205,6 @@ export const SEOPage = () => {
             filteredSummaryTemp.freq += freq;
         }
         setFilteredSummaryWordsTable(filteredSummaryTemp);
-        setPaginatedDataWordsTable(paginatedDataTemp);
-        setCurrentPageWordsTable(1);
-        setPagesTotalWordsTable(temp.length);
     };
     useEffect(() => {
         filterDataWordsTable(filtersWordsTable, dataWordsTable);
@@ -243,9 +220,7 @@ export const SEOPage = () => {
 
         setFilteredDataPhrasesTable(temp);
 
-        const paginatedDataTemp = temp.slice(0, 300);
         const filteredSummaryTemp = {
-            phrase: `На странице: ${paginatedDataTemp.length} Всего: ${temp.length}`,
             freq: 0,
         };
 
@@ -259,9 +234,6 @@ export const SEOPage = () => {
             }
         }
         setFilteredSummaryPhrasesTable(filteredSummaryTemp);
-        setPaginatedDataPhrasesTable(paginatedDataTemp);
-        setCurrentPagePhrasesTable(1);
-        setPagesTotalPhrasesTable(temp.length);
 
         setDataWordsTable(tempDataWordsTable);
     };
@@ -441,36 +413,25 @@ export const SEOPage = () => {
                         alignItems: 'center',
                     }}
                 >
-                    <Card style={tableCardStyle}>
-                        <TheTable
-                            columnData={columnsPhrasesTable}
-                            data={paginatedDataPhrasesTable}
-                            filters={filtersPhrasesTable}
-                            setFilters={setFiltersPhrasesTable}
-                            filterData={filterDataPhrasesTable}
-                            footerData={[filteredSummaryPhrasesTable]}
-                        />
-                    </Card>
-                    <div style={{minHeight: 8}} />
-                    <Pagination
-                        total={pagesTotalPhrasesTable}
-                        page={currentPagePhrasesTable}
-                        pageSize={pageSize}
-                        onUpdate={(page) => {
-                            setCurrentPagePhrasesTable(page);
-                            const paginatedDataTemp = filteredDataPhrasesTable.slice(
-                                (page - 1) * pageSize,
-                                page * pageSize,
-                            );
+                    <TheTable
+                        columnData={columnsPhrasesTable}
+                        data={filteredDataPhrasesTable}
+                        filters={filtersPhrasesTable}
+                        setFilters={setFiltersPhrasesTable}
+                        filterData={filterDataPhrasesTable}
+                        footerData={[filteredSummaryPhrasesTable]}
+                        tableId={'seoPhrases'}
+                        usePagination={true}
+                        defaultPaginationSize={300}
+                        onPaginationUpdate={({paginatedData}) => {
                             setFilteredSummaryPhrasesTable((row) => {
                                 const temp = row;
                                 temp[
                                     'phrase'
-                                ] = `На странице: ${paginatedDataTemp.length} Всего: ${filteredDataPhrasesTable.length}`;
+                                ] = `На странице: ${paginatedData.length} Всего: ${filteredDataPhrasesTable.length}`;
 
                                 return temp;
                             });
-                            setPaginatedDataPhrasesTable(paginatedDataTemp);
                         }}
                     />
                 </motion.div>
@@ -502,36 +463,25 @@ export const SEOPage = () => {
                         alignItems: 'center',
                     }}
                 >
-                    <Card style={tableCardStyle}>
-                        <TheTable
-                            columnData={columnsWordsTable}
-                            data={paginatedDataWordsTable}
-                            filters={filtersWordsTable}
-                            setFilters={setFiltersWordsTable}
-                            filterData={filterDataWordsTable}
-                            footerData={[filteredSummaryWordsTable]}
-                        />
-                    </Card>
-                    <div style={{minHeight: 8}} />
-                    <Pagination
-                        total={pagesTotalWordsTable}
-                        page={currentPageWordsTable}
-                        pageSize={pageSize}
-                        onUpdate={(page) => {
-                            setCurrentPageWordsTable(page);
-                            const paginatedDataTemp = filteredDataWordsTable.slice(
-                                (page - 1) * pageSize,
-                                page * pageSize,
-                            );
+                    <TheTable
+                        columnData={columnsWordsTable}
+                        data={filteredDataWordsTable}
+                        filters={filtersWordsTable}
+                        setFilters={setFiltersWordsTable}
+                        filterData={filterDataWordsTable}
+                        footerData={[filteredSummaryWordsTable]}
+                        tableId={'seoWords'}
+                        usePagination={true}
+                        defaultPaginationSize={300}
+                        onPaginationUpdate={({paginatedData}) => {
                             setFilteredSummaryWordsTable((row) => {
                                 const temp = row;
                                 temp[
                                     'word'
-                                ] = `На странице: ${paginatedDataTemp.length} Всего: ${filteredDataWordsTable.length}`;
+                                ] = `На странице: ${paginatedData.length} Всего: ${filteredDataWordsTable.length}`;
 
                                 return temp;
                             });
-                            setPaginatedDataWordsTable(paginatedDataTemp);
                         }}
                     />
                 </motion.div>

@@ -19,7 +19,6 @@ import {TextTitleWrapper} from './TextTitleWrapper';
 export const AnalyticsCalcModal = ({
     setEntityKeysLastCalc,
     setEnteredKeysDateTypeLastCalc,
-    setPagesCurrent,
     doc,
     setChangedDoc,
     selectValue,
@@ -282,8 +281,6 @@ export const AnalyticsCalcModal = ({
                                     setCalculatingFlag(false);
                                     console.log(doc);
                                 });
-
-                                setPagesCurrent(1);
 
                                 setEnteredValuesModalOpen(false);
                             }}

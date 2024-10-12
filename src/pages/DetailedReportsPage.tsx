@@ -48,6 +48,8 @@ export const DetailedReportsPage = () => {
                     filters={filters}
                     setFilters={setFilters}
                     filterData={filterData}
+                    tableId={''}
+                    usePagination={false}
                 />
             </Card>
         </div>

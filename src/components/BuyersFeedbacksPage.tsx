@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {Button, Loader, Pagination, Icon, Card, Text, Link, Popover} from '@gravity-ui/uikit';
+import {Button, Loader, Icon, Text, Link, Popover} from '@gravity-ui/uikit';
 import {Star, PencilToLine} from '@gravity-ui/icons';
 import {renderAsDate} from 'src/utilities/getRoundValue';
 import {TagsFilterModal} from './TagsFilterModal';
@@ -19,9 +19,7 @@ export const BuyersFeedbacksPage = ({
     const [filters, setFilters] = useState({});
     const [data, setData] = useState(null as any);
     const [filteredData, setFilteredData] = useState([] as any[]);
-    const paginationSize = 100;
     const [currentPage, setCurrentPage] = useState(1);
-    const [paginatedData, setPaginatedData] = useState([] as any[]);
 
     const [pending, setPending] = useState(false);
 
@@ -149,7 +147,7 @@ export const BuyersFeedbacksPage = ({
 
     const filterByButton = (val, key = 'nmId', compMode = 'include') => {
         filters[key] = {val: String(val) + ' ', compMode: compMode};
-        setFilters(filters);
+        setFilters({...filters});
         filterData(filters);
     };
 
@@ -157,14 +155,6 @@ export const BuyersFeedbacksPage = ({
         if (!data) return;
         filterData();
     }, [data]);
-
-    useEffect(() => {
-        const temp = filteredData.slice(
-            (currentPage - 1) * paginationSize,
-            currentPage * paginationSize,
-        );
-        setPaginatedData(temp);
-    }, [filteredData, currentPage]);
 
     const columns = [
         {
@@ -480,30 +470,17 @@ export const BuyersFeedbacksPage = ({
             <div style={{position: 'absolute', left: 0, top: -44}}>
                 <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
             </div>
-            <Card
-                style={{
-                    boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                    width: '100%',
-                    overflow: 'auto',
-                    maxHeight: 'calc(100vh - 68px - 32px - 36px - 16px - 48px)',
-                }}
-            >
-                <TheTable
-                    columnData={columns}
-                    data={paginatedData}
-                    filters={filters}
-                    setFilters={setFilters}
-                    filterData={filterData}
-                />
-            </Card>
-            <div style={{minHeight: 16}} />
-            <Pagination
-                total={filteredData.length}
-                page={currentPage}
-                pageSize={paginationSize}
-                onUpdate={(page) => {
-                    setCurrentPage(page);
-                }}
+            <TheTable
+                columnData={columns}
+                data={filteredData}
+                filters={filters}
+                setFilters={setFilters}
+                filterData={filterData}
+                tableId={'buyersFeedbacks'}
+                usePagination={true}
+                defaultPaginationSize={100}
+                onPaginationUpdate={({page}) => setCurrentPage(page)}
+                height={'calc(100vh - 68px - 32px - 36px - 16px - 48px)'}
             />
         </div>
     ) : (
