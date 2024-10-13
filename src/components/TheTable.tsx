@@ -27,7 +27,7 @@ interface TheTableProps {
     usePagination: boolean;
     defaultPaginationSize?: number;
     onPaginationUpdate?: Function;
-    columnData: any[];
+    columnData: any;
     data: any[];
     filters: any;
     setFilters: (filters: any) => void;
@@ -55,6 +55,8 @@ export default function TheTable({
     width,
     onRowClick,
 }: TheTableProps) {
+    const viewportSize = useWindowDimensions();
+
     const {userInfo} = useUser();
     const {user} = userInfo ?? {};
 
@@ -64,15 +66,20 @@ export default function TheTable({
     const [sortedData, setSortedData] = useState(data);
     const [sortState, setSortState] = useState([] as any);
 
+    const [sortFuncs, setSortFuncs] = useState({});
+
     const sortData = () => {
         if (!sortState) return;
         let sortedDataTemp = [...data];
         for (let i = 0; i < sortState?.length; i++) {
             const {columnId, order} = sortState[i];
+            const sortFunc = sortFuncs[columnId];
             sortedDataTemp = sortedDataTemp.sort((a, b) => {
                 const av = a[columnId] ?? 0;
                 const bv = b[columnId] ?? 0;
-                if (isNaN(Number(av))) {
+                if (sortFunc) {
+                    return sortFunc(a, b, order);
+                } else if (isNaN(Number(av))) {
                     return (
                         String(av)
                             .toLocaleLowerCase()
@@ -126,13 +133,12 @@ export default function TheTable({
         if (onPaginationUpdate) onPaginationUpdate({page, paginatedData: tempPaginatedData});
     }, [paginationSize, sortedData]);
 
-    const generateColumns = (columnsInfo) => {
+    const columns = useMemo(() => {
         const columns: Column<any>[] = [];
-        if (!columnsInfo && !columnsInfo.length) return columns;
-        const viewportSize = useWindowDimensions();
+        if (!columnData || !columnData.length) return columns;
 
-        for (let i = 0; i < columnsInfo.length; i++) {
-            const column = columnsInfo[i];
+        for (let i = 0; i < columnData.length; i++) {
+            const column = columnData[i];
             if (!column) continue;
             const {
                 name,
@@ -146,7 +152,13 @@ export default function TheTable({
                 sortable,
                 sub,
                 isDivider,
+                sortFunction,
             } = column;
+
+            if (sortFunction) {
+                sortFuncs[name] = sortFunction;
+                console.log(sortFuncs);
+            }
 
             columns.push({
                 sortable,
@@ -185,10 +197,9 @@ export default function TheTable({
             });
         }
 
+        setSortFuncs({...sortFuncs});
         return columns;
-    };
-
-    const columns = generateColumns(columnData);
+    }, [columnData, filters]);
 
     const tableCardStyle = {
         boxShadow: 'var(--g-color-base-background) 0px 2px 8px',

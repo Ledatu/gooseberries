@@ -1109,488 +1109,544 @@ export const MassAdvertPage = ({
             valueType: 'text',
             group: true,
         },
-        {
-            name: 'adverts',
-            placeholder: 'Реклама',
-            valueType: 'text',
-            additionalNodes:
-                Object.keys(autoSalesProfits).length == 0
-                    ? [
-                          <Button
-                              style={{marginLeft: 5}}
-                              // size="l"
-                              view="outlined"
-                              onClick={() => filterByButton('авто', 'adverts')}
-                          >
-                              <Icon data={Rocket} size={14} />
-                          </Button>,
-                          <Button
-                              style={{marginLeft: 5}}
-                              // size="l"
-                              view="outlined"
-                              onClick={() => filterByButton('поиск', 'adverts')}
-                          >
-                              <Icon data={Magnifier} size={14} />
-                          </Button>,
+        Object.keys(autoSalesProfits ?? []).length == 0
+            ? {
+                  name: 'adverts',
+                  placeholder: 'Реклама',
+                  valueType: 'text',
+                  additionalNodes: [
+                      <Button
+                          style={{marginLeft: 5}}
+                          // size="l"
+                          view="outlined"
+                          onClick={() => filterByButton('авто', 'adverts')}
+                      >
+                          <Icon data={Rocket} size={14} />
+                      </Button>,
+                      <Button
+                          style={{marginLeft: 5}}
+                          // size="l"
+                          view="outlined"
+                          onClick={() => filterByButton('поиск', 'adverts')}
+                      >
+                          <Icon data={Magnifier} size={14} />
+                      </Button>,
+                      <div
+                          style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              marginBottom: 5,
+                              marginLeft: 4,
+                          }}
+                      >
+                          <HelpPopover
+                              size="l"
+                              content={
+                                  <div style={{display: 'flex', flexDirection: 'column'}}>
+                                      <Text variant="subheader-1">
+                                          Для поиска введите
+                                          <Text
+                                              style={{margin: '0 3px'}}
+                                              color="brand"
+                                              variant="subheader-1"
+                                          >
+                                              Id РК
+                                          </Text>
+                                      </Text>
+                                      <div style={{height: 4}} />
+                                      <Text variant="subheader-1">
+                                          Введите
+                                          <Button
+                                              size="s"
+                                              style={{margin: '0 3px'}}
+                                              view="outlined-action"
+                                              onClick={() => filterByButton('+', 'adverts')}
+                                          >
+                                              <Icon data={Plus} size={14} />
+                                          </Button>
+                                          чтобы показать артикулы с РК
+                                      </Text>
+                                      <div style={{height: 4}} />
+                                      <Text variant="subheader-1">
+                                          Введите
+                                          <Button
+                                              size="s"
+                                              style={{margin: '0 3px'}}
+                                              view="outlined-action"
+                                              onClick={() => filterByButton('-', 'adverts')}
+                                          >
+                                              <Icon data={Minus} size={14} />
+                                          </Button>
+                                          чтобы показать артикулы без РК
+                                      </Text>
+                                      <div style={{height: 4}} />
+                                      <Text variant="subheader-1">
+                                          Введите
+                                          <Button
+                                              size="s"
+                                              style={{margin: '0 3px'}}
+                                              view="outlined-action"
+                                              onClick={() => filterByButton('авто', 'adverts')}
+                                          >
+                                              авто
+                                          </Button>
+                                          чтобы показать артикулы с авто РК
+                                      </Text>
+                                      <div style={{height: 4}} />
+                                      <Text variant="subheader-1">
+                                          Введите
+                                          <Button
+                                              size="s"
+                                              style={{margin: '0 3px'}}
+                                              view="outlined-action"
+                                              onClick={() => filterByButton('поиск', 'adverts')}
+                                          >
+                                              поиск
+                                          </Button>
+                                          чтобы показать артикулы с поисковыми РК
+                                      </Text>
+                                  </div>
+                              }
+                          />
+                      </div>,
+                  ],
+                  render: ({value, row, index}) => {
+                      if (typeof value === 'number') {
+                          return <Text>{`Уникальных Id: ${value}`}</Text>;
+                      }
+
+                      const {art} = row;
+
+                      const switches: any[] = [];
+                      if (value)
+                          for (const [advertId, _] of Object.entries(value)) {
+                              const advertData = doc.adverts[selectValue[0]][advertId];
+                              if (!advertData) continue;
+
+                              // console.log('popa', advertData, filters['adverts'].val);
+                              if (
+                                  filters['adverts'] &&
+                                  ['авто', 'поиск'].includes(
+                                      String(filters['adverts'].val).toLowerCase().trim(),
+                                  )
+                              ) {
+                                  // console.log('popa2', advertData, filters['adverts'].val);
+                                  if (
+                                      String(filters['adverts'].val)
+                                          .toLowerCase()
+                                          .includes('поиск') &&
+                                      (advertData.type == 9 || advertData.type == 6)
+                                  ) {
+                                      switches.push(
+                                          <AdvertCard
+                                              id={advertId}
+                                              index={index}
+                                              art={art}
+                                              doc={doc}
+                                              selectValue={selectValue}
+                                              copiedAdvertsSettings={copiedAdvertsSettings}
+                                              setChangedDoc={setChangedDoc}
+                                              setShowScheduleModalOpen={setShowScheduleModalOpen}
+                                              genTempSchedule={genTempSchedule}
+                                              manageAdvertsActivityCallFunc={
+                                                  manageAdvertsActivityCallFunc
+                                              }
+                                              setArtsStatsByDayData={setArtsStatsByDayData}
+                                              updateColumnWidth={updateColumnWidth}
+                                              filteredData={filteredData}
+                                              setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                              setFetchedPlacements={setFetchedPlacements}
+                                              currentParsingProgress={currentParsingProgress}
+                                              setCurrentParsingProgress={setCurrentParsingProgress}
+                                              columnDataAuction={columnDataAuction}
+                                              auctionOptions={auctionOptions}
+                                              auctionSelectedOption={auctionSelectedOption}
+                                              setDateRange={setDateRange}
+                                              setModalOpenFromAdvertId={setModalOpenFromAdvertId}
+                                              setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                              dateRange={dateRange}
+                                              recalc={recalc}
+                                              filterByButton={filterByButton}
+                                              setScheduleInput={setScheduleInput}
+                                              setAuctionSelectedOption={setAuctionSelectedOption}
+                                          />,
+                                      );
+                                      switches.push(<div style={{minWidth: 8}} />);
+                                  } else if (
+                                      filters['adverts'] &&
+                                      String(filters['adverts'].val)
+                                          .toLowerCase()
+                                          .includes('авто') &&
+                                      advertData.type == 8
+                                  ) {
+                                      switches.push(
+                                          <AdvertCard
+                                              id={advertId}
+                                              index={index}
+                                              art={art}
+                                              doc={doc}
+                                              selectValue={selectValue}
+                                              copiedAdvertsSettings={copiedAdvertsSettings}
+                                              setChangedDoc={setChangedDoc}
+                                              setShowScheduleModalOpen={setShowScheduleModalOpen}
+                                              genTempSchedule={genTempSchedule}
+                                              manageAdvertsActivityCallFunc={
+                                                  manageAdvertsActivityCallFunc
+                                              }
+                                              setArtsStatsByDayData={setArtsStatsByDayData}
+                                              updateColumnWidth={updateColumnWidth}
+                                              filteredData={filteredData}
+                                              setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                              setFetchedPlacements={setFetchedPlacements}
+                                              currentParsingProgress={currentParsingProgress}
+                                              setCurrentParsingProgress={setCurrentParsingProgress}
+                                              columnDataAuction={columnDataAuction}
+                                              auctionOptions={auctionOptions}
+                                              auctionSelectedOption={auctionSelectedOption}
+                                              setDateRange={setDateRange}
+                                              setModalOpenFromAdvertId={setModalOpenFromAdvertId}
+                                              setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                              dateRange={dateRange}
+                                              recalc={recalc}
+                                              filterByButton={filterByButton}
+                                              setScheduleInput={setScheduleInput}
+                                              setAuctionSelectedOption={setAuctionSelectedOption}
+                                          />,
+                                      );
+                                      switches.push(<div style={{minWidth: 8}} />);
+                                  } else {
+                                      continue;
+                                  }
+                              } else {
+                                  switches.push(
+                                      <AdvertCard
+                                          id={advertId}
+                                          index={index}
+                                          art={art}
+                                          doc={doc}
+                                          selectValue={selectValue}
+                                          copiedAdvertsSettings={copiedAdvertsSettings}
+                                          setChangedDoc={setChangedDoc}
+                                          setShowScheduleModalOpen={setShowScheduleModalOpen}
+                                          genTempSchedule={genTempSchedule}
+                                          manageAdvertsActivityCallFunc={
+                                              manageAdvertsActivityCallFunc
+                                          }
+                                          setArtsStatsByDayData={setArtsStatsByDayData}
+                                          updateColumnWidth={updateColumnWidth}
+                                          filteredData={filteredData}
+                                          setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                          setFetchedPlacements={setFetchedPlacements}
+                                          currentParsingProgress={currentParsingProgress}
+                                          setCurrentParsingProgress={setCurrentParsingProgress}
+                                          columnDataAuction={columnDataAuction}
+                                          auctionOptions={auctionOptions}
+                                          auctionSelectedOption={auctionSelectedOption}
+                                          setDateRange={setDateRange}
+                                          setModalOpenFromAdvertId={setModalOpenFromAdvertId}
+                                          setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                          dateRange={dateRange}
+                                          recalc={recalc}
+                                          filterByButton={filterByButton}
+                                          setScheduleInput={setScheduleInput}
+                                          setAuctionSelectedOption={setAuctionSelectedOption}
+                                      />,
+                                  );
+                                  switches.push(<div style={{minWidth: 8}} />);
+                              }
+                          }
+
+                      switches.pop();
+
+                      return (
                           <div
                               style={{
                                   display: 'flex',
-                                  flexDirection: 'column',
-                                  marginBottom: 5,
-                                  marginLeft: 4,
+                                  flexDirection: 'row',
+                                  overflowX: 'scroll',
+                                  overflowY: 'hidden',
+                                  // justifyContent: 'space-between',
                               }}
                           >
-                              <HelpPopover
-                                  size="l"
-                                  content={
-                                      <div style={{display: 'flex', flexDirection: 'column'}}>
-                                          <Text variant="subheader-1">
-                                              Для поиска введите
-                                              <Text
-                                                  style={{margin: '0 3px'}}
-                                                  color="brand"
-                                                  variant="subheader-1"
-                                              >
-                                                  Id РК
-                                              </Text>
-                                          </Text>
-                                          <div style={{height: 4}} />
-                                          <Text variant="subheader-1">
-                                              Введите
-                                              <Button
-                                                  size="s"
-                                                  style={{margin: '0 3px'}}
-                                                  view="outlined-action"
-                                                  onClick={() => filterByButton('+', 'adverts')}
-                                              >
-                                                  <Icon data={Plus} size={14} />
-                                              </Button>
-                                              чтобы показать артикулы с РК
-                                          </Text>
-                                          <div style={{height: 4}} />
-                                          <Text variant="subheader-1">
-                                              Введите
-                                              <Button
-                                                  size="s"
-                                                  style={{margin: '0 3px'}}
-                                                  view="outlined-action"
-                                                  onClick={() => filterByButton('-', 'adverts')}
-                                              >
-                                                  <Icon data={Minus} size={14} />
-                                              </Button>
-                                              чтобы показать артикулы без РК
-                                          </Text>
-                                          <div style={{height: 4}} />
-                                          <Text variant="subheader-1">
-                                              Введите
-                                              <Button
-                                                  size="s"
-                                                  style={{margin: '0 3px'}}
-                                                  view="outlined-action"
-                                                  onClick={() => filterByButton('авто', 'adverts')}
-                                              >
-                                                  авто
-                                              </Button>
-                                              чтобы показать артикулы с авто РК
-                                          </Text>
-                                          <div style={{height: 4}} />
-                                          <Text variant="subheader-1">
-                                              Введите
-                                              <Button
-                                                  size="s"
-                                                  style={{margin: '0 3px'}}
-                                                  view="outlined-action"
-                                                  onClick={() => filterByButton('поиск', 'adverts')}
-                                              >
-                                                  поиск
-                                              </Button>
-                                              чтобы показать артикулы с поисковыми РК
-                                          </Text>
-                                      </div>
-                                  }
-                              />
-                          </div>,
-                      ]
-                    : [
-                          <Button
-                              view="outlined"
-                              style={{marginLeft: 5}}
-                              onClick={() => {
-                                  const params = {
-                                      uid: getUid(),
-                                      campaignName: selectValue[0],
-                                      data: {},
+                              {switches}
+                          </div>
+                      );
+                  },
+              }
+            : {
+                  constWidth: 400,
+                  name: 'autoSales',
+                  placeholder: 'Акции',
+                  sortFunction: (a, b, order) => {
+                      const profitsDataA = autoSalesProfits[a?.art]?.rentabelnost;
+                      const profitsDataB = autoSalesProfits[b?.art]?.rentabelnost;
+
+                      const isNaNa = isNaN(profitsDataA);
+                      const isNaNb = isNaN(profitsDataB);
+                      if (isNaNa && isNaNb) return 1;
+                      else if (isNaNa) return 1;
+                      else if (isNaNb) return -1;
+
+                      return (profitsDataA - profitsDataB) * order;
+                  },
+                  additionalNodes: [
+                      <Button
+                          view="outlined"
+                          style={{marginLeft: 5}}
+                          onClick={() => {
+                              const params = {
+                                  uid: getUid(),
+                                  campaignName: selectValue[0],
+                                  data: {},
+                              };
+                              const tempAutoSales = {...autoSalesProfits};
+                              for (const row of filteredData) {
+                                  const {nmId, art} = row;
+                                  const profits = autoSalesProfits[art];
+                                  if (!profits) continue;
+                                  const {
+                                      autoSaleName,
+                                      dateRange,
+                                      rozPrice,
+                                      oldRozPrices,
+                                      oldDiscount,
+                                  } = profits;
+                                  params.data[nmId] = {
+                                      autoSaleName,
+                                      dateRange,
+                                      rozPrice,
+                                      oldRozPrices,
+                                      oldDiscount,
                                   };
-                                  const tempAutoSales = {...autoSalesProfits};
-                                  for (const row of filteredData) {
-                                      const {nmId, art} = row;
-                                      const profits = autoSalesProfits[art];
-                                      if (!profits) continue;
-                                      const {
-                                          autoSaleName,
-                                          dateRange,
-                                          rozPrice,
-                                          oldRozPrices,
-                                          oldDiscount,
-                                      } = profits;
-                                      params.data[nmId] = {
-                                          autoSaleName,
-                                          dateRange,
-                                          rozPrice,
-                                          oldRozPrices,
-                                          oldDiscount,
-                                      };
-                                      delete tempAutoSales[art];
+                                  delete tempAutoSales[art];
 
-                                      doc.autoSales[selectValue[0]][nmId] = {
-                                          autoSaleName,
-                                          fixedPrices: {dateRange},
-                                      };
-                                  }
+                                  doc.autoSales[selectValue[0]][nmId] = {
+                                      autoSaleName,
+                                      fixedPrices: {dateRange},
+                                  };
+                              }
 
-                                  console.log(params);
-                                  setAutoSalesProfits(tempAutoSales);
-                                  setChangedDoc({...doc});
+                              console.log(params);
+                              setAutoSalesProfits(tempAutoSales);
+                              setChangedDoc({...doc});
 
-                                  callApi('setAutoSales', params);
+                              callApi('setAutoSales', params);
+                          }}
+                      >
+                          <Icon data={Check} />
+                          Принять все
+                      </Button>,
+                      <Button
+                          style={{marginLeft: 5}}
+                          view="outlined"
+                          onClick={() => {
+                              const tempAutoSales = {...autoSalesProfits};
+                              for (const row of filteredData) {
+                                  const {art} = row;
+                                  delete tempAutoSales[art];
+                              }
+                              setAutoSalesProfits(tempAutoSales);
+                          }}
+                      >
+                          <Icon data={Xmark} />
+                          Отклонить все
+                      </Button>,
+                  ],
+                  render: ({row, footer}) => {
+                      const {art, nmId} = row;
+                      if (footer) return undefined;
+                      const profitsData = autoSalesProfits[art];
+
+                      const switches = [] as any[];
+
+                      if (profitsData) {
+                          switches.push(
+                              <Card
+                                  style={{
+                                      height: 110.5,
+                                      width: 'fit-content',
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      alignItems: 'center',
+                                  }}
+                              >
+                                  <Button
+                                      style={{
+                                          borderTopLeftRadius: 7,
+                                          borderTopRightRadius: 7,
+                                          overflow: 'hidden',
+                                      }}
+                                      width="max"
+                                      size="xs"
+                                      pin="brick-brick"
+                                      view="flat"
+                                  >
+                                      <Text variant="subheader-1">{profitsData.autoSaleName}</Text>
+                                  </Button>
+                                  <Button view="outlined" size="xs" pin="clear-clear" width="max">
+                                      <div
+                                          style={{
+                                              display: 'flex',
+                                              flexDirection: 'row',
+                                              width: '100%',
+                                              justifyContent: 'space-between',
+                                          }}
+                                      >
+                                          <Text
+                                              color={
+                                                  profitsData.oldProfit > 0 ? 'positive' : 'danger'
+                                              }
+                                          >
+                                              {`${new Intl.NumberFormat('ru-RU').format(
+                                                  profitsData.oldProfit,
+                                              )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                                  getRoundValue(
+                                                      profitsData.oldRentabelnost,
+                                                      1,
+                                                      true,
+                                                  ),
+                                              )}%`}
+                                          </Text>
+                                          <div style={{minWidth: 8}} />
+                                          <Text>{`${profitsData.oldRozPrices} ₽`}</Text>
+                                      </div>
+                                  </Button>
+
+                                  <Text
+                                      style={{
+                                          width: '100%',
+                                          display: 'flex',
+                                          flexDirection: 'row',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          height: 20,
+                                      }}
+                                      color={
+                                          profitsData.profit == profitsData.oldProfit
+                                              ? 'secondary'
+                                              : profitsData.profit > profitsData.oldProfit
+                                              ? 'positive'
+                                              : 'danger'
+                                      }
+                                  >
+                                      <Icon data={ArrowShapeDown} />
+                                  </Text>
+                                  <Button view="outlined" size="xs" pin="clear-clear" width="max">
+                                      <div
+                                          style={{
+                                              display: 'flex',
+                                              flexDirection: 'row',
+                                              width: '100%',
+                                              justifyContent: 'space-between',
+                                          }}
+                                      >
+                                          <Text
+                                              color={profitsData.profit > 0 ? 'positive' : 'danger'}
+                                          >
+                                              {`${new Intl.NumberFormat('ru-RU').format(
+                                                  profitsData.profit,
+                                              )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                                  getRoundValue(profitsData.rentabelnost, 1, true),
+                                              )}%`}
+                                          </Text>
+                                          <div style={{minWidth: 8}} />
+                                          <Text>{`${profitsData.rozPrice} ₽`}</Text>
+                                      </div>
+                                  </Button>
+                                  <div
+                                      style={{
+                                          minHeight: 0.5,
+                                          marginTop: 10,
+                                          width: '100%',
+                                          background: 'var(--yc-color-base-generic-hover)',
+                                      }}
+                                  />
+                                  <div
+                                      style={{display: 'flex', flexDirection: 'row', width: '100%'}}
+                                  >
+                                      <Button
+                                          pin="clear-clear"
+                                          size="xs"
+                                          width="max"
+                                          view="flat-success"
+                                          selected
+                                          style={{borderBottomLeftRadius: 7, overflow: 'hidden'}}
+                                          onClick={() => {
+                                              const params = {
+                                                  uid: getUid(),
+                                                  campaignName: selectValue[0],
+                                                  data: {},
+                                              };
+                                              const {
+                                                  autoSaleName,
+                                                  dateRange,
+                                                  rozPrice,
+                                                  oldRozPrices,
+                                                  oldDiscount,
+                                              } = profitsData;
+                                              params.data[nmId] = {
+                                                  autoSaleName,
+                                                  dateRange,
+                                                  rozPrice,
+                                                  oldRozPrices,
+                                                  oldDiscount,
+                                              };
+
+                                              console.log(params);
+
+                                              doc.autoSales[selectValue[0]][nmId] = {
+                                                  autoSaleName,
+                                                  fixedPrices: {dateRange},
+                                              };
+                                              setChangedDoc({...doc});
+
+                                              callApi('setAutoSales', params);
+
+                                              const temp = {...autoSalesProfits};
+                                              delete temp[art];
+                                              setAutoSalesProfits(temp);
+                                          }}
+                                      >
+                                          <Icon data={Check} />
+                                      </Button>
+                                      <Button
+                                          pin="clear-clear"
+                                          size="xs"
+                                          width="max"
+                                          view="flat-danger"
+                                          selected
+                                          style={{borderBottomRightRadius: 7, overflow: 'hidden'}}
+                                          onClick={() => {
+                                              const temp = {...autoSalesProfits};
+                                              delete temp[art];
+                                              setAutoSalesProfits(temp);
+                                          }}
+                                      >
+                                          <Icon data={Xmark} />
+                                      </Button>
+                                  </div>
+                              </Card>,
+                          );
+                          switches.push(<div style={{minWidth: 8}} />);
+                      }
+
+                      switches.pop();
+
+                      return (
+                          <div
+                              style={{
+                                  display: 'flex',
+                                  flexDirection: 'row',
+                                  overflowX: 'scroll',
+                                  overflowY: 'hidden',
+                                  // justifyContent: 'space-between',
                               }}
                           >
-                              <Icon data={Check} />
-                              Принять все
-                          </Button>,
-                          <Button
-                              style={{marginLeft: 5}}
-                              view="outlined"
-                              onClick={() => {
-                                  const tempAutoSales = {...autoSalesProfits};
-                                  for (const row of filteredData) {
-                                      const {art} = row;
-                                      delete tempAutoSales[art];
-                                  }
-                                  setAutoSalesProfits(tempAutoSales);
-                              }}
-                          >
-                              <Icon data={Xmark} />
-                              Отклонить все
-                          </Button>,
-                      ],
-            render: ({value, row, index}) => {
-                if (typeof value === 'number') {
-                    return <Text>{`Уникальных Id: ${value}`}</Text>;
-                }
-
-                const {art, nmId} = row;
-
-                const switches: any[] = [];
-                if (value)
-                    for (const [advertId, _] of Object.entries(value)) {
-                        const advertData = doc.adverts[selectValue[0]][advertId];
-                        if (!advertData) continue;
-
-                        // console.log('popa', advertData, filters['adverts'].val);
-                        if (
-                            filters['adverts'] &&
-                            ['авто', 'поиск'].includes(
-                                String(filters['adverts'].val).toLowerCase().trim(),
-                            )
-                        ) {
-                            // console.log('popa2', advertData, filters['adverts'].val);
-                            if (
-                                String(filters['adverts'].val).toLowerCase().includes('поиск') &&
-                                (advertData.type == 9 || advertData.type == 6)
-                            ) {
-                                switches.push(
-                                    <AdvertCard
-                                        id={advertId}
-                                        index={index}
-                                        art={art}
-                                        doc={doc}
-                                        selectValue={selectValue}
-                                        copiedAdvertsSettings={copiedAdvertsSettings}
-                                        setChangedDoc={setChangedDoc}
-                                        setShowScheduleModalOpen={setShowScheduleModalOpen}
-                                        genTempSchedule={genTempSchedule}
-                                        manageAdvertsActivityCallFunc={
-                                            manageAdvertsActivityCallFunc
-                                        }
-                                        setArtsStatsByDayData={setArtsStatsByDayData}
-                                        updateColumnWidth={updateColumnWidth}
-                                        filteredData={filteredData}
-                                        setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                        setFetchedPlacements={setFetchedPlacements}
-                                        currentParsingProgress={currentParsingProgress}
-                                        setCurrentParsingProgress={setCurrentParsingProgress}
-                                        columnDataAuction={columnDataAuction}
-                                        auctionOptions={auctionOptions}
-                                        auctionSelectedOption={auctionSelectedOption}
-                                        setDateRange={setDateRange}
-                                        setModalOpenFromAdvertId={setModalOpenFromAdvertId}
-                                        setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                        dateRange={dateRange}
-                                        recalc={recalc}
-                                        filterByButton={filterByButton}
-                                        setScheduleInput={setScheduleInput}
-                                        setAuctionSelectedOption={setAuctionSelectedOption}
-                                    />,
-                                );
-                                switches.push(<div style={{minWidth: 8}} />);
-                            } else if (
-                                filters['adverts'] &&
-                                String(filters['adverts'].val).toLowerCase().includes('авто') &&
-                                advertData.type == 8
-                            ) {
-                                switches.push(
-                                    <AdvertCard
-                                        id={advertId}
-                                        index={index}
-                                        art={art}
-                                        doc={doc}
-                                        selectValue={selectValue}
-                                        copiedAdvertsSettings={copiedAdvertsSettings}
-                                        setChangedDoc={setChangedDoc}
-                                        setShowScheduleModalOpen={setShowScheduleModalOpen}
-                                        genTempSchedule={genTempSchedule}
-                                        manageAdvertsActivityCallFunc={
-                                            manageAdvertsActivityCallFunc
-                                        }
-                                        setArtsStatsByDayData={setArtsStatsByDayData}
-                                        updateColumnWidth={updateColumnWidth}
-                                        filteredData={filteredData}
-                                        setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                        setFetchedPlacements={setFetchedPlacements}
-                                        currentParsingProgress={currentParsingProgress}
-                                        setCurrentParsingProgress={setCurrentParsingProgress}
-                                        columnDataAuction={columnDataAuction}
-                                        auctionOptions={auctionOptions}
-                                        auctionSelectedOption={auctionSelectedOption}
-                                        setDateRange={setDateRange}
-                                        setModalOpenFromAdvertId={setModalOpenFromAdvertId}
-                                        setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                        dateRange={dateRange}
-                                        recalc={recalc}
-                                        filterByButton={filterByButton}
-                                        setScheduleInput={setScheduleInput}
-                                        setAuctionSelectedOption={setAuctionSelectedOption}
-                                    />,
-                                );
-                                switches.push(<div style={{minWidth: 8}} />);
-                            } else {
-                                continue;
-                            }
-                        } else {
-                            switches.push(
-                                <AdvertCard
-                                    id={advertId}
-                                    index={index}
-                                    art={art}
-                                    doc={doc}
-                                    selectValue={selectValue}
-                                    copiedAdvertsSettings={copiedAdvertsSettings}
-                                    setChangedDoc={setChangedDoc}
-                                    setShowScheduleModalOpen={setShowScheduleModalOpen}
-                                    genTempSchedule={genTempSchedule}
-                                    manageAdvertsActivityCallFunc={manageAdvertsActivityCallFunc}
-                                    setArtsStatsByDayData={setArtsStatsByDayData}
-                                    updateColumnWidth={updateColumnWidth}
-                                    filteredData={filteredData}
-                                    setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                    setFetchedPlacements={setFetchedPlacements}
-                                    currentParsingProgress={currentParsingProgress}
-                                    setCurrentParsingProgress={setCurrentParsingProgress}
-                                    columnDataAuction={columnDataAuction}
-                                    auctionOptions={auctionOptions}
-                                    auctionSelectedOption={auctionSelectedOption}
-                                    setDateRange={setDateRange}
-                                    setModalOpenFromAdvertId={setModalOpenFromAdvertId}
-                                    setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                    dateRange={dateRange}
-                                    recalc={recalc}
-                                    filterByButton={filterByButton}
-                                    setScheduleInput={setScheduleInput}
-                                    setAuctionSelectedOption={setAuctionSelectedOption}
-                                />,
-                            );
-                            switches.push(<div style={{minWidth: 8}} />);
-                        }
-                    }
-
-                const profitsData = autoSalesProfits[art];
-                if (profitsData) {
-                    switches.push(
-                        <Card
-                            style={{
-                                height: 110.5,
-                                width: 'fit-content',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Button
-                                style={{
-                                    borderTopLeftRadius: 7,
-                                    borderTopRightRadius: 7,
-                                    overflow: 'hidden',
-                                }}
-                                width="max"
-                                size="xs"
-                                pin="brick-brick"
-                                view="flat"
-                            >
-                                <Text variant="subheader-1">{profitsData.autoSaleName}</Text>
-                            </Button>
-                            <Button view="outlined" size="xs" pin="clear-clear" width="max">
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        width: '100%',
-                                        justifyContent: 'space-between',
-                                    }}
-                                >
-                                    <Text color={profitsData.oldProfit > 0 ? 'positive' : 'danger'}>
-                                        {`${new Intl.NumberFormat('ru-RU').format(
-                                            profitsData.oldProfit,
-                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                            getRoundValue(profitsData.oldRentabelnost, 1, true),
-                                        )}%`}
-                                    </Text>
-                                    <div style={{minWidth: 8}} />
-                                    <Text>{`${profitsData.oldRozPrices} ₽`}</Text>
-                                </div>
-                            </Button>
-
-                            <Text
-                                style={{
-                                    width: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    height: 20,
-                                }}
-                                color={
-                                    profitsData.profit == profitsData.oldProfit
-                                        ? 'secondary'
-                                        : profitsData.profit > profitsData.oldProfit
-                                        ? 'positive'
-                                        : 'danger'
-                                }
-                            >
-                                <Icon data={ArrowShapeDown} />
-                            </Text>
-                            <Button view="outlined" size="xs" pin="clear-clear" width="max">
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        width: '100%',
-                                        justifyContent: 'space-between',
-                                    }}
-                                >
-                                    <Text color={profitsData.profit > 0 ? 'positive' : 'danger'}>
-                                        {`${new Intl.NumberFormat('ru-RU').format(
-                                            profitsData.profit,
-                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                            getRoundValue(profitsData.rentabelnost, 1, true),
-                                        )}%`}
-                                    </Text>
-                                    <div style={{minWidth: 8}} />
-                                    <Text>{`${profitsData.rozPrice} ₽`}</Text>
-                                </div>
-                            </Button>
-                            <div
-                                style={{
-                                    minHeight: 0.5,
-                                    marginTop: 10,
-                                    width: '100%',
-                                    background: 'var(--yc-color-base-generic-hover)',
-                                }}
-                            />
-                            <div style={{display: 'flex', flexDirection: 'row', width: '100%'}}>
-                                <Button
-                                    pin="clear-clear"
-                                    size="xs"
-                                    width="max"
-                                    view="flat-success"
-                                    selected
-                                    style={{borderBottomLeftRadius: 7, overflow: 'hidden'}}
-                                    onClick={() => {
-                                        const params = {
-                                            uid: getUid(),
-                                            campaignName: selectValue[0],
-                                            data: {},
-                                        };
-                                        const {
-                                            autoSaleName,
-                                            dateRange,
-                                            rozPrice,
-                                            oldRozPrices,
-                                            oldDiscount,
-                                        } = profitsData;
-                                        params.data[nmId] = {
-                                            autoSaleName,
-                                            dateRange,
-                                            rozPrice,
-                                            oldRozPrices,
-                                            oldDiscount,
-                                        };
-
-                                        console.log(params);
-
-                                        doc.autoSales[selectValue[0]][nmId] = {
-                                            autoSaleName,
-                                            fixedPrices: {dateRange},
-                                        };
-                                        setChangedDoc({...doc});
-
-                                        callApi('setAutoSales', params);
-
-                                        const temp = {...autoSalesProfits};
-                                        delete temp[art];
-                                        setAutoSalesProfits(temp);
-                                    }}
-                                >
-                                    <Icon data={Check} />
-                                </Button>
-                                <Button
-                                    pin="clear-clear"
-                                    size="xs"
-                                    width="max"
-                                    view="flat-danger"
-                                    selected
-                                    style={{borderBottomRightRadius: 7, overflow: 'hidden'}}
-                                    onClick={() => {
-                                        const temp = {...autoSalesProfits};
-                                        delete temp[art];
-                                        setAutoSalesProfits(temp);
-                                    }}
-                                >
-                                    <Icon data={Xmark} />
-                                </Button>
-                            </div>
-                        </Card>,
-                    );
-                    switches.push(<div style={{minWidth: 8}} />);
-                }
-
-                switches.pop();
-
-                return (
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            overflowX: 'scroll',
-                            overflowY: 'hidden',
-                            // justifyContent: 'space-between',
-                        }}
-                    >
-                        {switches}
-                    </div>
-                );
-            },
-        },
+                              {switches}
+                          </div>
+                      );
+                  },
+              },
         {
             name: 'analytics',
             placeholder: 'Аналитика',
@@ -3388,6 +3444,16 @@ export const MassAdvertPage = ({
                         addFlag = false;
                         break;
                     }
+                } else if (filterArg == 'autoSales') {
+                    const rentabelnost = getRoundValue(
+                        autoSalesProfits[tempTypeRow['art']]?.rentabelnost,
+                        1,
+                        true,
+                    );
+                    if (!compare(rentabelnost, filterData)) {
+                        addFlag = false;
+                        break;
+                    }
                 } else if (filterArg == 'semantics') {
                     if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
                         addFlag = false;
@@ -4074,7 +4140,7 @@ export const MassAdvertPage = ({
         console.log(doc);
 
         for (let i = 0; i < columnData.length; i++) {
-            const {name, valueType} = columnData[i];
+            const {name, valueType} = columnData[i] ?? {};
             if (!name) continue;
             if (!filters[name])
                 filters[name] = {val: '', compMode: valueType != 'text' ? 'bigger' : 'include'};

@@ -107,9 +107,12 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                             flexDirection: 'row-reverse',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            background: 'var(--yc-color-base-background)',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
+                            border: '1px solid #eee2',
                         }}
                     >
                         <motion.div
@@ -121,10 +124,19 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                                 alignItems: 'center',
                                 width: 250,
                             }}
+                            transition={{
+                                ease: 'easeInOut',
+                            }}
                         >
                             <motion.div
                                 animate={{height: currentStep < 3 ? 36 : 0}}
                                 style={{height: 36, overflow: 'hidden', width: '100%'}}
+                                transition={{
+                                    duration: 0.8,
+                                    type: 'spring',
+                                    damping: 24,
+                                    stiffness: 200,
+                                }}
                             >
                                 <Select
                                     width={'max'}
@@ -140,6 +152,12 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                             </motion.div>
                             <motion.div
                                 animate={{height: currentStep ? 44 : 0}}
+                                transition={{
+                                    duration: 0.8,
+                                    type: 'spring',
+                                    damping: 24,
+                                    stiffness: 200,
+                                }}
                                 style={{
                                     height: 0,
                                     overflow: 'hidden',
@@ -185,6 +203,12 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                                     marginTop: fileRequiredButNotUploaded && currentStep ? 8 : 0,
                                 }}
                                 style={{height: 0, overflow: 'hidden', width: '100%'}}
+                                transition={{
+                                    duration: 0.8,
+                                    type: 'spring',
+                                    damping: 24,
+                                    stiffness: 200,
+                                }}
                             >
                                 <AutoSalesUploadModal
                                     selectValue={selectValue}
@@ -195,6 +219,12 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                                 />
                             </motion.div>
                             <motion.div
+                                transition={{
+                                    duration: 0.8,
+                                    type: 'spring',
+                                    damping: 24,
+                                    stiffness: 200,
+                                }}
                                 animate={{
                                     height: !fileRequiredButNotUploaded && currentStep ? 250 : 0,
                                 }}
@@ -251,6 +281,12 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                             <motion.div
                                 animate={{
                                     height: currentStep == 2 ? 44 : currentStep == 3 ? 80 : 0,
+                                }}
+                                transition={{
+                                    duration: 0.8,
+                                    type: 'spring',
+                                    damping: 24,
+                                    stiffness: 200,
                                 }}
                                 style={{
                                     height: 0,
