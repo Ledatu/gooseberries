@@ -255,106 +255,22 @@ export const Dashboard = ({setThemeAurum}) => {
         <div className={b()}>
             {/* <TextInput style={{width: '300px'}} placeholder="Ola, Ledatu!" /> */}
 
-            {isMobile ? (
-                <div
-                    style={{
-                        display: 'flex',
-                        width: '100vw',
-                    }}
-                >
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    width: '100%',
+                    height: 68,
+                    zIndex: 1000,
+                    backdropFilter: 'blur(12px)',
+                    background: '#2d2c3302',
+                }}
+            >
+                {isMobile ? (
                     <div
                         style={{
-                            width: '100%',
-                            boxShadow: 'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
-                            background: '#0000',
                             display: 'flex',
-                            flexDirection: 'row',
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: '100%',
-                                position: 'fixed',
-                                top: 0,
-                                height: 68,
-                                background: '#2d2c33',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                display: 'flex',
-                                flexDirection: 'row',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    background: '#2d2c33',
-                                    width: '100%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    flexDirection: 'row',
-                                    height: 68,
-                                }}
-                            >
-                                <div style={{minWidth: 24}} />
-                                <img
-                                    style={{height: 'calc(100% - 24px)'}}
-                                    src={textLogo}
-                                    alt="Aurum logo"
-                                />
-                            </div>
-                            <SelectCampaign
-                                selectOptions={selectOptions}
-                                selectValue={selectValue}
-                                setSelectValue={setSelectValue}
-                                switchingCampaignsFlag={switchingCampaignsFlag}
-                                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-                                subscriptionExpDate={subscriptionExpDate}
-                            />
-                        </div>
-                    </div>
-                    <div
-                        style={{
-                            position: 'fixed',
-                            bottom: 0,
-                            zIndex: 10,
-                            width: '100%',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            boxShadow:
-                                'inset 0px -9px 0px -8px ' +
-                                (theme == Theme.Dark ? '#2d2c33' : '#fff'),
-                            background: '#2d2c33',
-                        }}
-                    >
-                        <Tabs
-                            wrapTo={renderTabItem}
-                            activeTab={page}
-                            items={optionsPages.filter((item) =>
-                                ['massAdvert', 'api'].includes(item.id),
-                            )}
-                            onSelectTab={(val) => {
-                                setPage(val);
-                            }}
-                        />
-                    </div>
-                </div>
-            ) : (
-                <div
-                    style={{
-                        display: 'flex',
-                        width: '100%',
-                        justifyContent: 'space-around',
-                        flexWrap: 'wrap',
-                        position: 'absolute',
-                        top: 0,
-                    }}
-                >
-                    <div
-                        style={{
-                            width: '100%',
-                            // boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
-                            // background: '#00000022',
-                            background: '#0000',
+                            width: '100vw',
                         }}
                     >
                         <div
@@ -362,263 +278,386 @@ export const Dashboard = ({setThemeAurum}) => {
                                 width: '100%',
                                 boxShadow:
                                     'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
+                                background: '#0000',
+                                display: 'flex',
+                                flexDirection: 'row',
                             }}
                         >
                             <div
                                 style={{
-                                    padding: '0px 40px',
+                                    width: '100%',
+                                    position: 'fixed',
+                                    top: 0,
+                                    height: 68,
+                                    background: '#2d2c33',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
                                     display: 'flex',
                                     flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    flexWrap: 'wrap',
-                                    alignItems: 'center',
                                 }}
                             >
                                 <div
                                     style={{
+                                        background: '#2d2c33',
+                                        width: '100%',
                                         display: 'flex',
-                                        flexDirection: 'row',
                                         alignItems: 'center',
+                                        flexDirection: 'row',
+                                        height: 68,
                                     }}
                                 >
-                                    <div
-                                        style={{
-                                            height: 68,
-                                            alignItems: 'center',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            boxShadow:
-                                                '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
-                                        }}
-                                    >
-                                        <div style={{minWidth: 12}} />
-                                        <img
-                                            style={{height: 'calc(100% - 24px)'}}
-                                            src={textLogo}
-                                            alt="Aurum logo"
-                                        />
-                                        <div style={{minWidth: 32}} />
-                                    </div>
-                                    <div style={{minWidth: 32}} />
-                                    <div
-                                        style={{
-                                            boxShadow:
-                                                'inset 0px -9px 0px -8px ' +
-                                                (theme == Theme.Dark ? '#2d2c33' : '#fff'),
-                                        }}
-                                    >
-                                        <Tabs
-                                            wrapTo={renderTabItem}
-                                            activeTab={page}
-                                            items={optionsPages}
-                                            onSelectTab={(val) => {
-                                                setPage(val);
-                                            }}
-                                        />
-                                    </div>
+                                    <div style={{minWidth: 24}} />
+                                    <img
+                                        style={{height: 'calc(100% - 24px)'}}
+                                        src={textLogo}
+                                        alt="Aurum logo"
+                                    />
                                 </div>
+                                <SelectCampaign
+                                    selectOptions={selectOptions}
+                                    selectValue={selectValue}
+                                    setSelectValue={setSelectValue}
+                                    switchingCampaignsFlag={switchingCampaignsFlag}
+                                    setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                                    subscriptionExpDate={subscriptionExpDate}
+                                />
+                            </div>
+                        </div>
+                        <div
+                            style={{
+                                position: 'fixed',
+                                bottom: 0,
+                                zIndex: 10,
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                boxShadow:
+                                    'inset 0px -9px 0px -8px ' +
+                                    (theme == Theme.Dark ? '#2d2c33' : '#fff'),
+                                background: '#2d2c33',
+                            }}
+                        >
+                            <Tabs
+                                wrapTo={renderTabItem}
+                                activeTab={page}
+                                items={optionsPages.filter((item) =>
+                                    ['massAdvert', 'api'].includes(item.id),
+                                )}
+                                onSelectTab={(val) => {
+                                    setPage(val);
+                                }}
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    <div
+                        style={{
+                            display: 'flex',
+                            width: '100%',
+                            justifyContent: 'space-around',
+                            flexWrap: 'wrap',
+                            position: 'absolute',
+                            top: 0,
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: '100%',
+                                // boxShadow: 'var(--g-color-base-background) 0px 1px 8px',
+                                // background: '#00000022',
+                                background: '#0000',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: '100%',
+                                    boxShadow:
+                                        'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
+                                }}
+                            >
                                 <div
                                     style={{
-                                        height: 68,
+                                        padding: '0px 40px',
                                         display: 'flex',
                                         flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        flexWrap: 'wrap',
                                         alignItems: 'center',
-                                        boxShadow:
-                                            '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                                     }}
                                 >
-                                    <div style={{minWidth: 12}} />
-                                    <Button
-                                        pin="round-brick"
-                                        view="flat"
-                                        loading={availableTagsPending}
-                                        size="l"
-                                        onClick={async () => {
-                                            setNotesModalOpen((val) => !val);
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
                                         }}
                                     >
-                                        <Icon data={PencilToSquare} />
-                                    </Button>
-                                    <Modal open={notesModalOpen} onClose={() => saveNote()}>
                                         <div
                                             style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
+                                                height: 68,
                                                 alignItems: 'center',
-                                                width: '30em',
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                boxShadow:
+                                                    '1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                                             }}
                                         >
-                                            <div
-                                                style={{
-                                                    width: '100%',
-                                                    display: 'flex',
-                                                    height: 36,
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    position: 'relative',
-                                                }}
-                                            >
-                                                <Text variant="subheader-1" color="secondary">
-                                                    {new Date().toLocaleString('ru-RU', {
-                                                        day: '2-digit',
-                                                        month: 'long',
-                                                        year: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                    })}
-                                                </Text>
-                                                <div style={{position: 'absolute', left: 8}}>
-                                                    <Button
-                                                        view="flat-success"
-                                                        size="s"
-                                                        onClick={() => saveNoteToTheServer()}
-                                                    >
-                                                        <Icon data={Check} />
-                                                    </Button>
-                                                </div>
-                                                <div style={{position: 'absolute', right: 8}}>
-                                                    <Button
-                                                        view="flat"
-                                                        size="s"
-                                                        onClick={() => saveNote()}
-                                                    >
-                                                        <Icon data={Xmark} />
-                                                    </Button>
-                                                </div>
-                                                <div style={{position: 'absolute', right: 40}}>
-                                                    <Button
-                                                        view="flat-danger"
-                                                        size="s"
-                                                        onClick={() => {
-                                                            if (notesTextArea.current)
-                                                                notesTextArea.current.value = '';
-
-                                                            setTagsAddedForCurrentNote([]);
-                                                        }}
-                                                    >
-                                                        <Icon data={TrashBin} />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                            <TextArea
-                                                defaultValue={currentNote}
-                                                controlRef={notesTextArea}
-                                                autoFocus
-                                                rows={20}
+                                            <div style={{minWidth: 12}} />
+                                            <img
+                                                style={{height: 'calc(100% - 24px)'}}
+                                                src={textLogo}
+                                                alt="Aurum logo"
                                             />
-                                            <div style={{minHeight: 8}} />
-                                            <div></div>
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    width: 'calc(100% - 16px)',
-                                                    height: 200,
-                                                }}
-                                            >
-                                                <List
-                                                    filterPlaceholder="Введите имя тега"
-                                                    emptyPlaceholder="Такой тег отсутствует"
-                                                    loading={availableTagsPending}
-                                                    items={availableTags}
-                                                    renderItem={(item) => {
-                                                        return (
-                                                            <Button
-                                                                size="xs"
-                                                                pin="circle-circle"
-                                                                selected={tagsAddedForCurrentNote.includes(
-                                                                    item,
-                                                                )}
-                                                                view={
-                                                                    tagsAddedForCurrentNote.includes(
-                                                                        item,
-                                                                    )
-                                                                        ? 'outlined-info'
-                                                                        : 'outlined'
-                                                                }
-                                                            >
-                                                                {item.toUpperCase()}
-                                                            </Button>
-                                                        );
-                                                    }}
-                                                    onItemClick={(item) => {
-                                                        let tempArr =
-                                                            Array.from(tagsAddedForCurrentNote);
-                                                        if (tempArr.includes(item)) {
-                                                            tempArr = tempArr.filter(
-                                                                (value) => value != item,
-                                                            );
-                                                        } else {
-                                                            tempArr.push(item);
-                                                        }
-
-                                                        setTagsAddedForCurrentNote(tempArr);
-                                                    }}
-                                                />
-                                            </div>
+                                            <div style={{minWidth: 32}} />
                                         </div>
-                                    </Modal>
-                                    <UploadModal
-                                        selectOptions={selectOptions}
-                                        selectValue={selectValue}
-                                        setRefetchAutoSales={setRefetchAutoSales}
-                                        setDzhemRefetch={setDzhemRefetch}
-                                    />
-                                    <Button
-                                        href="https://t.me/AurumSkyNetSupportBot"
-                                        target="_blank"
-                                        view="flat"
-                                        size="l"
-                                        pin="clear-round"
-                                    >
-                                        <Icon data={Comment} />
-                                    </Button>
-                                    <div style={{minWidth: 8}} />
-                                    <UserPopup />
+                                        <div style={{minWidth: 32}} />
+                                        <div
+                                            style={{
+                                                boxShadow:
+                                                    'inset 0px -9px 0px -8px ' +
+                                                    (theme == Theme.Dark ? '#2d2c33' : '#fff'),
+                                            }}
+                                        >
+                                            <Tabs
+                                                wrapTo={renderTabItem}
+                                                activeTab={page}
+                                                items={optionsPages}
+                                                onSelectTab={(val) => {
+                                                    setPage(val);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
                                     <div
                                         style={{
                                             height: 68,
-                                            alignItems: 'center',
                                             display: 'flex',
                                             flexDirection: 'row',
+                                            alignItems: 'center',
                                             boxShadow:
                                                 '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                                         }}
                                     >
-                                        <SelectCampaign
+                                        <div style={{minWidth: 12}} />
+                                        <Button
+                                            pin="round-brick"
+                                            view="flat"
+                                            loading={availableTagsPending}
+                                            size="l"
+                                            onClick={async () => {
+                                                setNotesModalOpen((val) => !val);
+                                            }}
+                                        >
+                                            <Icon data={PencilToSquare} />
+                                        </Button>
+                                        <Modal open={notesModalOpen} onClose={() => saveNote()}>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    width: '30em',
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        width: '100%',
+                                                        display: 'flex',
+                                                        height: 36,
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        position: 'relative',
+                                                    }}
+                                                >
+                                                    <Text variant="subheader-1" color="secondary">
+                                                        {new Date().toLocaleString('ru-RU', {
+                                                            day: '2-digit',
+                                                            month: 'long',
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        })}
+                                                    </Text>
+                                                    <div style={{position: 'absolute', left: 8}}>
+                                                        <Button
+                                                            view="flat-success"
+                                                            size="s"
+                                                            onClick={() => saveNoteToTheServer()}
+                                                        >
+                                                            <Icon data={Check} />
+                                                        </Button>
+                                                    </div>
+                                                    <div style={{position: 'absolute', right: 8}}>
+                                                        <Button
+                                                            view="flat"
+                                                            size="s"
+                                                            onClick={() => saveNote()}
+                                                        >
+                                                            <Icon data={Xmark} />
+                                                        </Button>
+                                                    </div>
+                                                    <div style={{position: 'absolute', right: 40}}>
+                                                        <Button
+                                                            view="flat-danger"
+                                                            size="s"
+                                                            onClick={() => {
+                                                                if (notesTextArea.current)
+                                                                    notesTextArea.current.value =
+                                                                        '';
+
+                                                                setTagsAddedForCurrentNote([]);
+                                                            }}
+                                                        >
+                                                            <Icon data={TrashBin} />
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                                <TextArea
+                                                    defaultValue={currentNote}
+                                                    controlRef={notesTextArea}
+                                                    autoFocus
+                                                    rows={20}
+                                                />
+                                                <div style={{minHeight: 8}} />
+                                                <div></div>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        width: 'calc(100% - 16px)',
+                                                        height: 200,
+                                                    }}
+                                                >
+                                                    <List
+                                                        filterPlaceholder="Введите имя тега"
+                                                        emptyPlaceholder="Такой тег отсутствует"
+                                                        loading={availableTagsPending}
+                                                        items={availableTags}
+                                                        renderItem={(item) => {
+                                                            return (
+                                                                <Button
+                                                                    size="xs"
+                                                                    pin="circle-circle"
+                                                                    selected={tagsAddedForCurrentNote.includes(
+                                                                        item,
+                                                                    )}
+                                                                    view={
+                                                                        tagsAddedForCurrentNote.includes(
+                                                                            item,
+                                                                        )
+                                                                            ? 'outlined-info'
+                                                                            : 'outlined'
+                                                                    }
+                                                                >
+                                                                    {item.toUpperCase()}
+                                                                </Button>
+                                                            );
+                                                        }}
+                                                        onItemClick={(item) => {
+                                                            let tempArr =
+                                                                Array.from(tagsAddedForCurrentNote);
+                                                            if (tempArr.includes(item)) {
+                                                                tempArr = tempArr.filter(
+                                                                    (value) => value != item,
+                                                                );
+                                                            } else {
+                                                                tempArr.push(item);
+                                                            }
+
+                                                            setTagsAddedForCurrentNote(tempArr);
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </Modal>
+                                        <UploadModal
                                             selectOptions={selectOptions}
                                             selectValue={selectValue}
-                                            setSelectValue={setSelectValue}
-                                            switchingCampaignsFlag={switchingCampaignsFlag}
-                                            setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-                                            subscriptionExpDate={subscriptionExpDate}
+                                            setRefetchAutoSales={setRefetchAutoSales}
+                                            setDzhemRefetch={setDzhemRefetch}
                                         />
+                                        <Button
+                                            href="https://t.me/AurumSkyNetSupportBot"
+                                            target="_blank"
+                                            view="flat"
+                                            size="l"
+                                            pin="clear-round"
+                                        >
+                                            <Icon data={Comment} />
+                                        </Button>
+                                        <div style={{minWidth: 8}} />
+                                        <UserPopup />
+                                        <div
+                                            style={{
+                                                height: 68,
+                                                alignItems: 'center',
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                boxShadow:
+                                                    '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                                            }}
+                                        >
+                                            <SelectCampaign
+                                                selectOptions={selectOptions}
+                                                selectValue={selectValue}
+                                                setSelectValue={setSelectValue}
+                                                switchingCampaignsFlag={switchingCampaignsFlag}
+                                                setSwitchingCampaignsFlag={
+                                                    setSwitchingCampaignsFlag
+                                                }
+                                                subscriptionExpDate={subscriptionExpDate}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
+
             <div
                 style={{
                     marginTop: 62,
-                    marginBottom: 80,
                     justifyContent: 'center',
                     width: 'calc(100vw - 80px)',
                     position: 'relative',
+                    height: '100vh',
                 }}
             >
-                <PageElem
-                    page={page}
-                    selectValue={selectValue}
-                    setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-                    refetchAutoSales={refetchAutoSales}
-                    setRefetchAutoSales={setRefetchAutoSales}
-                    dzhemRefetch={dzhemRefetch}
-                    setDzhemRefetch={setDzhemRefetch}
-                    sellerId={sellerId}
-                />
+                <div
+                    style={{
+                        height: '100vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '100%',
+                        // background:
+                        // 'linear-gradient(180deg, rgba(45, 44, 51, 1) 0%, rgba(34, 33, 39, 1) 100%)',
+                    }}
+                >
+                    <PageElem
+                        page={page}
+                        selectValue={selectValue}
+                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
+                        refetchAutoSales={refetchAutoSales}
+                        setRefetchAutoSales={setRefetchAutoSales}
+                        dzhemRefetch={dzhemRefetch}
+                        setDzhemRefetch={setDzhemRefetch}
+                        sellerId={sellerId}
+                    />
+                </div>
+
+                <div
+                    style={{
+                        position: 'absolute',
+                        // background: 'var(--g-color-base-background)',
+                        width: '100vw',
+                        bottom: -100,
+                        left: -40,
+                        height: 100,
+                    }}
+                ></div>
             </div>
         </div>
     );
