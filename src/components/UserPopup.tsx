@@ -1,6 +1,7 @@
 import {ArrowToggle, Button, Popup, Text} from '@gravity-ui/uikit';
 import React, {useMemo, useRef, useState} from 'react';
 import {useUser} from './RequireAuth';
+import {CopyButton} from './CopyButton';
 
 export const UserPopup = () => {
     const {userInfo} = useUser();
@@ -43,9 +44,28 @@ export const UserPopup = () => {
                             src={user?.photo_url}
                         />
                         <Text variant="subheader-2">{name}</Text>
-                        <Text variant="body-1" color="secondary">
-                            @{user?.username}
-                        </Text>
+                        <CopyButton
+                            view="flat"
+                            color="secondary"
+                            size="xs"
+                            copyText={user?.username}
+                            iconSize={13}
+                        >
+                            <Text variant="body-1" color="secondary">
+                                Username: {'@' + user?.username}
+                            </Text>
+                        </CopyButton>
+                        <CopyButton
+                            view="flat"
+                            color="secondary"
+                            size="xs"
+                            copyText={user?._id}
+                            iconSize={13}
+                        >
+                            <Text variant="body-1" color="secondary">
+                                ID: {user?._id}
+                            </Text>
+                        </CopyButton>
                     </div>
                     <div
                         style={{

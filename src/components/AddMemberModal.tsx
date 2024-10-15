@@ -23,7 +23,7 @@ export const AddMemberModal = ({
 
     const [open, setOpen] = useState(false);
 
-    const [username, setUsername] = useState('');
+    const [identifier, setIdentifier] = useState('');
     const [modulesEnabled, setModulesEnabled] = useState({
         massAdvert: false,
         analytics: false,
@@ -77,7 +77,7 @@ export const AddMemberModal = ({
 
     const handleOpen = async () => {
         setOpen(true);
-        setUsername(addedMember?.member_username ?? '');
+        setIdentifier(addedMember?.member_identifier ?? '');
         setModulesEnabled((cur) => {
             const res = {};
             for (const key of Object.keys(cur)) {
@@ -88,7 +88,7 @@ export const AddMemberModal = ({
     };
 
     const clearFields = () => {
-        setUsername('');
+        setIdentifier('');
         setModulesEnabled({
             massAdvert: false,
             analytics: false,
@@ -100,7 +100,7 @@ export const AddMemberModal = ({
         });
 
         setAddedMember({
-            member_username: '',
+            member_identifier: '',
             modules: [],
         });
     };
@@ -154,17 +154,17 @@ export const AddMemberModal = ({
                         >
                             <TextInput
                                 style={{width: '100%'}}
-                                value={username}
-                                onUpdate={(val) => setUsername(val)}
+                                value={identifier}
+                                onUpdate={(val) => setIdentifier(val)}
                                 size="l"
-                                placeholder="Введите <@Имя пользователя>"
+                                placeholder="<@Имя пользователя> или <ID TG аккаунта>"
                             />
                             <motion.div
                                 animate={{
-                                    width: modules.length || username !== '' ? 114 : 0,
-                                    marginLeft: modules.length || username !== '' ? 8 : 0,
+                                    width: modules.length || identifier !== '' ? 114 : 0,
+                                    marginLeft: modules.length || identifier !== '' ? 8 : 0,
                                 }}
-                                style={{width: 0}}
+                                style={{width: 0, overflow: 'hidden'}}
                             >
                                 <Button view="outlined" size="l" onClick={clearFields}>
                                     <Icon data={TrashBin} />
@@ -177,18 +177,18 @@ export const AddMemberModal = ({
                             size="l"
                             view="outlined-success"
                             selected
-                            disabled={!modules.length || username === ''}
+                            disabled={!modules.length || identifier === ''}
                             onClick={() => {
                                 const params = {
                                     user_id: user._id,
                                     seller_id: sellerId,
-                                    member_username: username.replace(/@/g, ''),
+                                    member_identifier: identifier.replace(/@/g, ''),
                                     modules,
                                 };
                                 callApi('addMemberToCampaign', params)
                                     .then(() => {
                                         setAddedMember({
-                                            member_username: username.replace(/@/g, ''),
+                                            member_identifier: identifier.replace(/@/g, ''),
                                             modules,
                                         });
                                         refetchUser();
