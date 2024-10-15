@@ -150,6 +150,7 @@ export const AddMemberModal = ({
                                 flexDirection: 'row',
                                 width: '100%',
                                 justifyContent: 'space-between',
+                                overflow: 'hidden',
                             }}
                         >
                             <TextInput
@@ -164,7 +165,7 @@ export const AddMemberModal = ({
                                     width: modules.length || identifier !== '' ? 114 : 0,
                                     marginLeft: modules.length || identifier !== '' ? 8 : 0,
                                 }}
-                                style={{width: 0, overflow: 'hidden'}}
+                                style={{width: 0}}
                             >
                                 <Button view="outlined" size="l" onClick={clearFields}>
                                     <Icon data={TrashBin} />
