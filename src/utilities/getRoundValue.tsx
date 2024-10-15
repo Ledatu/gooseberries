@@ -90,6 +90,14 @@ export const daysInMonth = function (date) {
     return d.getDate();
 };
 
+export const daysInPeriod = function (date) {
+    const [lbd, rbd] = date.split(' - ');
+    const lbdDate = getDateFromLocaleString(lbd);
+    const rbdDate = getDateFromLocaleString(rbd);
+    const daysBetween = Math.abs(lbdDate.getTime() - rbdDate.getTime()) / 1000 / 86400;
+    return daysBetween + 1;
+};
+
 export const getMonth = (inputDate) => {
     const date = new Date(inputDate);
     let str = date.toLocaleString('ru-RU', {

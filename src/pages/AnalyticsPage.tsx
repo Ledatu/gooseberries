@@ -17,6 +17,7 @@ import TheTable, {compare} from 'src/components/TheTable';
 import {RangePicker} from 'src/components/RangePicker';
 import {
     daysInMonth,
+    daysInPeriod,
     defaultRender,
     getDateFromLocaleMonthName,
     getDateFromLocaleString,
@@ -397,29 +398,27 @@ export const AnalyticsPage = ({
 
         const getDayPlanForDate = (inputDate, argEntity = '') => {
             if (!inputDate) return 0;
-            const dots = inputDate.split('.').length - 1;
-            const dashes = inputDate.split('-').length - 1;
 
-            let type = 'day';
+            const type = enteredKeysDateTypeLastCalc;
             let date = inputDate;
-            if (dashes != 2) {
-                if (dots == 2) {
-                    date = getDateFromLocaleString(date);
-                    type = 'day';
-                } else if (dots == 4) {
-                    date = getDateFromLocaleString(date.slice(0, 10));
-                    type = 'week';
-                } else if (dots == 0) {
-                    const month = date.split(' ');
-                    date = getDateFromLocaleMonthName(month[0], month[1]);
-                    type = 'month';
-                }
-            } else {
-                date = new Date(inputDate);
-                type = 'day';
-            }
 
             const _entity = argEntity != '' ? argEntity : entity;
+
+            // if (_entity == 'ИП Галилова' && key == 'sum_orders')
+            // console.log(_entity, key, inputDate);
+
+            if (type == 'day') {
+                date = getDateFromLocaleString(date);
+            } else if (type == 'week') {
+                // date = getDateFromLocaleString(date.slice(0, 10));
+                date = new Date(date);
+            } else if (type == 'month') {
+                const month = date.split(' ');
+                date = getDateFromLocaleMonthName(month[0], month[1]);
+            } else if (type == 'period') {
+                date = getDateFromLocaleString(date.slice(0, 10));
+            }
+
             const monthName = getMonth(date);
 
             let {dayPlan} =
@@ -432,8 +431,10 @@ export const AnalyticsPage = ({
             if (type == 'week') dayPlan *= 7;
             if (type == 'month') dayPlan *= daysInMonth(date);
 
+            if (type == 'period') dayPlan *= daysInPeriod(inputDate);
+
             // if (
-            //     _entity == '#F.F.+ФУТБОЛКИ-ПОЛО+ЛЕТО+188950637' &&
+            //     _entity == '#F.F.+ФУТБОЛКИ-ПОЛО+ЛЕТО+188950637' &&]
             //     key == 'orders' &&
             //     doc.plansData[selectValue[0]][_entity]
             // )
