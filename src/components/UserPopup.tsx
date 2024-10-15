@@ -44,17 +44,21 @@ export const UserPopup = () => {
                             src={user?.photo_url}
                         />
                         <Text variant="subheader-2">{name}</Text>
-                        <CopyButton
-                            view="flat"
-                            color="secondary"
-                            size="xs"
-                            copyText={user?.username}
-                            iconSize={13}
-                        >
-                            <Text variant="body-1" color="secondary">
-                                Username: {'@' + user?.username}
-                            </Text>
-                        </CopyButton>
+                        {user?.username ? (
+                            <CopyButton
+                                view="flat"
+                                color="secondary"
+                                size="xs"
+                                copyText={user?.username}
+                                iconSize={13}
+                            >
+                                <Text variant="body-1" color="secondary">
+                                    Username: {'@' + user?.username}
+                                </Text>
+                            </CopyButton>
+                        ) : (
+                            <></>
+                        )}
                         <CopyButton
                             view="flat"
                             color="secondary"
