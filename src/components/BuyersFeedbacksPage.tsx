@@ -480,7 +480,7 @@ export const BuyersFeedbacksPage = ({
                 usePagination={true}
                 defaultPaginationSize={100}
                 onPaginationUpdate={({page}) => setCurrentPage(page)}
-                height={'calc(100vh - 68px - 32px - 36px - 16px - 48px)'}
+                height={'calc(100vh - 10em - 52px)'}
             />
         </div>
     ) : (

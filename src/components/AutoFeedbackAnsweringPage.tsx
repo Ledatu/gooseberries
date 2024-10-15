@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {Button, Loader, Pagination, Card, Text, Icon} from '@gravity-ui/uikit';
+import {Button, Loader, Text, Icon} from '@gravity-ui/uikit';
 import {Pencil, Xmark, Plus} from '@gravity-ui/icons';
 import {AutoFeedbackTemplateCreationModal} from './AutoFeedbackTemplateCreationModal';
 
@@ -15,9 +15,6 @@ export const AutoFeedbackAnsweringPage = ({
     const [filters, setFilters] = useState({});
     const [data, setData] = useState(null as any);
     const [filteredData, setFilteredData] = useState([] as any[]);
-    const paginationSize = 100;
-    const [currentPage, setCurrentPage] = useState(1);
-    const [paginatedData, setPaginatedData] = useState([] as any[]);
     const [refetch, setRefetch] = useState(false);
 
     useEffect(() => {
@@ -68,14 +65,6 @@ export const AutoFeedbackAnsweringPage = ({
         if (!data) return;
         filterData();
     }, [data]);
-
-    useEffect(() => {
-        const temp = filteredData.slice(
-            (currentPage - 1) * paginationSize,
-            currentPage * paginationSize,
-        );
-        setPaginatedData(temp);
-    }, [filteredData, currentPage]);
 
     const columns = [
         {
@@ -168,8 +157,30 @@ export const AutoFeedbackAnsweringPage = ({
             },
         },
         // {name: 'containsMedia', placeholder: 'Фото или видео'},
-        {name: 'doNotContain', placeholder: 'Минус слова'},
-        {name: 'contains', placeholder: 'Ключевые слова'},
+        {
+            name: 'doNotContain',
+            placeholder: 'Минус слова',
+            render: ({value}) => {
+                if (!value) return undefined;
+                return (
+                    <div style={{textWrap: 'wrap'}}>
+                        <Text>{value.join(', ')}</Text>
+                    </div>
+                );
+            },
+        },
+        {
+            name: 'contains',
+            placeholder: 'Ключевые слова',
+            render: ({value}) => {
+                if (!value) return undefined;
+                return (
+                    <div style={{textWrap: 'wrap'}}>
+                        <Text>{value.join(', ')}</Text>
+                    </div>
+                );
+            },
+        },
         {
             name: 'bindingKeys',
             placeholder: 'Привязка',
@@ -209,34 +220,17 @@ export const AutoFeedbackAnsweringPage = ({
                     </Button>
                 </AutoFeedbackTemplateCreationModal>
             </div>
-            <Card
-                style={{
-                    boxShadow: 'inset 0px 0px 10px var(--g-color-base-background)',
-                    position: 'relative',
-                    overflow: 'auto',
-                    width: '100%',
-                    maxHeight: 'calc(100vh - 68px - 32px - 36px - 16px - 48px)',
-                }}
-            >
-                <TheTable
-                    emptyDataMessage="У вас еще нет сохраненных шаблонов."
-                    columnData={columns}
-                    data={paginatedData}
-                    filters={filters}
-                    setFilters={setFilters}
-                    filterData={filterData}
-                    tableId={''}
-                    usePagination={false}
-                />
-            </Card>
-            <div style={{minHeight: 16}} />
-            <Pagination
-                total={filteredData.length}
-                page={currentPage}
-                pageSize={paginationSize}
-                onUpdate={(page) => {
-                    setCurrentPage(page);
-                }}
+            <TheTable
+                emptyDataMessage="У вас еще нет сохраненных шаблонов."
+                columnData={columns}
+                data={filteredData}
+                filters={filters}
+                setFilters={setFilters}
+                filterData={filterData}
+                tableId={'feedbacksAnswersTemplates'}
+                usePagination={true}
+                defaultPaginationSize={100}
+                height={'calc(100vh - 10em - 52px)'}
             />
         </div>
     ) : (
