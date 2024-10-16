@@ -131,7 +131,9 @@ export const LoginPage = () => {
                             botName={'AurumSkyNetBot'}
                             usePic={false}
                             buttonSize={'large'}
-                            dataOnauth={(data) => handleLogin(data)}
+                            dataOnauth={(data) => {
+                                if (privacyPolicyAccepted) handleLogin(data);
+                            }}
                         />
                     </motion.div>
                 </Card>
