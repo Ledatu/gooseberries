@@ -121,13 +121,13 @@ export const LoginPage = () => {
                     <motion.div
                         animate={{
                             marginTop: 16,
-                            height: privacyPolicyAccepted ? 36 : 0,
+                            height: privacyPolicyAccepted ? 40 : 0,
                             marginBottom: privacyPolicyAccepted ? 140 : 0,
                             opacity: privacyPolicyAccepted ? 1 : 0,
                             display: privacyPolicyAccepted ? 'block' : 'block',
                         }}
                         transition={{ease: 'anticipate', duration: 0.6}}
-                        style={{height: 36, overflow: 'hidden', opacity: 0, margin: 0}}
+                        style={{height: 0, overflow: 'hidden', opacity: 0, margin: 0}}
                     >
                         <TelegramLoginButton
                             botName={'AurumSkyNetBot'}
