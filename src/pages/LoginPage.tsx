@@ -122,7 +122,7 @@ export const LoginPage = () => {
                         animate={{
                             marginTop: 16,
                             height: privacyPolicyAccepted ? 40 : 0,
-                            marginBottom: privacyPolicyAccepted ? 140 : 0,
+                            marginBottom: privacyPolicyAccepted ? 130 : 0,
                             opacity: privacyPolicyAccepted ? 1 : 0,
                             display: privacyPolicyAccepted ? 'block' : 'block',
                         }}
