@@ -99,8 +99,7 @@ export const LoginPage = () => {
                         <div style={{minWidth: 16}} />
                         <div style={{display: 'flex', flexDirection: 'column'}}>
                             <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <Text>Я подтверждаю, что ознакомился(ась) </Text>
-                                <div style={{minWidth: 4}} />
+                                <Text>Я подтверждаю, что ознакомился(-ась) </Text>
                             </div>
                             <div style={{display: 'flex', flexDirection: 'row'}}>
                                 <Text>с</Text>
