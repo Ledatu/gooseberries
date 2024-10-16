@@ -105,17 +105,14 @@ export const LoginPage = () => {
                             <div style={{display: 'flex', flexDirection: 'row'}}>
                                 <Text>с</Text>
                                 <div style={{minWidth: 4}} />
-                                <Link
-                                    href="https://aurum-mp.ru/contract_offer_final.txt"
-                                    target="_blank"
-                                >
+                                <Link href="https://aurum-mp.ru/offer.pdf" target="_blank">
                                     условиями публичной оферты
                                 </Link>
                                 <div style={{minWidth: 4}} />
                                 <Text>и</Text>
                             </div>
                             <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <Link href="https://aurum-mp.ru/privacy_policy.txt" target="_blank">
+                                <Link href="https://aurum-mp.ru/privacy_policy.pdf" target="_blank">
                                     политикой конфиденциальности
                                 </Link>
                             </div>
