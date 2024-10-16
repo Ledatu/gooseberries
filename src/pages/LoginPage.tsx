@@ -54,7 +54,7 @@ export const LoginPage = () => {
                 <Card
                     style={{
                         width: 350,
-                        height: 450,
+                        height: 480,
                         overflow: 'hidden',
                         flexWrap: 'nowrap',
                         display: 'flex',
@@ -84,7 +84,7 @@ export const LoginPage = () => {
                             position: 'absolute',
                             backdropFilter: 'blur(32px)',
                             background: '#221d220f',
-                            height: 75,
+                            height: 83,
                             width: '100%',
                             bottom: 0,
                             paddingBottom: 24,
@@ -122,7 +122,7 @@ export const LoginPage = () => {
                         animate={{
                             marginTop: 16,
                             height: privacyPolicyAccepted ? 36 : 0,
-                            marginBottom: privacyPolicyAccepted ? 120 : 0,
+                            marginBottom: privacyPolicyAccepted ? 140 : 0,
                             opacity: privacyPolicyAccepted ? 1 : 0,
                             display: privacyPolicyAccepted ? 'block' : 'block',
                         }}
