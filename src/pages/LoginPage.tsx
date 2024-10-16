@@ -1,7 +1,7 @@
-import {Card} from '@gravity-ui/uikit';
+import {Card, Checkbox, Link, Text} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {useState} from 'react';
-import logo from '../assets/logo512.png';
+import logo from '../assets/aurum.svg';
 import TelegramLoginButton from 'src/components/TelegramLoginButton';
 import callApi from 'src/utilities/callApi';
 import {Navigate, useLocation} from 'react-router-dom';
@@ -26,6 +26,7 @@ export const LoginPage = () => {
     const location = useLocation();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authAttempted, setAuthAttempted] = useState(false); // Track if auth was attempted
+    const [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false);
 
     const handleLogin = async (authData) => {
         const valid = await handleTelegramLogin(authData);
@@ -52,22 +53,85 @@ export const LoginPage = () => {
             <motion.div animate={{y: -40}} transition={{delay: 0.4}}>
                 <Card
                     style={{
-                        width: 300,
-                        height: 400,
+                        width: 350,
+                        height: 450,
+                        overflow: 'hidden',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                         flexDirection: 'column',
-                        borderRadius: 20,
-                        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        background: '#221d220f',
+                        backdropFilter: 'blur(8px)',
+                        boxShadow: '#0002 0px 2px 8px 0px',
+                        margin: 30,
+                        borderRadius: 30,
+                        border: '1px solid #eee2',
+                        position: 'relative',
                     }}
                 >
                     <motion.img
                         src={logo}
                         style={{height: '30%'}}
-                        animate={{rotate: 120, height: '40%'}}
+                        animate={{rotate: 120, height: '40%', marginTop: '20%'}}
                     />
-                    <motion.div animate={{marginTop: 16}}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            position: 'absolute',
+                            backdropFilter: 'blur(32px)',
+                            background: '#221d220f',
+                            height: 75,
+                            width: '100%',
+                            bottom: 0,
+                            paddingBottom: 24,
+                            zIndex: 1000,
+                        }}
+                    >
+                        <Checkbox
+                            size="l"
+                            checked={privacyPolicyAccepted}
+                            onUpdate={(val) => setPrivacyPolicyAccepted(val)}
+                        />
+                        <div style={{minWidth: 16}} />
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <Text>Я подтверждаю, что ознакомился(ась) </Text>
+                                <div style={{minWidth: 4}} />
+                            </div>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <Text>с</Text>
+                                <div style={{minWidth: 4}} />
+                                <Link
+                                    href="https://aurum-mp.ru/contract_offer_final.txt"
+                                    target="_blank"
+                                >
+                                    условиями публичной оферты
+                                </Link>
+                                <div style={{minWidth: 4}} />
+                                <Text>и</Text>
+                            </div>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <Link href="https://aurum-mp.ru/privacy_policy.txt" target="_blank">
+                                    политикой конфиденциальности
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                    <motion.div
+                        animate={{
+                            marginTop: 16,
+                            height: privacyPolicyAccepted ? 36 : 0,
+                            marginBottom: privacyPolicyAccepted ? 120 : 0,
+                            opacity: privacyPolicyAccepted ? 1 : 0,
+                            display: privacyPolicyAccepted ? 'block' : 'block',
+                        }}
+                        transition={{ease: 'anticipate', duration: 0.6}}
+                        style={{height: 36, overflow: 'hidden', opacity: 0, margin: 0}}
+                    >
                         <TelegramLoginButton
                             botName={'AurumSkyNetBot'}
                             usePic={false}
