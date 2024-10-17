@@ -1,4 +1,4 @@
-import {Modal, RadioButton, Select, TextInput} from '@gravity-ui/uikit';
+import {Card, Checkbox, Modal, RadioButton, Select, TextInput} from '@gravity-ui/uikit';
 import {CloudArrowUpIn, TrashBin} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useState, Children, isValidElement, ReactElement, useMemo, useEffect} from 'react';
@@ -107,6 +107,8 @@ export const AdvertsBidsModal = ({
         onClick: handleOpen,
     });
 
+    const [useAutoMaxCpm, setUseAutoMaxCpm] = useState(true);
+
     const [cpmInputValue, setCpmInputValue] = useState('');
     const cpmInputValueValid = useMemo(() => {
         const temp = parseInt(cpmInputValue);
@@ -161,6 +163,12 @@ export const AdvertsBidsModal = ({
         return temp && temp > 0 && !isNaN(temp) && isFinite(temp);
     }, [oborInputValue]);
 
+    const [maxCpmInputValue, setMaxCpmInputValue] = useState('');
+    const maxCpmInputValueValid = useMemo(() => {
+        const temp = parseInt(maxCpmInputValue);
+        return temp && temp > 0 && !isNaN(temp) && isFinite(temp);
+    }, [maxCpmInputValue]);
+
     useEffect(() => {
         setModalOption(modalOptions[0].value);
         setAutoBidderOption([autoBidderOptions[0].value]);
@@ -173,6 +181,8 @@ export const AdvertsBidsModal = ({
         setPlacementsInputValue('50');
         setAuctionInputValue('50');
         setOborInputValue('30');
+        setMaxCpmInputValue('1000');
+        setUseAutoMaxCpm(true);
     }, [open]);
 
     const textInputs = {
@@ -275,6 +285,17 @@ export const AdvertsBidsModal = ({
             ),
             title: 'Введите позицию в аукционе',
         },
+        maxCpm: {
+            input: (
+                <TextInput
+                    size="l"
+                    value={maxCpmInputValue}
+                    validationState={maxCpmInputValueValid ? undefined : 'invalid'}
+                    onUpdate={(val) => setMaxCpmInputValue(val)}
+                />
+            ),
+            title: 'Макс. ставка',
+        },
         bestPlacement: undefined,
     };
 
@@ -290,181 +311,250 @@ export const AdvertsBidsModal = ({
         <div>
             {triggerButton}
             <Modal open={open} onClose={handleClose}>
-                <motion.div
-                    transition={transition}
-                    animate={{maxHeight: open ? 450 : 0}}
+                <Card
+                    view="clear"
                     style={{
-                        maxHeight: 0,
-                        width: 250,
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        flexDirection: 'column',
-                        padding: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'none',
                     }}
                 >
-                    <RadioButton
-                        size="l"
-                        value={modalOption}
-                        options={modalOptions}
-                        onUpdate={(opt) => setModalOption(opt)}
-                    />
-                    {modalOption == 'Установить' ? (
-                        <div>
-                            <motion.div
-                                transition={transition}
-                                style={{height: 0}}
-                                animate={{height: open ? 8 : 0}}
-                            />
-                            <TextTitleWrapper title={textInputs.cpm.title} padding={16}>
-                                {textInputs.cpm.input}
-                            </TextTitleWrapper>
-                        </div>
-                    ) : (
-                        <div>
-                            <motion.div
-                                transition={transition}
-                                style={{height: 0}}
-                                animate={{height: open ? 8 : 0}}
-                            />
-                            <TextTitleWrapper title="Выберите метод автоставок" padding={16}>
-                                <Select
-                                    size="l"
-                                    width={'max'}
-                                    value={autoBidderOption}
-                                    options={autoBidderOptions}
-                                    onUpdate={(opt) => setAutoBidderOption(opt)}
+                    <motion.div
+                        style={{
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
+                        }}
+                    >
+                        <RadioButton
+                            size="l"
+                            value={modalOption}
+                            options={modalOptions}
+                            onUpdate={(opt) => setModalOption(opt)}
+                        />
+                        {modalOption == 'Установить' ? (
+                            <div style={{width: '100%'}}>
+                                <motion.div
+                                    transition={transition}
+                                    style={{height: 0}}
+                                    animate={{height: open ? 8 : 0}}
                                 />
-                            </TextTitleWrapper>
-                            {autoBidderOption[0] != 'cpo' && autoBidderOption[0] != 'delete' ? (
-                                <div style={{display: 'flex', flexDirection: 'column'}}>
-                                    <motion.div
-                                        style={{height: 0}}
-                                        animate={{height: open ? 8 : 0}}
+                                <TextTitleWrapper title={textInputs.cpm.title} padding={16}>
+                                    {textInputs.cpm.input}
+                                </TextTitleWrapper>
+                            </div>
+                        ) : (
+                            <div style={{width: '100%'}}>
+                                <motion.div
+                                    transition={transition}
+                                    style={{height: 0}}
+                                    animate={{height: open ? 8 : 0}}
+                                />
+                                <TextTitleWrapper title="Выберите метод автоставок" padding={16}>
+                                    <Select
+                                        size="l"
+                                        width={'max'}
+                                        value={autoBidderOption}
+                                        options={autoBidderOptions}
+                                        onUpdate={(opt) => setAutoBidderOption(opt)}
                                     />
-                                    <TextTitleWrapper title={textInputs.drr.title} padding={16}>
-                                        {textInputs.drr.input}
-                                    </TextTitleWrapper>
-                                </div>
-                            ) : (
-                                <></>
-                            )}
-                            {autoBidderOption[0] != 'drr' && textInputs[autoBidderOption[0]] ? (
-                                <div style={{display: 'flex', flexDirection: 'column'}}>
-                                    <motion.div
-                                        style={{height: 0}}
-                                        animate={{height: open ? 8 : 0}}
-                                    />
-                                    <TextTitleWrapper
-                                        title={textInputs[autoBidderOption[0]].title}
-                                        padding={16}
+                                </TextTitleWrapper>
+                                {autoBidderOption[0] != 'delete' ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                        }}
                                     >
-                                        {textInputs[autoBidderOption[0]].input}
+                                        <motion.div
+                                            style={{height: 0}}
+                                            animate={{height: open ? 8 : 0}}
+                                        />
+                                        <TextTitleWrapper
+                                            title={
+                                                textInputs[
+                                                    autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr'
+                                                ].title
+                                            }
+                                            padding={16}
+                                        >
+                                            {
+                                                textInputs[
+                                                    autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr'
+                                                ].input
+                                            }
+                                        </TextTitleWrapper>
+                                        <Checkbox
+                                            style={{marginTop: 4}}
+                                            checked={useAutoMaxCpm}
+                                            onUpdate={(val) => setUseAutoMaxCpm(val)}
+                                        >
+                                            Рассчитать макс. ставку
+                                        </Checkbox>
+                                    </div>
+                                ) : (
+                                    <></>
+                                )}
+                                <motion.div
+                                    style={{height: 0, overflow: 'hidden'}}
+                                    animate={{
+                                        marginTop: !useAutoMaxCpm ? 8 : 0,
+                                        height: !useAutoMaxCpm ? 54 : 0,
+                                    }}
+                                >
+                                    <TextTitleWrapper title={textInputs.maxCpm.title} padding={16}>
+                                        {textInputs.maxCpm.input}
                                     </TextTitleWrapper>
-                                </div>
-                            ) : (
-                                <></>
-                            )}
-                        </div>
-                    )}
-                    <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
-                    {generateModalButtonWithActions(
-                        {
-                            disabled:
-                                !drrInputValueValid ||
-                                !cpoInputValueValid ||
-                                !ordersInputValueValid ||
-                                !sumOrdersInputValueValid ||
-                                !sumInputValueValid ||
-                                !placementsInputValueValid ||
-                                !auctionInputValueValid ||
-                                !oborInputValueValid ||
-                                !cpmInputValueValid,
-                            placeholder: autoBidderOption[0] != 'delete' ? 'Установить' : 'Удалить',
-                            icon: autoBidderOption[0] != 'delete' ? CloudArrowUpIn : TrashBin,
-                            view:
-                                autoBidderOption[0] != 'delete'
-                                    ? 'outlined-success'
-                                    : 'outlined-danger',
-                            onClick: () => {
-                                const params = {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
-                                    data: {
-                                        mode: modalOption,
-                                        autoBidsMode: autoBidderOption[0],
-                                        placementsRange:
-                                            autoBidderOption[0] == 'auction'
-                                                ? {
-                                                      from: parseInt(auctionInputValue),
-                                                      to: parseInt(auctionInputValue),
-                                                  }
+                                </motion.div>
+                                {!['drr', 'cpo'].includes(autoBidderOption[0]) &&
+                                textInputs[autoBidderOption[0]] ? (
+                                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                                        <motion.div
+                                            style={{height: 0}}
+                                            animate={{height: open ? 8 : 0}}
+                                        />
+                                        <TextTitleWrapper
+                                            title={textInputs[autoBidderOption[0]].title}
+                                            padding={16}
+                                        >
+                                            {textInputs[autoBidderOption[0]].input}
+                                        </TextTitleWrapper>
+                                    </div>
+                                ) : (
+                                    <></>
+                                )}
+                            </div>
+                        )}
+                        <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
+                        {generateModalButtonWithActions(
+                            {
+                                disabled:
+                                    !drrInputValueValid ||
+                                    !cpoInputValueValid ||
+                                    !ordersInputValueValid ||
+                                    !sumOrdersInputValueValid ||
+                                    !sumInputValueValid ||
+                                    !placementsInputValueValid ||
+                                    !auctionInputValueValid ||
+                                    !oborInputValueValid ||
+                                    (!maxCpmInputValueValid && !useAutoMaxCpm) ||
+                                    !cpmInputValueValid,
+                                placeholder:
+                                    autoBidderOption[0] != 'delete' ? 'Установить' : 'Удалить',
+                                icon: autoBidderOption[0] != 'delete' ? CloudArrowUpIn : TrashBin,
+                                view:
+                                    autoBidderOption[0] != 'delete'
+                                        ? 'outlined-success'
+                                        : 'outlined-danger',
+                                onClick: () => {
+                                    const params = {
+                                        uid: getUid(),
+                                        campaignName: selectValue[0],
+                                        data: {
+                                            mode: modalOption,
+                                            autoBidsMode: autoBidderOption[0],
+                                            placementsRange:
+                                                autoBidderOption[0] == 'auction'
+                                                    ? {
+                                                          from: parseInt(auctionInputValue),
+                                                          to: parseInt(auctionInputValue),
+                                                      }
+                                                    : {
+                                                          from: parseInt(placementsInputValue),
+                                                          to: parseInt(placementsInputValue),
+                                                      },
+                                            desiredOrders:
+                                                autoBidderOption[0] == 'obor'
+                                                    ? null
+                                                    : parseInt(ordersInputValue),
+                                            desiredDRR: parseInt(drrInputValue),
+                                            desiredSum: parseInt(sumInputValue),
+                                            desiredObor: parseInt(oborInputValue),
+                                            desiredSumOrders: parseInt(sumOrdersInputValue),
+                                            bid: parseInt(cpmInputValue),
+                                            maxBid: parseInt(maxCpmInputValue),
+                                            useManualMaxCpm: !useAutoMaxCpm,
+                                            advertIds,
+                                        },
+                                    };
+
+                                    for (const id of advertIds) {
+                                        const old = doc.advertsAutoBidsRules[selectValue[0]][id];
+                                        if (!doc.advertsAutoBidsRules[selectValue[0]][id])
+                                            doc.advertsAutoBidsRules[selectValue[0]][id] = {};
+                                        doc.advertsAutoBidsRules[selectValue[0]][id] =
+                                            modalOption == 'Установить'
+                                                ? old
+                                                    ? {...old, bid: parseInt(cpmInputValue)}
+                                                    : undefined
+                                                : autoBidderOption[0] == 'delete'
+                                                ? undefined
                                                 : {
-                                                      from: parseInt(placementsInputValue),
-                                                      to: parseInt(placementsInputValue),
-                                                  },
-                                        desiredOrders:
-                                            autoBidderOption[0] == 'obor'
-                                                ? null
-                                                : parseInt(ordersInputValue),
-                                        desiredDRR: parseInt(drrInputValue),
-                                        desiredSum: parseInt(sumInputValue),
-                                        desiredObor: parseInt(oborInputValue),
-                                        desiredSumOrders: parseInt(sumOrdersInputValue),
-                                        bid: parseInt(cpmInputValue),
-                                        advertIds,
-                                    },
-                                };
+                                                      mode: modalOption,
+                                                      autoBidsMode: autoBidderOption[0],
+                                                      placementsRange:
+                                                          autoBidderOption[0] == 'auction'
+                                                              ? {
+                                                                    from: parseInt(
+                                                                        auctionInputValue,
+                                                                    ),
+                                                                    to: parseInt(auctionInputValue),
+                                                                }
+                                                              : {
+                                                                    from: parseInt(
+                                                                        placementsInputValue,
+                                                                    ),
+                                                                    to: parseInt(
+                                                                        placementsInputValue,
+                                                                    ),
+                                                                },
+                                                      desiredOrders:
+                                                          autoBidderOption[0] == 'obor'
+                                                              ? null
+                                                              : parseInt(ordersInputValue),
+                                                      desiredSum: parseInt(sumInputValue),
+                                                      desiredObor: parseInt(oborInputValue),
+                                                      desiredSumOrders:
+                                                          parseInt(sumOrdersInputValue),
+                                                      desiredDRR: parseInt(drrInputValue),
+                                                      maxBid: !useAutoMaxCpm
+                                                          ? parseInt(maxCpmInputValue)
+                                                          : undefined,
+                                                      bid: parseInt(cpmInputValue),
+                                                  };
+                                    }
 
-                                for (const id of advertIds) {
-                                    const old = doc.advertsAutoBidsRules[selectValue[0]][id];
-                                    if (!doc.advertsAutoBidsRules[selectValue[0]][id])
-                                        doc.advertsAutoBidsRules[selectValue[0]][id] = {};
-                                    doc.advertsAutoBidsRules[selectValue[0]][id] =
-                                        modalOption == 'Установить'
-                                            ? old
-                                                ? {...old, bid: parseInt(cpmInputValue)}
-                                                : undefined
-                                            : autoBidderOption[0] == 'delete'
-                                            ? undefined
-                                            : {
-                                                  mode: modalOption,
-                                                  autoBidsMode: autoBidderOption[0],
-                                                  placementsRange:
-                                                      autoBidderOption[0] == 'auction'
-                                                          ? {
-                                                                from: parseInt(auctionInputValue),
-                                                                to: parseInt(auctionInputValue),
-                                                            }
-                                                          : {
-                                                                from: parseInt(
-                                                                    placementsInputValue,
-                                                                ),
-                                                                to: parseInt(placementsInputValue),
-                                                            },
-                                                  desiredOrders:
-                                                      autoBidderOption[0] == 'obor'
-                                                          ? null
-                                                          : parseInt(ordersInputValue),
-                                                  desiredSum: parseInt(sumInputValue),
-                                                  desiredObor: parseInt(oborInputValue),
-                                                  desiredSumOrders: parseInt(sumOrdersInputValue),
-                                                  desiredDRR: parseInt(drrInputValue),
-                                                  bid: parseInt(cpmInputValue),
-                                              };
-                                }
+                                    console.log(params);
 
-                                console.log(params);
-
-                                //////////////////////////////////
-                                callApi('setAdvertsCPMs', params);
-                                setChangedDoc({...doc});
-                                setOpen(false);
-                                //////////////////////////////////
+                                    //////////////////////////////////
+                                    callApi('setAdvertsCPMs', params);
+                                    setChangedDoc({...doc});
+                                    setOpen(false);
+                                    //////////////////////////////////
+                                },
                             },
-                        },
-                        selectedButton,
-                        setSelectedButton,
-                    )}
-                </motion.div>
+                            selectedButton,
+                            setSelectedButton,
+                        )}
+                    </motion.div>
+                </Card>
             </Modal>
         </div>
     );

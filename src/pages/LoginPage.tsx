@@ -83,7 +83,6 @@ export const LoginPage = () => {
                             justifyContent: 'center',
                             position: 'absolute',
                             backdropFilter: 'blur(32px)',
-                            background: '#221d220f',
                             height: 83,
                             width: '100%',
                             bottom: 0,
