@@ -386,11 +386,17 @@ export const AdvertsBidsModal = ({
                                     style={{height: 0, overflow: 'hidden', width: '100%'}}
                                     animate={{
                                         marginTop:
-                                            autoBidderOption[0] != 'delete' && useAutoMaxCpm
+                                            autoBidderOption[0] != 'delete' &&
+                                            (['drr', 'cpo'].includes(autoBidderOption[0])
+                                                ? true
+                                                : useAutoMaxCpm)
                                                 ? 8
                                                 : 0,
                                         height:
-                                            autoBidderOption[0] != 'delete' && useAutoMaxCpm
+                                            autoBidderOption[0] != 'delete' &&
+                                            (['drr', 'cpo'].includes(autoBidderOption[0])
+                                                ? true
+                                                : useAutoMaxCpm)
                                                 ? 54
                                                 : 0,
                                     }}
