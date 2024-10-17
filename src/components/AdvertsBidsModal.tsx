@@ -360,10 +360,17 @@ export const AdvertsBidsModal = ({
                                 </TextTitleWrapper>
                             </div>
                         ) : (
-                            <div style={{width: '100%'}}>
+                            <div
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
                                 <motion.div
                                     transition={transition}
-                                    style={{height: 0}}
+                                    style={{height: 0, width: '100%'}}
                                     animate={{height: open ? 8 : 0}}
                                 />
                                 <TextTitleWrapper title="Выберите метод автоставок" padding={16}>
@@ -375,45 +382,42 @@ export const AdvertsBidsModal = ({
                                         onUpdate={(opt) => setAutoBidderOption(opt)}
                                     />
                                 </TextTitleWrapper>
-                                {autoBidderOption[0] != 'delete' ? (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <motion.div
-                                            style={{height: 0}}
-                                            animate={{height: open ? 8 : 0}}
-                                        />
-                                        <TextTitleWrapper
-                                            title={
-                                                textInputs[
-                                                    autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr'
-                                                ].title
-                                            }
-                                            padding={16}
-                                        >
-                                            {
-                                                textInputs[
-                                                    autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr'
-                                                ].input
-                                            }
-                                        </TextTitleWrapper>
-                                        <Checkbox
-                                            style={{marginTop: 4}}
-                                            checked={useAutoMaxCpm}
-                                            onUpdate={(val) => setUseAutoMaxCpm(val)}
-                                        >
-                                            Рассчитать макс. ставку
-                                        </Checkbox>
-                                    </div>
-                                ) : (
-                                    <></>
-                                )}
                                 <motion.div
-                                    style={{height: 0, overflow: 'hidden'}}
+                                    style={{height: 0, overflow: 'hidden', width: '100%'}}
+                                    animate={{
+                                        marginTop:
+                                            autoBidderOption[0] != 'delete' && useAutoMaxCpm
+                                                ? 8
+                                                : 0,
+                                        height:
+                                            autoBidderOption[0] != 'delete' && useAutoMaxCpm
+                                                ? 54
+                                                : 0,
+                                    }}
+                                >
+                                    <TextTitleWrapper
+                                        title={
+                                            textInputs[autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr']
+                                                .title
+                                        }
+                                        padding={16}
+                                    >
+                                        {
+                                            textInputs[autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr']
+                                                .input
+                                        }
+                                    </TextTitleWrapper>
+                                </motion.div>
+
+                                <Checkbox
+                                    style={{marginTop: 8}}
+                                    checked={!useAutoMaxCpm}
+                                    onUpdate={(val) => setUseAutoMaxCpm(!val)}
+                                >
+                                    Задать макс. ставку
+                                </Checkbox>
+                                <motion.div
+                                    style={{height: 0, overflow: 'hidden', width: '100%'}}
                                     animate={{
                                         marginTop: !useAutoMaxCpm ? 8 : 0,
                                         height: !useAutoMaxCpm ? 54 : 0,
@@ -425,7 +429,13 @@ export const AdvertsBidsModal = ({
                                 </motion.div>
                                 {!['drr', 'cpo'].includes(autoBidderOption[0]) &&
                                 textInputs[autoBidderOption[0]] ? (
-                                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            width: '100%',
+                                        }}
+                                    >
                                         <motion.div
                                             style={{height: 0}}
                                             animate={{height: open ? 8 : 0}}
