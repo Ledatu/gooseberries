@@ -275,7 +275,10 @@ export const AdvertCard = ({
                                         ? `${drrAI.maxBid ?? 'Нет инф.'}`
                                         : 'Автоставки выкл.'
                                 }`}</Text>
-                                {drrAI !== undefined ? (
+                                {drrAI !== undefined &&
+                                (drrAI.useManualMaxCpm
+                                    ? ['drr', 'cpo'].includes(drrAI.autoBidsMode)
+                                    : true) ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
                                         {`${drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
                                             drrAI.desiredDRR
