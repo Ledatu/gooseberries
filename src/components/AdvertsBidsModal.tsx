@@ -206,7 +206,7 @@ export const AdvertsBidsModal = ({
                     onUpdate={(val) => setDrrInputValue(val)}
                 />
             ),
-            title: 'Введите ДРР',
+            title: 'Удерживать ДРР',
         },
         cpo: {
             input: (
