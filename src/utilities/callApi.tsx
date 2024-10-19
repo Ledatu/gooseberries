@@ -34,7 +34,7 @@ export default async function callApi(
             if (attempt < maxRetries - 1) {
                 await delay(3000);
             } else {
-                if (thr) throw new Error(error);
+                if (thr) throw error;
                 return undefined;
             }
         }

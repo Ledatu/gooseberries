@@ -2642,6 +2642,7 @@ export const MassAdvertPage = ({
                         if (![9, 11].includes(advert.status)) continue;
                         const drrAI = doc.advertsAutoBidsRules[selectValue[0]][advert.advertId];
                         const {desiredDRR} = drrAI ?? {};
+
                         if (desiredDRR > minDrr) minDrr = desiredDRR;
                     }
                     return minDrr;

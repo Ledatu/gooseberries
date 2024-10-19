@@ -4,12 +4,15 @@ import React, {Children, isValidElement, ReactElement, useState} from 'react';
 import callApi from 'src/utilities/callApi';
 import {useUser} from './RequireAuth';
 import screen from '../assets/api-key.jpg';
+import {useError} from 'src/pages/ErrorContext';
 
 interface AddApiModalInterface {
     children: ReactElement | ReactElement[];
 }
 
 export const AddApiModal = ({children}: AddApiModalInterface) => {
+    const {showError} = useError(); // Access error context
+
     const {userInfo, refetchUser} = useUser();
     const {user} = userInfo ?? {};
     const [open, setOpen] = useState(false);
@@ -127,8 +130,11 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                                     .then(() => {
                                         refetchUser();
                                     })
-                                    .catch((e) => {
-                                        alert(e);
+                                    .catch((error) => {
+                                        showError(
+                                            error.response?.data?.error ||
+                                                'An unknown error occurred',
+                                        );
                                     })
                                     .finally(() => handleClose());
                             }}

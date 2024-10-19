@@ -16,13 +16,12 @@ export const UserPopup = () => {
 
     return (
         <div>
-            <Popup anchorRef={ref} open={open} placement={'bottom-end'}>
+            <Popup offset={[-4, 4]} anchorRef={ref} open={open} placement={'bottom-end'}>
                 <div
                     style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        width: 300,
+                        width: 0,
+                        height: 0,
+                        position: 'relative',
                     }}
                 >
                     <div
@@ -30,59 +29,77 @@ export const UserPopup = () => {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            margin: 20,
-                            width: '100%',
-                            boxShadow: '0px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0006 0px 2px 8px 0px',
+                            borderBottomLeftRadius: 30,
+                            borderBottomRightRadius: 30,
+                            border: '1px solid #eee2',
+                            position: 'absolute',
+                            left: -296,
+                            top: -3,
+                            width: 300,
                         }}
                     >
-                        <img
+                        <div
                             style={{
-                                height: 70,
-                                borderRadius: 100,
-                                margin: 4,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                margin: 20,
+                                width: '100%',
+                                boxShadow: '0px 0px 0px 0px var(--yc-color-base-generic-hover)',
                             }}
-                            src={user?.photo_url}
-                        />
-                        <Text variant="subheader-2">{name}</Text>
-                        {user?.username ? (
+                        >
+                            <img
+                                style={{
+                                    height: 70,
+                                    borderRadius: 100,
+                                    margin: 4,
+                                }}
+                                src={user?.photo_url}
+                            />
+                            <Text variant="subheader-2">{name}</Text>
+                            {user?.username ? (
+                                <CopyButton
+                                    view="flat"
+                                    color="secondary"
+                                    size="xs"
+                                    copyText={user?.username}
+                                    iconSize={13}
+                                >
+                                    <Text variant="body-1" color="secondary">
+                                        Username: {'@' + user?.username}
+                                    </Text>
+                                </CopyButton>
+                            ) : (
+                                <></>
+                            )}
                             <CopyButton
                                 view="flat"
                                 color="secondary"
                                 size="xs"
-                                copyText={user?.username}
+                                copyText={user?._id}
                                 iconSize={13}
                             >
                                 <Text variant="body-1" color="secondary">
-                                    Username: {'@' + user?.username}
+                                    ID: {user?._id}
                                 </Text>
                             </CopyButton>
-                        ) : (
-                            <></>
-                        )}
-                        <CopyButton
-                            view="flat"
-                            color="secondary"
-                            size="xs"
-                            copyText={user?._id}
-                            iconSize={13}
+                        </div>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                width: 'calc(100% - 40px)',
+                                marginBottom: 20,
+                            }}
                         >
-                            <Text variant="body-1" color="secondary">
-                                ID: {user?._id}
-                            </Text>
-                        </CopyButton>
-                    </div>
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            width: 'calc(100% - 40px)',
-                            marginBottom: 20,
-                        }}
-                    >
-                        <Button view="outlined" width="max" size="l">
-                            <Text variant="subheader-2"> Тут будет управление</Text>
-                        </Button>
+                            <Button view="outlined" width="max" size="l">
+                                <Text variant="subheader-2"> Тут будет управление</Text>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </Popup>
