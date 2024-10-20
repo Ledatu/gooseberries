@@ -12,7 +12,7 @@ export const useCampaign = () => {
 // CampaignProvider component that wraps the app
 export const CampaignProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const {showError} = useError();
-    const [selectValue, setSelectValue] = useState([] as string[]); // Current selected campaign
+    const [selectValue, setSelectValue] = useState([''] as string[]); // Current selected campaign
     const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = useState(false); // Flag for switching
     const [availableTags, setAvailableTags] = useState([] as string[]); // Tags related to the selected campaign
     const [availableTagsPending, setAvailableTagsPending] = useState(false); // Loading state for tags
