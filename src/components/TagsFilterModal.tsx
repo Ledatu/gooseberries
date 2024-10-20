@@ -76,7 +76,6 @@ export const TagsFilterModal = ({filterByButton}) => {
                                 <TextInput
                                     placeholder={`Поиск среди ${availableTags.length} тегов`}
                                     style={{marginBottom: 8}}
-                                    autoFocus
                                     size="l"
                                     value={filterValue}
                                     onUpdate={(val) => {
