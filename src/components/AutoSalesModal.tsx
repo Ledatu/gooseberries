@@ -69,7 +69,6 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
     return (
         <>
             <Button
-                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                 view="action"
                 loading={availableAutoSalesPending}
                 size="l"

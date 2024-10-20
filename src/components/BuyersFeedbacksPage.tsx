@@ -468,7 +468,7 @@ export const BuyersFeedbacksPage = ({
             }}
         >
             <div style={{position: 'absolute', left: 0, top: -44}}>
-                <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
+                <TagsFilterModal filterByButton={filterByButton} />
             </div>
             <TheTable
                 columnData={columns}

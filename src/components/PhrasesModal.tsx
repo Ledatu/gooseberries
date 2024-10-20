@@ -13,7 +13,6 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
     return (
         <div>
             <Button
-                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
                 view="action"
                 size="l"
                 onClick={() => {

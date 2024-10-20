@@ -115,7 +115,6 @@ export const AutoFeedbackAnsweringPage = ({
                             <div style={{minWidth: 8}} />
                             <AutoFeedbackTemplateCreationModal
                                 sellerId={sellerId}
-                                selectValue={selectValue}
                                 setRefetch={setRefetch}
                                 templateValues={row}
                             >
@@ -209,11 +208,7 @@ export const AutoFeedbackAnsweringPage = ({
             }}
         >
             <div style={{position: 'absolute', left: 0, top: -44}}>
-                <AutoFeedbackTemplateCreationModal
-                    sellerId={sellerId}
-                    selectValue={selectValue}
-                    setRefetch={setRefetch}
-                >
+                <AutoFeedbackTemplateCreationModal sellerId={sellerId} setRefetch={setRefetch}>
                     <Button size="l" view="action">
                         <Icon data={Plus} />
                         <Text variant="subheader-1">Добавить шаблон</Text>

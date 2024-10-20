@@ -37,6 +37,7 @@ import {PlansUpload} from 'src/components/PlansUpload';
 import {ColumnsEdit} from 'src/components/ColumsEdit';
 import {ManageDeletionOfOldPlansModal} from 'src/components/ManageDeletionOfOldPlansModal';
 import {useUser} from 'src/components/RequireAuth';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -69,13 +70,9 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const AnalyticsPage = ({
-    selectValue,
-    setSwitchingCampaignsFlag,
-}: {
-    selectValue: string[];
-    setSwitchingCampaignsFlag: Function;
-}) => {
+export const AnalyticsPage = () => {
+    const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
+
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
     const [selectedButton, setSelectedButton] = useState('');
     const anchorRef = useRef(null);
@@ -1713,7 +1710,8 @@ export const AnalyticsPage = ({
                         dateRange={dateRange}
                     />
                     <div style={{minWidth: 8}} />
-                    <TagsFilterModal filterByButton={filterByButton} selectValue={selectValue} />
+                    <TagsFilterModal filterByButton={filterByButton} />
+                    <div style={{minWidth: 8}} />
                     <CalcAutoPlansModal
                         filteredData={filteredData}
                         columnDataReversed={columnDataReversed}

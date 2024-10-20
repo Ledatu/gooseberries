@@ -3,6 +3,7 @@ import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useState} from 'react';
 import callApi from 'src/utilities/callApi';
 import {useUser} from './RequireAuth';
+import {useError} from 'src/pages/ErrorContext';
 
 interface ChangeApiModalInterface {
     sellerId: string;
@@ -10,6 +11,7 @@ interface ChangeApiModalInterface {
 }
 
 export const ChangeApiModal = ({sellerId, children}: ChangeApiModalInterface) => {
+    const {showError} = useError();
     const {userInfo, refetchUser} = useUser();
     const {user} = userInfo ?? {};
     const [open, setOpen] = useState(false);
@@ -81,10 +83,11 @@ export const ChangeApiModal = ({sellerId, children}: ChangeApiModalInterface) =>
                                     .then(() => {
                                         refetchUser();
                                     })
-                                    .catch((e) => {
-                                        console.log(e, e?.response, e?.response?.data);
-
-                                        alert(e?.response?.data?.error);
+                                    .catch((error) => {
+                                        showError(
+                                            error.response?.data?.error ||
+                                                'An unknown error occurred',
+                                        );
                                     })
                                     .finally(() => handleClose());
                             }}

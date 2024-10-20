@@ -22,11 +22,11 @@ import React, {
 import {motion} from 'framer-motion';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
 interface AutoFeedbackTemplateCreationModalInterface {
     children: ReactElement | ReactElement[];
     sellerId: string;
-    selectValue: string[];
     setRefetch: Function;
     templateValues?: any;
 }
@@ -34,7 +34,6 @@ interface AutoFeedbackTemplateCreationModalInterface {
 export const AutoFeedbackTemplateCreationModal = ({
     children,
     sellerId,
-    selectValue,
     setRefetch,
     templateValues,
 }: AutoFeedbackTemplateCreationModalInterface) => {
@@ -79,11 +78,11 @@ export const AutoFeedbackTemplateCreationModal = ({
         {value: 'tags', content: 'Теги'},
     ];
     const [binding, setBinding] = useState(['none']);
-    const [availableTagsPending, setAvailableTagsPending] = useState(false);
-    const [availableTags, setAvailableTags] = useState([] as any[]);
     const [bindingKeys, setBindingKeys] = useState([] as any[]);
     const [availableBindingKeys, setAvailableBindingKeys] = useState([] as any[]);
     const [availableBindingKeysFiltered, setAvailableBindingKeysFiltered] = useState([] as any[]);
+
+    const {availableTags, availableTagsPending, selectValue} = useCampaign();
 
     useEffect(() => {
         if (binding[0] == 'tags') setAvailableBindingKeys(availableTags);
@@ -99,26 +98,6 @@ export const AutoFeedbackTemplateCreationModal = ({
             setAvailableBindingKeysFiltered(uniqueKeys);
         }
     }, [binding, artsData]);
-
-    useEffect(() => {
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
-    }, [selectValue]);
 
     const textAreaRef = useRef(null as unknown as HTMLTextAreaElement);
 

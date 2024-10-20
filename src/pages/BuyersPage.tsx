@@ -2,16 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {RadioButton} from '@gravity-ui/uikit';
 import {BuyersFeedbacksPage} from 'src/components/BuyersFeedbacksPage';
 import {AutoFeedbackAnsweringPage} from 'src/components/AutoFeedbackAnsweringPage';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
-export const BuyersPage = ({
-    selectValue,
-    sellerId,
-    setSwitchingCampaignsFlag,
-}: {
-    selectValue: string[];
-    sellerId: string;
-    setSwitchingCampaignsFlag: Function;
-}) => {
+export const BuyersPage = (sellerId) => {
+    const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
+
     const sectionOptions = [
         {content: 'Необработанные отзывы', value: 'feedbacksUnanswered'},
         {content: 'Обработанные отзывы', value: 'feedbacksAnswered'},

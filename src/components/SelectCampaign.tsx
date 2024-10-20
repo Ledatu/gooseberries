@@ -1,22 +1,18 @@
+import React, {useEffect, useMemo} from 'react';
 import {Button, Icon, Select, Text} from '@gravity-ui/uikit';
 import {Key, ChevronDown} from '@gravity-ui/icons';
-import React, {useMemo} from 'react';
+import {useCampaign} from '../contexts/CampaignContext';
 
 export const SelectCampaign = ({
-    selectOptions,
-    selectValue,
-    setSelectValue,
-    switchingCampaignsFlag,
-    setSwitchingCampaignsFlag,
     subscriptionExpDate,
+    selectOptions,
 }: {
+    subscriptionExpDate: any;
     selectOptions: any[];
-    selectValue: string[];
-    setSelectValue: Function;
-    switchingCampaignsFlag: boolean;
-    setSwitchingCampaignsFlag: Function;
-    subscriptionExpDate: string;
 }) => {
+    const {selectValue, setSelectValue, switchingCampaignsFlag, setSwitchingCampaignsFlag} =
+        useCampaign();
+
     const isWeekOrLessUntillExp = useMemo(() => {
         if (!subscriptionExpDate) return false;
 
@@ -31,6 +27,12 @@ export const SelectCampaign = ({
 
         return date.getTime() - today.getTime() <= 10;
     }, [subscriptionExpDate]);
+
+    useEffect(() => {
+        if (!selectOptions || !selectOptions.length) return;
+        setSelectValue([selectOptions[0]?.value]);
+    }, [selectOptions]);
+
     return (
         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
             <Select

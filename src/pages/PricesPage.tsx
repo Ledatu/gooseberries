@@ -8,7 +8,6 @@ import {
     Link,
     Modal,
     Card,
-    List,
     TextInput,
     Checkbox,
     Popover,
@@ -18,7 +17,6 @@ import '../App.scss';
 
 import {
     ChevronDown,
-    Tag,
     ArrowsRotateLeft,
     Box,
     Copy,
@@ -27,9 +25,6 @@ import {
     Lock,
     TagRuble,
     CloudArrowUpIn,
-    TrashBin,
-    Play,
-    Pause,
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from 'src/utilities/callApi';
@@ -46,6 +41,8 @@ import {generateModalButtonWithActions} from './MassAdvertPage';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
 import {useUser} from 'src/components/RequireAuth';
+import {useCampaign} from 'src/contexts/CampaignContext';
+import {TagsFilterModal} from 'src/components/TagsFilterModal';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -79,13 +76,8 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const PricesPage = ({
-    selectValue,
-    setSwitchingCampaignsFlag,
-}: {
-    selectValue: string[];
-    setSwitchingCampaignsFlag: Function;
-}) => {
+export const PricesPage = () => {
+    const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const today = new Date(
         new Date()
             .toLocaleDateString('ru-RU')
@@ -110,10 +102,6 @@ export const PricesPage = ({
     const [selectedButton, setSelectedButton] = useState('');
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
-
-    const [availableTags, setAvailableTags] = useState([] as any[]);
-    const [availableTagsPending, setAvailableTagsPending] = useState(false);
-    const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
     const [calcUnitEconomyModalOpen, setCalcUnitEconomyModalOpen] = useState(false);
     const [unitEconomyParams, setUnitEconomyParams] = useState({
@@ -726,39 +714,6 @@ export const PricesPage = ({
     const [enteredValue, setEnteredValue] = useState('');
     const [enteredValueValid, setEnteredValueValid] = useState(false);
 
-    const [fixPricesManagingModalOpen, setFixPricesManagingModalOpen] = useState(false);
-    const manageFixPricesActivityOnClick = async (mode) => {
-        setFixPricesManagingModalOpen(false);
-
-        const params = {
-            uid: getUid(),
-            campaignName: selectValue[0],
-            data: {mode: mode, nmIds: [] as number[]},
-        };
-
-        for (let i = 0; i < filteredData.length; i++) {
-            const row = filteredData[i];
-            const {nmId} = row ?? {};
-            if (!nmId) continue;
-
-            if (!params.data.nmIds.includes(nmId)) params.data.nmIds.push(nmId);
-
-            if (!doc.fixArtPrices[selectValue[0]][nmId]) continue;
-            if (mode == 'play') {
-                doc.fixArtPrices[selectValue[0]][nmId]['paused'] = false;
-            } else if (mode == 'pause') {
-                doc.fixArtPrices[selectValue[0]][nmId]['paused'] = true;
-            } else if (mode == 'stop') {
-                delete doc.fixArtPrices[selectValue[0]][nmId];
-                continue;
-            }
-        }
-
-        setChangedDoc({...doc});
-
-        callApi('manageFixPricesActivity', params);
-    };
-
     const [fixPrices, setFixPrices] = useState(false);
 
     const [changeDiscount, setChangeDiscount] = useState(false);
@@ -781,24 +736,6 @@ export const PricesPage = ({
             setGroupingFetching(false);
         });
         setSwitchingCampaignsFlag(true);
-
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
 
         if (!doc) return;
 
@@ -1106,61 +1043,7 @@ export const PricesPage = ({
                             alignItems: 'center',
                         }}
                     >
-                        <div style={{minWidth: 8}} />
-                        <Button
-                            style={{cursor: 'pointer'}}
-                            view="action"
-                            loading={availableTagsPending}
-                            size="l"
-                            onClick={async () => {
-                                setTagsModalOpen(true);
-                            }}
-                        >
-                            <Icon data={Tag} />
-                            <Text variant="subheader-1">Теги</Text>
-                        </Button>
-                        <Modal
-                            open={tagsModalOpen}
-                            onClose={() => {
-                                setTagsModalOpen(false);
-                            }}
-                        >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    width: '30vw',
-                                    height: '60vh',
-                                    margin: 20,
-                                }}
-                            >
-                                {availableTagsPending ? (
-                                    <div></div>
-                                ) : (
-                                    <List
-                                        filterPlaceholder="Введите имя тега"
-                                        emptyPlaceholder="Такой тег отсутствует"
-                                        loading={availableTagsPending}
-                                        items={availableTags}
-                                        renderItem={(item) => {
-                                            return (
-                                                <Button
-                                                    size="xs"
-                                                    pin="circle-circle"
-                                                    selected
-                                                    view={'outlined-info'}
-                                                >
-                                                    {item.toUpperCase()}
-                                                </Button>
-                                            );
-                                        }}
-                                        onItemClick={(item) => {
-                                            filterByClick(item, 'art');
-                                            setTagsModalOpen(false);
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        </Modal>
+                        <TagsFilterModal filterByButton={filterByClick} />
                         <div style={{minWidth: 8}} />
                         <Button
                             loading={updatingFlag}
@@ -1505,82 +1388,6 @@ export const PricesPage = ({
                                         Рассчитать
                                     </Button>
                                 </div>
-                            </Card>
-                        </Modal>
-                        <div style={{minWidth: 8}} />
-                        <Button
-                            size="l"
-                            view="action"
-                            onClick={() => {
-                                setFixPricesManagingModalOpen(true);
-                            }}
-                        >
-                            <Icon data={Play} />
-                            <Text variant="subheader-1">Управление фиксацией цен</Text>
-                        </Button>
-                        <Modal
-                            open={fixPricesManagingModalOpen}
-                            onClose={() => {
-                                setFixPricesManagingModalOpen(false);
-                                setSelectedButton('');
-                            }}
-                        >
-                            <Card
-                                view="clear"
-                                style={{
-                                    width: 300,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    backgroundColor: 'none',
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        margin: '8px 0',
-                                    }}
-                                    variant="display-2"
-                                >
-                                    Управление
-                                </Text>
-                                {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Продолжить',
-                                        icon: Play,
-                                        view: 'outlined-success',
-                                        onClick: () => {
-                                            manageFixPricesActivityOnClick('play');
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Приостановить',
-                                        icon: Pause,
-                                        view: 'outlined-warning',
-                                        onClick: () => {
-                                            manageFixPricesActivityOnClick('pause');
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Удалить',
-                                        icon: TrashBin,
-                                        view: 'outlined-danger',
-                                        onClick: () => {
-                                            manageFixPricesActivityOnClick('stop');
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                <div style={{height: 16}} />
                             </Card>
                         </Modal>
                         <div style={{minWidth: 8}} />

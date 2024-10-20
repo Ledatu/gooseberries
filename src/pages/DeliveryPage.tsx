@@ -8,7 +8,6 @@ import {
     Link,
     Card,
     Modal,
-    List,
     TextInput,
     Tooltip,
 } from '@gravity-ui/uikit';
@@ -18,7 +17,6 @@ import '../App.scss';
 import {
     ChevronDown,
     ArrowsRotateLeft,
-    Tag,
     Calculator,
     FileArrowDown,
     Box,
@@ -35,6 +33,8 @@ import TheTable, {compare, generateFilterTextInput} from 'src/components/TheTabl
 import axios from 'axios';
 import {WarehousesEdit} from 'src/components/WarehousesEdit';
 import {useUser} from 'src/components/RequireAuth';
+import {useCampaign} from 'src/contexts/CampaignContext';
+import {TagsFilterModal} from 'src/components/TagsFilterModal';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -67,13 +67,8 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const DeliveryPage = ({
-    selectValue,
-    setSwitchingCampaignsFlag,
-}: {
-    selectValue: string[];
-    setSwitchingCampaignsFlag: Function;
-}) => {
+export const DeliveryPage = () => {
+    const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const today = new Date(
         new Date()
             .toLocaleDateString('ru-RU')
@@ -199,25 +194,6 @@ export const DeliveryPage = ({
 
     useEffect(() => {
         if (!selectValue) return;
-
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
-
         if (!doc) return;
 
         setSwitchingCampaignsFlag(true);
@@ -253,10 +229,6 @@ export const DeliveryPage = ({
 
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
-
-    const [availableTags, setAvailableTags] = useState([] as any[]);
-    const [availableTagsPending, setAvailableTagsPending] = useState(false);
-    const [tagsModalOpen, setTagsModalOpen] = useState(false);
 
     const [warehouseNames, setWarehouseNames] = useState([] as any[]);
     const [sortingType, setSortingType] = useState('');
@@ -912,26 +884,6 @@ export const DeliveryPage = ({
     ];
 
     if (!firstRecalc) {
-        console.log(doc);
-
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
-
         recalc(selectValue[0]);
         setFirstRecalc(true);
     }
@@ -963,60 +915,7 @@ export const DeliveryPage = ({
                             alignItems: 'center',
                         }}
                     >
-                        <Button
-                            style={{cursor: 'pointer'}}
-                            view="action"
-                            loading={availableTagsPending}
-                            size="l"
-                            onClick={async () => {
-                                setTagsModalOpen(true);
-                            }}
-                        >
-                            <Icon data={Tag} />
-                            <Text variant="subheader-1">Теги</Text>
-                        </Button>
-                        <Modal
-                            open={tagsModalOpen}
-                            onClose={() => {
-                                setTagsModalOpen(false);
-                            }}
-                        >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    width: '30vw',
-                                    height: '60vh',
-                                    margin: 20,
-                                }}
-                            >
-                                {availableTagsPending ? (
-                                    <div></div>
-                                ) : (
-                                    <List
-                                        filterPlaceholder="Введите имя тега"
-                                        emptyPlaceholder="Такой тег отсутствует"
-                                        loading={availableTagsPending}
-                                        items={availableTags}
-                                        renderItem={(item) => {
-                                            return (
-                                                <Button
-                                                    size="xs"
-                                                    pin="circle-circle"
-                                                    selected
-                                                    view={'outlined-info'}
-                                                >
-                                                    {item.toUpperCase()}
-                                                </Button>
-                                            );
-                                        }}
-                                        onItemClick={(item) => {
-                                            filterByClick(item, 'art');
-                                            setTagsModalOpen(false);
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        </Modal>
+                        <TagsFilterModal filterByButton={filterByClick} />
                         <div style={{minWidth: 8}} />
                         <Button
                             loading={updatingFlag}

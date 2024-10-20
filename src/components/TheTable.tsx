@@ -109,9 +109,8 @@ export default function TheTable({
                 const data = res['data'];
                 setPaginationSize(data?.paginationSize ?? defaultPaginationSize);
             })
-            .catch((e) => {
+            .catch(() => {
                 setPaginationSize(defaultPaginationSize);
-                console.log(new Date(), 'error getting pagination size', e);
             })
             .finally(() => {
                 setFetchPaginationSize(false);

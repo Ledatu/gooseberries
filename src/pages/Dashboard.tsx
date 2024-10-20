@@ -24,6 +24,7 @@ import {ApiPage} from './ApiPage';
 import {useMediaQuery} from 'src/hooks/useMediaQuery';
 import {UserPopup} from 'src/components/UserPopup';
 import {DetailedReportsPage} from './DetailedReportsPage';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
 const b = block('app');
 
@@ -56,31 +57,9 @@ export const Dashboard = ({setThemeAurum}) => {
         setThemeAurum(theme);
     }, [theme]);
 
-    const [switchingCampaignsFlag, setSwitchingCampaignsFlag] = React.useState(false);
-
     const [selectValue, setSelectValue] = useState(['']);
     const [refetchAutoSales, setRefetchAutoSales] = useState(false);
     const [dzhemRefetch, setDzhemRefetch] = useState(false);
-
-    useEffect(() => {
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
-    }, [selectValue]);
 
     const selectOptions = useMemo(() => {
         if (!campaigns) return [];
@@ -102,9 +81,9 @@ export const Dashboard = ({setThemeAurum}) => {
     //     {value: 'light', content: <Icon data={Sun}></Icon>},
     // ];
 
-    const [availableTags, setAvailableTags] = useState([] as any[]);
+    const {availableTags, availableTagsPending} = useCampaign();
+
     const [tagsAddedForCurrentNote, setTagsAddedForCurrentNote] = useState([] as any[]);
-    const [availableTagsPending, setAvailableTagsPending] = useState(false);
     const [notesModalOpen, setNotesModalOpen] = useState(false);
     const [currentNote, setCurrentNote] = useState('');
     // const [page, setPage] = useState('analytics');
@@ -321,12 +300,8 @@ export const Dashboard = ({setThemeAurum}) => {
                                     />
                                 </div>
                                 <SelectCampaign
-                                    selectOptions={selectOptions}
-                                    selectValue={selectValue}
-                                    setSelectValue={setSelectValue}
-                                    switchingCampaignsFlag={switchingCampaignsFlag}
-                                    setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
                                     subscriptionExpDate={subscriptionExpDate}
+                                    selectOptions={selectOptions}
                                 />
                             </div>
                         </div>
@@ -557,7 +532,11 @@ export const Dashboard = ({setThemeAurum}) => {
                                                                             : 'outlined'
                                                                     }
                                                                 >
-                                                                    {item.toUpperCase()}
+                                                                    {item
+                                                                        ? (
+                                                                              item as string
+                                                                          ).toUpperCase()
+                                                                        : ''}
                                                                 </Button>
                                                             );
                                                         }}
@@ -597,14 +576,8 @@ export const Dashboard = ({setThemeAurum}) => {
                                             }}
                                         >
                                             <SelectCampaign
-                                                selectOptions={selectOptions}
-                                                selectValue={selectValue}
-                                                setSelectValue={setSelectValue}
-                                                switchingCampaignsFlag={switchingCampaignsFlag}
-                                                setSwitchingCampaignsFlag={
-                                                    setSwitchingCampaignsFlag
-                                                }
                                                 subscriptionExpDate={subscriptionExpDate}
+                                                selectOptions={selectOptions}
                                             />
                                         </div>
                                     </div>
@@ -636,8 +609,6 @@ export const Dashboard = ({setThemeAurum}) => {
                 >
                     <PageElem
                         page={page}
-                        selectValue={selectValue}
-                        setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
                         refetchAutoSales={refetchAutoSales}
                         setRefetchAutoSales={setRefetchAutoSales}
                         dzhemRefetch={dzhemRefetch}
@@ -663,8 +634,6 @@ export const Dashboard = ({setThemeAurum}) => {
 
 const PageElem = ({
     page,
-    selectValue,
-    setSwitchingCampaignsFlag,
     refetchAutoSales,
     setRefetchAutoSales,
     dzhemRefetch,
@@ -672,16 +641,9 @@ const PageElem = ({
     sellerId,
 }) => {
     const pages = {
-        delivery: (
-            <DeliveryPage
-                selectValue={selectValue}
-                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-            />
-        ),
+        delivery: <DeliveryPage />,
         massAdvert: (
             <MassAdvertPage
-                selectValue={selectValue}
-                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
                 refetchAutoSales={refetchAutoSales}
                 setRefetchAutoSales={setRefetchAutoSales}
                 dzhemRefetch={dzhemRefetch}
@@ -689,31 +651,10 @@ const PageElem = ({
                 sellerId={sellerId}
             />
         ),
-        prices: (
-            <PricesPage
-                selectValue={selectValue}
-                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-            />
-        ),
-        nomenclatures: (
-            <NomenclaturesPage
-                selectValue={selectValue}
-                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-            />
-        ),
-        analytics: (
-            <AnalyticsPage
-                selectValue={selectValue}
-                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-            />
-        ),
-        buyers: (
-            <BuyersPage
-                sellerId={sellerId}
-                selectValue={selectValue}
-                setSwitchingCampaignsFlag={setSwitchingCampaignsFlag}
-            />
-        ),
+        prices: <PricesPage />,
+        nomenclatures: <NomenclaturesPage />,
+        analytics: <AnalyticsPage />,
+        buyers: <BuyersPage sellerId={sellerId} />,
         reports: <DetailedReportsPage />,
         seo: <SEOPage />,
         api: <ApiPage />,

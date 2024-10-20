@@ -1,41 +1,24 @@
-import {Button, Icon, List, Modal, Text} from '@gravity-ui/uikit';
+import {Button, Card, Icon, List, Modal, Text, TextInput} from '@gravity-ui/uikit';
 import {Tag} from '@gravity-ui/icons';
-import React, {useEffect, useState} from 'react';
-import callApi, {getUid} from 'src/utilities/callApi';
+import React, {useState} from 'react';
+import {useCampaign} from 'src/contexts/CampaignContext';
+import {motion} from 'framer-motion';
 
-export const TagsFilterModal = ({filterByButton, selectValue}) => {
+export const TagsFilterModal = ({filterByButton}) => {
+    const {availableTags, availableTagsPending} = useCampaign();
+
     const [tagsModalOpen, setTagsModalOpen] = useState(false);
-    const [availableTagsPending, setAvailableTagsPending] = useState(false);
-    const [availableTags, setAvailableTags] = useState([] as any[]);
-
-    useEffect(() => {
-        setAvailableTagsPending(true);
-        callApi('getAllTags', {
-            uid: getUid(),
-            campaignName: selectValue[0],
-        })
-            .then((res) => {
-                if (!res) throw 'no response';
-                const {tags} = res['data'] ?? {};
-                tags.sort();
-                setAvailableTags(tags ?? []);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setAvailableTagsPending(false);
-            });
-    }, [selectValue]);
+    const [filterValue, setFilterValue] = useState('');
 
     return (
         <div>
             <Button
-                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
+                style={{cursor: 'pointer'}}
                 view="action"
                 size="l"
                 loading={availableTagsPending}
                 onClick={async () => {
+                    setFilterValue('');
                     setTagsModalOpen(true);
                 }}
             >
@@ -48,41 +31,89 @@ export const TagsFilterModal = ({filterByButton, selectValue}) => {
                     setTagsModalOpen(false);
                 }}
             >
-                <div
+                <Card
+                    view="clear"
                     style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        width: '30vw',
-                        height: '60vh',
-                        margin: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'none',
                     }}
                 >
-                    {availableTagsPending ? (
-                        <div></div>
-                    ) : (
-                        <List
-                            filterPlaceholder="Введите имя тега"
-                            emptyPlaceholder="Такой тег отсутствует"
-                            loading={availableTagsPending}
-                            items={availableTags}
-                            renderItem={(item) => {
-                                return (
-                                    <Button
-                                        size="xs"
-                                        pin="circle-circle"
-                                        selected
-                                        view={'outlined-info'}
-                                    >
-                                        {item.toUpperCase()}
-                                    </Button>
-                                );
-                            }}
-                            onItemClick={(item) => {
-                                filterByButton(item);
-                                setTagsModalOpen(false);
-                            }}
-                        />
-                    )}
-                </div>
+                    <motion.div
+                        style={{
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
+                        }}
+                    >
+                        {availableTagsPending ? (
+                            <div></div>
+                        ) : (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    width: '30vw',
+                                    height: '60vh',
+                                }}
+                            >
+                                <TextInput
+                                    placeholder={`Поиск среди ${availableTags.length} тегов`}
+                                    style={{marginBottom: 8}}
+                                    autoFocus
+                                    size="l"
+                                    value={filterValue}
+                                    onUpdate={(val) => {
+                                        setFilterValue(val);
+                                    }}
+                                />
+                                <List
+                                    filterable={false}
+                                    emptyPlaceholder="Такой тег отсутствует"
+                                    loading={availableTagsPending}
+                                    items={availableTags.filter((item) =>
+                                        item
+                                            .toLocaleLowerCase()
+                                            .includes(filterValue.toLocaleLowerCase()),
+                                    )}
+                                    itemHeight={36}
+                                    renderItem={(item) => {
+                                        return (
+                                            <Button
+                                                size="m"
+                                                pin="circle-circle"
+                                                selected
+                                                view={'outlined-info'}
+                                            >
+                                                {item ? (item as string).toUpperCase() : ''}
+                                            </Button>
+                                        );
+                                    }}
+                                    onItemClick={(item) => {
+                                        filterByButton(item);
+                                        setTagsModalOpen(false);
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </motion.div>
+                </Card>
             </Modal>
         </div>
     );

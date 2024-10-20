@@ -1,4 +1,4 @@
-import {Button, Card, Modal, Text, Switch} from '@gravity-ui/uikit';
+import {Button, Modal, Text, Switch, Card} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useMemo, useState} from 'react';
 import callApi from 'src/utilities/callApi';
@@ -110,20 +110,38 @@ export const ManageUserModal = ({
         <>
             {triggerButton}
             <Modal open={open} onClose={handleClose}>
-                <Card>
+                <Card
+                    view="clear"
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'none',
+                    }}
+                >
                     <motion.div
-                        animate={{height: open ? 260 : 0}}
                         style={{
-                            height: 0,
-                            width: 300,
-                            overflow: 'auto',
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
-                            position: 'relative',
+                            alignItems: 'center',
                             justifyContent: 'space-between',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
                         }}
                     >
-                        <div style={{marginLeft: 8}}>{modulesSwitches}</div>
+                        <div style={{marginBottom: 8, width: '100%'}}>{modulesSwitches}</div>
                         <div
                             style={{
                                 display: 'flex',
@@ -136,6 +154,7 @@ export const ManageUserModal = ({
                                 width="max"
                                 size="l"
                                 view="outlined-success"
+                                pin="circle-circle"
                                 selected
                                 disabled={!newModules.length}
                                 onClick={() => {
@@ -160,6 +179,7 @@ export const ManageUserModal = ({
                                 width="max"
                                 size="l"
                                 view="outlined-danger"
+                                pin="circle-circle"
                                 selected
                                 onClick={() => {
                                     const params = {

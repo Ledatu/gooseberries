@@ -3,6 +3,7 @@ import {ArrowRotateLeft} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useEffect, useMemo, useState} from 'react';
 import callApi from 'src/utilities/callApi';
+import {useError} from 'src/pages/ErrorContext';
 
 export const PaginationSizeInput = ({
     paginationSize,
@@ -11,6 +12,7 @@ export const PaginationSizeInput = ({
     user,
     tableId,
 }) => {
+    const {showError} = useError();
     const [tempPaginationSize, setTempPaginationSize] = useState(paginationSize);
     useEffect(() => {
         setTempPaginationSize(paginationSize);
@@ -68,7 +70,11 @@ export const PaginationSizeInput = ({
                             pagination_size: parseInt(tempPaginationSize),
                         };
                         callApi('updatePaginationSize', params, false, true)
-                            .catch(() => {})
+                            .catch((error) => {
+                                showError(
+                                    error.response?.data?.error || 'An unknown error occurred',
+                                );
+                            })
                             .finally(() => {
                                 setPage(1);
                                 setFetchPaginationSize(true);

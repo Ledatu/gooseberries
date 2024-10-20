@@ -83,6 +83,7 @@ import {AdvertsBidsModal} from 'src/components/AdvertsBidsModal';
 import {AdvertsBudgetsModal} from 'src/components/AdvertsBudgetsModal';
 import {LogoLoader} from 'src/components/LogoLoader';
 import {useMediaQuery} from 'src/hooks/useMediaQuery';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -126,22 +127,19 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 };
 
 export const MassAdvertPage = ({
-    selectValue,
-    setSwitchingCampaignsFlag,
     refetchAutoSales,
     setRefetchAutoSales,
     dzhemRefetch,
     setDzhemRefetch,
     sellerId,
 }: {
-    selectValue: string[];
-    setSwitchingCampaignsFlag: Function;
     refetchAutoSales: boolean;
     setRefetchAutoSales: Function;
     dzhemRefetch: boolean;
     setDzhemRefetch: Function;
     sellerId: string;
 }) => {
+    const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const isMobile = useMediaQuery('(max-width: 768px)');
 
     const cardStyle = {
@@ -4300,6 +4298,109 @@ export const MassAdvertPage = ({
                             </Button>
                             <div style={{width: 8}} />
                             {manageModalInProgress ? <Spin style={{marginRight: 8}} /> : <></>}
+                            <Button
+                                view="action"
+                                size="l"
+                                onClick={() => {
+                                    setModalFormOpen(true);
+                                    setSelectedButton('');
+                                    setCreateAdvertsMode(false);
+                                }}
+                            >
+                                <Icon data={SlidersVertical} />
+                                <Text variant="subheader-1">Создать</Text>
+                            </Button>
+                            <div style={{minWidth: 8}} />
+                            <AdvertsBudgetsModal
+                                selectValue={selectValue}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                advertId={undefined}
+                            >
+                                <Button view="action" size="l">
+                                    <Icon data={CircleRuble} />
+                                    <Text variant="subheader-1">Бюджет</Text>
+                                </Button>
+                            </AdvertsBudgetsModal>
+                            <div style={{minWidth: 8}} />
+                            <AdvertsBidsModal
+                                selectValue={selectValue}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                advertId={undefined}
+                            >
+                                <Button view="action" size="l">
+                                    <Icon data={ChartLine} />
+                                    <Text variant="subheader-1">Ставки</Text>
+                                </Button>
+                            </AdvertsBidsModal>
+                            <div style={{minWidth: 8}} />
+
+                            <PhrasesModal
+                                selectValue={selectValue}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                            />
+                            <div style={{minWidth: 8}} />
+
+                            <Button
+                                view="action"
+                                size="l"
+                                onClick={() => {
+                                    setShowScheduleModalOpen(true);
+                                    setModalOpenFromAdvertId('');
+                                    setScheduleInput(genTempSchedule());
+                                }}
+                            >
+                                <Icon data={Clock} />
+                                <Text variant="subheader-1">График</Text>
+                            </Button>
+                            <div style={{minWidth: 8}} />
+                            <TagsFilterModal filterByButton={filterByButton} />
+                            <div style={{minWidth: 8}} />
+                            <AutoSalesModal
+                                selectValue={selectValue}
+                                filteredData={filteredData}
+                                setAutoSalesProfits={setAutoSalesProfits}
+                                sellerId={sellerId}
+                            />
+                            <div style={{minWidth: 8}} />
+                            <Popover
+                                placement={'bottom'}
+                                content={
+                                    <div
+                                        style={{
+                                            height: 'calc(30em - 60px)',
+                                            width: '60em',
+                                            overflow: 'auto',
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <Card
+                                            view="outlined"
+                                            theme="warning"
+                                            style={{
+                                                position: 'absolute',
+                                                height: '30em',
+                                                width: '60em',
+                                                overflow: 'auto',
+                                                top: -10,
+                                                left: -200,
+                                                display: 'flex',
+                                            }}
+                                        >
+                                            <ChartKit type="yagr" data={getBalanceYagrData()} />
+                                        </Card>
+                                    </div>
+                                }
+                            >
+                                <Button view="outlined-success" size="l">
+                                    <Text variant="subheader-1">{balance}</Text>
+                                </Button>
+                            </Popover>
                         </div>
                         <Modal
                             open={manageModalOpen}
@@ -4366,19 +4467,6 @@ export const MassAdvertPage = ({
                                 <div style={{height: 16}} />
                             </Card>
                         </Modal>
-                        <Button
-                            view="action"
-                            size="l"
-                            style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                            onClick={() => {
-                                setModalFormOpen(true);
-                                setSelectedButton('');
-                                setCreateAdvertsMode(false);
-                            }}
-                        >
-                            <Icon data={SlidersVertical} />
-                            <Text variant="subheader-1">Создать</Text>
-                        </Button>
                         <Modal
                             open={modalFormOpen}
                             onClose={() => {
@@ -4612,22 +4700,6 @@ export const MassAdvertPage = ({
                                 </div>
                             </Card>
                         </Modal>
-                        <AdvertsBudgetsModal
-                            selectValue={selectValue}
-                            doc={doc}
-                            setChangedDoc={setChangedDoc}
-                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                            advertId={undefined}
-                        >
-                            <Button
-                                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                                view="action"
-                                size="l"
-                            >
-                                <Icon data={CircleRuble} />
-                                <Text variant="subheader-1">Бюджет</Text>
-                            </Button>
-                        </AdvertsBudgetsModal>
                         <Modal
                             open={advertsArtsListModalFromOpen}
                             onClose={() => {
@@ -5094,87 +5166,6 @@ export const MassAdvertPage = ({
                                 </div>
                             </div>
                         </Modal>
-                        <AdvertsBidsModal
-                            selectValue={selectValue}
-                            doc={doc}
-                            setChangedDoc={setChangedDoc}
-                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                            advertId={undefined}
-                        >
-                            <Button
-                                style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                                view="action"
-                                size="l"
-                            >
-                                <Icon data={ChartLine} />
-                                <Text variant="subheader-1">Ставки</Text>
-                            </Button>
-                        </AdvertsBidsModal>
-                        <PhrasesModal
-                            selectValue={selectValue}
-                            doc={doc}
-                            setChangedDoc={setChangedDoc}
-                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                        />
-                        <Button
-                            style={{cursor: 'pointer', marginRight: '8px', marginBottom: '8px'}}
-                            view="action"
-                            size="l"
-                            onClick={() => {
-                                setShowScheduleModalOpen(true);
-                                setModalOpenFromAdvertId('');
-                                setScheduleInput(genTempSchedule());
-                            }}
-                        >
-                            <Icon data={Clock} />
-                            <Text variant="subheader-1">График</Text>
-                        </Button>
-                        <TagsFilterModal
-                            filterByButton={filterByButton}
-                            selectValue={selectValue}
-                        />
-                        <AutoSalesModal
-                            selectValue={selectValue}
-                            filteredData={filteredData}
-                            setAutoSalesProfits={setAutoSalesProfits}
-                            sellerId={sellerId}
-                        />
-
-                        <div style={{marginRight: 8, marginBottom: '8px'}}>
-                            <Popover
-                                placement={'bottom'}
-                                content={
-                                    <div
-                                        style={{
-                                            height: 'calc(30em - 60px)',
-                                            width: '60em',
-                                            overflow: 'auto',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Card
-                                            view="outlined"
-                                            theme="warning"
-                                            style={{
-                                                position: 'absolute',
-                                                height: '30em',
-                                                width: '60em',
-                                                overflow: 'auto',
-                                                top: -10,
-                                                left: -200,
-                                                display: 'flex',
-                                            }}
-                                        >
-                                            <ChartKit type="yagr" data={getBalanceYagrData()} />
-                                        </Card>
-                                    </div>
-                                }
-                            >
-                                <Button view="outlined-success" size="l">
-                                    <Text variant="subheader-1">{balance}</Text>
-                                </Button>
-                            </Popover>
-                        </div>
                     </div>
                     <div
                         style={{

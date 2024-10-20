@@ -6,6 +6,7 @@ import {LoginPage} from './pages/LoginPage';
 import RequireAuth from './components/RequireAuth';
 import {Alert, ThemeProvider} from '@gravity-ui/uikit';
 import {ErrorProvider, useError} from './pages/ErrorContext';
+import {CampaignProvider} from './contexts/CampaignContext';
 
 // Global Alert Component
 const GlobalAlert: React.FC = () => {
@@ -29,21 +30,23 @@ export const App = () => {
     return (
         <ThemeProvider theme={themeAurum}>
             <ErrorProvider>
-                <GlobalAlert />
-                <Router>
-                    <Routes>
-                        <Route path="/login" element={<LoginPage />} />
-                        {/* <Route path="/apis" element={<ApiPage />} /> */}
-                        <Route
-                            path="*"
-                            element={
-                                <RequireAuth>
-                                    <Dashboard setThemeAurum={setThemeAurum} />
-                                </RequireAuth>
-                            }
-                        />
-                    </Routes>
-                </Router>
+                <CampaignProvider>
+                    <GlobalAlert />
+                    <Router>
+                        <Routes>
+                            <Route path="/login" element={<LoginPage />} />
+                            {/* <Route path="/apis" element={<ApiPage />} /> */}
+                            <Route
+                                path="*"
+                                element={
+                                    <RequireAuth>
+                                        <Dashboard setThemeAurum={setThemeAurum} />
+                                    </RequireAuth>
+                                }
+                            />
+                        </Routes>
+                    </Router>
+                </CampaignProvider>
             </ErrorProvider>
         </ThemeProvider>
     );
