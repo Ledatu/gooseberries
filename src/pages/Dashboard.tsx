@@ -100,11 +100,11 @@ export const Dashboard = ({setThemeAurum}) => {
         return [];
     }, [campaigns, selectValue]);
 
-    const [page, setPage] = useState(null as any);
-    useEffect(
-        () => setPage(page === null ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page),
-        [modules],
-    );
+    const [page, setPage] = useState(undefined as any);
+    useEffect(() => {
+        console.log(page, modules);
+        setPage(page == undefined ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page);
+    }, [modules]);
     useEffect(() => {
         const titleMap = {
             massAdvert: 'Реклама',
