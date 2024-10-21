@@ -131,6 +131,7 @@ export const generateTextInputWithNoteOnTop = ({
                 {placeholder}
             </Text>
             <TextInput
+                size="l"
                 value={value}
                 disabled={disabled}
                 validationState={validationState ? undefined : 'invalid'}

@@ -125,25 +125,36 @@ export const CalcPricesModal = ({
                 <Card
                     view="clear"
                     style={{
-                        width: '30em',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         backgroundColor: 'none',
                     }}
                 >
-                    <div
+                    <motion.div
                         style={{
-                            height: '50%',
-                            width: 'calc(100% - 32px)',
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            margin: '16px 0',
+                            justifyContent: 'space-between',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
                         }}
                     >
                         <Select
+                            size="l"
                             value={selectValueEntered}
                             options={selectOptionsEntered}
                             onUpdate={(val) => {
@@ -152,6 +163,7 @@ export const CalcPricesModal = ({
                         />
                         <div style={{minHeight: 8}} />
                         <TextInput
+                            size="l"
                             disabled={enableOborRuleSet}
                             placeholder={
                                 selectValueEntered[0] == 'Наценка к себестоимости'
@@ -174,6 +186,7 @@ export const CalcPricesModal = ({
                         />
                         <div style={{minHeight: 8}} />
                         <Checkbox
+                            size="l"
                             content={'Изменить скидку'}
                             checked={changeDiscount}
                             onUpdate={(val) => {
@@ -182,6 +195,7 @@ export const CalcPricesModal = ({
                         />
                         <div style={{minHeight: 8}} />
                         <TextInput
+                            size="l"
                             disabled={!changeDiscount}
                             placeholder={'Введите скидку, %'}
                             value={enteredDiscountValue}
@@ -200,6 +214,7 @@ export const CalcPricesModal = ({
                         />
                         <div style={{minHeight: 8}} />
                         <Checkbox
+                            size="l"
                             content={'Зафиксировать цены'}
                             checked={fixPrices || enableOborRuleSet}
                             onUpdate={(val) => {
@@ -217,19 +232,20 @@ export const CalcPricesModal = ({
                             }}
                         >
                             <Checkbox
+                                size="l"
                                 checked={enableOborRuleSet}
                                 onUpdate={(val) => setEnableOborRuleSet(val)}
                                 content="Задать для оборачиваемости"
                             />
                             <motion.div
                                 animate={{
-                                    height: enableOborRuleSet ? 136 : 0,
+                                    maxHeight: enableOborRuleSet ? 1000 : 0,
                                     opacity: enableOborRuleSet ? 1 : 0,
                                 }}
                                 style={{
+                                    maxHeight: 0,
                                     display: 'flex',
-                                    flexDirection: 'row',
-                                    flexWrap: 'wrap',
+                                    flexDirection: 'column',
                                 }}
                             >
                                 {(() => {
@@ -237,7 +253,7 @@ export const CalcPricesModal = ({
                                     const oborTextInputs = [] as any[];
                                     for (const [obor, _] of Object.entries(oborRuleSet)) {
                                         oborTextInputs.push(
-                                            <div style={{width: '8em', margin: '0 4px'}}>
+                                            <div style={{width: '8em', margin: 8}}>
                                                 {generateTextInputWithNoteOnTop({
                                                     value: oborRuleSet[obor],
                                                     disabled: !enableOborRuleSet,
@@ -376,7 +392,7 @@ export const CalcPricesModal = ({
                             <Icon data={Calculator}></Icon>
                             Рассчитать
                         </Button>
-                    </div>
+                    </motion.div>
                 </Card>
             </Modal>
         </div>

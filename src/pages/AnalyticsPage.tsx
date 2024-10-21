@@ -411,6 +411,7 @@ export const AnalyticsPage = () => {
                 date = new Date(date);
             } else if (type == 'month') {
                 const month = date.split(' ');
+                if (!month[0] || !month[1]) return 0;
                 date = getDateFromLocaleMonthName(month[0], month[1]);
             } else if (type == 'period') {
                 date = getDateFromLocaleString(date.slice(0, 10));
