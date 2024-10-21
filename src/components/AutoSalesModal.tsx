@@ -7,8 +7,10 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import {motion} from 'framer-motion';
 import {TextTitleWrapper} from './TextTitleWrapper';
 import {AutoSalesUploadModal} from './AutoSalesUploadModal';
+import {useError} from 'src/pages/ErrorContext';
 
 export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, sellerId}) => {
+    const {showError} = useError();
     const [availableAutoSales, setAvailableAutoSales] = useState({});
     const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
     const availableAutoSalesOptions = [{content: 'Выберите Акцию', value: 'none'}] as any[];
@@ -23,13 +25,13 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
         })
             .then((res) => {
                 if (!res) throw 'no response';
-                console.log(res);
+                console.log(sellerId, res);
 
                 const sales = res['data'] ?? {};
                 setAvailableAutoSales(sales ?? {});
             })
-            .catch((e) => {
-                console.log(e);
+            .catch((error) => {
+                showError(error.response?.data?.error || 'An unknown error occurred');
             })
             .finally(() => {
                 setAvailableAutoSalesPending(false);

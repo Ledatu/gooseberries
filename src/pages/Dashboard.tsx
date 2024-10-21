@@ -43,8 +43,9 @@ export interface User {
 
 export const Dashboard = ({setThemeAurum}) => {
     const {userInfo, refetchUser} = useUser();
-
     const {campaigns} = userInfo ?? {};
+    const {selectValue} = useCampaign();
+
     const themeVal = localStorage.getItem('theme');
     const initialTheme =
         themeVal !== 'undefined' && themeVal !== 'null' && themeVal
@@ -57,7 +58,6 @@ export const Dashboard = ({setThemeAurum}) => {
         setThemeAurum(theme);
     }, [theme]);
 
-    const [selectValue, setSelectValue] = useState(['']);
     const [refetchAutoSales, setRefetchAutoSales] = useState(false);
     const [dzhemRefetch, setDzhemRefetch] = useState(false);
 
@@ -69,10 +69,6 @@ export const Dashboard = ({setThemeAurum}) => {
             temp.push({value: name, content: name});
         }
 
-        const tempCampaign =
-            selectValue[0] == '' ? (temp[0] ? temp[0]['value'] ?? '' : '') : selectValue[0];
-
-        setSelectValue([tempCampaign]);
         return temp;
     }, [campaigns]);
 
