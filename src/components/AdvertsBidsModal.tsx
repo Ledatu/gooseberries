@@ -553,6 +553,7 @@ export const AdvertsBidsModal = ({
                                                       maxBid: !useAutoMaxCpm
                                                           ? parseInt(maxCpmInputValue)
                                                           : undefined,
+                                                      useManualMaxCpm: !useAutoMaxCpm,
                                                       bid: parseInt(cpmInputValue),
                                                   };
                                     }
