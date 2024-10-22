@@ -702,84 +702,83 @@ export const MassAdvertPage = ({
                 const autoSalesInfo = doc['autoSales'][selectValue[0]][nmId];
                 if (autoSalesInfo) {
                     tagsNodes.push(
-                        autoSalesInfo ? (
-                            <div>
-                                <Button size="xs" pin="circle-brick" view="action" selected>
-                                    <Icon data={TagRuble} size={12} />
-                                </Button>
-                                <Popover
-                                    openOnHover={autoSalesInfo.fixedPrices}
-                                    delayOpening={1000}
-                                    placement={'bottom'}
-                                    content={
-                                        <Text variant="subheader-1">
-                                            {autoSalesInfo['fixedPrices'] &&
+                        <div>
+                            <Button size="xs" pin="circle-brick" view="action" selected>
+                                <Icon data={TagRuble} size={12} />
+                            </Button>
+                            <Popover
+                                openOnHover={autoSalesInfo.fixedPrices}
+                                delayOpening={1000}
+                                placement={'bottom'}
+                                content={
+                                    <Text variant="subheader-1">
+                                        {autoSalesInfo['fixedPrices'] &&
+                                        autoSalesInfo['fixedPrices']['dateRange'] ? (
                                             autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                                autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                                    `${new Date(
-                                                        autoSalesInfo['fixedPrices'][
-                                                            'dateRange'
-                                                        ][0],
-                                                    ).toLocaleDateString('ru-RU')}
+                                                `${new Date(
+                                                    autoSalesInfo['fixedPrices']['dateRange'][0],
+                                                ).toLocaleDateString('ru-RU')}
                                             - ${new Date(
                                                 autoSalesInfo['fixedPrices']['dateRange'][1],
                                             ).toLocaleDateString('ru-RU')}`
-                                                ) : (
-                                                    'Выберите даты акции'
-                                                )
                                             ) : (
-                                                <></>
-                                            )}
-                                        </Text>
+                                                'Выберите даты акции'
+                                            )
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </Text>
+                                }
+                            >
+                                <Button
+                                    size="xs"
+                                    pin={
+                                        autoSalesInfo['fixedPrices'] &&
+                                        autoSalesInfo['fixedPrices']['dateRange']
+                                            ? 'brick-brick'
+                                            : 'brick-circle'
                                     }
+                                    view="action"
+                                    selected
                                 >
-                                    <Button
-                                        size="xs"
-                                        pin={
-                                            autoSalesInfo['fixedPrices'] &&
-                                            autoSalesInfo['fixedPrices']['dateRange']
-                                                ? 'brick-brick'
-                                                : 'brick-circle'
-                                        }
-                                        view="action"
-                                        selected
-                                    >
-                                        <Text>{autoSalesInfo.autoSaleName}</Text>
-                                    </Button>
-                                </Popover>
-                                {autoSalesInfo['fixedPrices'] &&
-                                autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                    <Button
-                                        size="xs"
-                                        pin="brick-circle"
-                                        view="action"
-                                        selected
-                                        onClick={() => {
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                nmIds: [nmId],
-                                            };
+                                    <Text>{autoSalesInfo.autoSaleName}</Text>
+                                </Button>
+                            </Popover>
+                            {autoSalesInfo['fixedPrices'] &&
+                            autoSalesInfo['fixedPrices']['dateRange'] ? (
+                                <Button
+                                    size="xs"
+                                    pin="brick-circle"
+                                    view="action"
+                                    selected
+                                    onClick={() => {
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            nmIds: [nmId],
+                                        };
 
-                                            console.log(params);
+                                        console.log(params);
 
-                                            delete doc.autoSales[selectValue[0]][nmId];
-                                            setChangedDoc({...doc});
+                                        delete doc.autoSales[selectValue[0]][nmId];
+                                        setChangedDoc({...doc});
 
-                                            callApi('deleteAutoSaleFromNmIds', params);
-                                        }}
-                                    >
-                                        <Icon data={Xmark} size={12} />
-                                    </Button>
-                                ) : (
-                                    <></>
-                                )}
-                            </div>
-                        ) : (
-                            <Button size="xs" pin="circle-circle" view="action" selected>
-                                <Icon data={TagRuble} size={12} />
-                            </Button>
-                        ),
+                                        callApi('deleteAutoSaleFromNmIds', params);
+                                    }}
+                                >
+                                    <Icon data={Xmark} size={12} />
+                                </Button>
+                            ) : (
+                                <></>
+                            )}
+                        </div>,
+                    );
+                    tagsNodes.push(<div style={{minWidth: 8}} />);
+                } else if (availableAutoSalesNmIds.includes(nmId)) {
+                    tagsNodes.push(
+                        <Button size="xs" pin="circle-circle" view="action" selected>
+                            <Icon data={TagRuble} size={12} />
+                        </Button>,
                     );
                     tagsNodes.push(<div style={{minWidth: 8}} />);
                 }
@@ -2797,8 +2796,7 @@ export const MassAdvertPage = ({
         if (!selectValue[0]) return;
 
         callApi('getAvailableAutoSaleNmIds', {
-            uid: getUid(),
-            campaignName: selectValue[0],
+            seller_id: sellerId,
         })
             .then((res) => {
                 if (!res) throw 'no response';
