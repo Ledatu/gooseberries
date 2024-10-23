@@ -9,11 +9,11 @@ import {
     Text,
     TextInput,
 } from '@gravity-ui/uikit';
-import {Calculator} from '@gravity-ui/icons';
-import React, {useState} from 'react';
+import {Calculator, Plus, Xmark, Check} from '@gravity-ui/icons';
+import React, {useEffect, useMemo, useState} from 'react';
 import {motion} from 'framer-motion';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {generateTextInputWithNoteOnTop, getNormalDateRange} from 'src/utilities/getRoundValue';
+import {getNormalDateRange} from 'src/utilities/getRoundValue';
 import {useCampaign} from 'src/contexts/CampaignContext';
 
 export const CalcPricesModal = ({
@@ -48,30 +48,53 @@ export const CalcPricesModal = ({
     ]);
 
     const [enableOborRuleSet, setEnableOborRuleSet] = React.useState(false);
+    const [tempChangeObor, setTempChangeObor] = useState({});
+    const [tempChangeOborValidationState, setTempChangeOborValidationState] = useState({});
     const [oborRuleSet, setOborRuleSet] = React.useState({
-        7: '',
-        14: '',
-        30: '',
-        60: '',
-        90: '',
-        120: '',
-        999: '',
+        999999: '',
     });
     const [oborRuleSetValidationState, setOborRuleSetValidationState] = React.useState({
-        7: true,
-        14: true,
-        30: true,
-        60: true,
-        90: true,
-        120: true,
-        999: true,
+        999999: true,
     });
-    const isOborRuleSetValid = () => {
+    useEffect(() => {
+        const temp = {};
+        const keysTemp = Object.keys(oborRuleSet);
+        const keys = [] as number[];
+        for (const key of keysTemp) {
+            const num = parseInt(key);
+            keys.push(num);
+            keys.push(num + 1);
+        }
+
+        for (const [obor, val] of Object.entries(tempChangeObor)) {
+            if (
+                !val ||
+                0 >= parseInt(val as string) ||
+                999999 <= parseInt(val as string) ||
+                keys.includes(parseInt(val as string)) ||
+                isNaN(parseInt(val as string)) ||
+                val == ''
+            )
+                temp[obor] = false;
+            else temp[obor] = true;
+        }
+        setTempChangeOborValidationState(temp);
+    }, [tempChangeObor]);
+
+    useEffect(() => {
+        const temp = {};
+        for (const [obor, val] of Object.entries(oborRuleSet)) {
+            if (!val || isNaN(parseInt(val as string)) || val == '') temp[obor] = false;
+            else temp[obor] = true;
+        }
+        setOborRuleSetValidationState(temp as any);
+    }, [oborRuleSet]);
+    const isOborRuleSetValid = useMemo(() => {
         for (const [_, valid] of Object.entries(oborRuleSetValidationState)) {
             if (!valid) return false;
         }
         return true;
-    };
+    }, [oborRuleSetValidationState]);
     const clearOborRuleSet = () => {
         const temp = {...oborRuleSet};
         const tempValid = {...oborRuleSetValidationState};
@@ -162,28 +185,202 @@ export const CalcPricesModal = ({
                             }}
                         />
                         <div style={{minHeight: 8}} />
-                        <TextInput
-                            size="l"
-                            disabled={enableOborRuleSet}
-                            placeholder={
-                                selectValueEntered[0] == 'Наценка к себестоимости'
-                                    ? 'Введите наценку, %'
-                                    : selectValueEntered[0] == 'Рентабельность'
-                                    ? 'Введите рентабельность, %'
-                                    : selectValueEntered[0] == 'Профит'
-                                    ? 'Введите профит, ₽'
-                                    : 'Введите цену, ₽'
-                            }
-                            value={enteredValue}
-                            validationState={
-                                enteredValueValid || enableOborRuleSet ? undefined : 'invalid'
-                            }
-                            onUpdate={(val) => {
-                                const temp = parseInt(val);
-                                setEnteredValueValid(!isNaN(temp));
-                                setEnteredValue(val);
+                        <motion.div
+                            animate={{
+                                maxHeight: enableOborRuleSet ? 1000 : 0,
+                                maxWidth: enableOborRuleSet ? 430 : 0,
+                                opacity: enableOborRuleSet ? 1 : 0,
                             }}
-                        />
+                            style={{
+                                maxHeight: 0,
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}
+                        >
+                            {(() => {
+                                let oborPrev = -1;
+                                const oborTextInputs = [] as any[];
+                                const keys = Object.keys(oborRuleSet);
+                                for (let i = 0; i < keys.length; i++) {
+                                    const obor = keys[i];
+                                    oborTextInputs.push(
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <Text variant="subheader-1" style={{margin: 8}}>
+                                                От:
+                                            </Text>
+                                            <div style={{width: 80}}>
+                                                <TextInput
+                                                    size="l"
+                                                    disabled
+                                                    value={String(oborPrev + 1)}
+                                                    onUpdate={() => {}}
+                                                />
+                                            </div>
+                                            <Text variant="subheader-1" style={{margin: 8}}>
+                                                До:
+                                            </Text>
+                                            <div style={{width: 80, height: 36}}>
+                                                {i == keys.length - 1 ? (
+                                                    <Button size="l" disabled width="max">
+                                                        <Text variant="subheader-2">∞</Text>
+                                                    </Button>
+                                                ) : (
+                                                    <TextInput
+                                                        placeholder={obor}
+                                                        rightContent={
+                                                            <motion.div
+                                                                style={{opacity: 0}}
+                                                                animate={{
+                                                                    width:
+                                                                        tempChangeObor[obor] !==
+                                                                        undefined
+                                                                            ? 28
+                                                                            : 0,
+
+                                                                    opacity:
+                                                                        tempChangeObor[obor] !==
+                                                                        undefined
+                                                                            ? 1
+                                                                            : 0,
+                                                                }}
+                                                            >
+                                                                <Button
+                                                                    selected
+                                                                    disabled={
+                                                                        tempChangeOborValidationState[
+                                                                            obor
+                                                                        ] === false
+                                                                    }
+                                                                    onClick={() => {
+                                                                        const temp =
+                                                                            oborRuleSet[obor];
+                                                                        delete oborRuleSet[obor];
+                                                                        oborRuleSet[
+                                                                            parseInt(
+                                                                                tempChangeObor[
+                                                                                    obor
+                                                                                ],
+                                                                            )
+                                                                        ] = temp;
+                                                                        delete tempChangeObor[obor];
+                                                                        setOborRuleSet({
+                                                                            ...oborRuleSet,
+                                                                        });
+                                                                        setTempChangeObor({
+                                                                            ...tempChangeObor,
+                                                                        });
+                                                                    }}
+                                                                >
+                                                                    <Icon data={Check} />
+                                                                </Button>
+                                                            </motion.div>
+                                                        }
+                                                        size="l"
+                                                        value={tempChangeObor[obor] ?? obor}
+                                                        onUpdate={(val) => {
+                                                            if (val == obor) {
+                                                                delete tempChangeObor[obor];
+                                                            } else tempChangeObor[obor] = val;
+                                                            setTempChangeObor({
+                                                                ...tempChangeObor,
+                                                            });
+                                                        }}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div style={{width: 100, margin: 8}}>
+                                                <TextInput
+                                                    placeholder={
+                                                        selectValueEntered[0] ==
+                                                        'Наценка к себестоимости'
+                                                            ? 'Введите наценку, %'
+                                                            : selectValueEntered[0] ==
+                                                              'Рентабельность'
+                                                            ? 'Введите рентабельность, %'
+                                                            : selectValueEntered[0] == 'Профит'
+                                                            ? 'Введите профит, ₽'
+                                                            : 'Введите цену, ₽'
+                                                    }
+                                                    size="l"
+                                                    value={oborRuleSet[obor]}
+                                                    disabled={!enableOborRuleSet}
+                                                    validationState={
+                                                        oborRuleSetValidationState[obor]
+                                                            ? undefined
+                                                            : 'invalid'
+                                                    }
+                                                    onUpdate={(val) => {
+                                                        const curVal = {...oborRuleSet};
+                                                        curVal[obor] = val;
+                                                        setOborRuleSet(curVal);
+                                                    }}
+                                                />
+                                            </div>
+                                            <Button
+                                                view="outlined"
+                                                size="l"
+                                                onClick={() => {
+                                                    if (i == keys.length - 1) {
+                                                        const keyObor =
+                                                            keys.length == 1
+                                                                ? 7
+                                                                : parseInt(keys[keys.length - 2]) +
+                                                                  7;
+
+                                                        oborRuleSet[String(keyObor)] = '';
+                                                        setOborRuleSet({...oborRuleSet});
+                                                    } else {
+                                                        delete oborRuleSet[obor];
+                                                        setOborRuleSet({...oborRuleSet});
+                                                    }
+                                                }}
+                                            >
+                                                <Icon data={i == keys.length - 1 ? Plus : Xmark} />
+                                            </Button>
+                                        </div>,
+                                    );
+                                    oborPrev = parseInt(obor);
+                                }
+
+                                return oborTextInputs;
+                            })()}
+                        </motion.div>
+                        <motion.div
+                            style={{overflow: 'hidden', width: '100%'}}
+                            animate={{
+                                maxHeight: enableOborRuleSet ? 0 : 36,
+                                opacity: enableOborRuleSet ? 0 : 1,
+                            }}
+                        >
+                            <TextInput
+                                size="l"
+                                disabled={enableOborRuleSet}
+                                placeholder={
+                                    selectValueEntered[0] == 'Наценка к себестоимости'
+                                        ? 'Введите наценку, %'
+                                        : selectValueEntered[0] == 'Рентабельность'
+                                        ? 'Введите рентабельность, %'
+                                        : selectValueEntered[0] == 'Профит'
+                                        ? 'Введите профит, ₽'
+                                        : 'Введите цену, ₽'
+                                }
+                                value={enteredValue}
+                                validationState={
+                                    enteredValueValid || enableOborRuleSet ? undefined : 'invalid'
+                                }
+                                onUpdate={(val) => {
+                                    const temp = parseInt(val);
+                                    setEnteredValueValid(!isNaN(temp));
+                                    setEnteredValue(val);
+                                }}
+                            />
+                        </motion.div>
                         <div style={{minHeight: 8}} />
                         <Checkbox
                             size="l"
@@ -215,86 +412,26 @@ export const CalcPricesModal = ({
                         <div style={{minHeight: 8}} />
                         <Checkbox
                             size="l"
+                            checked={enableOborRuleSet}
+                            onUpdate={(val) => setEnableOborRuleSet(val)}
+                            content="Задать для оборачиваемости"
+                        />
+                        <div style={{minHeight: 8}} />
+                        <Checkbox
+                            size="l"
                             content={'Зафиксировать цены'}
                             checked={fixPrices || enableOborRuleSet}
                             onUpdate={(val) => {
                                 setFixPrices(val);
                             }}
                         />
+
                         <div style={{minHeight: 8}} />
-                        <div
-                            style={{
-                                overflow: 'hidden',
-                                display: 'flex',
-                                width: 'calc(100%-32px)',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Checkbox
-                                size="l"
-                                checked={enableOborRuleSet}
-                                onUpdate={(val) => setEnableOborRuleSet(val)}
-                                content="Задать для оборачиваемости"
-                            />
-                            <motion.div
-                                animate={{
-                                    maxHeight: enableOborRuleSet ? 1000 : 0,
-                                    opacity: enableOborRuleSet ? 1 : 0,
-                                }}
-                                style={{
-                                    maxHeight: 0,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                }}
-                            >
-                                {(() => {
-                                    let oborPrev = -1;
-                                    const oborTextInputs = [] as any[];
-                                    for (const [obor, _] of Object.entries(oborRuleSet)) {
-                                        oborTextInputs.push(
-                                            <div style={{width: '8em', margin: 8}}>
-                                                {generateTextInputWithNoteOnTop({
-                                                    value: oborRuleSet[obor],
-                                                    disabled: !enableOborRuleSet,
-                                                    validationState:
-                                                        oborRuleSetValidationState[obor],
-                                                    placeholder: `${oborPrev + 1} - ${obor} дней`,
-                                                    onUpdateHandler: (val) => {
-                                                        const curVal = {...oborRuleSet};
-                                                        const temp = parseInt(val);
-                                                        setOborRuleSetValidationState(() => {
-                                                            const tempValid = {
-                                                                ...oborRuleSetValidationState,
-                                                            };
-                                                            if (isNaN(temp) || !isFinite(temp)) {
-                                                                tempValid[obor] = false;
-                                                            } else {
-                                                                tempValid[obor] = true;
-                                                            }
-                                                            return tempValid;
-                                                        });
-
-                                                        curVal[obor] = val;
-                                                        setOborRuleSet(curVal);
-                                                    },
-                                                })}
-                                            </div>,
-                                        );
-                                        oborPrev = parseInt(obor);
-                                    }
-
-                                    return oborTextInputs;
-                                })()}
-                            </motion.div>
-                        </div>
-                        <div style={{minHeight: 8}} />
-
                         <Button
                             disabled={
                                 (!enableOborRuleSet && !enteredValueValid) ||
                                 (changeDiscount && !enteredDiscountValueValid) ||
-                                (enableOborRuleSet && !isOborRuleSetValid())
+                                (enableOborRuleSet && !isOborRuleSetValid)
                             }
                             size="l"
                             view="action"

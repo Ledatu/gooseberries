@@ -4,6 +4,7 @@ import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useMemo, useState} from 'react';
 import callApi from 'src/utilities/callApi';
 import {useUser} from './RequireAuth';
+import {useError} from 'src/pages/ErrorContext';
 
 interface AddMemberModalInterface {
     children: ReactElement | ReactElement[];
@@ -18,6 +19,7 @@ export const AddMemberModal = ({
     addedMember,
     setAddedMember,
 }: AddMemberModalInterface) => {
+    const {showError} = useError();
     const {userInfo, refetchUser} = useUser();
     const {user} = userInfo;
 
@@ -186,13 +188,19 @@ export const AddMemberModal = ({
                                     member_identifier: identifier.replace(/@/g, ''),
                                     modules,
                                 };
-                                callApi('addMemberToCampaign', params)
+                                callApi('addMemberToCampaign', params, false, true)
                                     .then(() => {
                                         setAddedMember({
                                             member_identifier: identifier.replace(/@/g, ''),
                                             modules,
                                         });
                                         refetchUser();
+                                    })
+                                    .catch((error) => {
+                                        showError(
+                                            error.response?.data?.error ||
+                                                'Не удалось добавить сотрудника.',
+                                        );
                                     })
                                     .finally(() => handleClose());
                             }}
