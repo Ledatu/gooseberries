@@ -5029,140 +5029,168 @@ export const MassAdvertPage = ({
                                 setModalOpenFromAdvertId('');
                             }}
                         >
-                            <div
+                            <Card
+                                view="clear"
                                 style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    translate: '-50% -50%',
+                                    flexWrap: 'nowrap',
                                     display: 'flex',
-                                    flexDirection: 'column',
+                                    flexDirection: 'row',
                                     alignItems: 'center',
-                                    padding: 20,
+                                    justifyContent: 'space-between',
+                                    backgroundColor: 'none',
                                 }}
                             >
-                                <Text
+                                <motion.div
                                     style={{
-                                        margin: '8px 0',
-                                    }}
-                                    variant="display-2"
-                                >
-                                    График работы
-                                </Text>
-                                <div style={{minHeight: 8}} />
-                                {generateScheduleInput({scheduleInput, setScheduleInput})}
-                                <div style={{minHeight: 16}} />
-                                <div
-                                    style={{
+                                        overflow: 'hidden',
+                                        flexWrap: 'nowrap',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        width: '100%',
-                                        justifyContent: 'space-around',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        background: '#221d220f',
+                                        backdropFilter: 'blur(8px)',
+                                        boxShadow: '#0002 0px 2px 8px 0px',
+                                        padding: 30,
+                                        borderRadius: 30,
+                                        border: '1px solid #eee2',
                                     }}
                                 >
-                                    {generateModalButtonWithActions(
-                                        {
-                                            style: {margin: '8px 0'},
-                                            placeholder: 'Установить',
-                                            icon: CloudArrowUpIn,
-                                            view: 'outlined-success',
-                                            onClick: () => {
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {
-                                                        schedule: scheduleInput,
-                                                        mode: 'Установить',
-                                                        advertsIds: {},
-                                                    },
-                                                };
-                                                const uniqueAdverts =
-                                                    getUniqueAdvertIdsFromThePage();
-                                                for (const [id, advertData] of Object.entries(
-                                                    uniqueAdverts,
-                                                )) {
-                                                    if (!id || !advertData) continue;
-                                                    const {advertId} = advertData as any;
-                                                    if (
-                                                        modalOpenFromAdvertId != '' &&
-                                                        modalOpenFromAdvertId
-                                                    ) {
-                                                        if (id != modalOpenFromAdvertId) continue;
-                                                    }
-
-                                                    params.data.advertsIds[advertId] = {
-                                                        advertId: advertId,
+                                    <Text
+                                        style={{
+                                            margin: '8px 0',
+                                        }}
+                                        variant="display-2"
+                                    >
+                                        График работы
+                                    </Text>
+                                    <div style={{minHeight: 8}} />
+                                    {generateScheduleInput({scheduleInput, setScheduleInput})}
+                                    <div style={{minHeight: 16}} />
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            width: '100%',
+                                            justifyContent: 'space-around',
+                                        }}
+                                    >
+                                        {generateModalButtonWithActions(
+                                            {
+                                                style: {margin: '8px 0'},
+                                                placeholder: 'Установить',
+                                                icon: CloudArrowUpIn,
+                                                view: 'outlined-success',
+                                                onClick: () => {
+                                                    const params = {
+                                                        uid: getUid(),
+                                                        campaignName: selectValue[0],
+                                                        data: {
+                                                            schedule: scheduleInput,
+                                                            mode: 'Установить',
+                                                            advertsIds: {},
+                                                        },
                                                     };
+                                                    const uniqueAdverts =
+                                                        getUniqueAdvertIdsFromThePage();
+                                                    for (const [id, advertData] of Object.entries(
+                                                        uniqueAdverts,
+                                                    )) {
+                                                        if (!id || !advertData) continue;
+                                                        const {advertId} = advertData as any;
+                                                        if (
+                                                            modalOpenFromAdvertId != '' &&
+                                                            modalOpenFromAdvertId
+                                                        ) {
+                                                            if (id != modalOpenFromAdvertId)
+                                                                continue;
+                                                        }
 
-                                                    doc.advertsSchedules[selectValue[0]][advertId] =
-                                                        {};
-                                                    doc.advertsSchedules[selectValue[0]][advertId] =
-                                                        {
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                        };
+
+                                                        doc.advertsSchedules[selectValue[0]][
+                                                            advertId
+                                                        ] = {};
+                                                        doc.advertsSchedules[selectValue[0]][
+                                                            advertId
+                                                        ] = {
                                                             schedule: scheduleInput,
                                                         };
-                                                }
-                                                console.log(params);
+                                                    }
+                                                    console.log(params);
 
-                                                //////////////////////////////////
-                                                callApi('setAdvertsSchedules', params);
-                                                setChangedDoc({...doc});
-                                                //////////////////////////////////
+                                                    //////////////////////////////////
+                                                    callApi('setAdvertsSchedules', params);
+                                                    setChangedDoc({...doc});
+                                                    //////////////////////////////////
 
-                                                setShowScheduleModalOpen(false);
+                                                    setShowScheduleModalOpen(false);
+                                                },
                                             },
-                                        },
-                                        selectedButton,
-                                        setSelectedButton,
-                                    )}
-                                    {generateModalButtonWithActions(
-                                        {
-                                            style: {margin: '8px 0'},
-                                            placeholder: 'Удалить',
-                                            icon: TrashBin,
-                                            view: 'outlined-danger',
-                                            onClick: () => {
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {
-                                                        mode: 'Удалить',
-                                                        advertsIds: {},
-                                                    },
-                                                };
-                                                const uniqueAdverts =
-                                                    getUniqueAdvertIdsFromThePage();
-                                                for (const [id, advertData] of Object.entries(
-                                                    uniqueAdverts,
-                                                )) {
-                                                    if (!id || !advertData) continue;
-                                                    const {advertId} = advertData as any;
-                                                    if (
-                                                        modalOpenFromAdvertId != '' &&
-                                                        modalOpenFromAdvertId
-                                                    ) {
-                                                        if (id != modalOpenFromAdvertId) continue;
+                                            selectedButton,
+                                            setSelectedButton,
+                                        )}
+                                        {generateModalButtonWithActions(
+                                            {
+                                                style: {margin: '8px 0'},
+                                                placeholder: 'Удалить',
+                                                icon: TrashBin,
+                                                view: 'outlined-danger',
+                                                onClick: () => {
+                                                    const params = {
+                                                        uid: getUid(),
+                                                        campaignName: selectValue[0],
+                                                        data: {
+                                                            mode: 'Удалить',
+                                                            advertsIds: {},
+                                                        },
+                                                    };
+                                                    const uniqueAdverts =
+                                                        getUniqueAdvertIdsFromThePage();
+                                                    for (const [id, advertData] of Object.entries(
+                                                        uniqueAdverts,
+                                                    )) {
+                                                        if (!id || !advertData) continue;
+                                                        const {advertId} = advertData as any;
+                                                        if (
+                                                            modalOpenFromAdvertId != '' &&
+                                                            modalOpenFromAdvertId
+                                                        ) {
+                                                            if (id != modalOpenFromAdvertId)
+                                                                continue;
+                                                        }
+
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                        };
+
+                                                        delete doc.advertsSchedules[selectValue[0]][
+                                                            advertId
+                                                        ];
                                                     }
 
-                                                    params.data.advertsIds[advertId] = {
-                                                        advertId: advertId,
-                                                    };
+                                                    console.log(params);
 
-                                                    delete doc.advertsSchedules[selectValue[0]][
-                                                        advertId
-                                                    ];
-                                                }
+                                                    //////////////////////////////////
+                                                    callApi('setAdvertsSchedules', params);
+                                                    setChangedDoc({...doc});
+                                                    //////////////////////////////////
 
-                                                console.log(params);
-
-                                                //////////////////////////////////
-                                                callApi('setAdvertsSchedules', params);
-                                                setChangedDoc({...doc});
-                                                //////////////////////////////////
-
-                                                setShowScheduleModalOpen(false);
+                                                    setShowScheduleModalOpen(false);
+                                                },
                                             },
-                                        },
-                                        selectedButton,
-                                        setSelectedButton,
-                                    )}
-                                </div>
-                            </div>
+                                            selectedButton,
+                                            setSelectedButton,
+                                        )}
+                                    </div>
+                                </motion.div>
+                            </Card>
                         </Modal>
                     </div>
                     <div

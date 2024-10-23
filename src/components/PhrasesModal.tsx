@@ -3,6 +3,7 @@ import {Magnifier, TrashBin} from '@gravity-ui/icons';
 import React, {useState} from 'react';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
+import {motion} from 'framer-motion';
 
 export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertIdsFromThePage}) => {
     const [open, setOpen] = useState(false);
@@ -46,18 +47,21 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                         backgroundColor: 'none',
                     }}
                 >
-                    <div
+                    <motion.div
                         style={{
-                            width: '80em',
+                            width: '70em',
                             overflow: 'hidden',
                             flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            background: 'var(--yc-color-base-background)',
-                            borderRadius: 60,
-                            padding: '16px 0',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
                         }}
                     >
                         <Text
@@ -72,7 +76,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                         <div
                             style={{
                                 display: 'flex',
-                                width: '80%',
+                                width: '100%',
                                 flexWrap: 'wrap',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -85,6 +89,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                                 size="l"
                                 onUpdate={(val) => setFilterText(val)}
                                 hasClear
+                                style={{marginBottom: 8}}
                             />
                             <List
                                 size="l"
@@ -264,7 +269,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
                             selectedButton,
                             setSelectedButton,
                         )}
-                    </div>
+                    </motion.div>
                 </Card>
             </Modal>
         </div>
