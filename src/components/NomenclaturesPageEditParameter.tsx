@@ -2,6 +2,7 @@ import {Button, Card, Checkbox, Icon, Modal, Text, TextInput} from '@gravity-ui/
 import {CloudArrowUpIn} from '@gravity-ui/icons';
 import callApi, {getUid} from 'src/utilities/callApi';
 import React, {Children, isValidElement, ReactElement, useState} from 'react';
+import {motion} from 'framer-motion';
 
 export const NomenclaturesPageEditParameter = ({
     children,
@@ -73,21 +74,33 @@ export const NomenclaturesPageEditParameter = ({
                 <Card
                     view="clear"
                     style={{
-                        margin: 16,
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         backgroundColor: 'none',
                     }}
                 >
-                    <div
+                    <motion.div
                         style={{
-                            height: '50%',
+                            overflow: 'hidden',
+                            width: 404,
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            margin: '16px 0',
+                            justifyContent: 'space-between',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
                         }}
                     >
                         <Text
@@ -183,7 +196,7 @@ export const NomenclaturesPageEditParameter = ({
                             <Icon data={CloudArrowUpIn} />
                             Сохранить
                         </Button>
-                    </div>
+                    </motion.div>
                 </Card>
             </Modal>
         </>

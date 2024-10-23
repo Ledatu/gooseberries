@@ -1,5 +1,5 @@
 import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
-import {Spin, Icon, Button, Text, Modal, TextInput, Label, Link} from '@gravity-ui/uikit';
+import {Spin, Icon, Button, Text, Modal, TextInput, Label, Link, Card} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 
@@ -16,6 +16,7 @@ import {useUser} from 'src/components/RequireAuth';
 import {NomenclaturesPageEditParameter} from 'src/components/NomenclaturesPageEditParameter';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
+import {motion} from 'framer-motion';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -630,160 +631,195 @@ export const NomenclaturesPage = () => {
                     >
                         <TagsFilterModal filterByButton={filterByButton} />
                         <Modal open={tagsModalFormOpen} onClose={() => setTagsModalFormOpen(false)}>
-                            <div
+                            <Card
+                                view="clear"
                                 style={{
-                                    padding: 20,
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    translate: '-50% -50%',
+                                    flexWrap: 'nowrap',
                                     display: 'flex',
-                                    flexDirection: 'column',
-                                    width: '30em',
+                                    flexDirection: 'row',
                                     alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    backgroundColor: 'none',
                                 }}
                             >
-                                <Text variant="display-1">Назначить / Удалить тег</Text>
-                                <div style={{minHeight: 8}} />
-                                <TextInput
-                                    controlRef={tagsInputRef}
-                                    defaultValue=""
-                                    validationState={tagsInputValid ? undefined : 'invalid'}
-                                    errorMessage={
-                                        'Имя тега должно начинаться с #, содержать как минимум одну букву и не иметь пробелов.'
-                                    }
-                                    onUpdate={() => {
-                                        setTagsInputValid(true);
+                                <motion.div
+                                    style={{
+                                        overflow: 'hidden',
+                                        width: 404,
+                                        flexWrap: 'nowrap',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        background: '#221d220f',
+                                        backdropFilter: 'blur(8px)',
+                                        boxShadow: '#0002 0px 2px 8px 0px',
+                                        padding: 30,
+                                        borderRadius: 30,
+                                        border: '1px solid #eee2',
                                     }}
-                                />
-                                <div style={{minHeight: 8}} />
-                                {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Назначить тег',
-                                        icon: CloudArrowUpIn,
-                                        view: 'outlined-success',
-                                        onClick: () => {
-                                            if (tagsInputRef.current !== null) {
-                                                const tagUnformatted = tagsInputRef.current.value;
+                                >
+                                    <Text variant="display-1">Назначить / Удалить тег</Text>
+                                    <div style={{minHeight: 8}} />
+                                    <TextInput
+                                        size="l"
+                                        controlRef={tagsInputRef}
+                                        defaultValue=""
+                                        validationState={tagsInputValid ? undefined : 'invalid'}
+                                        errorMessage={
+                                            'Имя тега должно начинаться с #, содержать как минимум одну букву и не иметь пробелов.'
+                                        }
+                                        onUpdate={() => {
+                                            setTagsInputValid(true);
+                                        }}
+                                    />
+                                    <div style={{minHeight: 8}} />
+                                    {generateModalButtonWithActions(
+                                        {
+                                            placeholder: 'Назначить тег',
+                                            icon: CloudArrowUpIn,
+                                            view: 'outlined-success',
+                                            onClick: () => {
+                                                if (tagsInputRef.current !== null) {
+                                                    const tagUnformatted =
+                                                        tagsInputRef.current.value;
 
-                                                const tag =
-                                                    '#' +
-                                                    tagUnformatted.replace(/#/g, '').toUpperCase();
+                                                    const tag =
+                                                        '#' +
+                                                        tagUnformatted
+                                                            .replace(/#/g, '')
+                                                            .toUpperCase();
 
-                                                if (
-                                                    tag[0] != '#' ||
-                                                    tag.indexOf(' ') !== -1 ||
-                                                    tag.length < 2
-                                                ) {
-                                                    setTagsInputValid(false);
-                                                    setSelectedButton('');
-                                                    return;
+                                                    if (
+                                                        tag[0] != '#' ||
+                                                        tag.indexOf(' ') !== -1 ||
+                                                        tag.length < 2
+                                                    ) {
+                                                        setTagsInputValid(false);
+                                                        setSelectedButton('');
+                                                        return;
+                                                    }
+
+                                                    const params = {
+                                                        uid: getUid(),
+                                                        campaignName: selectValue[0],
+                                                        data: {
+                                                            nmIds: [] as number[],
+                                                            mode: 'Установить',
+                                                            tag: tag,
+                                                        },
+                                                    };
+
+                                                    for (const row of filteredData) {
+                                                        const {art, size, nmId} = row ?? {};
+                                                        if (nmId === undefined) continue;
+                                                        if (!params.data.nmIds.includes(nmId))
+                                                            params.data.nmIds.push(nmId);
+
+                                                        const aurumArt =
+                                                            art + (size == '0' ? '' : `_${size}`);
+                                                        if (
+                                                            !doc.nomenclatures[selectValue[0]][
+                                                                aurumArt
+                                                            ]
+                                                        )
+                                                            continue;
+                                                        if (
+                                                            !doc.nomenclatures[selectValue[0]][
+                                                                aurumArt
+                                                            ].tags.includes(tag)
+                                                        )
+                                                            doc.nomenclatures[selectValue[0]][
+                                                                aurumArt
+                                                            ].tags.push(tag);
+                                                    }
+
+                                                    setChangedDoc({...doc});
+
+                                                    callApi('setTags', params);
+
+                                                    setTagsModalFormOpen(false);
                                                 }
+                                            },
+                                        },
+                                        selectedButton,
+                                        setSelectedButton,
+                                    )}
+                                    {generateModalButtonWithActions(
+                                        {
+                                            placeholder: 'Удалить тег',
+                                            icon: TrashBin,
+                                            view: 'outlined-danger',
+                                            onClick: () => {
+                                                if (tagsInputRef.current !== null) {
+                                                    const tagUnformatted =
+                                                        tagsInputRef.current.value;
 
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {
-                                                        nmIds: [] as number[],
-                                                        mode: 'Установить',
-                                                        tag: tag,
-                                                    },
-                                                };
+                                                    const tag =
+                                                        '#' +
+                                                        tagUnformatted
+                                                            .replace(/#/g, '')
+                                                            .toUpperCase();
 
-                                                for (const row of filteredData) {
-                                                    const {art, size, nmId} = row ?? {};
-                                                    if (nmId === undefined) continue;
-                                                    if (!params.data.nmIds.includes(nmId))
-                                                        params.data.nmIds.push(nmId);
-
-                                                    const aurumArt =
-                                                        art + (size == '0' ? '' : `_${size}`);
                                                     if (
-                                                        !doc.nomenclatures[selectValue[0]][aurumArt]
-                                                    )
-                                                        continue;
-                                                    if (
-                                                        !doc.nomenclatures[selectValue[0]][
-                                                            aurumArt
-                                                        ].tags.includes(tag)
-                                                    )
+                                                        tag[0] != '#' ||
+                                                        tag.indexOf(' ') !== -1 ||
+                                                        tag.length < 2
+                                                    ) {
+                                                        setTagsInputValid(false);
+                                                        setSelectedButton('');
+                                                        return;
+                                                    }
+
+                                                    const params = {
+                                                        uid: getUid(),
+                                                        campaignName: selectValue[0],
+                                                        data: {
+                                                            nmIds: [] as number[],
+                                                            mode: 'Удалить',
+                                                            tag: tag,
+                                                        },
+                                                    };
+
+                                                    for (const row of filteredData) {
+                                                        const {art, size, nmId} = row ?? {};
+                                                        if (nmId === undefined) continue;
+                                                        if (!params.data.nmIds.includes(nmId))
+                                                            params.data.nmIds.push(nmId);
+
+                                                        const aurumArt =
+                                                            art + (size == '0' ? '' : `_${size}`);
+                                                        if (
+                                                            !doc.nomenclatures[selectValue[0]][
+                                                                aurumArt
+                                                            ]
+                                                        )
+                                                            continue;
+
                                                         doc.nomenclatures[selectValue[0]][
                                                             aurumArt
-                                                        ].tags.push(tag);
+                                                        ].tags = doc.nomenclatures[selectValue[0]][
+                                                            aurumArt
+                                                        ].tags.filter((val) => val != tag);
+                                                    }
+
+                                                    setChangedDoc({...doc});
+
+                                                    callApi('setTags', params);
+
+                                                    setTagsModalFormOpen(false);
                                                 }
-
-                                                setChangedDoc({...doc});
-
-                                                callApi('setTags', params);
-
-                                                setTagsModalFormOpen(false);
-                                            }
+                                            },
                                         },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Удалить тег',
-                                        icon: TrashBin,
-                                        view: 'outlined-danger',
-                                        onClick: () => {
-                                            if (tagsInputRef.current !== null) {
-                                                const tagUnformatted = tagsInputRef.current.value;
-
-                                                const tag =
-                                                    '#' +
-                                                    tagUnformatted.replace(/#/g, '').toUpperCase();
-
-                                                if (
-                                                    tag[0] != '#' ||
-                                                    tag.indexOf(' ') !== -1 ||
-                                                    tag.length < 2
-                                                ) {
-                                                    setTagsInputValid(false);
-                                                    setSelectedButton('');
-                                                    return;
-                                                }
-
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {
-                                                        nmIds: [] as number[],
-                                                        mode: 'Удалить',
-                                                        tag: tag,
-                                                    },
-                                                };
-
-                                                for (const row of filteredData) {
-                                                    const {art, size, nmId} = row ?? {};
-                                                    if (nmId === undefined) continue;
-                                                    if (!params.data.nmIds.includes(nmId))
-                                                        params.data.nmIds.push(nmId);
-
-                                                    const aurumArt =
-                                                        art + (size == '0' ? '' : `_${size}`);
-                                                    if (
-                                                        !doc.nomenclatures[selectValue[0]][aurumArt]
-                                                    )
-                                                        continue;
-
-                                                    doc.nomenclatures[selectValue[0]][
-                                                        aurumArt
-                                                    ].tags = doc.nomenclatures[selectValue[0]][
-                                                        aurumArt
-                                                    ].tags.filter((val) => val != tag);
-                                                }
-
-                                                setChangedDoc({...doc});
-
-                                                callApi('setTags', params);
-
-                                                setTagsModalFormOpen(false);
-                                            }
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                            </div>
+                                        selectedButton,
+                                        setSelectedButton,
+                                    )}
+                                </motion.div>
+                            </Card>
                         </Modal>
                     </div>
                 </div>
