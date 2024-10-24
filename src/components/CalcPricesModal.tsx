@@ -188,7 +188,7 @@ export const CalcPricesModal = ({
                         <motion.div
                             animate={{
                                 maxHeight: enableOborRuleSet ? 1000 : 0,
-                                maxWidth: enableOborRuleSet ? 430 : 0,
+                                maxWidth: enableOborRuleSet ? 470 : 0,
                                 opacity: enableOborRuleSet ? 1 : 0,
                             }}
                             style={{
@@ -294,7 +294,7 @@ export const CalcPricesModal = ({
                                                     />
                                                 )}
                                             </div>
-                                            <div style={{width: 100, margin: 8}}>
+                                            <div style={{width: 220, margin: 8}}>
                                                 <TextInput
                                                     placeholder={
                                                         selectValueEntered[0] ==
