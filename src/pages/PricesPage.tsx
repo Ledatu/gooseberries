@@ -7,7 +7,6 @@ import {
     ChevronDown,
     ArrowsRotateLeft,
     Box,
-    Copy,
     LockOpen,
     Lock,
     TagRuble,
@@ -32,6 +31,7 @@ import {useCampaign} from 'src/contexts/CampaignContext';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
 import {CalcPricesModal} from 'src/components/CalcPricesModal';
 import {CalcUnitEconomyModal} from 'src/components/CalcUnitEconomyModal';
+import {CopyButton} from 'src/components/CopyButton';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -99,28 +99,36 @@ export const PricesPage = ({permission}) => {
     };
 
     const renderFilterByClickButton = ({value}, key) => {
-        return (
-            <div style={{display: 'flex', flexDirection: 'row'}}>
+        return !value || value == '' ? (
+            <></>
+        ) : (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    width: '100%',
+                    justifyContent: 'space-between',
+                }}
+            >
                 <Button
                     size="xs"
-                    pin="round-clear"
+                    pin="round-round"
                     view="outlined"
+                    style={{marginRight: 8}}
                     onClick={() => {
                         filterByClick(value, key);
                     }}
                 >
                     {value}
                 </Button>
-                <Button
+
+                <CopyButton
+                    view="flat"
+                    color="secondary"
                     size="xs"
-                    view="outlined"
-                    pin="clear-round"
-                    onClick={() => {
-                        navigator.clipboard.writeText(value);
-                    }}
-                >
-                    <Icon data={Copy} size={13} />
-                </Button>
+                    iconSize={13}
+                    copyText={value}
+                />
             </div>
         );
     };
@@ -336,7 +344,18 @@ export const PricesPage = ({permission}) => {
                                 <Text variant="subheader-1">{value}</Text>
                             </Link>
                         </div>
-                        {tagsNodes}
+                        <div
+                            style={{
+                                marginLeft: 16,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                overflow: 'scroll',
+                                maxWidth: 200,
+                                alignItems: 'center',
+                            }}
+                        >
+                            {tagsNodes}
+                        </div>
                     </div>
                 );
             },

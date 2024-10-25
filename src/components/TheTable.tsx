@@ -4,21 +4,14 @@ import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 import block from 'bem-cn-lite';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 
-import {
-    CircleMinusFill,
-    CircleMinus,
-    CirclePlusFill,
-    CirclePlus,
-    Funnel,
-    FunnelXmark,
-} from '@gravity-ui/icons';
+import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
 import {Button, Card, DropdownMenu, Icon, Pagination, Text} from '@gravity-ui/uikit';
 import {DelayedTextInput} from '@gravity-ui/components';
 import {defaultRender} from 'src/utilities/getRoundValue';
 import {useUser} from './RequireAuth';
 import callApi from 'src/utilities/callApi';
-import {motion} from 'framer-motion';
 import {PaginationSizeInput} from './PaginationSizeInput';
+import {ClearFiltersButton} from './ClearFiltersButton';
 
 const b = block('the-table');
 
@@ -208,14 +201,6 @@ export default function TheTable({
         borderRadius: 9,
     };
 
-    const filtersUsed = useMemo(() => {
-        for (const [key, val] of Object.entries(filters)) {
-            if (!key || !val || key == 'undef') continue;
-            if (val['val'] != '') return true;
-        }
-        return false;
-    }, [filters]);
-
     return (
         <div style={{height: `calc(${height ?? '100%'} - 16px - 28px)`, width: width ?? '100%'}}>
             <Card style={tableCardStyle}>
@@ -255,36 +240,11 @@ export default function TheTable({
                         position: 'relative',
                     }}
                 >
-                    <motion.div
-                        style={{width: 0, overflow: 'hidden'}}
-                        animate={{
-                            width: filtersUsed ? 106 : 0,
-                            marginRight: filtersUsed ? 8 : 0,
-                        }}
-                    >
-                        <Button
-                            selected
-                            onClick={() => {
-                                setFilters(() => {
-                                    const newFilters = {undef: true};
-                                    for (const [key, filterData] of Object.entries(
-                                        filters as any,
-                                    )) {
-                                        if (key == 'undef' || !key || !filterData) continue;
-                                        newFilters[key] = {
-                                            val: '',
-                                            compMode: filterData['compMode'] ?? 'include',
-                                        };
-                                    }
-                                    filterData(newFilters);
-                                    return {...newFilters};
-                                });
-                            }}
-                        >
-                            <Icon data={FunnelXmark} />
-                            Очистить
-                        </Button>
-                    </motion.div>
+                    <ClearFiltersButton
+                        filters={filters}
+                        setFilters={setFilters}
+                        filterData={filterData}
+                    />
                     <PaginationSizeInput
                         paginationSize={paginationSize}
                         setFetchPaginationSize={setFetchPaginationSize}

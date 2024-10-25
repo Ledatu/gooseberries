@@ -17,12 +17,10 @@ export const CopyButton = ({
     pin,
     view,
     size,
-    color,
     iconSize,
     copyText,
 }: CopyButtonInterface) => {
     const [icon, setIcon] = useState({icon: Copy});
-    console.log(color);
 
     return (
         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
