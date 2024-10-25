@@ -106,15 +106,7 @@ export const Dashboard = ({setThemeAurum}) => {
     const [page, setPage] = useState(undefined as any);
     useEffect(() => {
         console.log(page, modules);
-        setPage(
-            page == undefined
-                ? modules.includes('all')
-                    ? 'massAdvert'
-                    : modules[0]
-                : modules.includes(page)
-                ? page
-                : 'api',
-        );
+        setPage(page == undefined ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page);
     }, [modules]);
     useEffect(() => {
         const titleMap = {
@@ -615,7 +607,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     }}
                 >
                     <PageElem
-                        permission={modulesMap?.[page]}
+                        permission={modules.includes('all') ? 'Управление' : modulesMap?.[page]}
                         page={page}
                         refetchAutoSales={refetchAutoSales}
                         setRefetchAutoSales={setRefetchAutoSales}
