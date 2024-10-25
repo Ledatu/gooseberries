@@ -49,13 +49,14 @@ export const CanBeAddedToSales = ({nmId, sellerId}) => {
                             flexDirection: 'column',
                             alignItems: 'center',
                             background: '#221d220f',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(20px)',
                             boxShadow: '#0006 0px 2px 8px 0px',
                             borderRadius: 30,
                             border: '1px solid #eee2',
-                            width: 300,
-                            left: -50,
-                            height: 150,
+                            width: 340,
+                            left: -70,
+                            height: 170,
+                            overflow: 'auto',
                             position: 'absolute',
                         }}
                     >
@@ -84,7 +85,7 @@ export const CanBeAddedToSales = ({nmId, sellerId}) => {
                         <motion.div
                             style={{
                                 width: '100%',
-                                height: 100,
+                                height: 136,
                                 display: 'flex',
                                 flexDirection: 'row',
                                 justifyContent: 'center',
@@ -104,20 +105,16 @@ export const CanBeAddedToSales = ({nmId, sellerId}) => {
                                     }}
                                 >
                                     <List
-                                        itemsHeight={100}
+                                        itemsHeight={136}
                                         renderItem={(item) => {
                                             return (
-                                                <Button
-                                                    size="xs"
-                                                    pin="circle-circle"
-                                                    style={{
-                                                        marginLeft: 8,
-                                                        position: 'relative',
-                                                        overflow: 'hidden',
-                                                    }}
+                                                <Text
+                                                    ellipsis
+                                                    style={{marginLeft: 16}}
+                                                    variant="subheader-1"
                                                 >
                                                     {item}
-                                                </Button>
+                                                </Text>
                                             );
                                         }}
                                         filterable={false}

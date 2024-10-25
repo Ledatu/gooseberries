@@ -31,7 +31,7 @@ export const UserPopup = () => {
                             alignItems: 'center',
                             background: '#221d220f',
                             backdropFilter: 'blur(8px)',
-                            boxShadow: '#0006 0px 2px 8px 0px',
+                            // boxShadow: '#0006 0px 2px 8px 0px',
                             borderBottomLeftRadius: 30,
                             borderBottomRightRadius: 30,
                             border: '1px solid #eee2',
