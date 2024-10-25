@@ -1,4 +1,4 @@
-import {Button, Card, Modal, TextInput, Text, Switch, Icon} from '@gravity-ui/uikit';
+import {Button, Card, Modal, TextInput, Text, Icon, Select, ArrowToggle} from '@gravity-ui/uikit';
 import {TrashBin} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useMemo, useState} from 'react';
@@ -27,13 +27,13 @@ export const AddMemberModal = ({
 
     const [identifier, setIdentifier] = useState('');
     const [modulesEnabled, setModulesEnabled] = useState({
-        massAdvert: false,
-        analytics: false,
-        delivery: false,
-        prices: false,
-        nomenclatures: false,
-        buyers: false,
-        seo: false,
+        massAdvert: ['Доступ закрыт'],
+        analytics: ['Доступ закрыт'],
+        delivery: ['Доступ закрыт'],
+        prices: ['Доступ закрыт'],
+        nomenclatures: ['Доступ закрыт'],
+        buyers: ['Доступ закрыт'],
+        seo: ['Доступ закрыт'],
     });
 
     const mapModules = {
@@ -47,29 +47,84 @@ export const AddMemberModal = ({
     };
 
     const modules = useMemo(() => {
-        const modulesTemp = [] as string[];
+        const modulesTemp = {};
         for (const [key, enabled] of Object.entries(modulesEnabled)) {
-            if (!enabled) continue;
-            modulesTemp.push(key);
+            if (!enabled || enabled[0] == 'Доступ закрыт') continue;
+            modulesTemp[key] = enabled[0];
         }
+        console.log(modulesTemp);
         return modulesTemp;
     }, [modulesEnabled]);
+
+    const selectOptions = [
+        {value: 'Управление', content: 'Управление'},
+        {value: 'Только просмотр', content: 'Только просмотр'},
+        {value: 'Доступ закрыт', content: 'Доступ закрыт'},
+    ];
 
     const modulesSwitches = useMemo(() => {
         const modulesSwitchesTemp = [] as any[];
         for (const [key, enabled] of Object.entries(modulesEnabled)) {
             modulesSwitchesTemp.push(
-                <Switch
-                    size="l"
-                    checked={enabled}
-                    content={mapModules[key]}
-                    onUpdate={(val) =>
-                        setModulesEnabled((cur) => {
-                            cur[key] = val;
-                            return {...cur};
-                        })
-                    }
-                />,
+                <Card
+                    // view="clear"
+                    style={{
+                        borderRadius: 30,
+                        padding: 14,
+                        backdropFilter: 'blur(20px)',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Text variant="subheader-1">{mapModules[key]}</Text>
+                    <div style={{minWidth: 16}} />
+                    <Select
+                        renderControl={({onClick, onKeyDown, ref}) => {
+                            return (
+                                <Button
+                                    view={
+                                        enabled[0] == 'Доступ закрыт'
+                                            ? 'outlined'
+                                            : enabled[0] == 'Только просмотр'
+                                            ? 'outlined-success'
+                                            : 'outlined-action'
+                                    }
+                                    pin={'circle-circle'}
+                                    ref={ref}
+                                    onClick={onClick}
+                                    extraProps={{
+                                        onKeyDown,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: 140,
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Text variant="subheader-1">{enabled[0]}</Text>
+                                        <div style={{minWidth: 8}} />
+                                        <ArrowToggle />
+                                    </div>
+                                </Button>
+                            );
+                        }}
+                        size="l"
+                        value={enabled}
+                        options={selectOptions}
+                        onUpdate={(nextVal) =>
+                            setModulesEnabled((cur) => {
+                                cur[key] = nextVal;
+                                return {...cur};
+                            })
+                        }
+                    />
+                </Card>,
             );
             modulesSwitchesTemp.push(<div style={{minHeight: 8}} />);
         }
@@ -83,7 +138,7 @@ export const AddMemberModal = ({
         setModulesEnabled((cur) => {
             const res = {};
             for (const key of Object.keys(cur)) {
-                res[key] = addedMember?.modules?.includes(key);
+                res[key] = addedMember?.modules?.includes(key) ?? ['Доступ закрыт'];
             }
             return res as any;
         });
@@ -92,13 +147,13 @@ export const AddMemberModal = ({
     const clearFields = () => {
         setIdentifier('');
         setModulesEnabled({
-            massAdvert: false,
-            analytics: false,
-            delivery: false,
-            prices: false,
-            nomenclatures: false,
-            buyers: false,
-            seo: false,
+            massAdvert: ['Доступ закрыт'],
+            analytics: ['Доступ закрыт'],
+            delivery: ['Доступ закрыт'],
+            prices: ['Доступ закрыт'],
+            nomenclatures: ['Доступ закрыт'],
+            buyers: ['Доступ закрыт'],
+            seo: ['Доступ закрыт'],
         });
 
         setAddedMember({
@@ -133,18 +188,39 @@ export const AddMemberModal = ({
         <>
             {triggerButton}
             <Modal open={open} onClose={handleClose}>
-                <Card>
+                <Card
+                    view="clear"
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'none',
+                    }}
+                >
                     <motion.div
-                        animate={{height: open ? 304 : 0}}
                         style={{
-                            height: 0,
-                            width: 300,
-                            overflow: 'auto',
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
-                            position: 'relative',
+                            alignItems: 'center',
                             justifyContent: 'space-between',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
+                            height: 0,
+                            width: 300,
                         }}
+                        animate={{height: open ? 550 : 0}}
                     >
                         <div
                             style={{
@@ -164,8 +240,10 @@ export const AddMemberModal = ({
                             />
                             <motion.div
                                 animate={{
-                                    width: modules.length || identifier !== '' ? 114 : 0,
-                                    marginLeft: modules.length || identifier !== '' ? 8 : 0,
+                                    width:
+                                        Object.keys(modules).length || identifier !== '' ? 114 : 0,
+                                    marginLeft:
+                                        Object.keys(modules).length || identifier !== '' ? 8 : 0,
                                 }}
                                 style={{width: 0}}
                             >
@@ -175,12 +253,13 @@ export const AddMemberModal = ({
                                 </Button>
                             </motion.div>
                         </div>
-                        <div style={{marginLeft: 8}}>{modulesSwitches}</div>
+                        <div style={{marginLeft: 8, width: '100%'}}>{modulesSwitches}</div>
                         <Button
-                            size="l"
+                            size="xl"
+                            pin="circle-circle"
                             view="outlined-success"
                             selected
-                            disabled={!modules.length || identifier === ''}
+                            disabled={!Object.keys(modules).length || identifier === ''}
                             onClick={() => {
                                 const params = {
                                     user_id: user._id,

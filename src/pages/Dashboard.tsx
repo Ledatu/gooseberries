@@ -94,7 +94,7 @@ export const Dashboard = ({setThemeAurum}) => {
             if (campaign.name === selectValue[0]) {
                 setSubscriptionExpDate(campaign.subscriptionUntil);
                 setSellerId(campaign?.seller_id);
-                return campaign.isOwner ? ['all'] : campaign.userModules ?? [];
+                return campaign.isOwner ? ['all'] : Object.keys(campaign.userModules ?? {}) ?? [];
             }
         }
         return [];
@@ -203,7 +203,7 @@ export const Dashboard = ({setThemeAurum}) => {
             href: 'https://t.me/AurumSkyNetSupportBot',
             target: '_blank',
         },
-    ];
+    ].filter((page) => !page.disabled);
 
     const isMobile = useMediaQuery('(max-width: 768px)');
 

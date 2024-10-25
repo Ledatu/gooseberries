@@ -1,4 +1,4 @@
-import {Button, Modal, Text, Switch, Card} from '@gravity-ui/uikit';
+import {Button, Modal, Text, Card, ArrowToggle, Select} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useMemo, useState} from 'react';
 import callApi from 'src/utilities/callApi';
@@ -23,13 +23,13 @@ export const ManageUserModal = ({
     const [open, setOpen] = useState(false);
 
     const [modulesEnabled, setModulesEnabled] = useState({
-        massAdvert: false,
-        analytics: false,
-        delivery: false,
-        prices: false,
-        nomenclatures: false,
-        buyers: false,
-        seo: false,
+        massAdvert: ['Доступ закрыт'],
+        analytics: ['Доступ закрыт'],
+        delivery: ['Доступ закрыт'],
+        prices: ['Доступ закрыт'],
+        nomenclatures: ['Доступ закрыт'],
+        buyers: ['Доступ закрыт'],
+        seo: ['Доступ закрыт'],
     });
 
     const mapModules = {
@@ -43,29 +43,84 @@ export const ManageUserModal = ({
     };
 
     const newModules = useMemo(() => {
-        const newModulesTemp = [] as string[];
+        const modulesTemp = {};
         for (const [key, enabled] of Object.entries(modulesEnabled)) {
-            if (!enabled) continue;
-            newModulesTemp.push(key);
+            if (!enabled || enabled[0] == 'Доступ закрыт') continue;
+            modulesTemp[key] = enabled[0];
         }
-        return newModulesTemp;
+        console.log(modulesTemp);
+        return modulesTemp;
     }, [modulesEnabled]);
+
+    const selectOptions = [
+        {value: 'Управление', content: 'Управление'},
+        {value: 'Только просмотр', content: 'Только просмотр'},
+        {value: 'Доступ закрыт', content: 'Доступ закрыт'},
+    ];
 
     const modulesSwitches = useMemo(() => {
         const modulesSwitchesTemp = [] as any[];
         for (const [key, enabled] of Object.entries(modulesEnabled)) {
             modulesSwitchesTemp.push(
-                <Switch
-                    size="l"
-                    checked={enabled}
-                    content={mapModules[key]}
-                    onUpdate={(val) =>
-                        setModulesEnabled((cur) => {
-                            cur[key] = val;
-                            return {...cur};
-                        })
-                    }
-                />,
+                <Card
+                    // view="clear"
+                    style={{
+                        borderRadius: 30,
+                        padding: 14,
+                        backdropFilter: 'blur(20px)',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Text variant="subheader-1">{mapModules[key]}</Text>
+                    <div style={{minWidth: 16}} />
+                    <Select
+                        renderControl={({onClick, onKeyDown, ref}) => {
+                            return (
+                                <Button
+                                    view={
+                                        enabled[0] == 'Доступ закрыт'
+                                            ? 'outlined'
+                                            : enabled[0] == 'Только просмотр'
+                                            ? 'outlined-success'
+                                            : 'outlined-action'
+                                    }
+                                    pin={'circle-circle'}
+                                    ref={ref}
+                                    onClick={onClick}
+                                    extraProps={{
+                                        onKeyDown,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: 140,
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Text variant="subheader-1">{enabled[0]}</Text>
+                                        <div style={{minWidth: 8}} />
+                                        <ArrowToggle />
+                                    </div>
+                                </Button>
+                            );
+                        }}
+                        size="l"
+                        value={enabled}
+                        options={selectOptions}
+                        onUpdate={(nextVal) =>
+                            setModulesEnabled((cur) => {
+                                cur[key] = nextVal;
+                                return {...cur};
+                            })
+                        }
+                    />
+                </Card>,
             );
             modulesSwitchesTemp.push(<div style={{minHeight: 8}} />);
         }
@@ -78,7 +133,7 @@ export const ManageUserModal = ({
         setModulesEnabled((cur) => {
             const res = {};
             for (const key of Object.keys(cur)) {
-                res[key] = modules.includes('all') || modules.includes(key);
+                res[key] = [modules[key] ?? 'Доступ закрыт'];
             }
             return res as any;
         });
@@ -156,7 +211,7 @@ export const ManageUserModal = ({
                                 view="outlined-success"
                                 pin="circle-circle"
                                 selected
-                                disabled={!newModules.length}
+                                disabled={!Object.keys(newModules).length}
                                 onClick={() => {
                                     const params = {
                                         user_id: user._id,
