@@ -1021,14 +1021,8 @@ export const PricesPage = ({permission}) => {
                                                         }
                                                         //// local fixed
                                                         if (fixPrices !== undefined) {
-                                                            if (
-                                                                !doc.fixArtPrices[selectValue[0]][
-                                                                    nmId
-                                                                ]
-                                                            )
-                                                                doc.fixArtPrices[selectValue[0]][
-                                                                    nmId
-                                                                ] = {};
+                                                            doc.fixArtPrices[selectValue[0]][nmId] =
+                                                                {};
                                                             doc.fixArtPrices[selectValue[0]][
                                                                 nmId
                                                             ].enteredValue = fixPrices;
