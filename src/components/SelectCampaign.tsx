@@ -29,6 +29,7 @@ export const SelectCampaign = ({
     }, [subscriptionExpDate]);
 
     useEffect(() => {
+        if (selectValue[0] != '') return;
         if (!selectOptions.length) {
             setSelectValue(['']);
             return;
