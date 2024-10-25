@@ -37,6 +37,7 @@ import {AutoPhrasesWordsSelection} from './AutoPhrasesWordsSelection';
 import {TextTitleWrapper} from './TextTitleWrapper';
 
 export const AdvertsWordsModal = ({
+    disabled,
     doc,
     selectValue,
     advertId,
@@ -668,6 +669,7 @@ export const AdvertsWordsModal = ({
                             </Popover>
                             <div style={{width: 4}} />
                             <Button
+                                disabled={disabled}
                                 size="xs"
                                 view={isSelected ? 'outlined-success' : 'outlined'}
                                 onClick={(event) => {
@@ -707,6 +709,7 @@ export const AdvertsWordsModal = ({
                             </Button>
                             <div style={{width: 4}} />
                             <Button
+                                disabled={disabled}
                                 size="xs"
                                 view={
                                     semanticsModalSemanticsPlusItemsValue.includes(value)
@@ -1478,6 +1481,7 @@ export const AdvertsWordsModal = ({
                                 </Button>
                                 <div style={{minWidth: 8}} />
                                 <TextInput
+                                    disabled={disabled}
                                     placeholder="Имя"
                                     hasClear
                                     value={semanticsModalSemanticsPlusItemsTemplateNameSaveValue}
@@ -1516,6 +1520,7 @@ export const AdvertsWordsModal = ({
                                             }}
                                         />
                                         <TextInput
+                                            disabled={disabled}
                                             view="clear"
                                             hasClear
                                             style={{width: '90%', margin: '0 5%'}}
@@ -1548,6 +1553,7 @@ export const AdvertsWordsModal = ({
                                             }}
                                         />
                                         <TextInput
+                                            disabled={disabled}
                                             hasClear
                                             style={{width: '90%', margin: '0 5%'}}
                                             view="clear"
@@ -1592,6 +1598,7 @@ export const AdvertsWordsModal = ({
                                             }}
                                         />
                                         <TextInput
+                                            disabled={disabled}
                                             view="clear"
                                             hasClear
                                             style={{width: '90%', margin: '0 5%'}}
@@ -1626,6 +1633,7 @@ export const AdvertsWordsModal = ({
                                             }}
                                         />
                                         <TextInput
+                                            disabled={disabled}
                                             hasClear
                                             style={{width: '90%', margin: '0 5%'}}
                                             view="clear"
@@ -1667,6 +1675,7 @@ export const AdvertsWordsModal = ({
                                 }}
                             >
                                 <Button
+                                    disabled={disabled}
                                     width="max"
                                     selected={semanticsModalIsFixed}
                                     onClick={() => setSemanticsModalIsFixed(!semanticsModalIsFixed)}
@@ -1742,6 +1751,7 @@ export const AdvertsWordsModal = ({
                                                     </Text>
                                                     <div style={{minWidth: 8}} />
                                                     <AutoPhrasesWordsSelection
+                                                        disabled={disabled}
                                                         items={separetedWords}
                                                         setItems={setSeparetedWords}
                                                         setAutoPhrasesArray={
@@ -1751,6 +1761,7 @@ export const AdvertsWordsModal = ({
                                                 </div>
                                                 <div style={{height: 8}} />
                                                 <TextInput
+                                                    disabled={disabled}
                                                     value={
                                                         semanticsAutoPhrasesModalIncludesListInput
                                                     }
@@ -1831,6 +1842,7 @@ export const AdvertsWordsModal = ({
                                                     }}
                                                     filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalIncludesList.length} фразах`}
                                                     onItemClick={(rule) => {
+                                                        if (disabled) return;
                                                         let val = Array.from(
                                                             semanticsAutoPhrasesModalIncludesList,
                                                         );
@@ -1864,6 +1876,7 @@ export const AdvertsWordsModal = ({
                                                     </Text>
                                                     <div style={{minWidth: 8}} />
                                                     <AutoPhrasesWordsSelection
+                                                        disabled={disabled}
                                                         items={separetedWords}
                                                         setItems={setSeparetedWords}
                                                         setAutoPhrasesArray={
@@ -1873,6 +1886,7 @@ export const AdvertsWordsModal = ({
                                                 </div>
                                                 <div style={{height: 8}} />
                                                 <TextInput
+                                                    disabled={disabled}
                                                     value={
                                                         semanticsAutoPhrasesModalNotIncludesListInput
                                                     }
@@ -1914,6 +1928,7 @@ export const AdvertsWordsModal = ({
                                                 <List
                                                     filterPlaceholder={`Поиск в ${semanticsAutoPhrasesModalNotIncludesList.length} фразах`}
                                                     onItemClick={(rule) => {
+                                                        if (disabled) return;
                                                         let val = Array.from(
                                                             semanticsAutoPhrasesModalNotIncludesList,
                                                         );
@@ -2099,6 +2114,7 @@ export const AdvertsWordsModal = ({
                                     setOpen(false);
                                 }}
                                 disabled={
+                                    disabled ||
                                     !semanticsModalSemanticsCTRThresholdValueValid ||
                                     !semanticsModalSemanticsSecondCTRThresholdValueValid
                                 }
@@ -2133,18 +2149,20 @@ export const AdvertsWordsModal = ({
                                         columnData={renameFirstColumn(
                                             columnDataSemantics,
                                             'Фразы в показах',
-                                            [
-                                                generateMassAddDelButton({
-                                                    placeholder: 'Добавить все',
-                                                    array: semanticsModalSemanticsItemsFiltratedValue,
-                                                    mode: 'add',
-                                                }),
-                                                generateMassAddDelButton({
-                                                    placeholder: 'Удалить все',
-                                                    array: semanticsModalSemanticsItemsFiltratedValue,
-                                                    mode: 'del',
-                                                }),
-                                            ],
+                                            disabled
+                                                ? []
+                                                : [
+                                                      generateMassAddDelButton({
+                                                          placeholder: 'Добавить все',
+                                                          array: semanticsModalSemanticsItemsFiltratedValue,
+                                                          mode: 'add',
+                                                      }),
+                                                      generateMassAddDelButton({
+                                                          placeholder: 'Удалить все',
+                                                          array: semanticsModalSemanticsItemsFiltratedValue,
+                                                          mode: 'del',
+                                                      }),
+                                                  ],
                                         )}
                                         data={semanticsModalSemanticsItemsFiltratedValue}
                                         filters={clustersFiltersActive}
@@ -2168,18 +2186,20 @@ export const AdvertsWordsModal = ({
                                         columnData={renameFirstColumn(
                                             columnDataSemantics2,
                                             'Исключенные фразы',
-                                            [
-                                                generateMassAddDelButton({
-                                                    placeholder: 'Добавить все',
-                                                    array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                                                    mode: 'add',
-                                                }),
-                                                generateMassAddDelButton({
-                                                    placeholder: 'Удалить все',
-                                                    array: semanticsModalSemanticsMinusItemsFiltratedValue,
-                                                    mode: 'del',
-                                                }),
-                                            ],
+                                            disabled
+                                                ? []
+                                                : [
+                                                      generateMassAddDelButton({
+                                                          placeholder: 'Добавить все',
+                                                          array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                                          mode: 'add',
+                                                      }),
+                                                      generateMassAddDelButton({
+                                                          placeholder: 'Удалить все',
+                                                          array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                                          mode: 'del',
+                                                      }),
+                                                  ],
                                         )}
                                         data={semanticsModalSemanticsMinusItemsFiltratedValue}
                                         filters={clustersFiltersMinus}

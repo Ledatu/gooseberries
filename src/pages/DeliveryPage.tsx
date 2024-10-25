@@ -67,7 +67,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const DeliveryPage = () => {
+export const DeliveryPage = ({permission}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const today = new Date(
         new Date()
@@ -288,6 +288,7 @@ export const DeliveryPage = () => {
     const generateEditCountButton = (addVal) => {
         return (
             <Button
+                disabled={permission != 'Управление'}
                 style={{width: 60, margin: 4}}
                 pin="circle-circle"
                 onClick={() => {
@@ -777,6 +778,7 @@ export const DeliveryPage = () => {
                     additionalNodes: [
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <Button
+                                disabled={permission != 'Управление'}
                                 size="xs"
                                 view="outlined"
                                 onClick={() => {
@@ -793,6 +795,7 @@ export const DeliveryPage = () => {
                             </Button>
                             <div style={{minWidth: 8}} />
                             <Button
+                                disabled={permission != 'Управление'}
                                 size="xs"
                                 view="outlined"
                                 onClick={() => {
@@ -926,7 +929,6 @@ export const DeliveryPage = () => {
                             }}
                         >
                             <Icon data={ArrowsRotateLeft} />
-                            <Text variant="subheader-1">Обновить</Text>
                         </Button>
                         <motion.div
                             style={{
@@ -942,6 +944,7 @@ export const DeliveryPage = () => {
                         </motion.div>
                         <div style={{minWidth: 8}} />
                         <Select
+                            disabled={permission != 'Управление'}
                             onUpdate={(nextValue) => {
                                 setPrimeCostType(nextValue);
                                 setDateChangeRecalc(true);
@@ -950,6 +953,7 @@ export const DeliveryPage = () => {
                             renderControl={({onClick, onKeyDown, ref}) => {
                                 return (
                                     <Button
+                                        disabled={permission != 'Управление'}
                                         size="l"
                                         style={{
                                             width: '100%',
@@ -1015,6 +1019,7 @@ export const DeliveryPage = () => {
                                     </div>
                                     <div style={{minHeight: 8}} />
                                     <Button
+                                        disabled={permission != 'Управление'}
                                         pin="circle-circle"
                                         size="l"
                                         view="action"
@@ -1038,6 +1043,7 @@ export const DeliveryPage = () => {
                     }}
                 >
                     <Button
+                        disabled={permission != 'Управление'}
                         size="l"
                         view={'outlined-warning'}
                         onClick={() => {
@@ -1065,6 +1071,7 @@ export const DeliveryPage = () => {
                     <div style={{minWidth: 8}} />
                     <label htmlFor={uploadId}>
                         <Button
+                            disabled={permission != 'Управление'}
                             size="l"
                             onClick={() => {
                                 setUploadProgress(0);
@@ -1088,6 +1095,7 @@ export const DeliveryPage = () => {
                             <Text variant="subheader-1">Обработать шаблон</Text>
 
                             <input
+                                disabled={permission != 'Управление'}
                                 id={uploadId}
                                 style={{
                                     opacity: 0,
@@ -1106,6 +1114,7 @@ export const DeliveryPage = () => {
                         openDelay={1000}
                     >
                         <Button
+                            disabled={permission != 'Управление'}
                             size="l"
                             view={splitCountIntoBoxes ? 'outlined-success' : 'outlined'}
                             selected={splitCountIntoBoxes}

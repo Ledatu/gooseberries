@@ -7,6 +7,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import {getMonth} from 'src/utilities/getRoundValue';
 
 export const ManageDeletionOfOldPlansModal = ({
+    disabled,
     selectValue,
     doc,
     setChangedDoc,
@@ -15,6 +16,7 @@ export const ManageDeletionOfOldPlansModal = ({
     dateRange,
     filteredData,
 }: {
+    disabled: boolean;
     selectValue: string[];
     doc: object;
     setChangedDoc: Function;
@@ -65,6 +67,7 @@ export const ManageDeletionOfOldPlansModal = ({
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
             <Button
+                disabled={disabled}
                 view="action"
                 size="l"
                 onClick={() => {

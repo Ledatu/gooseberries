@@ -25,6 +25,7 @@ import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {ChartModal} from './ChartModal';
 
 export const AdvertCard = ({
+    permission,
     id,
     index,
     art,
@@ -186,7 +187,7 @@ export const AdvertCard = ({
                                 setChangedDoc({...doc});
                             }}
                             // style={{position: 'relative', top: -2}}
-                            disabled={status === undefined}
+                            disabled={status === undefined || permission != 'Управление'}
                             // disabled
                             size="xs"
                             pin="brick-brick"
@@ -256,6 +257,7 @@ export const AdvertCard = ({
                         }}
                     >
                         <AdvertsBidsModal
+                            disabled={permission != 'Управление'}
                             selectValue={selectValue}
                             doc={doc}
                             setChangedDoc={setChangedDoc}
@@ -267,6 +269,8 @@ export const AdvertCard = ({
                                 size="xs"
                                 view="flat"
                                 onClick={() => {
+                                    if (permission != 'Управление') return;
+
                                     setModalOpenFromAdvertId(advertId);
                                 }}
                             >
@@ -500,6 +504,7 @@ export const AdvertCard = ({
                         }}
                     >
                         <AdvertsBudgetsModal
+                            disabled={permission != 'Управление'}
                             selectValue={selectValue}
                             doc={doc}
                             setChangedDoc={setChangedDoc}
@@ -511,6 +516,7 @@ export const AdvertCard = ({
                                 size="xs"
                                 view="flat"
                                 onClick={() => {
+                                    if (permission != 'Управление') return;
                                     setModalOpenFromAdvertId(advertId);
                                 }}
                             >
@@ -641,6 +647,7 @@ export const AdvertCard = ({
                     </div>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         <AdvertsWordsModal
+                            disabled={permission != 'Управление'}
                             doc={doc}
                             selectValue={selectValue}
                             advertId={advertId}
@@ -698,7 +705,7 @@ export const AdvertCard = ({
                                 }
                             }}
                             // style={{position: 'relative', top: -2}}
-                            disabled={status === undefined}
+                            disabled={status === undefined || permission != 'Управление'}
                             size="xs"
                             pin="brick-brick"
                             view={warningBeforeDeleteConfirmation ? 'flat-danger' : 'flat'}
@@ -719,6 +726,7 @@ export const AdvertCard = ({
                                 }}
                             >
                                 <Button
+                                    disabled={permission != 'Управление'}
                                     pin="brick-brick"
                                     size="xs"
                                     width="max"
@@ -738,6 +746,7 @@ export const AdvertCard = ({
                                 }}
                             >
                                 <Button
+                                    disabled={permission != 'Управление'}
                                     pin="brick-brick"
                                     size="xs"
                                     view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
@@ -763,13 +772,17 @@ export const AdvertCard = ({
                                 <Button
                                     pin="brick-brick"
                                     size="xs"
-                                    disabled={advertId == copiedAdvertsSettings.advertId}
+                                    disabled={
+                                        advertId == copiedAdvertsSettings.advertId ||
+                                        permission != 'Управление'
+                                    }
                                     view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
                                     onClick={() => setCopiedParams(advertId)}
                                 >
                                     <Icon data={ArrowDownToSquare} size={11} />
                                 </Button>
                                 <Button
+                                    disabled={permission != 'Управление'}
                                     pin="brick-brick"
                                     view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
                                     size="xs"
@@ -909,6 +922,7 @@ export const AdvertCard = ({
                                     : 'flat'
                             }
                             onClick={() => {
+                                if (permission != 'Управление') return;
                                 setShowScheduleModalOpen(true);
                                 setModalOpenFromAdvertId(advertId);
 
@@ -950,6 +964,7 @@ export const AdvertCard = ({
                         }}
                     >
                         <Button
+                            disabled={permission != 'Управление'}
                             view={'outlined-danger'}
                             onClick={async () => {
                                 setWarningBeforeDeleteConfirmation(false);
@@ -970,6 +985,7 @@ export const AdvertCard = ({
                         </Button>
                         <div style={{minWidth: 8}} />
                         <Button
+                            disabled={permission != 'Управление'}
                             view={'outlined'}
                             onClick={() => {
                                 setWarningBeforeDeleteConfirmation(false);

@@ -4,14 +4,13 @@ import {BuyersFeedbacksPage} from 'src/components/BuyersFeedbacksPage';
 import {AutoFeedbackAnsweringPage} from 'src/components/AutoFeedbackAnsweringPage';
 import {useCampaign} from 'src/contexts/CampaignContext';
 
-export const BuyersPage = (sellerId) => {
+export const BuyersPage = ({sellerId, permission}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
 
     const sectionOptions = [
         {content: 'Необработанные отзывы', value: 'feedbacksUnanswered'},
         {content: 'Обработанные отзывы', value: 'feedbacksAnswered'},
-        {content: 'Автоответы', value: 'automation'},
-    ];
+    ].concat(permission != 'Упраление' ? [] : [{content: 'Автоответы', value: 'automation'}]);
     const [selectedPage, setSelectedPage] = useState(sectionOptions[0].value);
 
     useEffect(() => {
@@ -22,6 +21,7 @@ export const BuyersPage = (sellerId) => {
         feedbacksUnanswered: {
             page: (
                 <BuyersFeedbacksPage
+                    permission={permission}
                     isAnswered="notAnswered"
                     sellerId={sellerId}
                     selectValue={selectValue}
@@ -32,6 +32,7 @@ export const BuyersPage = (sellerId) => {
         feedbacksAnswered: {
             page: (
                 <BuyersFeedbacksPage
+                    permission={permission}
                     isAnswered="answered"
                     sellerId={sellerId}
                     selectValue={selectValue}

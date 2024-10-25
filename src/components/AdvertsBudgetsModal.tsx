@@ -7,6 +7,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 
 export const AdvertsBudgetsModal = ({
+    disabled,
     children,
     selectValue,
     doc,
@@ -14,6 +15,7 @@ export const AdvertsBudgetsModal = ({
     getUniqueAdvertIdsFromThePage,
     advertId,
 }: {
+    disabled: boolean;
     children: ReactElement | ReactElement[];
     selectValue: string[];
     doc: any;
@@ -97,7 +99,7 @@ export const AdvertsBudgetsModal = ({
     return (
         <div>
             {triggerButton}
-            <Modal open={open} onClose={handleClose}>
+            <Modal open={open && !disabled} onClose={handleClose}>
                 <motion.div
                     style={{
                         width: 250,
@@ -144,7 +146,7 @@ export const AdvertsBudgetsModal = ({
                     <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
                     {generateModalButtonWithActions(
                         {
-                            disabled: !budgetInputValueValid,
+                            disabled: !budgetInputValueValid || disabled,
                             placeholder: {
                                 purchase: 'Пополнить',
                                 setBudgetToKeep: 'Установить',

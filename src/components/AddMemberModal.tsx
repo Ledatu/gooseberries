@@ -138,7 +138,7 @@ export const AddMemberModal = ({
         setModulesEnabled((cur) => {
             const res = {};
             for (const key of Object.keys(cur)) {
-                res[key] = addedMember?.modules?.includes(key) ?? ['Доступ закрыт'];
+                res[key] = [addedMember?.modules?.[key] ?? 'Доступ закрыт'];
             }
             return res as any;
         });

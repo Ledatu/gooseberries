@@ -48,7 +48,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     return doc;
 };
 
-export const NomenclaturesPage = () => {
+export const NomenclaturesPage = ({permission}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const uploadId = useId();
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -111,6 +111,7 @@ export const NomenclaturesPage = () => {
     const generateEditButton = (key, onClick = undefined as any) => {
         const triggerButton = (
             <Button
+                disabled={permission != 'Управление'}
                 style={{marginLeft: 5}}
                 view="outlined"
                 onClick={(event) => {
@@ -834,6 +835,7 @@ export const NomenclaturesPage = () => {
                 >
                     <div style={{marginRight: 4}}>
                         <Button
+                            disabled={permission != 'Управление'}
                             size="l"
                             view={'outlined-warning'}
                             onClick={() => {
@@ -863,6 +865,7 @@ export const NomenclaturesPage = () => {
                         <div style={{marginLeft: 4}}>
                             <label htmlFor={uploadId}>
                                 <Button
+                                    disabled={permission != 'Управление'}
                                     size="l"
                                     onClick={() => {
                                         setUploadProgress(0);
@@ -888,6 +891,7 @@ export const NomenclaturesPage = () => {
                                     <Text variant="subheader-1">Загрузить</Text>
 
                                     <input
+                                        disabled={permission != 'Управление'}
                                         id={uploadId}
                                         style={{
                                             opacity: 0,

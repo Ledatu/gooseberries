@@ -1,7 +1,7 @@
 import {Button, Card, List, Popover, Text} from '@gravity-ui/uikit';
 import React from 'react';
 
-export const AutoPhrasesWordsSelection = ({items, setItems, setAutoPhrasesArray}) => {
+export const AutoPhrasesWordsSelection = ({disabled, items, setItems, setAutoPhrasesArray}) => {
     return (
         <Popover
             placement={'bottom'}
@@ -34,6 +34,7 @@ export const AutoPhrasesWordsSelection = ({items, setItems, setAutoPhrasesArray}
                             itemHeight={28}
                             items={items}
                             onItemClick={(item) => {
+                                if (disabled) return;
                                 setAutoPhrasesArray((oldArr) => oldArr.concat([item]));
                                 setItems(items.filter((it) => it != item));
                             }}

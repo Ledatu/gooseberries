@@ -70,7 +70,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const AnalyticsPage = () => {
+export const AnalyticsPage = ({permission}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
 
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
@@ -569,7 +569,7 @@ export const AnalyticsPage = () => {
                     </Button>
                     <div style={{minWidth: 8}} />
                     <Button
-                        disabled={!graphData}
+                        disabled={!graphData || permission != 'Управление'}
                         size="xs"
                         view="outlined"
                         onClick={() => {
@@ -1714,6 +1714,7 @@ export const AnalyticsPage = () => {
                     <TagsFilterModal filterByButton={filterByButton} />
                     <div style={{minWidth: 8}} />
                     <CalcAutoPlansModal
+                        disabled={permission != 'Управление'}
                         filteredData={filteredData}
                         columnDataReversed={columnDataReversed}
                         selectValue={selectValue}
@@ -1724,6 +1725,7 @@ export const AnalyticsPage = () => {
                     />
                     <div style={{minWidth: 8}} />
                     <ManageDeletionOfOldPlansModal
+                        disabled={permission != 'Управление'}
                         columnDataReversed={columnDataReversed}
                         selectValue={selectValue}
                         colors={colors}
@@ -1748,6 +1750,7 @@ export const AnalyticsPage = () => {
                     />
                     <div style={{minWidth: 8}} />
                     <Button
+                        disabled={permission != 'Управление'}
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
@@ -1797,6 +1800,7 @@ export const AnalyticsPage = () => {
                     </Button>
                     <div style={{minWidth: 8}} />
                     <PlansUpload
+                        disabled={permission != 'Управление'}
                         selectValue={selectValue}
                         doc={doc}
                         setChangedDoc={setChangedDoc}

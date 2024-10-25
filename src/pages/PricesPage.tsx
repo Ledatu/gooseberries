@@ -65,7 +65,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const PricesPage = () => {
+export const PricesPage = ({permission}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const today = new Date(
         new Date()
@@ -882,7 +882,6 @@ export const PricesPage = () => {
                             }}
                         >
                             <Icon data={ArrowsRotateLeft} />
-                            <Text variant="subheader-1">Обновить</Text>
                         </Button>
                         <motion.div
                             style={{
@@ -898,6 +897,7 @@ export const PricesPage = () => {
                         </motion.div>
                         <div style={{minWidth: 8}} />
                         <CalcPricesModal
+                            disabled={permission != 'Управление'}
                             dateRange={dateRange}
                             setPagesCurrent={setPagesCurrent}
                             doc={doc}
@@ -909,6 +909,7 @@ export const PricesPage = () => {
                         />
                         <div style={{minWidth: 8}} />
                         <Button
+                            disabled={permission != 'Управление'}
                             // loading={fetchingDataFromServerFlag}
                             size="l"
                             view="action"
@@ -1092,6 +1093,7 @@ export const PricesPage = () => {
                     }}
                 >
                     <Select
+                        disabled={permission != 'Управление'}
                         options={groupingOptions}
                         onUpdate={(nextValule) => {
                             setGroupingValue(nextValule);
@@ -1124,6 +1126,7 @@ export const PricesPage = () => {
                             };
                             return (
                                 <Button
+                                    disabled={permission != 'Управление'}
                                     loading={groupingFetching}
                                     ref={ref}
                                     size="l"

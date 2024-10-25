@@ -7,6 +7,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import {getMonth} from 'src/utilities/getRoundValue';
 
 export const CalcAutoPlansModal = ({
+    disabled,
     selectValue,
     entityKeysLastCalc,
     colors,
@@ -25,6 +26,7 @@ export const CalcAutoPlansModal = ({
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
             <Button
+                disabled={disabled}
                 view="action"
                 size="l"
                 onClick={async () => {

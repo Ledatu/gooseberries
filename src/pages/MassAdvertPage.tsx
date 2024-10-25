@@ -127,12 +127,14 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 };
 
 export const MassAdvertPage = ({
+    permission,
     refetchAutoSales,
     setRefetchAutoSales,
     dzhemRefetch,
     setDzhemRefetch,
     sellerId,
 }: {
+    permission: string;
     refetchAutoSales: boolean;
     setRefetchAutoSales: Function;
     dzhemRefetch: boolean;
@@ -886,6 +888,7 @@ export const MassAdvertPage = ({
                                             }}
                                         >
                                             <Button
+                                                disabled={permission != 'Управление'}
                                                 size="xs"
                                                 pin="brick-brick"
                                                 view="outlined"
@@ -911,6 +914,7 @@ export const MassAdvertPage = ({
                                             </Button>
                                             <div style={{minWidth: 2}} />
                                             <Button
+                                                disabled={permission != 'Управление'}
                                                 size="xs"
                                                 pin="brick-brick"
                                                 view="outlined"
@@ -1235,6 +1239,7 @@ export const MassAdvertPage = ({
                                   ) {
                                       switches.push(
                                           <AdvertCard
+                                              permission={permission}
                                               id={advertId}
                                               index={index}
                                               art={art}
@@ -1277,6 +1282,7 @@ export const MassAdvertPage = ({
                                   ) {
                                       switches.push(
                                           <AdvertCard
+                                              permission={permission}
                                               id={advertId}
                                               index={index}
                                               art={art}
@@ -1316,6 +1322,7 @@ export const MassAdvertPage = ({
                               } else {
                                   switches.push(
                                       <AdvertCard
+                                          permission={permission}
                                           id={advertId}
                                           index={index}
                                           art={art}
@@ -4282,6 +4289,7 @@ export const MassAdvertPage = ({
                             }}
                         >
                             <Button
+                                disabled={permission != 'Управление'}
                                 loading={manageModalInProgress}
                                 view="action"
                                 size="l"
@@ -4297,6 +4305,7 @@ export const MassAdvertPage = ({
                             <div style={{width: 8}} />
                             {manageModalInProgress ? <Spin style={{marginRight: 8}} /> : <></>}
                             <Button
+                                disabled={permission != 'Управление'}
                                 view="action"
                                 size="l"
                                 onClick={() => {
@@ -4310,26 +4319,36 @@ export const MassAdvertPage = ({
                             </Button>
                             <div style={{minWidth: 8}} />
                             <AdvertsBudgetsModal
+                                disabled={permission != 'Управление'}
                                 selectValue={selectValue}
                                 doc={doc}
                                 setChangedDoc={setChangedDoc}
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                                 advertId={undefined}
                             >
-                                <Button view="action" size="l">
+                                <Button
+                                    view="action"
+                                    size="l"
+                                    disabled={permission != 'Управление'}
+                                >
                                     <Icon data={CircleRuble} />
                                     <Text variant="subheader-1">Бюджет</Text>
                                 </Button>
                             </AdvertsBudgetsModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsBidsModal
+                                disabled={permission != 'Управление'}
                                 selectValue={selectValue}
                                 doc={doc}
                                 setChangedDoc={setChangedDoc}
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                                 advertId={undefined}
                             >
-                                <Button view="action" size="l">
+                                <Button
+                                    view="action"
+                                    size="l"
+                                    disabled={permission != 'Управление'}
+                                >
                                     <Icon data={ChartLine} />
                                     <Text variant="subheader-1">Ставки</Text>
                                 </Button>
@@ -4337,6 +4356,7 @@ export const MassAdvertPage = ({
                             <div style={{minWidth: 8}} />
 
                             <PhrasesModal
+                                disabled={permission != 'Управление'}
                                 selectValue={selectValue}
                                 doc={doc}
                                 setChangedDoc={setChangedDoc}
@@ -4345,6 +4365,7 @@ export const MassAdvertPage = ({
                             <div style={{minWidth: 8}} />
 
                             <Button
+                                disabled={permission != 'Управление'}
                                 view="action"
                                 size="l"
                                 onClick={() => {
@@ -4360,6 +4381,7 @@ export const MassAdvertPage = ({
                             <TagsFilterModal filterByButton={filterByButton} />
                             <div style={{minWidth: 8}} />
                             <AutoSalesModal
+                                disabled={permission != 'Управление'}
                                 selectValue={selectValue}
                                 filteredData={filteredData}
                                 setAutoSalesProfits={setAutoSalesProfits}
@@ -4748,6 +4770,7 @@ export const MassAdvertPage = ({
                                                 }}
                                             >
                                                 <AdvertCard
+                                                    permission={permission}
                                                     id={advertId}
                                                     index={-1}
                                                     art={''}

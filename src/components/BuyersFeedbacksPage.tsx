@@ -8,10 +8,12 @@ import {TagsFilterModal} from './TagsFilterModal';
 import {AnswerFeedbackModal} from './AnswerFeedbackModal';
 
 export const BuyersFeedbacksPage = ({
+    permission,
     selectValue,
     sellerId,
     isAnswered,
 }: {
+    permission: string;
     selectValue: string[];
     sellerId: string;
     isAnswered: string;
@@ -446,7 +448,11 @@ export const BuyersFeedbacksPage = ({
                           if (all == '') return undefined;
                           return (
                               <AnswerFeedbackModal sellerId={sellerId} id={id} setData={setData}>
-                                  <Button width="max" pin="circle-circle">
+                                  <Button
+                                      width="max"
+                                      pin="circle-circle"
+                                      disabled={permission != 'Управление'}
+                                  >
                                       <Icon data={PencilToLine} size={13} />
                                       Ответить
                                   </Button>

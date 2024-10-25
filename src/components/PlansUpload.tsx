@@ -4,7 +4,7 @@ import React, {useId, useState} from 'react';
 import {getUid} from 'src/utilities/callApi';
 import axios from 'axios';
 
-export const PlansUpload = ({selectValue, doc, setChangedDoc}) => {
+export const PlansUpload = ({selectValue, doc, setChangedDoc, disabled}) => {
     const uploadId = useId();
     const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -87,6 +87,7 @@ export const PlansUpload = ({selectValue, doc, setChangedDoc}) => {
     return (
         <label htmlFor={uploadId}>
             <Button
+                disabled={disabled}
                 size="l"
                 onClick={() => {
                     setUploadProgress(0);
@@ -121,6 +122,7 @@ export const PlansUpload = ({selectValue, doc, setChangedDoc}) => {
                     <div style={{minWidth: 3}} />
                     Загрузить планы
                     <input
+                        disabled={disabled}
                         id={uploadId}
                         style={{
                             opacity: 0,

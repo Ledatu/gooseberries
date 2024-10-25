@@ -9,7 +9,13 @@ import {TextTitleWrapper} from './TextTitleWrapper';
 import {AutoSalesUploadModal} from './AutoSalesUploadModal';
 import {useError} from 'src/pages/ErrorContext';
 
-export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, sellerId}) => {
+export const AutoSalesModal = ({
+    disabled,
+    selectValue,
+    filteredData,
+    setAutoSalesProfits,
+    sellerId,
+}) => {
     const {showError} = useError();
     const [availableAutoSales, setAvailableAutoSales] = useState({});
     const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
@@ -19,6 +25,7 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
     }
 
     const updateInfo = () => {
+        if (disabled) return;
         setAvailableAutoSalesPending(true);
         callApi('getPromotions', {
             seller_id: sellerId,
@@ -71,6 +78,7 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
     return (
         <>
             <Button
+                disabled={disabled}
                 view="action"
                 loading={availableAutoSalesPending}
                 size="l"
@@ -80,7 +88,7 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                 <Text variant="subheader-1">Рассчитать акции</Text>
             </Button>
             <Modal
-                open={autoSalesModalOpen}
+                open={autoSalesModalOpen && !disabled}
                 onClose={() => {
                     setAutoSalesModalOpen(false);
                 }}
@@ -169,6 +177,7 @@ export const AutoSalesModal = ({selectValue, filteredData, setAutoSalesProfits, 
                                 }}
                             >
                                 <Button
+                                    disabled={disabled}
                                     width="max"
                                     size="l"
                                     href={

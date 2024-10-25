@@ -87,6 +87,7 @@ export const Dashboard = ({setThemeAurum}) => {
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
     const [sellerId, setSellerId] = useState('');
+    const [modulesMap, setModulesMap] = useState({} as any);
 
     const modules = useMemo(() => {
         if (!campaigns) return [];
@@ -94,7 +95,9 @@ export const Dashboard = ({setThemeAurum}) => {
             if (campaign.name === selectValue[0]) {
                 setSubscriptionExpDate(campaign.subscriptionUntil);
                 setSellerId(campaign?.seller_id);
-                return campaign.isOwner ? ['all'] : Object.keys(campaign.userModules ?? {}) ?? [];
+                const userModules = campaign.userModules;
+                setModulesMap(userModules);
+                return campaign.isOwner ? ['all'] : Object.keys(userModules ?? {}) ?? [];
             }
         }
         return [];
@@ -604,6 +607,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     }}
                 >
                     <PageElem
+                        permission={modulesMap?.[page]}
                         page={page}
                         refetchAutoSales={refetchAutoSales}
                         setRefetchAutoSales={setRefetchAutoSales}
@@ -630,6 +634,7 @@ export const Dashboard = ({setThemeAurum}) => {
 
 const PageElem = ({
     page,
+    permission,
     refetchAutoSales,
     setRefetchAutoSales,
     dzhemRefetch,
@@ -637,9 +642,10 @@ const PageElem = ({
     sellerId,
 }) => {
     const pages = {
-        delivery: <DeliveryPage />,
+        delivery: <DeliveryPage permission={permission} />,
         massAdvert: (
             <MassAdvertPage
+                permission={permission}
                 refetchAutoSales={refetchAutoSales}
                 setRefetchAutoSales={setRefetchAutoSales}
                 dzhemRefetch={dzhemRefetch}
@@ -647,10 +653,10 @@ const PageElem = ({
                 sellerId={sellerId}
             />
         ),
-        prices: <PricesPage />,
-        nomenclatures: <NomenclaturesPage />,
-        analytics: <AnalyticsPage />,
-        buyers: <BuyersPage sellerId={sellerId} />,
+        prices: <PricesPage permission={permission} />,
+        nomenclatures: <NomenclaturesPage permission={permission} />,
+        analytics: <AnalyticsPage permission={permission} />,
+        buyers: <BuyersPage permission={permission} sellerId={sellerId} />,
         reports: <DetailedReportsPage />,
         seo: <SEOPage />,
         api: <ApiPage />,

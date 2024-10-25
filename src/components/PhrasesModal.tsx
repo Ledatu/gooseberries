@@ -5,7 +5,13 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 import {motion} from 'framer-motion';
 
-export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertIdsFromThePage}) => {
+export const PhrasesModal = ({
+    disabled,
+    selectValue,
+    doc,
+    setChangedDoc,
+    getUniqueAdvertIdsFromThePage,
+}) => {
     const [open, setOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
     const [filterText, setFilterText] = useState('');
@@ -14,6 +20,7 @@ export const PhrasesModal = ({selectValue, doc, setChangedDoc, getUniqueAdvertId
     return (
         <div>
             <Button
+                disabled={disabled}
                 view="action"
                 size="l"
                 onClick={() => {

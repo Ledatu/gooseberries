@@ -7,6 +7,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 
 export const AdvertsBidsModal = ({
+    disabled,
     children,
     selectValue,
     doc,
@@ -14,6 +15,7 @@ export const AdvertsBidsModal = ({
     getUniqueAdvertIdsFromThePage,
     advertId,
 }: {
+    disabled: boolean;
     children: ReactElement | ReactElement[];
     selectValue: string[];
     doc: any;
@@ -310,7 +312,7 @@ export const AdvertsBidsModal = ({
     return (
         <div>
             {triggerButton}
-            <Modal open={open} onClose={handleClose}>
+            <Modal open={open && !disabled} onClose={handleClose}>
                 <Card
                     view="clear"
                     style={{
@@ -462,6 +464,7 @@ export const AdvertsBidsModal = ({
                         {generateModalButtonWithActions(
                             {
                                 disabled:
+                                    disabled ||
                                     !drrInputValueValid ||
                                     !cpoInputValueValid ||
                                     !ordersInputValueValid ||

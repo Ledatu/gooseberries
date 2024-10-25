@@ -17,6 +17,7 @@ import {getNormalDateRange} from 'src/utilities/getRoundValue';
 import {useCampaign} from 'src/contexts/CampaignContext';
 
 export const CalcPricesModal = ({
+    disabled,
     dateRange,
     setPagesCurrent,
     doc,
@@ -110,6 +111,7 @@ export const CalcPricesModal = ({
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
             <Button
+                disabled={disabled}
                 loading={calculatingFlag}
                 size="l"
                 view="action"
@@ -140,7 +142,7 @@ export const CalcPricesModal = ({
                 <Spin style={{marginLeft: 8}} />
             </motion.div>
             <Modal
-                open={enteredValuesModalOpen}
+                open={enteredValuesModalOpen && !disabled}
                 onClose={() => {
                     setEnteredValuesModalOpen(false);
                 }}
@@ -429,6 +431,7 @@ export const CalcPricesModal = ({
                         <div style={{minHeight: 8}} />
                         <Button
                             disabled={
+                                disabled ||
                                 (!enableOborRuleSet && !enteredValueValid) ||
                                 (changeDiscount && !enteredDiscountValueValid) ||
                                 (enableOborRuleSet && !isOborRuleSetValid)
