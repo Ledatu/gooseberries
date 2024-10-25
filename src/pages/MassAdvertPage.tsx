@@ -84,6 +84,7 @@ import {AdvertsBudgetsModal} from 'src/components/AdvertsBudgetsModal';
 import {LogoLoader} from 'src/components/LogoLoader';
 import {useMediaQuery} from 'src/hooks/useMediaQuery';
 import {useCampaign} from 'src/contexts/CampaignContext';
+import {CanBeAddedToSales} from 'src/components/CanBeAddedToSales';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -777,11 +778,7 @@ export const MassAdvertPage = ({
                     );
                     tagsNodes.push(<div style={{minWidth: 8}} />);
                 } else if (availableAutoSalesNmIds.includes(nmId)) {
-                    tagsNodes.push(
-                        <Button size="xs" pin="circle-circle" view="action" selected>
-                            <Icon data={TagRuble} size={12} />
-                        </Button>,
-                    );
+                    tagsNodes.push(<CanBeAddedToSales nmId={nmId} sellerId={sellerId} />);
                     tagsNodes.push(<div style={{minWidth: 8}} />);
                 }
 
