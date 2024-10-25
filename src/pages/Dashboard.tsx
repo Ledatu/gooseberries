@@ -106,7 +106,15 @@ export const Dashboard = ({setThemeAurum}) => {
     const [page, setPage] = useState(undefined as any);
     useEffect(() => {
         console.log(page, modules);
-        setPage(page == undefined ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page);
+        setPage(
+            page == undefined
+                ? modules.includes('all')
+                    ? 'massAdvert'
+                    : modules[0]
+                : modules.includes(page)
+                ? page
+                : 'api',
+        );
     }, [modules]);
     useEffect(() => {
         const titleMap = {
