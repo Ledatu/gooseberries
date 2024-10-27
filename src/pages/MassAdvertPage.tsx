@@ -703,10 +703,19 @@ export const MassAdvertPage = ({
                 /// tags
                 const tagsNodes = [] as ReactNode[];
                 const autoSalesInfo = doc['autoSales'][selectValue[0]][nmId];
-                if (autoSalesInfo) {
+                const {fixedPrices} = autoSalesInfo ?? {};
+                const inActionNow =
+                    autoSalesInfo?.autoSaleName && autoSalesInfo?.autoSaleName !== '';
+                const {autoSaleName} = fixedPrices ?? {};
+                if (autoSalesInfo && ((autoSaleName && autoSaleName != '') || inActionNow)) {
                     tagsNodes.push(
                         <div>
-                            <Button size="xs" pin="circle-brick" view="action" selected>
+                            <Button
+                                size="xs"
+                                pin="circle-clear"
+                                view="outlined-action"
+                                selected={inActionNow}
+                            >
                                 <Icon data={TagRuble} size={12} />
                             </Button>
                             <Popover
@@ -738,22 +747,22 @@ export const MassAdvertPage = ({
                                     pin={
                                         autoSalesInfo['fixedPrices'] &&
                                         autoSalesInfo['fixedPrices']['dateRange']
-                                            ? 'brick-brick'
-                                            : 'brick-circle'
+                                            ? 'clear-clear'
+                                            : 'clear-circle'
                                     }
-                                    view="action"
-                                    selected
+                                    view="outlined-action"
+                                    selected={inActionNow}
                                 >
-                                    <Text>{autoSalesInfo.autoSaleName}</Text>
+                                    <Text>{autoSaleName ?? autoSalesInfo?.autoSaleName}</Text>
                                 </Button>
                             </Popover>
                             {autoSalesInfo['fixedPrices'] &&
                             autoSalesInfo['fixedPrices']['dateRange'] ? (
                                 <Button
                                     size="xs"
-                                    pin="brick-circle"
-                                    view="action"
-                                    selected
+                                    pin="clear-circle"
+                                    view="outlined-action"
+                                    selected={inActionNow}
                                     onClick={() => {
                                         const params = {
                                             uid: getUid(),
@@ -1421,8 +1430,8 @@ export const MassAdvertPage = ({
                                   delete tempAutoSales[art];
 
                                   doc.autoSales[selectValue[0]][nmId] = {
-                                      autoSaleName,
-                                      fixedPrices: {dateRange},
+                                      autoSaleName: '',
+                                      fixedPrices: {dateRange, autoSaleName},
                                   };
                               }
 
@@ -1595,8 +1604,8 @@ export const MassAdvertPage = ({
                                               console.log(params);
 
                                               doc.autoSales[selectValue[0]][nmId] = {
-                                                  autoSaleName,
-                                                  fixedPrices: {dateRange},
+                                                  autoSaleName: '',
+                                                  fixedPrices: {dateRange, autoSaleName},
                                               };
                                               setChangedDoc({...doc});
 
