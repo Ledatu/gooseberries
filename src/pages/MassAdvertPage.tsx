@@ -197,6 +197,26 @@ export const MassAdvertPage = ({
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
     const [filters, setFilters] = useState({undef: false});
+    // const [searchParams, setSearchParams] = useSearchParams();
+
+    // const handleFilterChange = (newFilters) => {
+    //     setSearchParams({
+    //         ...Object.fromEntries(searchParams),
+    //         filters: new URLSearchParams(newFilters).toString(),
+    //     });
+    // };
+    // useEffect(() => {
+    //     console.log(searchParams);
+    //     const newFilters = {};
+    //     for (const [key, fil] of Object.entries(filters)) {
+    //         if (!key || !fil) continue;
+    //         if (key == 'undef') continue;
+    //         if (fil?.['val'] == '') continue;
+
+    //         newFilters[key] = `v_${fil?.['val']} l_${fil?.['val']}`;
+    //     }
+    //     handleFilterChange(newFilters);
+    // }, [filters]);
 
     const [manageModalOpen, setManageModalOpen] = useState(false);
     const [manageModalInProgress, setManageModalInProgress] = useState(false);
@@ -803,7 +823,7 @@ export const MassAdvertPage = ({
                         <CanBeAddedToSales
                             nmId={nmId}
                             sellerId={sellerId}
-                            view={'outlined-action'}
+                            view={'flat-action'}
                             selected={false}
                             pin="circle-circle"
                             setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
