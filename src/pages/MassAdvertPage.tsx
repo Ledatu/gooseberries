@@ -35,6 +35,7 @@ import {
     ArrowShapeDown,
     ChartLine,
     ArrowRotateLeft,
+    Box,
     CircleRuble,
     TShirt,
     SlidersVertical,
@@ -170,6 +171,15 @@ export const MassAdvertPage = ({
 
     // const windowDimensions = useWindowDimensions();
 
+    const [stocksByWarehouses, setStocksByWarehouses] = useState({});
+    useEffect(() => {
+        const params = {seller_id: sellerId};
+        callApi('getStocksByWarehouses', params).then((res) => {
+            if (!res || !res['data']) return;
+
+            setStocksByWarehouses(res['data']);
+        });
+    }, [sellerId]);
     // const isDesktop = windowDimensions.height < windowDimensions.width;
     const [selectedSearchPhrase, setSelectedSearchPhrase] = useState<string>('');
 
@@ -716,8 +726,8 @@ export const MassAdvertPage = ({
                                 nmId={nmId}
                                 sellerId={sellerId}
                                 pin="circle-clear"
-                                view="outlined-action"
-                                selected={inActionNow}
+                                view={inActionNow ? 'outlined-action' : 'outlined'}
+                                selected={false}
                                 setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
                             />
                             <Popover
@@ -752,8 +762,8 @@ export const MassAdvertPage = ({
                                             ? 'clear-clear'
                                             : 'clear-circle'
                                     }
-                                    view="outlined-action"
-                                    selected={inActionNow}
+                                    view={inActionNow ? 'outlined-action' : 'outlined'}
+                                    selected={false}
                                 >
                                     <Text>{autoSaleName ?? autoSalesInfo?.autoSaleName}</Text>
                                 </Button>
@@ -763,8 +773,8 @@ export const MassAdvertPage = ({
                                 <Button
                                     size="xs"
                                     pin="clear-circle"
-                                    view="outlined-action"
-                                    selected={inActionNow}
+                                    view={inActionNow ? 'outlined-action' : 'outlined'}
+                                    selected={false}
                                     onClick={() => {
                                         const params = {
                                             uid: getUid(),
@@ -793,8 +803,8 @@ export const MassAdvertPage = ({
                         <CanBeAddedToSales
                             nmId={nmId}
                             sellerId={sellerId}
-                            view={'action'}
-                            selected={true}
+                            view={'outlined-action'}
+                            selected={false}
                             pin="circle-circle"
                             setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
                         />,
@@ -1683,7 +1693,8 @@ export const MassAdvertPage = ({
                         </Text>
                     );
                 }
-                const {placementsValue, stocksBySizes} = row ?? {};
+                const {placementsValue, stocksBySizes, nmId} = row ?? {};
+                const stocksByWarehousesArt = stocksByWarehouses[nmId];
 
                 // if (!placementsValue) return undefined;
                 const {reviewRating, sizes, feedbacks, phrase} = placementsValue ?? {};
@@ -2057,6 +2068,26 @@ export const MassAdvertPage = ({
                                         </div>
                                     </Button>
                                 </Popover>
+                            </div>
+                        ) : (
+                            <></>
+                        )}
+                        {stocksByWarehousesArt ? (
+                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <div
+                                    style={{
+                                        width: '100%',
+                                        background: 'var(--yc-color-base-generic-hover)',
+                                        height: 0.5,
+                                    }}
+                                />
+                                <Button>
+                                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                                        {stocksByWarehousesArt}
+                                        <div style={{minWidth: 8}} />
+                                        <Icon data={Box} />
+                                    </div>
+                                </Button>
                             </div>
                         ) : (
                             <></>
