@@ -15,6 +15,8 @@ export const AutoSalesModal = ({
     filteredData,
     setAutoSalesProfits,
     sellerId,
+    openFromParent,
+    setOpenFromParent,
 }) => {
     const {showError} = useError();
     const [availableAutoSales, setAvailableAutoSales] = useState({});
@@ -61,12 +63,22 @@ export const AutoSalesModal = ({
     const [currentStep, setCurrentStep] = useState(0);
 
     useEffect(() => {
+        if (autoSalesModalOpen) return;
         console.log(availableAutoSales, availableAutoSalesOptions);
         setCurrentStep(0);
         setDateRange([]);
         setAutoSaleName([availableAutoSalesOptions[0] ? availableAutoSalesOptions[0].value : '']);
         setAutoSalesProfits({});
     }, [autoSalesModalOpen]);
+
+    useEffect(() => {
+        if (!openFromParent || openFromParent == '') return;
+        setCurrentStep(1);
+        setDateRange([]);
+        setAutoSaleName([openFromParent]);
+        setAutoSalesModalOpen(true);
+        setOpenFromParent('');
+    }, [openFromParent]);
 
     const fileRequiredButNotUploaded = useMemo(
         () =>

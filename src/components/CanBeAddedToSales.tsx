@@ -5,7 +5,14 @@ import {motion} from 'framer-motion';
 import callApi from 'src/utilities/callApi';
 import {useError} from 'src/pages/ErrorContext';
 
-export const CanBeAddedToSales = ({nmId, sellerId, pin, view, selected}) => {
+export const CanBeAddedToSales = ({
+    nmId,
+    sellerId,
+    pin,
+    view,
+    selected,
+    setAutoSalesModalOpenFromParent,
+}) => {
     const {showError} = useError();
     const [open, setOpen] = useState(false);
     const [availableSales, setAvailableSales] = useState([] as any[]);
@@ -116,6 +123,10 @@ export const CanBeAddedToSales = ({nmId, sellerId, pin, view, selected}) => {
                                                     {item}
                                                 </Text>
                                             );
+                                        }}
+                                        onItemClick={(item) => {
+                                            setAutoSalesModalOpenFromParent(item);
+                                            setOpen(false);
                                         }}
                                         filterable={false}
                                         items={availableSales}

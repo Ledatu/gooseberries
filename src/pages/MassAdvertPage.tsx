@@ -182,6 +182,8 @@ export const MassAdvertPage = ({
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
 
+    const [autoSalesModalOpenFromParent, setAutoSalesModalOpenFromParent] = useState('');
+
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
     const [filters, setFilters] = useState({undef: false});
@@ -716,9 +718,10 @@ export const MassAdvertPage = ({
                                 pin="circle-clear"
                                 view="outlined-action"
                                 selected={inActionNow}
+                                setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
                             />
                             <Popover
-                                openOnHover={autoSalesInfo.fixedPrices}
+                                openOnHover={fixedPrices?.dateRange}
                                 delayOpening={1000}
                                 placement={'bottom'}
                                 content={
@@ -793,6 +796,7 @@ export const MassAdvertPage = ({
                             view={'action'}
                             selected={true}
                             pin="circle-circle"
+                            setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
                         />,
                     );
                     tagsNodes.push(<div style={{minWidth: 8}} />);
@@ -4399,6 +4403,8 @@ export const MassAdvertPage = ({
                                 filteredData={filteredData}
                                 setAutoSalesProfits={setAutoSalesProfits}
                                 sellerId={sellerId}
+                                openFromParent={autoSalesModalOpenFromParent}
+                                setOpenFromParent={setAutoSalesModalOpenFromParent}
                             />
                             <div style={{minWidth: 8}} />
                             <Popover
