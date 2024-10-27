@@ -710,14 +710,13 @@ export const MassAdvertPage = ({
                 if (autoSalesInfo && ((autoSaleName && autoSaleName != '') || inActionNow)) {
                     tagsNodes.push(
                         <div>
-                            <Button
-                                size="xs"
+                            <CanBeAddedToSales
+                                nmId={nmId}
+                                sellerId={sellerId}
                                 pin="circle-clear"
                                 view="outlined-action"
                                 selected={inActionNow}
-                            >
-                                <Icon data={TagRuble} size={12} />
-                            </Button>
+                            />
                             <Popover
                                 openOnHover={autoSalesInfo.fixedPrices}
                                 delayOpening={1000}
@@ -787,7 +786,15 @@ export const MassAdvertPage = ({
                     );
                     tagsNodes.push(<div style={{minWidth: 8}} />);
                 } else if (availableAutoSalesNmIds.includes(nmId)) {
-                    tagsNodes.push(<CanBeAddedToSales nmId={nmId} sellerId={sellerId} />);
+                    tagsNodes.push(
+                        <CanBeAddedToSales
+                            nmId={nmId}
+                            sellerId={sellerId}
+                            view={'action'}
+                            selected={true}
+                            pin="circle-circle"
+                        />,
+                    );
                     tagsNodes.push(<div style={{minWidth: 8}} />);
                 }
 

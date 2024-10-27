@@ -5,7 +5,7 @@ import {motion} from 'framer-motion';
 import callApi from 'src/utilities/callApi';
 import {useError} from 'src/pages/ErrorContext';
 
-export const CanBeAddedToSales = ({nmId, sellerId}) => {
+export const CanBeAddedToSales = ({nmId, sellerId, pin, view, selected}) => {
     const {showError} = useError();
     const [open, setOpen] = useState(false);
     const [availableSales, setAvailableSales] = useState([] as any[]);
@@ -129,9 +129,9 @@ export const CanBeAddedToSales = ({nmId, sellerId}) => {
             <Button
                 ref={ref}
                 size="xs"
-                pin="circle-circle"
-                view="action"
-                selected
+                pin={pin}
+                view={view}
+                selected={selected}
                 onClick={() => setOpen(!open)}
             >
                 <Icon data={TagRuble} size={12} />
