@@ -142,8 +142,8 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                             <Text variant="subheader-1">Добавить магазин</Text>
                         </Button>
                         <Text style={{margin: '0 16px'}} variant="caption-2" color="secondary">
-                            Получение данных после добавления API токена обычно занимает около трех
-                            часов, пожалуйста, подождите перед использованием.
+                            Вы можете начать работать уже через 30 минут, а через 3 часа вам будет
+                            доступна подробная статистика за последние 90 дней!
                         </Text>
                         <Link
                             href="https://seller.wildberries.ru/supplier-settings/access-to-api"
