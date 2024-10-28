@@ -35,7 +35,6 @@ import {
     ArrowShapeDown,
     ChartLine,
     ArrowRotateLeft,
-    Box,
     CircleRuble,
     TShirt,
     SlidersVertical,
@@ -86,6 +85,7 @@ import {LogoLoader} from 'src/components/LogoLoader';
 import {useMediaQuery} from 'src/hooks/useMediaQuery';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {CanBeAddedToSales} from 'src/components/CanBeAddedToSales';
+import {StocksByWarehousesPopup} from 'src/components/StocksByWarehousesPopup';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -1884,13 +1884,13 @@ export const MassAdvertPage = ({
                     >
                         {priceRub ? (
                             <Popover
+                                openOnHover={reviewRating}
                                 content={
                                     <div
                                         style={{
                                             height: 'calc(30em - 60px)',
                                             width: '60em',
                                             overflow: 'auto',
-                                            paddingBottom: 8,
                                             display: 'flex',
                                         }}
                                     >
@@ -1923,171 +1923,180 @@ export const MassAdvertPage = ({
                                     </div>
                                 }
                             >
-                                <div style={{display: 'flex', flexDirection: 'column'}}>
-                                    <Button
-                                        view="flat"
-                                        width="max"
-                                        size="xs"
-                                        pin="clear-clear"
-                                        style={{
-                                            width: 120,
-                                            overflow: 'hidden',
-                                            borderTopLeftRadius: 7,
-                                            borderTopRightRadius: 7,
-                                        }}
-                                        // pin="brick-brick"
-                                    >
-                                        {`${priceRub} ₽`}
-                                    </Button>
-                                    <div
-                                        style={{
-                                            minHeight: 0.5,
-                                            width: '100%',
-                                            background: 'var(--yc-color-base-generic-hover)',
-                                        }}
-                                    />
-                                </div>
+                                <Button
+                                    view="flat"
+                                    width="max"
+                                    size="xs"
+                                    pin="clear-clear"
+                                    style={{
+                                        width: 120,
+                                        overflow: 'hidden',
+                                        borderTopLeftRadius: 7,
+                                        borderTopRightRadius: 7,
+                                    }}
+                                    // pin="brick-brick"
+                                >
+                                    {`${priceRub} ₽`}
+                                </Button>
                             </Popover>
                         ) : (
                             <></>
                         )}
-
                         {reviewRating ? (
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <Popover
-                                    content={
-                                        <div
-                                            style={{
-                                                height: 'calc(30em - 60px)',
-                                                width: '60em',
-                                                overflow: 'auto',
-                                                paddingBottom: 8,
-                                                display: 'flex',
-                                            }}
-                                        >
-                                            <Card
-                                                view="outlined"
-                                                theme="warning"
+                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <div
+                                    style={{
+                                        width: '100%',
+                                        background: 'var(--yc-color-base-generic-hover)',
+                                        height: 0.5,
+                                    }}
+                                />
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                    <Popover
+                                        content={
+                                            <div
                                                 style={{
-                                                    position: 'absolute',
-                                                    height: '30em',
+                                                    height: 'calc(30em - 60px)',
                                                     width: '60em',
                                                     overflow: 'auto',
-                                                    top: -10,
-                                                    left: -10,
                                                     display: 'flex',
                                                 }}
                                             >
-                                                <ChartKit
-                                                    type="yagr"
-                                                    data={yagrReviewRatingsData}
-                                                />
-                                                <div
+                                                <Card
+                                                    view="outlined"
+                                                    theme="warning"
                                                     style={{
-                                                        // background: 'var(--g-color-base-background)',
-                                                        background: '#2d2c33',
                                                         position: 'absolute',
-                                                        height: 20,
-                                                        width: '100%',
-                                                        bottom: 0,
+                                                        height: '30em',
+                                                        width: '60em',
+                                                        overflow: 'auto',
+                                                        top: -10,
+                                                        left: -10,
+                                                        display: 'flex',
                                                     }}
-                                                ></div>
-                                            </Card>
-                                        </div>
-                                    }
-                                >
-                                    <Button
-                                        width="max"
-                                        size="xs"
-                                        view="outlined"
-                                        pin="clear-brick"
-                                        style={{
-                                            width: 60,
-                                        }}
-                                        // pin="brick-brick"
+                                                >
+                                                    <ChartKit
+                                                        type="yagr"
+                                                        data={yagrReviewRatingsData}
+                                                    />
+                                                    <div
+                                                        style={{
+                                                            // background: 'var(--g-color-base-background)',
+                                                            background: '#2d2c33',
+                                                            position: 'absolute',
+                                                            height: 20,
+                                                            width: '100%',
+                                                            bottom: 0,
+                                                        }}
+                                                    ></div>
+                                                </Card>
+                                            </div>
+                                        }
                                     >
-                                        <div
+                                        <Button
+                                            width="max"
+                                            size="xs"
+                                            view="flat"
+                                            pin="clear-brick"
                                             style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
+                                                height: 20,
+                                                width: 60,
                                             }}
+                                            // pin="brick-brick"
                                         >
-                                            <Text>{reviewRating}</Text>
-                                            <div style={{minWidth: 3}} />
-                                            <Text
-                                                color="warning"
-                                                style={{display: 'flex', alignItems: 'center'}}
-                                            >
-                                                <Icon data={Star} size={11} />
-                                            </Text>
-                                        </div>
-                                    </Button>
-                                </Popover>
-                                <Popover
-                                    content={
-                                        <div
-                                            style={{
-                                                height: 'calc(30em - 60px)',
-                                                width: '60em',
-                                                overflow: 'auto',
-                                                display: 'flex',
-                                            }}
-                                        >
-                                            <Card
-                                                view="outlined"
-                                                theme="warning"
+                                            <div
                                                 style={{
-                                                    position: 'absolute',
-                                                    height: '30em',
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <Text>{reviewRating}</Text>
+                                                <div style={{minWidth: 3}} />
+                                                <Text
+                                                    color="warning"
+                                                    style={{display: 'flex', alignItems: 'center'}}
+                                                >
+                                                    <Icon data={Star} size={11} />
+                                                </Text>
+                                            </div>
+                                        </Button>
+                                    </Popover>
+                                    <div
+                                        style={{
+                                            background: 'var(--yc-color-base-generic-hover)',
+                                            height: 24,
+                                            minWidth: 0.5,
+                                        }}
+                                    />
+                                    <Popover
+                                        content={
+                                            <div
+                                                style={{
+                                                    height: 'calc(30em - 60px)',
                                                     width: '60em',
                                                     overflow: 'auto',
-                                                    top: -10,
-                                                    left: -10,
                                                     display: 'flex',
                                                 }}
                                             >
-                                                <ChartKit type="yagr" data={yagrFeedbacksData} />
-                                                <div
+                                                <Card
+                                                    view="outlined"
+                                                    theme="warning"
                                                     style={{
-                                                        // background: 'var(--g-color-base-background)',
-                                                        background: '#2d2c33',
                                                         position: 'absolute',
-                                                        height: 20,
-                                                        width: '100%',
-                                                        bottom: 0,
+                                                        height: '30em',
+                                                        width: '60em',
+                                                        overflow: 'auto',
+                                                        top: -10,
+                                                        left: -10,
+                                                        display: 'flex',
                                                     }}
-                                                ></div>
-                                            </Card>
-                                        </div>
-                                    }
-                                >
-                                    <Button
-                                        style={{
-                                            width: 60,
-
-                                            overflow: 'hidden',
-                                        }}
-                                        width="max"
-                                        size="xs"
-                                        view="outlined"
-                                        pin="brick-clear"
+                                                >
+                                                    <ChartKit
+                                                        type="yagr"
+                                                        data={yagrFeedbacksData}
+                                                    />
+                                                    <div
+                                                        style={{
+                                                            // background: 'var(--g-color-base-background)',
+                                                            background: '#2d2c33',
+                                                            position: 'absolute',
+                                                            height: 20,
+                                                            width: '100%',
+                                                            bottom: 0,
+                                                        }}
+                                                    ></div>
+                                                </Card>
+                                            </div>
+                                        }
                                     >
-                                        <div
+                                        <Button
                                             style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
+                                                width: 60,
+                                                height: 20,
+                                                overflow: 'hidden',
                                             }}
+                                            width="max"
+                                            size="xs"
+                                            view="flat"
+                                            pin="brick-clear"
                                         >
-                                            <Text>{feedbacks}</Text>
-                                            <div style={{minWidth: 3}} />
-                                            <Icon data={Comment} size={11} />
-                                        </div>
-                                    </Button>
-                                </Popover>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <Text>{feedbacks}</Text>
+                                                <div style={{minWidth: 3}} />
+                                                <Icon data={Comment} size={11} />
+                                            </div>
+                                        </Button>
+                                    </Popover>
+                                </div>
                             </div>
                         ) : (
                             <></>
@@ -2101,13 +2110,9 @@ export const MassAdvertPage = ({
                                         height: 0.5,
                                     }}
                                 />
-                                <Button>
-                                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                                        {stocksByWarehousesArt}
-                                        <div style={{minWidth: 8}} />
-                                        <Icon data={Box} />
-                                    </div>
-                                </Button>
+                                <StocksByWarehousesPopup
+                                    stocksByWarehousesArt={stocksByWarehousesArt}
+                                />
                             </div>
                         ) : (
                             <></>
