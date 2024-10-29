@@ -13,8 +13,9 @@ export const StocksByWarehousesPopup = ({stocksByWarehousesArt}) => {
 
     const stocksByWarehousesArtArray = useMemo(() => {
         const temp = [] as any[];
-        for (const [warehousesName, quantity] of Object.entries(stocksByWarehousesArt))
-            temp.push(`${warehousesName}: ${quantity}`);
+        if (stocksByWarehousesArt)
+            for (const [warehousesName, quantity] of Object.entries(stocksByWarehousesArt))
+                temp.push(`${warehousesName}: ${quantity}`);
         return temp;
     }, [stocksByWarehousesArt]);
 
@@ -109,11 +110,12 @@ export const StocksByWarehousesPopup = ({stocksByWarehousesArt}) => {
                 </div>
             </Popup>
             <Button
+                disabled={!stocksByWarehousesArt}
                 size="xs"
                 pin="clear-clear"
                 view="flat"
                 ref={ref}
-                onClick={() => setOpen(!open)}
+                onClick={() => stocksByWarehousesArt && setOpen(!open)}
             >
                 <div
                     style={{
@@ -123,7 +125,7 @@ export const StocksByWarehousesPopup = ({stocksByWarehousesArt}) => {
                         alignItems: 'center',
                     }}
                 >
-                    {Object.keys(stocksByWarehousesArt).length}
+                    {stocksByWarehousesArt ? Object.keys(stocksByWarehousesArt).length : 0}
                     <div style={{minWidth: 3}} />
                     <Icon data={Box} size={11} />
                 </div>

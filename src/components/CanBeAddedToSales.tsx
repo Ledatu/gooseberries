@@ -1,4 +1,4 @@
-import {Button, Icon, List, Loader, Popup, Text} from '@gravity-ui/uikit';
+import {Button, Card, Icon, List, Loader, Popup, Text} from '@gravity-ui/uikit';
 import {TagRuble, Xmark} from '@gravity-ui/icons';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
@@ -55,8 +55,8 @@ export const CanBeAddedToSales = ({
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            background: '#221d220f',
-                            backdropFilter: 'blur(20px)',
+                            background: '#221d22af',
+                            backdropFilter: 'blur(12px)',
                             boxShadow: '#0006 0px 2px 8px 0px',
                             borderRadius: 30,
                             border: '1px solid #eee2',
@@ -113,15 +113,23 @@ export const CanBeAddedToSales = ({
                                 >
                                     <List
                                         itemsHeight={136}
+                                        itemHeight={48}
                                         renderItem={(item) => {
                                             return (
-                                                <Text
-                                                    ellipsis
-                                                    style={{marginLeft: 16}}
-                                                    variant="subheader-1"
+                                                <Card
+                                                    style={{
+                                                        height: 36,
+                                                        borderRadius: 30,
+                                                        width: '100%',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        justifyContent: 'center',
+                                                        paddingLeft: 12,
+                                                        margin: '0 8px',
+                                                    }}
                                                 >
-                                                    {item}
-                                                </Text>
+                                                    <Text variant="subheader-1">{item}</Text>
+                                                </Card>
                                             );
                                         }}
                                         onItemClick={(item) => {

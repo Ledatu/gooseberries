@@ -2101,22 +2101,6 @@ export const MassAdvertPage = ({
                         ) : (
                             <></>
                         )}
-                        {stocksByWarehousesArt ? (
-                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        background: 'var(--yc-color-base-generic-hover)',
-                                        height: 0.5,
-                                    }}
-                                />
-                                <StocksByWarehousesPopup
-                                    stocksByWarehousesArt={stocksByWarehousesArt}
-                                />
-                            </div>
-                        ) : (
-                            <></>
-                        )}
                         {stocksBySizes && stocksBySizes.all > 1 ? (
                             <Button
                                 style={{
@@ -2146,33 +2130,52 @@ export const MassAdvertPage = ({
                         ) : (
                             <></>
                         )}
-                        <Button
-                            style={{
-                                width: 120,
-                                overflow: 'hidden',
-                            }}
-                            width="max"
-                            size="xs"
-                            view={'outlined'}
-                            pin="clear-clear"
-                        >
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
                             <div
                                 style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
+                                    width: '100%',
+                                    background: 'var(--yc-color-base-generic-hover)',
+                                    height: 0.5,
                                 }}
+                            />
+                            <StocksByWarehousesPopup
+                                stocksByWarehousesArt={stocksByWarehousesArt}
+                            />
+                        </div>
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
+                            <div
+                                style={{
+                                    width: '100%',
+                                    background: 'var(--yc-color-base-generic-hover)',
+                                    height: 0.5,
+                                }}
+                            />
+                            <Button
+                                disabled={!Math.round(value)}
+                                style={{
+                                    width: 120,
+                                    overflow: 'hidden',
+                                }}
+                                width="max"
+                                size="xs"
+                                view={'flat'}
+                                pin="clear-clear"
                             >
                                 <Text
-                                    color={value > 0 ? 'positive' : 'danger'}
+                                    color={
+                                        !Math.round(value)
+                                            ? undefined
+                                            : value > 0
+                                            ? 'positive'
+                                            : 'danger'
+                                    }
                                 >{`${new Intl.NumberFormat('ru-RU').format(
                                     Math.round(value),
                                 )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
                                     getRoundValue(value, sumOrders, true),
                                 )}%`}</Text>
-                            </div>
-                        </Button>
+                            </Button>
+                        </div>
                     </Card>
                 );
             },
