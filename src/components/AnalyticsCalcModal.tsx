@@ -44,6 +44,7 @@ export const AnalyticsCalcModal = ({
         title: false,
         imtId: false,
         art: false,
+        nmId: false,
         tags: false,
     });
 
@@ -57,6 +58,7 @@ export const AnalyticsCalcModal = ({
             title: 'Наименование',
             imtId: 'ID КТ',
             art: 'Артикул',
+            nmId: 'Артикул WB',
             tags: 'Теги',
         };
         const temp = [] as any[];
@@ -160,7 +162,7 @@ export const AnalyticsCalcModal = ({
                 </div>
                 <motion.div
                     style={{maxHeight: 0, overflow: 'hidden'}}
-                    animate={{maxHeight: switchesOpen ? 317 : 0}}
+                    animate={{maxHeight: switchesOpen ? 361 : 0}}
                 >
                     {temp}
                 </motion.div>
