@@ -1875,7 +1875,7 @@ export const MassAdvertPage = ({
                 return (
                     <Card
                         style={{
-                            width: 120,
+                            width: 140,
                             height: 106.5,
                             display: 'flex',
                             flexDirection: 'column',
@@ -1929,7 +1929,7 @@ export const MassAdvertPage = ({
                                     size="xs"
                                     pin="clear-clear"
                                     style={{
-                                        width: 120,
+                                        width: 140,
                                         overflow: 'hidden',
                                         borderTopLeftRadius: 7,
                                         borderTopRightRadius: 7,
@@ -2000,7 +2000,7 @@ export const MassAdvertPage = ({
                                             pin="clear-brick"
                                             style={{
                                                 height: 20,
-                                                width: 60,
+                                                width: 70,
                                             }}
                                             // pin="brick-brick"
                                         >
@@ -2073,7 +2073,7 @@ export const MassAdvertPage = ({
                                     >
                                         <Button
                                             style={{
-                                                width: 60,
+                                                width: 70,
                                                 height: 20,
                                                 overflow: 'hidden',
                                             }}
@@ -2104,7 +2104,7 @@ export const MassAdvertPage = ({
                         {stocksBySizes && stocksBySizes.all > 1 ? (
                             <Button
                                 style={{
-                                    width: 120,
+                                    width: 140,
                                     overflow: 'hidden',
                                 }}
                                 width="max"
@@ -2153,7 +2153,7 @@ export const MassAdvertPage = ({
                             <Button
                                 disabled={!Math.round(value)}
                                 style={{
-                                    width: 120,
+                                    width: 140,
                                     overflow: 'hidden',
                                 }}
                                 width="max"
