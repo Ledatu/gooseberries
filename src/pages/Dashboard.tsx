@@ -51,8 +51,7 @@ export const Dashboard = ({setThemeAurum}) => {
         themeVal !== 'undefined' && themeVal !== 'null' && themeVal
             ? JSON.parse(themeVal)
             : Theme.Dark;
-    const [theme] = useState(initialTheme);
-
+    const [theme, setTheme] = useState(initialTheme);
     useEffect(() => {
         localStorage.setItem('theme', JSON.stringify(theme));
         setThemeAurum(theme);
@@ -71,11 +70,6 @@ export const Dashboard = ({setThemeAurum}) => {
 
         return temp;
     }, [campaigns]);
-
-    // const optionsTheme: RadioButtonOption[] = [
-    //     {value: 'dark', content: <Icon data={Moon}></Icon>},
-    //     {value: 'light', content: <Icon data={Sun}></Icon>},
-    // ];
 
     const {availableTags, availableTagsPending} = useCampaign();
 
@@ -563,7 +557,11 @@ export const Dashboard = ({setThemeAurum}) => {
                                             setDzhemRefetch={setDzhemRefetch}
                                         />
                                         <div style={{minWidth: 8}} />
-                                        <UserPopup />
+                                        <UserPopup
+                                            setTheme={setTheme}
+                                            setThemeAurum={setThemeAurum}
+                                            Theme={Theme}
+                                        />
                                         <div
                                             style={{
                                                 height: 68,

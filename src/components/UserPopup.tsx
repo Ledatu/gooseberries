@@ -1,9 +1,25 @@
-import {ArrowToggle, Button, Popup, Text} from '@gravity-ui/uikit';
-import React, {useMemo, useRef, useState} from 'react';
+import {ArrowToggle, Button, Icon, Popup, RadioButton, Text} from '@gravity-ui/uikit';
+import {Sun, Moon} from '@gravity-ui/icons';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useUser} from './RequireAuth';
 import {CopyButton} from './CopyButton';
 
-export const UserPopup = () => {
+export const UserPopup = ({setThemeAurum, Theme, setTheme}) => {
+    const themeVal = localStorage.getItem('theme');
+    const initialTheme =
+        themeVal !== 'undefined' && themeVal !== 'null' && themeVal
+            ? JSON.parse(themeVal)
+            : Theme.Dark;
+    const [theme] = useState(initialTheme);
+    useEffect(() => {
+        localStorage.setItem('theme', JSON.stringify(theme));
+        setThemeAurum(theme);
+    }, [theme]);
+    const optionsTheme = [
+        {value: 'dark', content: <Icon data={Moon}></Icon>},
+        {value: 'light', content: <Icon data={Sun}></Icon>},
+    ];
+
     const {userInfo} = useUser();
     const {user} = userInfo ?? {};
 
@@ -99,6 +115,16 @@ export const UserPopup = () => {
                             <Button view="outlined" width="max" size="l">
                                 <Text variant="subheader-2"> Тут будет управление</Text>
                             </Button>
+                            <div style={{minHeight: 16}} />
+                            <RadioButton
+                                size="l"
+                                name="themeRadioButton"
+                                defaultValue={theme}
+                                options={optionsTheme}
+                                onUpdate={async (val) => {
+                                    setTheme(val === 'light' ? Theme.Light : Theme.Dark);
+                                }}
+                            />
                         </div>
                     </div>
                 </div>

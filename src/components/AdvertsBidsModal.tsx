@@ -504,6 +504,7 @@ export const AdvertsBidsModal = ({
                                                     ? null
                                                     : parseInt(ordersInputValue),
                                             desiredDRR: parseInt(drrInputValue),
+                                            desiredCpo: parseInt(cpoInputValue),
                                             desiredSum: parseInt(sumInputValue),
                                             desiredObor: parseInt(oborInputValue),
                                             desiredSumOrders: parseInt(sumOrdersInputValue),
