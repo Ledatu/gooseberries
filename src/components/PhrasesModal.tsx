@@ -32,6 +32,10 @@ export const PhrasesModal = ({
                         plusPhrasesTemplatesTemp.push(name);
                     }
 
+                    plusPhrasesTemplatesTemp.sort((a, b) =>
+                        a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase()),
+                    );
+
                     setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
                 }}
             >
