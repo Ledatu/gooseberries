@@ -1397,7 +1397,11 @@ export const AnalyticsPage = ({permission}) => {
 
     const getPlanDay = (key = '') => {
         const isAvg = key != '' ? columnDataObj[key].planType == 'avg' : false;
-        return getRoundValue(Number(planModalPlanValue), isAvg ? 1 : daysInMonth(new Date()));
+        const date = new Date();
+        return getRoundValue(
+            Number(planModalPlanValue),
+            isAvg ? 1 : new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate(),
+        );
     };
 
     return (
