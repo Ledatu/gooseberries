@@ -25,6 +25,7 @@ import {useMediaQuery} from 'src/hooks/useMediaQuery';
 import {UserPopup} from 'src/components/UserPopup';
 import {DetailedReportsPage} from './DetailedReportsPage';
 import {useCampaign} from 'src/contexts/CampaignContext';
+import {NoSubscriptionPage} from './NoSubscriptionPage';
 
 const b = block('app');
 
@@ -96,6 +97,15 @@ export const Dashboard = ({setThemeAurum}) => {
         }
         return [];
     }, [campaigns, selectValue]);
+
+    const [currentTime, setCurrentTime] = useState(new Date());
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCurrentTime(new Date()); // Update the current time every minute
+        }, 60000); // 60000 ms = 1 minute
+
+        return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+    }, []);
 
     const [page, setPage] = useState(undefined as any);
     useEffect(() => {
@@ -604,15 +614,20 @@ export const Dashboard = ({setThemeAurum}) => {
                         // 'linear-gradient(180deg, rgba(45, 44, 51, 1) 0%, rgba(34, 33, 39, 1) 100%)',
                     }}
                 >
-                    <PageElem
-                        permission={modules.includes('all') ? 'Управление' : modulesMap?.[page]}
-                        page={page}
-                        refetchAutoSales={refetchAutoSales}
-                        setRefetchAutoSales={setRefetchAutoSales}
-                        dzhemRefetch={dzhemRefetch}
-                        setDzhemRefetch={setDzhemRefetch}
-                        sellerId={sellerId}
-                    />
+                    {currentTime >= new Date(subscriptionExpDate) &&
+                    ![1122958293, 933839157].includes(userInfo?.user?._id) ? (
+                        <NoSubscriptionPage />
+                    ) : (
+                        <PageElem
+                            permission={modules.includes('all') ? 'Управление' : modulesMap?.[page]}
+                            page={page}
+                            refetchAutoSales={refetchAutoSales}
+                            setRefetchAutoSales={setRefetchAutoSales}
+                            dzhemRefetch={dzhemRefetch}
+                            setDzhemRefetch={setDzhemRefetch}
+                            sellerId={sellerId}
+                        />
+                    )}
                 </div>
 
                 <div

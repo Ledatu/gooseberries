@@ -1,8 +1,10 @@
 import {AccessDenied} from '@gravity-ui/illustrations';
 import {Text} from '@gravity-ui/uikit';
 import React, {useEffect} from 'react';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
-export const NoSubscriptionPage = ({setSwitchingCampaignsFlag}) => {
+export const NoSubscriptionPage = () => {
+    const {setSwitchingCampaignsFlag} = useCampaign();
     useEffect(() => {
         setSwitchingCampaignsFlag(false);
     });
