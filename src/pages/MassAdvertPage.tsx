@@ -1067,7 +1067,9 @@ export const MassAdvertPage = ({
                                     </div>
                                 </div>
                                 <div style={{width: 4}} />
-                                <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <div
+                                    style={{display: 'flex', flexDirection: 'column', width: '100'}}
+                                >
                                     <div style={{marginLeft: 6}}>
                                         <Link
                                             view="primary"
@@ -1102,6 +1104,7 @@ export const MassAdvertPage = ({
                                     </div>
                                     <div
                                         style={{
+                                            width: '100',
                                             display: 'flex',
                                             flexDirection: 'row',
                                             alignItems: 'center',
@@ -1141,7 +1144,8 @@ export const MassAdvertPage = ({
                                         style={{
                                             display: 'flex',
                                             flexDirection: 'row',
-                                            maxWidth: 'calc(20vw - 46px)',
+                                            maxWidth: '100%',
+                                            paddingRight: '100%',
                                             overflowX: 'scroll',
                                         }}
                                     >
