@@ -5337,6 +5337,7 @@ export const MassAdvertPage = ({
                         flexDirection: 'row',
                         width: '100%',
                         justifyContent: 'center',
+                        marginBottom: 80,
                     }}
                 >
                     <RangePicker
