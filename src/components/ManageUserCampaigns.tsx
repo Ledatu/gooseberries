@@ -6,6 +6,7 @@ import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
 import {ManageUserModal} from './ManageUserModal';
 import {ChangeApiModal} from './ChangeApiModal';
+import {motion} from 'framer-motion';
 
 const EditMemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, modules}) => {
     return (
@@ -294,48 +295,69 @@ export const ManageUserCampaigns = () => {
         >
             {!campaignsInfos || !campaignsInfos.length ? <Identity /> : <></>}
             {campaignsInfos ? (
-                <Card
+                <motion.div
+                    transition={{
+                        type: 'spring',
+                        damping: 100,
+                        stiffness: 1000,
+                    }}
+                    animate={{top: 100, width: '70vw', maxWidth: 700}}
                     style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        overflow: 'hidden',
-                        alignItems: 'center',
-                        width: '70vw',
-                        maxWidth: 700,
-                        backdropFilter: 'blur(20px)',
-                        position: 'fixed',
-                        top: 100,
                         zIndex: 100,
-                        borderRadius: 30,
-                        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                        position: 'fixed',
+                        top: 0,
+                        width: '90vw',
+                        maxWidth: 900,
                     }}
                 >
-                    <TextInput
-                        leftContent={
-                            <div
-                                style={{
-                                    marginRight: 8,
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Icon data={Magnifier} />
-                            </div>
-                        }
-                        style={{marginLeft: 12}}
-                        view="clear"
-                        value={filterValue}
-                        onUpdate={(val) => setFilterValue(val)}
-                        placeholder="Имя магазина или владелец"
-                        size="xl"
-                        hasClear
-                    />
-                </Card>
+                    <Card
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            overflow: 'hidden',
+                            alignItems: 'center',
+                            backdropFilter: 'blur(20px)',
+                            borderRadius: 30,
+                            boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                        }}
+                    >
+                        <TextInput
+                            leftContent={
+                                <div
+                                    style={{
+                                        marginRight: 8,
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Icon data={Magnifier} />
+                                </div>
+                            }
+                            style={{marginLeft: 12}}
+                            view="clear"
+                            value={filterValue}
+                            onUpdate={(val) => setFilterValue(val)}
+                            placeholder="Имя магазина или владелец"
+                            size="xl"
+                            hasClear
+                        />
+                    </Card>
+                </motion.div>
             ) : (
                 <></>
             )}
-            <div style={{marginTop: 100}}>{campaignsInfos}</div>
+            <motion.div
+                transition={{
+                    type: 'spring',
+                    damping: 100,
+                    stiffness: 1000,
+                }}
+                animate={{marginTop: 100}}
+                style={{marginTop: 400}}
+            >
+                {campaignsInfos}
+            </motion.div>
         </div>
     );
 };
