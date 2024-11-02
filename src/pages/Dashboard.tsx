@@ -242,8 +242,33 @@ export const Dashboard = ({setThemeAurum}) => {
 
     return (
         <div className={b()}>
-            {/* <TextInput style={{width: '300px'}} placeholder="Ola, Ledatu!" /> */}
-
+            {isMobile ? (
+                <div
+                    style={{
+                        position: 'fixed',
+                        bottom: -1,
+                        zIndex: 10,
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        backdropFilter: 'blur(20px)',
+                    }}
+                >
+                    <Tabs
+                        wrapTo={renderTabItem}
+                        activeTab={page}
+                        items={optionsPages.filter((item) =>
+                            ['Реклама', 'Магазины', 'Поддержка'].includes(item.title),
+                        )}
+                        onSelectTab={(val) => {
+                            setPage(val);
+                        }}
+                    />
+                </div>
+            ) : (
+                <></>
+            )}
             <div
                 style={{
                     position: 'fixed',
@@ -258,16 +283,21 @@ export const Dashboard = ({setThemeAurum}) => {
                 {isMobile ? (
                     <div
                         style={{
+                            width: '100%',
+                            boxShadow: 'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
+                            background: '#0000',
                             display: 'flex',
-                            width: '100vw',
+                            flexDirection: 'row',
                         }}
                     >
                         <div
                             style={{
                                 width: '100%',
-                                boxShadow:
-                                    'inset 0px -9px 0px -8px var(--yc-color-base-generic-hover)',
-                                background: '#0000',
+                                position: 'fixed',
+                                top: 0,
+                                height: 68,
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
                                 display: 'flex',
                                 flexDirection: 'row',
                             }}
@@ -275,63 +305,22 @@ export const Dashboard = ({setThemeAurum}) => {
                             <div
                                 style={{
                                     width: '100%',
-                                    position: 'fixed',
-                                    top: 0,
-                                    height: 68,
-                                    background: '#2d2c33',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
                                     display: 'flex',
+                                    alignItems: 'center',
                                     flexDirection: 'row',
+                                    height: 68,
                                 }}
                             >
-                                <div
-                                    style={{
-                                        background: '#2d2c33',
-                                        width: '100%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        flexDirection: 'row',
-                                        height: 68,
-                                    }}
-                                >
-                                    <div style={{minWidth: 24}} />
-                                    <img
-                                        style={{height: 'calc(100% - 24px)'}}
-                                        src={textLogo}
-                                        alt="Aurum logo"
-                                    />
-                                </div>
-                                <SelectCampaign
-                                    subscriptionExpDate={subscriptionExpDate}
-                                    selectOptions={selectOptions}
+                                <div style={{minWidth: 24}} />
+                                <img
+                                    style={{height: 'calc(100% - 24px)'}}
+                                    src={textLogo}
+                                    alt="Aurum logo"
                                 />
                             </div>
-                        </div>
-                        <div
-                            style={{
-                                position: 'fixed',
-                                bottom: 0,
-                                zIndex: 10,
-                                width: '100%',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                boxShadow:
-                                    'inset 0px -9px 0px -8px ' +
-                                    (theme == Theme.Dark ? '#2d2c33' : '#fff'),
-                                background: '#2d2c33',
-                            }}
-                        >
-                            <Tabs
-                                wrapTo={renderTabItem}
-                                activeTab={page}
-                                items={optionsPages.filter((item) =>
-                                    ['massAdvert', 'api'].includes(item.id),
-                                )}
-                                onSelectTab={(val) => {
-                                    setPage(val);
-                                }}
+                            <SelectCampaign
+                                subscriptionExpDate={subscriptionExpDate}
+                                selectOptions={selectOptions}
                             />
                         </div>
                     </div>
