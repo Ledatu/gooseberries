@@ -91,7 +91,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
-        console.log(docum, mode, selectValue);
+        // console.log(docum, mode, selectValue);
 
         if (mode) {
             doc['campaigns'][selectValue] = docum['campaigns'][selectValue];

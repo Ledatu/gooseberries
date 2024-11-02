@@ -1,17 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {useUser} from './RequireAuth';
 import {Text, Button, Card, Icon, Link, TextInput} from '@gravity-ui/uikit';
-import {Pencil, TrashBin} from '@gravity-ui/icons';
+import {Pencil, Magnifier} from '@gravity-ui/icons';
 import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
 import {ManageUserModal} from './ManageUserModal';
 import {ChangeApiModal} from './ChangeApiModal';
-import {motion} from 'framer-motion';
 
 const EditMemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, modules}) => {
     return (
         <Card
             style={{
+                height: 38,
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'center',
@@ -66,9 +66,8 @@ const UserInfo = ({firstName, lastName, username, photoUrl, view}) => {
 
 const cardStyle = {
     boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-    overflow: 'auto',
     height: 400,
-    width: '70vw',
+    width: '90vw',
     maxWidth: 900,
     borderRadius: 30,
 };
@@ -109,6 +108,7 @@ const CampaignInfo = ({
                 marginBottom: 32,
                 padding: 30,
                 ...cardStyle,
+                overflow: 'hidden',
             }}
         >
             <div
@@ -137,9 +137,28 @@ const CampaignInfo = ({
                             rowGap: 8,
                         }}
                     >
-                        <Text style={{minWidth: 200}} variant="header-2">
-                            {name}
-                        </Text>
+                        <div
+                            style={{
+                                minWidth: 200,
+                                maxWidth: '100%',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                rowGap: 8,
+                            }}
+                        >
+                            <Text style={{marginRight: 16}} variant="header-2">
+                                {name}
+                            </Text>
+                            <ChangeApiModal sellerId={sellerId}>
+                                <Button view="outlined" pin="circle-circle" size="l">
+                                    <Icon data={Pencil} />
+                                    <Text variant="subheader-1">Изменить API ключ</Text>
+                                </Button>
+                            </ChangeApiModal>
+                        </div>
                         <UserInfo
                             firstName={ownerDetails?.first_name}
                             lastName={ownerDetails?.last_name}
@@ -150,39 +169,67 @@ const CampaignInfo = ({
                     </div>
                     <div style={{minHeight: 8}} />
                     <div
-                        style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', rowGap: 8}}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            width: '100%',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            rowGap: 8,
+                        }}
                     >
-                        <ChangeApiModal sellerId={sellerId}>
-                            <Button view="outlined" size="l">
-                                <Text variant="subheader-1">Изменить API ключ</Text>
-                            </Button>
-                        </ChangeApiModal>
-                        <div style={{minWidth: 8}} />
+                        <Text variant="header-1">Сотрудники</Text>
                         <AddMemberModal
                             sellerId={sellerId}
                             addedMember={addedMember}
                             setAddedMember={setAddedMember}
                         >
-                            <Button view="outlined" size="l">
-                                <Text variant="subheader-1">Добавить сотрудника</Text>
+                            <Button view="outlined" pin="circle-circle" size="l">
+                                <Text variant="subheader-1">Добавить</Text>
                             </Button>
                         </AddMemberModal>
                     </div>
                 </div>
                 <div style={{minHeight: 16}} />
-                <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', rowGap: 8}}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        rowGap: 8,
+                        maxHeight: 'calc(100%  - 116px - 40px)',
+                        overflow: 'auto',
+                    }}
+                >
                     {membersInfo}
                 </div>
             </div>
-            <Text
-                style={{position: 'absolute', bottom: 30, left: 30}}
-                variant="body-3"
-                color="secondary"
+            <div
+                style={{
+                    position: 'absolute',
+                    left: 0,
+                    bottom: 0,
+                    height: 45,
+                    width: cardStyle.width,
+                    backdropFilter: 'blur(10px)',
+                }}
             >
-                {subscriptionExpDate && subscriptionExpDate !== '2100-01-01T00:00:00.000Z'
-                    ? `Подписка до ${new Date(subscriptionExpDate).toLocaleDateString('ru-RU')}`
-                    : 'Бессрочная подписка'}
-            </Text>
+                <Text
+                    style={{marginLeft: 30, marginTop: 16}}
+                    variant="body-3"
+                    color={
+                        new Date(subscriptionExpDate).getTime() - new Date().getTime() <
+                        86400 * 7 * 1000
+                            ? 'danger'
+                            : 'secondary'
+                    }
+                >
+                    {subscriptionExpDate && subscriptionExpDate !== '2100-01-01T00:00:00.000Z'
+                        ? `Подписка до ${new Date(subscriptionExpDate).toLocaleDateString('ru-RU')}`
+                        : 'Бессрочная подписка'}
+                </Text>
+            </div>
         </Card>
     );
 };
@@ -196,8 +243,15 @@ export const ManageUserCampaigns = () => {
 
     useEffect(() => {
         const campaignsInfosTemp = [] as any[];
+        const sortedCampaigns = campaigns
+            .sort((a, b) => a?.ownerDetails?._id - b?.ownerDetails?._id)
+            .sort(
+                (a, b) =>
+                    new Date(b?.subscriptionUntil)?.getTime() -
+                    new Date(a?.subscriptionUntil)?.getTime(),
+            );
         if (campaigns && campaigns.length)
-            for (const campaign of campaigns) {
+            for (const campaign of sortedCampaigns) {
                 const {name, isOwner} = campaign ?? {};
                 if (!isOwner) continue;
 
@@ -246,7 +300,7 @@ export const ManageUserCampaigns = () => {
                         overflow: 'hidden',
                         alignItems: 'center',
                         width: '70vw',
-                        maxWidth: 900,
+                        maxWidth: 700,
                         backdropFilter: 'blur(20px)',
                         position: 'fixed',
                         top: 100,
@@ -256,38 +310,26 @@ export const ManageUserCampaigns = () => {
                     }}
                 >
                     <TextInput
-                        style={{marginLeft: 16}}
+                        leftContent={
+                            <div
+                                style={{
+                                    marginRight: 8,
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Icon data={Magnifier} />
+                            </div>
+                        }
+                        style={{marginLeft: 12}}
                         view="clear"
                         value={filterValue}
                         onUpdate={(val) => setFilterValue(val)}
-                        placeholder="Введите имя магазина или информацию о владельце для поиска"
+                        placeholder="Имя магазина или владелец"
                         size="xl"
+                        hasClear
                     />
-                    <motion.div
-                        style={{
-                            width: 0,
-                            marginLeft: 0,
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                        }}
-                        animate={{
-                            width: filterValue.trim() != '' ? 190 : 0,
-                            marginLeft: filterValue.trim() != '' ? 16 : 0,
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <Button
-                            pin="circle-circle"
-                            width="max"
-                            size="xl"
-                            view="outlined"
-                            onClick={() => setFilterValue('')}
-                        >
-                            <Icon data={TrashBin} />
-                            Очистить
-                        </Button>
-                    </motion.div>
                 </Card>
             ) : (
                 <></>
