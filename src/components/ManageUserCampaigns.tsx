@@ -173,13 +173,14 @@ const CampaignInfo = ({
                             display: 'flex',
                             flexDirection: 'row',
                             width: '100%',
-                            justifyContent: 'space-between',
                             alignItems: 'center',
                             flexWrap: 'wrap',
                             rowGap: 8,
                         }}
                     >
-                        <Text variant="header-1">Сотрудники</Text>
+                        <Text style={{marginRight: 16}} variant="header-1">
+                            Сотрудники
+                        </Text>
                         <AddMemberModal
                             sellerId={sellerId}
                             addedMember={addedMember}
