@@ -71,7 +71,7 @@ export const SelectCampaign = ({
                                     alignItems: 'center',
                                 }}
                             >
-                                <Text color={isMonthBeforeApiExp ? 'danger' : 'primary'}>
+                                <Text color={isMonthBeforeApiExp ? 'danger' : undefined}>
                                     <Icon data={Key} />
                                 </Text>
                                 <div
@@ -95,9 +95,9 @@ export const SelectCampaign = ({
                                     {isMonthBeforeApiExp ? (
                                         <Text
                                             variant="caption-2"
-                                            color={isMonthBeforeApiExp ? 'danger' : 'primary'}
+                                            color={isMonthBeforeApiExp ? 'danger' : undefined}
                                         >
-                                            {`API до: ${new Date(apiKeyExpDate).toLocaleDateString(
+                                            {`API до ${new Date(apiKeyExpDate).toLocaleDateString(
                                                 'ru-RU',
                                             )}`}
                                         </Text>
