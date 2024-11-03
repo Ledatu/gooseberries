@@ -30,6 +30,11 @@ export const SelectCampaign = ({
         return date.getTime() - today.getTime() <= 10;
     }, [subscriptionExpDate]);
 
+    const isMonthBeforeApiExp = useMemo(
+        () => new Date(apiKeyExpDate).getTime() - new Date().getTime() < 86400 * 30 * 1000,
+        [apiKeyExpDate],
+    );
+
     useEffect(() => {
         if (selectValue[0] != '') return;
         if (!selectOptions.length) {
@@ -66,14 +71,7 @@ export const SelectCampaign = ({
                                     alignItems: 'center',
                                 }}
                             >
-                                <Text
-                                    color={
-                                        new Date(apiKeyExpDate).getTime() - new Date().getTime() <
-                                        86400 * 30 * 1000
-                                            ? 'danger'
-                                            : 'primary'
-                                    }
-                                >
+                                <Text color={isMonthBeforeApiExp ? 'danger' : 'primary'}>
                                     <Icon data={Key} />
                                 </Text>
                                 <div
@@ -94,6 +92,18 @@ export const SelectCampaign = ({
                                               ).toLocaleDateString('ru-RU')}`
                                             : 'Бессрочная подписка'}
                                     </Text>
+                                    {isMonthBeforeApiExp ? (
+                                        <Text
+                                            variant="caption-2"
+                                            color={isMonthBeforeApiExp ? 'danger' : 'primary'}
+                                        >
+                                            {`API до: ${new Date(apiKeyExpDate).toLocaleDateString(
+                                                'ru-RU',
+                                            )}`}
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </div>
                                 <Icon data={ChevronDown} />
                             </div>

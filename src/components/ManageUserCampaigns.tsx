@@ -67,7 +67,6 @@ const UserInfo = ({firstName, lastName, username, photoUrl, view}) => {
 
 const cardStyle = {
     boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-    height: 400,
     width: '90vw',
     maxWidth: 900,
     borderRadius: 30,
@@ -210,11 +209,12 @@ const CampaignInfo = ({
                 <div style={{minHeight: 16}} />
                 <div
                     style={{
+                        maxHeight: 250,
                         display: 'flex',
                         flexDirection: 'row',
                         flexWrap: 'wrap',
                         rowGap: 8,
-                        maxHeight: 'calc(100%  - 116px - 40px)',
+                        paddingBottom: 45,
                         overflow: 'auto',
                     }}
                 >
@@ -223,6 +223,7 @@ const CampaignInfo = ({
             </div>
             <div
                 style={{
+                    maxWidth: 'calc(90vw-60px)',
                     position: 'absolute',
                     left: 0,
                     bottom: 0,
@@ -232,10 +233,10 @@ const CampaignInfo = ({
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
+                    padding: '0px 30px',
                 }}
             >
                 <Text
-                    style={{marginLeft: 30}}
                     variant="body-2"
                     color={
                         new Date(subscriptionExpDate).getTime() - new Date().getTime() <
@@ -249,7 +250,7 @@ const CampaignInfo = ({
                         : 'Бессрочная подписка'}
                 </Text>
                 <Text
-                    style={{marginLeft: 16}}
+                    style={{marginLeft: 16, whiteSpace: 'wrap'}}
                     variant="body-2"
                     color={
                         new Date(apiKeyExpDate).getTime() - new Date().getTime() < 86400 * 30 * 1000
