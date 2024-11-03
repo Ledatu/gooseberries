@@ -1,5 +1,5 @@
 import {Button, Card, Checkbox, Icon, Link, Text} from '@gravity-ui/uikit';
-import {LogoTelegram, Globe} from '@gravity-ui/icons';
+import {LogoTelegram, Globe, CircleQuestion} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useState} from 'react';
 import logo from '../assets/aurum.svg';
@@ -52,7 +52,7 @@ export const LoginPage = () => {
                 justifyContent: 'center',
             }}
         >
-            <motion.div animate={{y: -40}} transition={{delay: 0.4}}>
+            <motion.div animate={{y: -24}} transition={{delay: 0.5}} style={{y: 100, zIndex: 100}}>
                 <Card
                     style={{
                         width: 350,
@@ -68,6 +68,7 @@ export const LoginPage = () => {
                         borderRadius: 30,
                         border: '1px solid #eee2',
                         position: 'relative',
+                        background: '#2d2c33',
                     }}
                 >
                     <motion.img
@@ -142,29 +143,61 @@ export const LoginPage = () => {
                     Authentication failed. Please try again.
                 </div>
             )}
-            <div
+            <motion.div
                 style={{
                     display: 'flex',
-                    flexDirection: 'row',
-                    marginBottom: 48,
+                    flexDirection: 'column',
                     alignItems: 'center',
+                    // marginBottom: 24,
+                    y: -28,
                 }}
             >
-                <Button
-                    size="l"
-                    pin="circle-circle"
-                    target="_blank"
-                    href="https://t.me/+bB-iFYd4uDUyZDVi"
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}
                 >
-                    <Icon data={LogoTelegram} />
-                    Наш телеграм
-                </Button>
-                <div style={{minWidth: 16}} />
-                <Button size="l" pin="circle-circle" target="_blank" href="https://aurum-sky.net">
-                    <Icon data={Globe} />
-                    Наш сайт
-                </Button>
-            </div>
+                    <Button
+                        size="l"
+                        pin="circle-circle"
+                        target="_blank"
+                        href="https://t.me/+bB-iFYd4uDUyZDVi"
+                    >
+                        <Icon data={LogoTelegram} />
+                        Наш телеграм
+                    </Button>
+                    <div style={{minWidth: 16}} />
+                    <Button
+                        size="l"
+                        pin="circle-circle"
+                        target="_blank"
+                        href="https://aurum-sky.net"
+                    >
+                        <Icon data={Globe} />
+                        Наш сайт
+                    </Button>
+                </div>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 16,
+                    }}
+                >
+                    <Button
+                        size="l"
+                        pin="circle-circle"
+                        target="_blank"
+                        href="https://t.me/AurumSkyNetSupportBot"
+                    >
+                        <Icon data={CircleQuestion} />
+                        Поддержка
+                    </Button>
+                </div>
+            </motion.div>
         </div>
     );
 };
