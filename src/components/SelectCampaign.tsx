@@ -5,9 +5,11 @@ import {useCampaign} from '../contexts/CampaignContext';
 
 export const SelectCampaign = ({
     subscriptionExpDate,
+    apiKeyExpDate,
     selectOptions,
 }: {
     subscriptionExpDate: any;
+    apiKeyExpDate: any;
     selectOptions: any[];
 }) => {
     const {selectValue, setSelectValue, switchingCampaignsFlag, setSwitchingCampaignsFlag} =
@@ -64,7 +66,16 @@ export const SelectCampaign = ({
                                     alignItems: 'center',
                                 }}
                             >
-                                <Icon data={Key} />
+                                <Text
+                                    color={
+                                        new Date(apiKeyExpDate).getTime() - new Date().getTime() <
+                                        86400 * 30 * 1000
+                                            ? 'danger'
+                                            : 'primary'
+                                    }
+                                >
+                                    <Icon data={Key} />
+                                </Text>
                                 <div
                                     style={{
                                         margin: '0 8px',

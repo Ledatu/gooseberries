@@ -52,7 +52,6 @@ export const AddMemberModal = ({
             if (!enabled || enabled[0] == 'Доступ закрыт') continue;
             modulesTemp[key] = enabled[0];
         }
-        console.log(modulesTemp);
         return modulesTemp;
     }, [modulesEnabled]);
 

@@ -81,6 +81,7 @@ export const Dashboard = ({setThemeAurum}) => {
     // const [page, setPage] = useState('delivery');
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
+    const [apiKeyExpDate, setApiKeyExpDate] = useState(undefined as any);
     const [sellerId, setSellerId] = useState('');
     const [modulesMap, setModulesMap] = useState({} as any);
 
@@ -89,6 +90,7 @@ export const Dashboard = ({setThemeAurum}) => {
         for (const campaign of campaigns) {
             if (campaign.name === selectValue[0]) {
                 setSubscriptionExpDate(campaign.subscriptionUntil);
+                setApiKeyExpDate(campaign.apiKeyExpDate);
                 setSellerId(campaign?.seller_id);
                 const userModules = campaign.userModules;
                 setModulesMap(userModules);
@@ -319,6 +321,7 @@ export const Dashboard = ({setThemeAurum}) => {
                                 />
                             </div>
                             <SelectCampaign
+                                apiKeyExpDate={apiKeyExpDate}
                                 subscriptionExpDate={subscriptionExpDate}
                                 selectOptions={selectOptions}
                             />
@@ -572,6 +575,7 @@ export const Dashboard = ({setThemeAurum}) => {
                                             }}
                                         >
                                             <SelectCampaign
+                                                apiKeyExpDate={apiKeyExpDate}
                                                 subscriptionExpDate={subscriptionExpDate}
                                                 selectOptions={selectOptions}
                                             />

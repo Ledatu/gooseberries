@@ -76,6 +76,7 @@ const cardStyle = {
 const CampaignInfo = ({
     sellerId,
     subscriptionExpDate,
+    apiKeyExpDate,
     name,
     ownerDetails,
     members,
@@ -154,7 +155,20 @@ const CampaignInfo = ({
                                 {name}
                             </Text>
                             <ChangeApiModal sellerId={sellerId}>
-                                <Button view="outlined" pin="circle-circle" size="l">
+                                <Button
+                                    selected={
+                                        new Date(apiKeyExpDate).getTime() - new Date().getTime() <
+                                        86400 * 30 * 1000
+                                    }
+                                    view={
+                                        new Date(apiKeyExpDate).getTime() - new Date().getTime() <
+                                        86400 * 30 * 1000
+                                            ? 'outlined-danger'
+                                            : 'outlined'
+                                    }
+                                    pin="circle-circle"
+                                    size="l"
+                                >
                                     <Icon data={Pencil} />
                                     <Text variant="subheader-1">Изменить API ключ</Text>
                                 </Button>
@@ -215,11 +229,14 @@ const CampaignInfo = ({
                     height: 45,
                     width: cardStyle.width,
                     backdropFilter: 'blur(10px)',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                 }}
             >
                 <Text
-                    style={{marginLeft: 30, marginTop: 16}}
-                    variant="body-3"
+                    style={{marginLeft: 30}}
+                    variant="body-2"
                     color={
                         new Date(subscriptionExpDate).getTime() - new Date().getTime() <
                         86400 * 7 * 1000
@@ -230,6 +247,19 @@ const CampaignInfo = ({
                     {subscriptionExpDate && subscriptionExpDate !== '2100-01-01T00:00:00.000Z'
                         ? `Подписка до ${new Date(subscriptionExpDate).toLocaleDateString('ru-RU')}`
                         : 'Бессрочная подписка'}
+                </Text>
+                <Text
+                    style={{marginLeft: 16}}
+                    variant="body-2"
+                    color={
+                        new Date(apiKeyExpDate).getTime() - new Date().getTime() < 86400 * 30 * 1000
+                            ? 'danger'
+                            : 'secondary'
+                    }
+                >
+                    {`API Токен действует до: ${new Date(apiKeyExpDate).toLocaleDateString(
+                        'ru-RU',
+                    )}`}
                 </Text>
             </div>
         </Card>
@@ -262,7 +292,6 @@ export const ManageUserCampaigns = () => {
                         const details = {...campaign?.ownerDetails};
                         delete details['photo_url'];
                         const vals = Object.values(details ?? {})?.join('');
-                        console.log(vals);
 
                         if (!vals?.toLocaleLowerCase()?.includes(filterValue.toLocaleLowerCase()))
                             continue;
@@ -274,6 +303,7 @@ export const ManageUserCampaigns = () => {
                         sellerId={campaign?.seller_id}
                         name={campaign?.name}
                         ownerDetails={campaign?.ownerDetails}
+                        apiKeyExpDate={campaign?.apiKeyExpDate}
                         members={campaign?.members}
                         addedMember={addedMember}
                         setAddedMember={setAddedMember}
