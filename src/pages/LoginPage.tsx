@@ -52,7 +52,11 @@ export const LoginPage = () => {
                 justifyContent: 'center',
             }}
         >
-            <motion.div animate={{y: -24}} transition={{delay: 0.5}} style={{y: 100, zIndex: 100}}>
+            <motion.div
+                animate={{y: -24, scale: 1}}
+                transition={{delay: 0.5}}
+                style={{y: 120, zIndex: 100, scale: 0.9}}
+            >
                 <Card
                     style={{
                         width: 350,
@@ -119,13 +123,14 @@ export const LoginPage = () => {
                     </div>
                     <motion.div
                         animate={{
+                            scale: privacyPolicyAccepted ? 1 : 0.1,
                             marginTop: 16,
                             marginBottom: privacyPolicyAccepted ? 130 : 0,
                             opacity: privacyPolicyAccepted ? 1 : 0,
                             display: privacyPolicyAccepted ? 'block' : 'block',
                         }}
                         transition={{ease: 'anticipate', duration: 0.6}}
-                        style={{overflow: 'hidden', opacity: 0, margin: 0}}
+                        style={{overflow: 'hidden', opacity: 0, margin: 0, scale: 0.1}}
                     >
                         <TelegramLoginButton
                             botName={'AurumSkyNetBot'}
