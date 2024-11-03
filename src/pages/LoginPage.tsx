@@ -1,4 +1,5 @@
-import {Card, Checkbox, Link, Text} from '@gravity-ui/uikit';
+import {Button, Card, Checkbox, Icon, Link, Text} from '@gravity-ui/uikit';
+import {LogoTelegram, Globe} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useState} from 'react';
 import logo from '../assets/aurum.svg';
@@ -42,6 +43,7 @@ export const LoginPage = () => {
     return (
         <div
             style={{
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 width: '100vw',
@@ -140,6 +142,29 @@ export const LoginPage = () => {
                     Authentication failed. Please try again.
                 </div>
             )}
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    marginBottom: 48,
+                    alignItems: 'center',
+                }}
+            >
+                <Button
+                    size="l"
+                    pin="circle-circle"
+                    target="_blank"
+                    href="https://t.me/+bB-iFYd4uDUyZDVi"
+                >
+                    <Icon data={LogoTelegram} />
+                    Наш телеграм
+                </Button>
+                <div style={{minWidth: 16}} />
+                <Button size="l" pin="circle-circle" target="_blank" href="https://aurum-sky.net">
+                    <Icon data={Globe} />
+                    Наш сайт
+                </Button>
+            </div>
         </div>
     );
 };
