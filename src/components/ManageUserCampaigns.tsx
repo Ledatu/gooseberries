@@ -111,7 +111,6 @@ const CampaignInfo = ({
                 padding: 30,
                 ...cardStyle,
                 overflow: 'hidden',
-                backdropFilter: 'blur(200px)',
             }}
         >
             <div
