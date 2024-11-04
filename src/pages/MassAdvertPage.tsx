@@ -4327,7 +4327,7 @@ export const MassAdvertPage = ({
                     valueType: 'text',
                 })}
                 {generateCard({summary, key: 'views', placeholder: 'ПОКАЗЫ', cardStyle})}
-                {generateCard({summary, key: 'clicks', placeholder: 'КЛИКЫ', cardStyle})}
+                {generateCard({summary, key: 'clicks', placeholder: 'КЛИКИ', cardStyle})}
                 {generateCard({summary, key: 'ctr', placeholder: 'CTR', cardStyle})}
                 {generateCard({
                     summary,
