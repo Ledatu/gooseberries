@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useUser} from './RequireAuth';
 import {Text, Button, Card, Icon, Link, TextInput} from '@gravity-ui/uikit';
-import {Pencil, Magnifier} from '@gravity-ui/icons';
+import {Pencil, Magnifier, Plus} from '@gravity-ui/icons';
 import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
 import {ManageUserModal} from './ManageUserModal';
@@ -111,6 +111,7 @@ const CampaignInfo = ({
                 padding: 30,
                 ...cardStyle,
                 overflow: 'hidden',
+                backdropFilter: 'blur(200px)',
             }}
         >
             <div
@@ -118,7 +119,6 @@ const CampaignInfo = ({
                     width: '100%',
                     height: '100%',
                     borderRadius: 30,
-                    backdropFilter: 'blur(200px)',
                 }}
             >
                 <div
@@ -141,7 +141,6 @@ const CampaignInfo = ({
                     >
                         <div
                             style={{
-                                minWidth: 200,
                                 maxWidth: '100%',
                                 display: 'flex',
                                 flexDirection: 'row',
@@ -170,7 +169,7 @@ const CampaignInfo = ({
                                     size="l"
                                 >
                                     <Icon data={Pencil} />
-                                    <Text variant="subheader-1">Изменить API ключ</Text>
+                                    <Text variant="subheader-1">API Токен</Text>
                                 </Button>
                             </ChangeApiModal>
                         </div>
@@ -202,6 +201,7 @@ const CampaignInfo = ({
                             setAddedMember={setAddedMember}
                         >
                             <Button view="outlined" pin="circle-circle" size="l">
+                                <Icon data={Plus} />
                                 <Text variant="subheader-1">Добавить</Text>
                             </Button>
                         </AddMemberModal>
@@ -224,13 +224,13 @@ const CampaignInfo = ({
             </div>
             <div
                 style={{
-                    maxWidth: 'calc(90vw-60px)',
+                    maxWidth: 'calc(90vw - 60px)',
                     position: 'absolute',
                     left: 0,
                     bottom: 0,
                     height: 45,
                     width: cardStyle.width,
-                    backdropFilter: 'blur(10px)',
+                    backdropFilter: 'blur(20px)',
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -238,7 +238,7 @@ const CampaignInfo = ({
                 }}
             >
                 <Text
-                    variant="body-2"
+                    variant="body-1"
                     color={
                         new Date(subscriptionExpDate).getTime() - new Date().getTime() <
                         86400 * 7 * 1000
@@ -250,16 +250,17 @@ const CampaignInfo = ({
                         ? `Подписка до ${new Date(subscriptionExpDate).toLocaleDateString('ru-RU')}`
                         : 'Бессрочная подписка'}
                 </Text>
+                <div style={{minWidth: 16}} />
                 <Text
-                    style={{marginLeft: 16, whiteSpace: 'wrap'}}
-                    variant="body-2"
+                    whiteSpace="break-spaces"
+                    variant="body-1"
                     color={
                         new Date(apiKeyExpDate).getTime() - new Date().getTime() < 86400 * 30 * 1000
                             ? 'danger'
                             : 'secondary'
                     }
                 >
-                    {`API Токен действует до: ${new Date(apiKeyExpDate).toLocaleDateString(
+                    {`API Токен действует до ${new Date(apiKeyExpDate).toLocaleDateString(
                         'ru-RU',
                     )}`}
                 </Text>
