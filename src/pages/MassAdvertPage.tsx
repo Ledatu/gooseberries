@@ -4318,6 +4318,7 @@ export const MassAdvertPage = ({
                     key: 'drr_orders',
                     placeholder: 'ДРР к ЗАКАЗАМ',
                     cardStyle,
+                    percent: true,
                 })}
                 {generateCard({
                     summary,
@@ -4328,18 +4329,20 @@ export const MassAdvertPage = ({
                 })}
                 {generateCard({summary, key: 'views', placeholder: 'ПОКАЗЫ', cardStyle})}
                 {generateCard({summary, key: 'clicks', placeholder: 'КЛИКИ', cardStyle})}
-                {generateCard({summary, key: 'ctr', placeholder: 'CTR', cardStyle})}
+                {generateCard({summary, key: 'ctr', placeholder: 'CTR', cardStyle, percent: true})}
                 {generateCard({
                     summary,
                     key: 'addToCartPercent',
                     placeholder: 'CR в КОРЗИНУ',
+                    percent: true,
                     cardStyle,
                 })}
                 {generateCard({
                     summary,
                     key: 'cartToOrderPercent',
-                    placeholder: 'CR в ЗАКАЗ',
                     cardStyle,
+                    percent: true,
+                    placeholder: 'CR в ЗАКАЗ',
                 })}
             </div>
             {!isMobile ? (
@@ -5568,7 +5571,7 @@ const generateScheduleInput = (args) => {
 };
 
 const generateCard = (args) => {
-    const {summary, key, placeholder, cardStyle, valueType} = args;
+    const {summary, key, placeholder, cardStyle, valueType, percent} = args;
     return (
         <Card style={cardStyle} view="outlined">
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
@@ -5584,7 +5587,7 @@ const generateCard = (args) => {
                     {valueType == 'text'
                         ? summary[key]
                         : new Intl.NumberFormat('ru-RU').format(summary[key])}
-                    {placeholder.includes(', %') ? '%' : ''}
+                    {percent ? '%' : ''}
                 </Text>
             </div>
         </Card>
