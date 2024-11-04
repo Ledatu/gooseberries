@@ -8,7 +8,15 @@ import textLogo from '../assets/textLogo.png';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
-import {PencilToSquare, Xmark, Check, TrashBin} from '@gravity-ui/icons';
+import {
+    PencilToSquare,
+    Xmark,
+    Check,
+    TrashBin,
+    CircleQuestion,
+    ChartColumnStacked,
+    Key,
+} from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
 import {AnalyticsPage} from './AnalyticsPage';
@@ -167,8 +175,44 @@ export const Dashboard = ({setThemeAurum}) => {
         );
     };
 
+    const renderFooterItem = (item, node, index) => {
+        if (item === undefined || node === undefined || index === undefined) return <></>;
+
+        return (
+            <Link
+                href={item?.href}
+                target={item?.target}
+                className="tablink"
+                view="primary"
+                onClick={() => {
+                    if (item.disabled || !item.id) return;
+                    setPage(item.id);
+                    refetchUser();
+                }}
+            >
+                <Text
+                    variant="caption-2"
+                    color={item.id == page ? 'brand' : 'primary'}
+                    style={{
+                        height: 70,
+                        paddingBottom: 10,
+                        width: 90,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Icon data={item?.icon} size={24} />
+                    {item.title}
+                </Text>
+            </Link>
+        );
+    };
+
     const optionsPages: any[] = [
         {
+            icon: ChartColumnStacked,
             id: 'massAdvert',
             title: 'Реклама',
             disabled: !modules.includes('all') && !modules.includes('massAdvert'),
@@ -204,10 +248,12 @@ export const Dashboard = ({setThemeAurum}) => {
             disabled: !modules.includes('all') && !modules.includes('seo'),
         },
         {
+            icon: Key,
             id: 'api',
             title: 'Магазины',
         },
         {
+            icon: CircleQuestion,
             title: 'Поддержка',
             href: 'https://t.me/AurumSkyNetSupportBot',
             target: '_blank',
@@ -258,7 +304,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     }}
                 >
                     <Tabs
-                        wrapTo={renderTabItem}
+                        wrapTo={renderFooterItem}
                         activeTab={page}
                         items={optionsPages.filter((item) =>
                             ['Реклама', 'Магазины', 'Поддержка'].includes(item.title),

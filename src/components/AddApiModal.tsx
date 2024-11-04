@@ -53,104 +53,129 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
             {triggerButton}
             <Modal open={open} onClose={handleClose}>
                 <Card
+                    view="clear"
                     style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                         alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'none',
                     }}
                 >
-                    <Card
-                        style={{
-                            background: 'var(--g-color-base-background)',
-                            height: 300,
-                            width: 300,
-                            display: 'flex',
-                            flexDirection: 'column',
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                height: '100%',
-                                borderRadius: 9,
-                                overflow: 'hidden',
-                            }}
-                        >
-                            <img src={screen} style={{height: '100%'}} />
-                        </div>
-                    </Card>
-                    <Text
-                        variant="caption-2"
-                        color="secondary"
-                        style={{
-                            margin: '8px',
-                        }}
-                    >
-                        Так должны выглядеть настройки API токена.
-                    </Text>
                     <motion.div
-                        animate={{height: open ? 208 : 0}}
                         style={{
-                            height: 0,
-                            width: 300,
-                            overflow: 'auto',
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            position: 'relative',
                             justifyContent: 'space-between',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
                         }}
                     >
-                        <TextInput
-                            value={name}
-                            onUpdate={(val) => setName(val)}
-                            size="l"
-                            placeholder="Введите название магазина"
-                        />
-                        <TextInput
-                            value={key}
-                            onUpdate={(val) => setKey(val)}
-                            size="l"
-                            placeholder="Вставьте API токен"
-                        />
-                        <Button
-                            width="max"
-                            size="l"
-                            view="outlined-success"
-                            selected
-                            disabled={name === '' || key === ''}
-                            onClick={() => {
-                                const params = {
-                                    user_id: user?._id,
-                                    campaignName: name,
-                                    apiKey: key,
-                                };
-                                callApi('createCampaign', params, false, true)
-                                    .then(() => {
-                                        refetchUser();
-                                    })
-                                    .catch((error) => {
-                                        showError(
-                                            error.response?.data?.error ||
-                                                'An unknown error occurred',
-                                        );
-                                    })
-                                    .finally(() => handleClose());
+                        <Card
+                            style={{
+                                background: 'var(--g-color-base-background)',
+                                height: 300,
+                                width: 300,
+                                display: 'flex',
+                                flexDirection: 'column',
                             }}
                         >
-                            <Text variant="subheader-1">Добавить магазин</Text>
-                        </Button>
-                        <Text style={{margin: '0 16px'}} variant="caption-2" color="secondary">
-                            Вы можете начать работать уже через 30 минут, а через 3 часа вам будет
-                            доступна подробная статистика за последние 90 дней!
-                        </Text>
-                        <Link
-                            href="https://seller.wildberries.ru/supplier-settings/access-to-api"
-                            target="_blank"
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    height: '100%',
+                                    borderRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <img src={screen} style={{height: '100%'}} />
+                            </div>
+                        </Card>
+                        <Text
+                            variant="caption-2"
+                            color="secondary"
+                            style={{
+                                margin: '8px',
+                                marginBottom: 30,
+                            }}
                         >
-                            Сгенерируйте API токен здесь
-                        </Link>
+                            Так должны выглядеть настройки API токена.
+                        </Text>
+                        <motion.div
+                            animate={{height: open ? 208 : 0}}
+                            style={{
+                                height: 0,
+                                width: 300,
+                                overflow: 'auto',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                position: 'relative',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <TextInput
+                                value={name}
+                                onUpdate={(val) => setName(val)}
+                                size="l"
+                                placeholder="Введите название магазина"
+                            />
+                            <TextInput
+                                value={key}
+                                onUpdate={(val) => setKey(val)}
+                                size="l"
+                                placeholder="Вставьте API токен"
+                            />
+                            <Button
+                                width="max"
+                                size="l"
+                                view="outlined-success"
+                                selected
+                                disabled={name === '' || key === ''}
+                                onClick={() => {
+                                    const params = {
+                                        user_id: user?._id,
+                                        campaignName: name,
+                                        apiKey: key,
+                                    };
+                                    callApi('createCampaign', params, false, true)
+                                        .then(() => {
+                                            refetchUser();
+                                        })
+                                        .catch((error) => {
+                                            showError(
+                                                error.response?.data?.error ||
+                                                    'An unknown error occurred',
+                                            );
+                                        })
+                                        .finally(() => handleClose());
+                                }}
+                            >
+                                <Text variant="subheader-1">Добавить магазин</Text>
+                            </Button>
+                            <Text style={{margin: '0 16px'}} variant="caption-2" color="secondary">
+                                Вы можете начать работать уже через 30 минут, а через 3 часа вам
+                                будет доступна подробная статистика за последние 90 дней!
+                            </Text>
+                            <Link
+                                href="https://seller.wildberries.ru/supplier-settings/access-to-api"
+                                target="_blank"
+                            >
+                                Сгенерируйте API токен здесь
+                            </Link>
+                        </motion.div>
                     </motion.div>
                 </Card>
             </Modal>

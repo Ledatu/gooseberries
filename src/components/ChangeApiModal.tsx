@@ -49,17 +49,35 @@ export const ChangeApiModal = ({sellerId, children}: ChangeApiModalInterface) =>
         <>
             {triggerButton}
             <Modal open={open} onClose={handleClose}>
-                <Card>
+                <Card
+                    view="clear"
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'none',
+                    }}
+                >
                     <motion.div
                         animate={{height: open ? 82 : 0}}
                         style={{
-                            height: 0,
-                            width: 300,
-                            overflow: 'auto',
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
-                            position: 'relative',
+                            alignItems: 'center',
                             justifyContent: 'space-between',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
                         }}
                     >
                         <TextInput

@@ -7,6 +7,7 @@ import {AddMemberModal} from './AddMemberModal';
 import {ManageUserModal} from './ManageUserModal';
 import {ChangeApiModal} from './ChangeApiModal';
 import {motion} from 'framer-motion';
+import {AddApiModal} from './AddApiModal';
 
 const EditMemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, modules}) => {
     return (
@@ -334,6 +335,7 @@ export const ManageUserCampaigns = () => {
                     }}
                     animate={{top: 100, width: '70vw', maxWidth: 700}}
                     style={{
+                        rowGap: 8,
                         zIndex: 100,
                         position: 'fixed',
                         top: 0,
@@ -384,9 +386,32 @@ export const ManageUserCampaigns = () => {
                     damping: 100,
                     stiffness: 1000,
                 }}
-                animate={{marginTop: 100}}
-                style={{marginTop: 400}}
+                animate={{marginTop: 94}}
+                style={{
+                    marginTop: 400,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
             >
+                <div>
+                    <AddApiModal>
+                        <Button
+                            size="xl"
+                            view="flat"
+                            style={{
+                                marginBottom: 30,
+                                border: '1px solid var(--yc-color-base-generic-hover)',
+                                borderRadius: 30,
+                                overflow: 'hidden',
+                                backdropFilter: 'blur(20px)',
+                                boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                            }}
+                        >
+                            <Text variant="subheader-1">Добавить магазин WB</Text>
+                        </Button>
+                    </AddApiModal>
+                </div>
                 {campaignsInfos}
             </motion.div>
         </div>

@@ -210,7 +210,6 @@ export const AddMemberModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            background: '#221d220f',
                             backdropFilter: 'blur(8px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
