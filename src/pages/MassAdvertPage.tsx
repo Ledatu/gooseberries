@@ -4311,7 +4311,7 @@ export const MassAdvertPage = ({
                     flexWrap: 'wrap',
                 }}
             >
-                {generateCard({summary, key: 'sum_orders', placeholder: 'ЗАКАЗОВ', cardStyle})}
+                {generateCard({summary, key: 'sum_orders', placeholder: 'ЗАКАЗЫ', cardStyle})}
                 {generateCard({summary, key: 'sum', placeholder: 'ПРОДВИЖЕНИЕ', cardStyle})}
                 {generateCard({
                     summary,
@@ -4326,8 +4326,8 @@ export const MassAdvertPage = ({
                     cardStyle,
                     valueType: 'text',
                 })}
-                {generateCard({summary, key: 'views', placeholder: 'ПОКАЗОВ', cardStyle})}
-                {generateCard({summary, key: 'clicks', placeholder: 'КЛИКОВ', cardStyle})}
+                {generateCard({summary, key: 'views', placeholder: 'ПОКАЗЫ', cardStyle})}
+                {generateCard({summary, key: 'clicks', placeholder: 'КЛИКЫ', cardStyle})}
                 {generateCard({summary, key: 'ctr', placeholder: 'CTR', cardStyle})}
                 {generateCard({
                     summary,
