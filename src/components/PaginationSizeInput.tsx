@@ -31,6 +31,7 @@ export const PaginationSizeInput = ({
         <div style={{display: 'flex', flexDirection: 'row'}}>
             <Tooltip openDelay={1500} content={'Кол-во строк на странице.'}>
                 <TextInput
+                    placeholder={paginationSize}
                     rightContent={
                         tempPaginationSize != paginationSize ? (
                             <Button

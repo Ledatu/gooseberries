@@ -4311,34 +4311,34 @@ export const MassAdvertPage = ({
                     flexWrap: 'wrap',
                 }}
             >
-                {generateCard({summary, key: 'sum_orders', placeholder: 'Заказов, ₽', cardStyle})}
-                {generateCard({summary, key: 'sum', placeholder: 'Расход, ₽', cardStyle})}
+                {generateCard({summary, key: 'sum_orders', placeholder: 'ЗАКАЗОВ', cardStyle})}
+                {generateCard({summary, key: 'sum', placeholder: 'ПРОДВИЖЕНИЕ', cardStyle})}
                 {generateCard({
                     summary,
                     key: 'drr_orders',
-                    placeholder: 'ДРР к заказам, %',
+                    placeholder: 'ДРР к ЗАКАЗАМ',
                     cardStyle,
                 })}
                 {generateCard({
                     summary,
                     key: 'profit',
-                    placeholder: 'Профит ₽ / Рент. %',
+                    placeholder: 'ПРИБЫЛЬ / РЕНТ. к ЗАКАЗАМ',
                     cardStyle,
                     valueType: 'text',
                 })}
-                {generateCard({summary, key: 'views', placeholder: 'Показов, шт.', cardStyle})}
-                {generateCard({summary, key: 'clicks', placeholder: 'Кликов, шт.', cardStyle})}
-                {generateCard({summary, key: 'ctr', placeholder: 'CTR, %', cardStyle})}
+                {generateCard({summary, key: 'views', placeholder: 'ПОКАЗЫ', cardStyle})}
+                {generateCard({summary, key: 'clicks', placeholder: 'КЛИКИ', cardStyle})}
+                {generateCard({summary, key: 'ctr', placeholder: 'CTR', cardStyle})}
                 {generateCard({
                     summary,
                     key: 'addToCartPercent',
-                    placeholder: 'CR в корзину, %',
+                    placeholder: 'CR в КОРЗИНУ',
                     cardStyle,
                 })}
                 {generateCard({
                     summary,
                     key: 'cartToOrderPercent',
-                    placeholder: 'CR в заказ, %',
+                    placeholder: 'CR в ЗАКАЗ',
                     cardStyle,
                 })}
             </div>
