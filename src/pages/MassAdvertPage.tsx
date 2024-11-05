@@ -4674,8 +4674,7 @@ export const MassAdvertPage = ({
                                                 value={String(bidInputValue)}
                                                 onChange={(val) => {
                                                     const bid = Number(val.target.value);
-                                                    if (bid < 100)
-                                                        setBidInputValidationValue(false);
+                                                    if (bid < 50) setBidInputValidationValue(false);
                                                     else setBidInputValidationValue(true);
                                                     setBidInputValue(bid);
                                                 }}
