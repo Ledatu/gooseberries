@@ -114,7 +114,7 @@ export const AdvertsBidsModal = ({
     const [cpmInputValue, setCpmInputValue] = useState('');
     const cpmInputValueValid = useMemo(() => {
         const temp = parseInt(cpmInputValue);
-        return temp && temp >= 100 && !isNaN(temp) && isFinite(temp);
+        return temp && temp >= 50 && !isNaN(temp) && isFinite(temp);
     }, [cpmInputValue]);
 
     const [drrInputValue, setDrrInputValue] = useState('');
