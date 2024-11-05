@@ -4617,7 +4617,7 @@ export const MassAdvertPage = ({
                                         options={advertTypeSwitchValues}
                                         onUpdate={(val) => {
                                             setAdvertTypeSwitchValue(val);
-                                            setBidInputValue(val[0] == 'Авто' ? 100 : 150);
+                                            setBidInputValue(val[0] == 'Авто' ? 50 : 150);
                                         }}
                                     />
                                     <div
