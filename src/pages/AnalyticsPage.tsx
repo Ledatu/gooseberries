@@ -227,23 +227,68 @@ export const AnalyticsPage = ({permission}) => {
                 }),
         },
         rentabelnost: {
-            placeholder: 'Рентабельность, %',
+            placeholder: '%Приб.Заказы',
             planType: 'avg',
             render: (args) =>
-                renderWithGraph(
-                    args,
-                    'rentabelnost',
-                    'Рентабельность, %',
-                    ['rentabelnost'],
-                    (args) => {
-                        const {value} = args;
-                        return (
-                            <Text color={value > 0 ? 'positive' : 'danger'}>
-                                {renderAsPercent(args)}
-                            </Text>
-                        );
-                    },
-                ),
+                renderWithGraph(args, 'rentabelnost', '%Приб.Заказы', ['rentabelnost'], (args) => {
+                    const {value} = args;
+                    return (
+                        <Text color={value > 0 ? 'positive' : 'danger'}>
+                            {renderAsPercent(args)}
+                        </Text>
+                    );
+                }),
+        },
+        rentSales: {
+            placeholder: '%Приб.Продажи',
+            planType: 'avg',
+            render: (args) =>
+                renderWithGraph(args, 'rentSales', '%Приб.Продажи', ['rentSales'], (args) => {
+                    const {value} = args;
+                    return (
+                        <Text color={value > 0 ? 'positive' : 'danger'}>
+                            {renderAsPercent(args)}
+                        </Text>
+                    );
+                }),
+        },
+        rentPrimeCost: {
+            placeholder: '%Приб.Себес',
+            planType: 'avg',
+            render: (args) =>
+                renderWithGraph(args, 'rentPrimeCost', '%Приб.Себес', ['rentPrimeCost'], (args) => {
+                    const {value} = args;
+                    return (
+                        <Text color={value > 0 ? 'positive' : 'danger'}>
+                            {renderAsPercent(args)}
+                        </Text>
+                    );
+                }),
+        },
+        salesPrimeCost: {
+            placeholder: 'Себес. продаж, ₽',
+            isReverseGrad: true,
+            render: (args) => renderWithGraph(args, 'salesPrimeCost', 'Себес. продаж, ₽'),
+        },
+        // comission: {
+        //     placeholder: 'Комиссия, ₽',
+        //     isReverseGrad: true,
+        //     render: (args) => renderWithGraph(args, 'comission', 'Комиссия, ₽'),
+        // },
+        tax: {
+            placeholder: 'Налог, ₽',
+            isReverseGrad: true,
+            render: (args) => renderWithGraph(args, 'tax', 'Налог, ₽'),
+        },
+        expences: {
+            placeholder: 'Доп. расходы, ₽',
+            isReverseGrad: true,
+            render: (args) => renderWithGraph(args, 'expences', 'Доп. расходы, ₽'),
+        },
+        logistics: {
+            placeholder: 'Логистика, ₽',
+            isReverseGrad: true,
+            render: (args) => renderWithGraph(args, 'logistics', 'Логистика, ₽'),
         },
         drr_orders: {
             placeholder: 'ДРР к заказам, %',
@@ -345,9 +390,28 @@ export const AnalyticsPage = ({permission}) => {
             isReverseGrad: true,
             render: (args) => renderWithGraph(args, 'storageCost', 'Хранение, ₽'),
         },
+        views: {
+            placeholder: 'Показов, шт.',
+            render: (args) => renderWithGraph(args, 'views', 'Показов, шт.'),
+        },
         clicks: {
             placeholder: 'Кликов, шт.',
             render: (args) => renderWithGraph(args, 'clicks', 'Кликов, шт.'),
+        },
+        ctr: {
+            placeholder: 'CTR, %',
+            planType: 'avg',
+            render: (args) => renderWithGraph(args, 'ctr', 'CTR, %', ['ctr'], renderAsPercent),
+        },
+        cpc: {
+            placeholder: 'CPC, ₽',
+            isReverseGrad: true,
+            render: (args) => renderWithGraph(args, 'cpc', 'CPC, ₽'),
+        },
+        cpm: {
+            placeholder: 'CPM, ₽',
+            isReverseGrad: true,
+            render: (args) => renderWithGraph(args, 'ctr', 'CPM, ₽'),
         },
         openCardCount: {
             placeholder: 'Переходы, шт.',
@@ -747,9 +811,41 @@ export const AnalyticsPage = ({permission}) => {
                 tempTypeRow['sum_orders'] = dateStats['sum_orders'];
                 tempTypeRow['sales'] = dateStats['sales'];
                 tempTypeRow['sum_sales'] = dateStats['sum_sales'];
-                tempTypeRow['profit'] = Math.round(dateStats['profit']);
-                tempTypeRow['rentabelnost'] = dateStats['rentabelnost'];
+
+                tempTypeRow['profit'] = dateStats['profit'];
+                tempTypeRow['salesPrimeCost'] = dateStats['salesPrimeCost'];
+                tempTypeRow['comission'] = dateStats['comission'];
+                tempTypeRow['tax'] = dateStats['tax'];
+                tempTypeRow['expences'] = dateStats['expences'];
+                tempTypeRow['logistics'] = dateStats['logistics'];
+
+                tempTypeRow['rentabelnost'] = getRoundValue(
+                    tempTypeRow['profit'],
+                    tempTypeRow['sum_orders'],
+                    true,
+                );
+                tempTypeRow['rentSales'] = getRoundValue(
+                    tempTypeRow['profit'],
+                    tempTypeRow['sum_sales'],
+                    true,
+                );
+                tempTypeRow['rentPrimeCost'] = getRoundValue(
+                    tempTypeRow['profit'],
+                    tempTypeRow['salesPrimeCost'],
+                    true,
+                );
                 tempTypeRow['clicks'] = dateStats['clicks'];
+                tempTypeRow['views'] = dateStats['views'];
+                tempTypeRow['ctr'] = getRoundValue(
+                    tempTypeRow['clicks'],
+                    tempTypeRow['views'],
+                    true,
+                );
+                tempTypeRow['sum'] = dateStats['sum'];
+
+                tempTypeRow['cpc'] = getRoundValue(tempTypeRow['sum'], tempTypeRow['clicks']);
+                tempTypeRow['cpm'] = getRoundValue(tempTypeRow['sum'], tempTypeRow['views'] / 1000);
+
                 tempTypeRow['sppPrice'] = dateStats['sppPrice'];
 
                 tempTypeRow['cr'] = dateStats['cr'];
@@ -769,7 +865,6 @@ export const AnalyticsPage = ({permission}) => {
 
                 tempTypeRow['expectedSales'] = dateStats['expectedSales'];
 
-                tempTypeRow['sum'] = dateStats['sum'];
                 tempTypeRow['drr_orders'] = getRoundValue(
                     tempTypeRow['sum'],
                     tempTypeRow['sum_orders'],
@@ -853,6 +948,11 @@ export const AnalyticsPage = ({permission}) => {
                 sum_orders: 0,
                 sales: 0,
                 sum_sales: 0,
+                salesPrimeCost: 0,
+                comission: 0,
+                tax: 0,
+                expences: 0,
+                logistics: 0,
                 profit: 0,
                 obor: 0,
                 obor_temp: {count: 0, val: 0},
@@ -877,6 +977,8 @@ export const AnalyticsPage = ({permission}) => {
                 cpl: 0,
                 storageCost: 0,
                 clicks: 0,
+                views: 0,
+                ctr: 0,
                 sppPrice: 0,
                 sppPrice_temp: {count: 0, val: 0},
             },
@@ -937,6 +1039,11 @@ export const AnalyticsPage = ({permission}) => {
                     sum_orders: 0,
                     sales: 0,
                     sum_sales: 0,
+                    salesPrimeCost: 0,
+                    comission: 0,
+                    tax: 0,
+                    expences: 0,
+                    logistics: 0,
                     profit: 0,
                     obor: 0,
                     obor_temp: {count: 0, val: 0},
@@ -965,6 +1072,8 @@ export const AnalyticsPage = ({permission}) => {
                     cr: 0,
                     cpl: 0,
                     clicks: 0,
+                    views: 0,
+                    ctr: 0,
                     sppPrice: 0,
                     sppPrice_temp: {count: 0, val: 0},
                 };
@@ -978,9 +1087,33 @@ export const AnalyticsPage = ({permission}) => {
             summaryAdd(row, 'expectedSales', undefined);
             summaryAdd(row, 'sum_sales', undefined);
             summaryAdd(row, 'sum', undefined);
+
             summaryAdd(row, 'profit', undefined);
+            summaryAdd(row, 'salesPrimeCost', undefined);
+            summaryAdd(row, 'comission', undefined);
+            summaryAdd(row, 'tax', undefined);
+            summaryAdd(row, 'expences', undefined);
+            summaryAdd(row, 'logistics', undefined);
 
             summaryAdd(row, 'clicks', undefined);
+            summaryAdd(row, 'views', undefined);
+            summaryAdd(row, 'ctr', undefined);
+            summaries[entity]['ctr'] = getRoundValue(
+                summaries[entity]['clicks'],
+                summaries[entity]['views'],
+                true,
+            );
+            summaryAdd(row, 'cpc', undefined);
+            summaries[entity]['cpc'] = getRoundValue(
+                summaries[entity]['sum'],
+                summaries[entity]['clicks'],
+            );
+            summaryAdd(row, 'cpm', undefined);
+            summaries[entity]['cpm'] = getRoundValue(
+                summaries[entity]['sum'],
+                summaries[entity]['views'] / 1000,
+            );
+
             summaryAdd(row, 'openCardCount', undefined);
             summaryAdd(row, 'addToCartCount', undefined);
             summaryAdd(row, 'buyoutsPercent', undefined);
@@ -1015,6 +1148,12 @@ export const AnalyticsPage = ({permission}) => {
             );
             summaryAdd(row, 'romi', getRoundValue(row['profit'], row['sum'], true));
             summaryAdd(row, 'rentabelnost', getRoundValue(row['profit'], row['sum_orders'], true));
+            summaryAdd(row, 'rentSales', getRoundValue(row['profit'], row['sum_sales'], true));
+            summaryAdd(
+                row,
+                'rentPrimeCost',
+                getRoundValue(row['profit'], row['salesPrimeCost'], true),
+            );
 
             const getDate = (inputDate) => {
                 let date = inputDate;
@@ -1063,6 +1202,16 @@ export const AnalyticsPage = ({permission}) => {
             summaries[entity]['rentabelnost'] = getRoundValue(
                 summaries[entity]['profit'],
                 summaries[entity]['sum_orders'],
+                true,
+            );
+            summaries[entity]['rentSales'] = getRoundValue(
+                summaries[entity]['profit'],
+                summaries[entity]['sum_sales'],
+                true,
+            );
+            summaries[entity]['rentPrimeCost'] = getRoundValue(
+                summaries[entity]['profit'],
+                summaries[entity]['salesPrimeCost'],
                 true,
             );
 
@@ -1125,7 +1274,14 @@ export const AnalyticsPage = ({permission}) => {
             summaries['filteredSummaryTemp']['isMainSummary'] = true;
             summaries['filteredSummaryTemp']['orders'] += row['orders'];
             summaries['filteredSummaryTemp']['sum_orders'] += row['sum_orders'];
+
             summaries['filteredSummaryTemp']['profit'] += row['profit'];
+            summaries['filteredSummaryTemp']['salesPrimeCost'] += row['salesPrimeCost'];
+            summaries['filteredSummaryTemp']['comission'] += row['comission'];
+            summaries['filteredSummaryTemp']['tax'] += row['tax'];
+            summaries['filteredSummaryTemp']['expences'] += row['expences'];
+            summaries['filteredSummaryTemp']['logistics'] += row['logistics'];
+
             summaries['filteredSummaryTemp']['sales'] += row['sales'];
             summaries['filteredSummaryTemp']['expectedSales'] += row['expectedSales'];
             summaries['filteredSummaryTemp']['sum_sales'] += row['sum_sales'];
@@ -1191,7 +1347,22 @@ export const AnalyticsPage = ({permission}) => {
                 summaries['filteredSummaryTemp']['orders'],
             );
 
+            summaries['filteredSummaryTemp']['views'] += row['views'];
             summaries['filteredSummaryTemp']['clicks'] += row['clicks'];
+            summaries['filteredSummaryTemp']['ctr'] = getRoundValue(
+                summaries['filteredSummaryTemp']['clicks'],
+                summaries['filteredSummaryTemp']['views'],
+                true,
+            );
+            summaries['filteredSummaryTemp']['cpc'] = getRoundValue(
+                summaries['filteredSummaryTemp']['sum'],
+                summaries['filteredSummaryTemp']['clicks'],
+            );
+            summaries['filteredSummaryTemp']['cpm'] = getRoundValue(
+                summaries['filteredSummaryTemp']['sum'],
+                summaries['filteredSummaryTemp']['views'] / 1000,
+            );
+
             summaries['filteredSummaryTemp']['addToCartCount'] += row['addToCartCount'];
             summaries['filteredSummaryTemp']['openCardCount'] += row['openCardCount'];
             summaries['filteredSummaryTemp']['buyoutsPercent'] = getRoundValue(
