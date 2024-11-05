@@ -72,7 +72,6 @@ export const LoginPage = () => {
                         borderRadius: 30,
                         border: '1px solid #eee2',
                         position: 'relative',
-                        background: '#2d2c33',
                     }}
                 >
                     <motion.img
@@ -149,11 +148,14 @@ export const LoginPage = () => {
                 </div>
             )}
             <motion.div
+                transition={{delay: 0.5}}
+                animate={{opacity: 1}}
                 style={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     // marginBottom: 24,
+                    opacity: 0,
                     y: -28,
                 }}
             >
