@@ -1309,6 +1309,16 @@ export const AnalyticsPage = ({permission}) => {
                 summaries['filteredSummaryTemp']['sum_orders'],
                 true,
             );
+            summaries['filteredSummaryTemp']['rentSales'] = getRoundValue(
+                summaries['filteredSummaryTemp']['profit'],
+                summaries['filteredSummaryTemp']['sum_sales'],
+                true,
+            );
+            summaries['filteredSummaryTemp']['rentPrimeCost'] = getRoundValue(
+                summaries['filteredSummaryTemp']['profit'],
+                summaries['filteredSummaryTemp']['salesPrimeCost'],
+                true,
+            );
 
             summaries['filteredSummaryTemp']['skuInStock_temp'].val += row['skuInStock'];
             summaries['filteredSummaryTemp']['skuInStock_temp'].count += 1;
