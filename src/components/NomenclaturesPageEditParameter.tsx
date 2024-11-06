@@ -118,7 +118,7 @@ export const NomenclaturesPageEditParameter = ({
                             placeholder={'Введите значение'}
                             value={enteredValue}
                             onUpdate={(val) => {
-                                setEnteredValue(val);
+                                setEnteredValue(val.replace(/,/g, '.'));
                             }}
                         />
                         {keys[enteredValueKey]?.type != 'text' ? (
