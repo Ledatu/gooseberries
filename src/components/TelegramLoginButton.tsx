@@ -48,12 +48,8 @@ const TelegramLoginButton: React.FC<TelegramLoginButtonType> = ({
 
         script.setAttribute('data-userpic', usePic.toString());
 
-        // Use dataAuthUrl for mobile redirection
-        if (dataAuthUrl) {
-            script.setAttribute('data-auth-url', dataAuthUrl);
-        } else {
-            script.setAttribute('data-onauth', 'TelegramLoginWidget.dataOnauth(user)');
-        }
+        if (dataAuthUrl) script.setAttribute('data-auth-url', dataAuthUrl);
+        script.setAttribute('data-onauth', 'TelegramLoginWidget.dataOnauth(user)');
 
         script.async = true;
 
