@@ -1,54 +1,13 @@
+// LoginPage.tsx
 import {Button, Card, Checkbox, Icon, Link, Text} from '@gravity-ui/uikit';
 import {LogoTelegram, Globe, CircleQuestion} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useState} from 'react';
 import logo from '../assets/aurum.svg';
 import TelegramLoginButton from 'src/components/TelegramLoginButton';
-import callApi from 'src/utilities/callApi';
-import {Navigate, useLocation} from 'react-router-dom';
-import {useError} from './ErrorContext';
-
-async function handleTelegramLogin(authData) {
-    try {
-        const response = await callApi('loginUser', authData);
-        console.log('login user', response);
-
-        // Save the token from the server response
-        if (!response) return false;
-        const {token} = response.data;
-        localStorage.setItem('authToken', token); // Alternatively, use cookies
-        return true;
-    } catch (error) {
-        console.error('Authentication failed', error);
-        return false;
-    }
-}
 
 export const LoginPage = () => {
-    const location = useLocation();
-    const {showError} = useError();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [authAttempted, setAuthAttempted] = useState(false); // Track if auth was attempted
     const [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false);
-
-    const handleLogin = async (authData) => {
-        try {
-            const valid = await handleTelegramLogin(authData);
-            setAuthAttempted(true);
-            setIsAuthenticated(valid);
-
-            // Add a short delay if necessary to ensure the auth data is sent
-            await new Promise((resolve) => setTimeout(resolve, 200));
-        } catch (error) {
-            showError(error.response?.data?.error || error || 'An unknown error occurred');
-            console.error('Error in handling login:', error);
-        }
-    };
-
-    // If authenticated, navigate to the dashboard
-    if (authAttempted && isAuthenticated) {
-        return <Navigate to="/" state={{from: location}} replace />;
-    }
 
     return (
         <div
@@ -145,21 +104,11 @@ export const LoginPage = () => {
                             botName="AurumSkyNetBot"
                             usePic={false}
                             buttonSize="large"
-                            dataAuthUrl="https://seller.aurum-sky.net/" // Redirect for all users
-                            dataOnauth={(data) => {
-                                if (privacyPolicyAccepted) {
-                                    handleLogin(data); // Send auth data to server
-                                }
-                            }}
+                            dataAuthUrl="https://seller.aurum-sky.net/loginHandler" // Redirect for all users
                         />
                     </motion.div>
                 </Card>
             </motion.div>
-            {authAttempted && !isAuthenticated && (
-                <div style={{color: 'red', marginTop: 20}}>
-                    Authentication failed. Please try again.
-                </div>
-            )}
             <motion.div
                 transition={{delay: 0.5}}
                 animate={{opacity: 1}}
@@ -167,7 +116,6 @@ export const LoginPage = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    // marginBottom: 24,
                     opacity: 0,
                     y: -28,
                 }}
