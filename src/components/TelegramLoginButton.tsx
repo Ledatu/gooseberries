@@ -19,7 +19,7 @@ declare global {
 
 const TelegramLoginButton: React.FC<TelegramLoginButtonType> = ({
     wrapperProps,
-    dataAuthUrl,
+    dataAuthUrl, // This should be set to your login redirect URL for mobile
     usePic = false,
     botName,
     className,
@@ -32,18 +32,6 @@ const TelegramLoginButton: React.FC<TelegramLoginButtonType> = ({
 
     useEffect(() => {
         if (ref.current === null) return;
-
-        if (typeof dataOnauth === 'undefined' && typeof dataAuthUrl === 'undefined') {
-            throw new Error(
-                'One of this props should be defined: dataAuthUrl (redirect URL), dataOnauth (callback fn) should be defined.',
-            );
-        }
-
-        if (typeof dataOnauth === 'function') {
-            window.TelegramLoginWidget = {
-                dataOnauth: (user: TelegramUser) => dataOnauth(user),
-            };
-        }
 
         const script = document.createElement('script');
         script.src = 'https://telegram.org/js/telegram-widget.js?22';
@@ -60,7 +48,8 @@ const TelegramLoginButton: React.FC<TelegramLoginButtonType> = ({
 
         script.setAttribute('data-userpic', usePic.toString());
 
-        if (typeof dataAuthUrl === 'string') {
+        // Use dataAuthUrl for mobile redirection
+        if (dataAuthUrl) {
             script.setAttribute('data-auth-url', dataAuthUrl);
         } else {
             script.setAttribute('data-onauth', 'TelegramLoginWidget.dataOnauth(user)');

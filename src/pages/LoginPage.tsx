@@ -6,6 +6,7 @@ import logo from '../assets/aurum.svg';
 import TelegramLoginButton from 'src/components/TelegramLoginButton';
 import callApi from 'src/utilities/callApi';
 import {Navigate, useLocation} from 'react-router-dom';
+import {useError} from './ErrorContext';
 
 async function handleTelegramLogin(authData) {
     try {
@@ -25,14 +26,23 @@ async function handleTelegramLogin(authData) {
 
 export const LoginPage = () => {
     const location = useLocation();
+    const {showError} = useError();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authAttempted, setAuthAttempted] = useState(false); // Track if auth was attempted
     const [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false);
 
     const handleLogin = async (authData) => {
-        const valid = await handleTelegramLogin(authData);
-        setAuthAttempted(true); // Mark that we've attempted authentication
-        setIsAuthenticated(valid); // Update authentication state based on login success
+        try {
+            const valid = await handleTelegramLogin(authData);
+            setAuthAttempted(true);
+            setIsAuthenticated(valid);
+
+            // Add a short delay if necessary to ensure the auth data is sent
+            await new Promise((resolve) => setTimeout(resolve, 200));
+        } catch (error) {
+            showError(error.response?.data?.error || error || 'An unknown error occurred');
+            console.error('Error in handling login:', error);
+        }
     };
 
     // If authenticated, navigate to the dashboard
@@ -132,11 +142,14 @@ export const LoginPage = () => {
                         style={{overflow: 'hidden', opacity: 0, margin: 0, scale: 0.1}}
                     >
                         <TelegramLoginButton
-                            botName={'AurumSkyNetBot'}
+                            botName="AurumSkyNetBot"
                             usePic={false}
-                            buttonSize={'large'}
+                            buttonSize="large"
+                            dataAuthUrl="https://seller.aurum-sky.net/" // Redirect for all users
                             dataOnauth={(data) => {
-                                if (privacyPolicyAccepted) handleLogin(data);
+                                if (privacyPolicyAccepted) {
+                                    handleLogin(data); // Send auth data to server
+                                }
                             }}
                         />
                     </motion.div>
