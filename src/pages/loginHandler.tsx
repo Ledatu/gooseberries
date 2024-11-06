@@ -28,15 +28,14 @@ const LoginHandler = () => {
         // Function to capture all required auth data from URL parameters
         const extractAuthData = () => {
             const urlParams = new URLSearchParams(window.location.search);
-            return {
-                id: urlParams.get('id'),
-                first_name: urlParams.get('first_name'),
-                last_name: urlParams.get('last_name') || '', // Handle optional last name
-                username: urlParams.get('username'),
-                photo_url: urlParams.get('photo_url') || '', // Handle optional photo URL
-                auth_date: parseInt(urlParams.get('auth_date') || '0', 10), // Convert to integer
-                hash: urlParams.get('hash'),
-            };
+            const authData = {};
+
+            // Iterate over each URL parameter and add it to authData
+            urlParams.forEach((value, key) => {
+                authData[key] = key === 'auth_date' ? parseInt(value, 10) : value; // Convert `auth_date` to an integer
+            });
+
+            return authData;
         };
 
         // Authenticate and redirect user if login is successful
@@ -44,7 +43,7 @@ const LoginHandler = () => {
             const authData = extractAuthData();
 
             // Check for essential auth data
-            if (!authData.id || !authData.hash || !authData.auth_date) {
+            if (!authData?.['id'] || !authData?.['hash'] || !authData?.['auth_date']) {
                 console.error('Missing essential authentication data:', authData);
                 showError('Authentication failed. Missing data.');
                 navigate('/login');
