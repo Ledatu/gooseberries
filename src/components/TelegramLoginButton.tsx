@@ -1,3 +1,4 @@
+// TelegramLoginButton.tsx
 import React, {useRef, useEffect} from 'react';
 
 export interface TelegramUser {
@@ -11,15 +12,15 @@ export interface TelegramUser {
 
 declare global {
     interface Window {
-        TelegramLoginWidget: {
-            dataOnauth: (user: TelegramUser) => void;
+        TelegramLoginWidget?: {
+            dataOnauth?: (user: TelegramUser) => void;
         };
     }
 }
 
 const TelegramLoginButton: React.FC<TelegramLoginButtonType> = ({
     wrapperProps,
-    dataAuthUrl, // This should be set to your login redirect URL for mobile
+    dataAuthUrl,
     usePic = false,
     botName,
     className,
@@ -31,8 +32,19 @@ const TelegramLoginButton: React.FC<TelegramLoginButtonType> = ({
     const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        // Ensure TelegramLoginWidget is defined on window
+        if (typeof window.TelegramLoginWidget === 'undefined') {
+            window.TelegramLoginWidget = {};
+        }
+
+        // Assign dataOnauth callback directly to window.TelegramLoginWidget
+        if (dataOnauth) {
+            window.TelegramLoginWidget.dataOnauth = dataOnauth;
+        }
+
         if (ref.current === null) return;
 
+        // Create and append the Telegram widget script
         const script = document.createElement('script');
         script.src = 'https://telegram.org/js/telegram-widget.js?22';
         script.setAttribute('data-telegram-login', botName);
@@ -48,13 +60,19 @@ const TelegramLoginButton: React.FC<TelegramLoginButtonType> = ({
 
         script.setAttribute('data-userpic', usePic.toString());
 
-        if (dataAuthUrl) script.setAttribute('data-auth-url', dataAuthUrl);
-        script.setAttribute('data-onauth', 'TelegramLoginWidget.dataOnauth(user)');
+        if (dataAuthUrl) {
+            script.setAttribute('data-auth-url', dataAuthUrl);
+        }
 
         script.async = true;
-
         ref.current.appendChild(script);
-    }, [botName, buttonSize, cornerRadius, dataOnauth, requestAccess, usePic, ref, dataAuthUrl]);
+
+        return () => {
+            // Cleanup: remove the script and clear the widget
+            ref.current?.removeChild(script);
+            delete window.TelegramLoginWidget?.dataOnauth;
+        };
+    }, [botName, buttonSize, cornerRadius, dataOnauth, requestAccess, usePic, dataAuthUrl]);
 
     return <div ref={ref} className={className} {...wrapperProps} />;
 };
@@ -66,7 +84,7 @@ interface TelegramLoginButtonType {
     cornerRadius?: number;
     requestAccess?: boolean;
     wrapperProps?: any;
-    dataOnauth?: (res: any) => void;
+    dataOnauth?: (res: TelegramUser) => void;
     dataAuthUrl?: string;
     buttonSize: 'large' | 'medium' | 'small';
 }
