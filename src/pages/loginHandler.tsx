@@ -7,8 +7,8 @@ import {useError} from './ErrorContext';
 // Function to verify and send Telegram authentication data to the server
 async function handleTelegramLogin(authData) {
     try {
-        // Send the sorted authData to the server for validation and token generation
-        const response = await callApi('loginUser', authData); // Sends data as-is
+        // Send authData to the server for validation and token generation
+        const response = await callApi('loginUser', authData);
         if (response && response.data.token) {
             localStorage.setItem('authToken', response.data.token); // Store JWT token
             return true;
@@ -25,14 +25,16 @@ const LoginHandler = () => {
     const {showError} = useError();
 
     useEffect(() => {
-        // Function to capture auth data from URL parameters
+        // Function to capture all required auth data from URL parameters
         const extractAuthData = () => {
             const urlParams = new URLSearchParams(window.location.search);
             return {
                 id: urlParams.get('id'),
                 first_name: urlParams.get('first_name'),
+                last_name: urlParams.get('last_name') || '', // Handle optional last name
                 username: urlParams.get('username'),
-                auth_date: parseInt(urlParams.get('auth_date') || '0', 10), // Ensure it's a number
+                photo_url: urlParams.get('photo_url') || '', // Handle optional photo URL
+                auth_date: parseInt(urlParams.get('auth_date') || '0', 10), // Convert to integer
                 hash: urlParams.get('hash'),
             };
         };
@@ -41,7 +43,7 @@ const LoginHandler = () => {
         const authenticateAndRedirect = async () => {
             const authData = extractAuthData();
 
-            // Check if essential auth data is present
+            // Check for essential auth data
             if (!authData.id || !authData.hash || !authData.auth_date) {
                 console.error('Missing essential authentication data:', authData);
                 showError('Authentication failed. Missing data.');
