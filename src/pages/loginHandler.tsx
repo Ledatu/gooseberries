@@ -24,16 +24,30 @@ const LoginHandler = () => {
     const {showError} = useError();
 
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const authData = {
-            id: urlParams.get('id'),
-            first_name: urlParams.get('first_name'),
-            username: urlParams.get('username'),
-            auth_date: urlParams.get('auth_date'),
-            hash: urlParams.get('hash'),
+        // Function to extract auth data from URL
+        const extractAuthData = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                id: urlParams.get('id'),
+                first_name: urlParams.get('first_name'),
+                username: urlParams.get('username'),
+                auth_date: urlParams.get('auth_date'),
+                hash: urlParams.get('hash'),
+            };
         };
 
+        // Function to authenticate and redirect
         const authenticateAndRedirect = async () => {
+            const authData = extractAuthData();
+
+            // Check if essential auth data is present
+            if (!authData.id || !authData.hash) {
+                console.error('Missing authentication data:', authData);
+                showError('Authentication failed. Missing data.');
+                navigate('/login');
+                return;
+            }
+
             const isAuthenticated = await handleTelegramLogin(authData);
 
             if (isAuthenticated) {

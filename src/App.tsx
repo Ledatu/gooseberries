@@ -7,6 +7,7 @@ import RequireAuth from './components/RequireAuth';
 import {Alert, ThemeProvider} from '@gravity-ui/uikit';
 import {ErrorProvider, useError} from './pages/ErrorContext';
 import {CampaignProvider} from './contexts/CampaignContext';
+import LoginHandler from './pages/loginHandler';
 
 // Global Alert Component
 const GlobalAlert: React.FC = () => {
@@ -35,6 +36,7 @@ export const App = () => {
                     <Router>
                         <Routes>
                             <Route path="/login" element={<LoginPage />} />
+                            <Route path="/loginHandler" element={<LoginHandler />} />
                             {/* <Route path="/apis" element={<ApiPage />} /> */}
                             <Route
                                 path="*"
