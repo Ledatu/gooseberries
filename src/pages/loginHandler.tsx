@@ -4,12 +4,13 @@ import {useNavigate} from 'react-router-dom';
 import callApi from 'src/utilities/callApi';
 import {useError} from './ErrorContext';
 
-// Utility function to handle Telegram login and save the auth token
+// Function to verify and send Telegram authentication data to the server
 async function handleTelegramLogin(authData) {
     try {
-        const response = await callApi('loginUser', authData);
+        // Send the sorted authData to the server for validation and token generation
+        const response = await callApi('loginUser', authData); // Sends data as-is
         if (response && response.data.token) {
-            localStorage.setItem('authToken', response.data.token);
+            localStorage.setItem('authToken', response.data.token); // Store JWT token
             return true;
         }
         return false;
@@ -24,25 +25,25 @@ const LoginHandler = () => {
     const {showError} = useError();
 
     useEffect(() => {
-        // Function to extract auth data from URL
+        // Function to capture auth data from URL parameters
         const extractAuthData = () => {
             const urlParams = new URLSearchParams(window.location.search);
             return {
                 id: urlParams.get('id'),
                 first_name: urlParams.get('first_name'),
                 username: urlParams.get('username'),
-                auth_date: urlParams.get('auth_date'),
+                auth_date: parseInt(urlParams.get('auth_date') || '0', 10), // Ensure it's a number
                 hash: urlParams.get('hash'),
             };
         };
 
-        // Function to authenticate and redirect
+        // Authenticate and redirect user if login is successful
         const authenticateAndRedirect = async () => {
             const authData = extractAuthData();
 
             // Check if essential auth data is present
-            if (!authData.id || !authData.hash) {
-                console.error('Missing authentication data:', authData);
+            if (!authData.id || !authData.hash || !authData.auth_date) {
+                console.error('Missing essential authentication data:', authData);
                 showError('Authentication failed. Missing data.');
                 navigate('/login');
                 return;
