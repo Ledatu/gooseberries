@@ -2267,7 +2267,7 @@ export const MassAdvertPage = ({
                                 placementsDisplayPhrase,
                                 setFetchedPlacements,
                                 setCurrentParsingProgress,
-                                100,
+                                30,
                                 placementsDisplayPhrase != '' &&
                                     currentParsingProgress[placementsDisplayPhrase]
                                     ? currentParsingProgress[placementsDisplayPhrase].progress / 100
@@ -2279,7 +2279,7 @@ export const MassAdvertPage = ({
                                     'тестовая фраза',
                                     setFetchedPlacements,
                                     setCurrentParsingProgress,
-                                    100,
+                                    30,
                                 );
                             }
 
@@ -2304,7 +2304,7 @@ export const MassAdvertPage = ({
                                 placementsDisplayPhrase,
                                 setFetchedPlacements,
                                 setCurrentParsingProgress,
-                                100,
+                                30,
                                 placementsDisplayPhrase != '' &&
                                     currentParsingProgress[placementsDisplayPhrase]
                                     ? currentParsingProgress[placementsDisplayPhrase].progress / 100
@@ -2318,7 +2318,7 @@ export const MassAdvertPage = ({
                                     'тестовая фраза',
                                     setFetchedPlacements,
                                     setCurrentParsingProgress,
-                                    100,
+                                    30,
                                 );
                             }
                         }}
@@ -4299,8 +4299,29 @@ export const MassAdvertPage = ({
 
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
-            {/* <DatePicker></DatePicker>
-            <DatePicker></DatePicker> */}
+            {isMobile ? (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        width: '100%',
+                        justifyContent: 'center',
+                        marginBottom: 16,
+                    }}
+                >
+                    <RangePicker
+                        args={{
+                            align: 'column',
+                            recalc,
+                            dateRange,
+                            setDateRange,
+                            anchorRef,
+                        }}
+                    />
+                </div>
+            ) : (
+                <></>
+            )}
             <div
                 style={{
                     display: 'flex',
@@ -5157,8 +5178,7 @@ export const MassAdvertPage = ({
                                         flexDirection: 'column',
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
-                                        background: '#221d220f',
-                                        backdropFilter: 'blur(8px)',
+                                        backdropFilter: 'blur(20px)',
                                         boxShadow: '#0002 0px 2px 8px 0px',
                                         padding: 30,
                                         borderRadius: 30,
@@ -5331,24 +5351,7 @@ export const MassAdvertPage = ({
                     </div>
                 </div>
             ) : (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        width: '100%',
-                        justifyContent: 'center',
-                        marginBottom: 80,
-                    }}
-                >
-                    <RangePicker
-                        args={{
-                            recalc,
-                            dateRange,
-                            setDateRange,
-                            anchorRef,
-                        }}
-                    />
-                </div>
+                <div style={{marginBottom: 80}} />
             )}
 
             {isMobile ? (
@@ -5720,12 +5723,12 @@ export const parseFirst10Pages = async (
                 // console.log(allCardDataList.cpms, cpms);
 
                 console.log(`Data saved for search phrase: ${searchPhrase}, page: ${page}`);
-                await new Promise((resolve) => setTimeout(resolve, 400));
+                await new Promise((resolve) => setTimeout(resolve, 800));
             } else {
                 page--;
                 retryCount++;
                 // await new Promise((resolve) => setTimeout(resolve, 1000));
-                if (retryCount % 100 == 0) {
+                if (retryCount % 2 == 0) {
                     console.log(searchPhrase, retryCount);
                     setCurrentParsingProgress((curVal) => {
                         if (!curVal[searchPhrase])
@@ -5738,7 +5741,7 @@ export const parseFirst10Pages = async (
                     });
                     // await new Promise((resolve) => setTimeout(resolve, 100));
                 }
-                if (retryCount == 200) {
+                if (retryCount == 6) {
                     retryCount = 0;
                     setCurrentParsingProgress((curVal) => {
                         if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: pagesCount * 100};
@@ -5753,6 +5756,7 @@ export const parseFirst10Pages = async (
                     });
                     break;
                 }
+                await new Promise((resolve) => setTimeout(resolve, 1000));
                 // console.log(`Not enough data for search phrase: ${searchPhrase} on page ${page} only ${data.data.products.length} retrying`);
             }
         } catch (error) {

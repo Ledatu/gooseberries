@@ -324,8 +324,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     width: '100%',
                     height: 68,
                     zIndex: 1000,
-                    backdropFilter: 'blur(12px)',
-                    background: '#2d2c3302',
+                    backdropFilter: 'blur(20px)',
                 }}
             >
                 {isMobile ? (
