@@ -3,6 +3,8 @@ import React, {useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import callApi from 'src/utilities/callApi';
 import {useError} from './ErrorContext';
+import {Card, Spin, Text} from '@gravity-ui/uikit';
+import {motion} from 'framer-motion';
 
 // Function to verify and send Telegram authentication data to the server
 async function handleTelegramLogin(authData) {
@@ -63,7 +65,50 @@ const LoginHandler = () => {
         authenticateAndRedirect();
     }, [navigate, showError]);
 
-    return <div>Redirecting...</div>;
+    return (
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                backgroundColor: '#f9f9f9',
+                padding: '2rem',
+            }}
+        >
+            <motion.div
+                initial={{opacity: 0, y: -20}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.5}}
+                style={{textAlign: 'center'}}
+            >
+                <Card
+                    style={{
+                        padding: '2rem',
+                        borderRadius: '16px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        maxWidth: '400px',
+                        textAlign: 'center',
+                    }}
+                >
+                    <Spin size="xl" />
+
+                    <motion.div
+                        initial={{scale: 0.8}}
+                        animate={{scale: 1}}
+                        transition={{type: 'spring', stiffness: 100}}
+                        style={{marginTop: '1.5rem'}}
+                    >
+                        <Text variant="header-1">Processing Your Login</Text>
+                        <Text style={{marginTop: '1rem'}}>
+                            Please wait a moment while we verify your login information.
+                        </Text>
+                    </motion.div>
+                </Card>
+            </motion.div>
+        </div>
+    );
 };
 
 export default LoginHandler;
