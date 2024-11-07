@@ -13,6 +13,7 @@ export const CalcUnitEconomyModal = () => {
         length: '',
         width: '',
         height: '',
+        spp: 0,
         koef: 100,
         ktr: 1,
         tax: '',
@@ -26,6 +27,7 @@ export const CalcUnitEconomyModal = () => {
         primeCost: false,
         comission: false,
         length: false,
+        spp: true,
         width: false,
         height: false,
         koef: true,
@@ -149,97 +151,127 @@ export const CalcUnitEconomyModal = () => {
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            background: '#221d220f',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(20px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
                             border: '1px solid #eee2',
                         }}
                     >
-                        {(() => {
-                            const placeholders = [
-                                {
-                                    rozPrice: 'Цена после скидки, ₽',
-                                    primeCost: 'Себестоимость, ₽',
-                                    comission: 'Комиссия, %',
-                                    tax: 'Налог, %',
-                                    expences: 'Доп. расходы, %',
-                                    drr: 'ДРР,  %',
-                                    buyoutsPercent: 'Процент выкупа, %',
-                                },
-                                {
-                                    length: 'Длина, см.',
-                                    width: 'Ширина, см.',
-                                    height: 'Высота, см.',
-                                    koef: 'Коэффициент склада, %',
-                                    ktr: 'КТР',
-                                    obor: 'Оборачиваемость, дней',
-                                },
-                            ];
-                            const inputs = [] as any[];
-                            for (const headers of placeholders) {
-                                const row = [] as any[];
-                                for (const [key, placeholder] of Object.entries(headers)) {
-                                    row.push(
-                                        generateTextInputWithNoteOnTop({
-                                            placeholder: placeholder,
-                                            value: unitEconomyParams[key],
-                                            onUpdateHandler: (val) => {
-                                                const temp = {...unitEconomyParams};
-                                                temp[key] = val;
-                                                setUnitEconomyParams(temp);
-
-                                                const numberLike = Number(val != '' ? val : 'nan');
-                                                const validTemp = {
-                                                    ...unitEconomyParamsValid,
-                                                };
-                                                validTemp[key] =
-                                                    !isNaN(numberLike) && isFinite(numberLike);
-                                                setUnitEconomyParamsValid(validTemp);
-                                            },
-                                            disabled: false,
-                                            validationState: unitEconomyParamsValid[key],
+                        <motion.div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                            }}
+                        >
+                            {(() => {
+                                const placeholders = [
+                                    {
+                                        rozPrice: 'Цена после скидки, ₽',
+                                        spp: 'СПП, %',
+                                        sppPriceCalculated: generateTextInputWithNoteOnTop({
+                                            placeholder: 'Цена с СПП, ₽',
+                                            value:
+                                                unitEconomyParamsValid?.rozPrice &&
+                                                unitEconomyParamsValid?.spp
+                                                    ? (Number(unitEconomyParams?.rozPrice) *
+                                                          (100 - Number(unitEconomyParams?.spp))) /
+                                                      100
+                                                    : 'Ошибка.',
+                                            onUpdateHandler: () => {},
+                                            disabled: true,
+                                            validationState: true,
                                         }),
-                                    );
-                                    row.push(<div style={{minHeight: 8}} />);
-                                }
-                                row.pop();
-                                inputs.push(row);
-                            }
+                                        primeCost: 'Себестоимость, ₽',
+                                        comission: 'Комиссия, %',
+                                        tax: 'Налог, %',
+                                        expences: 'Доп. расходы, %',
+                                        drr: 'ДРР,  %',
+                                        buyoutsPercent: 'Процент выкупа, %',
+                                    },
+                                    {
+                                        length: 'Длина, см.',
+                                        width: 'Ширина, см.',
+                                        height: 'Высота, см.',
+                                        koef: 'Коэффициент склада, %',
+                                        ktr: 'КТР',
+                                        obor: 'Оборачиваемость, дней',
+                                        logisticsCalculated: generateTextInputWithNoteOnTop({
+                                            placeholder: 'Логистика, ₽',
+                                            value: unitEconomyProfitValid
+                                                ? unitEconomyProfit.delivery
+                                                : 'Ошибка.',
+                                            onUpdateHandler: () => {},
+                                            disabled: true,
+                                            validationState: true,
+                                        }),
+                                        storageCalculated: generateTextInputWithNoteOnTop({
+                                            placeholder: 'Хранение, ₽',
+                                            value: unitEconomyProfitValid
+                                                ? unitEconomyProfit.storage
+                                                : 'Ошибка.',
+                                            onUpdateHandler: () => {},
+                                            disabled: true,
+                                            validationState: true,
+                                        }),
+                                    },
+                                ];
+                                const inputs = [] as any[];
+                                for (const headers of placeholders) {
+                                    const row = [] as any[];
+                                    for (const [key, placeholder] of Object.entries(headers)) {
+                                        if (key.includes('Calculated')) {
+                                            row.push(placeholder);
+                                        } else
+                                            row.push(
+                                                generateTextInputWithNoteOnTop({
+                                                    placeholder: placeholder,
+                                                    value: unitEconomyParams[key],
+                                                    onUpdateHandler: (val) => {
+                                                        const temp = {...unitEconomyParams};
+                                                        temp[key] = val;
+                                                        setUnitEconomyParams(temp);
 
-                            const divs = [] as any[];
-                            for (const row of inputs) {
-                                divs.push(
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        {row}
-                                    </div>,
-                                );
-                                divs.push(<div style={{minHeight: 8}} />);
-                            }
-                            return divs;
-                        })()}
-                        {generateTextInputWithNoteOnTop({
-                            placeholder: 'Логистика, ₽',
-                            value: unitEconomyProfitValid ? unitEconomyProfit.delivery : 'Ошибка.',
-                            onUpdateHandler: () => {},
-                            disabled: true,
-                            validationState: true,
-                        })}
-                        <div style={{minHeight: 8}} />
-                        {generateTextInputWithNoteOnTop({
-                            placeholder: 'Хранение, ₽',
-                            value: unitEconomyProfitValid ? unitEconomyProfit.storage : 'Ошибка.',
-                            onUpdateHandler: () => {},
-                            disabled: true,
-                            validationState: true,
-                        })}
+                                                        const numberLike = Number(
+                                                            val != '' ? val : 'nan',
+                                                        );
+                                                        const validTemp = {
+                                                            ...unitEconomyParamsValid,
+                                                        };
+                                                        validTemp[key] =
+                                                            !isNaN(numberLike) &&
+                                                            isFinite(numberLike);
+                                                        setUnitEconomyParamsValid(validTemp);
+                                                    },
+                                                    disabled: false,
+                                                    validationState: unitEconomyParamsValid[key],
+                                                }),
+                                            );
+                                        row.push(<div style={{minHeight: 8}} />);
+                                    }
+                                    row.pop();
+                                    inputs.push(row);
+                                }
+
+                                const divs = [] as any[];
+                                for (const row of inputs) {
+                                    divs.push(
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            {row}
+                                        </div>,
+                                    );
+                                    divs.push(<div style={{minWidth: 30}} />);
+                                }
+                                divs.pop();
+                                return divs;
+                            })()}
+                        </motion.div>
                         <div style={{minHeight: 8}} />
                         <Text
                             variant="header-1"
