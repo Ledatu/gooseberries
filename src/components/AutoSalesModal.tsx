@@ -97,7 +97,7 @@ export const AutoSalesModal = ({
                 onClick={() => setAutoSalesModalOpen(true)}
             >
                 <Icon data={TagRuble} />
-                <Text variant="subheader-1">Рассчитать акции</Text>
+                <Text variant="subheader-1">Акции</Text>
             </Button>
             <Modal
                 open={autoSalesModalOpen && !disabled}

@@ -218,11 +218,6 @@ export const Dashboard = ({setThemeAurum}) => {
             disabled: !modules.includes('all') && !modules.includes('massAdvert'),
         },
         {
-            id: 'analytics',
-            title: 'Аналитика',
-            disabled: !modules.includes('all') && !modules.includes('analytics'),
-        },
-        {
             id: 'prices',
             title: 'Цены',
             disabled: !modules.includes('all') && !modules.includes('prices'),
@@ -231,6 +226,11 @@ export const Dashboard = ({setThemeAurum}) => {
             id: 'delivery',
             title: 'Поставки',
             disabled: !modules.includes('all') && !modules.includes('delivery'),
+        },
+        {
+            id: 'analytics',
+            title: 'Аналитика',
+            disabled: !modules.includes('all') && !modules.includes('analytics'),
         },
         {
             id: 'nomenclatures',
@@ -244,7 +244,7 @@ export const Dashboard = ({setThemeAurum}) => {
         },
         {
             id: 'seo',
-            title: 'SEO',
+            title: 'Семантика',
             disabled: !modules.includes('all') && !modules.includes('seo'),
         },
         {

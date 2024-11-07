@@ -4373,6 +4373,20 @@ export const MassAdvertPage = ({
                         >
                             <Button
                                 disabled={permission != 'Управление'}
+                                view="action"
+                                size="l"
+                                onClick={() => {
+                                    setModalFormOpen(true);
+                                    setSelectedButton('');
+                                    setCreateAdvertsMode(false);
+                                }}
+                            >
+                                <Icon data={SlidersVertical} />
+                                <Text variant="subheader-1">Создать</Text>
+                            </Button>
+                            <div style={{minWidth: 8}} />
+                            <Button
+                                disabled={permission != 'Управление'}
                                 loading={manageModalInProgress}
                                 view="action"
                                 size="l"
@@ -4385,21 +4399,25 @@ export const MassAdvertPage = ({
                                 <Icon data={Play} />
                                 <Text variant="subheader-1">Управление</Text>
                             </Button>
-                            <div style={{width: 8}} />
+                            <div style={{minWidth: 8}} />
                             {manageModalInProgress ? <Spin style={{marginRight: 8}} /> : <></>}
-                            <Button
+                            <AdvertsBidsModal
                                 disabled={permission != 'Управление'}
-                                view="action"
-                                size="l"
-                                onClick={() => {
-                                    setModalFormOpen(true);
-                                    setSelectedButton('');
-                                    setCreateAdvertsMode(false);
-                                }}
+                                selectValue={selectValue}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                advertId={undefined}
                             >
-                                <Icon data={SlidersVertical} />
-                                <Text variant="subheader-1">Создать</Text>
-                            </Button>
+                                <Button
+                                    view="action"
+                                    size="l"
+                                    disabled={permission != 'Управление'}
+                                >
+                                    <Icon data={ChartLine} />
+                                    <Text variant="subheader-1">Ставки</Text>
+                                </Button>
+                            </AdvertsBidsModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsBudgetsModal
                                 disabled={permission != 'Управление'}
@@ -4419,25 +4437,6 @@ export const MassAdvertPage = ({
                                 </Button>
                             </AdvertsBudgetsModal>
                             <div style={{minWidth: 8}} />
-                            <AdvertsBidsModal
-                                disabled={permission != 'Управление'}
-                                selectValue={selectValue}
-                                doc={doc}
-                                setChangedDoc={setChangedDoc}
-                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                                advertId={undefined}
-                            >
-                                <Button
-                                    view="action"
-                                    size="l"
-                                    disabled={permission != 'Управление'}
-                                >
-                                    <Icon data={ChartLine} />
-                                    <Text variant="subheader-1">Ставки</Text>
-                                </Button>
-                            </AdvertsBidsModal>
-                            <div style={{minWidth: 8}} />
-
                             <PhrasesModal
                                 disabled={permission != 'Управление'}
                                 selectValue={selectValue}
@@ -4446,7 +4445,6 @@ export const MassAdvertPage = ({
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                             />
                             <div style={{minWidth: 8}} />
-
                             <Button
                                 disabled={permission != 'Управление'}
                                 view="action"
