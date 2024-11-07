@@ -290,6 +290,12 @@ export const AnalyticsPage = ({permission}) => {
             isReverseGrad: true,
             render: (args) => renderWithGraph(args, 'logistics', 'Логистика, ₽'),
         },
+        logisticsPercent: {
+            placeholder: '% Логист. к продажам',
+            isReverseGrad: true,
+            render: (args) => renderWithGraph(args, 'logisticsPercent', '% Логист. к продажам'),
+        },
+
         drr_orders: {
             placeholder: 'ДРР к заказам, %',
             render: (args) =>
@@ -819,6 +825,12 @@ export const AnalyticsPage = ({permission}) => {
                 tempTypeRow['expences'] = dateStats['expences'];
                 tempTypeRow['logistics'] = dateStats['logistics'];
 
+                tempTypeRow['logisticsPercent'] = getRoundValue(
+                    tempTypeRow['logistics'],
+                    tempTypeRow['sum_sales'],
+                    true,
+                );
+
                 tempTypeRow['rentabelnost'] = getRoundValue(
                     tempTypeRow['profit'],
                     tempTypeRow['sum_orders'],
@@ -1044,6 +1056,7 @@ export const AnalyticsPage = ({permission}) => {
                     tax: 0,
                     expences: 0,
                     logistics: 0,
+                    logisticsPrecent: 0,
                     profit: 0,
                     obor: 0,
                     obor_temp: {count: 0, val: 0},
@@ -1094,6 +1107,12 @@ export const AnalyticsPage = ({permission}) => {
             summaryAdd(row, 'tax', undefined);
             summaryAdd(row, 'expences', undefined);
             summaryAdd(row, 'logistics', undefined);
+            summaryAdd(row, 'logisticsPercent', undefined);
+            summaries[entity]['logisticsPercent'] = getRoundValue(
+                summaries[entity]['logistics'],
+                summaries[entity]['sum_sales'],
+                true,
+            );
 
             summaryAdd(row, 'clicks', undefined);
             summaryAdd(row, 'views', undefined);
@@ -1281,6 +1300,11 @@ export const AnalyticsPage = ({permission}) => {
             summaries['filteredSummaryTemp']['tax'] += row['tax'];
             summaries['filteredSummaryTemp']['expences'] += row['expences'];
             summaries['filteredSummaryTemp']['logistics'] += row['logistics'];
+            summaries['filteredSummaryTemp']['logisticsPercent'] = getRoundValue(
+                summaries['filteredSummaryTemp']['logistics'],
+                summaries['filteredSummaryTemp']['sum_sales'],
+                true,
+            );
 
             summaries['filteredSummaryTemp']['sales'] += row['sales'];
             summaries['filteredSummaryTemp']['expectedSales'] += row['expectedSales'];
