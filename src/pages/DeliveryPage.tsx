@@ -67,7 +67,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const DeliveryPage = ({permission}) => {
+export const DeliveryPage = ({permission, sellerId}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const today = new Date(
         new Date()
@@ -542,7 +542,7 @@ export const DeliveryPage = ({permission}) => {
             width: 200,
             render: ({value, footer, index, row}) => {
                 if (footer) return <div style={{height: 28}}>{value}</div>;
-                const {nmId, tags, brandArt} = row;
+                const {nmId, tags} = row;
 
                 const tagsNodes = [] as ReactNode[];
                 if (tags) {
@@ -601,10 +601,21 @@ export const DeliveryPage = ({permission}) => {
                                 href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
                                 target="_blank"
                             >
-                                <Text variant="subheader-1">{brandArt}</Text>
+                                <Text variant="subheader-1">{value}</Text>
                             </Link>
                         </div>
-                        {tagsNodes}
+                        <div
+                            style={{
+                                marginLeft: 16,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                overflow: 'scroll',
+                                maxWidth: 200,
+                                alignItems: 'center',
+                            }}
+                        >
+                            {tagsNodes}
+                        </div>
                     </div>
                 );
             },
@@ -1127,7 +1138,7 @@ export const DeliveryPage = ({permission}) => {
                     <WarehousesEdit
                         columns={warehouseNames}
                         setColumns={setWarehouseNames}
-                        selectValue={selectValue}
+                        sellerId={sellerId}
                         sortingType={sortingType}
                         setSortingType={setSortingType}
                     />

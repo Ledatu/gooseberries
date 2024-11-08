@@ -2267,7 +2267,7 @@ export const MassAdvertPage = ({
                                 placementsDisplayPhrase,
                                 setFetchedPlacements,
                                 setCurrentParsingProgress,
-                                30,
+                                100,
                                 placementsDisplayPhrase != '' &&
                                     currentParsingProgress[placementsDisplayPhrase]
                                     ? currentParsingProgress[placementsDisplayPhrase].progress / 100
@@ -2279,7 +2279,7 @@ export const MassAdvertPage = ({
                                     'тестовая фраза',
                                     setFetchedPlacements,
                                     setCurrentParsingProgress,
-                                    30,
+                                    100,
                                 );
                             }
 
@@ -2304,7 +2304,7 @@ export const MassAdvertPage = ({
                                 placementsDisplayPhrase,
                                 setFetchedPlacements,
                                 setCurrentParsingProgress,
-                                30,
+                                100,
                                 placementsDisplayPhrase != '' &&
                                     currentParsingProgress[placementsDisplayPhrase]
                                     ? currentParsingProgress[placementsDisplayPhrase].progress / 100
@@ -2313,12 +2313,12 @@ export const MassAdvertPage = ({
                                 currentParsingProgress[placementsDisplayPhrase],
                             );
 
-                            for (let i = 0; i < 9; i++) {
+                            for (let i = 0; i < 5; i++) {
                                 parseFirst10Pages(
                                     'тестовая фраза',
                                     setFetchedPlacements,
                                     setCurrentParsingProgress,
-                                    30,
+                                    100,
                                 );
                             }
                         }}
@@ -2710,6 +2710,7 @@ export const MassAdvertPage = ({
                 );
             },
         },
+        {name: 'dsi', placeholder: 'DSI'},
         {name: 'sum', placeholder: 'Расход, ₽'},
         {name: 'orders', placeholder: 'Заказов, шт.'},
         {name: 'sum_orders', placeholder: 'Заказов, ₽'},
@@ -3012,6 +3013,16 @@ export const MassAdvertPage = ({
         const [startDate, endDate] = daterng;
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const daysBetween =
+            Math.abs(
+                startDate.getTime() -
+                    (today.getTime() > endDate.getTime() ? endDate.getTime() : today.getTime()),
+            ) /
+            1000 /
+            86400;
 
         const summaryTemp = {
             views: 0,
@@ -3058,6 +3069,7 @@ export const MassAdvertPage = ({
                 title: '',
                 adverts: 0,
                 stocks: 0,
+                dsi: 0,
                 stocksBySizes: {},
                 profitLog: {},
                 advertsManagerRules: undefined,
@@ -3210,6 +3222,8 @@ export const MassAdvertPage = ({
                 artInfo.views = Math.round(artInfo.views);
                 artInfo.clicks = Math.round(artInfo.clicks);
 
+                artInfo.dsi = getRoundValue(artInfo.stocks, artInfo.orders / (daysBetween + 1));
+
                 artInfo.drr = getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1);
                 artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
                 artInfo.cpc = getRoundValue(artInfo.sum, artInfo.clicks);
@@ -3263,7 +3277,7 @@ export const MassAdvertPage = ({
 
         setTableData(temp);
 
-        filterTableData(withfFilters, temp);
+        filterTableData(withfFilters, temp, undefined, daterng);
     };
 
     const getBalanceYagrData = () => {
@@ -3401,7 +3415,22 @@ export const MassAdvertPage = ({
         withfFilters = {},
         tableData = {},
         _filterAutoSales = undefined as any,
+        datering = undefined,
     ) => {
+        const [startDate, endDate] = datering ?? dateRange;
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const daysBetween =
+            Math.abs(
+                startDate.getTime() -
+                    (today.getTime() > endDate.getTime() ? endDate.getTime() : today.getTime()),
+            ) /
+            1000 /
+            86400;
+
         const temp = [] as any;
         const usefilterAutoSales = _filterAutoSales ?? filterAutoSales;
         // console.log(
@@ -3572,6 +3601,7 @@ export const MassAdvertPage = ({
             cr: 0,
             uniqueImtIds: 0,
             stocks: 0,
+            dsi: 0,
             cpo: 0,
             cpl: 0,
             adverts: 0,
@@ -3678,6 +3708,11 @@ export const MassAdvertPage = ({
             filteredSummaryTemp.analytics,
             filteredSummaryTemp.sum,
             true,
+        );
+
+        filteredSummaryTemp.dsi = getRoundValue(
+            filteredSummaryTemp.stocks,
+            filteredSummaryTemp.orders / (daysBetween + 1),
         );
 
         setFilteredSummary(filteredSummaryTemp);
@@ -5723,12 +5758,12 @@ export const parseFirst10Pages = async (
                 // console.log(allCardDataList.cpms, cpms);
 
                 console.log(`Data saved for search phrase: ${searchPhrase}, page: ${page}`);
-                await new Promise((resolve) => setTimeout(resolve, 800));
+                await new Promise((resolve) => setTimeout(resolve, 400));
             } else {
                 page--;
                 retryCount++;
                 // await new Promise((resolve) => setTimeout(resolve, 1000));
-                if (retryCount % 2 == 0) {
+                if (retryCount % 100 == 0) {
                     console.log(searchPhrase, retryCount);
                     setCurrentParsingProgress((curVal) => {
                         if (!curVal[searchPhrase])
@@ -5741,7 +5776,7 @@ export const parseFirst10Pages = async (
                     });
                     // await new Promise((resolve) => setTimeout(resolve, 100));
                 }
-                if (retryCount == 6) {
+                if (retryCount == 200) {
                     retryCount = 0;
                     setCurrentParsingProgress((curVal) => {
                         if (!curVal[searchPhrase]) curVal[searchPhrase] = {max: pagesCount * 100};
@@ -5756,7 +5791,6 @@ export const parseFirst10Pages = async (
                     });
                     break;
                 }
-                await new Promise((resolve) => setTimeout(resolve, 1000));
                 // console.log(`Not enough data for search phrase: ${searchPhrase} on page ${page} only ${data.data.products.length} retrying`);
             }
         } catch (error) {

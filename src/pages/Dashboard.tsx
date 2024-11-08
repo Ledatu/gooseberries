@@ -693,7 +693,7 @@ const PageElem = ({
     sellerId,
 }) => {
     const pages = {
-        delivery: <DeliveryPage permission={permission} />,
+        delivery: <DeliveryPage permission={permission} sellerId={sellerId} />,
         massAdvert: (
             <MassAdvertPage
                 permission={permission}

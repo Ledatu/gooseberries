@@ -3,18 +3,17 @@ import {Trolley, EyeSlash, Eye} from '@gravity-ui/icons';
 import React, {useEffect, useMemo, useState} from 'react';
 import {arrayMove} from './ColumsEdit';
 import {motion} from 'framer-motion';
-import callApi, {getUid} from 'src/utilities/callApi';
+import callApi from 'src/utilities/callApi';
 
-export const WarehousesEdit = ({columns, setColumns, selectValue, sortingType, setSortingType}) => {
+export const WarehousesEdit = ({columns, setColumns, sellerId, sortingType, setSortingType}) => {
     const [items, setItems] = useState(columns as any[]);
     const [sortingTypeTemp, setSortingTypeTemp] = useState(sortingType);
 
     const [warehousesFetching, setWarehousesFetching] = useState(false);
     useEffect(() => {
-        if (!selectValue[0]) return;
+        if (!sellerId) return;
         const params = {
-            uid: getUid(),
-            campaignName: selectValue[0],
+            seller_id: sellerId,
         };
         setWarehousesFetching(true);
         callApi('getWarehouses', params)
@@ -30,7 +29,7 @@ export const WarehousesEdit = ({columns, setColumns, selectValue, sortingType, s
                 console.log('error fetching warehouses', e);
             })
             .finally(() => setWarehousesFetching(false));
-    }, [selectValue]);
+    }, [sellerId]);
 
     useEffect(() => {
         sortItems(sortingType, columns);
@@ -211,8 +210,7 @@ export const WarehousesEdit = ({columns, setColumns, selectValue, sortingType, s
                                     setSortingType(sortingTypeTemp);
                                     sortItems(sortingTypeTemp);
                                     callApi('updateWarehouses', {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
+                                        seller_id: sellerId,
                                         warehouses: items,
                                         sortingType: sortingTypeTemp,
                                     });
