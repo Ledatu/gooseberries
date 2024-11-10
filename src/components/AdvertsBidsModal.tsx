@@ -1,10 +1,22 @@
-import {Card, Checkbox, Modal, RadioButton, Select, TextInput} from '@gravity-ui/uikit';
-import {CloudArrowUpIn, TrashBin} from '@gravity-ui/icons';
+import {
+    Button,
+    Card,
+    Checkbox,
+    Icon,
+    Modal,
+    RadioButton,
+    Select,
+    TextInput,
+} from '@gravity-ui/uikit';
+import {CloudArrowUpIn, TrashBin, Calendar as CalendarIcon} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useState, Children, isValidElement, ReactElement, useMemo, useEffect} from 'react';
 import {TextTitleWrapper} from './TextTitleWrapper';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
+import {Calendar} from '@gravity-ui/date-components';
+import {dateTimeParse} from '@gravity-ui/date-utils';
+import {getLocaleDateString} from 'src/utilities/getRoundValue';
 
 export const AdvertsBidsModal = ({
     disabled,
@@ -68,6 +80,10 @@ export const AdvertsBidsModal = ({
         {
             value: 'obor',
             content: 'Оборачиваемость',
+        },
+        {
+            value: 'sellByDate',
+            content: 'Распродать к дате',
         },
         {
             value: 'sum',
@@ -171,6 +187,34 @@ export const AdvertsBidsModal = ({
         return temp && temp > 0 && !isNaN(temp) && isFinite(temp);
     }, [maxCpmInputValue]);
 
+    const [sellByDate, setSellByDate] = useState(undefined as any);
+    const sellByDateValid = useMemo(() => {
+        return sellByDate && sellByDate != 'Invalid Date';
+    }, [sellByDate]);
+
+    const [useAutoBudget, setUseAutoBudget] = useState(false);
+    const [useMaxBudget, setUseMaxBudget] = useState(false);
+    const [maxBudgetInputValue, setMaxBudgetInputValue] = useState('');
+    const maxBudgetInputValueValid = useMemo(() => {
+        const temp = parseInt(maxBudgetInputValue);
+        return temp && temp >= 1000 && !isNaN(temp) && isFinite(temp);
+    }, [maxBudgetInputValue]);
+
+    useEffect(() => {
+        if (
+            ['sellByDate', 'orders', 'sum_orders', 'obor'].includes(autoBidderOption[0]) &&
+            useAutoMaxCpm
+        )
+            return;
+        setUseAutoBudget(false);
+    }, [autoBidderOption, useAutoMaxCpm]);
+
+    useEffect(() => {
+        if (useAutoBudget) return;
+        setUseMaxBudget(false);
+        setMaxBudgetInputValue('');
+    }, [useAutoBudget]);
+
     useEffect(() => {
         setModalOption(modalOptions[0].value);
         setAutoBidderOption([autoBidderOptions[0].value]);
@@ -184,6 +228,9 @@ export const AdvertsBidsModal = ({
         setAuctionInputValue('50');
         setOborInputValue('30');
         setMaxCpmInputValue('1000');
+        setSellByDate(undefined);
+        setUseAutoBudget(false);
+        setUseMaxBudget(false);
         setUseAutoMaxCpm(true);
     }, [open]);
 
@@ -265,6 +312,57 @@ export const AdvertsBidsModal = ({
             ),
             title: 'Введите оборачиваемость',
         },
+        sellByDate: {
+            input: (
+                <>
+                    <motion.div
+                        animate={{
+                            height: autoBidderOption[0] == 'sellByDate' && sellByDateValid ? 44 : 0,
+                        }}
+                        style={{
+                            height: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <TextInput
+                            size="l"
+                            value={sellByDate ? sellByDate.toLocaleDateString(0, 10) : ''}
+                            rightContent={
+                                <Button
+                                    size="m"
+                                    view="outlined"
+                                    onClick={() => setSellByDate(undefined)}
+                                >
+                                    <Icon data={CalendarIcon} />
+                                </Button>
+                            }
+                        />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            height:
+                                autoBidderOption[0] == 'sellByDate' && !sellByDateValid ? 250 : 0,
+                        }}
+                        style={{
+                            height: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <Calendar
+                            minValue={dateTimeParse(new Date())}
+                            onUpdate={(val) => {
+                                setSellByDate(val.toDate());
+                            }}
+                        />
+                    </motion.div>
+                </>
+            ),
+            title: 'К какой дате распродать',
+        },
         placements: {
             input: (
                 <TextInput
@@ -299,6 +397,18 @@ export const AdvertsBidsModal = ({
             title: 'Макс. ставка',
         },
         bestPlacement: undefined,
+        maxBudget: {
+            input: (
+                <TextInput
+                    placeholder=">= 1000"
+                    size="l"
+                    value={maxBudgetInputValue}
+                    validationState={maxBudgetInputValueValid ? undefined : 'invalid'}
+                    onUpdate={(val) => setMaxBudgetInputValue(val)}
+                />
+            ),
+            title: 'Макс. бюджет',
+        },
     };
 
     const transition = useMemo(() => {
@@ -417,24 +527,43 @@ export const AdvertsBidsModal = ({
                                     </TextTitleWrapper>
                                 </motion.div>
 
-                                <Checkbox
-                                    style={{marginTop: 8}}
-                                    checked={!useAutoMaxCpm}
-                                    onUpdate={(val) => setUseAutoMaxCpm(!val)}
-                                >
-                                    Задать макс. ставку
-                                </Checkbox>
                                 <motion.div
-                                    style={{height: 0, overflow: 'hidden', width: '100%'}}
+                                    style={{
+                                        maxHeight: 0,
+                                        overflow: 'hidden',
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
                                     animate={{
-                                        marginTop: !useAutoMaxCpm ? 8 : 0,
-                                        height: !useAutoMaxCpm ? 54 : 0,
+                                        maxHeight: autoBidderOption[0] != 'delete' ? 86.5 : 0,
                                     }}
                                 >
-                                    <TextTitleWrapper title={textInputs.maxCpm.title} padding={16}>
-                                        {textInputs.maxCpm.input}
-                                    </TextTitleWrapper>
+                                    <Checkbox
+                                        style={{marginTop: 8}}
+                                        checked={!useAutoMaxCpm}
+                                        onUpdate={(val) => setUseAutoMaxCpm(!val)}
+                                    >
+                                        Задать макс. ставку
+                                    </Checkbox>
+                                    <motion.div
+                                        style={{height: 0, overflow: 'hidden', width: '100%'}}
+                                        animate={{
+                                            marginTop: !useAutoMaxCpm ? 8 : 0,
+                                            height: !useAutoMaxCpm ? 54 : 0,
+                                        }}
+                                    >
+                                        <TextTitleWrapper
+                                            title={textInputs.maxCpm.title}
+                                            padding={16}
+                                        >
+                                            {textInputs.maxCpm.input}
+                                        </TextTitleWrapper>
+                                    </motion.div>
                                 </motion.div>
+
                                 {!['drr', 'cpo'].includes(autoBidderOption[0]) &&
                                 textInputs[autoBidderOption[0]] ? (
                                     <div
@@ -458,6 +587,51 @@ export const AdvertsBidsModal = ({
                                 ) : (
                                     <></>
                                 )}
+                                <motion.div
+                                    style={{
+                                        height: 0,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        overflow: 'hidden',
+                                        alignItems: 'center',
+                                        width: '100%',
+                                    }}
+                                    animate={{
+                                        height:
+                                            0 +
+                                            ([
+                                                'sellByDate',
+                                                'orders',
+                                                'sum_orders',
+                                                'obor',
+                                            ].includes(autoBidderOption[0]) && useAutoMaxCpm
+                                                ? 23
+                                                : 0) +
+                                            (useAutoBudget ? 23 : 0) +
+                                            (useMaxBudget ? 62 : 0),
+                                    }}
+                                >
+                                    <Checkbox
+                                        style={{marginTop: 8}}
+                                        checked={useAutoBudget}
+                                        onUpdate={(val) => setUseAutoBudget(val)}
+                                    >
+                                        Использовать автобюджет
+                                    </Checkbox>
+                                    <Checkbox
+                                        style={{marginTop: 8, marginBottom: 8}}
+                                        checked={useMaxBudget}
+                                        onUpdate={(val) => setUseMaxBudget(val)}
+                                    >
+                                        Задать макс. бюджет
+                                    </Checkbox>
+                                    <TextTitleWrapper
+                                        title={textInputs.maxBudget.title}
+                                        padding={16}
+                                    >
+                                        {textInputs.maxBudget.input}
+                                    </TextTitleWrapper>
+                                </motion.div>
                             </div>
                         )}
                         <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
@@ -474,7 +648,15 @@ export const AdvertsBidsModal = ({
                                     !auctionInputValueValid ||
                                     !oborInputValueValid ||
                                     (!maxCpmInputValueValid && !useAutoMaxCpm) ||
-                                    !cpmInputValueValid,
+                                    !cpmInputValueValid ||
+                                    (autoBidderOption[0] == 'sellByDate' && !sellByDateValid) ||
+                                    (useAutoBudget &&
+                                        useMaxBudget &&
+                                        ['sellByDate', 'orders', 'sum_orders', 'obor'].includes(
+                                            autoBidderOption[0],
+                                        ) &&
+                                        useAutoMaxCpm &&
+                                        !maxBudgetInputValueValid),
                                 placeholder:
                                     autoBidderOption[0] != 'delete' ? 'Установить' : 'Удалить',
                                 icon: autoBidderOption[0] != 'delete' ? CloudArrowUpIn : TrashBin,
@@ -511,6 +693,15 @@ export const AdvertsBidsModal = ({
                                             bid: parseInt(cpmInputValue),
                                             maxBid: parseInt(maxCpmInputValue),
                                             useManualMaxCpm: !useAutoMaxCpm,
+                                            useAutoBudget,
+                                            useMaxBudget,
+                                            maxBudget: useMaxBudget
+                                                ? parseInt(maxBudgetInputValue)
+                                                : undefined,
+                                            sellByDate:
+                                                autoBidderOption[0] == 'sellByDate'
+                                                    ? getLocaleDateString(sellByDate, 10)
+                                                    : undefined,
                                             advertIds,
                                         },
                                     };

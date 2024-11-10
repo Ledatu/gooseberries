@@ -195,12 +195,12 @@ export const AnalyticsPage = ({permission}) => {
             // graphColor: 'var(--g-color-private-red-250)',
         },
         sum_orders: {
-            placeholder: 'Заказов, ₽',
+            placeholder: 'Заказы, ₽',
             render: (args) => renderWithGraph(args, 'sum_orders', 'Заказов, ₽'),
             // graphColor: 'var(--g-color-private-green-250)',
         },
         orders: {
-            placeholder: 'Заказов, шт.',
+            placeholder: 'Заказы, шт.',
             render: (args) => renderWithGraph(args, 'orders', 'Заказов, шт.'),
         },
         avgCost: {
@@ -397,12 +397,12 @@ export const AnalyticsPage = ({permission}) => {
             render: (args) => renderWithGraph(args, 'storageCost', 'Хранение, ₽'),
         },
         views: {
-            placeholder: 'Показов, шт.',
-            render: (args) => renderWithGraph(args, 'views', 'Показов, шт.'),
+            placeholder: 'Показы, шт.',
+            render: (args) => renderWithGraph(args, 'views', 'Показы, шт.'),
         },
         clicks: {
-            placeholder: 'Кликов, шт.',
-            render: (args) => renderWithGraph(args, 'clicks', 'Кликов, шт.'),
+            placeholder: 'Клики, шт.',
+            render: (args) => renderWithGraph(args, 'clicks', 'Клики, шт.'),
         },
         ctr: {
             placeholder: 'CTR, %',

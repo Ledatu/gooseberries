@@ -2712,8 +2712,8 @@ export const MassAdvertPage = ({
         },
         {name: 'dsi', placeholder: 'DSI'},
         {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'orders', placeholder: 'Заказов, шт.'},
-        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
+        {name: 'orders', placeholder: 'Заказы, шт.'},
+        {name: 'sum_orders', placeholder: 'Заказы, ₽'},
         {
             name: 'drr',
             placeholder: 'ДРР, %',
@@ -2796,10 +2796,10 @@ export const MassAdvertPage = ({
                 );
             },
         },
-        {name: 'views', placeholder: 'Показов, шт.'},
+        {name: 'views', placeholder: 'Показы, шт.'},
         {
             name: 'clicks',
-            placeholder: 'Кликов, шт.',
+            placeholder: 'Клики, шт.',
             render: (args) => renderSlashPercent(args, 'openCardCount'),
         },
         {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},
@@ -3865,8 +3865,8 @@ export const MassAdvertPage = ({
             },
         },
         {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'orders', placeholder: 'Заказов, шт.'},
-        {name: 'sum_orders', placeholder: 'Заказов, ₽'},
+        {name: 'orders', placeholder: 'Заказы, шт.'},
+        {name: 'sum_orders', placeholder: 'Заказы, ₽'},
         {
             name: 'drr',
             placeholder: 'ДРР, %',
@@ -3876,10 +3876,10 @@ export const MassAdvertPage = ({
             name: 'cpo',
             placeholder: 'CPO, ₽',
         },
-        {name: 'views', placeholder: 'Показов, шт.'},
+        {name: 'views', placeholder: 'Показы, шт.'},
         {
             name: 'clicks',
-            placeholder: 'Кликов, шт.',
+            placeholder: 'Клики, шт.',
             render: (args) => renderSlashPercent(args, 'openCardCount'),
         },
         {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},

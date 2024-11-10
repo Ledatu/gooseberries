@@ -769,11 +769,11 @@ export const AdvertsWordsModal = ({
         },
         {
             name: 'count',
-            placeholder: 'Показов, шт',
+            placeholder: 'Показы, шт',
         },
         {
             name: 'clicks',
-            placeholder: 'Кликов, шт',
+            placeholder: 'Клики, шт',
         },
         {
             name: 'ctr',
@@ -1218,11 +1218,11 @@ export const AdvertsWordsModal = ({
         },
         {
             name: 'count',
-            placeholder: 'Показов, шт',
+            placeholder: 'Показы, шт',
         },
         {
             name: 'clicks',
-            placeholder: 'Кликов, шт',
+            placeholder: 'Клики, шт',
         },
         {
             name: 'ctr',
