@@ -233,11 +233,6 @@ export const Dashboard = ({setThemeAurum}) => {
             disabled: !modules.includes('all') && !modules.includes('analytics'),
         },
         {
-            id: 'nomenclatures',
-            title: 'Товары',
-            disabled: !modules.includes('all') && !modules.includes('nomenclatures'),
-        },
-        {
             id: 'buyers',
             title: 'Покупатели',
             disabled: !modules.includes('all') && !modules.includes('buyers'),
@@ -246,6 +241,11 @@ export const Dashboard = ({setThemeAurum}) => {
             id: 'seo',
             title: 'Семантика',
             disabled: !modules.includes('all') && !modules.includes('seo'),
+        },
+        {
+            id: 'nomenclatures',
+            title: 'Товары',
+            disabled: !modules.includes('all') && !modules.includes('nomenclatures'),
         },
         {
             icon: Key,
