@@ -1,5 +1,5 @@
 import {Button, Card, Icon, List, Modal, Text, TextInput} from '@gravity-ui/uikit';
-import {Magnifier, TrashBin, Check, Plus} from '@gravity-ui/icons';
+import {Magnifier, TrashBin, Check, Plus, Xmark} from '@gravity-ui/icons';
 import React, {useEffect, useState} from 'react';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
@@ -80,7 +80,7 @@ export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFr
                             }}
                             variant="display-2"
                         >
-                            Шаблоны
+                            Шаблоны управления фразами РК
                         </Text>
 
                         <div
@@ -265,21 +265,15 @@ export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFr
                         </div>
                         <div
                             style={{
-                                position: 'relative',
                                 display: 'flex',
                                 flexDirection: 'row',
-                                justifyContent: 'center',
+                                justifyContent: 'space-between',
                                 alignItems: 'center',
                                 width: '100%',
                             }}
                         >
                             <NewPhrasesTemplate doc={doc} setChangedDoc={setChangedDoc}>
-                                <Button
-                                    disabled={disabled}
-                                    pin="circle-circle"
-                                    size="l"
-                                    style={{position: 'absolute', left: 0, bottom: 4}}
-                                >
+                                <Button disabled={disabled} pin="circle-circle" size="l">
                                     <Icon data={Plus} />
                                     Создать шаблон
                                 </Button>
@@ -287,7 +281,7 @@ export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFr
                             {generateModalButtonWithActions(
                                 {
                                     view: 'flat-danger',
-                                    icon: TrashBin,
+                                    icon: Xmark,
                                     placeholder: 'Убрать шаблон управления фразами с РК',
                                     onClick: () => {
                                         const params = {
