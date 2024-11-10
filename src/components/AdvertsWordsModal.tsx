@@ -99,7 +99,7 @@ export const AdvertsWordsModal = ({
     const [
         semanticsModalSemanticsPlusItemsTemplateNameSaveValue,
         setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue,
-    ] = useState('Новый шаблон');
+    ] = useState('Новое правило');
     const [semanticsModalSemanticsThresholdValue, setSemanticsModalSemanticsThresholdValue] =
         useState(1);
     const [semanticsModalSemanticsCTRThresholdValue, setSemanticsModalSemanticsCTRThresholdValue] =
@@ -379,7 +379,7 @@ export const AdvertsWordsModal = ({
 
                 // // console.log(value.plus);
                 setSemanticsModalSemanticsPlusItemsTemplateNameSaveValue(
-                    plusPhrasesTemplate ?? `Новый шаблон`,
+                    plusPhrasesTemplate ?? `Новое правило`,
                 );
                 const plusItems = doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate]
                     ? doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate].clusters

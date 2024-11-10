@@ -80,7 +80,7 @@ export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFr
                             }}
                             variant="display-2"
                         >
-                            Шаблоны управления фразами РК
+                            Правила управления фразами РК
                         </Text>
 
                         <div
@@ -94,7 +94,7 @@ export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFr
                             }}
                         >
                             <TextInput
-                                placeholder={`Поиск в ${plusPhrasesTemplatesLabels.length} шаблонах`}
+                                placeholder={`Поиск в ${plusPhrasesTemplatesLabels.length} правилах`}
                                 value={filterText}
                                 size="l"
                                 onUpdate={(val) => setFilterText(val)}
@@ -172,7 +172,7 @@ export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFr
                                                     }}
                                                 >
                                                     <Icon data={Check} />
-                                                    Установить шаблон на РК
+                                                    Установить правило на РК
                                                 </Button>
                                                 <div style={{minWidth: 8}} />
 
@@ -248,7 +248,7 @@ export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFr
                                                     }}
                                                 >
                                                     <Icon data={TrashBin} />
-                                                    Удалить шаблон
+                                                    Удалить правило
                                                 </Button>
                                             </div>
                                         </div>
@@ -275,14 +275,14 @@ export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFr
                             <NewPhrasesTemplate doc={doc} setChangedDoc={setChangedDoc}>
                                 <Button disabled={disabled} pin="circle-circle" size="l">
                                     <Icon data={Plus} />
-                                    Создать шаблон
+                                    Создать правило
                                 </Button>
                             </NewPhrasesTemplate>
                             {generateModalButtonWithActions(
                                 {
                                     view: 'flat-danger',
                                     icon: Xmark,
-                                    placeholder: 'Убрать шаблон управления фразами с РК',
+                                    placeholder: 'Убрать правило управления фразами с РК',
                                     onClick: () => {
                                         const params = {
                                             uid: getUid(),
