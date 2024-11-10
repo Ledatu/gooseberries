@@ -4495,7 +4495,6 @@ export const MassAdvertPage = ({
                             <div style={{minWidth: 8}} />
                             <PhrasesModal
                                 disabled={permission != 'Управление'}
-                                selectValue={selectValue}
                                 doc={doc}
                                 setChangedDoc={setChangedDoc}
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}

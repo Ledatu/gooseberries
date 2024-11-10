@@ -26,7 +26,7 @@ import {
     ArrowShapeUp,
 } from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-import React, {useEffect, useState} from 'react';
+import React, {Children, isValidElement, ReactElement, useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import {parseFirst10Pages} from 'src/pages/MassAdvertPage';
 import callApi, {getUid} from 'src/utilities/callApi';
@@ -35,11 +35,12 @@ import DataTable from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 import {AutoPhrasesWordsSelection} from './AutoPhrasesWordsSelection';
 import {TextTitleWrapper} from './TextTitleWrapper';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
 export const AdvertsWordsModal = ({
+    children,
     disabled,
     doc,
-    selectValue,
     advertId,
     art,
     setChangedDoc,
@@ -51,6 +52,8 @@ export const AdvertsWordsModal = ({
     auctionSelectedOption,
     setAuctionSelectedOption,
 }) => {
+    const {selectValue} = useCampaign();
+
     const [open, setOpen] = useState(false);
 
     const [wordsFetchUpdate, setWordsFetchUpdate] = useState(false);
@@ -1399,42 +1402,40 @@ export const AdvertsWordsModal = ({
     const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
         ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
         : undefined;
-    const {isFixed, autoPhrasesTemplate} =
+    const {autoPhrasesTemplate} =
         doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate] ?? {};
 
-    const themeToUse = plusPhrasesTemplate
-        ? isFixed
-            ? 'flat-warning'
-            : autoPhrasesTemplate &&
-              ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
-                  (autoPhrasesTemplate.notIncludes && autoPhrasesTemplate.notIncludes.length))
-            ? 'flat-success'
-            : 'flat-info'
-        : 'normal';
+    const childArray = Children.toArray(children);
+
+    // Find the first valid React element to use as the trigger
+    const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
+        any,
+        any
+    >;
+
+    if (!triggerElement) {
+        console.error('AddApiModal: No valid React element found in children.');
+        return null;
+    }
+
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const triggerButton = React.cloneElement(triggerElement, {
+        onClick: handleOpen,
+    });
 
     return (
         <div>
-            <Button
-                size="xs"
-                pin="brick-round"
-                selected={themeToUse != 'normal'}
-                view={themeToUse}
-                onClick={() => {
-                    setOpen(true);
-                }}
-            >
-                <Text variant="caption-2">
-                    {themeToUse != 'normal' ? plusPhrasesTemplate : 'Фразы'}
-                </Text>
-            </Button>
+            {triggerButton}
             {wordsFetchUpdate ? <Skeleton style={{marginLeft: 5, width: 60}} /> : <></>}
             <div style={{height: 4}} />
-            <Modal
-                open={open}
-                onClose={() => {
-                    setOpen(false);
-                }}
-            >
+            <Modal open={open} onClose={handleClose}>
                 <motion.div
                     animate={{maxWidth: open ? '90vw' : 0}}
                     style={{

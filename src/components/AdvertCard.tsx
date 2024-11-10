@@ -19,10 +19,10 @@ import React, {useState} from 'react';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {getLocaleDateString, getRoundValue} from 'src/utilities/getRoundValue';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
-import {AdvertsWordsModal} from './AdvertsWordsModal';
 import {AdvertsBidsModal} from './AdvertsBidsModal';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {ChartModal} from './ChartModal';
+import {AdvertsWordsButton} from './AdvertsWordsButton';
 
 export const AdvertCard = ({
     permission,
@@ -646,7 +646,7 @@ export const AdvertCard = ({
                         </ChartModal>
                     </div>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <AdvertsWordsModal
+                        <AdvertsWordsButton
                             disabled={permission != 'Управление'}
                             doc={doc}
                             selectValue={selectValue}

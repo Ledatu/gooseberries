@@ -1,21 +1,32 @@
 import {Button, Card, Icon, List, Modal, Text, TextInput} from '@gravity-ui/uikit';
-import {Magnifier, TrashBin} from '@gravity-ui/icons';
-import React, {useState} from 'react';
+import {Magnifier, TrashBin, Check, Plus} from '@gravity-ui/icons';
+import React, {useEffect, useState} from 'react';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 import {motion} from 'framer-motion';
+import {NewPhrasesTemplate} from './NewPhrasesTemplate';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
-export const PhrasesModal = ({
-    disabled,
-    selectValue,
-    doc,
-    setChangedDoc,
-    getUniqueAdvertIdsFromThePage,
-}) => {
+export const PhrasesModal = ({disabled, doc, setChangedDoc, getUniqueAdvertIdsFromThePage}) => {
+    const {selectValue} = useCampaign();
     const [open, setOpen] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
     const [filterText, setFilterText] = useState('');
     const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState([] as any[]);
+
+    useEffect(() => {
+        if (!open || !doc || !doc?.plusPhrasesTemplates) return;
+        const plusPhrasesTemplatesTemp: any[] = [];
+        for (const [name, _] of Object.entries(doc.plusPhrasesTemplates[selectValue[0]])) {
+            plusPhrasesTemplatesTemp.push(name);
+        }
+
+        plusPhrasesTemplatesTemp.sort((a, b) =>
+            a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase()),
+        );
+
+        setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
+    }, [open, doc]);
 
     return (
         <div>
@@ -25,18 +36,6 @@ export const PhrasesModal = ({
                 size="l"
                 onClick={() => {
                     setOpen(true);
-                    const plusPhrasesTemplatesTemp: any[] = [];
-                    for (const [name, _] of Object.entries(
-                        doc.plusPhrasesTemplates[selectValue[0]],
-                    )) {
-                        plusPhrasesTemplatesTemp.push(name);
-                    }
-
-                    plusPhrasesTemplatesTemp.sort((a, b) =>
-                        a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase()),
-                    );
-
-                    setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
                 }}
             >
                 <Icon data={Magnifier} />
@@ -105,44 +104,7 @@ export const PhrasesModal = ({
                             <List
                                 size="l"
                                 filterable={false}
-                                onItemClick={(item) => {
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {advertsIds: {}},
-                                    };
-                                    const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                    for (const [id, advertData] of Object.entries(uniqueAdverts)) {
-                                        if (!id || !advertData) continue;
-                                        const {advertId} = advertData as any;
-                                        params.data.advertsIds[advertId] = {
-                                            advertId: advertId,
-                                            mode: 'Установить',
-                                            templateName: item,
-                                        };
-
-                                        if (
-                                            !doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                                                advertId
-                                            ]
-                                        )
-                                            doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                                                advertId
-                                            ] = {};
-                                        doc.advertsPlusPhrasesTemplates[selectValue[0]][
-                                            advertId
-                                        ].templateName = item;
-                                    }
-
-                                    console.log(params);
-
-                                    /////////////////////////
-                                    callApi('setAdvertsPlusPhrasesTemplates', params);
-                                    setChangedDoc({...doc});
-                                    /////////////////////////
-                                    setOpen(false);
-                                }}
-                                renderItem={(item, isItemActive) => {
+                                renderItem={(item) => {
                                     return (
                                         <div
                                             style={{
@@ -155,10 +117,67 @@ export const PhrasesModal = ({
                                             }}
                                         >
                                             <Text>{item}</Text>
-                                            {isItemActive ? (
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
                                                 <Button
-                                                    size="xs"
-                                                    view="flat"
+                                                    pin="circle-circle"
+                                                    onClick={() => {
+                                                        const params = {
+                                                            uid: getUid(),
+                                                            campaignName: selectValue[0],
+                                                            data: {advertsIds: {}},
+                                                        };
+                                                        const uniqueAdverts =
+                                                            getUniqueAdvertIdsFromThePage();
+                                                        for (const [
+                                                            id,
+                                                            advertData,
+                                                        ] of Object.entries(uniqueAdverts)) {
+                                                            if (!id || !advertData) continue;
+                                                            const {advertId} = advertData as any;
+                                                            params.data.advertsIds[advertId] = {
+                                                                advertId: advertId,
+                                                                mode: 'Установить',
+                                                                templateName: item,
+                                                            };
+
+                                                            if (
+                                                                !doc.advertsPlusPhrasesTemplates[
+                                                                    selectValue[0]
+                                                                ][advertId]
+                                                            )
+                                                                doc.advertsPlusPhrasesTemplates[
+                                                                    selectValue[0]
+                                                                ][advertId] = {};
+                                                            doc.advertsPlusPhrasesTemplates[
+                                                                selectValue[0]
+                                                            ][advertId].templateName = item;
+                                                        }
+
+                                                        console.log(params);
+
+                                                        /////////////////////////
+                                                        callApi(
+                                                            'setAdvertsPlusPhrasesTemplates',
+                                                            params,
+                                                        );
+                                                        setChangedDoc({...doc});
+                                                        /////////////////////////
+                                                        setOpen(false);
+                                                    }}
+                                                >
+                                                    <Icon data={Check} />
+                                                    Установить шаблон на РК
+                                                </Button>
+                                                <div style={{minWidth: 8}} />
+
+                                                <Button
+                                                    pin="circle-circle"
                                                     onClick={(event) => {
                                                         event.stopPropagation();
                                                         const params = {
@@ -229,10 +248,9 @@ export const PhrasesModal = ({
                                                     }}
                                                 >
                                                     <Icon data={TrashBin} />
+                                                    Удалить шаблон
                                                 </Button>
-                                            ) : (
-                                                <></>
-                                            )}
+                                            </div>
                                         </div>
                                     );
                                 }}
@@ -242,44 +260,69 @@ export const PhrasesModal = ({
                                         .includes(filterText.toLocaleLowerCase());
                                 })}
                                 itemsHeight={300}
-                                itemHeight={28}
+                                itemHeight={44}
                             />
                         </div>
-                        {generateModalButtonWithActions(
-                            {
-                                view: 'flat-danger',
-                                icon: TrashBin,
-                                placeholder: 'Убрать шаблон управления фразами с РК',
-                                onClick: () => {
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {advertsIds: {}},
-                                    };
-                                    const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                    for (const [id, advertData] of Object.entries(uniqueAdverts)) {
-                                        if (!id || !advertData) continue;
-                                        const {advertId} = advertData as any;
-                                        params.data.advertsIds[advertId] = {
-                                            advertId: advertId,
-                                            mode: 'Удалить',
+                        <div
+                            style={{
+                                position: 'relative',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                width: '100%',
+                            }}
+                        >
+                            <NewPhrasesTemplate doc={doc} setChangedDoc={setChangedDoc}>
+                                <Button
+                                    disabled={disabled}
+                                    pin="circle-circle"
+                                    size="l"
+                                    style={{position: 'absolute', left: 0, bottom: 4}}
+                                >
+                                    <Icon data={Plus} />
+                                    Создать шаблон
+                                </Button>
+                            </NewPhrasesTemplate>
+                            {generateModalButtonWithActions(
+                                {
+                                    view: 'flat-danger',
+                                    icon: TrashBin,
+                                    placeholder: 'Убрать шаблон управления фразами с РК',
+                                    onClick: () => {
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            data: {advertsIds: {}},
                                         };
+                                        const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                                        for (const [id, advertData] of Object.entries(
+                                            uniqueAdverts,
+                                        )) {
+                                            if (!id || !advertData) continue;
+                                            const {advertId} = advertData as any;
+                                            params.data.advertsIds[advertId] = {
+                                                advertId: advertId,
+                                                mode: 'Удалить',
+                                            };
 
-                                        doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId] =
-                                            undefined;
-                                    }
-                                    console.log(params);
+                                            doc.advertsPlusPhrasesTemplates[selectValue[0]][
+                                                advertId
+                                            ] = undefined;
+                                        }
+                                        console.log(params);
 
-                                    /////////////////////////
-                                    callApi('setAdvertsPlusPhrasesTemplates', params);
-                                    setChangedDoc({...doc});
-                                    /////////////////////////
-                                    setOpen(false);
+                                        /////////////////////////
+                                        callApi('setAdvertsPlusPhrasesTemplates', params);
+                                        setChangedDoc({...doc});
+                                        /////////////////////////
+                                        setOpen(false);
+                                    },
                                 },
-                            },
-                            selectedButton,
-                            setSelectedButton,
-                        )}
+                                selectedButton,
+                                setSelectedButton,
+                            )}
+                        </div>
                     </motion.div>
                 </Card>
             </Modal>
