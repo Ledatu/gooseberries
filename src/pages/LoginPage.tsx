@@ -83,7 +83,10 @@ export const LoginPage = () => {
                                 <Text>и</Text>
                             </div>
                             <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <Link href="https://seller.aurum-sky.net/privacy_policy.pdf" target="_blank">
+                                <Link
+                                    href="https://seller.aurum-sky.net/privacy_policy.pdf"
+                                    target="_blank"
+                                >
                                     политикой конфиденциальности
                                 </Link>
                             </div>
