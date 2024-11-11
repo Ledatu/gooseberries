@@ -749,6 +749,15 @@ export const AdvertsBidsModal = ({
                                                           ? parseInt(maxCpmInputValue)
                                                           : undefined,
                                                       useManualMaxCpm: !useAutoMaxCpm,
+                                                      useAutoBudget,
+                                                      useMaxBudget,
+                                                      maxBudget: useMaxBudget
+                                                          ? parseInt(maxBudgetInputValue)
+                                                          : undefined,
+                                                      sellByDate:
+                                                          autoBidderOption[0] == 'sellByDate'
+                                                              ? getLocaleDateString(sellByDate, 10)
+                                                              : undefined,
                                                       bid: parseInt(cpmInputValue),
                                                   };
                                     }

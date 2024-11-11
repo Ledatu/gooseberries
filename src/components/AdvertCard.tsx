@@ -339,6 +339,19 @@ export const AdvertCard = ({
                                 ) : (
                                     <></>
                                 )}
+                                {drrAI !== undefined && drrAI.autoBidsMode == 'sellByDate' ? (
+                                    <Text style={{marginLeft: 4}} variant="caption-2">
+                                        {`Распр. к: ${new Date(
+                                            drrAI.sellByDate ?? '',
+                                        ).toLocaleDateString('ru-RU')} Заказы: ${
+                                            !isNaN(drrAI.desiredOrders) && drrAI.desiredOrders
+                                                ? drrAI.desiredOrders
+                                                : 'Нет. инф.'
+                                        }`}
+                                    </Text>
+                                ) : (
+                                    <></>
+                                )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'sum' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
                                         {`Расход (${drrAI.desiredSum})`}
