@@ -27,7 +27,7 @@ export const AutoSalesUploadModal = ({selectValue, sellerId, uploaded, setUpload
         }
 
         event.preventDefault();
-        const url = 'https://aurum-mp.ru/api/uploadAutoSales';
+        const url = 'https://seller.aurum-sky.net/api/uploadAutoSales';
         const formData = new FormData();
 
         formData.append('uid', getUid());

@@ -17,7 +17,7 @@ export const DzhemUpload = ({selectValue, setDzhemRefetch, setUploadModalOpen}) 
         }
 
         event.preventDefault();
-        const url = 'https://aurum-mp.ru/api/uploadDzhem';
+        const url = 'https://seller.aurum-sky.net/api/uploadDzhem';
         const formData = new FormData();
 
         formData.append('uid', getUid());
