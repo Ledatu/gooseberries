@@ -260,7 +260,7 @@ export default function TheTable({
                             setPage(page);
 
                             const pagination = paginationSize ?? defaultPaginationSize;
-                            const tempPaginatedData = data.slice(
+                            const tempPaginatedData = sortedData.slice(
                                 (page - 1) * pagination,
                                 page * pagination,
                             );
