@@ -818,7 +818,7 @@ export const AnalyticsPage = ({permission}) => {
                 tempTypeRow['sales'] = dateStats['sales'];
                 tempTypeRow['sum_sales'] = dateStats['sum_sales'];
 
-                tempTypeRow['profit'] = dateStats['profit'];
+                tempTypeRow['profit'] = Math.round(dateStats['profit']);
                 tempTypeRow['salesPrimeCost'] = dateStats['salesPrimeCost'];
                 tempTypeRow['comission'] = dateStats['comission'];
                 tempTypeRow['tax'] = dateStats['tax'];
