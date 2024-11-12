@@ -534,11 +534,24 @@ export const AdvertCard = ({
                                     setModalOpenFromAdvertId(advertId);
                                 }}
                             >
-                                <Text variant="caption-2">{`Баланс: ${
-                                    curBudget !== undefined ? curBudget : 'Нет инф.'
-                                } / ${
-                                    budgetToKeep !== undefined ? budgetToKeep : 'Бюджет не задан.'
-                                }`}</Text>
+                                <Text variant="caption-2">
+                                    {`Баланс: ${
+                                        curBudget !== undefined ? curBudget : 'Нет инф.'
+                                    } / ${
+                                        budgetToKeep !== undefined
+                                            ? budgetToKeep
+                                            : 'Бюджет не задан.'
+                                    }` +
+                                        (drrAI
+                                            ? drrAI.useAutoBudget
+                                                ? ` (Авто${
+                                                      drrAI.maxBudget
+                                                          ? `, макс. ${drrAI.maxBudget}`
+                                                          : ''
+                                                  })`
+                                                : ''
+                                            : '')}
+                                </Text>
                             </Button>
                         </AdvertsBudgetsModal>
                         <ChartModal

@@ -1,6 +1,6 @@
 // LoginPage.tsx
 import {Button, Card, Checkbox, Icon, Link, Text} from '@gravity-ui/uikit';
-import {LogoTelegram, Globe, CircleQuestion} from '@gravity-ui/icons';
+import {LogoTelegram, Globe, CircleQuestion, GraduationCap} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useState} from 'react';
 import logo from '../assets/aurum.svg';
@@ -137,7 +137,7 @@ export const LoginPage = () => {
                         href="https://t.me/+bB-iFYd4uDUyZDVi"
                     >
                         <Icon data={LogoTelegram} />
-                        Наш телеграм
+                        Наш телеграм канал
                     </Button>
                     <div style={{minWidth: 16}} />
                     <Button
@@ -166,6 +166,16 @@ export const LoginPage = () => {
                     >
                         <Icon data={CircleQuestion} />
                         Поддержка
+                    </Button>
+                    <div style={{minWidth: 16}} />
+                    <Button
+                        size="l"
+                        pin="circle-circle"
+                        target="_blank"
+                        href="https://aurum-wiki.tilda.ws/tdocs/"
+                    >
+                        <Icon data={GraduationCap} />
+                        База знаний
                     </Button>
                 </div>
             </motion.div>
