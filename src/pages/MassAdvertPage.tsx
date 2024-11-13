@@ -85,6 +85,7 @@ import {useMediaQuery} from 'src/hooks/useMediaQuery';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {CanBeAddedToSales} from 'src/components/CanBeAddedToSales';
 import {StocksByWarehousesPopup} from 'src/components/StocksByWarehousesPopup';
+import {TextTitleWrapper} from 'src/components/TextTitleWrapper';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -4639,32 +4640,39 @@ export const MassAdvertPage = ({
                                 view="clear"
                                 style={{
                                     width: 300,
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    translate: '-50% -50%',
+                                    flexWrap: 'nowrap',
                                     display: 'flex',
-                                    flexDirection: 'column',
+                                    flexDirection: 'row',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
                                     backgroundColor: 'none',
                                 }}
                             >
-                                <div
+                                <motion.div
                                     style={{
-                                        height: '50%',
-                                        width: '100%',
+                                        overflow: 'hidden',
+                                        flexWrap: 'nowrap',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
-                                        margin: '16px 0',
+                                        justifyContent: 'space-between',
+                                        background: '#221d220f',
+                                        backdropFilter: 'blur(8px)',
+                                        boxShadow: '#0002 0px 2px 8px 0px',
+                                        padding: 30,
+                                        borderRadius: 30,
+                                        border: '1px solid #eee2',
                                     }}
                                 >
-                                    <Text
-                                        style={{
-                                            margin: '8px 0',
-                                        }}
-                                        variant="display-2"
-                                    >
-                                        Параметры
-                                    </Text>
+                                    <Text variant="display-2">Создание РК</Text>
+                                    <div style={{minHeight: 8}} />
                                     <Select
+                                        size="l"
+                                        width={'max'}
                                         value={advertTypeSwitchValue}
                                         options={advertTypeSwitchValues}
                                         onUpdate={(val) => {
@@ -4672,71 +4680,62 @@ export const MassAdvertPage = ({
                                             setBidInputValue(val[0] == 'Авто' ? 50 : 150);
                                         }}
                                     />
-                                    <div
+                                    <TextTitleWrapper
+                                        title={'Стартовый баланс'}
                                         style={{
+                                            marginBottom: 8,
+                                            marginTop: 8,
                                             display:
                                                 advertTypeSwitchValue[0] == 'Авто'
                                                     ? 'flex'
                                                     : 'none',
-                                            flexDirection: 'column',
-                                            maxWidth: '70%',
                                         }}
                                     >
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                margin: '4px 0',
+                                        <TextInput
+                                            size="l"
+                                            type="number"
+                                            value={String(budgetInputValue)}
+                                            onChange={(val) => {
+                                                const budget = Number(val.target.value);
+                                                if (budget < 1000)
+                                                    setBudgetInputValidationValue(false);
+                                                else setBudgetInputValidationValue(true);
+                                                setBudgetInputValue(budget);
                                             }}
-                                        >
-                                            <Text style={{marginLeft: 4}} variant="subheader-1">
-                                                {'Бюджет'}
-                                            </Text>
-                                            <TextInput
-                                                type="number"
-                                                value={String(budgetInputValue)}
-                                                onChange={(val) => {
-                                                    const budget = Number(val.target.value);
-                                                    if (budget < 1000)
-                                                        setBudgetInputValidationValue(false);
-                                                    else setBudgetInputValidationValue(true);
-                                                    setBudgetInputValue(budget);
-                                                }}
-                                                errorMessage={'Введите не менее 500'}
-                                                validationState={
-                                                    budgetInputValidationValue
-                                                        ? undefined
-                                                        : 'invalid'
-                                                }
-                                            />
-                                        </div>
-                                        <div style={{width: 16}} />
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                margin: '4px 0',
+                                            errorMessage={'Введите не менее 500'}
+                                            validationState={
+                                                budgetInputValidationValue ? undefined : 'invalid'
+                                            }
+                                        />
+                                        <div style={{minHeight: 8}} />
+                                    </TextTitleWrapper>
+                                    <TextTitleWrapper
+                                        title={'Начальная ставка'}
+                                        style={{
+                                            marginBottom: 8,
+                                            display:
+                                                advertTypeSwitchValue[0] == 'Авто'
+                                                    ? 'flex'
+                                                    : 'none',
+                                        }}
+                                    >
+                                        <TextInput
+                                            size="l"
+                                            type="number"
+                                            value={String(bidInputValue)}
+                                            onChange={(val) => {
+                                                const bid = Number(val.target.value);
+                                                if (bid < 50) setBidInputValidationValue(false);
+                                                else setBidInputValidationValue(true);
+                                                setBidInputValue(bid);
                                             }}
-                                        >
-                                            <Text style={{marginLeft: 4}} variant="subheader-1">
-                                                {'Ставка'}
-                                            </Text>
-                                            <TextInput
-                                                type="number"
-                                                value={String(bidInputValue)}
-                                                onChange={(val) => {
-                                                    const bid = Number(val.target.value);
-                                                    if (bid < 50) setBidInputValidationValue(false);
-                                                    else setBidInputValidationValue(true);
-                                                    setBidInputValue(bid);
-                                                }}
-                                                errorMessage={'Введите не менее 100'}
-                                                validationState={
-                                                    bidInputValidationValue ? undefined : 'invalid'
-                                                }
-                                            />
-                                        </div>
-                                    </div>
+                                            errorMessage={'Введите не менее 100'}
+                                            validationState={
+                                                bidInputValidationValue ? undefined : 'invalid'
+                                            }
+                                        />
+                                        <div style={{minHeight: 8}} />
+                                    </TextTitleWrapper>
                                     <Checkbox
                                         style={{margin: '8px 0'}}
                                         checked={createAdvertsMode}
@@ -4746,7 +4745,7 @@ export const MassAdvertPage = ({
                                     </Checkbox>
                                     {generateModalButtonWithActions(
                                         {
-                                            placeholder: 'Запуск',
+                                            placeholder: 'Создать',
                                             icon: CloudArrowUpIn,
                                             view: 'outlined-success',
                                             onClick: async () => {
@@ -4853,7 +4852,7 @@ export const MassAdvertPage = ({
                                         selectedButton,
                                         setSelectedButton,
                                     )}
-                                </div>
+                                </motion.div>
                             </Card>
                         </Modal>
                         <Modal

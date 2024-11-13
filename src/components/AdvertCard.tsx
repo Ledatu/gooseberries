@@ -7,6 +7,8 @@ import {
     Copy,
     Ban,
     Calendar,
+    Pause,
+    Play,
     Magnifier,
     ChartAreaStacked,
     Rocket,
@@ -143,7 +145,7 @@ export const AdvertCard = ({
                         </Button>
                         <Button
                             style={{
-                                borderBottomRightRadius: 9,
+                                borderBottomRightRadius: status && status != 11 ? 9 : 0,
                                 overflow: 'hidden',
                             }}
                             selected
@@ -163,48 +165,55 @@ export const AdvertCard = ({
                         >
                             {advertId}
                         </Button>
-                        {/* <Button
-                            selected
-                            style={{
-                                borderBottomRightRadius: 9,
-                                overflow: 'hidden',
-                            }}
-                            onClick={async () => {
-                                const res = await manageAdvertsActivityCallFunc(
-                                    status ? (status == 9 ? 'pause' : 'start') : 'start',
-                                    advertId,
-                                );
-                                console.log(res);
-                                if (!res || res['data'] === undefined) {
-                                    return;
-                                }
+                        {status && status != 9 ? (
+                            <Button
+                                selected
+                                style={{
+                                    borderBottomRightRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                                onClick={async () => {
+                                    const res = await manageAdvertsActivityCallFunc(
+                                        status ? (status == 9 ? 'pause' : 'start') : 'start',
+                                        advertId,
+                                    );
+                                    console.log(res);
+                                    if (!res || res['data'] === undefined) {
+                                        return;
+                                    }
 
-                                if (res['data']['status'] == 'ok') {
-                                    doc.adverts[selectValue[0]][advertId].status =
-                                        status == 9 ? 11 : 9;
-                                } else if (res['data']['status'] == 'bad') {
-                                    doc.adverts[selectValue[0]][advertId].status =
-                                        status == 11 ? 9 : 11;
+                                    if (res['data']['status'] == 'ok') {
+                                        doc.adverts[selectValue[0]][advertId].status =
+                                            status == 9 ? 11 : 9;
+                                    } else if (res['data']['status'] == 'bad') {
+                                        doc.adverts[selectValue[0]][advertId].status =
+                                            status == 11 ? 9 : 11;
+                                    }
+                                    setChangedDoc({...doc});
+                                }}
+                                // style={{position: 'relative', top: -2}}
+                                disabled={status === undefined || permission != 'Управление'}
+                                // disabled
+                                size="xs"
+                                pin="brick-brick"
+                                view={
+                                    status
+                                        ? status == 9
+                                            ? 'flat-success'
+                                            : status == 11
+                                            ? 'flat-danger'
+                                            : 'flat-warning'
+                                        : 'flat'
                                 }
-                                setChangedDoc({...doc});
-                            }}
-                            // style={{position: 'relative', top: -2}}
-                            disabled={status === undefined || permission != 'Управление'}
-                            // disabled
-                            size="xs"
-                            pin="brick-brick"
-                            view={
-                                status
-                                    ? status == 9
-                                        ? 'flat-success'
-                                        : status == 11
-                                        ? 'flat-danger'
-                                        : 'flat-warning'
-                                    : 'flat'
-                            }
-                        >
-                            <Icon data={status ? (status == 9 ? Pause : Play) : Play} size={11} />
-                        </Button> */}
+                            >
+                                <Icon
+                                    data={status ? (status == 9 ? Pause : Play) : Play}
+                                    size={11}
+                                />
+                            </Button>
+                        ) : (
+                            <></>
+                        )}
                         <div style={{width: 8}} />
                     </div>
                     <Button
