@@ -125,7 +125,7 @@ export const AdvertsWordsModal = ({
 
     const [semanticsFilteredSummary, setSemanticsFilteredSummary] = useState({
         active: {
-            cluster: {summary: 0},
+            cluster: '',
             cpc: 0,
             sum: 0,
             count: 0,
@@ -136,7 +136,7 @@ export const AdvertsWordsModal = ({
             placements: null,
         },
         minus: {
-            cluster: {summary: 0},
+            cluster: '',
             freq: 0,
             freqTrend: 0,
             count: 0,
@@ -156,7 +156,7 @@ export const AdvertsWordsModal = ({
         // console.log(_clustersFilters, _clusters);
 
         semanticsFilteredSummary.active = {
-            cluster: {summary: 0},
+            cluster: '',
             cpc: 0,
             sum: 0,
             count: 0,
@@ -181,7 +181,6 @@ export const AdvertsWordsModal = ({
                     if (['sum', 'count', 'clicks', 'freq'].includes(key))
                         semanticsFilteredSummary.active[key] += val;
                 }
-                semanticsFilteredSummary.active.cluster.summary++;
 
                 return true;
             }),
@@ -200,7 +199,7 @@ export const AdvertsWordsModal = ({
         // console.log(_clustersFilters, _clusters);
 
         semanticsFilteredSummary.minus = {
-            cluster: {summary: 0},
+            cluster: '',
             cpc: 0,
             sum: 0,
             count: 0,
@@ -228,7 +227,6 @@ export const AdvertsWordsModal = ({
                     if (['sum', 'count', 'clicks', 'freq'].includes(key))
                         semanticsFilteredSummary.minus[key] += val;
                 }
-                semanticsFilteredSummary.minus.cluster.summary++;
                 temp.push(cluster);
             }
         }
@@ -493,9 +491,9 @@ export const AdvertsWordsModal = ({
             name: 'cluster',
             placeholder: 'Кластер',
             valueType: 'text',
-            render: ({value}) => {
-                if (value.summary !== undefined) {
-                    return <Text>{`Всего: ${value.summary}`}</Text>;
+            render: ({value, footer}) => {
+                if (footer) {
+                    return <Text>{value}</Text>;
                 }
 
                 let valueWrapped = value;
@@ -947,9 +945,9 @@ export const AdvertsWordsModal = ({
             name: 'cluster',
             placeholder: 'Кластер',
             valueType: 'text',
-            render: ({value}) => {
-                if (value.summary !== undefined) {
-                    return <Text>{`Всего: ${value.summary}`}</Text>;
+            render: ({value, footer}) => {
+                if (footer) {
+                    return <Text>{value}</Text>;
                 }
 
                 let valueWrapped = value;
@@ -2141,6 +2139,8 @@ export const AdvertsWordsModal = ({
                                 <Card
                                     theme="success"
                                     style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
                                         overflow: 'auto',
                                         maxWidth: '90vw',
                                         height: 'calc(55vh)',
@@ -2170,8 +2170,20 @@ export const AdvertsWordsModal = ({
                                         setFilters={setClustersFiltersActive}
                                         filterData={clustersFilterDataActive}
                                         footerData={[semanticsFilteredSummary.active]}
-                                        tableId={''}
-                                        usePagination={false}
+                                        tableId={'advertsWordsActive'}
+                                        usePagination={true}
+                                        defaultPaginationSize={100}
+                                        onPaginationUpdate={({paginatedData}) => {
+                                            setSemanticsFilteredSummary((row) => {
+                                                const temp = row;
+                                                temp.active[
+                                                    'cluster'
+                                                ] = `На странице: ${paginatedData.length} Всего: ${semanticsModalSemanticsItemsFiltratedValue.length}`;
+
+                                                return temp;
+                                            });
+                                        }}
+                                        height={'calc(55vh - 54px)'}
                                     />
                                 </Card>
                                 <div style={{minHeight: 8}} />
@@ -2207,9 +2219,22 @@ export const AdvertsWordsModal = ({
                                         setFilters={setClustersFiltersMinus}
                                         filterData={clustersFilterDataMinus}
                                         footerData={[semanticsFilteredSummary.minus]}
-                                        tableId={''}
-                                        usePagination={false}
+                                        tableId={'advertsWordsMinus'}
+                                        usePagination={true}
+                                        defaultPaginationSize={100}
+                                        onPaginationUpdate={({paginatedData}) => {
+                                            setSemanticsFilteredSummary((row) => {
+                                                const temp = row;
+                                                temp.minus[
+                                                    'cluster'
+                                                ] = `На странице: ${paginatedData.length} Всего: ${semanticsModalSemanticsMinusItemsFiltratedValue.length}`;
+
+                                                return temp;
+                                            });
+                                        }}
+                                        height={'calc(35vh - 96px - 54px)'}
                                     />
+                                    <div style={{minHeight: 8}} />
                                 </Card>
                             </div>
                         )}

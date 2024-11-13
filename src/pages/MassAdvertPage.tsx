@@ -4677,7 +4677,7 @@ export const MassAdvertPage = ({
                                         options={advertTypeSwitchValues}
                                         onUpdate={(val) => {
                                             setAdvertTypeSwitchValue(val);
-                                            setBidInputValue(val[0] == 'Авто' ? 50 : 150);
+                                            setBidInputValue(val[0] == 'Авто' ? 100 : 150);
                                         }}
                                     />
                                     <TextTitleWrapper
@@ -4725,7 +4725,7 @@ export const MassAdvertPage = ({
                                             value={String(bidInputValue)}
                                             onChange={(val) => {
                                                 const bid = Number(val.target.value);
-                                                if (bid < 50) setBidInputValidationValue(false);
+                                                if (bid < 100) setBidInputValidationValue(false);
                                                 else setBidInputValidationValue(true);
                                                 setBidInputValue(bid);
                                             }}
