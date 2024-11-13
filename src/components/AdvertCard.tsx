@@ -7,11 +7,9 @@ import {
     Copy,
     Ban,
     Calendar,
-    Play,
     Magnifier,
     ChartAreaStacked,
     Rocket,
-    Pause,
     LayoutList,
 } from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
@@ -144,6 +142,10 @@ export const AdvertCard = ({
                             <Icon data={type == 8 ? Rocket : Magnifier} size={11} />
                         </Button>
                         <Button
+                            style={{
+                                borderBottomRightRadius: 9,
+                                overflow: 'hidden',
+                            }}
                             selected
                             onClick={() => filterByButton(advertId, 'adverts')}
                             // style=x{{position: 'relative', top: -2}}
@@ -161,7 +163,7 @@ export const AdvertCard = ({
                         >
                             {advertId}
                         </Button>
-                        <Button
+                        {/* <Button
                             selected
                             style={{
                                 borderBottomRightRadius: 9,
@@ -202,7 +204,7 @@ export const AdvertCard = ({
                             }
                         >
                             <Icon data={status ? (status == 9 ? Pause : Play) : Play} size={11} />
-                        </Button>
+                        </Button> */}
                         <div style={{width: 8}} />
                     </div>
                     <Button

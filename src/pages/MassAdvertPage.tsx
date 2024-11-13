@@ -43,7 +43,6 @@ import {
     Minus,
     Plus,
     Play,
-    Pause,
     ArrowRight,
     LayoutList,
     Clock,
@@ -4598,7 +4597,7 @@ export const MassAdvertPage = ({
                                     selectedButton,
                                     setSelectedButton,
                                 )}
-                                {generateModalButtonWithActions(
+                                {/* {generateModalButtonWithActions(
                                     {
                                         placeholder: 'Приостановить',
                                         icon: Pause,
@@ -4609,7 +4608,7 @@ export const MassAdvertPage = ({
                                     },
                                     selectedButton,
                                     setSelectedButton,
-                                )}
+                                )} */}
                                 {generateModalButtonWithActions(
                                     {
                                         placeholder: 'Завершить',
