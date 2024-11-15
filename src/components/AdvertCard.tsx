@@ -23,6 +23,7 @@ import {AdvertsBidsModal} from './AdvertsBidsModal';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {ChartModal} from './ChartModal';
 import {AdvertsWordsButton} from './AdvertsWordsButton';
+import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
 
 export const AdvertCard = ({
     permission,
@@ -33,8 +34,6 @@ export const AdvertCard = ({
     selectValue,
     copiedAdvertsSettings,
     setChangedDoc,
-    setShowScheduleModalOpen,
-    genTempSchedule,
     manageAdvertsActivityCallFunc,
     setArtsStatsByDayData,
     updateColumnWidth,
@@ -47,13 +46,12 @@ export const AdvertCard = ({
     auctionOptions,
     auctionSelectedOption,
     setDateRange,
-    setModalOpenFromAdvertId,
     setShowArtStatsModalOpen,
     dateRange,
-    setScheduleInput,
     recalc,
     filterByButton,
     setAuctionSelectedOption,
+    getUniqueAdvertIdsFromThePage,
 }) => {
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
 
@@ -275,16 +273,7 @@ export const AdvertCard = ({
                             getUniqueAdvertIdsFromThePage={undefined}
                             advertId={advertId}
                         >
-                            <Button
-                                pin="brick-round"
-                                size="xs"
-                                view="flat"
-                                onClick={() => {
-                                    if (permission != 'Управление') return;
-
-                                    setModalOpenFromAdvertId(advertId);
-                                }}
-                            >
+                            <Button pin="brick-round" size="xs" view="flat">
                                 <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} / ${
                                     drrAI !== undefined
                                         ? `${drrAI.maxBid ?? 'Нет инф.'}`
@@ -536,15 +525,7 @@ export const AdvertCard = ({
                             getUniqueAdvertIdsFromThePage={undefined}
                             advertId={advertId}
                         >
-                            <Button
-                                pin="brick-round"
-                                size="xs"
-                                view="flat"
-                                onClick={() => {
-                                    if (permission != 'Управление') return;
-                                    setModalOpenFromAdvertId(advertId);
-                                }}
-                            >
+                            <Button pin="brick-round" size="xs" view="flat">
                                 <Text variant="caption-2">
                                     {`Баланс: ${
                                         curBudget !== undefined ? curBudget : 'Нет инф.'
@@ -946,33 +927,33 @@ export const AdvertCard = ({
                         >
                             <Icon size={11} data={LayoutList}></Icon>
                         </Button>
-                        <Button
-                            pin="clear-clear"
-                            style={{
-                                overflow: 'hidden',
-                                borderBottomRightRadius: 7,
-                            }}
-                            size="xs"
-                            // selected
-                            view={
-                                doc.advertsSchedules[selectValue[0]][advertId]
-                                    ? 'flat-action'
-                                    : 'flat'
-                            }
-                            onClick={() => {
-                                if (permission != 'Управление') return;
-                                setShowScheduleModalOpen(true);
-                                setModalOpenFromAdvertId(advertId);
-
-                                const schedule = doc.advertsSchedules[selectValue[0]][advertId]
-                                    ? doc.advertsSchedules[selectValue[0]][advertId].schedule
-                                    : undefined;
-
-                                setScheduleInput(schedule ?? genTempSchedule());
-                            }}
+                        <AdvertsSchedulesModal
+                            disabled={permission != 'Управление'}
+                            advertId={advertId}
+                            doc={doc}
+                            setChangedDoc={setChangedDoc}
+                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                         >
-                            <Icon size={11} data={Clock} />
-                        </Button>
+                            <Button
+                                pin="clear-clear"
+                                style={{
+                                    overflow: 'hidden',
+                                    borderBottomRightRadius: 7,
+                                }}
+                                size="xs"
+                                disabled={permission != 'Управление'}
+                                view={
+                                    doc.advertsSchedules[selectValue[0]][advertId]
+                                        ? 'flat-action'
+                                        : 'flat'
+                                }
+                                onClick={() => {
+                                    if (permission != 'Управление') return;
+                                }}
+                            >
+                                <Icon size={11} data={Clock} />
+                            </Button>
+                        </AdvertsSchedulesModal>
                     </div>
                 </motion.div>
                 <motion.div

@@ -1,10 +1,9 @@
-import {Modal, Select, TextInput} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Modal, Select, TextInput} from '@gravity-ui/uikit';
 import {CloudArrowUpIn, TrashBin} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useState, Children, isValidElement, ReactElement, useMemo, useEffect} from 'react';
 import {TextTitleWrapper} from './TextTitleWrapper';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 
 export const AdvertsBudgetsModal = ({
     disabled,
@@ -23,7 +22,6 @@ export const AdvertsBudgetsModal = ({
     getUniqueAdvertIdsFromThePage: Function | undefined;
     advertId: number | undefined;
 }) => {
-    const [selectedButton, setSelectedButton] = useState('');
     const [open, setOpen] = useState(false);
 
     const advertIds = (() => {
@@ -100,67 +98,81 @@ export const AdvertsBudgetsModal = ({
         <div>
             {triggerButton}
             <Modal open={open && !disabled} onClose={handleClose}>
-                <motion.div
+                <Card
+                    view="clear"
                     style={{
-                        width: 250,
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        flexDirection: 'column',
-                        padding: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: 'none',
                     }}
                 >
                     <motion.div
-                        transition={transition}
-                        style={{height: 0}}
-                        animate={{height: open ? 8 : 0}}
-                    />
-                    <Select
-                        size="l"
-                        width={'max'}
-                        value={budgetModalOption}
-                        options={budgetModalOptions}
-                        onUpdate={(opt) => setBudgetModalOption(opt)}
-                    />
-                    <motion.div
                         style={{
-                            height: 0,
                             overflow: 'hidden',
-                        }}
-                        transition={transition}
-                        animate={{
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
-                            justifyContent: 'end',
-                            height: open && budgetModalOption[0] != 'deleteBudgetToKeep' ? 62 : 0,
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            width: 250,
+                            border: '1px solid #eee2',
                         }}
                     >
-                        <TextTitleWrapper title="Сумма" padding={16}>
-                            <TextInput
-                                autoFocus
-                                size="l"
-                                value={budgetInputValue}
-                                validationState={budgetInputValueValid ? undefined : 'invalid'}
-                                onUpdate={(val) => setBudgetInputValue(val)}
-                            />
-                        </TextTitleWrapper>
-                    </motion.div>
-                    <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
-                    {generateModalButtonWithActions(
-                        {
-                            disabled: !budgetInputValueValid || disabled,
-                            placeholder: {
-                                purchase: 'Пополнить',
-                                setBudgetToKeep: 'Установить',
-                                deleteBudgetToKeep: 'Удалить',
-                            }[budgetModalOption[0]],
-                            icon:
-                                budgetModalOption[0] != 'deleteBudgetToKeep'
-                                    ? CloudArrowUpIn
-                                    : TrashBin,
-                            view:
+                        <Select
+                            size="l"
+                            width={'max'}
+                            value={budgetModalOption}
+                            options={budgetModalOptions}
+                            onUpdate={(opt) => setBudgetModalOption(opt)}
+                        />
+                        <motion.div
+                            style={{
+                                height: 0,
+                                overflow: 'hidden',
+                                width: '100%',
+                            }}
+                            transition={transition}
+                            animate={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'end',
+                                height:
+                                    open && budgetModalOption[0] != 'deleteBudgetToKeep' ? 62 : 0,
+                            }}
+                        >
+                            <TextTitleWrapper title="Сумма" padding={16}>
+                                <TextInput
+                                    autoFocus
+                                    size="l"
+                                    value={budgetInputValue}
+                                    validationState={budgetInputValueValid ? undefined : 'invalid'}
+                                    onUpdate={(val) => setBudgetInputValue(val)}
+                                />
+                            </TextTitleWrapper>
+                        </motion.div>
+                        <motion.div style={{height: 0}} animate={{height: open ? 16 : 0}} />
+                        <Button
+                            size="l"
+                            pin="circle-circle"
+                            selected
+                            view={
                                 budgetModalOption[0] != 'deleteBudgetToKeep'
                                     ? 'outlined-success'
-                                    : 'outlined-danger',
-                            onClick: () => {
+                                    : 'outlined-danger'
+                            }
+                            disabled={!budgetInputValueValid || disabled}
+                            onClick={() => {
                                 const params = {
                                     uid: getUid(),
                                     campaignName: selectValue[0],
@@ -187,12 +199,25 @@ export const AdvertsBudgetsModal = ({
                                 setChangedDoc({...doc});
                                 setOpen(false);
                                 //////////////////////////////////
-                            },
-                        },
-                        selectedButton,
-                        setSelectedButton,
-                    )}
-                </motion.div>
+                            }}
+                        >
+                            <Icon
+                                data={
+                                    budgetModalOption[0] != 'deleteBudgetToKeep'
+                                        ? CloudArrowUpIn
+                                        : TrashBin
+                                }
+                            />
+                            {
+                                {
+                                    purchase: 'Пополнить',
+                                    setBudgetToKeep: 'Установить',
+                                    deleteBudgetToKeep: 'Удалить',
+                                }[budgetModalOption[0]]
+                            }
+                        </Button>
+                    </motion.div>
+                </Card>
             </Modal>
         </div>
     );

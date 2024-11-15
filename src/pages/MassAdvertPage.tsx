@@ -46,7 +46,6 @@ import {
     ArrowRight,
     LayoutList,
     Clock,
-    TrashBin,
     Check,
     CloudArrowUpIn,
     TagRuble,
@@ -86,6 +85,8 @@ import {useCampaign} from 'src/contexts/CampaignContext';
 import {CanBeAddedToSales} from 'src/components/CanBeAddedToSales';
 import {StocksByWarehousesPopup} from 'src/components/StocksByWarehousesPopup';
 import {TextTitleWrapper} from 'src/components/TextTitleWrapper';
+import {AdvertsSchedulesModal} from 'src/components/AdvertsSchedulesModal';
+import {AdvertsStatusManagingModal} from 'src/components/AdvertsStatusManagingModal';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -218,11 +219,7 @@ export const MassAdvertPage = ({
     //     handleFilterChange(newFilters);
     // }, [filters]);
 
-    const [manageModalOpen, setManageModalOpen] = useState(false);
-    const [manageModalInProgress, setManageModalInProgress] = useState(false);
     const [selectedButton, setSelectedButton] = useState('');
-
-    const [modalOpenFromAdvertId, setModalOpenFromAdvertId] = useState('');
 
     const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
     const [autoSalesProfits, setAutoSalesProfits] = useState({});
@@ -525,19 +522,6 @@ export const MassAdvertPage = ({
     const [advertsArtsListModalFromOpen, setAdvertsArtsListModalFromOpen] = useState(false);
     const [rkList, setRkList] = useState<any[]>([]);
     const [rkListMode, setRkListMode] = useState('add');
-
-    const [showScheduleModalOpen, setShowScheduleModalOpen] = useState(false);
-    const [scheduleInput, setScheduleInput] = useState({});
-    const genTempSchedule = () => {
-        const tempScheduleInput = {};
-        for (let i = 0; i < 7; i++) {
-            tempScheduleInput[i] = {};
-            for (let j = 0; j < 24; j++) {
-                tempScheduleInput[i][j] = {selected: true};
-            }
-        }
-        return tempScheduleInput;
-    };
 
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
@@ -1298,8 +1282,6 @@ export const MassAdvertPage = ({
                                               selectValue={selectValue}
                                               copiedAdvertsSettings={copiedAdvertsSettings}
                                               setChangedDoc={setChangedDoc}
-                                              setShowScheduleModalOpen={setShowScheduleModalOpen}
-                                              genTempSchedule={genTempSchedule}
                                               manageAdvertsActivityCallFunc={
                                                   manageAdvertsActivityCallFunc
                                               }
@@ -1314,13 +1296,14 @@ export const MassAdvertPage = ({
                                               auctionOptions={auctionOptions}
                                               auctionSelectedOption={auctionSelectedOption}
                                               setDateRange={setDateRange}
-                                              setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                               setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                               dateRange={dateRange}
                                               recalc={recalc}
                                               filterByButton={filterByButton}
-                                              setScheduleInput={setScheduleInput}
                                               setAuctionSelectedOption={setAuctionSelectedOption}
+                                              getUniqueAdvertIdsFromThePage={
+                                                  getUniqueAdvertIdsFromThePage
+                                              }
                                           />,
                                       );
                                       switches.push(<div style={{minWidth: 8}} />);
@@ -1341,8 +1324,6 @@ export const MassAdvertPage = ({
                                               selectValue={selectValue}
                                               copiedAdvertsSettings={copiedAdvertsSettings}
                                               setChangedDoc={setChangedDoc}
-                                              setShowScheduleModalOpen={setShowScheduleModalOpen}
-                                              genTempSchedule={genTempSchedule}
                                               manageAdvertsActivityCallFunc={
                                                   manageAdvertsActivityCallFunc
                                               }
@@ -1357,13 +1338,14 @@ export const MassAdvertPage = ({
                                               auctionOptions={auctionOptions}
                                               auctionSelectedOption={auctionSelectedOption}
                                               setDateRange={setDateRange}
-                                              setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                               setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                               dateRange={dateRange}
                                               recalc={recalc}
                                               filterByButton={filterByButton}
-                                              setScheduleInput={setScheduleInput}
                                               setAuctionSelectedOption={setAuctionSelectedOption}
+                                              getUniqueAdvertIdsFromThePage={
+                                                  getUniqueAdvertIdsFromThePage
+                                              }
                                           />,
                                       );
                                       switches.push(<div style={{minWidth: 8}} />);
@@ -1381,8 +1363,6 @@ export const MassAdvertPage = ({
                                           selectValue={selectValue}
                                           copiedAdvertsSettings={copiedAdvertsSettings}
                                           setChangedDoc={setChangedDoc}
-                                          setShowScheduleModalOpen={setShowScheduleModalOpen}
-                                          genTempSchedule={genTempSchedule}
                                           manageAdvertsActivityCallFunc={
                                               manageAdvertsActivityCallFunc
                                           }
@@ -1397,13 +1377,14 @@ export const MassAdvertPage = ({
                                           auctionOptions={auctionOptions}
                                           auctionSelectedOption={auctionSelectedOption}
                                           setDateRange={setDateRange}
-                                          setModalOpenFromAdvertId={setModalOpenFromAdvertId}
                                           setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                           dateRange={dateRange}
                                           recalc={recalc}
                                           filterByButton={filterByButton}
-                                          setScheduleInput={setScheduleInput}
                                           setAuctionSelectedOption={setAuctionSelectedOption}
+                                          getUniqueAdvertIdsFromThePage={
+                                              getUniqueAdvertIdsFromThePage
+                                          }
                                       />,
                                   );
                                   switches.push(<div style={{minWidth: 8}} />);
@@ -4287,7 +4268,6 @@ export const MassAdvertPage = ({
         const uniqueAdverts = {};
         for (let i = 0; i < filteredData.length; i++) {
             const {adverts} = filteredData[i];
-            if (setManageModalOpen === undefined) continue;
             if (!adverts) continue;
 
             for (const [id, _] of Object.entries(adverts)) {
@@ -4304,32 +4284,6 @@ export const MassAdvertPage = ({
             }
         }
         return uniqueAdverts;
-    };
-
-    const manageAdvertsActivityOnClick = async (mode, newStatus) => {
-        setManageModalOpen(false);
-        setManageModalInProgress(true);
-        const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-        for (const [id, advertData] of Object.entries(uniqueAdverts)) {
-            if (!id || !advertData) continue;
-            const {advertId} = advertData as any;
-            const res = await manageAdvertsActivityCallFunc(mode, advertId);
-            console.log(res);
-            if (!res || res['data'] === undefined) {
-                return;
-            }
-
-            if (res['data']['status'] == 'ok') {
-                if (newStatus) {
-                    doc.adverts[selectValue[0]][advertId].status = newStatus;
-                } else {
-                    doc.adverts[selectValue[0]][advertId] = undefined;
-                }
-            }
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            setChangedDoc({...doc});
-        }
-        setManageModalInProgress(false);
     };
 
     return (
@@ -4441,22 +4395,23 @@ export const MassAdvertPage = ({
                                 <Text variant="subheader-1">Создать</Text>
                             </Button>
                             <div style={{minWidth: 8}} />
-                            <Button
+                            <AdvertsStatusManagingModal
                                 disabled={permission != 'Управление'}
-                                loading={manageModalInProgress}
-                                view="action"
-                                size="l"
-                                style={{cursor: 'pointer'}}
-                                onClick={() => {
-                                    setManageModalOpen(true);
-                                    setSelectedButton('');
-                                }}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
                             >
-                                <Icon data={Play} />
-                                <Text variant="subheader-1">Управление</Text>
-                            </Button>
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                    style={{cursor: 'pointer'}}
+                                >
+                                    <Icon data={Play} />
+                                    <Text variant="subheader-1">Управление</Text>
+                                </Button>
+                            </AdvertsStatusManagingModal>
                             <div style={{minWidth: 8}} />
-                            {manageModalInProgress ? <Spin style={{marginRight: 8}} /> : <></>}
                             <AdvertsBidsModal
                                 disabled={permission != 'Управление'}
                                 selectValue={selectValue}
@@ -4500,19 +4455,22 @@ export const MassAdvertPage = ({
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                             />
                             <div style={{minWidth: 8}} />
-                            <Button
+                            <AdvertsSchedulesModal
                                 disabled={permission != 'Управление'}
-                                view="action"
-                                size="l"
-                                onClick={() => {
-                                    setShowScheduleModalOpen(true);
-                                    setModalOpenFromAdvertId('');
-                                    setScheduleInput(genTempSchedule());
-                                }}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                advertId={undefined}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                             >
-                                <Icon data={Clock} />
-                                <Text variant="subheader-1">График</Text>
-                            </Button>
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                >
+                                    <Icon data={Clock} />
+                                    <Text variant="subheader-1">График</Text>
+                                </Button>
+                            </AdvertsSchedulesModal>
                             <div style={{minWidth: 8}} />
                             <TagsFilterModal filterByButton={filterByButton} />
                             <div style={{minWidth: 8}} />
@@ -4560,71 +4518,6 @@ export const MassAdvertPage = ({
                                 </Button>
                             </Popover>
                         </div>
-                        <Modal
-                            open={manageModalOpen}
-                            onClose={() => {
-                                setManageModalOpen(false);
-                                setSelectedButton('');
-                            }}
-                        >
-                            <Card
-                                view="clear"
-                                style={{
-                                    width: 300,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    backgroundColor: 'none',
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        margin: '8px 0',
-                                    }}
-                                    variant="display-2"
-                                >
-                                    Управление
-                                </Text>
-                                {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Запуск',
-                                        icon: Play,
-                                        view: 'outlined-success',
-                                        onClick: () => {
-                                            manageAdvertsActivityOnClick('start', 9);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                {/* {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Приостановить',
-                                        icon: Pause,
-                                        view: 'outlined-warning',
-                                        onClick: () => {
-                                            manageAdvertsActivityOnClick('pause', 11);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )} */}
-                                {generateModalButtonWithActions(
-                                    {
-                                        placeholder: 'Завершить',
-                                        icon: TrashBin,
-                                        view: 'outlined-danger',
-                                        onClick: () => {
-                                            manageAdvertsActivityOnClick('stop', undefined);
-                                        },
-                                    },
-                                    selectedButton,
-                                    setSelectedButton,
-                                )}
-                                <div style={{height: 16}} />
-                            </Card>
-                        </Modal>
                         <Modal
                             open={modalFormOpen}
                             onClose={() => {
@@ -4913,10 +4806,6 @@ export const MassAdvertPage = ({
                                                     selectValue={selectValue}
                                                     copiedAdvertsSettings={copiedAdvertsSettings}
                                                     setChangedDoc={setChangedDoc}
-                                                    setShowScheduleModalOpen={
-                                                        setShowScheduleModalOpen
-                                                    }
-                                                    genTempSchedule={genTempSchedule}
                                                     manageAdvertsActivityCallFunc={
                                                         manageAdvertsActivityCallFunc
                                                     }
@@ -4935,18 +4824,17 @@ export const MassAdvertPage = ({
                                                     auctionOptions={auctionOptions}
                                                     auctionSelectedOption={auctionSelectedOption}
                                                     setDateRange={setDateRange}
-                                                    setModalOpenFromAdvertId={
-                                                        setModalOpenFromAdvertId
-                                                    }
                                                     setShowArtStatsModalOpen={
                                                         setShowArtStatsModalOpen
                                                     }
                                                     dateRange={dateRange}
                                                     recalc={recalc}
                                                     filterByButton={filterByButton}
-                                                    setScheduleInput={setScheduleInput}
                                                     setAuctionSelectedOption={
                                                         setAuctionSelectedOption
+                                                    }
+                                                    getUniqueAdvertIdsFromThePage={
+                                                        getUniqueAdvertIdsFromThePage
                                                     }
                                                 />
                                                 <div style={{minWidth: 8}} />
@@ -5180,175 +5068,6 @@ export const MassAdvertPage = ({
                                 </Card>
                             </motion.div>
                         </Modal>
-                        <Modal
-                            open={showScheduleModalOpen}
-                            onClose={() => {
-                                setShowScheduleModalOpen(false);
-                                setModalOpenFromAdvertId('');
-                            }}
-                        >
-                            <Card
-                                view="clear"
-                                style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    translate: '-50% -50%',
-                                    flexWrap: 'nowrap',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    backgroundColor: 'none',
-                                }}
-                            >
-                                <motion.div
-                                    style={{
-                                        overflow: 'hidden',
-                                        flexWrap: 'nowrap',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        backdropFilter: 'blur(20px)',
-                                        boxShadow: '#0002 0px 2px 8px 0px',
-                                        padding: 30,
-                                        borderRadius: 30,
-                                        border: '1px solid #eee2',
-                                    }}
-                                >
-                                    <Text
-                                        style={{
-                                            margin: '8px 0',
-                                        }}
-                                        variant="display-2"
-                                    >
-                                        График работы
-                                    </Text>
-                                    <div style={{minHeight: 8}} />
-                                    {generateScheduleInput({scheduleInput, setScheduleInput})}
-                                    <div style={{minHeight: 16}} />
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            width: '100%',
-                                            justifyContent: 'space-around',
-                                        }}
-                                    >
-                                        {generateModalButtonWithActions(
-                                            {
-                                                style: {margin: '8px 0'},
-                                                placeholder: 'Установить',
-                                                icon: CloudArrowUpIn,
-                                                view: 'outlined-success',
-                                                onClick: () => {
-                                                    const params = {
-                                                        uid: getUid(),
-                                                        campaignName: selectValue[0],
-                                                        data: {
-                                                            schedule: scheduleInput,
-                                                            mode: 'Установить',
-                                                            advertsIds: {},
-                                                        },
-                                                    };
-                                                    const uniqueAdverts =
-                                                        getUniqueAdvertIdsFromThePage();
-                                                    for (const [id, advertData] of Object.entries(
-                                                        uniqueAdverts,
-                                                    )) {
-                                                        if (!id || !advertData) continue;
-                                                        const {advertId} = advertData as any;
-                                                        if (
-                                                            modalOpenFromAdvertId != '' &&
-                                                            modalOpenFromAdvertId
-                                                        ) {
-                                                            if (id != modalOpenFromAdvertId)
-                                                                continue;
-                                                        }
-
-                                                        params.data.advertsIds[advertId] = {
-                                                            advertId: advertId,
-                                                        };
-
-                                                        doc.advertsSchedules[selectValue[0]][
-                                                            advertId
-                                                        ] = {};
-                                                        doc.advertsSchedules[selectValue[0]][
-                                                            advertId
-                                                        ] = {
-                                                            schedule: scheduleInput,
-                                                        };
-                                                    }
-                                                    console.log(params);
-
-                                                    //////////////////////////////////
-                                                    callApi('setAdvertsSchedules', params);
-                                                    setChangedDoc({...doc});
-                                                    //////////////////////////////////
-
-                                                    setShowScheduleModalOpen(false);
-                                                },
-                                            },
-                                            selectedButton,
-                                            setSelectedButton,
-                                        )}
-                                        {generateModalButtonWithActions(
-                                            {
-                                                style: {margin: '8px 0'},
-                                                placeholder: 'Удалить',
-                                                icon: TrashBin,
-                                                view: 'outlined-danger',
-                                                onClick: () => {
-                                                    const params = {
-                                                        uid: getUid(),
-                                                        campaignName: selectValue[0],
-                                                        data: {
-                                                            mode: 'Удалить',
-                                                            advertsIds: {},
-                                                        },
-                                                    };
-                                                    const uniqueAdverts =
-                                                        getUniqueAdvertIdsFromThePage();
-                                                    for (const [id, advertData] of Object.entries(
-                                                        uniqueAdverts,
-                                                    )) {
-                                                        if (!id || !advertData) continue;
-                                                        const {advertId} = advertData as any;
-                                                        if (
-                                                            modalOpenFromAdvertId != '' &&
-                                                            modalOpenFromAdvertId
-                                                        ) {
-                                                            if (id != modalOpenFromAdvertId)
-                                                                continue;
-                                                        }
-
-                                                        params.data.advertsIds[advertId] = {
-                                                            advertId: advertId,
-                                                        };
-
-                                                        delete doc.advertsSchedules[selectValue[0]][
-                                                            advertId
-                                                        ];
-                                                    }
-
-                                                    console.log(params);
-
-                                                    //////////////////////////////////
-                                                    callApi('setAdvertsSchedules', params);
-                                                    setChangedDoc({...doc});
-                                                    //////////////////////////////////
-
-                                                    setShowScheduleModalOpen(false);
-                                                },
-                                            },
-                                            selectedButton,
-                                            setSelectedButton,
-                                        )}
-                                    </div>
-                                </motion.div>
-                            </Card>
-                        </Modal>
                     </div>
                     <div
                         style={{
@@ -5462,143 +5181,6 @@ export const generateModalButtonWithActions = (
                 {placeholder}
             </Button>
         </motion.div>
-    );
-};
-
-const generateScheduleInput = (args) => {
-    const {scheduleInput, setScheduleInput} = args;
-    const weekDayNamesTemp = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    const weekInputDayNames = [] as any[];
-    const weekInput = [] as any[];
-
-    const tempHours = [] as any[];
-    for (let j = 0; j < 24; j++) {
-        const isCheckboxChecked = (() => {
-            for (let i = 0; i < 7; i++) {
-                if (!scheduleInput[i]) return false;
-                if (!scheduleInput[i][j]) return false;
-                if (!scheduleInput[i][j].selected) return false;
-            }
-            return true;
-        })();
-        tempHours.push(
-            <div
-                style={{
-                    width: 25,
-                    margin: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Text variant="subheader-1">{j}</Text>
-                <Button
-                    style={{
-                        width: 16,
-                        height: 16,
-                    }}
-                    view={isCheckboxChecked ? 'action' : 'outlined'}
-                    onClick={() => {
-                        const tempScheduleInput = Object.assign({}, scheduleInput);
-                        for (let i = 0; i < 7; i++) {
-                            if (!tempScheduleInput[i]) tempScheduleInput[i] = {};
-                            if (!tempScheduleInput[i][j]) tempScheduleInput[i][j] = {};
-                            tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
-                        }
-
-                        console.log(tempScheduleInput);
-
-                        setScheduleInput(tempScheduleInput);
-                    }}
-                >
-                    {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
-                </Button>
-            </div>,
-        );
-    }
-    weekInput.push(<div style={{display: 'flex', flexDirection: 'row'}}>{tempHours}</div>);
-
-    for (let i = 0; i < 7; i++) {
-        const isCheckboxChecked =
-            scheduleInput[i] &&
-            (() => {
-                for (let j = 0; j < 24; j++) {
-                    if (!scheduleInput[i][j]) return false;
-                    if (!scheduleInput[i][j].selected) return false;
-                }
-                return true;
-            })();
-        weekInputDayNames.push(
-            <div
-                style={{
-                    height: 25,
-                    margin: 2,
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <Text variant="subheader-1">{weekDayNamesTemp[i]}</Text>
-                <div style={{minWidth: 4}} />
-                <Button
-                    style={{
-                        width: 16,
-                        height: 16,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                    view={isCheckboxChecked ? 'action' : 'outlined'}
-                    onClick={() => {
-                        const tempScheduleInput = Object.assign({}, scheduleInput);
-                        for (let j = 0; j < 24; j++) {
-                            if (!tempScheduleInput[i]) tempScheduleInput[i] = {};
-                            if (!tempScheduleInput[i][j]) tempScheduleInput[i][j] = {};
-                            tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
-                        }
-                        console.log(tempScheduleInput);
-
-                        setScheduleInput(tempScheduleInput);
-                    }}
-                >
-                    {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
-                </Button>
-            </div>,
-        );
-        const temp = [] as any[];
-        for (let j = 0; j < 24; j++) {
-            temp.push(
-                <Button
-                    style={{width: 25, height: 25, margin: 2}}
-                    view={
-                        scheduleInput[i]
-                            ? scheduleInput[i][j]
-                                ? scheduleInput[i][j].selected
-                                    ? 'action'
-                                    : 'outlined'
-                                : 'outlined'
-                            : 'outlined'
-                    }
-                    onClick={() => {
-                        const val = Object.assign({}, scheduleInput);
-                        if (!val[i]) val[i] = {};
-                        if (!val[i][j]) val[i][j] = {selected: false};
-                        val[i][j].selected = !val[i][j].selected;
-                        console.log(val[i][j]);
-                        setScheduleInput(val);
-                    }}
-                />,
-            );
-        }
-        weekInput.push(<div style={{display: 'flex', flexDirection: 'row'}}>{temp}</div>);
-    }
-    return (
-        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'end'}}>
-            <div style={{display: 'flex', flexDirection: 'column'}}>{weekInputDayNames}</div>
-            <div style={{display: 'flex', flexDirection: 'column'}}>{weekInput}</div>
-        </div>
     );
 };
 
