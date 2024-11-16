@@ -1861,7 +1861,7 @@ export const MassAdvertPage = ({
                     <Card
                         style={{
                             width: 140,
-                            height: 106.5,
+                            height: 110.5,
                             display: 'flex',
                             flexDirection: 'column',
                             overflow: 'hidden',

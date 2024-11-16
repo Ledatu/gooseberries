@@ -353,14 +353,16 @@ export const AnalyticsPage = ({permission}) => {
         buyoutsPercent: {
             placeholder: 'Выкуп, %',
             planType: 'avg',
-            render: (args) =>
-                renderWithGraph(
+            render: (args) => {
+                args.value = Math.round(args?.value ?? 0);
+                return renderWithGraph(
                     args,
                     'buyoutsPercent',
                     'Выкуп, %',
                     ['buyoutsPercent'],
                     renderAsPercent,
-                ),
+                );
+            },
         },
         cr: {
             placeholder: 'CR, %',
@@ -869,14 +871,19 @@ export const AnalyticsPage = ({permission}) => {
                 tempTypeRow['addToCartPercent'] = dateStats['addToCartPercent'];
                 tempTypeRow['cartToOrderPercent'] = dateStats['cartToOrderPercent'];
                 tempTypeRow['storageCost'] = dateStats['storageCost'];
+                tempTypeRow['expectedSales'] = dateStats['expectedSales'];
+                tempTypeRow['expectedSalesForBuyoutsPercent'] = dateStats[
+                    'expectedSalesForBuyoutsPercent'
+                ]
+                    ? dateStats['expectedSalesForBuyoutsPercent']
+                    : tempTypeRow['sales'];
+
                 tempTypeRow['buyoutsPercent'] = getRoundValue(
-                    tempTypeRow['sales'],
+                    tempTypeRow['expectedSalesForBuyoutsPercent'],
                     tempTypeRow['orders'],
                     true,
-                    1,
+                    tempTypeRow['expectedSalesForBuyoutsPercent'],
                 );
-
-                tempTypeRow['expectedSales'] = dateStats['expectedSales'];
 
                 tempTypeRow['drr_orders'] = getRoundValue(
                     tempTypeRow['sum'],
@@ -978,6 +985,7 @@ export const AnalyticsPage = ({permission}) => {
                 primeCost: 0,
                 primeCost_temp: {count: 0, val: 0},
                 rentabelnost: 0,
+                expectedSalesForBuyoutsPercent: 0,
                 sum: 0,
                 buyoutsPercent: 0,
                 expectedSales: 0,
@@ -1077,6 +1085,7 @@ export const AnalyticsPage = ({permission}) => {
                     },
                     trendGraphData: {},
                     buyoutsPercent: 0,
+                    expectedSalesForBuyoutsPercent: 0,
                     addToCartPercent: 0,
                     cartToOrderPercent: 0,
                     addToCartCount: 0,
@@ -1099,6 +1108,7 @@ export const AnalyticsPage = ({permission}) => {
             summaryAdd(row, 'sum_orders', undefined);
             summaryAdd(row, 'sales', undefined);
             summaryAdd(row, 'expectedSales', undefined);
+            summaryAdd(row, 'expectedSalesForBuyoutsPercent', undefined);
             summaryAdd(row, 'sum_sales', undefined);
             summaryAdd(row, 'sum', undefined);
 
@@ -1141,9 +1151,10 @@ export const AnalyticsPage = ({permission}) => {
             summaryAdd(row, 'cartToOrderPercent', undefined);
             summaryAdd(row, 'storageCost', undefined);
             summaries[entity]['buyoutsPercent'] = getRoundValue(
-                summaries[entity]['expectedSales'],
+                summaries[entity]['expectedSalesForBuyoutsPercent'],
                 summaries[entity]['orders'],
                 true,
+                summaries[entity]['expectedSalesForBuyoutsPercent'],
             );
             summaries[entity]['addToCartPercent'] = getRoundValue(
                 summaries[entity]['addToCartCount'],
@@ -1400,10 +1411,13 @@ export const AnalyticsPage = ({permission}) => {
 
             summaries['filteredSummaryTemp']['addToCartCount'] += row['addToCartCount'];
             summaries['filteredSummaryTemp']['openCardCount'] += row['openCardCount'];
+            summaries['filteredSummaryTemp']['expectedSalesForBuyoutsPercent'] +=
+                row['expectedSalesForBuyoutsPercent'];
             summaries['filteredSummaryTemp']['buyoutsPercent'] = getRoundValue(
-                summaries['filteredSummaryTemp']['expectedSales'],
+                summaries['filteredSummaryTemp']['expectedSalesForBuyoutsPercent'],
                 summaries['filteredSummaryTemp']['orders'],
                 true,
+                summaries['filteredSummaryTemp']['expectedSalesForBuyoutsPercent'],
             );
             summaries['filteredSummaryTemp']['addToCartPercent'] = getRoundValue(
                 summaries['filteredSummaryTemp']['addToCartCount'],
