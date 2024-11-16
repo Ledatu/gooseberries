@@ -699,6 +699,7 @@ export const AnalyticsPage = ({permission}) => {
                 <Button
                     style={{height: 'fit-content'}}
                     size="xs"
+                    width="max"
                     pin="round-round"
                     view="outlined"
                     onClick={() => {
