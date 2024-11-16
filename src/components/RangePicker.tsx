@@ -5,7 +5,7 @@ import {dateTimeParse} from '@gravity-ui/date-utils';
 import React, {useRef, useState} from 'react';
 
 export const RangePicker = ({args}) => {
-    const {recalc, dateRange, setDateRange} = args;
+    const {recalc, dateRange, setDateRange, align} = args;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -54,18 +54,19 @@ export const RangePicker = ({args}) => {
                         style={{
                             opacity: 0,
                             display: 'flex',
-                            flexDirection: 'row',
+                            flexDirection: align ?? 'row',
                             alignItems: 'center',
-                            background: '#221d220f',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(20px)',
+                            justifyContent: 'center',
                             boxShadow: '#0006 0px 2px 8px 0px',
                             borderRadius: 30,
                             border: '1px solid #eee2',
                             position: 'absolute',
-                            left: -617,
-                            width: 600,
-                            height: 250,
-                            paddingLeft: 20,
+                            left: align == 'column' ? 'calc(-50vw - 76px)' : -617,
+                            width: align == 'column' ? 'calc(100vw - 35px)' : 600,
+                            height: align == 'column' ? 500 : 250,
+                            padding: align == 'column' ? 10 : undefined,
+                            paddingLeft: align == 'column' ? 10 : 20,
                         }}
                     >
                         <div
@@ -357,13 +358,21 @@ export const RangePicker = ({args}) => {
                                 </Button>
                             </div>
                         </div>
-                        <div style={{width: '70%'}}>
+                        <div
+                            style={{
+                                width: '70%',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
                             <RangeCalendar
                                 value={{
                                     start: dateTimeParse(new Date(dateRange[0] ?? 0)) as any,
                                     end: dateTimeParse(new Date(dateRange[1] ?? 0)) as any,
                                 }}
-                                size="m"
+                                size={align == 'column' ? 'l' : 'm'}
                                 timeZone="Europe/Moscow"
                                 onUpdate={(val) => {
                                     const range = [val.start.toDate(), val.end.toDate()];
