@@ -16,6 +16,7 @@ import {
     CircleQuestion,
     ChartColumnStacked,
     Key,
+    GraduationCap,
 } from '@gravity-ui/icons';
 import {NomenclaturesPage} from './NomenclaturesPage';
 import {PricesPage} from './PricesPage';
@@ -196,7 +197,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     style={{
                         height: 70,
                         paddingBottom: 10,
-                        width: 90,
+                        width: 75,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -258,6 +259,12 @@ export const Dashboard = ({setThemeAurum}) => {
             href: 'https://t.me/AurumSkyNetSupportBot',
             target: '_blank',
         },
+        {
+            icon: GraduationCap,
+            title: 'База знаний',
+            href: 'https://aurum-wiki.tilda.ws/tdocs/',
+            target: '_blank',
+        },
     ].filter((page) => !page.disabled);
 
     const isMobile = useMediaQuery('(max-width: 768px)');
@@ -307,7 +314,9 @@ export const Dashboard = ({setThemeAurum}) => {
                         wrapTo={renderFooterItem}
                         activeTab={page}
                         items={optionsPages.filter((item) =>
-                            ['Реклама', 'Магазины', 'Поддержка'].includes(item.title),
+                            ['Реклама', 'Магазины', 'Поддержка', 'База знаний'].includes(
+                                item.title,
+                            ),
                         )}
                         onSelectTab={(val) => {
                             setPage(val);
