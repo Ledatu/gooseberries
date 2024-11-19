@@ -71,15 +71,15 @@ export const AdvertsBidsModal = ({
         },
         {
             value: 'orders',
-            content: 'Заказы',
+            content: 'Заказы, шт.',
         },
         {
             value: 'sum_orders',
-            content: 'Сумма заказов',
+            content: 'Сумма заказов, руб.',
         },
         {
             value: 'obor',
-            content: 'Оборачиваемость',
+            content: 'Оборачиваемость, дней',
         },
         {
             value: 'sellByDate',

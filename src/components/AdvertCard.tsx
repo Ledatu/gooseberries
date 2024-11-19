@@ -317,14 +317,14 @@ export const AdvertCard = ({
                                 )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'orders' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Заказы: ${drrAI.desiredOrders}`}
+                                        {`Заказы: ${drrAI.desiredOrders} шт.`}
                                     </Text>
                                 ) : (
                                     <></>
                                 )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'sum_orders' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Сумм. заказов: ${drrAI.desiredSumOrders}`}
+                                        {`Сумм. заказов: ${drrAI.desiredSumOrders} ₽`}
                                     </Text>
                                 ) : (
                                     <></>
@@ -333,7 +333,7 @@ export const AdvertCard = ({
                                     <Text style={{marginLeft: 4}} variant="caption-2">
                                         {`Обор: ${drrAI.desiredObor} Заказы: ${
                                             !isNaN(drrAI.desiredOrders) && drrAI.desiredOrders
-                                                ? drrAI.desiredOrders
+                                                ? drrAI.desiredOrders + ' шт.'
                                                 : 'Нет. инф.'
                                         }`}
                                     </Text>
@@ -346,7 +346,7 @@ export const AdvertCard = ({
                                             drrAI.sellByDate ?? '',
                                         ).toLocaleDateString('ru-RU')} Заказы: ${
                                             !isNaN(drrAI.desiredOrders) && drrAI.desiredOrders
-                                                ? drrAI.desiredOrders
+                                                ? drrAI.desiredOrders + ' шт.'
                                                 : 'Нет. инф.'
                                         }`}
                                     </Text>
@@ -355,7 +355,7 @@ export const AdvertCard = ({
                                 )}
                                 {drrAI !== undefined && drrAI.autoBidsMode == 'sum' ? (
                                     <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Расход (${drrAI.desiredSum})`}
+                                        {`Расход (${drrAI.desiredSum} ₽)`}
                                     </Text>
                                 ) : (
                                     <></>
