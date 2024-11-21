@@ -1686,15 +1686,13 @@ export const MassAdvertPage = ({
             name: 'analytics',
             placeholder: 'Аналитика',
             render: ({row, footer, value}) => {
-                const sumOrders = row['sum_orders'];
+                const {profit, rentabelnost} = row;
                 if (footer) {
                     return (
                         <Text color={value > 0 ? 'positive' : 'danger'}>
                             {`${new Intl.NumberFormat('ru-RU').format(
-                                value,
-                            )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                getRoundValue(value, sumOrders, true),
-                            )}%`}
+                                profit,
+                            )} ₽ / ${new Intl.NumberFormat('ru-RU').format(rentabelnost)}%`}
                         </Text>
                     );
                 }
@@ -2154,11 +2152,11 @@ export const MassAdvertPage = ({
                                             ? 'positive'
                                             : 'danger'
                                     }
-                                >{`${new Intl.NumberFormat('ru-RU').format(
-                                    Math.round(value),
-                                )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                    getRoundValue(value, sumOrders, true),
-                                )}%`}</Text>
+                                >
+                                    {`${new Intl.NumberFormat('ru-RU').format(
+                                        profit,
+                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(rentabelnost)}%`}
+                                </Text>
                             </Button>
                         </div>
                     </Card>
@@ -3079,6 +3077,8 @@ export const MassAdvertPage = ({
                 cr: 0,
                 cpo: 0,
                 analytics: 0,
+                rentabelnost: 0,
+                profit: 0,
                 sales: 0,
                 sum_sales: 0,
                 openCardCount: 0,
@@ -3155,7 +3155,13 @@ export const MassAdvertPage = ({
                     artInfo.sum += dateData['sum'];
                     artInfo.views += dateData['views'];
                     artInfo.clicks += dateData['clicks'];
-                    artInfo.analytics += dateData['profit'];
+                    artInfo.profit += dateData['profit'];
+                    artInfo.rentabelnost += getRoundValue(
+                        dateData['profit'],
+                        dateData['sum_orders'],
+                        true,
+                    );
+                    artInfo.analytics += artInfo.rentabelnost;
 
                     // console.log(
                     //     artData['nmFullDetailReport']
@@ -3227,7 +3233,7 @@ export const MassAdvertPage = ({
                 summaryTemp.openCardCount += artInfo.openCardCount;
                 summaryTemp.orders += artInfo.orders;
 
-                summaryTemp.profitTemp += Math.round(artInfo.analytics);
+                summaryTemp.profitTemp += Math.round(artInfo.profit);
             }
 
             temp[art] = artInfo;
@@ -3577,6 +3583,8 @@ export const MassAdvertPage = ({
             drr: 0,
             ctr: 0,
             analytics: 0,
+            profit: 0,
+            rentabelnost: 0,
             cpc: 0,
             cpm: 0,
             cr: 0,
@@ -3619,7 +3627,7 @@ export const MassAdvertPage = ({
             //         filteredSummaryTemp.analytics,
             //         filteredSummaryTemp.analytics + Math.round(row['profit'] ?? 0),
             //     );
-            filteredSummaryTemp.analytics += Math.round(row['analytics'] ?? 0);
+            filteredSummaryTemp.profit += Math.round(row['profit'] ?? 0);
 
             filteredSummaryTemp.budget += row['budget'] ?? 0;
             filteredSummaryTemp.openCardCount += row['openCardCount'];
@@ -3635,6 +3643,14 @@ export const MassAdvertPage = ({
         filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
         filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
         filteredSummaryTemp.adverts = uniqueAdvertsIds.length;
+
+        filteredSummaryTemp.profit = Math.round(filteredSummaryTemp.profit);
+        filteredSummaryTemp.rentabelnost = getRoundValue(
+            filteredSummaryTemp.profit,
+            filteredSummaryTemp.sum_orders,
+            true,
+        );
+        filteredSummaryTemp.analytics = filteredSummaryTemp.rentabelnost;
 
         filteredSummaryTemp.openCardCount = Math.round(filteredSummaryTemp.openCardCount);
         filteredSummaryTemp.addToCartPercent = getRoundValue(
