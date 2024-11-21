@@ -249,6 +249,13 @@ export const Dashboard = ({setThemeAurum}) => {
             disabled: !modules.includes('all') && !modules.includes('nomenclatures'),
         },
         {
+            id: 'reports',
+            title: 'Отчеты',
+            disabled:
+                (!modules.includes('all') && !modules.includes('reports')) ||
+                ![933839157, 1122958293].includes(userInfo?.user?._id),
+        },
+        {
             icon: Key,
             id: 'api',
             title: 'Магазины',
@@ -717,7 +724,7 @@ const PageElem = ({
         nomenclatures: <NomenclaturesPage permission={permission} />,
         analytics: <AnalyticsPage permission={permission} />,
         buyers: <BuyersPage permission={permission} sellerId={sellerId} />,
-        reports: <DetailedReportsPage />,
+        reports: <DetailedReportsPage sellerId={sellerId} />,
         seo: <SEOPage />,
         api: <ApiPage />,
     };
