@@ -1685,7 +1685,7 @@ export const MassAdvertPage = ({
         {
             name: 'analytics',
             placeholder: 'Аналитика',
-            render: ({row, footer, value}) => {
+            render: ({row, footer}) => {
                 const {profit, rentabelnost} = row;
                 if (footer) {
                     return (
