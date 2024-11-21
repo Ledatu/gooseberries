@@ -2146,7 +2146,7 @@ export const MassAdvertPage = ({
                             >
                                 <Text
                                     color={
-                                        !Math.round(value)
+                                        !Math.round(profit)
                                             ? undefined
                                             : profit > 0
                                             ? 'positive'
