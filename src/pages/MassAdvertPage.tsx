@@ -1689,7 +1689,7 @@ export const MassAdvertPage = ({
                 const {profit, rentabelnost} = row;
                 if (footer) {
                     return (
-                        <Text color={value > 0 ? 'positive' : 'danger'}>
+                        <Text color={profit > 0 ? 'positive' : 'danger'}>
                             {`${new Intl.NumberFormat('ru-RU').format(
                                 profit,
                             )} ₽ / ${new Intl.NumberFormat('ru-RU').format(rentabelnost)}%`}
@@ -2134,7 +2134,7 @@ export const MassAdvertPage = ({
                                 }}
                             />
                             <Button
-                                disabled={!Math.round(value)}
+                                disabled={!Math.round(profit)}
                                 style={{
                                     width: 140,
                                     overflow: 'hidden',
@@ -2148,7 +2148,7 @@ export const MassAdvertPage = ({
                                     color={
                                         !Math.round(value)
                                             ? undefined
-                                            : value > 0
+                                            : profit > 0
                                             ? 'positive'
                                             : 'danger'
                                     }
