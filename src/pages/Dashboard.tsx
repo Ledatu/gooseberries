@@ -290,12 +290,14 @@ export const Dashboard = ({setThemeAurum}) => {
 
             const params = {
                 uid: getUid(),
-                campaignName: selectValue,
+                campaignName: selectValue[0],
                 data: {
                     note: note,
                     tags: tagsAddedForCurrentNote,
                 },
             };
+            console.log(params);
+
             callApi('saveNote', params);
             setCurrentNote('');
             setTagsAddedForCurrentNote([]);
