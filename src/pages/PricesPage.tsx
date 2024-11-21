@@ -462,7 +462,7 @@ export const PricesPage = ({permission}) => {
             placeholder: 'Остаток, шт.',
         },
         {
-            name: 'profit',
+            name: 'rentabelnost',
             placeholder: 'Профит, ₽',
             render: (args) =>
                 fixedPriceRender(
@@ -470,11 +470,11 @@ export const PricesPage = ({permission}) => {
                     ['profit', 'rentabelnost'],
                     ((args) => {
                         const {value, row} = args;
-                        const {rozPrice} = row;
+                        const {rozPrice, profit} = row;
                         if (value === undefined) return undefined;
                         return (
                             <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
-                                {`${value} / ${getRoundValue(value * 100, rozPrice)}%`}
+                                {`${profit} / ${getRoundValue(profit * 100, rozPrice)}%`}
                             </Text>
                         );
                     })(args),
