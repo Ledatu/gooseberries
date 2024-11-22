@@ -87,6 +87,7 @@ import {StocksByWarehousesPopup} from 'src/components/StocksByWarehousesPopup';
 import {TextTitleWrapper} from 'src/components/TextTitleWrapper';
 import {AdvertsSchedulesModal} from 'src/components/AdvertsSchedulesModal';
 import {AdvertsStatusManagingModal} from 'src/components/AdvertsStatusManagingModal';
+import {useError} from './ErrorContext';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -144,6 +145,7 @@ export const MassAdvertPage = ({
     setDzhemRefetch: Function;
     sellerId: string;
 }) => {
+    const {showError} = useError();
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -1434,6 +1436,7 @@ export const MassAdvertPage = ({
                                   campaignName: selectValue[0],
                                   data: {},
                               };
+                              const newDocAutoSales = {...doc.autoSales};
                               const tempAutoSales = {...autoSalesProfits};
                               for (const row of filteredData) {
                                   const {nmId, art} = row;
@@ -1455,17 +1458,26 @@ export const MassAdvertPage = ({
                                   };
                                   delete tempAutoSales[art];
 
-                                  doc.autoSales[selectValue[0]][nmId] = {
+                                  newDocAutoSales[selectValue[0]][nmId] = {
                                       autoSaleName: '',
                                       fixedPrices: {dateRange, autoSaleName},
                                   };
                               }
 
                               console.log(params);
-                              setAutoSalesProfits(tempAutoSales);
-                              setChangedDoc({...doc});
 
-                              callApi('setAutoSales', params);
+                              callApi('setAutoSales', params, false, true)
+                                  .then(() => {
+                                      setAutoSalesProfits(tempAutoSales);
+                                      doc.autoSales = newDocAutoSales;
+                                      setChangedDoc({...doc});
+                                  })
+                                  .catch((error) => {
+                                      showError(
+                                          error.response?.data?.error ||
+                                              'An unknown error occurred',
+                                      );
+                                  });
                           }}
                       >
                           <Icon data={Check} />
