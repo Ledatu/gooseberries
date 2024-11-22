@@ -4349,8 +4349,20 @@ export const MassAdvertPage = ({
                     flexWrap: 'wrap',
                 }}
             >
-                {generateCard({summary, key: 'sum_orders', placeholder: 'ЗАКАЗЫ', cardStyle})}
-                {generateCard({summary, key: 'sum', placeholder: 'ПРОДВИЖЕНИЕ', cardStyle})}
+                {generateCard({
+                    summary,
+                    key: 'sum_orders',
+                    placeholder: 'ЗАКАЗЫ',
+                    cardStyle,
+                    rub: true,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'sum',
+                    placeholder: 'ПРОДВИЖЕНИЕ',
+                    cardStyle,
+                    rub: true,
+                })}
                 {generateCard({
                     summary,
                     key: 'drr_orders',
@@ -5213,7 +5225,7 @@ export const generateModalButtonWithActions = (
 };
 
 const generateCard = (args) => {
-    const {summary, key, placeholder, cardStyle, valueType, percent} = args;
+    const {summary, key, placeholder, cardStyle, valueType, percent, rub} = args;
     return (
         <Card style={cardStyle} view="outlined">
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
@@ -5230,6 +5242,7 @@ const generateCard = (args) => {
                         ? summary[key]
                         : new Intl.NumberFormat('ru-RU').format(summary[key])}
                     {percent ? '%' : ''}
+                    {rub ? ' ₽' : ''}
                 </Text>
             </div>
         </Card>
