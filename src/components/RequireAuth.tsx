@@ -31,7 +31,8 @@ function RequireAuth({children}) {
 
             if (response.data.valid) {
                 setIsAuthenticated(true); // Token is valid, set authenticated
-                setUserInfo(response.data); // Store user info
+                if (JSON.stringify(userInfo) != JSON.stringify(response.data))
+                    setUserInfo(response.data); // Store user info
             } else {
                 localStorage.removeItem('authToken'); // Remove invalid token
                 setIsAuthenticated(false); // Token is invalid, set not authenticated

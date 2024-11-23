@@ -2,6 +2,7 @@ import React, {useEffect, useMemo} from 'react';
 import {Button, Icon, Select, Text} from '@gravity-ui/uikit';
 import {Key, ChevronDown} from '@gravity-ui/icons';
 import {useCampaign} from '../contexts/CampaignContext';
+import {useUser} from './RequireAuth';
 
 export const SelectCampaign = ({
     subscriptionExpDate,
@@ -14,6 +15,8 @@ export const SelectCampaign = ({
 }) => {
     const {selectValue, setSelectValue, switchingCampaignsFlag, setSwitchingCampaignsFlag} =
         useCampaign();
+
+    const {refetchUser} = useUser();
 
     const isWeekOrLessUntillExp = useMemo(() => {
         if (!subscriptionExpDate) return false;
@@ -36,12 +39,13 @@ export const SelectCampaign = ({
     );
 
     useEffect(() => {
-        if (selectValue[0] != '') return;
-        if (!selectOptions.length) {
-            setSelectValue(['']);
+        if (
+            selectValue[0] != '' &&
+            selectOptions.length &&
+            selectOptions.find((item) => item.content == selectValue[0])
+        )
             return;
-        }
-        setSelectValue([selectOptions[0]?.value]);
+        setSelectValue([selectOptions?.[0]?.value]);
     }, [selectOptions]);
 
     return (
@@ -83,14 +87,33 @@ export const SelectCampaign = ({
                                         alignItems: 'start',
                                     }}
                                 >
-                                    <Text variant="subheader-1">{selectValue[0]}</Text>
+                                    {!selectValue[0] ? (
+                                        <Text
+                                            variant="subheader-1"
+                                            style={{maxWidth: 200, overflow: 'hidden'}}
+                                            ellipsis
+                                        >
+                                            Нет доступных магазинов
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    <Text
+                                        variant="subheader-1"
+                                        style={{maxWidth: 170, overflow: 'hidden'}}
+                                        ellipsis
+                                    >
+                                        {selectValue[0]}
+                                    </Text>
                                     <Text variant="caption-2">
                                         {subscriptionExpDate &&
                                         subscriptionExpDate !== '2100-01-01T00:00:00.000Z'
                                             ? `Подписка до ${new Date(
                                                   subscriptionExpDate,
                                               ).toLocaleDateString('ru-RU')}`
-                                            : 'Бессрочная подписка'}
+                                            : selectValue[0]
+                                            ? 'Бессрочная подписка'
+                                            : 'Самое время добавить их!'}
                                     </Text>
                                     {isMonthBeforeApiExp ? (
                                         <Text
@@ -105,10 +128,13 @@ export const SelectCampaign = ({
                                         <></>
                                     )}
                                 </div>
-                                <Icon data={ChevronDown} />
+                                {selectOptions.length > 1 ? <Icon data={ChevronDown} /> : <></>}
                             </div>
                         </Button>
                     );
+                }}
+                onOpenChange={(open) => {
+                    if (open) refetchUser();
                 }}
                 onUpdate={(nextValue) => {
                     setSwitchingCampaignsFlag(true);

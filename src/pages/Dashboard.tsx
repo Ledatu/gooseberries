@@ -118,10 +118,21 @@ export const Dashboard = ({setThemeAurum}) => {
         return () => clearInterval(intervalId); // Cleanup the interval on component unmount
     }, []);
 
-    const [page, setPage] = useState(undefined as any);
+    const [page, setPage] = useState('noModules' as any);
     useEffect(() => {
         console.log(page, modules);
-        setPage(page == undefined ? (modules.includes('all') ? 'massAdvert' : modules[0]) : page);
+        if (!modules.length) {
+            setPage('noModules');
+            return;
+        }
+        const firstModule = modules.includes('all') ? 'massAdvert' : modules[0];
+        setPage(
+            page == 'noModules'
+                ? firstModule
+                : modules.includes(page) || modules.includes('all')
+                ? page
+                : firstModule,
+        );
     }, [modules]);
     useEffect(() => {
         const titleMap = {
@@ -136,14 +147,15 @@ export const Dashboard = ({setThemeAurum}) => {
             api: 'Магазины',
         };
 
-        document.title = `${titleMap[page]}: ${selectValue[0]}`;
+        document.title =
+            page == 'noModules' ? 'AURUM | Магазины' : `${titleMap[page]}: ${selectValue[0]}`;
     }, [page, selectValue]);
 
     const notesTextArea = useRef<HTMLTextAreaElement>(null);
 
     const renderTabItem = (item, node, index) => {
         if (item === undefined || node === undefined || index === undefined) return <></>;
-
+        const isCurrent = (page == 'noModules' && item.id == 'api') || item.id == page;
         return (
             <div
                 key={index}
@@ -154,7 +166,7 @@ export const Dashboard = ({setThemeAurum}) => {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     borderTop: '4px solid #0000',
-                    borderBottom: item.id == page ? '5px solid #ffbe5c' : '5px solid #0000',
+                    borderBottom: isCurrent ? '5px solid #ffbe5c' : '5px solid #0000',
                 }}
             >
                 <Link
@@ -469,6 +481,7 @@ export const Dashboard = ({setThemeAurum}) => {
                                             />
                                         </div>
                                     </div>
+
                                     <div
                                         style={{
                                             height: 68,
@@ -479,149 +492,188 @@ export const Dashboard = ({setThemeAurum}) => {
                                                 '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                                         }}
                                     >
-                                        <div style={{minWidth: 12}} />
-                                        <Button
-                                            pin="round-brick"
-                                            view="flat"
-                                            loading={availableTagsPending}
-                                            size="l"
-                                            onClick={async () => {
-                                                setNotesModalOpen((val) => !val);
-                                            }}
-                                        >
-                                            <Icon data={PencilToSquare} />
-                                        </Button>
-                                        <Modal open={notesModalOpen} onClose={() => saveNote()}>
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    width: '30em',
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        width: '100%',
-                                                        display: 'flex',
-                                                        height: 36,
-                                                        flexDirection: 'row',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        position: 'relative',
+                                        {selectValue[0] ? (
+                                            <>
+                                                <div style={{minWidth: 12}} />
+                                                <Button
+                                                    pin="round-brick"
+                                                    view="flat"
+                                                    loading={availableTagsPending}
+                                                    size="l"
+                                                    onClick={async () => {
+                                                        setNotesModalOpen((val) => !val);
                                                     }}
                                                 >
-                                                    <Text variant="subheader-1" color="secondary">
-                                                        {new Date().toLocaleString('ru-RU', {
-                                                            day: '2-digit',
-                                                            month: 'long',
-                                                            year: 'numeric',
-                                                            hour: '2-digit',
-                                                            minute: '2-digit',
-                                                        })}
-                                                    </Text>
-                                                    <div style={{position: 'absolute', left: 8}}>
-                                                        <Button
-                                                            view="flat-success"
-                                                            size="s"
-                                                            onClick={() => saveNoteToTheServer()}
-                                                        >
-                                                            <Icon data={Check} />
-                                                        </Button>
-                                                    </div>
-                                                    <div style={{position: 'absolute', right: 8}}>
-                                                        <Button
-                                                            view="flat"
-                                                            size="s"
-                                                            onClick={() => saveNote()}
-                                                        >
-                                                            <Icon data={Xmark} />
-                                                        </Button>
-                                                    </div>
-                                                    <div style={{position: 'absolute', right: 40}}>
-                                                        <Button
-                                                            view="flat-danger"
-                                                            size="s"
-                                                            onClick={() => {
-                                                                if (notesTextArea.current)
-                                                                    notesTextArea.current.value =
-                                                                        '';
-
-                                                                setTagsAddedForCurrentNote([]);
+                                                    <Icon data={PencilToSquare} />
+                                                </Button>
+                                                <Modal
+                                                    open={notesModalOpen}
+                                                    onClose={() => saveNote()}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            width: '30em',
+                                                        }}
+                                                    >
+                                                        <div
+                                                            style={{
+                                                                width: '100%',
+                                                                display: 'flex',
+                                                                height: 36,
+                                                                flexDirection: 'row',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                position: 'relative',
                                                             }}
                                                         >
-                                                            <Icon data={TrashBin} />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                                <TextArea
-                                                    defaultValue={currentNote}
-                                                    controlRef={notesTextArea}
-                                                    autoFocus
-                                                    rows={20}
-                                                />
-                                                <div style={{minHeight: 8}} />
-                                                <div></div>
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        width: 'calc(100% - 16px)',
-                                                        height: 200,
-                                                    }}
-                                                >
-                                                    <List
-                                                        filterPlaceholder="Введите имя тега"
-                                                        emptyPlaceholder="Такой тег отсутствует"
-                                                        loading={availableTagsPending}
-                                                        items={availableTags}
-                                                        renderItem={(item) => {
-                                                            return (
+                                                            <Text
+                                                                variant="subheader-1"
+                                                                color="secondary"
+                                                            >
+                                                                {new Date().toLocaleString(
+                                                                    'ru-RU',
+                                                                    {
+                                                                        day: '2-digit',
+                                                                        month: 'long',
+                                                                        year: 'numeric',
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit',
+                                                                    },
+                                                                )}
+                                                            </Text>
+                                                            <div
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    left: 8,
+                                                                }}
+                                                            >
                                                                 <Button
-                                                                    size="xs"
-                                                                    pin="circle-circle"
-                                                                    selected={tagsAddedForCurrentNote.includes(
-                                                                        item,
-                                                                    )}
-                                                                    view={
-                                                                        tagsAddedForCurrentNote.includes(
-                                                                            item,
-                                                                        )
-                                                                            ? 'outlined-info'
-                                                                            : 'outlined'
+                                                                    view="flat-success"
+                                                                    size="s"
+                                                                    onClick={() =>
+                                                                        saveNoteToTheServer()
                                                                     }
                                                                 >
-                                                                    {item
-                                                                        ? (
-                                                                              item as string
-                                                                          ).toUpperCase()
-                                                                        : ''}
+                                                                    <Icon data={Check} />
                                                                 </Button>
-                                                            );
-                                                        }}
-                                                        onItemClick={(item) => {
-                                                            let tempArr =
-                                                                Array.from(tagsAddedForCurrentNote);
-                                                            if (tempArr.includes(item)) {
-                                                                tempArr = tempArr.filter(
-                                                                    (value) => value != item,
-                                                                );
-                                                            } else {
-                                                                tempArr.push(item);
-                                                            }
+                                                            </div>
+                                                            <div
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    right: 8,
+                                                                }}
+                                                            >
+                                                                <Button
+                                                                    view="flat"
+                                                                    size="s"
+                                                                    onClick={() => saveNote()}
+                                                                >
+                                                                    <Icon data={Xmark} />
+                                                                </Button>
+                                                            </div>
+                                                            <div
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    right: 40,
+                                                                }}
+                                                            >
+                                                                <Button
+                                                                    view="flat-danger"
+                                                                    size="s"
+                                                                    onClick={() => {
+                                                                        if (notesTextArea.current)
+                                                                            notesTextArea.current.value =
+                                                                                '';
 
-                                                            setTagsAddedForCurrentNote(tempArr);
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </Modal>
-                                        <UploadModal
-                                            selectOptions={selectOptions}
-                                            selectValue={selectValue}
-                                            setRefetchAutoSales={setRefetchAutoSales}
-                                            setDzhemRefetch={setDzhemRefetch}
-                                        />
-                                        <div style={{minWidth: 8}} />
+                                                                        setTagsAddedForCurrentNote(
+                                                                            [],
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <Icon data={TrashBin} />
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                        <TextArea
+                                                            defaultValue={currentNote}
+                                                            controlRef={notesTextArea}
+                                                            autoFocus
+                                                            rows={20}
+                                                        />
+                                                        <div style={{minHeight: 8}} />
+                                                        <div></div>
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                width: 'calc(100% - 16px)',
+                                                                height: 200,
+                                                            }}
+                                                        >
+                                                            <List
+                                                                filterPlaceholder="Введите имя тега"
+                                                                emptyPlaceholder="Такой тег отсутствует"
+                                                                loading={availableTagsPending}
+                                                                items={availableTags}
+                                                                renderItem={(item) => {
+                                                                    return (
+                                                                        <Button
+                                                                            size="xs"
+                                                                            pin="circle-circle"
+                                                                            selected={tagsAddedForCurrentNote.includes(
+                                                                                item,
+                                                                            )}
+                                                                            view={
+                                                                                tagsAddedForCurrentNote.includes(
+                                                                                    item,
+                                                                                )
+                                                                                    ? 'outlined-info'
+                                                                                    : 'outlined'
+                                                                            }
+                                                                        >
+                                                                            {item
+                                                                                ? (
+                                                                                      item as string
+                                                                                  ).toUpperCase()
+                                                                                : ''}
+                                                                        </Button>
+                                                                    );
+                                                                }}
+                                                                onItemClick={(item) => {
+                                                                    let tempArr =
+                                                                        Array.from(
+                                                                            tagsAddedForCurrentNote,
+                                                                        );
+                                                                    if (tempArr.includes(item)) {
+                                                                        tempArr = tempArr.filter(
+                                                                            (value) =>
+                                                                                value != item,
+                                                                        );
+                                                                    } else {
+                                                                        tempArr.push(item);
+                                                                    }
+
+                                                                    setTagsAddedForCurrentNote(
+                                                                        tempArr,
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </Modal>
+                                                <UploadModal
+                                                    selectOptions={selectOptions}
+                                                    selectValue={selectValue}
+                                                    setRefetchAutoSales={setRefetchAutoSales}
+                                                    setDzhemRefetch={setDzhemRefetch}
+                                                />
+                                                <div style={{minWidth: 8}} />
+                                            </>
+                                        ) : (
+                                            <></>
+                                        )}
                                         <UserPopup
                                             setTheme={setTheme}
                                             setThemeAurum={setThemeAurum}
@@ -729,6 +781,7 @@ const PageElem = ({
         reports: <DetailedReportsPage sellerId={sellerId} />,
         seo: <SEOPage />,
         api: <ApiPage />,
+        noModules: <ApiPage />,
     };
     return pages[page] ?? <></>;
 };

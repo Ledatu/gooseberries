@@ -325,8 +325,8 @@ export const ManageUserCampaigns = () => {
                 position: 'relative',
             }}
         >
-            {!campaignsInfos || !campaignsInfos.length ? <Identity /> : <></>}
-            {campaignsInfos ? (
+            {!campaignsInfos || !campaignsInfos.length ? <Identity fill="#0002" /> : <></>}
+            {campaignsInfos?.length ? (
                 <motion.div
                     transition={{
                         type: 'spring',
