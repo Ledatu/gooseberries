@@ -190,7 +190,7 @@ export const Dashboard = ({setThemeAurum}) => {
 
     const renderFooterItem = (item, node, index) => {
         if (item === undefined || node === undefined || index === undefined) return <></>;
-
+        const isCurrent = (page == 'noModules' && item.id == 'api') || item.id == page;
         return (
             <Link
                 href={item?.href}
@@ -205,7 +205,7 @@ export const Dashboard = ({setThemeAurum}) => {
             >
                 <Text
                     variant="caption-2"
-                    color={item.id == page ? 'brand' : 'primary'}
+                    color={isCurrent ? 'brand' : 'primary'}
                     style={{
                         height: 70,
                         paddingBottom: 10,
