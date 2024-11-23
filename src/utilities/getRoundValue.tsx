@@ -84,6 +84,11 @@ export const renderAsDate = ({value}) => {
     return <Text>{new Date(value).toLocaleString('ru-RU')}</Text>;
 };
 
+export const renderDate = ({value}) => {
+    if (value === undefined || value == 0) return undefined;
+    return <Text>{new Date(value).toLocaleString('ru-RU').slice(0, 10)}</Text>;
+};
+
 export const daysInMonth = function (date) {
     date = new Date(date);
     if (date.getMonth() == new Date().getMonth()) {

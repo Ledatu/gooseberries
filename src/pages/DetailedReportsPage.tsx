@@ -1,15 +1,46 @@
+import {Link, Text} from '@gravity-ui/uikit';
 import React, {useEffect, useState} from 'react';
+import {CopyButton} from 'src/components/CopyButton';
 import {RangePicker} from 'src/components/RangePicker';
 import TheTable from 'src/components/TheTable';
+import {useCampaign} from 'src/contexts/CampaignContext';
 import callApi from 'src/utilities/callApi';
-import {renderAsDate} from 'src/utilities/getRoundValue';
+import {renderDate} from 'src/utilities/getRoundValue';
 
 export const DetailedReportsPage = ({sellerId}) => {
+    const {setSwitchingCampaignsFlag} = useCampaign();
     const columnData = [
-        {name: 'realizationreport_id', placeholder: 'Номер отчёта', valueType: 'text'},
-        {name: 'date_from', placeholder: 'Дата начала отчётного периода', render: renderAsDate},
-        {name: 'date_to', placeholder: 'Дата конца отчётного периода', render: renderAsDate},
-        {name: 'create_dt', placeholder: 'Дата формирования отчёта', render: renderAsDate},
+        {
+            name: 'realizationreport_id',
+            placeholder: 'Номер отчёта',
+            valueType: 'text',
+            render: ({value, footer}) => {
+                if (footer) return <div style={{height: 28}}>{value}</div>;
+
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Link
+                            view="primary"
+                            style={{whiteSpace: 'pre-wrap'}}
+                            href={`https://seller.wildberries.ru/suppliers-mutual-settlements/reports-implementations/reports-weekly-new/report/${value}?isGlobalBalance=false`}
+                            target="_blank"
+                        >
+                            <Text variant="subheader-1">{value}</Text>
+                        </Link>
+                        <CopyButton copyText={'value'} size="xs" iconSize={13} view="flat" />
+                    </div>
+                );
+            },
+        },
+        {name: 'date_from', placeholder: 'Начало', render: renderDate},
+        {name: 'date_to', placeholder: 'Конец', render: renderDate},
+        {name: 'create_dt', placeholder: 'Сформирован', render: renderDate},
         // {name: 'currency_name', placeholder: 'Валюта отчёта'},
         // {name: 'suppliercontract_code', placeholder: 'Договор'},
         // {name: 'rrd_id', placeholder: 'Номер строки'},
@@ -26,9 +57,10 @@ export const DetailedReportsPage = ({sellerId}) => {
         {name: 'expenses', placeholder: 'Доп. расходы'},
         {name: 'quantity', placeholder: 'Количество'},
         {name: 'retail_price', placeholder: 'Цена розничная'},
-        {name: 'retail_amount', placeholder: 'Сумма продаж (возвратов)'},
-        {name: 'sale_percent', placeholder: 'Согласованная скидка'},
-        {name: 'commission_percent', placeholder: 'Процент комиссии'},
+        {name: 'retail_amount', placeholder: 'Продажи'},
+        {name: 'ppvz_for_pay', placeholder: 'К перечислению'},
+        {name: 'sale_percent', placeholder: '% Согл. скидки'},
+        {name: 'commission_percent', placeholder: '% Комиссии'},
         // {name: 'office_name', placeholder: 'Склад'},
         // {name: 'supplier_oper_name', placeholder: 'Обоснование для оплаты'},
         // {name: 'order_dt', placeholder: 'Дата заказа'},
@@ -37,16 +69,19 @@ export const DetailedReportsPage = ({sellerId}) => {
         // {name: 'shk_id', placeholder: 'Штрих-код'},
         {
             name: 'retail_price_withdisc_rub',
-            placeholder: 'Цена розничная с учетом согласованной скидки',
+            placeholder: 'Цена со скидкой',
         },
-        {name: 'delivery_amount', placeholder: 'Количество доставок'},
-        {name: 'return_amount', placeholder: 'Количество возвратов'},
+        {name: 'delivery_amount', placeholder: 'Доставки'},
+        {name: 'return_amount', placeholder: 'Возвраты'},
         {name: 'delivery_rub', placeholder: 'Стоимость логистики'},
+        {name: 'storage_fee', placeholder: 'Стоимость хранения'},
+        {name: 'deduction', placeholder: 'Прочие удержания/выплаты'},
+        {name: 'acceptance', placeholder: 'Стоимость платной приёмки'},
         // {name: 'gi_box_type_name', placeholder: 'Тип коробов'},
-        {name: 'product_discount_for_report', placeholder: 'Согласованный продуктовый дисконт'},
+        // {name: 'product_discount_for_report', placeholder: 'Согласованный продуктовый дисконт'},
         // {name: 'supplier_promo', placeholder: 'Промокод'},
         // {name: 'rid', placeholder: 'Уникальный идентификатор заказа'},
-        {name: 'ppvz_spp_prc', placeholder: 'Скидка постоянного покупателя'},
+        {name: 'ppvz_spp_prc', placeholder: '% СПП'},
         {name: 'ppvz_kvw_prc_base', placeholder: 'Размер кВВ без НДС, % базовый'},
         {name: 'ppvz_kvw_prc', placeholder: 'Итоговый кВВ без НДС, %'},
         {name: 'sup_rating_prc_up', placeholder: 'Размер снижения кВВ из-за рейтинга'},
@@ -55,7 +90,6 @@ export const DetailedReportsPage = ({sellerId}) => {
             name: 'ppvz_sales_commission',
             placeholder: 'Вознаграждение с продаж до вычета услуг поверенного, без НДС',
         },
-        {name: 'ppvz_for_pay', placeholder: 'К перечислению продавцу за реализованный товар'},
         {name: 'ppvz_reward', placeholder: 'Возмещение за выдачу и возврат товаров на ПВЗ'},
         {name: 'acquiring_fee', placeholder: 'Возмещение издержек по эквайрингу'},
         {name: 'acquiring_percent', placeholder: 'Размер комиссии за эквайринг без НДС, %'},
@@ -76,27 +110,27 @@ export const DetailedReportsPage = ({sellerId}) => {
         {name: 'rebill_logistic_cost', placeholder: 'Возмещение издержек по перевозке'},
         // {name: 'rebill_logistic_org', placeholder: 'Организатор перевозки'},
         // {name: 'kiz', placeholder: 'Код маркировки'},
-        {name: 'storage_fee', placeholder: 'Стоимость хранения'},
-        {name: 'deduction', placeholder: 'Прочие удержания/выплаты'},
-        {name: 'acceptance', placeholder: 'Стоимость платной приёмки'},
         // {name: 'srid', placeholder: 'Уникальный идентификатор заказа'},
         // {name: 'report_type', placeholder: 'Тип отчёта'},
     ] as any[];
     const [filters, setFilters] = useState({undef: false});
     const [data, setData] = useState([] as any[]);
 
-    const getArtsTags = async () => {
+    const getSumarizedReports = async () => {
+        setSwitchingCampaignsFlag(true);
         if (sellerId == '') setData([]);
         const params = {seller_id: sellerId};
-        const artsTagsTemp = await callApi('getSumarizedReports', params).catch((e) => {
+        const sumarizedReportsTemp = await callApi('getSumarizedReports', params).catch((e) => {
             console.log(e);
         });
-        console.log('getArtsTags', params, artsTagsTemp);
-        if (artsTagsTemp && artsTagsTemp['data']) setData(artsTagsTemp['data']);
+        console.log('getSumarizedReports', params, sumarizedReportsTemp);
+        if (sumarizedReportsTemp && sumarizedReportsTemp['data'])
+            setData(sumarizedReportsTemp['data']);
         else setData([]);
+        setSwitchingCampaignsFlag(false);
     };
     useEffect(() => {
-        getArtsTags();
+        getSumarizedReports();
     }, [sellerId]);
 
     useEffect(() => {
@@ -139,6 +173,7 @@ export const DetailedReportsPage = ({sellerId}) => {
                 filters={filters}
                 setFilters={setFilters}
                 filterData={filterData}
+                footerData={[{}]}
                 tableId={'detailedReportsSummaryPage'}
                 usePagination={true}
                 defaultPaginationSize={50}
