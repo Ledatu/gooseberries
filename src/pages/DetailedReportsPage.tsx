@@ -17,7 +17,7 @@ export const DetailedReportsPage = ({sellerId}) => {
         {
             name: 'realizationreport_id',
             placeholder: 'Номер отчёта',
-            valueType: 'text',
+            valueType: 'numberNoIntl',
             render: ({value, footer}) => {
                 if (footer) return <div style={{height: 28}}>{value}</div>;
 

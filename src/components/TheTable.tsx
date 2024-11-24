@@ -556,6 +556,9 @@ export const generateFilterTextInput = (args) => {
 
 export const compare = (a, filterData) => {
     const {val, compMode} = filterData;
+    if (typeof a == 'string' && a.length == 24 && a.includes('T')) {
+        return new Date(a as string).toLocaleDateString('ru-RU').includes(String(val));
+    }
     if (compMode == 'include') {
         return String(a).toLocaleLowerCase().includes(String(val).toLocaleLowerCase());
     }
