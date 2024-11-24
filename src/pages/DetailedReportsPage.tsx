@@ -386,7 +386,7 @@ export const DetailedReportsPage = ({sellerId}) => {
         for (const [art, artInfo] of Object.entries(
             Object.keys(tableData).length ? tableData : data,
         )) {
-            if (!art || !artInfo) continue;
+            if (!art || !artInfo || !artInfo?.['realizationreport_id']) continue;
 
             const tempTypeRow = artInfo;
 
@@ -415,6 +415,10 @@ export const DetailedReportsPage = ({sellerId}) => {
                 }
             }
         }
+
+        temp.sort((a, b) => {
+            return b?.create_dt - a?.create_dt;
+        });
 
         setFilteredSummary(filteredSummaryTemp);
         setFilteredData(temp);
