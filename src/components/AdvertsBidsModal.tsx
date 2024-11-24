@@ -7,6 +7,7 @@ import {
     RadioButton,
     Select,
     TextInput,
+    Text,
 } from '@gravity-ui/uikit';
 import {CloudArrowUpIn, TrashBin, Calendar as CalendarIcon} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
@@ -17,6 +18,7 @@ import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 import {Calendar} from '@gravity-ui/date-components';
 import {dateTimeParse} from '@gravity-ui/date-utils';
 import {getLocaleDateString} from 'src/utilities/getRoundValue';
+import {HelpPopover} from '@gravity-ui/components';
 
 export const AdvertsBidsModal = ({
     disabled,
@@ -255,7 +257,18 @@ export const AdvertsBidsModal = ({
                     onUpdate={(val) => setDrrInputValue(val)}
                 />
             ),
-            title: 'Удерживать ДРР',
+            title: (
+                <div>
+                    <Text variant="subheader-1" style={{marginRight: 8}}>
+                        Удерживать ДРР к заказам
+                    </Text>
+                    <HelpPopover
+                        content={
+                            'ДРР задаётся к заказам. Фактическая ДРР к продажам будет выше при выкупе <100%. Учитывайте это.'
+                        }
+                    />
+                </div>
+            ),
         },
         cpo: {
             input: (
@@ -440,6 +453,7 @@ export const AdvertsBidsModal = ({
                 >
                     <motion.div
                         style={{
+                            width: 230,
                             overflow: 'hidden',
                             flexWrap: 'nowrap',
                             display: 'flex',

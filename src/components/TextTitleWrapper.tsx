@@ -1,9 +1,9 @@
-import React, {Children, isValidElement, ReactElement} from 'react';
+import React, {Children, isValidElement, ReactElement, ReactNode} from 'react';
 import {Text, TEXT_VARIANTS} from '@gravity-ui/uikit';
 
 interface TextTitleWrapperInterface {
     children: ReactElement | ReactElement[];
-    title: string;
+    title: ReactNode;
     padding?: number | undefined;
     style?: object | undefined;
     variant?: (typeof TEXT_VARIANTS)[number];
