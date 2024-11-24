@@ -1703,8 +1703,10 @@ export const MassAdvertPage = ({
                     return (
                         <Text color={profit > 0 ? 'positive' : 'danger'}>
                             {`${new Intl.NumberFormat('ru-RU').format(
-                                profit,
-                            )} ₽ / ${new Intl.NumberFormat('ru-RU').format(rentabelnost)}%`}
+                                Math.round(profit),
+                            )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                Math.round(rentabelnost),
+                            )}%`}
                         </Text>
                     );
                 }
@@ -2166,8 +2168,10 @@ export const MassAdvertPage = ({
                                     }
                                 >
                                     {`${new Intl.NumberFormat('ru-RU').format(
-                                        profit,
-                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(rentabelnost)}%`}
+                                        Math.round(profit),
+                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                        Math.round(rentabelnost),
+                                    )}%`}
                                 </Text>
                             </Button>
                         </div>
