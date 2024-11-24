@@ -2,7 +2,7 @@ import {Link, Text} from '@gravity-ui/uikit';
 import React, {useEffect, useState} from 'react';
 import {CopyButton} from 'src/components/CopyButton';
 import {RangePicker} from 'src/components/RangePicker';
-import TheTable from 'src/components/TheTable';
+import TheTable, {compare} from 'src/components/TheTable';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import callApi from 'src/utilities/callApi';
 import {defaultRender, getRoundValue, renderDate} from 'src/utilities/getRoundValue';
@@ -351,7 +351,8 @@ export const DetailedReportsPage = ({sellerId}) => {
     const getSumarizedReports = async () => {
         setSwitchingCampaignsFlag(true);
         if (sellerId == '') setData([]);
-        const params = {seller_id: sellerId};
+        const params = {seller_id: sellerId, dateRange};
+        console.log(params);
         const sumarizedReportsTemp = await callApi('getSumarizedReports', params).catch((e) => {
             console.log(e);
         });
@@ -366,7 +367,7 @@ export const DetailedReportsPage = ({sellerId}) => {
     }, [sellerId]);
 
     useEffect(() => {
-        setFilteredData(data);
+        filterData(filters, data);
     }, [data]);
 
     const [filteredData, setFilteredData] = useState([] as any[]);
@@ -377,7 +378,47 @@ export const DetailedReportsPage = ({sellerId}) => {
     const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
 
     const recalc = () => {};
-    const filterData = () => {};
+    const [filteredSummary, setFilteredSummary] = useState({});
+    const filterData = (withfFilters = {}, tableData = {}) => {
+        const temp = [] as any;
+        const filteredSummaryTemp = {};
+
+        for (const [art, artInfo] of Object.entries(
+            Object.keys(tableData).length ? tableData : data,
+        )) {
+            if (!art || !artInfo) continue;
+
+            const tempTypeRow = artInfo;
+
+            let addFlag = true;
+            const useFilters = withfFilters['undef'] ? withfFilters : filters;
+            for (const [filterArg, filterData] of Object.entries(useFilters)) {
+                if (filterArg == 'undef' || !filterData) continue;
+                if (filterData['val'] == '') continue;
+
+                if (!compare(tempTypeRow[filterArg], filterData)) {
+                    addFlag = false;
+                    break;
+                }
+            }
+
+            if (addFlag) {
+                temp.push(tempTypeRow);
+
+                for (const [key, val] of Object.entries(tempTypeRow)) {
+                    if (['realizationreport_id', 'create_dt', 'date_to', 'date_from'].includes(key))
+                        continue;
+
+                    if (!filteredSummaryTemp[key]) filteredSummaryTemp[key] = 0;
+
+                    filteredSummaryTemp[key] += val ?? 0;
+                }
+            }
+        }
+
+        setFilteredSummary(filteredSummaryTemp);
+        setFilteredData(temp);
+    };
 
     return (
         <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
@@ -405,7 +446,7 @@ export const DetailedReportsPage = ({sellerId}) => {
                 filters={filters}
                 setFilters={setFilters}
                 filterData={filterData}
-                footerData={[{}]}
+                footerData={[filteredSummary]}
                 tableId={'detailedReportsSummaryPage'}
                 usePagination={true}
                 defaultPaginationSize={50}
