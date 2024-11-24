@@ -3173,8 +3173,8 @@ export const MassAdvertPage = ({
                     artInfo.clicks += dateData['clicks'];
                     artInfo.profit += dateData['profit'];
                     artInfo.rentabelnost = getRoundValue(
-                        dateData['profit'],
-                        dateData['sum_orders'],
+                        artInfo['profit'],
+                        artInfo['sum_orders'],
                         true,
                     );
                     artInfo.analytics += artInfo.rentabelnost;
