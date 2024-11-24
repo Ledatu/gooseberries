@@ -5,7 +5,11 @@ import {RangePicker} from 'src/components/RangePicker';
 import TheTable from 'src/components/TheTable';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import callApi from 'src/utilities/callApi';
-import {renderDate} from 'src/utilities/getRoundValue';
+import {defaultRender, getRoundValue, renderDate} from 'src/utilities/getRoundValue';
+
+const renderTwoDigits = ({value}) => {
+    return defaultRender({value: getRoundValue(value, 100, true)});
+};
 
 export const DetailedReportsPage = ({sellerId}) => {
     const {setSwitchingCampaignsFlag} = useCampaign();
@@ -33,7 +37,7 @@ export const DetailedReportsPage = ({sellerId}) => {
                         >
                             <Text variant="subheader-1">{value}</Text>
                         </Link>
-                        <CopyButton copyText={'value'} size="xs" iconSize={13} view="flat" />
+                        <CopyButton copyText={value} size="xs" iconSize={13} view="flat" />
                     </div>
                 );
             },
@@ -41,6 +45,250 @@ export const DetailedReportsPage = ({sellerId}) => {
         {name: 'date_from', placeholder: 'Начало', render: renderDate},
         {name: 'date_to', placeholder: 'Конец', render: renderDate},
         {name: 'create_dt', placeholder: 'Сформирован', render: renderDate},
+        {
+            name: 'retail_price_withdisc_rub',
+            placeholder: 'Продажи',
+            render: renderTwoDigits,
+        },
+        {name: 'retail_amount', placeholder: 'Продажи WB', render: renderTwoDigits},
+        {
+            name: 'sale_amount',
+            placeholder: 'Скидки WB',
+            render: ({row}) => {
+                const {retail_price_withdisc_rub: ourPrice, retail_amount: retailAmount} = row;
+                return renderTwoDigits({value: ourPrice - retailAmount});
+            },
+        },
+        {
+            name: 'sale_percent',
+            placeholder: 'Скидки WB %',
+            render: ({row}) => {
+                const {retail_price_withdisc_rub: ourPrice, retail_amount: retailAmount} = row;
+                return renderTwoDigits({value: 100 - (retailAmount / ourPrice) * 100});
+            },
+        },
+        // {name: 'retail_price', placeholder: 'Цена розничная'},
+        {
+            name: 'commission_amount',
+            placeholder: 'Комиссия WB',
+            render: ({row}) => {
+                const {ppvz_for_pay: ppvzForPay, retail_amount: retailAmount} = row;
+                return renderTwoDigits({value: retailAmount - ppvzForPay});
+            },
+        },
+        {
+            name: 'commission_percent',
+            placeholder: 'Комиссия WB %',
+            render: ({row}) => {
+                const {ppvz_for_pay: ppvzForPay, retail_amount: retailAmount} = row;
+                return renderTwoDigits({value: 100 - (ppvzForPay / retailAmount) * 100});
+            },
+        },
+        {name: 'acquiring_fee', placeholder: 'Эквайринг', render: renderTwoDigits},
+        {
+            name: 'acquiring_percent',
+            placeholder: 'Эквайринг %',
+            render: ({row}) => {
+                const {acquiring_fee: acquiringFee, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (acquiringFee / ourPrice) * 100});
+            },
+        },
+        {
+            name: 'all_commission_amount',
+            placeholder: 'Итого Комиссия WB',
+            render: ({row}) => {
+                const {retail_amount: retailAmount, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: ourPrice - retailAmount});
+            },
+        },
+        {
+            name: 'all_commission_percent',
+            placeholder: 'Итого Комиссия WB %',
+            render: ({row}) => {
+                const {retail_amount: retailAmount, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: 100 - (retailAmount / ourPrice) * 100});
+            },
+        },
+        {name: 'ppvz_for_pay', placeholder: 'К перечислению', render: renderTwoDigits},
+        {name: 'delivery_rub', placeholder: 'Логистика', render: renderTwoDigits},
+        {
+            name: 'delivery_rub_percent',
+            placeholder: 'Логистика %',
+            render: ({row}) => {
+                const {delivery_rub: deliveryRub, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (deliveryRub / ourPrice) * 100});
+            },
+        },
+        {name: 'storage_fee', placeholder: 'Хранение', render: renderTwoDigits},
+        {
+            name: 'storage_fee_percent',
+            placeholder: 'Хранение %',
+            render: ({row}) => {
+                const {storage_fee: storageFee, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (storageFee / ourPrice) * 100});
+            },
+        },
+        {name: 'acceptance', placeholder: 'Приёмка', render: renderTwoDigits},
+        {
+            name: 'acceptance_percent',
+            placeholder: 'Приёмка %',
+            render: ({row}) => {
+                const {acceptance, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (acceptance / ourPrice) * 100});
+            },
+        },
+        {name: 'penalty', placeholder: 'Штрафы', render: renderTwoDigits},
+        {
+            name: 'penalty_percent',
+            placeholder: 'Штрафы %',
+            render: ({row}) => {
+                const {penalty, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (penalty / ourPrice) * 100});
+            },
+        },
+        {name: 'deduction', placeholder: 'Удержания', render: renderTwoDigits},
+        {
+            name: 'deduction_percent',
+            placeholder: 'Удержания',
+            render: ({row}) => {
+                const {deduction, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (deduction / ourPrice) * 100});
+            },
+        },
+        {
+            name: 'earned',
+            placeholder: 'Выплата',
+            render: ({row}) => {
+                const {
+                    ppvz_for_pay: ppvzForPay,
+                    delivery_rub: deliveryRub,
+                    storage_fee: storageFee,
+                    acceptance,
+                    penalty,
+                    deduction,
+                } = row;
+                return renderTwoDigits({
+                    value: ppvzForPay - deliveryRub - storageFee - acceptance - penalty - deduction,
+                });
+            },
+        },
+        {
+            name: 'earned_percent',
+            placeholder: 'Выплата %',
+            render: ({row}) => {
+                const {
+                    ppvz_for_pay: ppvzForPay,
+                    delivery_rub: deliveryRub,
+                    storage_fee: storageFee,
+                    acceptance,
+                    penalty,
+                    deduction,
+                    retail_price_withdisc_rub: ourPrice,
+                } = row;
+                const earned =
+                    ppvzForPay - deliveryRub - storageFee - acceptance - penalty - deduction;
+                return renderTwoDigits({
+                    value: (earned / ourPrice) * 100,
+                });
+            },
+        },
+        {name: 'tax', placeholder: 'Налог', render: renderTwoDigits},
+        {
+            name: 'tax_percent',
+            placeholder: 'Налог %',
+            render: ({row}) => {
+                const {tax, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (tax / ourPrice) * 100});
+            },
+        },
+        {name: 'expenses', placeholder: 'Доп. расход', render: renderTwoDigits},
+        {
+            name: 'expenses_percent',
+            placeholder: 'Доп. расход %',
+            render: ({row}) => {
+                const {expenses, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (expenses / ourPrice) * 100});
+            },
+        },
+        {name: 'primeCost', placeholder: 'Себестоимость', render: renderTwoDigits},
+        {
+            name: 'primeCost_percent',
+            placeholder: 'Себестоимость %',
+            render: ({row}) => {
+                const {primeCost, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: (primeCost / ourPrice) * 100});
+            },
+        },
+        {
+            name: 'profit',
+            placeholder: 'Прибыль',
+            render: ({row}) => {
+                const {
+                    ppvz_for_pay: ppvzForPay,
+                    delivery_rub: deliveryRub,
+                    storage_fee: storageFee,
+                    acceptance,
+                    penalty,
+                    deduction,
+                    tax,
+                    expenses,
+                    primeCost,
+                } = row;
+                const earned =
+                    ppvzForPay - deliveryRub - storageFee - acceptance - penalty - deduction;
+                return renderTwoDigits({
+                    value: earned - tax - expenses - primeCost,
+                });
+            },
+        },
+        {
+            name: 'rentSales',
+            placeholder: 'Прибыль % к продажам',
+            render: ({row}) => {
+                const {
+                    ppvz_for_pay: ppvzForPay,
+                    delivery_rub: deliveryRub,
+                    storage_fee: storageFee,
+                    acceptance,
+                    penalty,
+                    deduction,
+                    tax,
+                    expenses,
+                    primeCost,
+                    retail_price_withdisc_rub: ourPrice,
+                } = row;
+                const earned =
+                    ppvzForPay - deliveryRub - storageFee - acceptance - penalty - deduction;
+                const profit = earned - tax - expenses - primeCost;
+                return renderTwoDigits({
+                    value: (profit / ourPrice) * 100,
+                });
+            },
+        },
+        {
+            name: 'rentPrimeCost',
+            placeholder: 'Прибыль % к себестоимости',
+            render: ({row}) => {
+                const {
+                    ppvz_for_pay: ppvzForPay,
+                    delivery_rub: deliveryRub,
+                    storage_fee: storageFee,
+                    acceptance,
+                    penalty,
+                    deduction,
+                    tax,
+                    expenses,
+                    primeCost,
+                } = row;
+                const earned =
+                    ppvzForPay - deliveryRub - storageFee - acceptance - penalty - deduction;
+                const profit = earned - tax - expenses - primeCost;
+                return renderTwoDigits({
+                    value: (profit / primeCost) * 100,
+                });
+            },
+        },
+
         // {name: 'currency_name', placeholder: 'Валюта отчёта'},
         // {name: 'suppliercontract_code', placeholder: 'Договор'},
         // {name: 'rrd_id', placeholder: 'Номер строки'},
@@ -52,50 +300,34 @@ export const DetailedReportsPage = ({sellerId}) => {
         // {name: 'ts_name', placeholder: 'Размер'},
         // {name: 'barcode', placeholder: 'Баркод'},
         // {name: 'doc_type_name', placeholder: 'Тип документа'},
-        {name: 'primeCost', placeholder: 'Себестоимость'},
-        {name: 'tax', placeholder: 'Налог'},
-        {name: 'expenses', placeholder: 'Доп. расходы'},
-        {name: 'quantity', placeholder: 'Количество'},
-        {name: 'retail_price', placeholder: 'Цена розничная'},
-        {name: 'retail_amount', placeholder: 'Продажи'},
-        {name: 'ppvz_for_pay', placeholder: 'К перечислению'},
-        {name: 'sale_percent', placeholder: '% Согл. скидки'},
-        {name: 'commission_percent', placeholder: '% Комиссии'},
+        // {name: 'quantity', placeholder: 'Количество'},
+        // {name: 'sale_percent', placeholder: '% Согл. скидки'},
         // {name: 'office_name', placeholder: 'Склад'},
         // {name: 'supplier_oper_name', placeholder: 'Обоснование для оплаты'},
         // {name: 'order_dt', placeholder: 'Дата заказа'},
         // {name: 'sale_dt', placeholder: 'Дата продажи'},
         // {name: 'rr_dt', placeholder: 'Дата операции'},
         // {name: 'shk_id', placeholder: 'Штрих-код'},
-        {
-            name: 'retail_price_withdisc_rub',
-            placeholder: 'Цена со скидкой',
-        },
-        {name: 'delivery_amount', placeholder: 'Доставки'},
-        {name: 'return_amount', placeholder: 'Возвраты'},
-        {name: 'delivery_rub', placeholder: 'Стоимость логистики'},
-        {name: 'storage_fee', placeholder: 'Стоимость хранения'},
-        {name: 'deduction', placeholder: 'Прочие удержания/выплаты'},
-        {name: 'acceptance', placeholder: 'Стоимость платной приёмки'},
+        // {name: 'delivery_amount', placeholder: 'Доставки'},
+        // {name: 'return_amount', placeholder: 'Возвраты'},
         // {name: 'gi_box_type_name', placeholder: 'Тип коробов'},
         // {name: 'product_discount_for_report', placeholder: 'Согласованный продуктовый дисконт'},
         // {name: 'supplier_promo', placeholder: 'Промокод'},
         // {name: 'rid', placeholder: 'Уникальный идентификатор заказа'},
-        {name: 'ppvz_spp_prc', placeholder: '% СПП'},
-        {name: 'ppvz_kvw_prc_base', placeholder: 'Размер кВВ без НДС, % базовый'},
-        {name: 'ppvz_kvw_prc', placeholder: 'Итоговый кВВ без НДС, %'},
-        {name: 'sup_rating_prc_up', placeholder: 'Размер снижения кВВ из-за рейтинга'},
-        {name: 'is_kgvp_v2', placeholder: 'Размер снижения кВВ из-за акции'},
-        {
-            name: 'ppvz_sales_commission',
-            placeholder: 'Вознаграждение с продаж до вычета услуг поверенного, без НДС',
-        },
-        {name: 'ppvz_reward', placeholder: 'Возмещение за выдачу и возврат товаров на ПВЗ'},
-        {name: 'acquiring_fee', placeholder: 'Возмещение издержек по эквайрингу'},
-        {name: 'acquiring_percent', placeholder: 'Размер комиссии за эквайринг без НДС, %'},
+        // {name: 'ppvz_spp_prc', placeholder: '% СПП'},
+        // {name: 'ppvz_kvw_prc_base', placeholder: 'Размер кВВ без НДС, % базовый'},
+        // {name: 'ppvz_kvw_prc', placeholder: 'Итоговый кВВ без НДС, %'},
+        // {name: 'sup_rating_prc_up', placeholder: 'Размер снижения кВВ из-за рейтинга'},
+        // {name: 'is_kgvp_v2', placeholder: 'Размер снижения кВВ из-за акции'},
+        // {
+        //     name: 'ppvz_sales_commission',
+        //     placeholder: 'Вознаграждение с продаж до вычета услуг поверенного, без НДС',
+        // },
+        // {name: 'ppvz_reward', placeholder: 'Возмещение за выдачу и возврат товаров на ПВЗ'},
+        // {name: 'acquiring_percent', placeholder: 'Размер комиссии за эквайринг без НДС, %'},
         // {name: 'acquiring_bank', placeholder: 'Наименование банка-эквайера'},
-        {name: 'ppvz_vw', placeholder: 'Вознаграждение WB без НДС'},
-        {name: 'ppvz_vw_nds', placeholder: 'НДС с вознаграждения WB'},
+        // {name: 'ppvz_vw', placeholder: 'Вознаграждение WB без НДС'},
+        // {name: 'ppvz_vw_nds', placeholder: 'НДС с вознаграждения WB'},
         // {name: 'ppvz_office_id', placeholder: 'Номер офиса'},
         // {name: 'ppvz_office_name', placeholder: 'Наименование офиса доставки'},
         // {name: 'ppvz_supplier_id', placeholder: 'Номер партнера'},
@@ -105,9 +337,9 @@ export const DetailedReportsPage = ({sellerId}) => {
         // {name: 'bonus_type_name', placeholder: 'Обоснование штрафов и доплат'},
         // {name: 'sticker_id', placeholder: 'Цифровое значение стикера'},
         // {name: 'site_country', placeholder: 'Страна продажи'},
-        {name: 'penalty', placeholder: 'Штрафы'},
-        {name: 'additional_payment', placeholder: 'Доплаты'},
-        {name: 'rebill_logistic_cost', placeholder: 'Возмещение издержек по перевозке'},
+        // {name: 'penalty', placeholder: 'Штрафы'},
+        // {name: 'additional_payment', placeholder: 'Доплаты'},
+        // {name: 'rebill_logistic_cost', placeholder: 'Возмещение издержек по перевозке'},
         // {name: 'rebill_logistic_org', placeholder: 'Организатор перевозки'},
         // {name: 'kiz', placeholder: 'Код маркировки'},
         // {name: 'srid', placeholder: 'Уникальный идентификатор заказа'},
