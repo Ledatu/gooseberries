@@ -5,7 +5,12 @@ import {RangePicker} from 'src/components/RangePicker';
 import TheTable, {compare} from 'src/components/TheTable';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import callApi from 'src/utilities/callApi';
-import {defaultRender, getRoundValue, renderDate} from 'src/utilities/getRoundValue';
+import {
+    defaultRender,
+    getRoundValue,
+    renderAsPercent,
+    renderDate,
+} from 'src/utilities/getRoundValue';
 
 const renderTwoDigits = ({value}) => {
     return defaultRender({value: getRoundValue(value, 100, true)});
@@ -64,7 +69,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Скидки WB %',
             render: ({row}) => {
                 const {retail_price_withdisc_rub: ourPrice, retail_amount: retailAmount} = row;
-                return renderTwoDigits({value: 100 - (retailAmount / ourPrice) * 100});
+                return renderAsPercent({
+                    value: 100 - getRoundValue(retailAmount, ourPrice, true),
+                });
             },
         },
         // {name: 'retail_price', placeholder: 'Цена розничная'},
@@ -81,7 +88,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Комиссия WB %',
             render: ({row}) => {
                 const {ppvz_for_pay: ppvzForPay, retail_amount: retailAmount} = row;
-                return renderTwoDigits({value: 100 - (ppvzForPay / retailAmount) * 100});
+                return renderAsPercent({
+                    value: 100 - getRoundValue(ppvzForPay, retailAmount, true),
+                });
             },
         },
         {name: 'acquiring_fee', placeholder: 'Эквайринг', render: renderTwoDigits},
@@ -90,7 +99,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Эквайринг %',
             render: ({row}) => {
                 const {acquiring_fee: acquiringFee, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (acquiringFee / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(acquiringFee, ourPrice, true),
+                });
             },
         },
         {
@@ -106,7 +117,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Итого Комиссия WB %',
             render: ({row}) => {
                 const {retail_amount: retailAmount, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: 100 - (retailAmount / ourPrice) * 100});
+                return renderAsPercent({
+                    value: 100 - getRoundValue(retailAmount, ourPrice, true),
+                });
             },
         },
         {name: 'ppvz_for_pay', placeholder: 'К перечислению', render: renderTwoDigits},
@@ -116,7 +129,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Логистика %',
             render: ({row}) => {
                 const {delivery_rub: deliveryRub, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (deliveryRub / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(deliveryRub, ourPrice, true),
+                });
             },
         },
         {name: 'storage_fee', placeholder: 'Хранение', render: renderTwoDigits},
@@ -125,7 +140,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Хранение %',
             render: ({row}) => {
                 const {storage_fee: storageFee, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (storageFee / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(storageFee, ourPrice, true),
+                });
             },
         },
         {name: 'acceptance', placeholder: 'Приёмка', render: renderTwoDigits},
@@ -134,7 +151,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Приёмка %',
             render: ({row}) => {
                 const {acceptance, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (acceptance / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(acceptance, ourPrice, true),
+                });
             },
         },
         {name: 'penalty', placeholder: 'Штрафы', render: renderTwoDigits},
@@ -143,7 +162,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Штрафы %',
             render: ({row}) => {
                 const {penalty, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (penalty / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(penalty, ourPrice, true),
+                });
             },
         },
         {name: 'deduction', placeholder: 'Удержания', render: renderTwoDigits},
@@ -152,7 +173,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Удержания',
             render: ({row}) => {
                 const {deduction, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (deduction / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(deduction, ourPrice, true),
+                });
             },
         },
         {
@@ -187,8 +210,8 @@ export const DetailedReportsPage = ({sellerId}) => {
                 } = row;
                 const earned =
                     ppvzForPay - deliveryRub - storageFee - acceptance - penalty - deduction;
-                return renderTwoDigits({
-                    value: (earned / ourPrice) * 100,
+                return renderAsPercent({
+                    value: getRoundValue(earned, ourPrice, true),
                 });
             },
         },
@@ -198,7 +221,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Налог %',
             render: ({row}) => {
                 const {tax, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (tax / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(tax, ourPrice, true),
+                });
             },
         },
         {name: 'expenses', placeholder: 'Доп. расход', render: renderTwoDigits},
@@ -207,7 +232,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Доп. расход %',
             render: ({row}) => {
                 const {expenses, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (expenses / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(expenses, ourPrice, true),
+                });
             },
         },
         {name: 'primeCost', placeholder: 'Себестоимость', render: renderTwoDigits},
@@ -216,7 +243,9 @@ export const DetailedReportsPage = ({sellerId}) => {
             placeholder: 'Себестоимость %',
             render: ({row}) => {
                 const {primeCost, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: (primeCost / ourPrice) * 100});
+                return renderAsPercent({
+                    value: getRoundValue(primeCost, ourPrice, true),
+                });
             },
         },
         {
@@ -260,8 +289,8 @@ export const DetailedReportsPage = ({sellerId}) => {
                 const earned =
                     ppvzForPay - deliveryRub - storageFee - acceptance - penalty - deduction;
                 const profit = earned - tax - expenses - primeCost;
-                return renderTwoDigits({
-                    value: (profit / ourPrice) * 100,
+                return renderAsPercent({
+                    value: getRoundValue(profit, ourPrice, true),
                 });
             },
         },
@@ -283,8 +312,8 @@ export const DetailedReportsPage = ({sellerId}) => {
                 const earned =
                     ppvzForPay - deliveryRub - storageFee - acceptance - penalty - deduction;
                 const profit = earned - tax - expenses - primeCost;
-                return renderTwoDigits({
-                    value: (profit / primeCost) * 100,
+                return renderAsPercent({
+                    value: getRoundValue(profit, primeCost, true),
                 });
             },
         },
@@ -417,7 +446,7 @@ export const DetailedReportsPage = ({sellerId}) => {
         }
 
         temp.sort((a, b) => {
-            return b?.create_dt - a?.create_dt;
+            return b?.realizationreport_id - a?.realizationreport_id;
         });
 
         setFilteredSummary(filteredSummaryTemp);
