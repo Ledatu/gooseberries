@@ -511,37 +511,39 @@ export const Dashboard = ({setThemeAurum}) => {
                                                         alignItems: 'center',
                                                     }}
                                                 >
+                                                    <div style={{minWidth: 12}} />
                                                     <Tooltip content={'База знаний'}>
                                                         <Button
+                                                            pin="circle-brick"
                                                             size="xl"
                                                             href={
                                                                 'https://aurum-wiki.tilda.ws/tdocs/'
                                                             }
                                                             target={'_blank'}
                                                         >
-                                                            <Icon data={GraduationCap} size={20} />
+                                                            <Icon data={GraduationCap} size={18} />
                                                         </Button>
                                                     </Tooltip>
-                                                    <div style={{minWidth: 12}} />
                                                     <Tooltip content={'Поддержка'}>
                                                         <Button
+                                                            pin="clear-clear"
                                                             size="xl"
                                                             href={
                                                                 'https://t.me/AurumSkyNetSupportBot'
                                                             }
                                                             target={'_blank'}
                                                         >
-                                                            <Icon data={CircleQuestion} size={20} />
+                                                            <Icon data={CircleQuestion} size={18} />
                                                         </Button>
                                                     </Tooltip>
-                                                    <div style={{minWidth: 12}} />
                                                     <Tooltip content={'Наш телеграм канал'}>
                                                         <Button
+                                                            pin="brick-circle"
                                                             size="xl"
                                                             href={'https://t.me/+5PHQ7OK2pT4yMDBi'}
                                                             target={'_blank'}
                                                         >
-                                                            <Icon data={LogoTelegram} size={20} />
+                                                            <Icon data={LogoTelegram} size={18} />
                                                         </Button>
                                                     </Tooltip>
                                                     <div style={{minWidth: 24}} />
