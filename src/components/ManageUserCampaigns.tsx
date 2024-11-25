@@ -326,7 +326,7 @@ export const ManageUserCampaigns = () => {
             }}
         >
             {!campaignsInfos || !campaignsInfos.length ? <Identity fill="#0002" /> : <></>}
-            {campaignsInfos?.length ? (
+            {campaignsInfos?.length || filterValue != '' ? (
                 <motion.div
                     transition={{
                         type: 'spring',
