@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import block from 'bem-cn-lite';
-import {Text, Icon, Tabs, Link, Button, Modal, TextArea, List} from '@gravity-ui/uikit';
+import {Text, Icon, Tabs, Link, Button, Modal, TextArea, List, Tooltip} from '@gravity-ui/uikit';
 import '../App.scss';
 import {MassAdvertPage} from './MassAdvertPage';
 // import {db} from '../utilities/firebase-config';
@@ -15,6 +15,7 @@ import {
     TrashBin,
     CircleQuestion,
     ChartColumnStacked,
+    LogoTelegram,
     Key,
     GraduationCap,
 } from '@gravity-ui/icons';
@@ -474,7 +475,12 @@ export const Dashboard = ({setThemeAurum}) => {
                                             <Tabs
                                                 wrapTo={renderTabItem}
                                                 activeTab={page}
-                                                items={optionsPages}
+                                                items={optionsPages.filter(
+                                                    (item) =>
+                                                        !['Поддержка', 'База знаний'].includes(
+                                                            item.title,
+                                                        ),
+                                                )}
                                                 onSelectTab={(val) => {
                                                     setPage(val);
                                                 }}
@@ -488,189 +494,252 @@ export const Dashboard = ({setThemeAurum}) => {
                                             display: 'flex',
                                             flexDirection: 'row',
                                             alignItems: 'center',
-                                            boxShadow:
-                                                '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
                                         }}
                                     >
                                         {selectValue[0] ? (
-                                            <>
-                                                <div style={{minWidth: 12}} />
-                                                <Button
-                                                    pin="round-brick"
-                                                    view="flat"
-                                                    loading={availableTagsPending}
-                                                    size="l"
-                                                    onClick={async () => {
-                                                        setNotesModalOpen((val) => !val);
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
                                                     }}
                                                 >
-                                                    <Icon data={PencilToSquare} />
-                                                </Button>
-                                                <Modal
-                                                    open={notesModalOpen}
-                                                    onClose={() => saveNote()}
+                                                    <Tooltip content={'База знаний'}>
+                                                        <Button
+                                                            size="xl"
+                                                            href={
+                                                                'https://aurum-wiki.tilda.ws/tdocs/'
+                                                            }
+                                                            target={'_blank'}
+                                                        >
+                                                            <Icon data={GraduationCap} size={20} />
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <div style={{minWidth: 12}} />
+                                                    <Tooltip content={'Поддержка'}>
+                                                        <Button
+                                                            size="xl"
+                                                            href={
+                                                                'https://t.me/AurumSkyNetSupportBot'
+                                                            }
+                                                            target={'_blank'}
+                                                        >
+                                                            <Icon data={CircleQuestion} size={20} />
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <div style={{minWidth: 12}} />
+                                                    <Tooltip content={'Наш телеграм канал'}>
+                                                        <Button
+                                                            size="xl"
+                                                            href={'https://t.me/+5PHQ7OK2pT4yMDBi'}
+                                                            target={'_blank'}
+                                                        >
+                                                            <Icon data={LogoTelegram} size={20} />
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <div style={{minWidth: 24}} />
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                        height: 68,
+                                                        boxShadow:
+                                                            '-1px 0px 0px 0px var(--yc-color-base-generic-hover)',
+                                                    }}
                                                 >
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            alignItems: 'center',
-                                                            width: '30em',
+                                                    <div style={{minWidth: 12}} />
+                                                    <Button
+                                                        pin="round-brick"
+                                                        view="flat"
+                                                        loading={availableTagsPending}
+                                                        size="l"
+                                                        onClick={async () => {
+                                                            setNotesModalOpen((val) => !val);
                                                         }}
+                                                    >
+                                                        <Icon data={PencilToSquare} />
+                                                    </Button>
+                                                    <Modal
+                                                        open={notesModalOpen}
+                                                        onClose={() => saveNote()}
                                                     >
                                                         <div
                                                             style={{
-                                                                width: '100%',
                                                                 display: 'flex',
-                                                                height: 36,
-                                                                flexDirection: 'row',
-                                                                justifyContent: 'center',
+                                                                flexDirection: 'column',
                                                                 alignItems: 'center',
-                                                                position: 'relative',
+                                                                width: '30em',
                                                             }}
                                                         >
-                                                            <Text
-                                                                variant="subheader-1"
-                                                                color="secondary"
-                                                            >
-                                                                {new Date().toLocaleString(
-                                                                    'ru-RU',
-                                                                    {
-                                                                        day: '2-digit',
-                                                                        month: 'long',
-                                                                        year: 'numeric',
-                                                                        hour: '2-digit',
-                                                                        minute: '2-digit',
-                                                                    },
-                                                                )}
-                                                            </Text>
                                                             <div
                                                                 style={{
-                                                                    position: 'absolute',
-                                                                    left: 8,
+                                                                    width: '100%',
+                                                                    display: 'flex',
+                                                                    height: 36,
+                                                                    flexDirection: 'row',
+                                                                    justifyContent: 'center',
+                                                                    alignItems: 'center',
+                                                                    position: 'relative',
                                                                 }}
                                                             >
-                                                                <Button
-                                                                    view="flat-success"
-                                                                    size="s"
-                                                                    onClick={() =>
-                                                                        saveNoteToTheServer()
-                                                                    }
+                                                                <Text
+                                                                    variant="subheader-1"
+                                                                    color="secondary"
                                                                 >
-                                                                    <Icon data={Check} />
-                                                                </Button>
-                                                            </div>
-                                                            <div
-                                                                style={{
-                                                                    position: 'absolute',
-                                                                    right: 8,
-                                                                }}
-                                                            >
-                                                                <Button
-                                                                    view="flat"
-                                                                    size="s"
-                                                                    onClick={() => saveNote()}
-                                                                >
-                                                                    <Icon data={Xmark} />
-                                                                </Button>
-                                                            </div>
-                                                            <div
-                                                                style={{
-                                                                    position: 'absolute',
-                                                                    right: 40,
-                                                                }}
-                                                            >
-                                                                <Button
-                                                                    view="flat-danger"
-                                                                    size="s"
-                                                                    onClick={() => {
-                                                                        if (notesTextArea.current)
-                                                                            notesTextArea.current.value =
-                                                                                '';
-
-                                                                        setTagsAddedForCurrentNote(
-                                                                            [],
-                                                                        );
+                                                                    {new Date().toLocaleString(
+                                                                        'ru-RU',
+                                                                        {
+                                                                            day: '2-digit',
+                                                                            month: 'long',
+                                                                            year: 'numeric',
+                                                                            hour: '2-digit',
+                                                                            minute: '2-digit',
+                                                                        },
+                                                                    )}
+                                                                </Text>
+                                                                <div
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        left: 8,
                                                                     }}
                                                                 >
-                                                                    <Icon data={TrashBin} />
-                                                                </Button>
+                                                                    <Button
+                                                                        view="flat-success"
+                                                                        size="s"
+                                                                        onClick={() =>
+                                                                            saveNoteToTheServer()
+                                                                        }
+                                                                    >
+                                                                        <Icon data={Check} />
+                                                                    </Button>
+                                                                </div>
+                                                                <div
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        right: 8,
+                                                                    }}
+                                                                >
+                                                                    <Button
+                                                                        view="flat"
+                                                                        size="s"
+                                                                        onClick={() => saveNote()}
+                                                                    >
+                                                                        <Icon data={Xmark} />
+                                                                    </Button>
+                                                                </div>
+                                                                <div
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        right: 40,
+                                                                    }}
+                                                                >
+                                                                    <Button
+                                                                        view="flat-danger"
+                                                                        size="s"
+                                                                        onClick={() => {
+                                                                            if (
+                                                                                notesTextArea.current
+                                                                            )
+                                                                                notesTextArea.current.value =
+                                                                                    '';
+
+                                                                            setTagsAddedForCurrentNote(
+                                                                                [],
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <Icon data={TrashBin} />
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                            <TextArea
+                                                                defaultValue={currentNote}
+                                                                controlRef={notesTextArea}
+                                                                autoFocus
+                                                                rows={20}
+                                                            />
+                                                            <div style={{minHeight: 8}} />
+                                                            <div></div>
+                                                            <div
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    width: 'calc(100% - 16px)',
+                                                                    height: 200,
+                                                                }}
+                                                            >
+                                                                <List
+                                                                    filterPlaceholder="Введите имя тега"
+                                                                    emptyPlaceholder="Такой тег отсутствует"
+                                                                    loading={availableTagsPending}
+                                                                    items={availableTags}
+                                                                    renderItem={(item) => {
+                                                                        return (
+                                                                            <Button
+                                                                                size="xs"
+                                                                                pin="circle-circle"
+                                                                                selected={tagsAddedForCurrentNote.includes(
+                                                                                    item,
+                                                                                )}
+                                                                                view={
+                                                                                    tagsAddedForCurrentNote.includes(
+                                                                                        item,
+                                                                                    )
+                                                                                        ? 'outlined-info'
+                                                                                        : 'outlined'
+                                                                                }
+                                                                            >
+                                                                                {item
+                                                                                    ? (
+                                                                                          item as string
+                                                                                      ).toUpperCase()
+                                                                                    : ''}
+                                                                            </Button>
+                                                                        );
+                                                                    }}
+                                                                    onItemClick={(item) => {
+                                                                        let tempArr =
+                                                                            Array.from(
+                                                                                tagsAddedForCurrentNote,
+                                                                            );
+                                                                        if (
+                                                                            tempArr.includes(item)
+                                                                        ) {
+                                                                            tempArr =
+                                                                                tempArr.filter(
+                                                                                    (value) =>
+                                                                                        value !=
+                                                                                        item,
+                                                                                );
+                                                                        } else {
+                                                                            tempArr.push(item);
+                                                                        }
+
+                                                                        setTagsAddedForCurrentNote(
+                                                                            tempArr,
+                                                                        );
+                                                                    }}
+                                                                />
                                                             </div>
                                                         </div>
-                                                        <TextArea
-                                                            defaultValue={currentNote}
-                                                            controlRef={notesTextArea}
-                                                            autoFocus
-                                                            rows={20}
-                                                        />
-                                                        <div style={{minHeight: 8}} />
-                                                        <div></div>
-                                                        <div
-                                                            style={{
-                                                                display: 'flex',
-                                                                width: 'calc(100% - 16px)',
-                                                                height: 200,
-                                                            }}
-                                                        >
-                                                            <List
-                                                                filterPlaceholder="Введите имя тега"
-                                                                emptyPlaceholder="Такой тег отсутствует"
-                                                                loading={availableTagsPending}
-                                                                items={availableTags}
-                                                                renderItem={(item) => {
-                                                                    return (
-                                                                        <Button
-                                                                            size="xs"
-                                                                            pin="circle-circle"
-                                                                            selected={tagsAddedForCurrentNote.includes(
-                                                                                item,
-                                                                            )}
-                                                                            view={
-                                                                                tagsAddedForCurrentNote.includes(
-                                                                                    item,
-                                                                                )
-                                                                                    ? 'outlined-info'
-                                                                                    : 'outlined'
-                                                                            }
-                                                                        >
-                                                                            {item
-                                                                                ? (
-                                                                                      item as string
-                                                                                  ).toUpperCase()
-                                                                                : ''}
-                                                                        </Button>
-                                                                    );
-                                                                }}
-                                                                onItemClick={(item) => {
-                                                                    let tempArr =
-                                                                        Array.from(
-                                                                            tagsAddedForCurrentNote,
-                                                                        );
-                                                                    if (tempArr.includes(item)) {
-                                                                        tempArr = tempArr.filter(
-                                                                            (value) =>
-                                                                                value != item,
-                                                                        );
-                                                                    } else {
-                                                                        tempArr.push(item);
-                                                                    }
-
-                                                                    setTagsAddedForCurrentNote(
-                                                                        tempArr,
-                                                                    );
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </Modal>
-                                                <UploadModal
-                                                    selectOptions={selectOptions}
-                                                    selectValue={selectValue}
-                                                    setRefetchAutoSales={setRefetchAutoSales}
-                                                    setDzhemRefetch={setDzhemRefetch}
-                                                />
-                                                <div style={{minWidth: 8}} />
-                                            </>
+                                                    </Modal>
+                                                    <UploadModal
+                                                        selectOptions={selectOptions}
+                                                        selectValue={selectValue}
+                                                        setRefetchAutoSales={setRefetchAutoSales}
+                                                        setDzhemRefetch={setDzhemRefetch}
+                                                    />
+                                                    <div style={{minWidth: 8}} />
+                                                </div>
+                                            </div>
                                         ) : (
                                             <></>
                                         )}
