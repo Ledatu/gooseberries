@@ -19,6 +19,7 @@ import {Calendar} from '@gravity-ui/date-components';
 import {dateTimeParse} from '@gravity-ui/date-utils';
 import {getLocaleDateString} from 'src/utilities/getRoundValue';
 import {HelpPopover} from '@gravity-ui/components';
+import {useError} from 'src/pages/ErrorContext';
 
 export const AdvertsBidsModal = ({
     disabled,
@@ -37,6 +38,7 @@ export const AdvertsBidsModal = ({
     getUniqueAdvertIdsFromThePage: Function | undefined;
     advertId: number | undefined;
 }) => {
+    const {showError} = useError();
     const [selectedButton, setSelectedButton] = useState('');
     const [open, setOpen] = useState(false);
     const modalOptions = [
@@ -782,9 +784,16 @@ export const AdvertsBidsModal = ({
                                     console.log(params);
 
                                     //////////////////////////////////
-                                    callApi('setAdvertsCPMs', params);
-                                    setChangedDoc({...doc});
-                                    setOpen(false);
+                                    callApi('setAdvertsCPMs', params)
+                                        .then(() => {
+                                            setChangedDoc({...doc});
+                                        })
+                                        .catch(() => {
+                                            showError('Возникла ошибка, попробуйте еще раз.');
+                                        })
+                                        .finally(() => {
+                                            setOpen(false);
+                                        });
                                     //////////////////////////////////
                                 },
                             },
