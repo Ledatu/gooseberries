@@ -3239,7 +3239,7 @@ export const MassAdvertPage = ({
                     false,
                     artInfo.sum,
                 );
-                artInfo.romi = getRoundValue(artInfo.analytics, artInfo.sum, true);
+                artInfo.romi = getRoundValue(artInfo.profit, artInfo.sum, true);
 
                 summaryTemp.sum_orders += artInfo.sum_orders;
                 summaryTemp.sum += artInfo.sum;
@@ -3718,7 +3718,7 @@ export const MassAdvertPage = ({
         );
 
         filteredSummaryTemp.romi = getRoundValue(
-            filteredSummaryTemp.analytics,
+            filteredSummaryTemp.profit,
             filteredSummaryTemp.sum,
             true,
         );
