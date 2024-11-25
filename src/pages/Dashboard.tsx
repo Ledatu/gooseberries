@@ -210,7 +210,8 @@ export const Dashboard = ({setThemeAurum}) => {
                     style={{
                         height: 70,
                         paddingBottom: 10,
-                        width: 75,
+                        width: 70,
+                        background: 'grey',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
