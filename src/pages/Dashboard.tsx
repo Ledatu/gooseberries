@@ -515,7 +515,6 @@ export const Dashboard = ({setThemeAurum}) => {
                                                     <div style={{minWidth: 12}} />
                                                     <Tooltip content={'База знаний'}>
                                                         <Button
-                                                            pin="circle-brick"
                                                             size="xl"
                                                             href={
                                                                 'https://aurum-wiki.tilda.ws/tdocs/'
@@ -525,9 +524,9 @@ export const Dashboard = ({setThemeAurum}) => {
                                                             <Icon data={GraduationCap} size={18} />
                                                         </Button>
                                                     </Tooltip>
+                                                    <div style={{minWidth: 12}} />
                                                     <Tooltip content={'Поддержка'}>
                                                         <Button
-                                                            pin="clear-clear"
                                                             size="xl"
                                                             href={
                                                                 'https://t.me/AurumSkyNetSupportBot'
@@ -537,9 +536,9 @@ export const Dashboard = ({setThemeAurum}) => {
                                                             <Icon data={CircleQuestion} size={18} />
                                                         </Button>
                                                     </Tooltip>
+                                                    <div style={{minWidth: 12}} />
                                                     <Tooltip content={'Наш телеграм канал'}>
                                                         <Button
-                                                            pin="brick-circle"
                                                             size="xl"
                                                             href={'https://t.me/+5PHQ7OK2pT4yMDBi'}
                                                             target={'_blank'}
