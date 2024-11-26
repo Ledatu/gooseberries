@@ -74,7 +74,8 @@ export const AutoFeedbackTemplateCreationModal = ({
         {value: 'object', content: 'Тип предмета'},
         {value: 'title', content: 'Наименование'},
         {value: 'imtId', content: 'ID КТ'},
-        {value: 'art', content: 'Артикул'},
+        {value: 'art', content: 'Артикул продавца'},
+        {value: 'nmId', content: 'Артикул WB'},
         {value: 'tags', content: 'Теги'},
     ];
     const [binding, setBinding] = useState(['none']);
@@ -416,7 +417,8 @@ export const AutoFeedbackTemplateCreationModal = ({
                                         object: 'Тип предмета',
                                         title: 'Наименование',
                                         imtId: 'ID КТ',
-                                        art: 'Артикул',
+                                        art: 'Артикул продавца',
+                                        nmId: 'Артикул WB',
                                         tags: 'Теги',
                                     };
                                     return (
