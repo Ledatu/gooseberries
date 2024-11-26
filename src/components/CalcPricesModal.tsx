@@ -578,8 +578,8 @@ export const CalcPricesModal = ({
                                         .finally(() => {
                                             setCalculatingFlag(false);
                                             setPagesCurrent(1);
-                                            setEnteredValuesModalOpen(false);
                                         });
+                                    setEnteredValuesModalOpen(false);
 
                                     /////////////////////////
                                 }}

@@ -1172,31 +1172,30 @@ export const PricesPage = ({permission, sellerId}) => {
                 </div>
             </div>
 
-            <Card theme={currentPricesCalculatedBasedOn != '' ? 'warning' : undefined}>
-                <TheTable
-                    columnData={columnData}
-                    data={filteredData}
-                    filters={filters}
-                    setFilters={setFilters}
-                    filterData={filterTableData}
-                    footerData={[filteredSummary]}
-                    tableId={'prices'}
-                    usePagination={true}
-                    defaultPaginationSize={300}
-                    height={'calc(100vh - 10em - 60px)'}
-                    onPaginationUpdate={({page, paginatedData}) => {
-                        setPagesCurrent(page);
-                        setFilteredSummary((row) => {
-                            const fstemp = row;
-                            fstemp[
-                                'art'
-                            ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
+            <TheTable
+                theme={currentPricesCalculatedBasedOn != '' ? 'warning' : undefined}
+                columnData={columnData}
+                data={filteredData}
+                filters={filters}
+                setFilters={setFilters}
+                filterData={filterTableData}
+                footerData={[filteredSummary]}
+                tableId={'prices'}
+                usePagination={true}
+                defaultPaginationSize={300}
+                height={'calc(100vh - 10em - 60px)'}
+                onPaginationUpdate={({page, paginatedData}) => {
+                    setPagesCurrent(page);
+                    setFilteredSummary((row) => {
+                        const fstemp = row;
+                        fstemp[
+                            'art'
+                        ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
 
-                            return fstemp;
-                        });
-                    }}
-                />
-            </Card>
+                        return fstemp;
+                    });
+                }}
+            />
         </div>
     );
 };

@@ -5,7 +5,7 @@ import block from 'bem-cn-lite';
 import useWindowDimensions from 'src/hooks/useWindowDimensions';
 
 import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
-import {Button, Card, DropdownMenu, Icon, Pagination, Text} from '@gravity-ui/uikit';
+import {Button, Card, CardTheme, DropdownMenu, Icon, Pagination, Text} from '@gravity-ui/uikit';
 import {DelayedTextInput} from '@gravity-ui/components';
 import {defaultRender} from 'src/utilities/getRoundValue';
 import {useUser} from './RequireAuth';
@@ -16,6 +16,7 @@ import {ClearFiltersButton} from './ClearFiltersButton';
 const b = block('the-table');
 
 interface TheTableProps {
+    theme?: CardTheme | undefined;
     tableId: string;
     usePagination: boolean;
     defaultPaginationSize?: number;
@@ -33,6 +34,7 @@ interface TheTableProps {
 }
 
 export default function TheTable({
+    theme,
     tableId,
     usePagination,
     defaultPaginationSize,
@@ -203,7 +205,7 @@ export default function TheTable({
 
     return (
         <div style={{height: `calc(${height ?? '100%'} - 16px - 28px)`, width: width ?? '100%'}}>
-            <Card style={tableCardStyle}>
+            <Card style={tableCardStyle} theme={theme}>
                 <DataTable
                     emptyDataMessage={emptyDataMessage ?? 'Нет данных.'}
                     startIndex={1}
