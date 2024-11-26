@@ -377,6 +377,11 @@ export const DetailedReportsPage = ({sellerId}) => {
     const [filters, setFilters] = useState({undef: false});
     const [data, setData] = useState([] as any[]);
 
+    const yesterday = new Date();
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 30);
+    const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
+
     const getSumarizedReports = async () => {
         setSwitchingCampaignsFlag(true);
         if (sellerId == '') setData([]);
@@ -393,18 +398,13 @@ export const DetailedReportsPage = ({sellerId}) => {
     };
     useEffect(() => {
         getSumarizedReports();
-    }, [sellerId]);
+    }, [sellerId, dateRange]);
 
     useEffect(() => {
         filterData(filters, data);
     }, [data]);
 
     const [filteredData, setFilteredData] = useState([] as any[]);
-
-    const yesterday = new Date();
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 30);
-    const [dateRange, setDateRange] = useState([weekAgo, yesterday]);
 
     const recalc = () => {};
     const [filteredSummary, setFilteredSummary] = useState({});

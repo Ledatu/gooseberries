@@ -28,12 +28,13 @@ export const AddMemberModal = ({
     const [identifier, setIdentifier] = useState('');
     const [modulesEnabled, setModulesEnabled] = useState({
         massAdvert: ['Доступ закрыт'],
-        analytics: ['Доступ закрыт'],
-        delivery: ['Доступ закрыт'],
         prices: ['Доступ закрыт'],
-        nomenclatures: ['Доступ закрыт'],
+        delivery: ['Доступ закрыт'],
+        analytics: ['Доступ закрыт'],
         buyers: ['Доступ закрыт'],
         seo: ['Доступ закрыт'],
+        nomenclatures: ['Доступ закрыт'],
+        reports: ['Доступ закрыт'],
     });
 
     const mapModules = {
@@ -44,6 +45,7 @@ export const AddMemberModal = ({
         nomenclatures: 'Товары',
         buyers: 'Покупатели',
         seo: 'SEO',
+        reports: 'Отчеты',
     };
 
     const modules = useMemo(() => {
@@ -147,12 +149,13 @@ export const AddMemberModal = ({
         setIdentifier('');
         setModulesEnabled({
             massAdvert: ['Доступ закрыт'],
-            analytics: ['Доступ закрыт'],
-            delivery: ['Доступ закрыт'],
             prices: ['Доступ закрыт'],
-            nomenclatures: ['Доступ закрыт'],
+            delivery: ['Доступ закрыт'],
+            analytics: ['Доступ закрыт'],
             buyers: ['Доступ закрыт'],
             seo: ['Доступ закрыт'],
+            nomenclatures: ['Доступ закрыт'],
+            reports: ['Доступ закрыт'],
         });
 
         setAddedMember({
@@ -218,7 +221,7 @@ export const AddMemberModal = ({
                             height: 0,
                             width: 300,
                         }}
-                        animate={{height: open ? 550 : 0}}
+                        animate={{height: open ? 610 : 0}}
                     >
                         <div
                             style={{

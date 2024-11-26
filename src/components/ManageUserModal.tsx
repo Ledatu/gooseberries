@@ -24,12 +24,13 @@ export const ManageUserModal = ({
 
     const [modulesEnabled, setModulesEnabled] = useState({
         massAdvert: ['Доступ закрыт'],
-        analytics: ['Доступ закрыт'],
-        delivery: ['Доступ закрыт'],
         prices: ['Доступ закрыт'],
-        nomenclatures: ['Доступ закрыт'],
+        delivery: ['Доступ закрыт'],
+        analytics: ['Доступ закрыт'],
         buyers: ['Доступ закрыт'],
         seo: ['Доступ закрыт'],
+        nomenclatures: ['Доступ закрыт'],
+        reports: ['Доступ закрыт'],
     });
 
     const mapModules = {
@@ -40,6 +41,7 @@ export const ManageUserModal = ({
         nomenclatures: 'Товары',
         buyers: 'Покупатели',
         seo: 'SEO',
+        reports: 'Отчеты',
     };
 
     const newModules = useMemo(() => {

@@ -264,9 +264,7 @@ export const Dashboard = ({setThemeAurum}) => {
         {
             id: 'reports',
             title: 'Отчеты',
-            disabled:
-                (!modules.includes('all') && !modules.includes('reports')) ||
-                ![933839157, 1122958293].includes(userInfo?.user?._id),
+            disabled: !modules.includes('all') && !modules.includes('reports'),
         },
         {
             icon: Key,
