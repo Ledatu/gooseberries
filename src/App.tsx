@@ -18,7 +18,13 @@ const GlobalAlert: React.FC = () => {
             {error && (
                 <Alert
                     theme="danger"
-                    style={{position: 'fixed', top: '85px', right: '20px', zIndex: 1000}}
+                    style={{
+                        position: 'fixed',
+                        top: '85px',
+                        right: '20px',
+                        zIndex: 10000,
+                        backdropFilter: 'blur(8px)',
+                    }}
                     message={error}
                 />
             )}

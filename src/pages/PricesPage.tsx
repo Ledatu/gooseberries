@@ -65,7 +65,7 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const PricesPage = ({permission}) => {
+export const PricesPage = ({permission, sellerId}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const today = new Date(
         new Date()
@@ -916,6 +916,7 @@ export const PricesPage = ({permission}) => {
                         </motion.div>
                         <div style={{minWidth: 8}} />
                         <CalcPricesModal
+                            sellerId={sellerId}
                             disabled={permission != 'Управление'}
                             dateRange={dateRange}
                             setPagesCurrent={setPagesCurrent}
