@@ -2137,7 +2137,7 @@ export const AdvertsWordsModal = ({
                         ) : (
                             <div style={{display: 'flex', flexDirection: 'column'}}>
                                 <Card
-                                    theme="success"
+                                    view="clear"
                                     style={{
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -2147,6 +2147,7 @@ export const AdvertsWordsModal = ({
                                     }}
                                 >
                                     <TheTable
+                                        theme="success"
                                         columnData={renameFirstColumn(
                                             columnDataSemantics,
                                             'Фразы в показах',
@@ -2188,7 +2189,7 @@ export const AdvertsWordsModal = ({
                                 </Card>
                                 <div style={{minHeight: 8}} />
                                 <Card
-                                    theme="danger"
+                                    view="clear"
                                     style={{
                                         height: 'calc(35vh - 96px)',
                                         overflow: 'auto',
@@ -2196,6 +2197,7 @@ export const AdvertsWordsModal = ({
                                     }}
                                 >
                                     <TheTable
+                                        theme="danger"
                                         columnData={renameFirstColumn(
                                             columnDataSemantics2,
                                             'Исключенные фразы',
