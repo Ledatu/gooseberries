@@ -566,7 +566,7 @@ export const PricesPage = ({permission, sellerId}) => {
 
     useEffect(() => {
         if (!selectValue) return;
-        const params = {seller_id: sellerId, campaignName: selectValue[0]};
+        const params = {uid: getUid(), campaignName: selectValue[0]};
         setGroupingFetching(true);
         callApi('getPricesGrouping', params).then((res) => {
             if (!res) return;
