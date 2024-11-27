@@ -13,12 +13,12 @@ import {
 import {Calculator, Plus, Xmark, Check, FileDollar} from '@gravity-ui/icons';
 import React, {useEffect, useMemo, useState} from 'react';
 import {motion} from 'framer-motion';
-import callApi, {getUid} from 'src/utilities/callApi';
 import {getNormalDateRange} from 'src/utilities/getRoundValue';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {DownloadPricesCalcTemplate} from './DownloadPricesCalcTemplate';
 import {useError} from 'src/pages/ErrorContext';
 import {UploadPricesCalcTemplate} from './UploadPricesCalcTemplate';
+import ApiClient from 'src/utilities/ApiClient';
 
 export const CalcPricesModal = ({
     sellerId,
@@ -114,6 +114,89 @@ export const CalcPricesModal = ({
         setEnableOborRuleSet(false);
         setOborRuleSet(temp);
         setOborRuleSetValidationState(tempValid);
+    };
+
+    const calcPrices = async () => {
+        try {
+            setCalculatingFlag(true);
+            const params = {
+                seller_id: sellerId,
+                campaignName: selectValue[0],
+                dateRange: getNormalDateRange(dateRange),
+                enteredValue: {},
+                fixPrices: fixPrices || enableOborRuleSet,
+            };
+
+            const keys = {
+                'Цена после скидки': 'rozPrice',
+                'Цена с СПП': 'sppPrice',
+                'Наценка к себестоимости': 'primeCostMarkup',
+                Рентабельность: 'rentabelnost',
+                Профит: 'profit',
+            };
+
+            const key = keys[selectValueEntered[0]];
+            params.enteredValue[key] = parseInt(enableOborRuleSet ? '-1' : enteredValue);
+
+            if (changeDiscount) {
+                params.enteredValue['discount'] = parseInt(enteredDiscountValue);
+            }
+
+            if (enableOborRuleSet) {
+                const tempOborRuleSet = {};
+                for (const [obor, val] of Object.entries(oborRuleSet)) {
+                    tempOborRuleSet[obor] = val !== '' ? parseInt(val) : undefined;
+                }
+                params.enteredValue['oborRuleSet'] = tempOborRuleSet;
+            }
+
+            const filters = {
+                brands: [] as string[],
+                objects: [] as string[],
+                arts: [] as string[],
+            };
+            for (let i = 0; i < filteredData.length; i++) {
+                const row = filteredData[i];
+                const {brand, object, art} = row ?? {};
+
+                if (!filters.brands.includes(brand)) filters.brands.push(brand);
+                if (!filters.objects.includes(object)) filters.objects.push(object);
+                if (!filters.arts.includes(art)) filters.arts.push(art);
+            }
+            params.enteredValue['filters'] = filters;
+
+            console.log(params);
+
+            for (const [art, artData] of Object.entries(lastCalcOldData)) {
+                doc['pricesData'][art] = artData;
+            }
+            setLastCalcOldData({});
+
+            console.log(params);
+            setEnteredValuesModalOpen(false);
+
+            const response = await ApiClient.post('prices/calc', params, 'json', true);
+            if (response && response.data) {
+                const tempOldData = {};
+                const resData = response.data;
+                for (const [art, artData] of Object.entries(resData['pricesData'])) {
+                    tempOldData[art] = doc['pricesData'][art];
+                    doc['pricesData'][art] = artData;
+                }
+
+                setCurrentPricesCalculatedBasedOn(key == 'primeCostMarkup' ? 'rozPrice' : key);
+                setLastCalcOldData(tempOldData);
+                setChangedDoc({...doc});
+                setPagesCurrent(1);
+            } else {
+                console.error('No data received from the API');
+            }
+            setCalculatingFlag(false);
+        } catch (error) {
+            console.error(error);
+            showError('Не удалось рассчитать цены.');
+            setCalculatingFlag(false);
+        }
     };
 
     return (
@@ -486,103 +569,7 @@ export const CalcPricesModal = ({
                                 }
                                 size="l"
                                 view="action"
-                                onClick={() => {
-                                    setCalculatingFlag(true);
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        dateRange: getNormalDateRange(dateRange),
-                                        enteredValue: {},
-                                        fixPrices: fixPrices || enableOborRuleSet,
-                                    };
-
-                                    const keys = {
-                                        'Цена после скидки': 'rozPrice',
-                                        'Цена с СПП': 'sppPrice',
-                                        'Наценка к себестоимости': 'primeCostMarkup',
-                                        Рентабельность: 'rentabelnost',
-                                        Профит: 'profit',
-                                    };
-
-                                    const key = keys[selectValueEntered[0]];
-                                    params.enteredValue[key] = parseInt(
-                                        enableOborRuleSet ? '-1' : enteredValue,
-                                    );
-                                    setCurrentPricesCalculatedBasedOn(
-                                        key == 'primeCostMarkup' ? 'rozPrice' : key,
-                                    );
-
-                                    if (changeDiscount) {
-                                        params.enteredValue['discount'] =
-                                            parseInt(enteredDiscountValue);
-                                    }
-
-                                    if (enableOborRuleSet) {
-                                        const tempOborRuleSet = {};
-                                        for (const [obor, val] of Object.entries(oborRuleSet)) {
-                                            tempOborRuleSet[obor] =
-                                                val !== '' ? parseInt(val) : undefined;
-                                        }
-                                        params.enteredValue['oborRuleSet'] = tempOborRuleSet;
-                                    }
-
-                                    const filters = {
-                                        brands: [] as string[],
-                                        objects: [] as string[],
-                                        arts: [] as string[],
-                                    };
-                                    for (let i = 0; i < filteredData.length; i++) {
-                                        const row = filteredData[i];
-                                        const {brand, object, art} = row ?? {};
-
-                                        if (!filters.brands.includes(brand))
-                                            filters.brands.push(brand);
-                                        if (!filters.objects.includes(object))
-                                            filters.objects.push(object);
-                                        if (!filters.arts.includes(art)) filters.arts.push(art);
-                                    }
-                                    params.enteredValue['filters'] = filters;
-
-                                    console.log(params);
-
-                                    for (const [art, artData] of Object.entries(lastCalcOldData)) {
-                                        doc['pricesData'][selectValue[0]][art] = artData;
-                                    }
-                                    setLastCalcOldData({});
-
-                                    /////////////////////////
-                                    callApi('getPricesMM', params, true)
-                                        .then((res) => {
-                                            if (!res) return;
-
-                                            const tempOldData = {};
-                                            const resData = res['data'];
-                                            for (const [art, artData] of Object.entries(
-                                                resData['pricesData'][selectValue[0]],
-                                            )) {
-                                                tempOldData[art] =
-                                                    doc['pricesData'][selectValue[0]][art];
-
-                                                doc['pricesData'][selectValue[0]][art] = artData;
-                                            }
-                                            doc['artsData'][selectValue[0]] =
-                                                resData['artsData'][selectValue[0]];
-
-                                            setLastCalcOldData(tempOldData);
-
-                                            setChangedDoc({...doc});
-                                        })
-                                        .catch(() => {
-                                            showError('Не удалось рассчитать цены.');
-                                        })
-                                        .finally(() => {
-                                            setCalculatingFlag(false);
-                                            setPagesCurrent(1);
-                                        });
-                                    setEnteredValuesModalOpen(false);
-
-                                    /////////////////////////
-                                }}
+                                onClick={calcPrices}
                             >
                                 <Icon data={Calculator}></Icon>
                                 Рассчитать

@@ -13,7 +13,6 @@ import {
     CloudArrowUpIn,
 } from '@gravity-ui/icons';
 
-import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare} from 'src/components/TheTable';
 import {
     defaultRender,
@@ -26,47 +25,18 @@ import {
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import {motion} from 'framer-motion';
 import {RangePicker} from 'src/components/RangePicker';
-import {useUser} from 'src/components/RequireAuth';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
 import {CalcPricesModal} from 'src/components/CalcPricesModal';
 import {CalcUnitEconomyModal} from 'src/components/CalcUnitEconomyModal';
 import {CopyButton} from 'src/components/CopyButton';
-
-const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
-    const {userInfo} = useUser();
-    const {campaigns} = userInfo ?? {};
-    const [doc, setDocument] = useState<any>();
-
-    if (docum) {
-        console.log(docum, mode, selectValue);
-
-        if (mode) {
-            doc['pricesData'][selectValue] = docum['pricesData'][selectValue];
-            doc['artsData'][selectValue] = docum['artsData'][selectValue];
-            doc['fixArtPrices'][selectValue] = docum['fixArtPrices'][selectValue];
-        }
-        setDocument(docum);
-    }
-
-    useEffect(() => {
-        callApi(
-            'getPricesMM',
-            {
-                uid: getUid(),
-                dateRange: getNormalDateRange(dateRange),
-                campaignName: selectValue != '' ? selectValue : campaigns[0]?.name,
-            },
-            true,
-        )
-            .then((response) => setDocument(response ? response['data'] : undefined))
-            .catch((error) => console.error(error));
-    }, []);
-    return doc;
-};
+import ApiClient from 'src/utilities/ApiClient';
+import {useError} from './ErrorContext';
+import callApi, {getUid} from 'src/utilities/callApi';
 
 export const PricesPage = ({permission, sellerId}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
+    const {showError} = useError();
     const today = new Date(
         new Date()
             .toLocaleDateString('ru-RU')
@@ -89,7 +59,6 @@ export const PricesPage = ({permission, sellerId}) => {
     const [groupingFetching, setGroupingFetching] = useState(false);
 
     const [selectedButton, setSelectedButton] = useState('');
-    const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
@@ -147,7 +116,7 @@ export const PricesPage = ({permission, sellerId}) => {
         })();
 
         const isFixed = (() => {
-            const temp = doc.fixArtPrices[selectValue[0]][nmId];
+            const temp = doc?.fixArtPrices?.[nmId];
             if (temp === undefined) return false;
             for (const key of keys) {
                 if (temp['enteredValue'][key] !== undefined) return true;
@@ -155,16 +124,12 @@ export const PricesPage = ({permission, sellerId}) => {
             return false;
         })();
 
-        const hasOld = doc.fixArtPrices[selectValue[0]][nmId]
-            ? doc.fixArtPrices[selectValue[0]][nmId].old
-            : false;
+        const hasOld = doc?.fixArtPrices?.[nmId]?.old ?? false;
 
-        const isPaused = doc.fixArtPrices[selectValue[0]][nmId]
-            ? doc.fixArtPrices[selectValue[0]][nmId].paused
-            : false;
+        const isPaused = doc?.fixArtPrices?.[nmId]?.paused ?? false;
 
         const oborFixedRuleSet = (() => {
-            const temp = doc.fixArtPrices[selectValue[0]][nmId];
+            const temp = doc?.fixArtPrices?.[nmId];
             if (temp === undefined) return undefined;
 
             return temp['enteredValue']['oborRuleSet'];
@@ -403,7 +368,7 @@ export const PricesPage = ({permission, sellerId}) => {
             placeholder: (
                 <Link
                     onClick={() => {
-                        if (currentPricesCalculatedBasedOn == 'rozPrice') setDateChangeRecalc(true);
+                        if (currentPricesCalculatedBasedOn == 'rozPrice') setUpdatingFlag(true);
                     }}
                 >
                     <Text
@@ -440,7 +405,7 @@ export const PricesPage = ({permission, sellerId}) => {
             placeholder: (
                 <Link
                     onClick={() => {
-                        if (currentPricesCalculatedBasedOn == 'sppPrice') setDateChangeRecalc(true);
+                        if (currentPricesCalculatedBasedOn == 'sppPrice') setUpdatingFlag(true);
                     }}
                 >
                     <Text
@@ -570,9 +535,38 @@ export const PricesPage = ({permission, sellerId}) => {
 
     const [updatePricesModalOpen, setUpdatePricesModalOpen] = useState(false);
 
+    const getPrices = async () => {
+        setSwitchingCampaignsFlag(true);
+        try {
+            const params = {
+                seller_id: sellerId,
+                campaignName: selectValue[0],
+                dateRange: getNormalDateRange(dateRange),
+            };
+
+            console.log(params);
+
+            const response = await ApiClient.post('prices/calc', params, 'json', true);
+            console.log(response?.data);
+
+            if (response && response.data) {
+                setCurrentPricesCalculatedBasedOn('');
+                setLastCalcOldData({});
+                setDoc({...response.data});
+                setPagesCurrent(1);
+            } else {
+                console.error('No data received from the API');
+            }
+        } catch (error) {
+            console.error(error);
+            showError('Не удалось рассчитать цены.');
+        }
+        setSwitchingCampaignsFlag(false);
+    };
+
     useEffect(() => {
         if (!selectValue) return;
-        const params = {uid: getUid(), campaignName: selectValue[0]};
+        const params = {seller_id: sellerId, campaignName: selectValue[0]};
         setGroupingFetching(true);
         callApi('getPricesGrouping', params).then((res) => {
             if (!res) return;
@@ -583,80 +577,24 @@ export const PricesPage = ({permission, sellerId}) => {
             ]);
             setGroupingFetching(false);
         });
-        setSwitchingCampaignsFlag(true);
 
-        if (!doc) return;
-
-        if (!Object.keys(doc['pricesData'][selectValue[0]]).length) {
-            callApi(
-                'getPricesMM',
-                {
-                    uid: getUid(),
-                    campaignName: selectValue,
-                    dateRange: getNormalDateRange(dateRange),
-                },
-                true,
-            ).then((res) => {
-                if (!res) return;
-                const resData = res['data'];
-                doc['pricesData'][selectValue[0]] = resData['pricesData'][selectValue[0]];
-                doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
-                doc['fixArtPrices'][selectValue[0]] = resData['fixArtPrices'][selectValue[0]];
-
-                setChangedDoc({...doc});
-
-                setSwitchingCampaignsFlag(false);
-                console.log(doc);
-            });
-        } else {
-            setSwitchingCampaignsFlag(false);
-        }
-        recalc(selectValue[0], filters);
-        setPagesCurrent(1);
+        getPrices();
     }, [selectValue]);
 
     const [updatingFlag, setUpdatingFlag] = useState(false);
 
-    const [changedDoc, setChangedDoc] = useState<any>(undefined);
-    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+    useEffect(() => {
+        if (!updatingFlag) return;
+        getPrices().then(() => setUpdatingFlag(false));
+    }, [updatingFlag]);
 
     const [lastCalcOldData, setLastCalcOldData] = useState({});
 
-    const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
+    const [doc, setDoc] = useState(undefined as undefined | {pricesData: {}; fixArtPrices: {}});
 
-    if (dateChangeRecalc) {
-        setUpdatingFlag(true);
-        setDateChangeRecalc(false);
-        setCurrentPricesCalculatedBasedOn('');
-        setLastCalcOldData({});
-
-        callApi(
-            'getPricesMM',
-            {
-                uid: getUid(),
-                campaignName: selectValue[0],
-                dateRange: getNormalDateRange(dateRange),
-            },
-            true,
-        ).then((res) => {
-            if (!res) return;
-            const resData = res['data'];
-            doc['pricesData'][selectValue[0]] = resData['pricesData'][selectValue[0]];
-            doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
-            doc['fixArtPrices'][selectValue[0]] = resData['fixArtPrices'][selectValue[0]];
-
-            setChangedDoc({...doc});
-
-            setDateChangeRecalc(false);
-            setUpdatingFlag(false);
-            console.log(doc);
-        });
-
-        setPagesCurrent(1);
-    }
-
-    const recalc = (selected = '', withfFilters = {}) => {
-        const campaignData = doc ? doc.pricesData[selected == '' ? selectValue[0] : selected] : {};
+    const recalc = (withfFilters = {}) => {
+        const campaignData = doc?.pricesData ?? {};
+        console.log(campaignData);
 
         const temp = {};
         for (const [art, artData] of Object.entries(campaignData)) {
@@ -746,6 +684,12 @@ export const PricesPage = ({permission, sellerId}) => {
 
         filterTableData(withfFilters, temp);
     };
+
+    useEffect(() => {
+        console.log('hrereee', doc);
+
+        recalc();
+    }, [doc]);
 
     const [filteredSummary, setFilteredSummary] = useState({});
 
@@ -847,21 +791,7 @@ export const PricesPage = ({permission, sellerId}) => {
         setFilteredData(temp);
     };
 
-    const [firstRecalc, setFirstRecalc] = useState(false);
-
-    if (changedDoc) {
-        setChangedDoc(undefined);
-        setChangedDocUpdateType(false);
-        recalc();
-    }
-
     if (!doc) return <Spin />;
-    if (!firstRecalc) {
-        console.log(doc);
-        recalc(selectValue[0]);
-        setFirstRecalc(true);
-        setSwitchingCampaignsFlag(false);
-    }
 
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
@@ -897,7 +827,7 @@ export const PricesPage = ({permission, sellerId}) => {
                             size="l"
                             view="action"
                             onClick={() => {
-                                setDateChangeRecalc(true);
+                                setUpdatingFlag(true);
                             }}
                         >
                             <Icon data={ArrowsRotateLeft} />
@@ -921,7 +851,7 @@ export const PricesPage = ({permission, sellerId}) => {
                             dateRange={dateRange}
                             setPagesCurrent={setPagesCurrent}
                             doc={doc}
-                            setChangedDoc={setChangedDoc}
+                            setChangedDoc={setDoc}
                             filteredData={filteredData}
                             lastCalcOldData={lastCalcOldData}
                             setLastCalcOldData={setLastCalcOldData}
@@ -1041,26 +971,16 @@ export const PricesPage = ({permission, sellerId}) => {
                                                         }
                                                         //// local fixed
                                                         if (fixPrices !== undefined) {
-                                                            doc.fixArtPrices[selectValue[0]][nmId] =
-                                                                {};
-                                                            doc.fixArtPrices[selectValue[0]][
-                                                                nmId
-                                                            ].enteredValue = fixPrices;
+                                                            doc.fixArtPrices[nmId] = {};
+                                                            doc.fixArtPrices[nmId].enteredValue =
+                                                                fixPrices;
                                                         } else {
-                                                            if (
-                                                                !doc.fixArtPrices[selectValue[0]][
-                                                                    nmId
-                                                                ]
-                                                            )
-                                                                continue;
-                                                            delete doc.fixArtPrices[selectValue[0]][
-                                                                nmId
-                                                            ];
+                                                            if (!doc.fixArtPrices[nmId]) continue;
+                                                            delete doc.fixArtPrices[nmId];
                                                         }
 
-                                                        doc.pricesData[selectValue[0]][art][
-                                                            'fixPrices'
-                                                        ] = undefined;
+                                                        doc.pricesData[art]['fixPrices'] =
+                                                            undefined;
                                                     }
                                                 }
 
@@ -1077,7 +997,7 @@ export const PricesPage = ({permission, sellerId}) => {
                                                     params.updatePricesParams.data.push(nmIdData);
                                                 }
 
-                                                setChangedDoc({...doc});
+                                                setDoc({...doc});
 
                                                 console.log(params);
                                                 console.log(paramsFix);
@@ -1123,7 +1043,7 @@ export const PricesPage = ({permission, sellerId}) => {
                             callApi('setPricesGrouping', params)
                                 .then((res) => {
                                     console.log(res);
-                                    setDateChangeRecalc(true);
+                                    setUpdatingFlag(true);
                                 })
                                 .catch((e) => {
                                     console.log(e);
@@ -1163,7 +1083,7 @@ export const PricesPage = ({permission, sellerId}) => {
                     <div style={{minWidth: 8}} />
                     <RangePicker
                         args={{
-                            recalc: () => setDateChangeRecalc(true),
+                            recalc: () => setUpdatingFlag(true),
                             dateRange,
                             setDateRange,
                             anchorRef,
