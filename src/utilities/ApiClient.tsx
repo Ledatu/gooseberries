@@ -1,3 +1,4 @@
+// ApiClient.tsx
 import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 
 const {ipAddress} = require('../ipAddress');
@@ -26,8 +27,17 @@ class ApiClient {
         responseType: 'json' | 'blob' = 'json',
         retry = false,
         cancelToken: any = null,
+        additionalConfig: AxiosRequestConfig = {},
     ): Promise<AxiosResponse<any> | undefined> {
-        return this.request(endpoint, 'post', params, responseType, retry, cancelToken);
+        return this.request(
+            endpoint,
+            'post',
+            params,
+            responseType,
+            retry,
+            cancelToken,
+            additionalConfig,
+        );
     }
 
     private async request(
@@ -37,9 +47,13 @@ class ApiClient {
         responseType: 'json' | 'blob' = 'json',
         retry = false,
         cancelToken: any = null,
+        additionalConfig: AxiosRequestConfig = {},
     ): Promise<AxiosResponse<any> | undefined> {
         const maxRetries = retry ? 5 : 1;
         const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        const authHeader = `Bearer ${this.authToken}`;
+        if (additionalConfig.headers) additionalConfig.headers.Authorization = authHeader;
 
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
@@ -47,10 +61,11 @@ class ApiClient {
                     url: `${this.baseUrl}/api/${endpoint}`,
                     method,
                     headers: {
-                        Authorization: `Bearer ${this.authToken}`,
+                        Authorization: authHeader,
                     },
                     responseType,
                     cancelToken,
+                    ...additionalConfig, // Spread additional config here
                 };
 
                 // For GET requests, use `params` as query parameters

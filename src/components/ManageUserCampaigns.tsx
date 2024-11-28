@@ -8,6 +8,7 @@ import {ManageUserModal} from './ManageUserModal';
 import {ChangeApiModal} from './ChangeApiModal';
 import {motion} from 'framer-motion';
 import {AddApiModal} from './AddApiModal';
+import {useCampaign} from 'src/contexts/CampaignContext';
 
 const EditMemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, modules}) => {
     return (
@@ -83,6 +84,7 @@ const CampaignInfo = ({
     addedMember,
     setAddedMember,
 }) => {
+    const {setSelectValue} = useCampaign();
     const membersInfo = [] as any[];
     for (const member of members) {
         if (member?.member_id?._id === ownerDetails?._id) continue;
@@ -150,7 +152,14 @@ const CampaignInfo = ({
                             }}
                         >
                             <Text style={{marginRight: 16}} variant="header-2">
-                                {name}
+                                <Link
+                                    view="primary"
+                                    onClick={() => {
+                                        setSelectValue([name]);
+                                    }}
+                                >
+                                    {name}
+                                </Link>
                             </Text>
                             <ChangeApiModal sellerId={sellerId}>
                                 <Button

@@ -116,6 +116,18 @@ export const CalcPricesModal = ({
         setOborRuleSetValidationState(tempValid);
     };
 
+    const parseResponse = (response) => {
+        const tempOldData = {};
+        for (const [art, artData] of Object.entries(response['pricesData'])) {
+            tempOldData[art] = doc['pricesData'][art];
+            doc['pricesData'][art] = artData;
+        }
+
+        setLastCalcOldData(tempOldData);
+        setChangedDoc({...doc});
+        setPagesCurrent(1);
+    };
+
     const calcPrices = async () => {
         try {
             setCalculatingFlag(true);
@@ -177,17 +189,8 @@ export const CalcPricesModal = ({
 
             const response = await ApiClient.post('prices/calc', params, 'json', true);
             if (response && response.data) {
-                const tempOldData = {};
-                const resData = response.data;
-                for (const [art, artData] of Object.entries(resData['pricesData'])) {
-                    tempOldData[art] = doc['pricesData'][art];
-                    doc['pricesData'][art] = artData;
-                }
-
                 setCurrentPricesCalculatedBasedOn(key == 'primeCostMarkup' ? 'rozPrice' : key);
-                setLastCalcOldData(tempOldData);
-                setChangedDoc({...doc});
-                setPagesCurrent(1);
+                parseResponse(response.data);
             } else {
                 console.error('No data received from the API');
             }
@@ -549,31 +552,6 @@ export const CalcPricesModal = ({
                                 onUpdate={(val) => setEnableOborRuleSet(val)}
                                 content="Задать для оборачиваемости"
                             />
-                            <div style={{minHeight: 8}} />
-                            <Checkbox
-                                size="l"
-                                content={'Зафиксировать цены'}
-                                checked={fixPrices || enableOborRuleSet}
-                                onUpdate={(val) => {
-                                    setFixPrices(val);
-                                }}
-                            />
-
-                            <div style={{minHeight: 8}} />
-                            <Button
-                                disabled={
-                                    disabled ||
-                                    (!enableOborRuleSet && !enteredValueValid) ||
-                                    (changeDiscount && !enteredDiscountValueValid) ||
-                                    (enableOborRuleSet && !isOborRuleSetValid)
-                                }
-                                size="l"
-                                view="action"
-                                onClick={calcPrices}
-                            >
-                                <Icon data={Calculator}></Icon>
-                                Рассчитать
-                            </Button>
                         </motion.div>
                         <motion.div
                             animate={{
@@ -594,7 +572,57 @@ export const CalcPricesModal = ({
                                 filteredData={filteredData}
                             />
                             <div style={{minHeight: 8}} />
-                            <UploadPricesCalcTemplate />
+                            <UploadPricesCalcTemplate
+                                sellerId={sellerId}
+                                fixPrices={fixPrices}
+                                dateRange={dateRange}
+                                parseResponse={parseResponse}
+                            />
+                        </motion.div>
+                        <motion.div
+                            style={{
+                                marginTop: 8,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Checkbox
+                                size="l"
+                                content={'Зафиксировать цены'}
+                                checked={fixPrices || enableOborRuleSet}
+                                onUpdate={(val) => {
+                                    setFixPrices(val);
+                                }}
+                            />
+                        </motion.div>
+                        <motion.div
+                            animate={{
+                                maxHeight: !useFile ? 44 : 0,
+                                marginTop: !useFile ? 8 : 0,
+                                overflow: 'hidden',
+                            }}
+                            style={{
+                                maxHeight: 0,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Button
+                                disabled={
+                                    disabled ||
+                                    (!enableOborRuleSet && !enteredValueValid) ||
+                                    (changeDiscount && !enteredDiscountValueValid) ||
+                                    (enableOborRuleSet && !isOborRuleSetValid)
+                                }
+                                size="l"
+                                view="action"
+                                onClick={calcPrices}
+                            >
+                                <Icon data={Calculator}></Icon>
+                                Рассчитать
+                            </Button>
                         </motion.div>
                     </motion.div>
                 </Card>

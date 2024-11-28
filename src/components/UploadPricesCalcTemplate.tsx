@@ -1,86 +1,45 @@
 import {Button, Icon, Text} from '@gravity-ui/uikit';
 import {FileArrowUp} from '@gravity-ui/icons';
 import React, {useId, useState} from 'react';
-import {useCampaign} from 'src/contexts/CampaignContext';
 import {useError} from 'src/pages/ErrorContext';
-import {getUid} from 'src/utilities/callApi';
-import axios from 'axios';
+import {uploadFile} from 'src/utilities/uploadFile';
+import {getNormalDateRange} from 'src/utilities/getRoundValue';
 
-export const UploadPricesCalcTemplate = () => {
-    const {selectValue} = useCampaign();
+export const UploadPricesCalcTemplate = ({sellerId, fixPrices, dateRange, parseResponse}) => {
     const {showError} = useError();
     const uploadId = useId();
     const [uploadProgress, setUploadProgress] = useState(0);
 
-    async function handleChange(event) {
+    const handleUpload = async (event) => {
         const file = event.target.files[0];
 
-        if (!file || !file.name.includes('.xlsx')) {
-            setUploadProgress(-1);
+        if (!file) {
+            console.error('No file selected');
             return;
         }
 
-        event.preventDefault();
-        const url = 'https://seller.aurum-sky.net/api/calcPricesFromFile';
-        const formData = new FormData();
-
-        formData.append('uid', getUid());
-        formData.append('campaignName', selectValue[0]);
-        formData.append('file', file);
-
-        for (const value of formData.values()) {
-            console.log(value);
-        }
-
-        const token =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            onUploadProgress: function (progressEvent) {
-                const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total,
-                );
-                setUploadProgress(percentCompleted);
-            },
+        const params = {
+            seller_id: sellerId,
+            fixPrices,
+            dateRange: getNormalDateRange(dateRange),
         };
 
+        console.log(params);
+
         try {
-            const response = await axios.post(url, formData, config);
-            console.log(response.data);
+            const response = await uploadFile(file, params, 'prices/calc-template');
             if (response) {
-            }
-        } catch (error) {
-            setUploadProgress(-1);
-            showError('Не удалось загрузить файл.');
-
-            console.error('Error uploading file: ', error);
-            if (error.response) {
-                // Server responded with a status other than 200 range
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-                console.error('Response headers:', error.response.headers);
-            } else if (error.request) {
-                // Request was made but no response received
-                console.error('Request data:', error.request);
+                parseResponse(response);
             } else {
-                // Something happened in setting up the request
-                console.error('Error message:', error.message);
+                console.error('No response from the API');
+                showError('Не удалось рассчитать цены.');
             }
-
-            // Capture detailed error for debugging
-            console.error({
-                message: error.message,
-                name: error.name,
-                stack: error.stack,
-                config: error.config,
-                code: error.code,
-                status: error.response ? error.response.status : null,
-            });
+            console.log('Response:', response);
+        } catch (error) {
+            console.error('Error during file upload and calculation:', error);
+            showError('Не удалось рассчитать цены.');
         }
-    }
+    };
 
     return (
         <label htmlFor={uploadId}>
@@ -127,7 +86,8 @@ export const UploadPricesCalcTemplate = () => {
                             left: 0,
                         }}
                         type="file"
-                        onChange={handleChange}
+                        accept=".xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        onChange={handleUpload}
                     />
                 </Text>
             </Button>
