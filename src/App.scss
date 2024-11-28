@@ -13,6 +13,13 @@
     outline: none;
 }
 
+.tabs {
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+    flex-wrap: nowrap !important;
+}
+
 .app {
     display: flex;
     flex-direction: column;

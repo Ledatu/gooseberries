@@ -407,7 +407,6 @@ export const Dashboard = ({setThemeAurum}) => {
                             display: 'flex',
                             width: '100%',
                             justifyContent: 'space-around',
-                            flexWrap: 'wrap',
                             position: 'absolute',
                             top: 0,
                         }}
@@ -433,13 +432,14 @@ export const Dashboard = ({setThemeAurum}) => {
                                         display: 'flex',
                                         flexDirection: 'row',
                                         justifyContent: 'space-between',
-                                        flexWrap: 'wrap',
                                         alignItems: 'center',
                                     }}
                                 >
                                     <div
                                         style={{
+                                            width: '100%',
                                             display: 'flex',
+                                            overflow: 'hidden',
                                             flexDirection: 'row',
                                             alignItems: 'center',
                                         }}
@@ -471,6 +471,7 @@ export const Dashboard = ({setThemeAurum}) => {
                                             }}
                                         >
                                             <Tabs
+                                                className="tabs"
                                                 wrapTo={renderTabItem}
                                                 activeTab={page}
                                                 items={optionsPages.filter(
