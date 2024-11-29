@@ -5,7 +5,14 @@ import {useError} from 'src/pages/ErrorContext';
 import {uploadFile} from 'src/utilities/uploadFile';
 import {getNormalDateRange} from 'src/utilities/getRoundValue';
 
-export const UploadPricesCalcTemplate = ({sellerId, fixPrices, dateRange, parseResponse}) => {
+export const UploadPricesCalcTemplate = ({
+    sellerId,
+    fixPrices,
+    dateRange,
+    parseResponse,
+    setOpen,
+    setCalculatingFlag,
+}) => {
     const {showError} = useError();
     const uploadId = useId();
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -26,6 +33,8 @@ export const UploadPricesCalcTemplate = ({sellerId, fixPrices, dateRange, parseR
 
         console.log(params);
 
+        setOpen(false);
+        setCalculatingFlag(true);
         try {
             const response = await uploadFile(file, params, 'prices/calc-template');
             if (response) {
@@ -39,6 +48,7 @@ export const UploadPricesCalcTemplate = ({sellerId, fixPrices, dateRange, parseR
             console.error('Error during file upload and calculation:', error);
             showError('Не удалось рассчитать цены.');
         }
+        setCalculatingFlag(false);
     };
 
     return (

@@ -102,7 +102,12 @@ export const PricesPage = ({permission, sellerId}) => {
         );
     };
 
-    const fixedPriceRender = (args, keys, defaultRenderFunctionRes) => {
+    const fixedPriceRender = (
+        args,
+        keys,
+        defaultRenderFunctionRes,
+        renderSecondaryIfNoMatch = false,
+    ) => {
         const {row} = args;
 
         const {nmId, art} = row;
@@ -115,13 +120,14 @@ export const PricesPage = ({permission, sellerId}) => {
             return false;
         })();
 
-        const isFixed = (() => {
+        const [isFixed, fixVal] = (() => {
             const temp = doc?.fixArtPrices?.[nmId];
-            if (temp === undefined) return false;
+            if (temp === undefined) return [false, undefined];
             for (const key of keys) {
-                if (temp['enteredValue'][key] !== undefined) return true;
+                const tempVal = temp['enteredValue'][key];
+                if (tempVal !== undefined) return [true, tempVal];
             }
-            return false;
+            return [false, undefined];
         })();
 
         const hasOld = doc?.fixArtPrices?.[nmId]?.old ?? false;
@@ -138,9 +144,18 @@ export const PricesPage = ({permission, sellerId}) => {
         if (!isFixedByKey && !isFixed) return defaultRenderFunctionRes;
 
         return (
-            <div style={{display: 'flex', flexDirection: 'row'}}>
+            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                 {defaultRenderFunctionRes}
                 <div style={{minWidth: 4}} />
+                {renderSecondaryIfNoMatch &&
+                fixVal &&
+                fixVal != defaultRenderFunctionRes.replace(/\s/g, '') ? (
+                    <Text style={{marginRight: 4}} color="secondary" variant="caption-2">
+                        {fixVal}
+                    </Text>
+                ) : (
+                    <></>
+                )}
                 <Text
                     color={
                         isPaused

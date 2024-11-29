@@ -577,6 +577,8 @@ export const CalcPricesModal = ({
                                 fixPrices={fixPrices}
                                 dateRange={dateRange}
                                 parseResponse={parseResponse}
+                                setCalculatingFlag={setCalculatingFlag}
+                                setOpen={setEnteredValuesModalOpen}
                             />
                         </motion.div>
                         <motion.div
