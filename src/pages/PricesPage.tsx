@@ -102,74 +102,43 @@ export const PricesPage = ({permission, sellerId}) => {
         );
     };
 
-    const fixedPriceRender = (
-        args,
-        keys,
-        defaultRenderFunctionRes,
-        renderSecondaryIfNoMatch = false,
-    ) => {
+    const fixedPriceRender = (args, keys, defaultRenderFunctionRes) => {
         const {row} = args;
+        const {nmId, fixPrices, art} = row;
 
-        const {nmId, art} = row;
+        const currentFixKey = fixPrices
+            ? Object.keys(fixPrices).filter((key) => key != 'oborRuleSet' && key != 'discount')[0]
+            : undefined;
 
-        const isFixedByKey = (() => {
-            if (row['fixPrices'] === undefined) return false;
-            for (const key of keys) {
-                if (row['fixPrices'][key] !== undefined) return true;
-            }
-            return false;
-        })();
+        const oldFixKey = doc?.fixArtPrices?.[nmId]
+            ? Object.keys(doc?.fixArtPrices?.[nmId]?.enteredValue).filter(
+                  (key) => key != 'oborRuleSet' && key != 'discount',
+              )[0]
+            : undefined;
 
-        const [isFixed, fixVal] = (() => {
-            const temp = doc?.fixArtPrices?.[nmId];
-            if (temp === undefined) return [false, undefined];
-            for (const key of keys) {
-                const tempVal = temp['enteredValue'][key];
-                if (tempVal !== undefined) return [true, tempVal];
-            }
-            return [false, undefined];
-        })();
+        const curCellIsNew = keys?.includes(currentFixKey);
+        const curCellIsOld = keys?.includes(oldFixKey);
+
+        const oborRuleSet = curCellIsNew
+            ? fixPrices?.oborRuleSet
+            : doc?.fixArtPrices?.[nmId]?.enteredValue?.oborRuleSet;
 
         const hasOld = doc?.fixArtPrices?.[nmId]?.old ?? false;
 
-        const isPaused = doc?.fixArtPrices?.[nmId]?.paused ?? false;
-
-        const oborFixedRuleSet = (() => {
-            const temp = doc?.fixArtPrices?.[nmId];
-            if (temp === undefined) return undefined;
-
-            return temp['enteredValue']['oborRuleSet'];
-        })();
-
-        if (!isFixedByKey && !isFixed) return defaultRenderFunctionRes;
+        if (!curCellIsNew && !curCellIsOld) return defaultRenderFunctionRes;
 
         return (
             <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                 {defaultRenderFunctionRes}
                 <div style={{minWidth: 4}} />
-                {renderSecondaryIfNoMatch &&
-                fixVal &&
-                fixVal != defaultRenderFunctionRes.replace(/\s/g, '') ? (
-                    <Text style={{marginRight: 4}} color="secondary" variant="caption-2">
-                        {fixVal}
-                    </Text>
-                ) : (
-                    <></>
-                )}
                 <Text
                     color={
-                        isPaused
-                            ? 'secondary'
-                            : isFixedByKey
-                            ? 'brand'
-                            : isFixed && lastCalcOldData[art] === undefined
-                            ? 'positive'
-                            : 'danger'
+                        curCellIsNew ? 'brand' : oldFixKey && !currentFixKey ? 'positive' : 'danger'
                     }
                 >
-                    <Icon data={isFixedByKey ? LockOpen : isFixed ? Lock : Lock} />
+                    <Icon data={curCellIsNew ? LockOpen : Lock} />
                 </Text>
-                {oborFixedRuleSet ? (
+                {oborRuleSet ? (
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         <div style={{minWidth: 4}} />
                         <Popover
@@ -202,13 +171,11 @@ export const PricesPage = ({permission, sellerId}) => {
                                         {(() => {
                                             let oborPrev = -1;
                                             const oborTextInputs = [] as any[];
-                                            for (const [obor, _] of Object.entries(
-                                                oborFixedRuleSet,
-                                            )) {
+                                            for (const [obor, _] of Object.entries(oborRuleSet)) {
                                                 oborTextInputs.push(
                                                     <div style={{width: '8em', margin: '0 4px'}}>
                                                         {generateTextInputWithNoteOnTop({
-                                                            value: oborFixedRuleSet[obor],
+                                                            value: oborRuleSet[obor],
                                                             disabled: true,
                                                             validationState: true,
                                                             placeholder: `${
@@ -229,9 +196,9 @@ export const PricesPage = ({permission, sellerId}) => {
                         >
                             <Text
                                 color={
-                                    isFixedByKey
+                                    curCellIsNew
                                         ? 'brand'
-                                        : isFixed && lastCalcOldData[art] === undefined
+                                        : oldFixKey && !currentFixKey
                                         ? 'positive'
                                         : 'danger'
                                 }
@@ -243,7 +210,7 @@ export const PricesPage = ({permission, sellerId}) => {
                 ) : (
                     <></>
                 )}
-                {hasOld ? (
+                {hasOld && !curCellIsNew ? (
                     <Text
                         style={{marginLeft: 4}}
                         color={lastCalcOldData[art] === undefined ? 'positive' : 'danger'}
