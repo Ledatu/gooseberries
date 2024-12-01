@@ -7,6 +7,7 @@ interface CopyButtonInterface {
     pin?: ButtonPin;
     view?: ButtonView;
     size?: ButtonSize;
+    selected?: boolean;
     color?: (typeof TEXT_COLORS)[number];
     iconSize?: number;
     copyText: string;
@@ -17,6 +18,7 @@ export const CopyButton = ({
     pin,
     view,
     size,
+    selected,
     iconSize,
     copyText,
 }: CopyButtonInterface) => {
@@ -26,6 +28,7 @@ export const CopyButton = ({
         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
             {children}
             <Button
+                selected={selected}
                 pin={pin}
                 view={view}
                 size={size}

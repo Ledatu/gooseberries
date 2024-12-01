@@ -1,64 +1,30 @@
-import React, {ReactNode, useEffect, useId, useRef, useState} from 'react';
-import {Spin, Icon, Button, Text, Modal, TextInput, Label, Link, Card} from '@gravity-ui/uikit';
+import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
+import {Spin, Icon, Button, Text, Modal, TextInput, Link, Card, Loader} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
-
-const {ipAddress} = require('../ipAddress');
-
-import {FileArrowUp, FileArrowDown, Pencil, CloudArrowUpIn, TrashBin} from '@gravity-ui/icons';
-
+import {Pencil, CloudArrowUpIn, TrashBin, ArrowsRotateLeft} from '@gravity-ui/icons';
 import callApi, {getUid} from 'src/utilities/callApi';
-import axios from 'axios';
 import TheTable, {compare} from 'src/components/TheTable';
 import {generateModalButtonWithActions} from './MassAdvertPage';
 import {getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
-import {useUser} from 'src/components/RequireAuth';
 import {NomenclaturesPageEditParameter} from 'src/components/NomenclaturesPageEditParameter';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {TagsFilterModal} from 'src/components/TagsFilterModal';
 import {motion} from 'framer-motion';
+import {UploadNomenclaturesTemplate} from 'src/components/UploadNomenclaturesTemplate';
+import {DownloadNomenclaturesTemplate} from 'src/components/DownloadNomenclaturesTemplate';
+import ApiClient from 'src/utilities/ApiClient';
+import {useError} from './ErrorContext';
+import {CopyButton} from 'src/components/CopyButton';
+import {SetArtStatusModal} from 'src/components/SetArtStatusModal';
 
-const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
-    const {userInfo} = useUser();
-    const {campaigns} = userInfo ?? {};
-    const [doc, setDocument] = useState<any>();
-
-    if (docum) {
-        console.log(docum, mode, selectValue);
-
-        if (mode) {
-            doc['nomenclatures'][selectValue] = docum['nomenclatures'][selectValue];
-            doc['artsData'][selectValue] = docum['artsData'][selectValue];
-        }
-        setDocument(docum);
-    }
-
-    useEffect(() => {
-        callApi(
-            'getNomenclatures',
-            {
-                uid: getUid(),
-                campaignName: selectValue != '' ? selectValue : campaigns[0]?.name,
-            },
-            true,
-        )
-            .then((response) => setDocument(response ? response['data'] : undefined))
-            .catch((error) => console.error(error));
-    }, []);
-    return doc;
-};
-
-export const NomenclaturesPage = ({permission}) => {
-    const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
-    const uploadId = useId();
-    const [uploadProgress, setUploadProgress] = useState(0);
-
+export const NomenclaturesPage = ({permission, sellerId}) => {
+    const {selectValue, setSwitchingCampaignsFlag, switchingCampaignsFlag} = useCampaign();
+    const {showError} = useError();
     const [filters, setFilters] = useState({undef: false});
 
-    const [selectedButton, setSelectedButton] = useState('');
-
     const [pagesCurrent, setPagesCurrent] = useState(1);
-    const [data, setTableData] = useState({});
+    const [data, setData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
 
     const filterByClick = (val, key = 'art', compMode = 'include') => {
@@ -67,31 +33,36 @@ export const NomenclaturesPage = ({permission}) => {
         filterTableData(filters);
     };
 
-    const updateInfo = () => {
-        callApi(
-            'getNomenclatures',
-            {
-                uid: getUid(),
-                campaignName: selectValue[0],
-            },
-            true,
-        ).then((res) => {
-            if (!res) return;
-            const resData = res['data'];
-            doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
-            doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
+    const getNomenclatures = async () => {
+        try {
+            const params = {seller_id: sellerId};
 
-            setChangedDoc({...doc});
+            console.log(params);
 
-            console.log(doc);
-        });
+            const response = await ApiClient.post('nomenclatures/get', params, 'json', true);
+            console.log(response?.data);
+
+            if (response && response.data) {
+                setData(response.data);
+                setPagesCurrent(1);
+            } else {
+                console.error('No data received from the API');
+            }
+        } catch (error) {
+            console.error(error);
+            showError('Возникла ошибка.');
+        }
     };
+
+    useEffect(() => {
+        setSwitchingCampaignsFlag(true);
+        getNomenclatures().finally(() => setSwitchingCampaignsFlag(false));
+    }, [sellerId]);
 
     const [update, setUpdate] = useState(false);
     useEffect(() => {
         if (!update) return;
-        updateInfo();
-        setUpdate(false);
+        getNomenclatures().finally(() => setUpdate(false));
     }, [update]);
 
     const renderFilterByClickButton = ({value}, key) => {
@@ -118,7 +89,6 @@ export const NomenclaturesPage = ({permission}) => {
                     if (onClick) onClick(event);
                     else {
                         event.stopPropagation();
-                        setSelectedButton('');
                     }
                 }}
             >
@@ -139,390 +109,249 @@ export const NomenclaturesPage = ({permission}) => {
         );
     };
 
-    const columnData = [
-        {
-            name: 'art',
-            placeholder: 'Артикул',
-            width: 200,
-            render: ({value, footer, index, row}) => {
-                if (footer) return <div style={{height: 28}}>{value}</div>;
-                const {nmId} = row;
-                return (
-                    <div
-                        style={{
-                            overflow: 'hidden',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            marginRight: 8,
-                            alignItems: 'center',
-                        }}
-                    >
+    const columnData = useMemo(
+        () => [
+            {
+                name: 'art',
+                placeholder: 'Артикул',
+                width: 200,
+                render: ({value, footer, index, row}) => {
+                    if (footer) return <div style={{height: 28}}>{value}</div>;
+                    const {nmId} = row;
+                    return (
                         <div
                             style={{
-                                width: `${String(filteredData.length).length * 6}px`,
-                                // width: 20,
-                                margin: '0 16px',
+                                overflow: 'hidden',
                                 display: 'flex',
-                                justifyContent: 'center',
+                                flexDirection: 'row',
+                                marginRight: 8,
+                                alignItems: 'center',
                             }}
                         >
-                            {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
+                            <div
+                                style={{
+                                    width: `${String(filteredData.length).length * 6}px`,
+                                    // width: 20,
+                                    margin: '0 16px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
+                            </div>
+                            <Link
+                                view="primary"
+                                style={{whiteSpace: 'pre-wrap'}}
+                                href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                                target="_blank"
+                            >
+                                <Text variant="subheader-1">{value}</Text>
+                            </Link>
                         </div>
-                        <Link
-                            view="primary"
-                            style={{whiteSpace: 'pre-wrap'}}
-                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
-                            target="_blank"
-                        >
-                            <Text variant="subheader-1">{value}</Text>
-                        </Link>
-                    </div>
-                );
-            },
-            valueType: 'text',
-            group: true,
-        },
-        {
-            name: 'size',
-            placeholder: 'Размер',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'size'),
-        },
-        {
-            name: 'brand',
-            placeholder: 'Бренд',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'brand'),
-        },
-        {
-            name: 'object',
-            placeholder: 'Тип предмета',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'object'),
-        },
-        {
-            name: 'title',
-            placeholder: 'Наименование',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'title'),
-        },
-        {
-            name: 'imtId',
-            placeholder: 'ID КТ',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'imtId'),
-        },
-        {
-            name: 'nmId',
-            placeholder: 'Артикул WB',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'nmId'),
-        },
-        {
-            name: 'barcode',
-            placeholder: 'Баркод',
-            valueType: 'text',
-            render: (args) => renderFilterByClickButton(args, 'barcode'),
-        },
-        {
-            name: 'volume',
-            placeholder: 'Объём, л.',
-        },
-        {
-            name: 'tags',
-            placeholder: 'Теги',
-            valueType: 'text',
-            render: ({value}) => {
-                if (value === undefined) return;
-                const tags = [] as ReactNode[];
-                for (const tag of value) {
-                    if (tag === undefined) continue;
-
-                    //     <Label
-                    //     style={{margin: '0 4px'}}
-                    //     size="xs"
-                    //     pin="circle-circle"
-                    //     selected
-                    //     view="outlined-info"
-                    // >
-                    //     {tag.toUpperCase()}
-                    // </Label>,
-
-                    tags.push(
-                        <div style={{margin: '0 4px'}}>
-                            <Label size="xs" theme="info" type="copy" copyText={tag.toUpperCase()}>
-                                {tag.toUpperCase()}
-                            </Label>
-                        </div>,
                     );
-                }
-                return <div style={{display: 'flex', flexDirection: 'row'}}>{tags}</div>;
+                },
+                valueType: 'text',
+                group: true,
             },
-            additionalNodes: [
-                generateEditButton('tags', () => {
-                    setTagsModalFormOpen(true);
-                    setSelectedButton('');
-                }),
-            ],
-        },
-        {
-            name: 'factoryArt',
-            placeholder: 'Артикул фабрики',
-            valueType: 'text',
-            additionalNodes: [generateEditButton('factoryArt')],
-        },
-        {
-            name: 'myStocks',
-            placeholder: 'Мои остатки, шт.',
-            additionalNodes: [generateEditButton('myStocks')],
-        },
-        {
-            name: 'multiplicity',
-            placeholder: 'Кратность короба, шт.',
-            additionalNodes: [generateEditButton('multiplicity')],
-        },
-        {name: 'weight', placeholder: 'Вес, кг.', additionalNodes: [generateEditButton('weight')]},
-        {
-            name: 'ktr',
-            placeholder: 'КТР WB',
-            additionalNodes: [generateEditButton('ktr')],
-        },
-        {
-            name: 'commision',
-            placeholder: 'Коммисия WB, %',
-            additionalNodes: [generateEditButton('commision')],
-            render: renderAsPercent,
-        },
-        {
-            name: 'tax',
-            placeholder: 'Ставка налога, %',
-            additionalNodes: [generateEditButton('tax')],
-            render: renderAsPercent,
-        },
-        {
-            name: 'expences',
-            placeholder: 'Доп. расходы, %',
-            additionalNodes: [generateEditButton('expences')],
-            render: renderAsPercent,
-        },
-        {
-            name: 'prefObor',
-            placeholder: 'План. оборачиваемость, д.',
-            additionalNodes: [generateEditButton('prefObor')],
-        },
-        {
-            name: 'minStocks',
-            placeholder: 'Мин. остаток, шт.',
-            additionalNodes: [generateEditButton('minStocks')],
-        },
-        {
-            name: 'primeCost1',
-            placeholder: 'Себестоимость 1, ₽',
-            additionalNodes: [generateEditButton('primeCost1')],
-        },
-        {
-            name: 'primeCost2',
-            placeholder: 'Себестоимость 2, ₽',
-            additionalNodes: [generateEditButton('primeCost2')],
-        },
-        {
-            name: 'primeCost3',
-            placeholder: 'Себестоимость 3, ₽',
-            additionalNodes: [generateEditButton('primeCost3')],
-        },
-    ];
-
-    const [changedDoc, setChangedDoc] = useState<any>(undefined);
-    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+            {
+                name: 'size',
+                placeholder: 'Размер',
+                valueType: 'text',
+                render: (args) => renderFilterByClickButton(args, 'size'),
+            },
+            {
+                name: 'brand',
+                placeholder: 'Бренд',
+                valueType: 'text',
+                render: (args) => renderFilterByClickButton(args, 'brand'),
+            },
+            {
+                name: 'object',
+                placeholder: 'Тип предмета',
+                valueType: 'text',
+                render: (args) => renderFilterByClickButton(args, 'object'),
+            },
+            {
+                name: 'title',
+                placeholder: 'Наименование',
+                valueType: 'text',
+                render: (args) => renderFilterByClickButton(args, 'title'),
+            },
+            {
+                name: 'imtId',
+                placeholder: 'ID КТ',
+                valueType: 'text',
+                render: (args) => renderFilterByClickButton(args, 'imtId'),
+            },
+            {
+                name: 'nmId',
+                placeholder: 'Артикул WB',
+                valueType: 'text',
+                render: (args) => renderFilterByClickButton(args, 'nmId'),
+            },
+            {
+                name: 'barcode',
+                placeholder: 'Баркод',
+                valueType: 'text',
+                render: (args) => renderFilterByClickButton(args, 'barcode'),
+            },
+            {
+                name: 'status',
+                placeholder: 'Статус в AURUM',
+                valueType: 'text',
+                render: ({value, footer}) => {
+                    if (footer) return undefined;
+                    const status = value ?? 'active';
+                    return (
+                        <Button
+                            selected
+                            size="xs"
+                            pin="circle-circle"
+                            view={status === 'active' ? 'flat-success' : 'flat-danger'}
+                        >
+                            {{active: 'Активен', disabled: 'Не активен'}[status]}
+                        </Button>
+                    );
+                },
+                additionalNodes: [
+                    <SetArtStatusModal
+                        sellerId={sellerId}
+                        filteredData={filteredData}
+                        setUpdate={setUpdate}
+                    >
+                        <Button
+                            disabled={permission != 'Управление'}
+                            style={{marginLeft: 5}}
+                            view="outlined"
+                        >
+                            <Icon data={Pencil} />
+                        </Button>
+                    </SetArtStatusModal>,
+                ],
+            },
+            {
+                name: 'volume',
+                placeholder: 'Объём, л.',
+                render: ({value}) => {
+                    if (value === undefined) return undefined;
+                    return getRoundValue(value, 1, true) / 1000;
+                },
+            },
+            {
+                name: 'tags',
+                placeholder: 'Теги',
+                valueType: 'text',
+                render: ({value}) => {
+                    if (value === undefined) return;
+                    const tags = [] as ReactNode[];
+                    for (const tag of value) {
+                        if (tag === undefined) continue;
+                        const text = tag.toUpperCase();
+                        tags.push(
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <Button
+                                    size="xs"
+                                    selected
+                                    view="flat-info"
+                                    pin="circle-brick"
+                                    onClick={() => filterByClick(text, 'tags')}
+                                >
+                                    {tag.toUpperCase()}
+                                </Button>
+                                <CopyButton
+                                    pin="brick-circle"
+                                    view="flat-info"
+                                    color="secondary"
+                                    selected
+                                    size="xs"
+                                    iconSize={13}
+                                    copyText={text}
+                                />
+                            </div>,
+                            <div style={{minWidth: 8}} />,
+                        );
+                    }
+                    tags.pop();
+                    return <div style={{display: 'flex', flexDirection: 'row'}}>{tags}</div>;
+                },
+                additionalNodes: [
+                    generateEditButton('tags', () => {
+                        setTagsModalFormOpen(true);
+                    }),
+                ],
+            },
+            {
+                name: 'factoryArt',
+                placeholder: 'Артикул фабрики',
+                valueType: 'text',
+                additionalNodes: [generateEditButton('factoryArt')],
+            },
+            {
+                name: 'myStocks',
+                placeholder: 'Мои остатки, шт.',
+                additionalNodes: [generateEditButton('myStocks')],
+            },
+            {
+                name: 'multiplicity',
+                placeholder: 'Кратность короба, шт.',
+                additionalNodes: [generateEditButton('multiplicity')],
+            },
+            {
+                name: 'weight',
+                placeholder: 'Вес, кг.',
+                additionalNodes: [generateEditButton('weight')],
+            },
+            {
+                name: 'commision',
+                placeholder: 'Коммисия WB, %',
+                additionalNodes: [generateEditButton('commision')],
+                render: renderAsPercent,
+            },
+            {
+                name: 'tax',
+                placeholder: 'Ставка налога, %',
+                additionalNodes: [generateEditButton('tax')],
+                render: renderAsPercent,
+            },
+            {
+                name: 'expences',
+                placeholder: 'Доп. расходы, %',
+                additionalNodes: [generateEditButton('expences')],
+                render: renderAsPercent,
+            },
+            {
+                name: 'prefObor',
+                placeholder: 'План. оборачиваемость, д.',
+                additionalNodes: [generateEditButton('prefObor')],
+            },
+            {
+                name: 'minStocks',
+                placeholder: 'Мин. остаток, шт.',
+                additionalNodes: [generateEditButton('minStocks')],
+            },
+            {
+                name: 'primeCost1',
+                placeholder: 'Себестоимость 1, ₽',
+                additionalNodes: [generateEditButton('primeCost1')],
+            },
+            {
+                name: 'primeCost2',
+                placeholder: 'Себестоимость 2, ₽',
+                additionalNodes: [generateEditButton('primeCost2')],
+            },
+            {
+                name: 'primeCost3',
+                placeholder: 'Себестоимость 3, ₽',
+                additionalNodes: [generateEditButton('primeCost3')],
+            },
+        ],
+        [filteredData, data],
+    );
 
     const filterByButton = (val, key = 'tags', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
         setFilters({...filters});
         filterTableData(filters);
-    };
-
-    useEffect(() => {
-        setSwitchingCampaignsFlag(true);
-
-        if (doc)
-            if (!Object.keys(doc['nomenclatures'][selectValue[0]]).length) {
-                callApi(
-                    'getNomenclatures',
-                    {
-                        uid: getUid(),
-                        campaignName: selectValue,
-                    },
-                    true,
-                ).then((res) => {
-                    if (!res) return;
-                    const resData = res['data'];
-                    doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
-                    doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
-
-                    setChangedDoc({...doc});
-
-                    setSwitchingCampaignsFlag(false);
-                    console.log(doc);
-                });
-            } else {
-                setSwitchingCampaignsFlag(false);
-            }
-        setSwitchingCampaignsFlag(false);
-
-        recalc(selectValue[0], filters);
-        setPagesCurrent(1);
-    }, [selectValue]);
-
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
-
-    function handleChange(event) {
-        const file = event.target.files[0];
-        if (!file || !file.name.includes('.xlsx')) {
-            setUploadProgress(-1);
-
-            return;
-        }
-        event.preventDefault();
-        const url = `${ipAddress}/api/uploadFile`;
-        const formData = new FormData();
-        if (!file) return;
-        formData.append('uid', getUid());
-        formData.append('campaignName', selectValue[0]);
-        formData.append('file', file);
-
-        const token =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjc5ODcyMTM2fQ.p07pPkoR2uDYWN0d_JT8uQ6cOv6tO07xIsS-BaM9bWs';
-
-        const config = {
-            headers: {
-                'content-type': 'multipart/form-data',
-                Authorization: 'Bearer ' + token,
-            },
-            onUploadProgress: function (progressEvent) {
-                const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total,
-                );
-                setUploadProgress(percentCompleted);
-            },
-        };
-
-        axios
-            .post(url, formData, config)
-            .then((response) => {
-                console.log(response.data);
-                const artsData = response.data;
-                doc.artsData[selectValue[0]] = artsData;
-
-                callApi(
-                    'getNomenclatures',
-                    {
-                        uid: getUid(),
-                        campaignName: selectValue[0],
-                    },
-                    true,
-                ).then((res) => {
-                    if (!res) return;
-                    const resData = res['data'];
-                    doc['nomenclatures'][selectValue[0]] = resData['nomenclatures'][selectValue[0]];
-                    doc['artsData'][selectValue[0]] = resData['artsData'][selectValue[0]];
-                    setChangedDoc({...doc});
-                    console.log(doc);
-                });
-            })
-            .catch((error) => {
-                console.error('Error uploading file: ', error);
-            });
-    }
-
-    const recalc = (selected = '', withfFilters = {}) => {
-        const campaignData = doc
-            ? doc.nomenclatures[selected == '' ? selectValue[0] : selected]
-            : {};
-        const campaignDataUploaded = doc
-            ? doc.artsData[selected == '' ? selectValue[0] : selected]
-            : {};
-
-        const temp = {};
-        for (const [art, artData] of Object.entries(campaignData)) {
-            if (!art || !artData) continue;
-
-            const artDataUploaded = campaignDataUploaded[art] ?? {};
-
-            const artInfo = {
-                art: '',
-                size: 0,
-                object: '',
-                brand: '',
-                title: '',
-                imtId: '',
-                nmId: 0,
-                tags: [] as any[],
-                barcode: 0,
-                commision: undefined,
-                tax: undefined,
-                expences: undefined,
-                prefObor: undefined,
-                minStocks: 0,
-                logistics: 0,
-                photos: undefined,
-                spp: 0,
-                prices: 0,
-                factoryArt: undefined,
-                myStocks: 0,
-                multiplicity: undefined,
-                volume: 0,
-                ktr: undefined,
-                weight: undefined,
-                primeCost1: undefined,
-                primeCost2: undefined,
-                primeCost3: undefined,
-            };
-            artInfo.art = artData['art'];
-            artInfo.size = artData['size'];
-            artInfo.object = artData['object'];
-            artInfo.brand = artData['brand'];
-            artInfo.nmId = artData['nmId'];
-            artInfo.title = artData['title'];
-            artInfo.photos = artData['photos'];
-            artInfo.imtId = artData['imtId'];
-            artInfo.barcode = artData['barcode'];
-            artInfo.commision = artData['commision'];
-            artInfo.tax = artData['tax'];
-            artInfo.expences = artData['expences'];
-            artInfo.logistics = artData['logistics'];
-            artInfo.spp = artData['spp'];
-            artInfo.volume = getRoundValue(artData['volume'], 1, true) / 100;
-
-            // artInfo.tags = ['#бестселлер'];
-            artInfo.tags = artData['tags'];
-
-            artInfo.ktr = artDataUploaded['ktr'];
-            artInfo.prices = artDataUploaded['prices'];
-            artInfo.factoryArt = artDataUploaded['factoryArt'];
-            artInfo.myStocks = artDataUploaded['myStocks'];
-            artInfo.multiplicity = artDataUploaded['multiplicity'];
-            artInfo.weight = artDataUploaded['weight'];
-            artInfo.commision = artDataUploaded['commision'];
-            artInfo.tax = artDataUploaded['tax'];
-            artInfo.expences = artDataUploaded['expences'];
-            artInfo.prefObor = artDataUploaded['prefObor'];
-            artInfo.minStocks = artDataUploaded['minStocks'];
-            artInfo.primeCost1 = artDataUploaded['prices']
-                ? artDataUploaded['prices']['Себестоимость 1']
-                : undefined;
-            artInfo.primeCost2 = artDataUploaded['prices']
-                ? artDataUploaded['prices']['Себестоимость 2']
-                : undefined;
-            artInfo.primeCost3 = artDataUploaded['prices']
-                ? artDataUploaded['prices']['Себестоимость 3']
-                : undefined;
-
-            temp[art] = artInfo;
-        }
-
-        setTableData(temp);
-
-        filterTableData(withfFilters, temp);
     };
 
     const [filteredSummary, setFilteredSummary] = useState({});
@@ -563,6 +392,17 @@ export const NomenclaturesPage = ({permission}) => {
                         addFlag = false;
                         break;
                     }
+                } else if (filterArg == 'status') {
+                    const wholeText = tempTypeRow['status']
+                        ? {active: 'Активен', disabled: 'Не активен'}[tempTypeRow['status']]
+                        : 'Активен';
+
+                    console.log(wholeText);
+
+                    if (!compare(wholeText, filterData)) {
+                        addFlag = false;
+                        break;
+                    }
                 } else if (!compare(tempTypeRow[filterArg], filterData)) {
                     addFlag = false;
                     break;
@@ -575,35 +415,33 @@ export const NomenclaturesPage = ({permission}) => {
         }
 
         temp.sort((a, b) => {
-            return a.art.localeCompare(b.art, 'ru-RU');
+            return a.vendorCode.localeCompare(b.vendorCode, 'ru-RU');
         });
 
-        setFilteredData(temp);
+        setFilteredData([...temp]);
         setPagesCurrent(1);
     };
+
+    useEffect(() => {
+        filterTableData();
+    }, [data]);
 
     const [tagsModalFormOpen, setTagsModalFormOpen] = useState(false);
     const [tagsInputValid, setTagsInputValid] = useState(true);
     const tagsInputRef = useRef<HTMLInputElement>(null);
 
-    const [firstRecalc, setFirstRecalc] = useState(false);
-
-    if (changedDoc) {
-        setChangedDoc(undefined);
-        setChangedDocUpdateType(false);
-        recalc();
-        setSwitchingCampaignsFlag(false);
-    }
-
-    if (!doc) return <Spin />;
-    if (!firstRecalc) {
-        console.log(doc);
-        recalc(selectValue[0]);
-        setFirstRecalc(true);
-    }
+    if (!data) return <Spin />;
 
     return (
-        <div style={{width: '100%', flexWrap: 'wrap'}}>
+        <div
+            style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
+        >
             <div
                 style={{
                     display: 'flex',
@@ -611,6 +449,7 @@ export const NomenclaturesPage = ({permission}) => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     flexWrap: 'wrap',
+                    marginBottom: 8,
                 }}
             >
                 <div
@@ -623,7 +462,6 @@ export const NomenclaturesPage = ({permission}) => {
                 >
                     <div
                         style={{
-                            marginBottom: 8,
                             marginRight: 8,
                             display: 'flex',
                             flexDirection: 'row',
@@ -631,6 +469,29 @@ export const NomenclaturesPage = ({permission}) => {
                         }}
                     >
                         <TagsFilterModal filterByButton={filterByButton} />
+                        <div style={{minWidth: 8}} />
+                        <Button
+                            loading={update}
+                            size="l"
+                            view="action"
+                            onClick={() => {
+                                setUpdate(true);
+                            }}
+                        >
+                            <Icon data={ArrowsRotateLeft} />
+                        </Button>
+                        <motion.div
+                            style={{
+                                overflow: 'hidden',
+                                marginTop: 4,
+                            }}
+                            animate={{
+                                maxWidth: update ? 40 : 0,
+                                opacity: update ? 1 : 0,
+                            }}
+                        >
+                            <Spin style={{marginLeft: 8}} />
+                        </motion.div>
                         <Modal open={tagsModalFormOpen} onClose={() => setTagsModalFormOpen(false)}>
                             <Card
                                 view="clear"
@@ -701,7 +562,6 @@ export const NomenclaturesPage = ({permission}) => {
                                                         tag.length < 2
                                                     ) {
                                                         setTagsInputValid(false);
-                                                        setSelectedButton('');
                                                         return;
                                                     }
 
@@ -716,30 +576,11 @@ export const NomenclaturesPage = ({permission}) => {
                                                     };
 
                                                     for (const row of filteredData) {
-                                                        const {art, size, nmId} = row ?? {};
+                                                        const {nmId} = row ?? {};
                                                         if (nmId === undefined) continue;
                                                         if (!params.data.nmIds.includes(nmId))
                                                             params.data.nmIds.push(nmId);
-
-                                                        const aurumArt =
-                                                            art + (size == '0' ? '' : `_${size}`);
-                                                        if (
-                                                            !doc.nomenclatures[selectValue[0]][
-                                                                aurumArt
-                                                            ]
-                                                        )
-                                                            continue;
-                                                        if (
-                                                            !doc.nomenclatures[selectValue[0]][
-                                                                aurumArt
-                                                            ].tags.includes(tag)
-                                                        )
-                                                            doc.nomenclatures[selectValue[0]][
-                                                                aurumArt
-                                                            ].tags.push(tag);
                                                     }
-
-                                                    setChangedDoc({...doc});
 
                                                     callApi('setTags', params);
 
@@ -747,8 +588,8 @@ export const NomenclaturesPage = ({permission}) => {
                                                 }
                                             },
                                         },
-                                        selectedButton,
-                                        setSelectedButton,
+                                        '',
+                                        () => {},
                                     )}
                                     {generateModalButtonWithActions(
                                         {
@@ -772,7 +613,7 @@ export const NomenclaturesPage = ({permission}) => {
                                                         tag.length < 2
                                                     ) {
                                                         setTagsInputValid(false);
-                                                        setSelectedButton('');
+
                                                         return;
                                                     }
 
@@ -787,28 +628,11 @@ export const NomenclaturesPage = ({permission}) => {
                                                     };
 
                                                     for (const row of filteredData) {
-                                                        const {art, size, nmId} = row ?? {};
+                                                        const {nmId} = row ?? {};
                                                         if (nmId === undefined) continue;
                                                         if (!params.data.nmIds.includes(nmId))
                                                             params.data.nmIds.push(nmId);
-
-                                                        const aurumArt =
-                                                            art + (size == '0' ? '' : `_${size}`);
-                                                        if (
-                                                            !doc.nomenclatures[selectValue[0]][
-                                                                aurumArt
-                                                            ]
-                                                        )
-                                                            continue;
-
-                                                        doc.nomenclatures[selectValue[0]][
-                                                            aurumArt
-                                                        ].tags = doc.nomenclatures[selectValue[0]][
-                                                            aurumArt
-                                                        ].tags.filter((val) => val != tag);
                                                     }
-
-                                                    setChangedDoc({...doc});
 
                                                     callApi('setTags', params);
 
@@ -816,8 +640,8 @@ export const NomenclaturesPage = ({permission}) => {
                                                 }
                                             },
                                         },
-                                        selectedButton,
-                                        setSelectedButton,
+                                        '',
+                                        () => {},
                                     )}
                                 </motion.div>
                             </Card>
@@ -828,115 +652,50 @@ export const NomenclaturesPage = ({permission}) => {
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginBottom: 8,
                     }}
                 >
-                    <div style={{marginRight: 4}}>
-                        <Button
-                            disabled={permission != 'Управление'}
-                            size="l"
-                            view={'outlined-warning'}
-                            onClick={() => {
-                                setUploadProgress(0);
-                                callApi('downloadPricesTemplate', {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
-                                })
-                                    .then((res: any) => {
-                                        return res.data;
-                                    })
-                                    .then((blob) => {
-                                        const element = document.createElement('a');
-                                        element.href = URL.createObjectURL(blob);
-                                        element.download = `Информация о товарах ${selectValue[0]}.xlsx`;
-                                        // simulate link click
-                                        document.body.appendChild(element);
-                                        element.click();
-                                    });
-                            }}
-                        >
-                            <Icon data={FileArrowDown} size={20} />
-                            <Text variant="subheader-1">Скачать</Text>
-                        </Button>
-                    </div>
-                    <div>
-                        <div style={{marginLeft: 4}}>
-                            <label htmlFor={uploadId}>
-                                <Button
-                                    disabled={permission != 'Управление'}
-                                    size="l"
-                                    onClick={() => {
-                                        setUploadProgress(0);
-                                        (
-                                            document.getElementById(uploadId) as HTMLInputElement
-                                        ).value = '';
-                                    }}
-                                    style={{
-                                        cursor: 'pointer',
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                    }}
-                                    selected={uploadProgress === 100 || uploadProgress === -1}
-                                    view={
-                                        uploadProgress === 100
-                                            ? 'flat-success'
-                                            : uploadProgress === -1
-                                            ? 'flat-danger'
-                                            : 'outlined-success'
-                                    }
-                                >
-                                    <Icon data={FileArrowUp} size={20} />
-                                    <Text variant="subheader-1">Загрузить</Text>
-
-                                    <input
-                                        disabled={permission != 'Управление'}
-                                        id={uploadId}
-                                        style={{
-                                            opacity: 0,
-                                            position: 'absolute',
-                                            height: 40,
-                                            left: 0,
-                                        }}
-                                        type="file"
-                                        onChange={handleChange}
-                                    />
-                                </Button>
-                            </label>
-                        </div>
-                        {/* {uploadProgress ? (
-                            <Progress value={uploadProgress} size="xs" theme="success" />
-                        ) : (
-                            <></>
-                        )} */}
-                    </div>
+                    <DownloadNomenclaturesTemplate sellerId={sellerId} />
+                    <div style={{minWidth: 8}} />
+                    <UploadNomenclaturesTemplate sellerId={sellerId} setUpdate={setUpdate} />
                 </div>
             </div>
 
-            <TheTable
-                columnData={columnData}
-                data={filteredData}
-                filters={filters}
-                setFilters={setFilters}
-                filterData={filterTableData}
-                footerData={[filteredSummary]}
-                tableId={'nomenclatures'}
-                usePagination={true}
-                defaultPaginationSize={300}
-                onPaginationUpdate={({page, paginatedData}) => {
-                    setPagesCurrent(page);
-                    setFilteredSummary((row) => {
-                        const fstemp = row;
-                        fstemp[
-                            'art'
-                        ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
+            {switchingCampaignsFlag ? (
+                <div
+                    style={{
+                        height: 'calc(100vh - 10em - 60px)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Loader size="l" />
+                </div>
+            ) : (
+                <TheTable
+                    columnData={columnData}
+                    data={filteredData}
+                    filters={filters}
+                    setFilters={setFilters}
+                    filterData={filterTableData}
+                    footerData={[filteredSummary]}
+                    tableId={'nomenclatures'}
+                    usePagination={true}
+                    defaultPaginationSize={300}
+                    onPaginationUpdate={({page, paginatedData}) => {
+                        setPagesCurrent(page);
+                        setFilteredSummary((row) => {
+                            const fstemp = row;
+                            fstemp[
+                                'art'
+                            ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
 
-                        return fstemp;
-                    });
-                }}
-                height={'calc(100vh - 10em - 60px)'}
-            />
+                            return fstemp;
+                        });
+                    }}
+                    height={'calc(100vh - 10em - 60px)'}
+                />
+            )}
         </div>
     );
 };

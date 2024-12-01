@@ -25,7 +25,7 @@ export const NomenclaturesPageEditParameter = ({
         width: {name: 'Ширина, см.', type: 'number'},
         height: {name: 'Высота, см.', type: 'number'},
         weight: {name: 'Вес, кг.', type: 'number'},
-        ktr: {name: 'КТР WB, %', type: 'number'},
+        // ktr: {name: 'КТР WB, %', type: 'number'},
         commision: {name: 'Коммисия WB, %', type: 'number'},
         tax: {name: 'Ставка налога, %', type: 'number'},
         expences: {name: 'Доп. расходы, %', type: 'number'},
