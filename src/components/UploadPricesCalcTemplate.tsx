@@ -52,20 +52,16 @@ export const UploadPricesCalcTemplate = ({
     };
 
     return (
-        <label htmlFor={uploadId}>
+        <label style={{width: '100%'}} htmlFor={uploadId}>
             <Button
+                width="max"
                 size="l"
                 onClick={() => {
                     setUploadProgress(0);
                     (document.getElementById(uploadId) as HTMLInputElement).value = '';
                 }}
                 style={{
-                    cursor: 'pointer',
                     position: 'relative',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
                 }}
                 selected={uploadProgress === 100 || uploadProgress === -1}
                 view={
@@ -76,30 +72,22 @@ export const UploadPricesCalcTemplate = ({
                         : 'outlined-success'
                 }
             >
-                <Text
-                    variant="subheader-1"
+                <Icon data={FileArrowUp} size={20} />{' '}
+                <input
+                    id={uploadId}
                     style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
+                        width: '100%',
+                        opacity: 0,
+                        position: 'absolute',
+                        height: 40,
+                        left: 0,
+                        background: 'red',
                     }}
-                >
-                    <Icon data={FileArrowUp} size={20} />
-                    <div style={{minWidth: 3}} />
-                    Обработать шаблон цен
-                    <input
-                        id={uploadId}
-                        style={{
-                            opacity: 0,
-                            position: 'absolute',
-                            height: 40,
-                            left: 0,
-                        }}
-                        type="file"
-                        accept=".xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        onChange={handleUpload}
-                    />
-                </Text>
+                    type="file"
+                    accept=".xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    onChange={handleUpload}
+                />
+                <Text variant="subheader-1">Обработать шаблон цен</Text>
             </Button>
         </label>
     );
