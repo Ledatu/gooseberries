@@ -988,7 +988,7 @@ export const PricesPage = ({permission, sellerId}) => {
 
                                                 console.log(params);
                                                 /////////////////////////
-                                                // callApi('updatePricesMM', params);
+                                                callApi('updatePricesMM', params);
                                                 updateFixPrices(paramsFix);
                                                 /////////////////////////
                                                 setCurrentPricesCalculatedBasedOn('');
