@@ -10,11 +10,10 @@ import {
     TextInput,
     Tooltip,
 } from '@gravity-ui/uikit';
-import {Calculator, Plus, Xmark, Check, FileDollar} from '@gravity-ui/icons';
+import {Calculator, Plus, Xmark, Check, FileDollar, Percent, Pencil} from '@gravity-ui/icons';
 import React, {useEffect, useMemo, useState} from 'react';
 import {motion} from 'framer-motion';
 import {getNormalDateRange} from 'src/utilities/getRoundValue';
-import {useCampaign} from 'src/contexts/CampaignContext';
 import {DownloadPricesCalcTemplate} from './DownloadPricesCalcTemplate';
 import {useError} from 'src/pages/ErrorContext';
 import {UploadPricesCalcTemplate} from './UploadPricesCalcTemplate';
@@ -32,7 +31,6 @@ export const CalcPricesModal = ({
     setLastCalcOldData,
     setCurrentPricesCalculatedBasedOn,
 }) => {
-    const {selectValue} = useCampaign();
     const {showError} = useError();
     const [calculatingFlag, setCalculatingFlag] = useState(false);
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
@@ -42,6 +40,9 @@ export const CalcPricesModal = ({
     const [enteredValueValid, setEnteredValueValid] = useState(false);
     const [changeDiscount, setChangeDiscount] = useState(false);
     const [enteredDiscountValueValid, setEnteredDiscountValueValid] = useState(false);
+
+    const [changeFixedPrices, setChangeFixedPrices] = useState(false);
+    const [changeFixedPricesInPercents, setChangeFixedPricesInPercents] = useState(false);
 
     const selectOptionsEntered = [
         {value: 'Цена после скидки', content: 'Цена после скидки'},
@@ -117,6 +118,8 @@ export const CalcPricesModal = ({
     };
 
     const parseResponse = (response) => {
+        console.log('response', response);
+
         const tempOldData = {};
         for (const [art, artData] of Object.entries(response['pricesData'])) {
             tempOldData[art] = doc['pricesData'][art];
@@ -133,10 +136,9 @@ export const CalcPricesModal = ({
             setCalculatingFlag(true);
             const params = {
                 seller_id: sellerId,
-                campaignName: selectValue[0],
                 dateRange: getNormalDateRange(dateRange),
                 enteredValue: {},
-                fixPrices: fixPrices || enableOborRuleSet,
+                fixPrices: fixPrices || enableOborRuleSet || changeFixedPrices,
             };
 
             const keys = {
@@ -160,6 +162,9 @@ export const CalcPricesModal = ({
                     tempOborRuleSet[obor] = val !== '' ? parseInt(val) : undefined;
                 }
                 params.enteredValue['oborRuleSet'] = tempOborRuleSet;
+            } else if (changeFixedPrices) {
+                params.enteredValue['changeFixedPrices'] = true;
+                params.enteredValue['changeFixedPricesInPercents'] = changeFixedPricesInPercents;
             }
 
             const filters = {
@@ -258,6 +263,7 @@ export const CalcPricesModal = ({
                 >
                     <motion.div
                         style={{
+                            minWidth: 270,
                             overflow: 'hidden',
                             flexWrap: 'nowrap',
                             display: 'flex',
@@ -274,13 +280,14 @@ export const CalcPricesModal = ({
                     >
                         <div
                             style={{
+                                width: '100%',
                                 justifyContent: 'center',
-                                minWidth: 260,
                                 display: 'flex',
                                 flexDirection: 'row',
                             }}
                         >
                             <Select
+                                width={'max'}
                                 size="l"
                                 value={selectValueEntered}
                                 options={selectOptionsEntered}
@@ -305,6 +312,7 @@ export const CalcPricesModal = ({
                                 overflow: 'hidden',
                             }}
                             style={{
+                                width: '100%',
                                 maxHeight: 210,
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -486,7 +494,13 @@ export const CalcPricesModal = ({
                                 })()}
                             </motion.div>
                             <motion.div
-                                style={{overflow: 'hidden', width: '100%', maxHeight: 0}}
+                                style={{
+                                    overflow: 'hidden',
+                                    width: '100%',
+                                    maxHeight: 0,
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                }}
                                 animate={{
                                     maxHeight: enableOborRuleSet ? 0 : 36,
                                     opacity: enableOborRuleSet ? 0 : 1,
@@ -516,35 +530,92 @@ export const CalcPricesModal = ({
                                         setEnteredValue(val);
                                     }}
                                 />
+                                <div style={{minWidth: 8}} />
+                                <Tooltip
+                                    openDelay={600}
+                                    content={'Изменить фикс. цену на значение или процент'}
+                                >
+                                    <Button
+                                        size="l"
+                                        selected={changeFixedPrices}
+                                        onClick={() => {
+                                            setChangeFixedPrices(!changeFixedPrices);
+                                        }}
+                                    >
+                                        <Icon data={Pencil} />
+                                        Изменить
+                                    </Button>
+                                </Tooltip>
+                                <motion.div
+                                    style={{width: 0}}
+                                    animate={{
+                                        width: changeFixedPrices ? 36 : 0,
+                                        marginLeft: changeFixedPrices ? 8 : 0,
+                                    }}
+                                >
+                                    <Tooltip
+                                        openDelay={600}
+                                        content={'Использовать процент для изменения фикс. цены'}
+                                    >
+                                        <Button
+                                            size="l"
+                                            selected={changeFixedPricesInPercents}
+                                            onClick={() => {
+                                                setChangeFixedPricesInPercents(
+                                                    !changeFixedPricesInPercents,
+                                                );
+                                            }}
+                                        >
+                                            <Icon data={Percent} />
+                                        </Button>
+                                    </Tooltip>
+                                </motion.div>
                             </motion.div>
                             <div style={{minHeight: 8}} />
-                            <Checkbox
-                                size="l"
-                                content={'Изменить скидку'}
-                                checked={changeDiscount}
-                                onUpdate={(val) => {
-                                    setChangeDiscount(val);
+
+                            <div
+                                style={{
+                                    width: '100%',
+                                    justifyContent: 'center',
+                                    display: 'flex',
+                                    flexDirection: 'row',
                                 }}
-                            />
-                            <div style={{minHeight: 8}} />
-                            <TextInput
-                                size="l"
-                                disabled={!changeDiscount}
-                                placeholder={'Введите скидку, %'}
-                                value={enteredDiscountValue}
-                                validationState={
-                                    changeDiscount
-                                        ? enteredDiscountValueValid
-                                            ? undefined
-                                            : 'invalid'
-                                        : undefined
-                                }
-                                onUpdate={(val) => {
-                                    const temp = parseInt(val);
-                                    setEnteredDiscountValueValid(!isNaN(temp));
-                                    setEnteredDiscountValue(val);
-                                }}
-                            />
+                            >
+                                <TextInput
+                                    size="l"
+                                    disabled={!changeDiscount}
+                                    placeholder={'Введите скидку, %'}
+                                    value={enteredDiscountValue}
+                                    validationState={
+                                        changeDiscount
+                                            ? enteredDiscountValueValid
+                                                ? undefined
+                                                : 'invalid'
+                                            : undefined
+                                    }
+                                    onUpdate={(val) => {
+                                        const temp = parseInt(val);
+                                        setEnteredDiscountValueValid(!isNaN(temp));
+                                        setEnteredDiscountValue(val);
+                                    }}
+                                />
+                                <div style={{minWidth: 8}} />
+                                <Tooltip
+                                    openDelay={600}
+                                    content={'Изменить процент скидки на товар'}
+                                >
+                                    <Button
+                                        size="l"
+                                        selected={changeDiscount}
+                                        onClick={() => {
+                                            setChangeDiscount(!changeDiscount);
+                                        }}
+                                    >
+                                        <Icon data={Percent} />
+                                        Изменить
+                                    </Button>
+                                </Tooltip>
+                            </div>
                             <div style={{minHeight: 8}} />
                             <Checkbox
                                 size="l"
@@ -560,6 +631,7 @@ export const CalcPricesModal = ({
                                 overflow: 'hidden',
                             }}
                             style={{
+                                width: '100%',
                                 maxHeight: 0,
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -592,7 +664,7 @@ export const CalcPricesModal = ({
                             <Checkbox
                                 size="l"
                                 content={'Зафиксировать цены'}
-                                checked={fixPrices || enableOborRuleSet}
+                                checked={fixPrices || enableOborRuleSet || changeFixedPrices}
                                 onUpdate={(val) => {
                                     setFixPrices(val);
                                 }}
@@ -612,6 +684,8 @@ export const CalcPricesModal = ({
                             }}
                         >
                             <Button
+                                selected
+                                pin="circle-circle"
                                 disabled={
                                     disabled ||
                                     (!enableOborRuleSet && !enteredValueValid) ||

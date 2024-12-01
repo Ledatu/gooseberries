@@ -107,7 +107,9 @@ export const PricesPage = ({permission, sellerId}) => {
         const {nmId, fixPrices, art} = row;
 
         const currentFixKey = fixPrices
-            ? Object.keys(fixPrices).filter((key) => key != 'oborRuleSet' && key != 'discount')[0]
+            ? Object.keys(fixPrices?.enteredValue ?? {}).filter(
+                  (key) => key != 'oborRuleSet' && key != 'discount',
+              )[0]
             : undefined;
 
         const oldFixKey = doc?.fixArtPrices?.[nmId]
@@ -120,7 +122,7 @@ export const PricesPage = ({permission, sellerId}) => {
         const curCellIsOld = keys?.includes(oldFixKey);
 
         const oborRuleSet = curCellIsNew
-            ? fixPrices?.oborRuleSet
+            ? fixPrices?.enteredValue?.oborRuleSet
             : doc?.fixArtPrices?.[nmId]?.enteredValue?.oborRuleSet;
 
         const hasOld = doc?.fixArtPrices?.[nmId]?.old ?? false;
@@ -522,7 +524,6 @@ export const PricesPage = ({permission, sellerId}) => {
         try {
             const params = {
                 seller_id: sellerId,
-                campaignName: selectValue[0],
                 dateRange: getNormalDateRange(dateRange),
             };
 
@@ -544,6 +545,25 @@ export const PricesPage = ({permission, sellerId}) => {
             showError('Не удалось рассчитать цены.');
         }
         setSwitchingCampaignsFlag(false);
+    };
+
+    const updateFixPrices = async (params) => {
+        try {
+            console.log(params);
+
+            const response = await ApiClient.post('prices/set-fixed-rules', params, 'json');
+            console.log(response?.data);
+
+            if (response && response.data && doc) {
+                doc.fixArtPrices = response.data;
+                setDoc({...doc});
+            } else {
+                console.error('No data received from the API');
+            }
+        } catch (error) {
+            console.error(error);
+            showError('Не установить фикс. цены.');
+        }
     };
 
     useEffect(() => {
@@ -913,10 +933,9 @@ export const PricesPage = ({permission, sellerId}) => {
                                                     },
                                                 };
                                                 const paramsFix = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
+                                                    seller_id: sellerId,
                                                     data: {
-                                                        nmIds: {},
+                                                        nmIds: [] as any[],
                                                     },
                                                 };
 
@@ -942,24 +961,10 @@ export const PricesPage = ({permission, sellerId}) => {
 
                                                         delete tempOldData[art]; // delete to prevent reset to default
 
-                                                        paramsFix.data.nmIds[nmId] = {
+                                                        paramsFix.data.nmIds.push({
                                                             nmId: nmId,
-                                                            enteredValue: fixPrices,
-                                                        };
-                                                        if (fixPrices) {
-                                                            paramsFix.data.nmIds[nmId][
-                                                                'enteredValue'
-                                                            ]['discount'] = discount;
-                                                        }
-                                                        //// local fixed
-                                                        if (fixPrices !== undefined) {
-                                                            doc.fixArtPrices[nmId] = {};
-                                                            doc.fixArtPrices[nmId].enteredValue =
-                                                                fixPrices;
-                                                        } else {
-                                                            if (!doc.fixArtPrices[nmId]) continue;
-                                                            delete doc.fixArtPrices[nmId];
-                                                        }
+                                                            rules: fixPrices,
+                                                        });
 
                                                         doc.pricesData[art]['fixPrices'] =
                                                             undefined;
@@ -982,10 +987,9 @@ export const PricesPage = ({permission, sellerId}) => {
                                                 setDoc({...doc});
 
                                                 console.log(params);
-                                                console.log(paramsFix);
                                                 /////////////////////////
-                                                callApi('updatePricesMM', params);
-                                                callApi('fixArtPrices', paramsFix);
+                                                // callApi('updatePricesMM', params);
+                                                updateFixPrices(paramsFix);
                                                 /////////////////////////
                                                 setCurrentPricesCalculatedBasedOn('');
                                                 setUpdatePricesModalOpen(false);
