@@ -100,7 +100,7 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
         ) : (
             <NomenclaturesPageEditParameter
                 setUpdate={setUpdate}
-                selectValue={selectValue}
+                sellerId={sellerId}
                 filteredData={filteredData}
                 enteredValueKey={key}
             >
@@ -586,6 +586,8 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
 
                                                     callApi('setTags', params);
 
+                                                    setUpdate(true);
+
                                                     setTagsModalFormOpen(false);
                                                 }
                                             },
@@ -638,6 +640,7 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
 
                                                     callApi('setTags', params);
 
+                                                    setUpdate(true);
                                                     setTagsModalFormOpen(false);
                                                 }
                                             },

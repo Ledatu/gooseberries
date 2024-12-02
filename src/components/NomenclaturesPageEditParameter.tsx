@@ -1,16 +1,18 @@
 import {Button, Card, Checkbox, Icon, Modal, Text, TextInput} from '@gravity-ui/uikit';
 import {CloudArrowUpIn} from '@gravity-ui/icons';
-import callApi, {getUid} from 'src/utilities/callApi';
 import React, {Children, isValidElement, ReactElement, useState} from 'react';
 import {motion} from 'framer-motion';
+import ApiClient from 'src/utilities/ApiClient';
+import {useError} from 'src/pages/ErrorContext';
 
 export const NomenclaturesPageEditParameter = ({
     children,
     setUpdate,
-    selectValue,
+    sellerId,
     filteredData,
     enteredValueKey,
 }) => {
+    const {showError} = useError();
     const [open, setOpen] = useState(false);
     const [enteredValue, setEnteredValue] = useState('');
 
@@ -162,20 +164,18 @@ export const NomenclaturesPageEditParameter = ({
                             view="action"
                             onClick={async () => {
                                 const params = {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
+                                    seller_id: sellerId,
                                     data: {
                                         enteredValue: {},
-                                        barcodes: [] as any[],
+                                        arts: [] as any[],
                                     },
                                 };
 
                                 for (let i = 0; i < filteredData.length; i++) {
                                     const row = filteredData[i];
-                                    const {barcode} = row ?? {};
-                                    if (barcode === undefined) continue;
-                                    if (!params.data.barcodes.includes(barcode))
-                                        params.data.barcodes.push(barcode);
+                                    const {art, nmId} = row ?? {};
+                                    if (!art || !nmId) continue;
+                                    params.data.arts.push({art, nmId});
                                 }
 
                                 params.data.enteredValue = {
@@ -186,15 +186,22 @@ export const NomenclaturesPageEditParameter = ({
                                     type: keys[enteredValueKey].type,
                                 };
                                 console.log(params);
-                                /////////////////////////
-                                await callApi('changeUploadedArtsDataForKey', params)
-                                    .then(() => {
+
+                                try {
+                                    const response = await ApiClient.post(
+                                        'nomenclatures/edit',
+                                        params,
+                                    );
+                                    if (response && response.data) {
                                         setUpdate(true);
-                                    })
-                                    .finally(() => {
-                                        setOpen(false);
-                                    });
-                                /////////////////////////
+                                    } else {
+                                        console.error('No data received from the API');
+                                    }
+                                } catch (error) {
+                                    showError('Не удалось обновить информацию о товарах.');
+                                }
+
+                                setOpen(false);
                             }}
                         >
                             <Icon data={CloudArrowUpIn} />
