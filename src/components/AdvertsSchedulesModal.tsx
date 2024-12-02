@@ -1,4 +1,4 @@
-import {Button, Card, Icon, Modal, Text} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Modal, Text, Tooltip} from '@gravity-ui/uikit';
 import {TrashBin, CloudArrowUpIn} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useState} from 'react';
@@ -35,39 +35,41 @@ export const AdvertsSchedulesModal = ({
                 return true;
             })();
             tempHours.push(
-                <div
-                    style={{
-                        width: 25,
-                        margin: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Text variant="subheader-1">{j}</Text>
-                    <Button
+                <Tooltip content={`Каждый день ${j}:00 - ${j}:59`}>
+                    <div
                         style={{
-                            width: 16,
-                            height: 16,
-                        }}
-                        view={isCheckboxChecked ? 'action' : 'outlined'}
-                        onClick={() => {
-                            const tempScheduleInput = Object.assign({}, scheduleInput);
-                            for (let i = 0; i < 7; i++) {
-                                if (!tempScheduleInput[i]) tempScheduleInput[i] = {};
-                                if (!tempScheduleInput[i][j]) tempScheduleInput[i][j] = {};
-                                tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
-                            }
-
-                            console.log(tempScheduleInput);
-
-                            setScheduleInput(tempScheduleInput);
+                            width: 25,
+                            margin: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                         }}
                     >
-                        {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
-                    </Button>
-                </div>,
+                        <Text variant="subheader-1">{j}</Text>
+                        <Button
+                            style={{
+                                width: 16,
+                                height: 16,
+                            }}
+                            view={isCheckboxChecked ? 'action' : 'outlined'}
+                            onClick={() => {
+                                const tempScheduleInput = Object.assign({}, scheduleInput);
+                                for (let i = 0; i < 7; i++) {
+                                    if (!tempScheduleInput[i]) tempScheduleInput[i] = {};
+                                    if (!tempScheduleInput[i][j]) tempScheduleInput[i][j] = {};
+                                    tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
+                                }
+
+                                console.log(tempScheduleInput);
+
+                                setScheduleInput(tempScheduleInput);
+                            }}
+                        >
+                            {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
+                        </Button>
+                    </div>
+                </Tooltip>,
             );
         }
         weekInput.push(<div style={{display: 'flex', flexDirection: 'row'}}>{tempHours}</div>);
@@ -83,66 +85,70 @@ export const AdvertsSchedulesModal = ({
                     return true;
                 })();
             weekInputDayNames.push(
-                <div
-                    style={{
-                        height: 25,
-                        margin: 2,
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Text variant="subheader-1">{weekDayNamesTemp[i]}</Text>
-                    <div style={{minWidth: 4}} />
-                    <Button
+                <Tooltip content={`${weekDayNamesTemp[i]} 00:00 - 23:59`}>
+                    <div
                         style={{
-                            width: 16,
-                            height: 16,
+                            height: 25,
+                            margin: 2,
                             display: 'flex',
-                            alignItems: 'center',
+                            flexDirection: 'row',
                             justifyContent: 'center',
-                        }}
-                        view={isCheckboxChecked ? 'action' : 'outlined'}
-                        onClick={() => {
-                            const tempScheduleInput = Object.assign({}, scheduleInput);
-                            for (let j = 0; j < 24; j++) {
-                                if (!tempScheduleInput[i]) tempScheduleInput[i] = {};
-                                if (!tempScheduleInput[i][j]) tempScheduleInput[i][j] = {};
-                                tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
-                            }
-                            console.log(tempScheduleInput);
-
-                            setScheduleInput(tempScheduleInput);
+                            alignItems: 'center',
                         }}
                     >
-                        {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
-                    </Button>
-                </div>,
+                        <Text variant="subheader-1">{weekDayNamesTemp[i]}</Text>
+                        <div style={{minWidth: 4}} />
+                        <Button
+                            style={{
+                                width: 16,
+                                height: 16,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                            view={isCheckboxChecked ? 'action' : 'outlined'}
+                            onClick={() => {
+                                const tempScheduleInput = Object.assign({}, scheduleInput);
+                                for (let j = 0; j < 24; j++) {
+                                    if (!tempScheduleInput[i]) tempScheduleInput[i] = {};
+                                    if (!tempScheduleInput[i][j]) tempScheduleInput[i][j] = {};
+                                    tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
+                                }
+                                console.log(tempScheduleInput);
+
+                                setScheduleInput(tempScheduleInput);
+                            }}
+                        >
+                            {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
+                        </Button>
+                    </div>
+                </Tooltip>,
             );
             const temp = [] as any[];
             for (let j = 0; j < 24; j++) {
                 temp.push(
-                    <Button
-                        style={{width: 25, height: 25, margin: 2}}
-                        view={
-                            scheduleInput[i]
-                                ? scheduleInput[i][j]
-                                    ? scheduleInput[i][j].selected
-                                        ? 'action'
+                    <Tooltip content={`${weekDayNamesTemp[i]} ${j}:00 - ${j}:59`}>
+                        <Button
+                            style={{width: 25, height: 25, margin: 2}}
+                            view={
+                                scheduleInput[i]
+                                    ? scheduleInput[i][j]
+                                        ? scheduleInput[i][j].selected
+                                            ? 'action'
+                                            : 'outlined'
                                         : 'outlined'
                                     : 'outlined'
-                                : 'outlined'
-                        }
-                        onClick={() => {
-                            const val = Object.assign({}, scheduleInput);
-                            if (!val[i]) val[i] = {};
-                            if (!val[i][j]) val[i][j] = {selected: false};
-                            val[i][j].selected = !val[i][j].selected;
-                            console.log(val[i][j]);
-                            setScheduleInput(val);
-                        }}
-                    />,
+                            }
+                            onClick={() => {
+                                const val = Object.assign({}, scheduleInput);
+                                if (!val[i]) val[i] = {};
+                                if (!val[i][j]) val[i][j] = {selected: false};
+                                val[i][j].selected = !val[i][j].selected;
+                                console.log(val[i][j]);
+                                setScheduleInput(val);
+                            }}
+                        />
+                    </Tooltip>,
                 );
             }
             weekInput.push(<div style={{display: 'flex', flexDirection: 'row'}}>{temp}</div>);
@@ -236,6 +242,15 @@ export const AdvertsSchedulesModal = ({
                             variant="display-2"
                         >
                             График работы
+                        </Text>
+                        <Text
+                            style={{
+                                margin: '8px 0',
+                            }}
+                            variant="header-2"
+                            color="secondary"
+                        >
+                            Часовой пояс Москвы — UTC +3 (MSK)
                         </Text>
                         <div style={{minHeight: 8}} />
                         {generateScheduleInput({scheduleInput, setScheduleInput})}
