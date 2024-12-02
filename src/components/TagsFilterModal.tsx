@@ -88,11 +88,13 @@ export const TagsFilterModal = ({filterByButton}) => {
                                     loading={availableTagsPending}
                                     items={availableTags.filter((item) =>
                                         item
-                                            .toLocaleLowerCase()
-                                            .includes(filterValue.toLocaleLowerCase()),
+                                            ?.toLocaleLowerCase()
+                                            ?.includes(filterValue?.toLocaleLowerCase()),
                                     )}
                                     itemHeight={36}
                                     renderItem={(item) => {
+                                        console.log(item);
+
                                         return (
                                             <Button
                                                 size="m"
@@ -100,7 +102,7 @@ export const TagsFilterModal = ({filterByButton}) => {
                                                 selected
                                                 view={'outlined-info'}
                                             >
-                                                {item ? (item as string).toUpperCase() : ''}
+                                                {item ? (item as string)?.toUpperCase() : ''}
                                             </Button>
                                         );
                                     }}

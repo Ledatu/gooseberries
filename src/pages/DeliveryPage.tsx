@@ -548,7 +548,7 @@ export const DeliveryPage = ({permission, sellerId}) => {
                 if (tags) {
                     for (let i = 0; i < tags.length; i++) {
                         const tag = tags[i];
-                        if (tag === undefined) continue;
+                        if (!tag) continue;
 
                         tagsNodes.push(
                             <Button
