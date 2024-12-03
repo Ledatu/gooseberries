@@ -1096,7 +1096,7 @@ export const PricesPage = ({permission, sellerId}) => {
                         const fstemp = row;
                         fstemp[
                             'art'
-                        ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
+                        ] = `На странице SKU: ${paginatedData.length} Всего SKU: ${filteredData.length}`;
 
                         return fstemp;
                     });

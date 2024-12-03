@@ -428,7 +428,7 @@ export const SEOPage = () => {
                                 const temp = row;
                                 temp[
                                     'phrase'
-                                ] = `На странице: ${paginatedData.length} Всего: ${filteredDataPhrasesTable.length}`;
+                                ] = `На странице SKU: ${paginatedData.length} Всего SKU: ${filteredDataPhrasesTable.length}`;
 
                                 return temp;
                             });
@@ -478,7 +478,7 @@ export const SEOPage = () => {
                                 const temp = row;
                                 temp[
                                     'word'
-                                ] = `На странице: ${paginatedData.length} Всего: ${filteredDataWordsTable.length}`;
+                                ] = `На странице SKU: ${paginatedData.length} Всего SKU: ${filteredDataWordsTable.length}`;
 
                                 return temp;
                             });

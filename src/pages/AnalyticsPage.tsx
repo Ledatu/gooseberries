@@ -2064,7 +2064,7 @@ export const AnalyticsPage = ({permission}) => {
                             const fstemp = row;
                             fstemp[
                                 'entity'
-                            ] = `На странице: ${paginatedData.length} Всего: ${filteredData.length}`;
+                            ] = `На странице SKU: ${paginatedData.length} Всего SKU: ${filteredData.length}`;
 
                             return fstemp;
                         });

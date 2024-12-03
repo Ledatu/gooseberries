@@ -29,7 +29,7 @@ export const PaginationSizeInput = ({
 
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
-            <Tooltip openDelay={1500} content={'Кол-во строк на странице.'}>
+            <Tooltip openDelay={1500} content={'Кол-во строк На странице SKU.'}>
                 <TextInput
                     placeholder={paginationSize}
                     rightContent={

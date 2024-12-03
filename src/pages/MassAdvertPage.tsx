@@ -1249,7 +1249,7 @@ export const MassAdvertPage = ({
                   ],
                   render: ({value, row, index}) => {
                       if (typeof value === 'number') {
-                          return <Text>{`Уникальных Id: ${value}`}</Text>;
+                          return <Text>{`Уникальных РК ID: ${value}`}</Text>;
                       }
 
                       const {art} = row;
@@ -3873,7 +3873,7 @@ export const MassAdvertPage = ({
             placeholder: 'Дата',
             render: ({value}) => {
                 if (!value) return;
-                if (typeof value === 'number') return `Всего: ${value}`;
+                if (typeof value === 'number') return `Всего SKU: ${value}`;
                 return <Text>{(value as Date).toLocaleDateString('ru-RU').slice(0, 10)}</Text>;
             },
         },
@@ -5165,7 +5165,7 @@ export const MassAdvertPage = ({
                         setPagesCurrent(page);
                         setFilteredSummary((row) => {
                             const temp = row;
-                            temp.art = `На странице: ${paginatedData.length} Всего: ${filteredData.length} ID КТ: ${temp.uniqueImtIds}`;
+                            temp.art = `На странице SKU: ${paginatedData.length} Всего SKU: ${filteredData.length} ID КТ: ${temp.uniqueImtIds}`;
 
                             return temp;
                         });
