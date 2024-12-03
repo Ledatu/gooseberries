@@ -112,7 +112,7 @@ export const PricesPage = ({permission, sellerId}) => {
               )[0]
             : undefined;
 
-        const oldFixKey = doc?.fixArtPrices?.[nmId]
+        const oldFixKey = doc?.fixArtPrices?.[nmId]?.enteredValue
             ? Object.keys(doc?.fixArtPrices?.[nmId]?.enteredValue).filter(
                   (key) => key != 'oborRuleSet' && key != 'discount',
               )[0]
