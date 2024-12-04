@@ -135,7 +135,11 @@ export const PricesPage = ({permission, sellerId}) => {
                 <div style={{minWidth: 4}} />
                 <Text
                     color={
-                        curCellIsNew ? 'brand' : oldFixKey && !currentFixKey ? 'positive' : 'danger'
+                        curCellIsNew
+                            ? 'brand'
+                            : curCellIsOld && currentPricesCalculatedBasedOn == ''
+                            ? 'positive'
+                            : 'danger'
                     }
                 >
                     <Icon data={curCellIsNew ? LockOpen : Lock} />

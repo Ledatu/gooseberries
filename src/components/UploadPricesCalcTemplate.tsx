@@ -10,6 +10,7 @@ export const UploadPricesCalcTemplate = ({
     fixPrices,
     dateRange,
     parseResponse,
+    setCurrentPricesCalculatedBasedOn,
     setOpen,
     setCalculatingFlag,
 }) => {
@@ -39,6 +40,7 @@ export const UploadPricesCalcTemplate = ({
             const response = await uploadFile(file, params, 'prices/calc-template');
             if (response) {
                 parseResponse(response);
+                setCurrentPricesCalculatedBasedOn('file');
             } else {
                 console.error('No response from the API');
                 showError('Не удалось рассчитать цены.');

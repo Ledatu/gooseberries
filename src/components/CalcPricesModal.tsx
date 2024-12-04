@@ -649,6 +649,9 @@ export const CalcPricesModal = ({
                                 fixPrices={fixPrices}
                                 dateRange={dateRange}
                                 parseResponse={parseResponse}
+                                setCurrentPricesCalculatedBasedOn={
+                                    setCurrentPricesCalculatedBasedOn
+                                }
                                 setCalculatingFlag={setCalculatingFlag}
                                 setOpen={setEnteredValuesModalOpen}
                             />
