@@ -2178,6 +2178,18 @@ export const MassAdvertPage = ({
                     </Card>
                 );
             },
+            sortFunction: (a, b, order) => {
+                const profitsDataA = a?.profit;
+                const profitsDataB = b?.profit;
+
+                const isNaNa = isNaN(profitsDataA);
+                const isNaNb = isNaN(profitsDataB);
+                if (isNaNa && isNaNb) return 1;
+                else if (isNaNa) return 1;
+                else if (isNaNb) return -1;
+
+                return (profitsDataA - profitsDataB) * order;
+            },
         },
         {
             name: 'placements',
