@@ -260,6 +260,13 @@ export const AutoSalesModal = ({
                                 }}
                             >
                                 <RangeCalendar
+                                    disabled={
+                                        new Date(
+                                            availableAutoSales[autoSaleName[0]]
+                                                ? availableAutoSales[autoSaleName[0]].startDateTime
+                                                : '',
+                                        ) > new Date()
+                                    }
                                     value={{
                                         start: dateTimeParse(new Date(startDate ?? 0)) as any,
                                         end: dateTimeParse(new Date(endDate ?? 0)) as any,
