@@ -667,7 +667,7 @@ export const MassAdvertPage = ({
 
             dateData['drr'] = getRoundValue(dateData['sum'], dateData['sum_orders'], true, 1);
             dateData['ctr'] = getRoundValue(clicks, views, true);
-            dateData['cpc'] = getRoundValue(sum, clicks);
+            dateData['cpc'] = getRoundValue(sum / 100, clicks, true, sum / 100);
             dateData['cpm'] = getRoundValue(sum * 1000, views);
             dateData['cr'] = getRoundValue(orders, dateData['openCardCount'], true);
             dateData['cpo'] = getRoundValue(sum, orders, false, sum);

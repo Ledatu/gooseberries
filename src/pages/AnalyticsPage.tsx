@@ -858,7 +858,12 @@ export const AnalyticsPage = ({permission}) => {
                 );
                 tempTypeRow['sum'] = dateStats['sum'];
 
-                tempTypeRow['cpc'] = getRoundValue(tempTypeRow['sum'], tempTypeRow['clicks']);
+                tempTypeRow['cpc'] = getRoundValue(
+                    tempTypeRow['sum'] / 100,
+                    tempTypeRow['clicks'],
+                    true,
+                    tempTypeRow['sum'] / 100,
+                );
                 tempTypeRow['cpm'] = getRoundValue(tempTypeRow['sum'], tempTypeRow['views'] / 1000);
 
                 tempTypeRow['sppPrice'] = dateStats['sppPrice'];
@@ -1135,8 +1140,10 @@ export const AnalyticsPage = ({permission}) => {
             );
             summaryAdd(row, 'cpc', undefined);
             summaries[entity]['cpc'] = getRoundValue(
-                summaries[entity]['sum'],
+                summaries[entity]['sum'] / 100,
                 summaries[entity]['clicks'],
+                true,
+                summaries[entity]['sum'] / 100,
             );
             summaryAdd(row, 'cpm', undefined);
             summaries[entity]['cpm'] = getRoundValue(
@@ -1401,8 +1408,10 @@ export const AnalyticsPage = ({permission}) => {
                 true,
             );
             summaries['filteredSummaryTemp']['cpc'] = getRoundValue(
-                summaries['filteredSummaryTemp']['sum'],
+                summaries['filteredSummaryTemp']['sum'] / 100,
                 summaries['filteredSummaryTemp']['clicks'],
+                true,
+                summaries['filteredSummaryTemp']['sum'] / 100,
             );
             summaries['filteredSummaryTemp']['cpm'] = getRoundValue(
                 summaries['filteredSummaryTemp']['sum'],
