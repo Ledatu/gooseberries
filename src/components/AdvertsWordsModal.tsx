@@ -2179,7 +2179,7 @@ export const AdvertsWordsModal = ({
                                                 const temp = row;
                                                 temp.active[
                                                     'cluster'
-                                                ] = `На странице SKU: ${paginatedData.length} Всего SKU: ${semanticsModalSemanticsItemsFiltratedValue.length}`;
+                                                ] = `На странице фраз: ${paginatedData.length} Всего фраз: ${semanticsModalSemanticsItemsFiltratedValue.length}`;
 
                                                 return temp;
                                             });
@@ -2229,7 +2229,7 @@ export const AdvertsWordsModal = ({
                                                 const temp = row;
                                                 temp.minus[
                                                     'cluster'
-                                                ] = `На странице SKU: ${paginatedData.length} Всего SKU: ${semanticsModalSemanticsMinusItemsFiltratedValue.length}`;
+                                                ] = `На странице фраз: ${paginatedData.length} Всего фраз: ${semanticsModalSemanticsMinusItemsFiltratedValue.length}`;
 
                                                 return temp;
                                             });
