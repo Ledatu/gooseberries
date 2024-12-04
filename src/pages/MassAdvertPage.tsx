@@ -512,7 +512,7 @@ export const MassAdvertPage = ({
             1,
         );
         artsStatsByDayFilteredSummaryTemp.ctr = getRoundValue(clicks, views, true);
-        artsStatsByDayFilteredSummaryTemp.cpc = getRoundValue(sum, clicks);
+        artsStatsByDayFilteredSummaryTemp.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
         artsStatsByDayFilteredSummaryTemp.cpm = getRoundValue(sum * 1000, views);
         artsStatsByDayFilteredSummaryTemp.cr = getRoundValue(orders, openCardCount, true);
         artsStatsByDayFilteredSummaryTemp.cpo = getRoundValue(sum, orders, false, sum);
@@ -3241,7 +3241,12 @@ export const MassAdvertPage = ({
 
                 artInfo.drr = getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1);
                 artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
-                artInfo.cpc = getRoundValue(artInfo.sum, artInfo.clicks);
+                artInfo.cpc = getRoundValue(
+                    artInfo.sum / 100,
+                    artInfo.clicks,
+                    true,
+                    artInfo.sum / 100,
+                );
                 artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
                 artInfo.cr = getRoundValue(artInfo.orders, artInfo.openCardCount, true);
                 artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
@@ -3704,8 +3709,10 @@ export const MassAdvertPage = ({
             true,
         );
         filteredSummaryTemp.cpc = getRoundValue(
-            filteredSummaryTemp.sum,
+            filteredSummaryTemp.sum / 100,
             filteredSummaryTemp.clicks,
+            true,
+            filteredSummaryTemp.sum / 100,
         );
         filteredSummaryTemp.cpm = getRoundValue(
             filteredSummaryTemp.sum * 1000,

@@ -187,7 +187,7 @@ export const AdvertsWordsModal = ({
         );
 
         const {sum, count, clicks} = semanticsFilteredSummary.active;
-        semanticsFilteredSummary.active.cpc = getRoundValue(sum, clicks);
+        semanticsFilteredSummary.active.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
         semanticsFilteredSummary.active.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
@@ -235,7 +235,7 @@ export const AdvertsWordsModal = ({
         setSemanticsModalSemanticsMinusItemsFiltratedValue([...temp]);
 
         const {sum, count, clicks} = semanticsFilteredSummary.minus;
-        semanticsFilteredSummary.minus.cpc = getRoundValue(sum, clicks);
+        semanticsFilteredSummary.minus.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
         semanticsFilteredSummary.minus.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
