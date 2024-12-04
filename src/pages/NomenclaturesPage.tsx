@@ -535,7 +535,7 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
                                         defaultValue=""
                                         validationState={tagsInputValid ? undefined : 'invalid'}
                                         errorMessage={
-                                            'Имя тега должно начинаться с #, содержать как минимум одну букву и не иметь пробелов.'
+                                            'Имя тега должно начинаться с # и содержать как минимум один символ.'
                                         }
                                         onUpdate={() => {
                                             setTagsInputValid(true);
@@ -555,14 +555,11 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
                                                     const tag =
                                                         '#' +
                                                         tagUnformatted
+                                                            .trim()
                                                             .replace(/#/g, '')
                                                             .toUpperCase();
 
-                                                    if (
-                                                        tag[0] != '#' ||
-                                                        tag.indexOf(' ') !== -1 ||
-                                                        tag.length < 2
-                                                    ) {
+                                                    if (tag.length < 2) {
                                                         setTagsInputValid(false);
                                                         return;
                                                     }
@@ -608,14 +605,11 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
                                                     const tag =
                                                         '#' +
                                                         tagUnformatted
+                                                            .trim()
                                                             .replace(/#/g, '')
                                                             .toUpperCase();
 
-                                                    if (
-                                                        tag[0] != '#' ||
-                                                        tag.indexOf(' ') !== -1 ||
-                                                        tag.length < 2
-                                                    ) {
+                                                    if (tag.length < 2) {
                                                         setTagsInputValid(false);
 
                                                         return;
