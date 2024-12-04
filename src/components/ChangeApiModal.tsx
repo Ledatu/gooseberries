@@ -1,9 +1,9 @@
 import {Button, Card, Modal, TextInput, Text} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useState} from 'react';
-import callApi from 'src/utilities/callApi';
 import {useUser} from './RequireAuth';
 import {useError} from 'src/pages/ErrorContext';
+import ApiClient from 'src/utilities/ApiClient';
 
 interface ChangeApiModalInterface {
     sellerId: string;
@@ -91,23 +91,23 @@ export const ChangeApiModal = ({sellerId, children}: ChangeApiModalInterface) =>
                             view="outlined-success"
                             selected
                             disabled={key === ''}
-                            onClick={() => {
+                            onClick={async () => {
                                 const params = {
                                     user_id: user?._id,
                                     seller_id: sellerId,
                                     apiKey: key,
                                 };
-                                callApi('updateCampaignAPIKey', params, false, true)
-                                    .then(() => {
-                                        refetchUser();
-                                    })
-                                    .catch((error) => {
-                                        showError(
-                                            error.response?.data?.error ||
-                                                'An unknown error occurred',
-                                        );
-                                    })
-                                    .finally(() => handleClose());
+
+                                try {
+                                    await ApiClient.post('auth/update-api-key', params);
+                                    refetchUser();
+                                } catch (error) {
+                                    showError(
+                                        error.response?.data?.error ||
+                                            'Не удалось обновить АПИ токен.',
+                                    );
+                                }
+                                handleClose();
                             }}
                         >
                             <Text variant="subheader-1">Изменить API магазина</Text>

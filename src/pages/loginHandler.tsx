@@ -1,16 +1,17 @@
 // loginHandler.tsx
 import React, {useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
-import callApi from 'src/utilities/callApi';
 import {useError} from './ErrorContext';
 import {Card, Spin, Text} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
+import ApiClient from 'src/utilities/ApiClient';
 
 // Function to verify and send Telegram authentication data to the server
 async function handleTelegramLogin(authData) {
     try {
         // Send authData to the server for validation and token generation
-        const response = await callApi('loginUser', authData);
+        const response = await ApiClient.post('auth/login', authData);
+
         if (response && response.data.token) {
             localStorage.setItem('authToken', response.data.token); // Store JWT token
             return true;

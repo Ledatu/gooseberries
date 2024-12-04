@@ -1,10 +1,10 @@
 import {Button, Card, Modal, TextInput, Text, Link} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useState} from 'react';
-import callApi from 'src/utilities/callApi';
 import {useUser} from './RequireAuth';
 import screen from '../assets/api-key.jpg';
 import {useError} from 'src/pages/ErrorContext';
+import ApiClient from 'src/utilities/ApiClient';
 
 interface AddApiModalInterface {
     children: ReactElement | ReactElement[];
@@ -144,23 +144,22 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                                 view="outlined-success"
                                 selected
                                 disabled={name === '' || key === ''}
-                                onClick={() => {
+                                onClick={async () => {
                                     const params = {
                                         user_id: user?._id,
                                         campaignName: name,
                                         apiKey: key,
                                     };
-                                    callApi('createCampaign', params, false, true)
-                                        .then(() => {
-                                            refetchUser();
-                                        })
-                                        .catch((error) => {
-                                            showError(
-                                                error.response?.data?.error ||
-                                                    'An unknown error occurred',
-                                            );
-                                        })
-                                        .finally(() => handleClose());
+                                    try {
+                                        await ApiClient.post('auth/create-campaign', params);
+                                        refetchUser();
+                                    } catch (error) {
+                                        showError(
+                                            error.response?.data?.error ||
+                                                'An unknown error occurred',
+                                        );
+                                    }
+                                    handleClose();
                                 }}
                             >
                                 <Text variant="subheader-1">Добавить магазин</Text>

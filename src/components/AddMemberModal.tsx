@@ -2,9 +2,9 @@ import {Button, Card, Modal, TextInput, Text, Icon, Select, ArrowToggle} from '@
 import {TrashBin} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useMemo, useState} from 'react';
-import callApi from 'src/utilities/callApi';
 import {useUser} from './RequireAuth';
 import {useError} from 'src/pages/ErrorContext';
+import ApiClient from 'src/utilities/ApiClient';
 
 interface AddMemberModalInterface {
     children: ReactElement | ReactElement[];
@@ -261,28 +261,28 @@ export const AddMemberModal = ({
                             view="outlined-success"
                             selected
                             disabled={!Object.keys(modules).length || identifier === ''}
-                            onClick={() => {
+                            onClick={async () => {
                                 const params = {
                                     user_id: user._id,
                                     seller_id: sellerId,
                                     member_identifier: identifier.replace(/@/g, ''),
                                     modules,
                                 };
-                                callApi('addMemberToCampaign', params, false, true)
-                                    .then(() => {
-                                        setAddedMember({
-                                            member_identifier: identifier.replace(/@/g, ''),
-                                            modules,
-                                        });
-                                        refetchUser();
-                                    })
-                                    .catch((error) => {
-                                        showError(
-                                            error.response?.data?.error ||
-                                                'Не удалось добавить сотрудника.',
-                                        );
-                                    })
-                                    .finally(() => handleClose());
+
+                                try {
+                                    await ApiClient.post('auth/add-member', params);
+                                    setAddedMember({
+                                        member_identifier: identifier.replace(/@/g, ''),
+                                        modules,
+                                    });
+                                    refetchUser();
+                                } catch (error) {
+                                    showError(
+                                        error.response?.data?.error ||
+                                            'Не удалось добавить сотрудника.',
+                                    );
+                                }
+                                handleClose();
                             }}
                         >
                             <Text variant="subheader-1">Добавить сотрудника</Text>

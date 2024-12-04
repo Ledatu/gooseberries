@@ -1,8 +1,9 @@
 import {Button, Modal, Text, Card, ArrowToggle, Select} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {Children, isValidElement, ReactElement, useMemo, useState} from 'react';
-import callApi from 'src/utilities/callApi';
 import {useUser} from './RequireAuth';
+import ApiClient from 'src/utilities/ApiClient';
+import {useError} from 'src/pages/ErrorContext';
 
 interface ManageUserModalInterface {
     sellerId: string;
@@ -19,6 +20,8 @@ export const ManageUserModal = ({
 }: ManageUserModalInterface) => {
     const {userInfo, refetchUser} = useUser();
     const {user} = userInfo;
+
+    const {showError} = useError();
 
     const [open, setOpen] = useState(false);
 
@@ -212,19 +215,24 @@ export const ManageUserModal = ({
                                 pin="circle-circle"
                                 selected
                                 disabled={!Object.keys(newModules).length}
-                                onClick={() => {
+                                onClick={async () => {
                                     const params = {
                                         user_id: user._id,
                                         seller_id: sellerId,
                                         member_id: memberInfo?._id,
                                         newModules: newModules,
                                     };
-                                    callApi('updateModulesForUserInCampaign', params)
-                                        .then((res) => {
-                                            console.log(res);
-                                            refetchUser();
-                                        })
-                                        .finally(() => handleClose());
+
+                                    try {
+                                        await ApiClient.post('auth/update-member', params);
+                                        refetchUser();
+                                    } catch (error) {
+                                        showError(
+                                            error.response?.data?.error ||
+                                                'Не удалось обновить разрешения сотрудника.',
+                                        );
+                                    }
+                                    handleClose();
                                 }}
                             >
                                 <Text variant="subheader-1">Сохранить</Text>
@@ -236,18 +244,23 @@ export const ManageUserModal = ({
                                 view="outlined-danger"
                                 pin="circle-circle"
                                 selected
-                                onClick={() => {
+                                onClick={async () => {
                                     const params = {
                                         user_id: user._id,
                                         seller_id: sellerId,
                                         member_id: memberInfo?._id,
                                     };
-                                    callApi('removeMemberFromCampaign', params)
-                                        .then((res) => {
-                                            console.log(res);
-                                            refetchUser();
-                                        })
-                                        .finally(() => handleClose());
+
+                                    try {
+                                        await ApiClient.post('auth/delete-member', params);
+                                        refetchUser();
+                                    } catch (error) {
+                                        showError(
+                                            error.response?.data?.error ||
+                                                'Не удалось удалить сотрудника.',
+                                        );
+                                    }
+                                    handleClose();
                                 }}
                             >
                                 <Text variant="subheader-1">Удалить</Text>

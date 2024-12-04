@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useState, useEffect, useCallback} from 'react';
 import {useLocation, Navigate} from 'react-router-dom';
-import callApi from 'src/utilities/callApi';
 import {LogoLoader} from './LogoLoader';
+import ApiClient from 'src/utilities/ApiClient';
 
 // Create a Context for the user info
 const UserContext = createContext(null as any);
@@ -24,10 +24,10 @@ function RequireAuth({children}) {
 
         try {
             // Call the backend API to verify the token and get user info
-            const response = await callApi('verifyToken', {token: authToken});
+            const response = await ApiClient.post('auth/verify-token', {token: authToken});
             if (!response) throw new Error('error occurred');
 
-            console.log('verifyToken', response);
+            console.log('auth/verify-token', response);
 
             if (response.data.valid) {
                 setIsAuthenticated(true); // Token is valid, set authenticated
