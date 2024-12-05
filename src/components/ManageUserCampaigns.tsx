@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useUser} from './RequireAuth';
 import {Text, Button, Card, Icon, Link, TextInput} from '@gravity-ui/uikit';
-import {Pencil, Magnifier, Plus} from '@gravity-ui/icons';
+import {Pencil, Magnifier, Plus, Calendar} from '@gravity-ui/icons';
 import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
 import {ManageUserModal} from './ManageUserModal';
@@ -9,6 +9,7 @@ import {ChangeApiModal} from './ChangeApiModal';
 import {motion} from 'framer-motion';
 import {AddApiModal} from './AddApiModal';
 import {useCampaign} from 'src/contexts/CampaignContext';
+import {SetSubscriptionExpDateModal} from './SetSubscriptionExpDateModal';
 
 const EditMemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, modules}) => {
     return (
@@ -84,6 +85,8 @@ const CampaignInfo = ({
     addedMember,
     setAddedMember,
 }) => {
+    const {userInfo} = useUser();
+    const {user} = userInfo;
     const {setSelectValue} = useCampaign();
     const membersInfo = [] as any[];
     for (const member of members) {
@@ -258,6 +261,15 @@ const CampaignInfo = ({
                         ? `Подписка до ${new Date(subscriptionExpDate).toLocaleDateString('ru-RU')}`
                         : 'Бессрочная подписка'}
                 </Text>
+                {[933839157, 1122958293].includes(user?._id) ? (
+                    <SetSubscriptionExpDateModal campaignName={name} sellerId={sellerId}>
+                        <Button style={{marginLeft: 4}} view="flat" pin="circle-circle">
+                            <Icon data={Calendar} size={13} />
+                        </Button>
+                    </SetSubscriptionExpDateModal>
+                ) : (
+                    <></>
+                )}
                 <div style={{minWidth: 16}} />
                 <Text
                     whiteSpace="break-spaces"

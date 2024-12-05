@@ -241,12 +241,10 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
                 name: 'tags',
                 placeholder: 'Теги',
                 valueType: 'text',
-                render: ({value, row}) => {
+                render: ({value}) => {
                     if (value === undefined) return;
                     const tags = [] as ReactNode[];
                     for (const tag of value) {
-                        console.log(tag, row['art']);
-
                         if (!tag) continue;
                         const text = tag.toUpperCase();
                         tags.push(

@@ -130,7 +130,7 @@ export const Dashboard = ({setThemeAurum}) => {
         setPage(
             page == 'noModules'
                 ? firstModule
-                : modules.includes(page) || modules.includes('all')
+                : modules.concat('api').includes(page) || modules.includes('all')
                 ? page
                 : firstModule,
         );
@@ -177,8 +177,8 @@ export const Dashboard = ({setThemeAurum}) => {
                     view="primary"
                     onClick={() => {
                         if (item.disabled || !item.id) return;
-                        setPage(item.id);
                         refetchUser();
+                        setPage(item.id);
                     }}
                 >
                     <Text variant="body-3" color={item.disabled ? 'secondary' : undefined}>
@@ -200,8 +200,8 @@ export const Dashboard = ({setThemeAurum}) => {
                 view="primary"
                 onClick={() => {
                     if (item.disabled || !item.id) return;
-                    setPage(item.id);
                     refetchUser();
+                    setPage(item.id);
                 }}
             >
                 <Text
@@ -338,9 +338,6 @@ export const Dashboard = ({setThemeAurum}) => {
                                 item.title,
                             ),
                         )}
-                        onSelectTab={(val) => {
-                            setPage(val);
-                        }}
                     />
                 </div>
             ) : (
@@ -480,9 +477,6 @@ export const Dashboard = ({setThemeAurum}) => {
                                                             item.title,
                                                         ),
                                                 )}
-                                                onSelectTab={(val) => {
-                                                    setPage(val);
-                                                }}
                                             />
                                         </div>
                                     </div>
