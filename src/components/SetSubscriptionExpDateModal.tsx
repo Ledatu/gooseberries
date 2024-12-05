@@ -86,7 +86,9 @@ export const SetSubscriptionExpDateModal = ({
                             border: '1px solid #eee2',
                         }}
                     >
-                        <Text variant="header-1">{campaignName}</Text>
+                        <Text style={{marginBottom: 8}} variant="header-1">
+                            {campaignName}
+                        </Text>
                         <motion.div
                             animate={{
                                 height: subExpDateValid ? 44 : 0,
