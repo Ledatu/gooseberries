@@ -865,7 +865,9 @@ export const PricesPage = ({permission, sellerId}) => {
                         />
                         <div style={{minWidth: 8}} />
                         <Button
-                            disabled={permission != 'Управление'}
+                            disabled={
+                                permission != 'Управление' || currentPricesCalculatedBasedOn == ''
+                            }
                             // loading={fetchingDataFromServerFlag}
                             size="l"
                             view="action"

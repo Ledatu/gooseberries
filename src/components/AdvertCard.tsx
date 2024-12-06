@@ -143,7 +143,7 @@ export const AdvertCard = ({
                         </Button>
                         <Button
                             style={{
-                                borderBottomRightRadius: status && status != 11 ? 9 : 0,
+                                borderBottomRightRadius: status && status == 9 ? 9 : 0,
                                 overflow: 'hidden',
                             }}
                             selected

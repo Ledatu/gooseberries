@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useUser} from './RequireAuth';
-import {Text, Button, Card, Icon, Link, TextInput} from '@gravity-ui/uikit';
+import {Text, Button, Card, Icon, Link, TextInput, Tooltip} from '@gravity-ui/uikit';
 import {Pencil, Magnifier, Plus, Calendar} from '@gravity-ui/icons';
 import {Identity} from '@gravity-ui/illustrations';
 import {AddMemberModal} from './AddMemberModal';
@@ -10,6 +10,9 @@ import {motion} from 'framer-motion';
 import {AddApiModal} from './AddApiModal';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {SetSubscriptionExpDateModal} from './SetSubscriptionExpDateModal';
+import ApiClient from 'src/utilities/ApiClient';
+import {useError} from 'src/pages/ErrorContext';
+import {defaultRender} from 'src/utilities/getRoundValue';
 
 const EditMemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId, modules}) => {
     return (
@@ -84,6 +87,7 @@ const CampaignInfo = ({
     members,
     addedMember,
     setAddedMember,
+    tariff,
 }) => {
     const {userInfo} = useUser();
     const {user} = userInfo;
@@ -105,6 +109,38 @@ const CampaignInfo = ({
         membersInfo.push(<div style={{minWidth: 8}} />);
     }
     membersInfo.pop();
+
+    const tariffDetailed = useMemo(() => {
+        const base = 4990;
+        const art = 50;
+        const artCount = (tariff - base) / art;
+        return (
+            <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                <Tooltip content="База">
+                    <Link view="primary">{defaultRender({value: base})}</Link>
+                </Tooltip>
+                <div style={{margin: '0px 8px'}}>+</div>
+                <Tooltip content="Стоимость 1 артикула">
+                    <Link view="primary">{defaultRender({value: art})}</Link>
+                </Tooltip>
+                <div style={{margin: '0px 8px'}}>*</div>
+                <Tooltip content="Количество артикулов с 1 и более заказами за последние 30 дней">
+                    <Link view="primary">{defaultRender({value: artCount})}</Link>
+                </Tooltip>
+                <div style={{margin: '0px 8px'}}>=</div>
+                <Tooltip content="Итог. Нажмите, чтобы скопировать">
+                    <Link
+                        onClick={() => {
+                            navigator.clipboard.writeText(tariff);
+                        }}
+                    >
+                        {defaultRender({value: tariff})}
+                    </Link>
+                </Tooltip>
+                <div style={{margin: '0px 8px'}}>₽</div>
+            </div>
+        );
+    }, [tariff]);
 
     return (
         <Card
@@ -193,6 +229,23 @@ const CampaignInfo = ({
                         />
                     </div>
                     <div style={{minHeight: 8}} />
+                    {tariff > 4990 ? (
+                        <Text
+                            style={{
+                                marginBottom: 8,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                flexWrap: 'wrap',
+                            }}
+                            variant="header-1"
+                        >
+                            <div style={{marginRight: 8}}>Стоимость тарифа:</div>
+                            {tariffDetailed}
+                            <div>/ мес.</div>
+                        </Text>
+                    ) : (
+                        <></>
+                    )}
                     <div
                         style={{
                             display: 'flex',
@@ -291,10 +344,29 @@ const CampaignInfo = ({
 
 export const ManageUserCampaigns = () => {
     const {userInfo} = useUser();
-    const {campaigns} = userInfo ?? {};
+    const {showError} = useError();
+    const {campaigns, user} = userInfo ?? {};
     const [campaignsInfos, setCampaignsInfos] = useState([] as any[]);
     const [addedMember, setAddedMember] = useState({} as any);
     const [filterValue, setFilterValue] = useState('');
+
+    const [tariffs, setTariffs] = useState({});
+    const fetchTariffs = async () => {
+        const params = {user_id: user?._id};
+        const temp = {};
+        try {
+            const response = await ApiClient.post('auth/subscription-tariffs', params);
+            if (!response?.data?.tariffs) throw new Error('No tariffs');
+            for (const entry of response.data.tariffs) temp[entry?.seller_id] = entry?.price;
+        } catch (error) {
+            console.error(error);
+            showError('Не удалось получить тарифы.');
+        }
+        setTariffs(temp);
+    };
+    useEffect(() => {
+        fetchTariffs();
+    }, []);
 
     useEffect(() => {
         const campaignsInfosTemp = [] as any[];
@@ -330,11 +402,12 @@ export const ManageUserCampaigns = () => {
                         members={campaign?.members}
                         addedMember={addedMember}
                         setAddedMember={setAddedMember}
+                        tariff={tariffs[campaign?.seller_id]}
                     />,
                 );
             }
         setCampaignsInfos(campaignsInfosTemp);
-    }, [campaigns, filterValue]);
+    }, [campaigns, filterValue, tariffs]);
 
     return (
         <div
