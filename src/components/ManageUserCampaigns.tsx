@@ -384,9 +384,19 @@ export const ManageUserCampaigns = () => {
 
                 if (filterValue != '') {
                     if (!name?.toLocaleLowerCase()?.includes(filterValue.toLocaleLowerCase())) {
-                        const details = {...campaign?.ownerDetails};
-                        delete details['photo_url'];
-                        const vals = Object.values(details ?? {})?.join('');
+                        const detailsOwner = {...campaign?.ownerDetails};
+                        delete detailsOwner['photo_url'];
+
+                        let details = Object.values(detailsOwner ?? {});
+
+                        const mambers = campaign?.members;
+                        for (const member of mambers) {
+                            const detailsMember = {...member?.member_id};
+                            delete detailsMember['photo_url'];
+
+                            details = details.concat(Object.values(detailsMember ?? {}));
+                        }
+                        const vals = details.join(' ');
 
                         if (!vals?.toLocaleLowerCase()?.includes(filterValue.toLocaleLowerCase()))
                             continue;
