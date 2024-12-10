@@ -491,7 +491,13 @@ export const Dashboard = ({setThemeAurum}) => {
                                             alignItems: 'center',
                                         }}
                                     >
-                                        {selectValue[0] ? (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}
+                                        >
                                             <div
                                                 style={{
                                                     display: 'flex',
@@ -499,49 +505,39 @@ export const Dashboard = ({setThemeAurum}) => {
                                                     alignItems: 'center',
                                                 }}
                                             >
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                    }}
-                                                >
-                                                    <div style={{minWidth: 12}} />
-                                                    <Tooltip content={'База знаний'}>
-                                                        <Button
-                                                            size="xl"
-                                                            href={
-                                                                'https://aurum-wiki.tilda.ws/tdocs/'
-                                                            }
-                                                            target={'_blank'}
-                                                        >
-                                                            <Icon data={GraduationCap} size={18} />
-                                                        </Button>
-                                                    </Tooltip>
-                                                    <div style={{minWidth: 12}} />
-                                                    <Tooltip content={'Поддержка'}>
-                                                        <Button
-                                                            size="xl"
-                                                            href={
-                                                                'https://t.me/AurumSkyNetSupportBot'
-                                                            }
-                                                            target={'_blank'}
-                                                        >
-                                                            <Icon data={CircleQuestion} size={18} />
-                                                        </Button>
-                                                    </Tooltip>
-                                                    <div style={{minWidth: 12}} />
-                                                    <Tooltip content={'Наш телеграм канал'}>
-                                                        <Button
-                                                            size="xl"
-                                                            href={'https://t.me/+5PHQ7OK2pT4yMDBi'}
-                                                            target={'_blank'}
-                                                        >
-                                                            <Icon data={LogoTelegram} size={18} />
-                                                        </Button>
-                                                    </Tooltip>
-                                                    <div style={{minWidth: 24}} />
-                                                </div>
+                                                <div style={{minWidth: 12}} />
+                                                <Tooltip content={'База знаний'}>
+                                                    <Button
+                                                        size="xl"
+                                                        href={'https://aurum-wiki.tilda.ws/tdocs/'}
+                                                        target={'_blank'}
+                                                    >
+                                                        <Icon data={GraduationCap} size={18} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <div style={{minWidth: 12}} />
+                                                <Tooltip content={'Поддержка'}>
+                                                    <Button
+                                                        size="xl"
+                                                        href={'https://t.me/AurumSkyNetSupportBot'}
+                                                        target={'_blank'}
+                                                    >
+                                                        <Icon data={CircleQuestion} size={18} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <div style={{minWidth: 12}} />
+                                                <Tooltip content={'Наш телеграм канал'}>
+                                                    <Button
+                                                        size="xl"
+                                                        href={'https://t.me/+5PHQ7OK2pT4yMDBi'}
+                                                        target={'_blank'}
+                                                    >
+                                                        <Icon data={LogoTelegram} size={18} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <div style={{minWidth: 24}} />
+                                            </div>
+                                            {selectValue[0] ? (
                                                 <div
                                                     style={{
                                                         display: 'flex',
@@ -735,10 +731,11 @@ export const Dashboard = ({setThemeAurum}) => {
                                                     />
                                                     <div style={{minWidth: 8}} />
                                                 </div>
-                                            </div>
-                                        ) : (
-                                            <></>
-                                        )}
+                                            ) : (
+                                                <></>
+                                            )}
+                                        </div>
+
                                         <UserPopup
                                             setTheme={setTheme}
                                             setThemeAurum={setThemeAurum}

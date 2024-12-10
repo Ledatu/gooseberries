@@ -151,7 +151,7 @@ export default function TheTable({
 
             if (sortFunction) {
                 sortFuncs[name] = sortFunction;
-                console.log(sortFuncs);
+                // console.log(sortFuncs);
             }
 
             columns.push({
