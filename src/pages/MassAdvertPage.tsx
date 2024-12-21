@@ -235,7 +235,7 @@ export const MassAdvertPage = ({
 
     const [budgetInputValue, setBudgetInputValue] = useState(1000);
     const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
-    const [bidInputValue, setBidInputValue] = useState(100);
+    const [bidInputValue, setBidInputValue] = useState(125);
     const [bidInputValidationValue, setBidInputValidationValue] = useState(true);
     const advertTypeSwitchValues: any[] = [
         {value: 'Авто', content: 'Авто'},
@@ -4587,7 +4587,7 @@ export const MassAdvertPage = ({
                                 setAdvertTypeSwitchValue(['Авто']);
                                 setBudgetInputValue(1000);
                                 setBudgetInputValidationValue(true);
-                                setBidInputValue(100);
+                                setBidInputValue(125);
                                 setBidInputValidationValue(true);
                                 setModalFormOpen(false);
                             }}
@@ -4633,7 +4633,7 @@ export const MassAdvertPage = ({
                                         options={advertTypeSwitchValues}
                                         onUpdate={(val) => {
                                             setAdvertTypeSwitchValue(val);
-                                            setBidInputValue(val[0] == 'Авто' ? 100 : 150);
+                                            setBidInputValue(val[0] == 'Авто' ? 125 : 150);
                                         }}
                                     />
                                     <TextTitleWrapper
@@ -4681,11 +4681,11 @@ export const MassAdvertPage = ({
                                             value={String(bidInputValue)}
                                             onChange={(val) => {
                                                 const bid = Number(val.target.value);
-                                                if (bid < 100) setBidInputValidationValue(false);
+                                                if (bid < 125) setBidInputValidationValue(false);
                                                 else setBidInputValidationValue(true);
                                                 setBidInputValue(bid);
                                             }}
-                                            errorMessage={'Введите не менее 100'}
+                                            errorMessage={'Введите не менее 125'}
                                             validationState={
                                                 bidInputValidationValue ? undefined : 'invalid'
                                             }
