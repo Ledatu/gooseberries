@@ -134,7 +134,7 @@ export const AdvertsBidsModal = ({
     const [cpmInputValue, setCpmInputValue] = useState('');
     const cpmInputValueValid = useMemo(() => {
         const temp = parseInt(cpmInputValue);
-        return temp && temp >= 50 && !isNaN(temp) && isFinite(temp);
+        return temp && temp >= 125 && !isNaN(temp) && isFinite(temp);
     }, [cpmInputValue]);
 
     const [drrInputValue, setDrrInputValue] = useState('');
@@ -222,7 +222,7 @@ export const AdvertsBidsModal = ({
     useEffect(() => {
         setModalOption(modalOptions[0].value);
         setAutoBidderOption([autoBidderOptions[0].value]);
-        setCpmInputValue('100');
+        setCpmInputValue('125');
         setDrrInputValue('10');
         setCpoInputValue('50');
         setOrdersInputValue('10');
