@@ -1,8 +1,9 @@
-import {ArrowToggle, Button, Icon, Popup, RadioButton, Text} from '@gravity-ui/uikit';
+import {ArrowToggle, Button, Card, Icon, Popup, RadioButton, Text} from '@gravity-ui/uikit';
 import {Sun, Moon} from '@gravity-ui/icons';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useUser} from './RequireAuth';
 import {CopyButton} from './CopyButton';
+import {RNPSwitch} from './RNPSwitch';
 
 export const UserPopup = ({setThemeAurum, Theme, setTheme}) => {
     const themeVal = localStorage.getItem('theme');
@@ -115,6 +116,19 @@ export const UserPopup = ({setThemeAurum, Theme, setTheme}) => {
                             <Button view="outlined" width="max" size="l">
                                 <Text variant="subheader-2"> Тут будет управление</Text>
                             </Button>
+                            <div style={{minHeight: 16}} />
+                            <Card
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: 36,
+                                    width: '100%',
+                                }}
+                            >
+                                <RNPSwitch />
+                            </Card>
                             <div style={{minHeight: 16}} />
                             <RadioButton
                                 size="l"
