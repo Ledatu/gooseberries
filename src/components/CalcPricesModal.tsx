@@ -533,7 +533,7 @@ export const CalcPricesModal = ({
                                 <div style={{minWidth: 8}} />
                                 <Tooltip
                                     openDelay={600}
-                                    content={'Изменить фикс. цену на значение или процент'}
+                                    content={'Изменить параметры цены на значение или процент.'}
                                 >
                                     <Button
                                         size="l"
@@ -543,19 +543,21 @@ export const CalcPricesModal = ({
                                         }}
                                     >
                                         <Icon data={Pencil} />
-                                        Изменить
+                                        Изменить на ±
                                     </Button>
                                 </Tooltip>
                                 <motion.div
                                     style={{width: 0}}
                                     animate={{
-                                        width: changeFixedPrices ? 36 : 0,
+                                        width: changeFixedPrices ? 65 : 0,
                                         marginLeft: changeFixedPrices ? 8 : 0,
                                     }}
                                 >
                                     <Tooltip
                                         openDelay={600}
-                                        content={'Использовать процент для изменения фикс. цены'}
+                                        content={
+                                            'Использовать процент для изменения параметра цены'
+                                        }
                                     >
                                         <Button
                                             size="l"
@@ -566,6 +568,7 @@ export const CalcPricesModal = ({
                                                 );
                                             }}
                                         >
+                                            в
                                             <Icon data={Percent} />
                                         </Button>
                                     </Tooltip>
@@ -611,7 +614,7 @@ export const CalcPricesModal = ({
                                             setChangeDiscount(!changeDiscount);
                                         }}
                                     >
-                                        <Icon data={Percent} />
+                                        <Icon data={Pencil} />
                                         Изменить
                                     </Button>
                                 </Tooltip>
