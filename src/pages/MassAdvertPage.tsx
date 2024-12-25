@@ -720,7 +720,7 @@ export const MassAdvertPage = ({
 
                 /// tags
                 const tagsNodes = [] as ReactNode[];
-                const autoSalesInfo = doc['autoSales'][selectValue[0]][nmId];
+                const autoSalesInfo = doc?.['autoSales']?.[selectValue[0]]?.[nmId];
                 const {fixedPrices} = autoSalesInfo ?? {};
                 const inActionNow =
                     autoSalesInfo?.autoSaleName && autoSalesInfo?.autoSaleName !== '';
@@ -1257,7 +1257,7 @@ export const MassAdvertPage = ({
                       const switches: any[] = [];
                       if (value)
                           for (const [advertId, _] of Object.entries(value)) {
-                              const advertData = doc.adverts[selectValue[0]][advertId];
+                              const advertData = doc?.adverts?.[selectValue[0]]?.[advertId];
                               if (!advertData) continue;
 
                               // console.log('popa', advertData, filters['adverts'].val);
@@ -1711,7 +1711,7 @@ export const MassAdvertPage = ({
                     );
                 }
                 const {placementsValue, stocksBySizes, nmId} = row ?? {};
-                const stocksByWarehousesArt = stocksByWarehouses[nmId];
+                const stocksByWarehousesArt = stocksByWarehouses?.[nmId];
 
                 // if (!placementsValue) return undefined;
                 const {reviewRating, sizes, feedbacks, phrase} = placementsValue ?? {};
@@ -2348,7 +2348,7 @@ export const MassAdvertPage = ({
                     const phrase = placementsDisplayPhrase;
                     const {nmId} = row;
                     const {log, index} = doc.fetchedPlacements[phrase]
-                        ? doc.fetchedPlacements[phrase].data[nmId] ?? ({} as any)
+                        ? doc.fetchedPlacements[phrase].data?.[nmId] ?? ({} as any)
                         : ({} as any);
                     const {updateTime} = doc.fetchedPlacements[phrase] ?? ({} as any);
                     const updateTimeObj = new Date(updateTime);
@@ -2405,7 +2405,7 @@ export const MassAdvertPage = ({
 
                 const findFirstActive = (adverts) => {
                     for (const [id, _] of Object.entries(adverts ?? {})) {
-                        const advert = doc.adverts[selectValue[0]][id];
+                        const advert = doc?.adverts?.[selectValue[0]]?.[id];
                         if (!advert) continue;
                         if ([9, 11].includes(advert.status)) return advert;
                     }
@@ -2419,11 +2419,10 @@ export const MassAdvertPage = ({
                     'Аукцион Поиска': 'search',
                 };
 
-                const auction = doc.placementsAuctions[selectValue[0]][phrase]
-                    ? doc.placementsAuctions[selectValue[0]][phrase][
-                          mapAuctionsTypes[auctionSelectedOption]
-                      ] ?? []
-                    : [];
+                const auction =
+                    doc?.placementsAuctions?.[selectValue[0]]?.[phrase]?.[
+                        mapAuctionsTypes[auctionSelectedOption]
+                    ] ?? [];
 
                 const updateTimeObj = new Date(updateTime);
                 const moreThatHour =
@@ -2439,9 +2438,8 @@ export const MassAdvertPage = ({
                 //     phrase,
                 // );
 
-                const isSelectedPhrase = doc.advertsSelectedPhrases[selectValue[0]][advertId]
-                    ? doc.advertsSelectedPhrases[selectValue[0]][advertId].phrase == phrase
-                    : false;
+                const isSelectedPhrase =
+                    doc?.advertsSelectedPhrases?.[selectValue[0]]?.[advertId]?.phrase == phrase;
 
                 return (
                     <div style={{display: 'flex', flexDirection: 'column'}}>
@@ -2728,10 +2726,10 @@ export const MassAdvertPage = ({
                 const findMinDrr = (adverts) => {
                     let minDrr = 0;
                     for (const [id, _] of Object.entries(adverts ?? {})) {
-                        const advert = doc.adverts[selectValue[0]][id];
+                        const advert = doc?.adverts?.[selectValue[0]]?.[id];
                         if (!advert) continue;
-                        if (![9, 11].includes(advert.status)) continue;
-                        const drrAI = doc.advertsAutoBidsRules[selectValue[0]][advert.advertId];
+                        if (![9, 11].includes(advert?.status)) continue;
+                        const drrAI = doc?.advertsAutoBidsRules[selectValue[0]]?.[advert?.advertId];
                         const {desiredDRR, useManualMaxCpm, autoBidsMode} = drrAI ?? {};
 
                         if (useManualMaxCpm && !['drr', 'cpo'].includes(autoBidsMode)) continue;
@@ -2768,7 +2766,7 @@ export const MassAdvertPage = ({
             render: ({value, row}) => {
                 const findFirstActive = (adverts) => {
                     for (const [id, _] of Object.entries(adverts ?? {})) {
-                        const advert = doc.adverts[selectValue[0]][id];
+                        const advert = doc?.adverts?.[selectValue[0]]?.[id];
                         if (!advert) continue;
                         if ([9, 11].includes(advert.status)) return advert;
                     }
@@ -2777,9 +2775,8 @@ export const MassAdvertPage = ({
                 const {adverts} = row;
                 const fistActiveAdvert = findFirstActive(adverts);
 
-                const drrAI = fistActiveAdvert
-                    ? doc.advertsAutoBidsRules[selectValue[0]][fistActiveAdvert.advertId]
-                    : undefined;
+                const drrAI =
+                    doc?.advertsAutoBidsRules?.[selectValue[0]]?.[fistActiveAdvert?.advertId];
                 const {desiredDRR, autoBidsMode} = drrAI ?? {};
 
                 return (
@@ -3547,7 +3544,7 @@ export const MassAdvertPage = ({
                     if (adverts)
                         for (const [id, _] of Object.entries(adverts)) {
                             wholeText += id + ' ';
-                            const advertData = doc.adverts[selectValue[0]][id];
+                            const advertData = doc?.adverts?.[selectValue[0]]?.[id];
 
                             if (advertData)
                                 wholeTextTypes += advertData.type == 8 ? 'авто ' : 'поиск ';
@@ -4025,17 +4022,7 @@ export const MassAdvertPage = ({
     const balance = (() => {
         const map = {balance: 'Счет', bonus: 'Бонусы', net: 'Баланс'};
 
-        const temp = doc
-            ? doc.balances
-                ? doc.balances[selectValue[0]]
-                    ? doc.balances[selectValue[0]].data
-                        ? doc.balances[selectValue[0]].data.slice(-1)[0]
-                            ? doc.balances[selectValue[0]].data.slice(-1)[0].balance
-                            : undefined
-                        : undefined
-                    : undefined
-                : undefined
-            : undefined;
+        const temp = doc?.balances?.[selectValue[0]]?.data?.slice(-1)?.[0]?.balance;
         const arr = [] as string[];
         if (temp)
             for (const [type, val] of Object.entries(temp)) {
@@ -4908,9 +4895,11 @@ export const MassAdvertPage = ({
                                                             : 'outlined-danger'
                                                     }
                                                     disabled={
-                                                        !doc.adverts[selectValue[0]][advertId] ||
-                                                        doc.adverts[selectValue[0]][advertId]
-                                                            .type != 8
+                                                        !doc.adverts?.[selectValue[0]]?.[
+                                                            advertId
+                                                        ] ||
+                                                        doc?.adverts?.[selectValue[0]]?.[advertId]
+                                                            ?.type != 8
                                                     }
                                                     onClick={async () => {
                                                         const params = {
