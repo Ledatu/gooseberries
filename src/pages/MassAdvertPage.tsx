@@ -4323,7 +4323,7 @@ export const MassAdvertPage = ({
 
             for (const [id, _] of Object.entries(adverts)) {
                 if (!id) continue;
-                const advertData = doc.adverts[selectValue[0]][id];
+                const advertData = doc?.adverts?.[selectValue[0]]?.[id];
                 if (!advertData) continue;
                 const {advertId, type} = advertData;
                 if (!advertId) continue;
