@@ -1721,7 +1721,7 @@ export const MassAdvertPage = ({
                 const priceRub = Math.round(total / 100);
                 // console.log(placementsValue);
 
-                const {firstPage} = doc.placementsAuctions[selectValue[0]][phrase] ?? {};
+                const {firstPage} = doc?.placementsAuctions?.[selectValue[0]]?.[phrase] ?? {};
 
                 const timeline: any[] = [];
                 const pricesData: any[] = [];
