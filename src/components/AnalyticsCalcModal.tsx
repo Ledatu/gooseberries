@@ -10,11 +10,12 @@ import {
     Text,
 } from '@gravity-ui/uikit';
 import {Calculator, TrashBin} from '@gravity-ui/icons';
-import React, {useMemo, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {getNormalDateRange} from 'src/utilities/getRoundValue';
 import {motion} from 'framer-motion';
 import {TextTitleWrapper} from './TextTitleWrapper';
+import {RangePicker} from './RangePicker';
 
 export const AnalyticsCalcModal = ({
     setEntityKeysLastCalc,
@@ -22,8 +23,11 @@ export const AnalyticsCalcModal = ({
     doc,
     setChangedDoc,
     selectValue,
-    dateRange,
+    dateRangeDefault,
 }) => {
+    const [dateRange, setDateRange] = useState(dateRangeDefault);
+    const anchorRef = useRef(null);
+
     const [calculatingFlag, setCalculatingFlag] = useState(false);
     const [enteredValuesModalOpen, setEnteredValuesModalOpen] = useState(false);
 
@@ -205,22 +209,32 @@ export const AnalyticsCalcModal = ({
                 <Card
                     view="clear"
                     style={{
-                        width: 250,
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        translate: '-50% -50%',
+                        flexWrap: 'nowrap',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         backgroundColor: 'none',
                     }}
                 >
-                    <div
+                    <motion.div
                         style={{
-                            height: '50%',
-                            width: '100%',
+                            overflow: 'hidden',
+                            flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            margin: '8px 0',
+                            justifyContent: 'space-between',
+                            background: '#221d220f',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '#0002 0px 2px 8px 0px',
+                            padding: 30,
+                            borderRadius: 30,
+                            border: '1px solid #eee2',
                         }}
                     >
                         <div
@@ -247,6 +261,16 @@ export const AnalyticsCalcModal = ({
                                 }}
                             />
                         </TextTitleWrapper>
+                        <div style={{minHeight: 12}} />
+                        <RangePicker
+                            args={{
+                                translate: 'center',
+                                recalc: () => {},
+                                dateRange,
+                                setDateRange,
+                                anchorRef,
+                            }}
+                        />
                         <div style={{minHeight: 12}} />
                         <Button
                             size="l"
@@ -290,7 +314,7 @@ export const AnalyticsCalcModal = ({
                             <Icon data={Calculator} />
                             <Text variant="subheader-1">Сгенерировать</Text>
                         </Button>
-                    </div>
+                    </motion.div>
                 </Card>
             </Modal>
         </div>

@@ -5,7 +5,7 @@ import {dateTimeParse} from '@gravity-ui/date-utils';
 import React, {useRef, useState} from 'react';
 
 export const RangePicker = ({args}) => {
-    const {recalc, dateRange, setDateRange, align} = args;
+    const {recalc, dateRange, setDateRange, align, translate} = args;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -62,7 +62,12 @@ export const RangePicker = ({args}) => {
                             borderRadius: 30,
                             border: '1px solid #eee2',
                             position: 'absolute',
-                            left: align == 'column' ? 'calc(-50vw - 76px)' : -617,
+                            left:
+                                translate != 'center'
+                                    ? align == 'column'
+                                        ? 'calc(-50vw - 76px)'
+                                        : -617
+                                    : -390,
                             width: align == 'column' ? 'calc(100vw - 35px)' : 600,
                             height: align == 'column' ? 500 : 250,
                             padding: align == 'column' ? 10 : undefined,

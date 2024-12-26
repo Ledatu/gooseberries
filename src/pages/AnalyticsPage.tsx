@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Spin, Icon, Button, Text, List, Popover, Card, Modal, TextInput} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
@@ -14,7 +14,6 @@ import {
 
 import callApi, {getUid} from 'src/utilities/callApi';
 import TheTable, {compare} from 'src/components/TheTable';
-import {RangePicker} from 'src/components/RangePicker';
 import {
     daysInMonth,
     daysInPeriod,
@@ -75,7 +74,6 @@ export const AnalyticsPage = ({permission}) => {
 
     const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
     const [selectedButton, setSelectedButton] = useState('');
-    const anchorRef = useRef(null);
 
     const [planModalOpen, setPlanModalOpen] = useState(false);
     const [planModalOpenFromEntity, setPlanModalOpenFromEntity] = useState('');
@@ -733,7 +731,7 @@ export const AnalyticsPage = ({permission}) => {
     );
     // const monthAgo = new Date(today);
     // monthAgo.setDate(monthAgo.getDate() - 30);
-    const [dateRange, setDateRange] = useState([today, today]);
+    const [dateRange] = useState([today, today]);
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -780,15 +778,12 @@ export const AnalyticsPage = ({permission}) => {
         } else {
             setSwitchingCampaignsFlag(false);
         }
-        recalc(dateRange, selectValue[0], filters);
+        recalc(selectValue[0], filters);
     }, [selectValue]);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
-    const recalc = (dateRange, selected = '', withfFilters = {}) => {
-        const [startDate, endDate] = dateRange;
-        console.log(startDate, endDate);
-
+    const recalc = (selected = '', withfFilters = {}) => {
         const campaignData = doc
             ? doc.analyticsData[selected === '' ? selectValue[0] : selected]
             : {};
@@ -1511,13 +1506,13 @@ export const AnalyticsPage = ({permission}) => {
     if (changedDoc) {
         setChangedDoc(undefined);
         setChangedDocUpdateType(false);
-        recalc(dateRange);
+        recalc();
     }
 
     if (!doc) return <Spin />;
     if (!firstRecalc) {
         console.log(doc);
-        recalc(dateRange, selectValue[0]);
+        recalc(selectValue[0]);
         setFirstRecalc(true);
         setSwitchingCampaignsFlag(false);
     }
@@ -1941,7 +1936,7 @@ export const AnalyticsPage = ({permission}) => {
                         setEntityKeysLastCalc={setEntityKeysLastCalc}
                         setEnteredKeysDateTypeLastCalc={setEnteredKeysDateTypeLastCalc}
                         selectValue={selectValue}
-                        dateRange={dateRange}
+                        dateRangeDefault={dateRange}
                     />
                     <div style={{minWidth: 8}} />
                     <TagsFilterModal filterByButton={filterByButton} />
@@ -2039,14 +2034,6 @@ export const AnalyticsPage = ({permission}) => {
                         setChangedDoc={setChangedDoc}
                     />
                     <div style={{minWidth: 8}} />
-                    <RangePicker
-                        args={{
-                            recalc,
-                            dateRange,
-                            setDateRange,
-                            anchorRef,
-                        }}
-                    />
                 </div>
             </div>
 
