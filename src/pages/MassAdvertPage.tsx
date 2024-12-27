@@ -2715,7 +2715,25 @@ export const MassAdvertPage = ({
                 );
             },
         },
-        {name: 'dsi', placeholder: 'DSI'},
+        {
+            name: 'dsi',
+            placeholder: 'Обор.',
+            additionalNodes: [
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        marginBottom: 5,
+                        marginLeft: 4,
+                    }}
+                >
+                    <HelpPopover
+                        size="l"
+                        content="Показывает через сколько дней закончится текущий остаток с учетом средней скорости заказов в день за выбранные период в календаре"
+                    />
+                </div>,
+            ],
+        },
         {name: 'sum', placeholder: 'Расход, ₽'},
         {name: 'orders', placeholder: 'Заказы, шт.'},
         {name: 'sum_orders', placeholder: 'Заказы, ₽'},
