@@ -389,35 +389,36 @@ export const AdvertsWordsModal = ({
     }, [open]);
 
     const [separetedWords, setSeparetedWords] = useState([] as string[]);
+    const [separetedWordsObj, setseparetedWordsObj] = useState({});
     useEffect(() => {
-        const separetedWordsObj = {};
+        const obj = {};
         const temp = [] as string[];
         for (const row of semanticsModalSemanticsItemsFiltratedValue) {
             const {cluster, freq} = row;
             const words = (cluster as string).split(' ');
             for (const word of words) {
-                if (!separetedWordsObj[word]) separetedWordsObj[word] = 0;
-                separetedWordsObj[word] += freq;
-                if (!temp.includes(word)) temp.push(word);
+                if (!obj[word]) obj[word] = 0;
+                obj[word] += freq ?? 0;
+                if (!temp.includes(word) && !semanticsAutoPhrasesModalIncludesList.includes(word))
+                    temp.push(word);
             }
         }
         for (const row of semanticsModalSemanticsMinusItemsFiltratedValue) {
             const {cluster, freq} = row;
             const words = (cluster as string).split(' ');
             for (const word of words) {
-                if (!separetedWordsObj[word]) separetedWordsObj[word] = 0;
-                separetedWordsObj[word] += freq;
-                if (!temp.includes(word)) temp.push(word);
+                if (!obj[word]) obj[word] = 0;
+                obj[word] += freq ?? 0;
+                if (
+                    !temp.includes(word) &&
+                    !semanticsAutoPhrasesModalNotIncludesList.includes(word)
+                )
+                    temp.push(word);
             }
         }
-        temp.sort((a, b) => separetedWordsObj[b] - separetedWordsObj[a]);
-        setSeparetedWords(
-            temp.filter(
-                (item) =>
-                    !semanticsAutoPhrasesModalIncludesList.includes(item) &&
-                    !semanticsAutoPhrasesModalNotIncludesList.includes(item),
-            ),
-        );
+        temp.sort((a, b) => obj[b] - obj[a]);
+        setSeparetedWords(temp);
+        setseparetedWordsObj(obj);
     }, [
         semanticsModalSemanticsItemsFiltratedValue,
         semanticsModalSemanticsMinusItemsFiltratedValue,
@@ -1751,8 +1752,8 @@ export const AdvertsWordsModal = ({
                                                     <div style={{minWidth: 8}} />
                                                     <AutoPhrasesWordsSelection
                                                         disabled={disabled}
-                                                        items={separetedWords}
-                                                        setItems={setSeparetedWords}
+                                                        itemsTemp={separetedWords}
+                                                        itemsObj={separetedWordsObj}
                                                         setAutoPhrasesArray={
                                                             setSemanticsAutoPhrasesModalIncludesList
                                                         }
@@ -1876,8 +1877,8 @@ export const AdvertsWordsModal = ({
                                                     <div style={{minWidth: 8}} />
                                                     <AutoPhrasesWordsSelection
                                                         disabled={disabled}
-                                                        items={separetedWords}
-                                                        setItems={setSeparetedWords}
+                                                        itemsTemp={separetedWords}
+                                                        itemsObj={separetedWordsObj}
                                                         setAutoPhrasesArray={
                                                             setSemanticsAutoPhrasesModalNotIncludesList
                                                         }
