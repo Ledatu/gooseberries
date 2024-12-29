@@ -8,8 +8,9 @@ import {
     Text,
     TextArea,
     TextInput,
+    Card,
 } from '@gravity-ui/uikit';
-import {ListCheck, TrashBin, CloudArrowUpIn} from '@gravity-ui/icons';
+import {ListCheck, TrashBin, CloudArrowUpIn, Star, StarFill} from '@gravity-ui/icons';
 import React, {
     Children,
     isValidElement,
@@ -20,9 +21,10 @@ import React, {
     useState,
 } from 'react';
 import {motion} from 'framer-motion';
-import callApi, {getUid} from 'src/utilities/callApi';
+import callApi from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 import {useCampaign} from 'src/contexts/CampaignContext';
+import ApiClient from 'src/utilities/ApiClient';
 
 interface AutoFeedbackTemplateCreationModalInterface {
     children: ReactElement | ReactElement[];
@@ -52,7 +54,12 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [containsWords, setContainsWords] = useState([] as string[]);
     const [doNotContainTextInput, setDoNotContainTextInput] = useState('');
     const [doNotContainWords, setDoNotContainWords] = useState([] as string[]);
+    const [reportReview, setReportReview] = useState(false);
 
+    const [productValuations, setProductValuations] = useState([]);
+    const [feedbackValuations, setFeedbackValuations] = useState([]);
+    const [currentProductValuations, setCurrentProductValuations] = useState(0);
+    const [currentFeedbackValuations, setCurrentFeedbackValuations] = useState(0);
     const [artsData, setArtsData] = useState({});
     const getArtsData = async () => {
         if (sellerId == '') setArtsData({});
@@ -84,6 +91,57 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [availableBindingKeysFiltered, setAvailableBindingKeysFiltered] = useState([] as any[]);
 
     const {availableTags, availableTagsPending, selectValue} = useCampaign();
+
+    const getValuation = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            const response = await ApiClient.post(
+                'buyers/get-feedback-and-product-valuation',
+                params,
+            );
+            if (!response?.data) {
+                throw new Error(`Cant get valuations for campaign ${sellerId}`);
+            }
+            const valuations = response?.data?.valuations;
+            const {feedbackValuation, productValuation} = valuations;
+            const fv = [{value: 0, content: 'Без жалобы'}];
+            for (const val of feedbackValuation) {
+                fv.push({value: val._id, content: val.reason});
+            }
+            const pv = [{value: 0, content: 'Без жалобы'}];
+            for (const val of productValuation) {
+                pv.push({value: val._id, content: val.reason});
+            }
+
+            setFeedbackValuations(fv as React.SetStateAction<never[]>);
+            setProductValuations(pv as React.SetStateAction<never[]>);
+            console.log('valuations', feedbackValuations, productValuations);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const generateRates = (
+        num: number,
+        func: React.Dispatch<React.SetStateAction<string>>,
+        filter: string,
+    ) => {
+        const stars: React.JSX.Element[] = [];
+        for (let i = 1; i <= num; i++) {
+            stars.push(
+                <Button
+                    view="flat"
+                    onClick={() => func(String(i))}
+                    style={{color: 'rgb(255, 190, 92)'}}
+                >
+                    <Icon data={Number(filter) >= i ? StarFill : Star} />
+                </Button>,
+            );
+        }
+        return stars;
+    };
+    useEffect(() => {
+        getValuation();
+    }, [sellerId]);
 
     useEffect(() => {
         if (binding[0] == 'tags') setAvailableBindingKeys(availableTags);
@@ -177,399 +235,515 @@ export const AutoFeedbackTemplateCreationModal = ({
                 onClose={handleClose}
                 style={{display: 'flex', flexDirection: 'column'}}
             >
-                <motion.div
+                <Card
                     style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)', // Corrected 'translate' to 'transform'
                         display: 'flex',
                         flexDirection: 'row',
-                        position: 'relative',
+                        alignItems: 'center', // Vertically center within the Card
+                        justifyContent: 'center', // Horizontally center within the Card
+                        backgroundColor: 'none',
                     }}
                 >
                     <motion.div
-                        animate={{
-                            width: useWordsFilter ? 250 : 0,
-                            left: useWordsFilter ? -258 : 0,
-                            top: 22,
-                        }}
-                        style={{
-                            position: 'absolute',
-                            background: 'var(--g-color-base-background)',
-                            borderRadius: 8,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            width: 0,
-                            height: 550,
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <div style={{display: 'flex', flexDirection: 'column', height: '50%'}}>
-                            <TextInput
-                                placeholder="Отзыв должен содержать"
-                                note={
-                                    containsWords.length ? undefined : '*После ввода нажмите Enter'
-                                }
-                                size="l"
-                                value={containsTextInput}
-                                onUpdate={(val) => {
-                                    setContainsTextInput(val);
-                                }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        const val = e.currentTarget.value;
-                                        if (val == '') return;
-                                        setContainsWords((cur) => {
-                                            const temp = [...cur];
-                                            if (!temp.includes(val)) temp.push(val);
-                                            return temp;
-                                        });
-                                        setContainsTextInput('');
-                                    }
-                                }}
-                            />
-                            <List
-                                filterable={false}
-                                items={containsWords}
-                                onItemClick={(item) => {
-                                    setContainsWords((cur) => {
-                                        return cur.filter((it) => item != it);
-                                    });
-                                }}
-                            />
-                        </div>
-                        <div style={{display: 'flex', flexDirection: 'column', height: '50%'}}>
-                            <TextInput
-                                placeholder="Отзыв не должен содержать"
-                                note={
-                                    doNotContainWords.length
-                                        ? undefined
-                                        : '*После ввода нажмите Enter'
-                                }
-                                size="l"
-                                value={doNotContainTextInput}
-                                onUpdate={(val) => {
-                                    setDoNotContainTextInput(val);
-                                }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        const val = e.currentTarget.value;
-                                        if (val == '') return;
-                                        setDoNotContainWords((cur) => {
-                                            const temp = [...cur];
-                                            if (!temp.includes(val)) temp.push(val);
-                                            return temp;
-                                        });
-                                        setDoNotContainTextInput('');
-                                    }
-                                }}
-                            />
-                            <List
-                                filterable={false}
-                                items={doNotContainWords}
-                                onItemClick={(item) => {
-                                    setDoNotContainWords((cur) => {
-                                        return cur.filter((it) => item != it);
-                                    });
-                                }}
-                            />
-                        </div>
-                    </motion.div>
-                    <motion.div
                         style={{
                             display: 'flex',
-                            flexDirection: 'column',
+                            flexDirection: 'row',
                             position: 'relative',
-                            minWidth: 350,
-                            maxWidth: 350,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            alignSelf: 'center',
                         }}
                     >
                         <motion.div
+                            animate={{
+                                width: useWordsFilter ? 250 : 0,
+                                left: useWordsFilter ? -258 : 0,
+                                top: '10%',
+                                opacity: useWordsFilter ? 1 : 0,
+                            }}
                             style={{
-                                height: 0,
+                                position: 'absolute',
+                                background: '#221d220f',
+                                backdropFilter: 'blur(12px)',
+                                boxShadow: '#0002 0px 2px 8px 0px',
+                                borderRadius: 8,
                                 display: 'flex',
                                 flexDirection: 'column',
+                                width: 0,
+                                height: 550,
                                 overflow: 'hidden',
-                            }}
-                            animate={{
-                                height: open ? 36 : 0,
-                                marginBottom: open && currentStep ? 8 : 0,
+                                border: '1px solid #eee2',
                             }}
                         >
-                            <TextInput
-                                autoFocus
-                                placeholder="Введите название шаблона"
-                                size="l"
-                                value={templateName}
-                                onUpdate={(val) => {
-                                    setTemplateName(val);
-                                    if (val != '' && currentStep == 0) setCurrentStep(1);
-                                }}
-                            />
+                            <div style={{display: 'flex', flexDirection: 'column', height: '50%'}}>
+                                <TextInput
+                                    placeholder="Отзыв должен содержать"
+                                    note={
+                                        containsWords.length
+                                            ? undefined
+                                            : '*После ввода нажмите Enter'
+                                    }
+                                    size="l"
+                                    value={containsTextInput}
+                                    onUpdate={(val) => {
+                                        setContainsTextInput(val);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            const val = e.currentTarget.value;
+                                            if (val == '') return;
+                                            setContainsWords((cur) => {
+                                                const temp = [...cur];
+                                                if (!temp.includes(val)) temp.push(val);
+                                                return temp;
+                                            });
+                                            setContainsTextInput('');
+                                        }
+                                    }}
+                                />
+                                <List
+                                    filterable={false}
+                                    items={containsWords}
+                                    onItemClick={(item) => {
+                                        setContainsWords((cur) => {
+                                            return cur.filter((it) => item != it);
+                                        });
+                                    }}
+                                    renderItem={(item) => {
+                                        return <Text style={{margin: '8px'}}>{item}</Text>;
+                                    }}
+                                />
+                            </div>
+                            <div style={{display: 'flex', flexDirection: 'column', height: '50%'}}>
+                                <TextInput
+                                    placeholder="Отзыв не должен содержать"
+                                    note={
+                                        doNotContainWords.length
+                                            ? undefined
+                                            : '*После ввода нажмите Enter'
+                                    }
+                                    size="l"
+                                    value={doNotContainTextInput}
+                                    onUpdate={(val) => {
+                                        setDoNotContainTextInput(val);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            const val = e.currentTarget.value;
+                                            if (val == '') return;
+                                            setDoNotContainWords((cur) => {
+                                                const temp = [...cur];
+                                                if (!temp.includes(val)) temp.push(val);
+                                                return temp;
+                                            });
+                                            setDoNotContainTextInput('');
+                                        }
+                                    }}
+                                />
+                                <List
+                                    filterable={false}
+                                    items={doNotContainWords}
+                                    onItemClick={(item) => {
+                                        setDoNotContainWords((cur) => {
+                                            return cur.filter((it) => item != it);
+                                        });
+                                    }}
+                                    renderItem={(item) => {
+                                        return <Text style={{margin: '8px'}}>{item}</Text>;
+                                    }}
+                                />
+                            </div>
                         </motion.div>
                         <motion.div
                             style={{
-                                height: 0,
-                                display: 'flex',
-                                flexDirection: 'row',
-                                overflow: 'hidden',
-                                alignItems: 'center',
-                            }}
-                            animate={{
-                                height: open && currentStep ? 36 : 0,
-                                marginBottom: open && currentStep ? 8 : 0,
-                            }}
-                        >
-                            <Text
-                                style={{margin: '0 8px', whiteSpace: 'nowrap'}}
-                                variant="subheader-2"
-                            >
-                                Оценки от:
-                            </Text>
-                            <TextInput
-                                placeholder=""
-                                size="l"
-                                value={ratingFrom}
-                                onUpdate={(val) => {
-                                    setRatingFrom(val);
-                                }}
-                            />
-                            <Text style={{margin: '0 8px'}} variant="subheader-2">
-                                до:
-                            </Text>
-                            <TextInput
-                                placeholder=""
-                                size="l"
-                                value={ratingTo}
-                                onUpdate={(val) => {
-                                    setRatingTo(val);
-                                }}
-                            />
-                        </motion.div>
-                        <motion.div
-                            style={{
-                                maxHeight: 0,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                overflow: 'hidden',
-                                alignItems: 'center',
-                            }}
-                            animate={{
-                                maxHeight: open && currentStep ? 600 : 0,
-                                marginBottom: open && currentStep ? 8 : 0,
+                                position: 'relative',
+                                minWidth: 400,
+                                maxWidth: 400,
+                                background: '#221d220f',
+                                backdropFilter: 'blur(10px)',
+                                boxShadow: '#0002 0px 2px 8px 0px',
+                                border: '1px solid #eee2',
                             }}
                         >
-                            <TextArea
-                                controlRef={textAreaRef}
-                                value={templateText}
-                                onUpdate={(val) => {
-                                    setTemplateText(val);
-                                }}
-                                minRows={20}
-                                maxRows={30}
-                                note={`${templateText.length} / 1000`}
-                                validationState={
-                                    templateText.length <= 1000 ? undefined : 'invalid'
-                                }
-                            />
-                            <Text
-                                variant="code-inline-1"
+                            <motion.div
                                 style={{
+                                    height: 0,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    overflow: 'hidden',
+                                }}
+                                animate={{
+                                    height: open ? 36 : 0,
+                                    marginBottom: open && currentStep ? 8 : 0,
+                                }}
+                            >
+                                <TextInput
+                                    autoFocus
+                                    placeholder="Введите название шаблона"
+                                    size="l"
+                                    value={templateName}
+                                    onUpdate={(val) => {
+                                        setTemplateName(val);
+                                        if (val != '' && currentStep == 0) setCurrentStep(1);
+                                    }}
+                                />
+                            </motion.div>
+                            <motion.div
+                                style={{
+                                    height: 0,
                                     display: 'flex',
                                     flexDirection: 'row',
-                                    flexWrap: 'wrap',
-                                    padding: 8,
+                                    overflow: 'hidden',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                                animate={{
+                                    height: open && currentStep ? 36 : 0,
+                                    marginBottom: open && currentStep ? 8 : 0,
                                 }}
                             >
-                                {infoText}
-                            </Text>
-                        </motion.div>
-                        <motion.div
-                            style={{
-                                maxHeight: 0,
-                                display: 'flex',
-                                flexDirection: 'row',
-                                overflow: 'hidden',
-                                alignItems: 'center',
-                                padding: '0 8px',
-                                width: '100%',
-                                flexWrap: 'wrap',
-                            }}
-                            animate={{
-                                maxHeight: open && currentStep ? 600 : 0,
-                                marginBottom: open && currentStep ? 8 : 0,
-                            }}
-                        >
-                            <Button
-                                pin="circle-circle"
-                                selected={useWordsFilter}
-                                view="outlined-utility"
-                                onClick={() => setUseWordsFilter(!useWordsFilter)}
+                                <Text
+                                    style={{margin: '0 8px', whiteSpace: 'nowrap'}}
+                                    variant="subheader-2"
+                                >
+                                    Оценки от:
+                                </Text>
+                                {generateRates(5, setRatingFrom, ratingFrom)}
+                            </motion.div>
+                            <motion.div
+                                style={{
+                                    height: 0,
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    overflow: 'hidden',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                                animate={{
+                                    height: open && currentStep ? 36 : 0,
+                                    marginBottom: open && currentStep ? 8 : 0,
+                                }}
                             >
-                                Добавить фильтр слова
-                            </Button>
-                            <div style={{minWidth: 8}} />
-                            <Select
-                                value={selectValue}
-                                placeholder="Values"
-                                options={bindingOptions}
-                                renderControl={({onClick, onKeyDown, ref}) => {
-                                    const map = {
-                                        none: 'Задать параметры',
-                                        brand: 'Бренд',
-                                        object: 'Тип предмета',
-                                        title: 'Наименование',
-                                        imtId: 'ID КТ',
-                                        art: 'Артикул продавца',
-                                        nmId: 'Артикул WB',
-                                        tags: 'Теги',
-                                    };
-                                    return (
-                                        <Button
-                                            selected={
-                                                binding[0] != 'none' && bindingKeys.length > 0
-                                            }
-                                            view={'outlined-info'}
-                                            pin={'circle-circle'}
-                                            ref={ref}
-                                            onClick={onClick}
-                                            extraProps={{
-                                                onKeyDown,
-                                            }}
-                                        >
-                                            {map[binding[0]]}
-                                        </Button>
-                                    );
-                                }}
-                                onUpdate={(nextValue) => {
-                                    setBindingKeys([]);
-                                    setBinding(nextValue);
-                                }}
-                            />
-                        </motion.div>
-                        {generateModalButtonWithActions(
-                            {
-                                disabled: templateName == '' || templateText == '',
-                                placeholder: 'Сохранить',
-                                icon: CloudArrowUpIn,
-                                view: 'outlined-success',
-                                onClick: () => {
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            templateName,
-                                            templateText,
-                                            useWordsFilter,
-                                            containsWords,
-                                            doNotContainWords,
-                                            binding: binding[0],
-                                            bindingKeys,
-                                            ratingFrom,
-                                            ratingTo,
-                                        },
-                                    };
-                                    callApi('saveAutoFeedbacksTemplate', params).finally(
-                                        handleClose,
-                                    );
-                                },
-                            },
-                            selectedButton,
-                            setSelectedButton,
-                        )}
-                    </motion.div>
-                    <motion.div
-                        animate={{
-                            width: binding[0] != 'none' ? 250 : 0,
-                            left: binding[0] != 'none' ? 358 : 350,
-                            top: 22,
-                        }}
-                        style={{
-                            display: 'flex',
-                            position: 'absolute',
-                            height: 550,
-                            left: 350,
-                            flexDirection: 'column',
-                            width: 0,
-                            overflow: 'hidden',
-                            background: 'var(--g-color-base-background)',
-                            borderRadius: 8,
-                        }}
-                    >
-                        <List
-                            size="l"
-                            loading={availableTagsPending}
-                            filterPlaceholder={`Поиск`}
-                            emptyPlaceholder="Нет результатов"
-                            items={availableBindingKeys}
-                            onFilterEnd={({items}) => {
-                                setAvailableBindingKeysFiltered(items);
-                            }}
-                            renderItem={(item) => {
-                                return (
-                                    <Button
-                                        size="xs"
-                                        pin="circle-circle"
-                                        selected={bindingKeys.includes(item)}
-                                        view={
-                                            bindingKeys.includes(item)
-                                                ? 'outlined-info'
-                                                : 'outlined'
-                                        }
-                                    >
-                                        {item}
-                                    </Button>
-                                );
-                            }}
-                            onItemClick={(item) => {
-                                let tempArr = Array.from(bindingKeys);
-                                if (tempArr.includes(item)) {
-                                    tempArr = tempArr.filter((value) => value != item);
-                                } else {
-                                    tempArr.push(item);
-                                }
-
-                                setBindingKeys(tempArr);
-                            }}
-                        />
-                        <Button
-                            style={{margin: 8}}
-                            view={
-                                availableBindingKeysFiltered.length == bindingKeys.length
-                                    ? 'outlined-danger'
-                                    : 'outlined-info'
-                            }
-                            selected={availableBindingKeysFiltered.length == bindingKeys.length}
-                            onClick={() => {
-                                setBindingKeys(
-                                    availableBindingKeysFiltered.length == bindingKeys.length
-                                        ? ([] as any[])
-                                        : availableBindingKeysFiltered,
-                                );
-                            }}
-                            pin="circle-circle"
-                        >
+                                <Text
+                                    style={{margin: '0 8px', whiteSpace: 'nowrap'}}
+                                    variant="subheader-2"
+                                >
+                                    Оценки до:
+                                </Text>
+                                {generateRates(5, setRatingTo, ratingTo)}
+                            </motion.div>
                             <div
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'row',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '100%',
+                                    marginBottom: '8px',
+                                    alignSelf: 'center',
+                                    // alignContent: 'center',
                                 }}
                             >
-                                <Icon
-                                    data={
-                                        bindingKeys.length == availableBindingKeysFiltered.length
-                                            ? TrashBin
-                                            : ListCheck
+                                <Button
+                                    selected={reportReview}
+                                    onClick={() => {
+                                        setReportReview(!reportReview);
+                                        setCurrentFeedbackValuations(0);
+                                        setCurrentProductValuations(0);
+                                    }}
+                                >
+                                    Отправлять жалобу
+                                </Button>
+                            </div>
+                            <motion.div
+                                style={{
+                                    maxHeight: 0,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    overflow: 'hidden',
+                                    alignItems: 'center',
+                                }}
+                                animate={{
+                                    maxHeight: open && currentStep && reportReview ? 600 : 0,
+                                    marginBottom: open && currentStep && reportReview ? 8 : 0,
+                                }}
+                            >
+                                <div style={{margin: '4px'}}>
+                                    <Select
+                                        options={feedbackValuations}
+                                        placeholder="Причина жалобы на отзыв"
+                                        onUpdate={(value) => {
+                                            setCurrentFeedbackValuations(Number(value));
+                                            console.log(currentFeedbackValuations);
+                                        }}
+                                    />
+                                </div>
+                                <div style={{margin: '4px'}}>
+                                    <Select
+                                        options={productValuations}
+                                        placeholder="Описание проблемы товара"
+                                        width={'max'}
+                                        onUpdate={(value) => {
+                                            setCurrentProductValuations(Number(value));
+                                        }}
+                                    />
+                                </div>
+                            </motion.div>
+                            <motion.div
+                                style={{
+                                    maxHeight: 0,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    overflow: 'hidden',
+                                    alignItems: 'center',
+                                }}
+                                animate={{
+                                    maxHeight: open && currentStep ? 600 : 0,
+                                    marginBottom: open && currentStep ? 8 : 0,
+                                }}
+                            >
+                                <TextArea
+                                    controlRef={textAreaRef}
+                                    value={templateText}
+                                    onUpdate={(val) => {
+                                        setTemplateText(val);
+                                    }}
+                                    minRows={20}
+                                    maxRows={30}
+                                    note={`${templateText.length} / 1000`}
+                                    validationState={
+                                        templateText.length <= 1000 ? undefined : 'invalid'
                                     }
                                 />
-                                <div style={{minWidth: 3}} />
-                                {bindingKeys.length == availableBindingKeysFiltered.length
-                                    ? 'Очистить'
-                                    : `Выбрать все`}
-                            </div>
-                        </Button>
+                                <Text
+                                    variant="code-inline-1"
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        flexWrap: 'wrap',
+                                        padding: 8,
+                                    }}
+                                >
+                                    {infoText}
+                                </Text>
+                            </motion.div>
+                            <motion.div
+                                style={{
+                                    maxHeight: 0,
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    overflow: 'hidden',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '0 8px',
+                                    width: '100%',
+                                    flexWrap: 'wrap',
+                                }}
+                                animate={{
+                                    maxHeight: open && currentStep ? 600 : 0,
+                                    marginBottom: open && currentStep ? 8 : 0,
+                                }}
+                            >
+                                <Button
+                                    pin="circle-circle"
+                                    selected={useWordsFilter}
+                                    view="outlined-utility"
+                                    onClick={() => setUseWordsFilter(!useWordsFilter)}
+                                >
+                                    Добавить фильтр слова
+                                </Button>
+                                <div style={{minWidth: 8}} />
+                                <Select
+                                    value={selectValue}
+                                    placeholder="Values"
+                                    options={bindingOptions}
+                                    renderControl={({onClick, onKeyDown, ref}) => {
+                                        const map = {
+                                            none: 'Задать параметры',
+                                            brand: 'Бренд',
+                                            object: 'Тип предмета',
+                                            title: 'Наименование',
+                                            imtId: 'ID КТ',
+                                            art: 'Артикул продавца',
+                                            nmId: 'Артикул WB',
+                                            tags: 'Теги',
+                                        };
+                                        return (
+                                            <Button
+                                                selected={
+                                                    binding[0] != 'none' && bindingKeys.length > 0
+                                                }
+                                                view={'outlined-info'}
+                                                pin={'circle-circle'}
+                                                ref={ref}
+                                                onClick={onClick}
+                                                extraProps={{
+                                                    onKeyDown,
+                                                }}
+                                            >
+                                                {map[binding[0]]}
+                                            </Button>
+                                        );
+                                    }}
+                                    onUpdate={(nextValue) => {
+                                        setBindingKeys([]);
+                                        setBinding(nextValue);
+                                    }}
+                                />
+                            </motion.div>
+                            {generateModalButtonWithActions(
+                                {
+                                    disabled:
+                                        templateName == '' ||
+                                        (templateText == '' &&
+                                            currentFeedbackValuations == 0 &&
+                                            currentProductValuations == 0),
+                                    // currentFeedbackValuations == 0 &&
+                                    // currentProductValuations == 0
+                                    placeholder: 'Сохранить',
+                                    icon: CloudArrowUpIn,
+                                    view: 'outlined-success',
+                                    onClick: () => {
+                                        const params = {
+                                            seller_id: sellerId,
+                                            data: {
+                                                templateName,
+                                                templateText,
+                                                useWordsFilter,
+                                                containsWords,
+                                                doNotContainWords,
+                                                binding: binding[0],
+                                                isReport:
+                                                    currentFeedbackValuations ||
+                                                    currentProductValuations,
+                                                supplierFeedbackValuation: currentFeedbackValuations
+                                                    ? currentFeedbackValuations
+                                                    : undefined,
+                                                supplierProductValuation: currentProductValuations
+                                                    ? currentProductValuations
+                                                    : undefined,
+                                                bindingKeys,
+                                                ratingFrom,
+                                                ratingTo,
+                                            },
+                                        };
+                                        console.log(params);
+                                        ApiClient.post(
+                                            'buyers/save-auto-feedbacks-template',
+                                            params,
+                                        ).finally(handleClose);
+                                    },
+                                },
+                                selectedButton,
+                                setSelectedButton,
+                            )}
+                        </motion.div>
+                        <motion.div
+                            animate={{
+                                width: binding[0] != 'none' ? 250 : 0,
+                                left: binding[0] != 'none' ? 408 : 350,
+                                opacity: binding[0] != 'none' ? 1 : 0,
+                                top: '10%',
+                            }}
+                            style={{
+                                background: '#221d220f',
+                                backdropFilter: 'blur(10px)',
+                                boxShadow: '#0002 0px 2px 8px 0px',
+                                border: '1px solid #eee2',
+                                display: 'flex',
+                                position: 'absolute',
+                                height: 550,
+                                left: 408,
+                                flexDirection: 'column',
+                                width: 0,
+                                overflow: 'hidden',
+                                // background: 'var(--g-color-base-background)',
+                                borderRadius: 8,
+                            }}
+                        >
+                            <List
+                                size="l"
+                                loading={availableTagsPending}
+                                filterPlaceholder={`Поиск`}
+                                emptyPlaceholder="Нет результатов"
+                                items={availableBindingKeys}
+                                onFilterEnd={({items}) => {
+                                    setAvailableBindingKeysFiltered(items);
+                                }}
+                                renderItem={(item) => {
+                                    return (
+                                        <Button
+                                            size="xs"
+                                            pin="circle-circle"
+                                            selected={bindingKeys.includes(item)}
+                                            view={
+                                                bindingKeys.includes(item)
+                                                    ? 'outlined-info'
+                                                    : 'outlined'
+                                            }
+                                        >
+                                            {item}
+                                        </Button>
+                                    );
+                                }}
+                                onItemClick={(item) => {
+                                    let tempArr = Array.from(bindingKeys);
+                                    if (tempArr.includes(item)) {
+                                        tempArr = tempArr.filter((value) => value != item);
+                                    } else {
+                                        tempArr.push(item);
+                                    }
+
+                                    setBindingKeys(tempArr);
+                                }}
+                            />
+                            <Button
+                                style={{margin: 8}}
+                                view={
+                                    availableBindingKeysFiltered.length == bindingKeys.length
+                                        ? 'outlined-danger'
+                                        : 'outlined-info'
+                                }
+                                selected={availableBindingKeysFiltered.length == bindingKeys.length}
+                                onClick={() => {
+                                    setBindingKeys(
+                                        availableBindingKeysFiltered.length == bindingKeys.length
+                                            ? ([] as any[])
+                                            : availableBindingKeysFiltered,
+                                    );
+                                }}
+                                pin="circle-circle"
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: '100%',
+                                    }}
+                                >
+                                    <Icon
+                                        data={
+                                            bindingKeys.length ==
+                                            availableBindingKeysFiltered.length
+                                                ? TrashBin
+                                                : ListCheck
+                                        }
+                                    />
+                                    <div style={{minWidth: 3}} />
+                                    {bindingKeys.length == availableBindingKeysFiltered.length
+                                        ? 'Очистить'
+                                        : `Выбрать все`}
+                                </div>
+                            </Button>
+                        </motion.div>
                     </motion.div>
-                </motion.div>
+                </Card>
             </Modal>
         </div>
     );

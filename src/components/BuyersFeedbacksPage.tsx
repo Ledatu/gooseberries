@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
-import callApi, {getUid} from 'src/utilities/callApi';
+import ApiClient from 'src/utilities/ApiClient';
 import {Button, Loader, Icon, Text, Link, Popover} from '@gravity-ui/uikit';
 import {Star, PencilToLine} from '@gravity-ui/icons';
 import {renderAsDate} from 'src/utilities/getRoundValue';
 import {TagsFilterModal} from './TagsFilterModal';
 import {AnswerFeedbackModal} from './AnswerFeedbackModal';
+import {useError} from 'src/pages/ErrorContext';
+import callApi from 'src/utilities/callApi';
 
 export const BuyersFeedbacksPage = ({
     permission,
@@ -18,30 +20,62 @@ export const BuyersFeedbacksPage = ({
     sellerId: string;
     isAnswered: string;
 }) => {
+    const {showError} = useError();
     const [filters, setFilters] = useState({});
     const [data, setData] = useState(null as any);
     const [filteredData, setFilteredData] = useState([] as any[]);
     const [currentPage, setCurrentPage] = useState(1);
-
     const [pending, setPending] = useState(false);
+    const [productValuations, setProductValuations] = useState([]);
+    const [feedbackValuations, setFeedbackValuations] = useState([]);
+    const getValuation = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            const response = await ApiClient.post(
+                'buyers/get-feedback-and-product-valuation',
+                params,
+            );
+            if (!response?.data) {
+                throw new Error(`Cant get valuations for campaign ${sellerId}`);
+            }
+            const valuations = response?.data?.valuations;
+            const {feedbackValuation, productValuation} = valuations;
+            const fv = [{value: 0, content: 'Без жалобы'}];
+            for (const val of feedbackValuation) {
+                fv.push({value: val._id, content: val.reason});
+            }
+            const pv = [{value: 0, content: 'Без жалобы'}];
+            for (const val of productValuation) {
+                pv.push({value: val._id, content: val.reason});
+            }
 
+            setFeedbackValuations(fv as React.SetStateAction<never[]>);
+            setProductValuations(pv as React.SetStateAction<never[]>);
+            console.log('valuations', feedbackValuations, productValuations);
+        } catch (error) {
+            console.error(error);
+        }
+    };
     useEffect(() => {
-        const params = {uid: getUid(), campaignName: selectValue[0], isAnswered};
-        console.log('getFeedbacks', params);
-
+        getValuation();
+    }, [sellerId]);
+    const getFeedbacks = async () => {
+        try {
+            const params = {seller_id: sellerId, isAnswered};
+            const response = await ApiClient.post('buyers/get-feedbacks', params);
+            if (response?.status != 200) {
+                throw new Error('Не получилось достать отзывы ');
+            }
+            setData(response.data);
+            setPending(false);
+        } catch (error) {
+            console.error(error);
+            showError('Не удалось получить информвцию oб отзывах');
+        }
+    };
+    useEffect(() => {
         setPending(true);
-        callApi('getFeedbacks', params)
-            .then((res) => {
-                if (!res || !res.data) return;
-                console.log(res);
-                setData(res.data);
-            })
-            .catch((e) => {
-                console.log(e);
-            })
-            .finally(() => {
-                setPending(false);
-            });
+        getFeedbacks();
     }, [selectValue, isAnswered]);
 
     const [artsTags, setArtsTags] = useState({});
@@ -370,7 +404,44 @@ export const BuyersFeedbacksPage = ({
             },
             group: true,
         },
+
         {name: 'createdDate', placeholder: 'Дата', render: renderAsDate},
+        {
+            name: 'valuations',
+            placeholder: 'Жалобы',
+            render: ({row}) => {
+                const {supplierFeedbackValuation, supplierProductValuation} = row;
+                const vals: React.JSX.Element[] = [];
+                if (
+                    supplierFeedbackValuation &&
+                    feedbackValuations[supplierFeedbackValuation + 1]
+                ) {
+                    vals.push(
+                        <Button size="xs" selected pin="circle-circle" view="outlined-danger">
+                            {`${feedbackValuations[supplierFeedbackValuation + 1]?.['content']}`}
+                        </Button>,
+                    );
+                }
+                if (supplierProductValuation && productValuations[supplierProductValuation + 1]) {
+                    vals.push(
+                        <Button
+                            size="xs"
+                            selected
+                            pin="circle-circle"
+                            style={{marginLeft: 4}}
+                            view="outlined-danger"
+                        >
+                            {`${productValuations[supplierProductValuation + 1]?.['content']}`}
+                        </Button>,
+                    );
+                    console.log(
+                        productValuations[supplierProductValuation + 1],
+                        feedbackValuations[supplierFeedbackValuation + 1],
+                    );
+                }
+                return <div style={{display: 'block', wordWrap: 'break-word'}}>{vals}</div>;
+            },
+        },
         {
             name: 'productValuation',
             placeholder: 'Оценка',
@@ -403,6 +474,7 @@ export const BuyersFeedbacksPage = ({
                 );
             },
         },
+
         {
             valueType: 'text',
             name: 'cons',

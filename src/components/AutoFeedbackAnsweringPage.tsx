@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
+
 import {Button, Loader, Text, Icon} from '@gravity-ui/uikit';
 import {Pencil, Xmark, Plus} from '@gravity-ui/icons';
 import {AutoFeedbackTemplateCreationModal} from './AutoFeedbackTemplateCreationModal';
+import ApiClient from 'src/utilities/ApiClient';
 
 export const AutoFeedbackAnsweringPage = ({
     sellerId,
@@ -16,11 +18,11 @@ export const AutoFeedbackAnsweringPage = ({
     const [data, setData] = useState(null as any);
     const [filteredData, setFilteredData] = useState([] as any[]);
     const [refetch, setRefetch] = useState(false);
-
+    const [productValuations, setProductValuations] = useState([]);
+    const [feedbackValuations, setFeedbackValuations] = useState([]);
     useEffect(() => {
         const params = {uid: getUid(), campaignName: selectValue[0]};
         console.log('getFeedbacks', params);
-
         callApi('getAutoFeedbackTemplates', params)
             .then((res) => {
                 if (!res || !res.data) return;
@@ -66,6 +68,37 @@ export const AutoFeedbackAnsweringPage = ({
         filterData();
     }, [data]);
 
+    const getValuation = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            const response = await ApiClient.post(
+                'buyers/get-feedback-and-product-valuation',
+                params,
+            );
+            if (!response?.data) {
+                throw new Error(`Cant get valuations for campaign ${sellerId}`);
+            }
+            const valuations = response?.data?.valuations;
+            const {feedbackValuation, productValuation} = valuations;
+            const fv = [{value: 0, content: 'Без жалобы'}];
+            for (const val of feedbackValuation) {
+                fv.push({value: val._id, content: val.reason});
+            }
+            const pv = [{value: 0, content: 'Без жалобы'}];
+            for (const val of productValuation) {
+                pv.push({value: val._id, content: val.reason});
+            }
+
+            setFeedbackValuations(fv as React.SetStateAction<never[]>);
+            setProductValuations(pv as React.SetStateAction<never[]>);
+            console.log('valuations', feedbackValuations, productValuations);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    useState(() => {
+        getValuation();
+    });
     const columns = [
         {
             name: 'name',
@@ -137,6 +170,42 @@ export const AutoFeedbackAnsweringPage = ({
                         <Text>{value}</Text>
                     </div>
                 );
+            },
+        },
+        {
+            name: 'valuations',
+            placeholder: 'Жалобы',
+            render: ({row}) => {
+                const {supplierFeedbackValuation, supplierProductValuation} = row;
+                const vals: React.JSX.Element[] = [];
+                if (
+                    supplierFeedbackValuation &&
+                    feedbackValuations[supplierFeedbackValuation + 1]
+                ) {
+                    vals.push(
+                        <Button size="xs" selected pin="circle-circle" view="outlined-danger">
+                            {`${feedbackValuations[supplierFeedbackValuation + 1]?.['content']}`}
+                        </Button>,
+                    );
+                }
+                if (supplierProductValuation && productValuations[supplierProductValuation + 1]) {
+                    vals.push(
+                        <Button
+                            size="xs"
+                            selected
+                            pin="circle-circle"
+                            style={{marginLeft: 4}}
+                            view="outlined-danger"
+                        >
+                            {`${productValuations[supplierProductValuation + 1]?.['content']}`}
+                        </Button>,
+                    );
+                    console.log(
+                        productValuations[supplierProductValuation + 1],
+                        feedbackValuations[supplierFeedbackValuation + 1],
+                    );
+                }
+                return <div style={{display: 'block', wordWrap: 'break-word'}}>{vals}</div>;
             },
         },
         // {name: 'feedbackAge', placeholder: 'Возраст отзыва'},
