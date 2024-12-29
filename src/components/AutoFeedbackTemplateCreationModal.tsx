@@ -56,8 +56,8 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [doNotContainWords, setDoNotContainWords] = useState([] as string[]);
     const [reportReview, setReportReview] = useState(false);
 
-    const [productValuations, setProductValuations] = useState([]);
-    const [feedbackValuations, setFeedbackValuations] = useState([]);
+    const [productValuations, setProductValuations] = useState([] as any[]);
+    const [feedbackValuations, setFeedbackValuations] = useState([] as any[]);
     const [currentProductValuations, setCurrentProductValuations] = useState(0);
     const [currentFeedbackValuations, setCurrentFeedbackValuations] = useState(0);
     const [artsData, setArtsData] = useState({});
@@ -99,23 +99,23 @@ export const AutoFeedbackTemplateCreationModal = ({
                 'buyers/get-feedback-and-product-valuation',
                 params,
             );
+            console.log(response);
             if (!response?.data) {
                 throw new Error(`Cant get valuations for campaign ${sellerId}`);
             }
             const valuations = response?.data?.valuations;
+            console.log(valuations);
             const {feedbackValuation, productValuation} = valuations;
             const fv = [{value: 0, content: 'Без жалобы'}];
             for (const val of feedbackValuation) {
-                fv.push({value: val._id, content: val.reason});
+                fv.push({value: val.id, content: val.reason});
             }
             const pv = [{value: 0, content: 'Без жалобы'}];
             for (const val of productValuation) {
-                pv.push({value: val._id, content: val.reason});
+                pv.push({value: val.id, content: val.reason});
             }
-
-            setFeedbackValuations(fv as React.SetStateAction<never[]>);
-            setProductValuations(pv as React.SetStateAction<never[]>);
-            console.log('valuations', feedbackValuations, productValuations);
+            setFeedbackValuations([...fv]);
+            setProductValuations([...pv]);
         } catch (error) {
             console.error(error);
         }

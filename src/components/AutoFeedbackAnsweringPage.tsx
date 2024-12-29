@@ -18,8 +18,8 @@ export const AutoFeedbackAnsweringPage = ({
     const [data, setData] = useState(null as any);
     const [filteredData, setFilteredData] = useState([] as any[]);
     const [refetch, setRefetch] = useState(false);
-    const [productValuations, setProductValuations] = useState([]);
-    const [feedbackValuations, setFeedbackValuations] = useState([]);
+    const [productValuations, setProductValuations] = useState([] as any);
+    const [feedbackValuations, setFeedbackValuations] = useState([] as any);
     useEffect(() => {
         const params = {uid: getUid(), campaignName: selectValue[0]};
         console.log('getFeedbacks', params);
@@ -82,15 +82,14 @@ export const AutoFeedbackAnsweringPage = ({
             const {feedbackValuation, productValuation} = valuations;
             const fv = [{value: 0, content: 'Без жалобы'}];
             for (const val of feedbackValuation) {
-                fv.push({value: val._id, content: val.reason});
+                fv.push({value: val.id, content: val.reason});
             }
             const pv = [{value: 0, content: 'Без жалобы'}];
             for (const val of productValuation) {
-                pv.push({value: val._id, content: val.reason});
+                pv.push({value: val.id, content: val.reason});
             }
-
-            setFeedbackValuations(fv as React.SetStateAction<never[]>);
-            setProductValuations(pv as React.SetStateAction<never[]>);
+            setFeedbackValuations(fv);
+            setProductValuations(pv);
             console.log('valuations', feedbackValuations, productValuations);
         } catch (error) {
             console.error(error);
