@@ -340,9 +340,14 @@ export const AnalyticsPage = ({permission}) => {
             render: (args) => renderWithGraph(args, 'primeCost', 'Себестоимость, ₽'),
         },
         obor: {
-            placeholder: 'Оборачиваемость, дней',
+            placeholder: 'Обор. к заказам, д.',
             planType: 'avg',
-            render: (args) => renderWithGraph(args, 'obor', 'Оборачиваемость, дней'),
+            render: (args) => renderWithGraph(args, 'obor', 'Обор. к заказам, д.'),
+        },
+        oborSales: {
+            placeholder: 'Обор. к продажам, д.',
+            planType: 'avg',
+            render: (args) => renderWithGraph(args, 'oborSales', 'Обор. к продажам, д.'),
         },
         orderPrice: {
             placeholder: 'Цена заказа, ₽',
@@ -913,6 +918,12 @@ export const AnalyticsPage = ({permission}) => {
                     false,
                     dateStats['stocks'] ? 999 : 0,
                 );
+                tempTypeRow['oborSales'] = getRoundValue(
+                    dateStats['stocks'],
+                    dateStats['expectedSales'],
+                    false,
+                    dateStats['stocks'] ? 999 : 0,
+                );
                 tempTypeRow['orderPrice'] = getRoundValue(
                     dateStats['sum'],
                     dateStats['orders'],
@@ -976,6 +987,8 @@ export const AnalyticsPage = ({permission}) => {
                 profit: 0,
                 obor: 0,
                 obor_temp: {count: 0, val: 0},
+                oborSales: 0,
+                oborSales_temp: {count: 0, val: 0},
                 orderPrice: 0,
                 avgCost: 0,
                 stocks: 0,
@@ -1069,6 +1082,8 @@ export const AnalyticsPage = ({permission}) => {
                     profit: 0,
                     obor: 0,
                     obor_temp: {count: 0, val: 0},
+                    oborSales: 0,
+                    oborSales_temp: {count: 0, val: 0},
                     orderPrice: 0,
                     avgCost: 0,
                     stocks: 0,
@@ -1284,6 +1299,14 @@ export const AnalyticsPage = ({permission}) => {
                 summaries[entity]['obor_temp'].count,
             );
 
+            summaryAdd(row, 'oborSales', undefined);
+            summaries[entity]['oborSales_temp'].val += row['oborSales'];
+            summaries[entity]['oborSales_temp'].count += 1;
+            summaries[entity]['oborSales'] = getRoundValue(
+                summaries[entity]['oborSales_temp'].val,
+                summaries[entity]['oborSales_temp'].count,
+            );
+
             summaryAdd(row, 'avgCost', undefined);
             summaries[entity]['avgCost'] = getRoundValue(
                 summaries[entity]['sum_orders'],
@@ -1384,6 +1407,13 @@ export const AnalyticsPage = ({permission}) => {
             summaries['filteredSummaryTemp']['obor'] = getRoundValue(
                 summaries['filteredSummaryTemp']['obor_temp'].val,
                 summaries['filteredSummaryTemp']['obor_temp'].count,
+            );
+
+            summaries['filteredSummaryTemp']['oborSales_temp'].val += row['obor'];
+            summaries['filteredSummaryTemp']['oborSales_temp'].count += 1;
+            summaries['filteredSummaryTemp']['oborSales'] = getRoundValue(
+                summaries['filteredSummaryTemp']['oborSales_temp'].val,
+                summaries['filteredSummaryTemp']['oborSales_temp'].count,
             );
 
             summaries['filteredSummaryTemp']['avgCost'] = getRoundValue(
@@ -2060,7 +2090,7 @@ export const AnalyticsPage = ({permission}) => {
                             const fstemp = row;
                             fstemp[
                                 'entity'
-                            ] = `На странице SKU: ${paginatedData.length} Всего SKU: ${filteredData.length}`;
+                            ] = `Объектов на странице: ${paginatedData.length} Всего объектов: ${filteredData.length}`;
 
                             return fstemp;
                         });
