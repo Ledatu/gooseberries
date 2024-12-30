@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import TheTable, {compare} from './TheTable';
 import ApiClient from 'src/utilities/ApiClient';
-import {Button, Loader, Icon, Text, Link, Popover} from '@gravity-ui/uikit';
-import {Star, PencilToLine} from '@gravity-ui/icons';
+import {Button, Loader, Icon, Text, Link, Popover, Tooltip} from '@gravity-ui/uikit';
+import {Star, PencilToLine, LogoTelegram} from '@gravity-ui/icons';
 import {renderAsDate} from 'src/utilities/getRoundValue';
 import {TagsFilterModal} from './TagsFilterModal';
 import {AnswerFeedbackModal} from './AnswerFeedbackModal';
@@ -545,8 +545,28 @@ export const BuyersFeedbacksPage = ({
                 position: 'relative',
             }}
         >
-            <div style={{position: 'absolute', left: 0, top: -44}}>
+            <div
+                style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: -44,
+                    display: 'flex',
+                    flexDirection: 'row',
+                }}
+            >
                 <TagsFilterModal filterByButton={filterByButton} />
+                <Tooltip content="Телеграм бот для ответов на вопросы покупателей">
+                    <Button
+                        style={{cursor: 'pointer', marginLeft: '8px'}}
+                        view="action"
+                        size="l"
+                        href={'https://t.me/AurumBuyersQuestionsBot'}
+                        target={'_blank'}
+                    >
+                        <Icon data={LogoTelegram} />
+                        <Text variant="subheader-1">Телеграм бот</Text>
+                    </Button>
+                </Tooltip>
             </div>
             <TheTable
                 columnData={columns}
