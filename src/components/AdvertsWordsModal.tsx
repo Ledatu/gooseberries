@@ -393,38 +393,28 @@ export const AdvertsWordsModal = ({
     useEffect(() => {
         const obj = {};
         const temp = [] as string[];
-        for (const row of semanticsModalSemanticsItemsFiltratedValue) {
+        for (const row of semanticsModalSemanticsItemsValue) {
             const {cluster, freq} = row;
             const words = (cluster as string).split(' ');
             for (const word of words) {
                 if (!obj[word]) obj[word] = 0;
                 obj[word] += freq ?? 0;
-                if (!temp.includes(word) && !semanticsAutoPhrasesModalIncludesList.includes(word))
-                    temp.push(word);
+                if (!temp.includes(word)) temp.push(word);
             }
         }
-        for (const row of semanticsModalSemanticsMinusItemsFiltratedValue) {
+        for (const row of semanticsModalSemanticsMinusItemsValue) {
             const {cluster, freq} = row;
             const words = (cluster as string).split(' ');
             for (const word of words) {
                 if (!obj[word]) obj[word] = 0;
                 obj[word] += freq ?? 0;
-                if (
-                    !temp.includes(word) &&
-                    !semanticsAutoPhrasesModalNotIncludesList.includes(word)
-                )
-                    temp.push(word);
+                if (!temp.includes(word)) temp.push(word);
             }
         }
         temp.sort((a, b) => obj[b] - obj[a]);
         setSeparetedWords(temp);
         setseparetedWordsObj(obj);
-    }, [
-        semanticsModalSemanticsItemsFiltratedValue,
-        semanticsModalSemanticsMinusItemsFiltratedValue,
-        semanticsAutoPhrasesModalIncludesList,
-        semanticsAutoPhrasesModalNotIncludesList,
-    ]);
+    }, [semanticsModalSemanticsItemsValue, semanticsModalSemanticsMinusItemsValue]);
 
     const columnDataSemantics = [
         {
@@ -1753,6 +1743,12 @@ export const AdvertsWordsModal = ({
                                                     <AutoPhrasesWordsSelection
                                                         disabled={disabled}
                                                         itemsTemp={separetedWords}
+                                                        autoPhrasesPlusList={
+                                                            semanticsAutoPhrasesModalIncludesList
+                                                        }
+                                                        autoPhrasesMinusList={
+                                                            semanticsAutoPhrasesModalNotIncludesList
+                                                        }
                                                         itemsObj={separetedWordsObj}
                                                         setAutoPhrasesArray={
                                                             setSemanticsAutoPhrasesModalIncludesList
@@ -1881,6 +1877,12 @@ export const AdvertsWordsModal = ({
                                                         itemsObj={separetedWordsObj}
                                                         setAutoPhrasesArray={
                                                             setSemanticsAutoPhrasesModalNotIncludesList
+                                                        }
+                                                        autoPhrasesPlusList={
+                                                            semanticsAutoPhrasesModalIncludesList
+                                                        }
+                                                        autoPhrasesMinusList={
+                                                            semanticsAutoPhrasesModalNotIncludesList
                                                         }
                                                     />
                                                 </div>
