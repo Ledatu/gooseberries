@@ -555,7 +555,7 @@ export const BuyersFeedbacksPage = ({
                 }}
             >
                 <TagsFilterModal filterByButton={filterByButton} />
-                <Tooltip content="Телеграмм бот для ответов на вопросы покупателей">
+                <Tooltip content="Телеграм бот для ответов на вопросы покупателей">
                     <Button
                         style={{cursor: 'pointer', marginLeft: '8px'}}
                         view="action"
@@ -564,7 +564,7 @@ export const BuyersFeedbacksPage = ({
                         target={'_blank'}
                     >
                         <Icon data={LogoTelegram} />
-                        <Text variant="subheader-1">Телеграмм бот</Text>
+                        <Text variant="subheader-1">Телеграм бот</Text>
                     </Button>
                 </Tooltip>
             </div>
