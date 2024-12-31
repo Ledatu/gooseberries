@@ -135,7 +135,7 @@ export const AdvertCreateModal = ({
 
                                 try {
                                     const res = await ApiClient.post(
-                                        'massAdverts/create-adverts',
+                                        'massAdvert/create-adverts',
                                         params,
                                     );
 
