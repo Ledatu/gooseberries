@@ -2657,22 +2657,21 @@ export const MassAdvertPage = ({
         },
         {
             name: 'dsi',
-            placeholder: 'Обор.',
-            additionalNodes: [
+            placeholder: (
                 <div
                     style={{
                         display: 'flex',
-                        flexDirection: 'column',
-                        marginBottom: 5,
-                        marginLeft: 4,
+                        flexDirection: 'row',
+                        columnGap: 8,
                     }}
                 >
+                    <Text>Обор.</Text>
                     <HelpPopover
                         size="l"
                         content="Показывает через сколько дней закончится текущий остаток с учетом средней скорости заказов в день за выбранные период в календаре"
                     />
-                </div>,
-            ],
+                </div>
+            ),
         },
         {name: 'sum', placeholder: 'Расход, ₽'},
         {name: 'orders', placeholder: 'Заказы, шт.'},
