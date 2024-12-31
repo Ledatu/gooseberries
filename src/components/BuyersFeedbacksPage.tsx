@@ -564,7 +564,7 @@ export const BuyersFeedbacksPage = ({
                         target={'_blank'}
                     >
                         <Icon data={LogoTelegram} />
-                        <Text variant="subheader-1">Телеграм бот</Text>
+                        <Text variant="subheader-1">тг бот для ответов на вопросы</Text>
                     </Button>
                 </Tooltip>
             </div>
