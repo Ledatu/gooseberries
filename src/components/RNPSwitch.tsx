@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 
-import {Switch, Text, Loader} from '@gravity-ui/uikit';
+import {Switch, Text, Loader, Tooltip, Icon} from '@gravity-ui/uikit';
 import {useError} from 'src/pages/ErrorContext';
 
 import ApiClient from 'src/utilities/ApiClient';
 import {useUser} from './RequireAuth';
 import {motion} from 'framer-motion';
-import {HelpPopover} from '@gravity-ui/components';
+import {CircleQuestion} from '@gravity-ui/icons';
 
 export const RNPSwitch = () => {
     const {userInfo} = useUser();
@@ -64,12 +64,21 @@ export const RNPSwitch = () => {
                         setNotification(val);
                     }}
                 />
-
                 <Text style={{marginLeft: 8}} variant="subheader-1">
                     Получать уведомления РНП
                 </Text>
                 <div style={{marginLeft: '8px'}}>
-                    <HelpPopover content="РНП (рука на пульсе) - позволяет отслеживать каждый час..."></HelpPopover>
+                    <Tooltip
+                        style={{maxWidth: '400px'}}
+                        content=<Text>
+                            <b>РНП (Рука на Пульсе)</b> – ежедневная рассылка с ключевыми метриками:
+                            сумма заказов, расходы на рекламу, ДРР, прибыль и рентабельность.
+                            Включает тренды и процентное изменение показателей относительно прошлого
+                            дня.
+                        </Text>
+                    >
+                        <Icon data={CircleQuestion} />
+                    </Tooltip>
                 </div>
             </motion.div>
             <motion.div
