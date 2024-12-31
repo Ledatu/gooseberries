@@ -5,7 +5,6 @@ import {
     Text,
     Card,
     Select,
-    TextInput,
     Link,
     Icon,
     Popover,
@@ -14,7 +13,6 @@ import {
     Skeleton,
     RadioButton,
     List,
-    Checkbox,
 } from '@gravity-ui/uikit';
 import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
@@ -47,7 +45,6 @@ import {
     LayoutList,
     Clock,
     Check,
-    CloudArrowUpIn,
     TagRuble,
     Cherry,
     Xmark,
@@ -84,10 +81,10 @@ import {useMediaQuery} from 'src/hooks/useMediaQuery';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {CanBeAddedToSales} from 'src/components/CanBeAddedToSales';
 import {StocksByWarehousesPopup} from 'src/components/StocksByWarehousesPopup';
-import {TextTitleWrapper} from 'src/components/TextTitleWrapper';
 import {AdvertsSchedulesModal} from 'src/components/AdvertsSchedulesModal';
 import {AdvertsStatusManagingModal} from 'src/components/AdvertsStatusManagingModal';
 import {useError} from './ErrorContext';
+import {AdvertCreateModal} from 'src/components/AdvertCreateModal';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -161,18 +158,6 @@ export const MassAdvertPage = ({
         marginRight: '8px',
         marginLeft: '8px',
     };
-    // const myObserver = new ResizeObserver((entries) => {
-    //     // console.log('resized');
-
-    //     const advertsColumnItems = document.getElementsByClassName('td_fixed_adverts');
-    //     for (let i = 0; i < advertsColumnItems.length; i++) {
-    //         (advertsColumnItems[i] as HTMLElement).style.left = `${
-    //             entries[0].contentRect.width + 20
-    //         }px`;
-    //     }
-    // });
-
-    // const windowDimensions = useWindowDimensions();
 
     const [stocksByWarehouses, setStocksByWarehouses] = useState({});
     useEffect(() => {
@@ -183,7 +168,7 @@ export const MassAdvertPage = ({
             setStocksByWarehouses(res['data']);
         });
     }, [sellerId]);
-    // const isDesktop = windowDimensions.height < windowDimensions.width;
+
     const [selectedSearchPhrase, setSelectedSearchPhrase] = useState<string>('');
 
     const auctionOptions: any[] = [
@@ -200,48 +185,12 @@ export const MassAdvertPage = ({
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
     const [filters, setFilters] = useState({undef: false});
-    // const [searchParams, setSearchParams] = useSearchParams();
-
-    // const handleFilterChange = (newFilters) => {
-    //     setSearchParams({
-    //         ...Object.fromEntries(searchParams),
-    //         filters: new URLSearchParams(newFilters).toString(),
-    //     });
-    // };
-    // useEffect(() => {
-    //     console.log(searchParams);
-    //     const newFilters = {};
-    //     for (const [key, fil] of Object.entries(filters)) {
-    //         if (!key || !fil) continue;
-    //         if (key == 'undef') continue;
-    //         if (fil?.['val'] == '') continue;
-
-    //         newFilters[key] = `v_${fil?.['val']} l_${fil?.['val']}`;
-    //     }
-    //     handleFilterChange(newFilters);
-    // }, [filters]);
-
-    const [selectedButton, setSelectedButton] = useState('');
 
     const [availableAutoSalesNmIds, setAvailableAutoSalesNmIds] = useState([] as any[]);
     const [autoSalesProfits, setAutoSalesProfits] = useState({});
     const [filterAutoSales, setFilterAutoSales] = useState(false);
 
     const [placementsDisplayPhrase, setPlacementsDisplayPhrase] = useState('');
-
-    const [modalFormOpen, setModalFormOpen] = useState(false);
-
-    const [createAdvertsMode, setCreateAdvertsMode] = useState(false);
-
-    const [budgetInputValue, setBudgetInputValue] = useState(1000);
-    const [budgetInputValidationValue, setBudgetInputValidationValue] = useState(true);
-    const [bidInputValue, setBidInputValue] = useState(125);
-    const [bidInputValidationValue, setBidInputValidationValue] = useState(true);
-    const advertTypeSwitchValues: any[] = [
-        {value: 'Авто', content: 'Авто'},
-        {value: 'Поиск', content: 'Поиск'},
-    ];
-    const [advertTypeSwitchValue, setAdvertTypeSwitchValue] = React.useState(['Авто']);
 
     const [copiedAdvertsSettings, setCopiedAdvertsSettings] = useState({advertId: 0});
 
@@ -253,15 +202,6 @@ export const MassAdvertPage = ({
         'Статистика по дням',
     ]);
 
-    // const [
-    //     semanticsModalSemanticsInputValidationValue,
-    //     setSemanticsModalSemanticsInputValidationValue,
-    // ] = useState(true);
-    // const semanticsModalSwitchValues: any[] = [
-    //     {value: 'Пополнить', content: 'Пополнить'},
-    //     {value: 'Установить лимит', content: 'Установить лимит'},
-    // ];
-    // const [semanticsModalSwitchValue, setSemanticsModalSwitchValue] = React.useState('Пополнить');
     const [showDzhemModalOpen, setShowDzhemModalOpen] = useState(false);
     const [dzhemData, setDzhemData] = useState<any[]>([]);
     const [dzhemDataFilteredData, setDzhemDataFilteredData] = useState<any[]>([]);
@@ -3004,16 +2944,17 @@ export const MassAdvertPage = ({
     const [summary, setSummary] = useState({
         views: 0,
         clicks: 0,
-        ctr: 0,
         sum: 0,
         drr_orders: 0,
+        drr_sales: 0,
+        drr: '',
         orders: 0,
+        sales: 0,
         sum_orders: 0,
-        openCardCount: 0,
-        addToCartPercent: 0,
+        sum_sales: 0,
         addToCartCount: 0,
-        cartToOrderPercent: 0,
         profit: '',
+        rent: '',
         profitTemp: 0,
     });
 
@@ -3049,16 +2990,17 @@ export const MassAdvertPage = ({
         const summaryTemp = {
             views: 0,
             clicks: 0,
-            ctr: 0,
             sum: 0,
-            orders: 0,
             drr_orders: 0,
+            drr_sales: 0,
+            drr: '',
+            orders: 0,
+            sales: 0,
             sum_orders: 0,
-            openCardCount: 0,
-            addToCartPercent: 0,
+            sum_sales: 0,
             addToCartCount: 0,
-            cartToOrderPercent: 0,
             profit: '',
+            rent: '',
             profitTemp: 0,
         };
 
@@ -3273,12 +3215,13 @@ export const MassAdvertPage = ({
                 );
                 artInfo.romi = getRoundValue(artInfo.profit, artInfo.sum, true);
 
+                summaryTemp.sales += artInfo.sales;
+                summaryTemp.sum_sales += artInfo.sum_sales;
                 summaryTemp.sum_orders += artInfo.sum_orders;
                 summaryTemp.sum += artInfo.sum;
                 summaryTemp.views += artInfo.views;
                 summaryTemp.clicks += artInfo.clicks;
                 summaryTemp.addToCartCount += artInfo.addToCartCount;
-                summaryTemp.openCardCount += artInfo.openCardCount;
                 summaryTemp.orders += artInfo.orders;
 
                 summaryTemp.profitTemp += Math.round(artInfo.profit);
@@ -3287,26 +3230,24 @@ export const MassAdvertPage = ({
             temp[art] = artInfo;
         }
 
+        summaryTemp.addToCartCount = Math.round(summaryTemp.addToCartCount);
+        summaryTemp.orders = Math.round(summaryTemp.orders);
+        summaryTemp.sales = Math.round(summaryTemp.sales);
         summaryTemp.sum_orders = Math.round(summaryTemp.sum_orders);
-        summaryTemp.ctr = getRoundValue(summaryTemp.clicks, summaryTemp.views, true);
+        summaryTemp.sum_sales = Math.round(summaryTemp.sum_sales);
         summaryTemp.drr_orders = getRoundValue(summaryTemp.sum, summaryTemp.sum_orders, true, 1);
+        summaryTemp.drr_sales = getRoundValue(summaryTemp.sum, summaryTemp.sum_sales, true, 1);
 
-        summaryTemp.addToCartPercent = getRoundValue(
-            summaryTemp.addToCartCount,
-            summaryTemp.openCardCount,
-            true,
-        );
-        summaryTemp.cartToOrderPercent = getRoundValue(
-            summaryTemp.orders,
-            summaryTemp.addToCartCount,
-            true,
-        );
-
-        summaryTemp.profit = `${new Intl.NumberFormat('ru-RU').format(
-            summaryTemp.profitTemp,
-        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+        summaryTemp.profit = `${new Intl.NumberFormat('ru-RU').format(summaryTemp.profitTemp)} ₽`;
+        summaryTemp.rent = `${new Intl.NumberFormat('ru-RU').format(
             getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_orders, true),
+        )}% / ${new Intl.NumberFormat('ru-RU').format(
+            getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_sales, true),
         )}%`;
+
+        summaryTemp.drr = `${new Intl.NumberFormat('ru-RU').format(
+            summaryTemp.drr_orders,
+        )}% / ${new Intl.NumberFormat('ru-RU').format(summaryTemp.drr_sales)}%`;
 
         setSummary(summaryTemp);
 
@@ -4386,41 +4327,60 @@ export const MassAdvertPage = ({
                 })}
                 {generateCard({
                     summary,
-                    key: 'sum',
-                    placeholder: 'ПРОДВИЖЕНИЕ',
+                    key: 'sum_sales',
+                    placeholder: 'ПРОДАЖИ',
                     cardStyle,
                     rub: true,
                 })}
                 {generateCard({
                     summary,
-                    key: 'drr_orders',
-                    placeholder: 'ДРР к ЗАКАЗАМ',
+                    key: 'sum',
+                    placeholder: 'РАСХОД',
                     cardStyle,
-                    percent: true,
+                    rub: true,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'drr',
+                    placeholder: 'ДРР к ЗАКАЗАМ / к ПРОДАЖАМ',
+                    cardStyle,
+                    valueType: 'text',
                 })}
                 {generateCard({
                     summary,
                     key: 'profit',
-                    placeholder: 'ПРИБЫЛЬ / РЕНТ. к ЗАКАЗАМ',
+                    placeholder: 'ПРИБЫЛЬ',
+                    cardStyle,
+                    valueType: 'text',
+                })}
+                {generateCard({
+                    summary,
+                    key: 'rent',
+                    placeholder: 'РЕНТ к ЗАКАЗАМ / к ПРОДАЖАМ',
                     cardStyle,
                     valueType: 'text',
                 })}
                 {generateCard({summary, key: 'views', placeholder: 'ПОКАЗЫ', cardStyle})}
                 {generateCard({summary, key: 'clicks', placeholder: 'КЛИКИ', cardStyle})}
-                {generateCard({summary, key: 'ctr', placeholder: 'CTR', cardStyle, percent: true})}
                 {generateCard({
                     summary,
-                    key: 'addToCartPercent',
-                    placeholder: 'CR в КОРЗИНУ',
-                    percent: true,
+                    key: 'addToCartCount',
                     cardStyle,
+                    placeholder: 'КОРЗИНЫ',
                 })}
                 {generateCard({
                     summary,
-                    key: 'cartToOrderPercent',
+                    key: 'orders',
+                    placeholder: 'ЗАКАЗЫ',
                     cardStyle,
-                    percent: true,
-                    placeholder: 'CR в ЗАКАЗ',
+                    count: true,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'sales',
+                    placeholder: 'ПРОДАЖИ',
+                    count: true,
+                    cardStyle,
                 })}
             </div>
             {!isMobile ? (
@@ -4449,19 +4409,21 @@ export const MassAdvertPage = ({
                                 marginBottom: 8,
                             }}
                         >
-                            <Button
-                                disabled={permission != 'Управление'}
-                                view="action"
-                                size="l"
-                                onClick={() => {
-                                    setModalFormOpen(true);
-                                    setSelectedButton('');
-                                    setCreateAdvertsMode(false);
-                                }}
+                            <AdvertCreateModal
+                                sellerId={sellerId}
+                                doc={doc}
+                                filteredData={filteredData}
+                                setChangedDoc={setChangedDoc}
                             >
-                                <Icon data={SlidersVertical} />
-                                <Text variant="subheader-1">Создать</Text>
-                            </Button>
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                >
+                                    <Icon data={SlidersVertical} />
+                                    <Text variant="subheader-1">Создать</Text>
+                                </Button>
+                            </AdvertCreateModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsStatusManagingModal
                                 disabled={permission != 'Управление'}
@@ -4586,236 +4548,6 @@ export const MassAdvertPage = ({
                                 </Button>
                             </Popover>
                         </div>
-                        <Modal
-                            open={modalFormOpen}
-                            onClose={() => {
-                                setAdvertTypeSwitchValue(['Авто']);
-                                setBudgetInputValue(1000);
-                                setBudgetInputValidationValue(true);
-                                setBidInputValue(125);
-                                setBidInputValidationValue(true);
-                                setModalFormOpen(false);
-                            }}
-                        >
-                            <Card
-                                view="clear"
-                                style={{
-                                    width: 300,
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    translate: '-50% -50%',
-                                    flexWrap: 'nowrap',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    backgroundColor: 'none',
-                                }}
-                            >
-                                <motion.div
-                                    style={{
-                                        overflow: 'hidden',
-                                        flexWrap: 'nowrap',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        background: '#221d220f',
-                                        backdropFilter: 'blur(8px)',
-                                        boxShadow: '#0002 0px 2px 8px 0px',
-                                        padding: 30,
-                                        borderRadius: 30,
-                                        border: '1px solid #eee2',
-                                    }}
-                                >
-                                    <Text variant="display-2">Создание РК</Text>
-                                    <div style={{minHeight: 8}} />
-                                    <Select
-                                        size="l"
-                                        width={'max'}
-                                        value={advertTypeSwitchValue}
-                                        options={advertTypeSwitchValues}
-                                        onUpdate={(val) => {
-                                            setAdvertTypeSwitchValue(val);
-                                            setBidInputValue(val[0] == 'Авто' ? 125 : 150);
-                                        }}
-                                    />
-                                    <TextTitleWrapper
-                                        title={'Стартовый баланс'}
-                                        style={{
-                                            marginBottom: 8,
-                                            marginTop: 8,
-                                            display:
-                                                advertTypeSwitchValue[0] == 'Авто'
-                                                    ? 'flex'
-                                                    : 'none',
-                                        }}
-                                    >
-                                        <TextInput
-                                            size="l"
-                                            type="number"
-                                            value={String(budgetInputValue)}
-                                            onChange={(val) => {
-                                                const budget = Number(val.target.value);
-                                                if (budget < 1000)
-                                                    setBudgetInputValidationValue(false);
-                                                else setBudgetInputValidationValue(true);
-                                                setBudgetInputValue(budget);
-                                            }}
-                                            errorMessage={'Введите не менее 500'}
-                                            validationState={
-                                                budgetInputValidationValue ? undefined : 'invalid'
-                                            }
-                                        />
-                                        <div style={{minHeight: 8}} />
-                                    </TextTitleWrapper>
-                                    <TextTitleWrapper
-                                        title={'Начальная ставка'}
-                                        style={{
-                                            marginBottom: 8,
-                                            display:
-                                                advertTypeSwitchValue[0] == 'Авто'
-                                                    ? 'flex'
-                                                    : 'none',
-                                        }}
-                                    >
-                                        <TextInput
-                                            size="l"
-                                            type="number"
-                                            value={String(bidInputValue)}
-                                            onChange={(val) => {
-                                                const bid = Number(val.target.value);
-                                                if (bid < 125) setBidInputValidationValue(false);
-                                                else setBidInputValidationValue(true);
-                                                setBidInputValue(bid);
-                                            }}
-                                            errorMessage={'Введите не менее 125'}
-                                            validationState={
-                                                bidInputValidationValue ? undefined : 'invalid'
-                                            }
-                                        />
-                                        <div style={{minHeight: 8}} />
-                                    </TextTitleWrapper>
-                                    <Checkbox
-                                        style={{margin: '8px 0'}}
-                                        checked={createAdvertsMode}
-                                        onUpdate={(val) => setCreateAdvertsMode(val)}
-                                    >
-                                        Создание РК 1к1
-                                    </Checkbox>
-                                    {generateModalButtonWithActions(
-                                        {
-                                            placeholder: 'Создать',
-                                            icon: CloudArrowUpIn,
-                                            view: 'outlined-success',
-                                            onClick: async () => {
-                                                const params = {
-                                                    uid: getUid(),
-                                                    campaignName: selectValue[0],
-                                                    data: {
-                                                        arts: {},
-                                                        mode: createAdvertsMode, // true -- one to one false -- one to many
-                                                        budget: budgetInputValue,
-                                                        bid: bidInputValue,
-                                                        type: advertTypeSwitchValue[0],
-                                                    },
-                                                };
-                                                for (let i = 0; i < filteredData.length; i++) {
-                                                    const {art, nmId} = filteredData[i];
-                                                    if (art === undefined || nmId === undefined)
-                                                        continue;
-                                                    params.data.arts[art] = {art, nmId};
-                                                }
-                                                console.log(params);
-                                                setModalFormOpen(false);
-
-                                                //////////////////////////////////
-                                                try {
-                                                    const res = await callApi(
-                                                        'createMassAdverts',
-                                                        params,
-                                                    );
-
-                                                    if (res) {
-                                                        const advertsInfosPregenerated =
-                                                            res['data'];
-                                                        if (advertsInfosPregenerated)
-                                                            for (const [
-                                                                advertId,
-                                                                advertsData,
-                                                            ] of Object.entries(
-                                                                advertsInfosPregenerated,
-                                                            )) {
-                                                                if (!advertId || !advertsData)
-                                                                    continue;
-                                                                advertsData['daysInWork'] = 1;
-                                                                doc.adverts[selectValue[0]][
-                                                                    advertId
-                                                                ] = advertsData;
-
-                                                                const type = advertsData['type'];
-                                                                let nms = [] as any[];
-                                                                if (type == 8) {
-                                                                    nms = advertsData['autoParams']
-                                                                        ? advertsData['autoParams']
-                                                                              .nms ?? []
-                                                                        : [];
-                                                                } else if (type == 9) {
-                                                                    nms = advertsData[
-                                                                        'unitedParams'
-                                                                    ]
-                                                                        ? advertsData[
-                                                                              'unitedParams'
-                                                                          ][0].nms ?? []
-                                                                        : [];
-                                                                }
-
-                                                                for (const [
-                                                                    art,
-                                                                    artData,
-                                                                ] of Object.entries(
-                                                                    doc.campaigns[selectValue[0]],
-                                                                )) {
-                                                                    if (!art || !artData) continue;
-                                                                    if (
-                                                                        nms.includes(
-                                                                            artData['nmId'],
-                                                                        )
-                                                                    ) {
-                                                                        if (
-                                                                            !doc.campaigns[
-                                                                                selectValue[0]
-                                                                            ][art]['adverts']
-                                                                        )
-                                                                            doc.campaigns[
-                                                                                selectValue[0]
-                                                                            ][art]['adverts'] = {};
-                                                                        doc.campaigns[
-                                                                            selectValue[0]
-                                                                        ][art]['adverts'][
-                                                                            advertId
-                                                                        ] = {
-                                                                            advertId: advertId,
-                                                                        };
-                                                                    }
-                                                                }
-                                                            }
-
-                                                        setChangedDoc({...doc});
-                                                    }
-                                                } catch (error) {
-                                                    console.log(error);
-                                                }
-                                                //////////////////////////////////
-                                            },
-                                        },
-                                        selectedButton,
-                                        setSelectedButton,
-                                    )}
-                                </motion.div>
-                            </Card>
-                        </Modal>
                         <Modal
                             open={advertsArtsListModalFromOpen}
                             onClose={() => {
@@ -5259,7 +4991,7 @@ const generateCard = (args) => {
     return (
         <Card style={cardStyle} view="outlined">
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                <Text>{`${placeholder}`}</Text>
+                <Text style={{whiteSpace: 'pre-wrap'}}>{`${placeholder}`}</Text>
                 <Text
                     style={{
                         fontWeight: 'bold',
