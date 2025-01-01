@@ -111,8 +111,8 @@ const CampaignInfo = ({
     membersInfo.pop();
 
     const tariffDetailed = useMemo(() => {
-        const base = 4990;
-        const art = 50;
+        const base = 5990;
+        const art = 59;
         const artCount = (tariff - base) / art;
         return (
             <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
@@ -229,7 +229,7 @@ const CampaignInfo = ({
                         />
                     </div>
                     <div style={{minHeight: 8}} />
-                    {tariff > 4990 ? (
+                    {tariff > 5990 ? (
                         <Text
                             style={{
                                 marginBottom: 8,
