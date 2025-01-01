@@ -1683,10 +1683,10 @@ export const MassAdvertPage = ({
                         for (const key of keys) {
                             switch (key) {
                                 case 'prices':
-                                    words.push('Себестоимость');
+                                    words.push('себестоимость');
                                     break;
                                 case 'tax':
-                                    words.push('Налог');
+                                    words.push('налог');
                                     break;
                                 default:
                                     break;
@@ -1698,8 +1698,9 @@ export const MassAdvertPage = ({
                                     style={{maxWidth: '400px'}}
                                     content={
                                         <Text>
-                                            Расчёт прибыли неточен. В модуле товары не указаны
-                                            следующие параметры:&nbsp;{getEnumurationString(words)}
+                                            Внимание: расчёт прибыли выполнен с ошибкой. Пожалуйста,
+                                            укажите&nbsp;{getEnumurationString(words)} для
+                                            корректного отображения данных
                                         </Text>
                                     }
                                     disabled={false}
