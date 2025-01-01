@@ -13,6 +13,7 @@ import {
     Skeleton,
     RadioButton,
     List,
+    Tooltip,
 } from '@gravity-ui/uikit';
 import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
@@ -48,6 +49,7 @@ import {
     TagRuble,
     Cherry,
     Xmark,
+    TriangleExclamation,
 } from '@gravity-ui/icons';
 
 // import JarIcon from '../assets/jar-of-jam.svg';
@@ -85,6 +87,8 @@ import {AdvertsSchedulesModal} from 'src/components/AdvertsSchedulesModal';
 import {AdvertsStatusManagingModal} from 'src/components/AdvertsStatusManagingModal';
 import {useError} from './ErrorContext';
 import {AdvertCreateModal} from 'src/components/AdvertCreateModal';
+import ApiClient from 'src/utilities/ApiClient';
+import {getEnumurationString} from 'src/utilities/getEnumerationString';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -470,6 +474,26 @@ export const MassAdvertPage = ({
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
+
+    const [unvalidatedArts, setUnvalidatedArts] = useState<any[]>([]);
+
+    const getUnvalidatedArts = async () => {
+        try {
+            const params = {seller_id: sellerId, fields: ['prices', 'tax']};
+            const response = await ApiClient.post('massAdvert/unvalidatedArts', params);
+            if (!response?.data) {
+                throw new Error('error while getting unvalidatedArts');
+            }
+            console.log('unvalidatedArts', response?.data?.unvalidatedArts);
+            setUnvalidatedArts(response?.data?.unvalidatedArts);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        getUnvalidatedArts();
+    }, [sellerId]);
 
     // const paramMap = {
     //     status: {
@@ -1443,7 +1467,6 @@ export const MassAdvertPage = ({
                       const {art, nmId} = row;
                       if (footer) return undefined;
                       const profitsData = autoSalesProfits[art];
-
                       const switches = [] as any[];
 
                       if (profitsData) {
@@ -1650,6 +1673,50 @@ export const MassAdvertPage = ({
                         </Text>
                     );
                 }
+                const warningArtIcon = () => {
+                    const nmIdArray = unvalidatedArts.map((art) => art.nmId);
+                    const nmIdIndex = nmIdArray.findIndex((element) => element == nmId);
+                    if (nmIdIndex != -1) {
+                        const art = unvalidatedArts[nmIdIndex];
+                        const keys = Object.keys(art);
+                        const words: String[] = [];
+                        for (const key of keys) {
+                            switch (key) {
+                                case 'prices':
+                                    words.push('Себестоимость');
+                                    break;
+                                case 'tax':
+                                    words.push('Налог');
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        return (
+                            <span style={{pointerEvents: 'auto'}}>
+                                <Tooltip
+                                    style={{maxWidth: '400px'}}
+                                    content={
+                                        <Text>
+                                            Расчёт прибыли неточен. В модуле товары не указаны
+                                            следующие параметры:&nbsp;{getEnumurationString(words)}
+                                        </Text>
+                                    }
+                                    disabled={false}
+                                >
+                                    <Button
+                                        view="flat"
+                                        style={{color: 'rgb(255, 190, 92)'}}
+                                        size="xs"
+                                    >
+                                        <Icon data={TriangleExclamation} size={11} />
+                                    </Button>
+                                </Tooltip>
+                            </span>
+                        );
+                    }
+                    return <div />;
+                };
                 const {placementsValue, stocksBySizes, nmId} = row ?? {};
                 const stocksByWarehousesArt = stocksByWarehouses?.[nmId];
 
@@ -2087,33 +2154,42 @@ export const MassAdvertPage = ({
                                     height: 0.5,
                                 }}
                             />
-                            <Button
-                                disabled={!Math.round(profit)}
+                            <div
                                 style={{
-                                    width: 140,
-                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
                                 }}
-                                width="max"
-                                size="xs"
-                                view={'flat'}
-                                pin="clear-clear"
                             >
-                                <Text
-                                    color={
-                                        !Math.round(profit)
-                                            ? undefined
-                                            : profit > 0
-                                            ? 'positive'
-                                            : 'danger'
-                                    }
+                                <Button
+                                    disabled={!Math.round(profit)}
+                                    style={{
+                                        width: 'au',
+                                        overflow: 'hidden',
+                                    }}
+                                    width="max"
+                                    size="xs"
+                                    view={'flat'}
+                                    pin="clear-clear"
                                 >
-                                    {`${new Intl.NumberFormat('ru-RU').format(
-                                        Math.round(profit),
-                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                        Math.round(rentabelnost),
-                                    )}%`}
-                                </Text>
-                            </Button>
+                                    <Text
+                                        color={
+                                            !Math.round(profit)
+                                                ? undefined
+                                                : profit > 0
+                                                ? 'positive'
+                                                : 'danger'
+                                        }
+                                    >
+                                        {`${new Intl.NumberFormat('ru-RU').format(
+                                            Math.round(profit),
+                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                            Math.round(rentabelnost),
+                                        )}%`}
+                                    </Text>
+                                    {warningArtIcon()}
+                                </Button>
+                            </div>
                         </div>
                     </Card>
                 );
