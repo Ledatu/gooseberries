@@ -56,7 +56,7 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [doNotContainWords, setDoNotContainWords] = useState([] as string[]);
     const [reportReview, setReportReview] = useState(false);
 
-    const [productValuations, setProductValuations] = useState([] as any[]);
+    // const [productValuations, setProductValuations] = useState([] as any[]);
     const [feedbackValuations, setFeedbackValuations] = useState([] as any[]);
     const [currentProductValuations, setCurrentProductValuations] = useState(0);
     const [currentFeedbackValuations, setCurrentFeedbackValuations] = useState(0);
@@ -115,7 +115,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                 pv.push({value: val.id, content: val.reason});
             }
             setFeedbackValuations([...fv]);
-            setProductValuations([...pv]);
+            // setProductValuations([...pv]);
         } catch (error) {
             console.error(error);
         }
@@ -482,7 +482,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                         }}
                                     />
                                 </div>
-                                <div style={{margin: '4px'}}>
+                                {/* <div style={{margin: '4px'}}>
                                     <Select
                                         options={productValuations}
                                         placeholder="Описание проблемы товара"
@@ -491,7 +491,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                             setCurrentProductValuations(Number(value));
                                         }}
                                     />
-                                </div>
+                                </div> */}
                             </motion.div>
                             <motion.div
                                 style={{
