@@ -2895,10 +2895,17 @@ export const MassAdvertPage = ({
         console.log(params);
 
         callApi(`getMassAdvertsNew`, params, true)
-            .then((res) => {
+            .then(async (res) => {
                 console.log(res);
                 if (!res) return;
+                const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
+                    seller_id: sellerId,
+                });
                 const resData = res['data'];
+
+                console.log('advertsAutoBidsRules', advertsAutoBidsRules);
+
+                resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
                 setChangedDoc(resData);
                 setSwitchingCampaignsFlag(false);
                 // recalc(dateRange, selectValue[0], filters, resData);
@@ -2956,11 +2963,20 @@ export const MassAdvertPage = ({
         console.log(params);
 
         await callApi('getMassAdvertsNew', params, true)
-            .then((response) => {
+            .then(async (response) => {
                 setFetchingDataFromServerFlag(false);
                 // console.log(response);
                 if (!response) return;
                 const resData = response['data'];
+
+                const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
+                    seller_id: sellerId,
+                });
+
+                console.log('advertsAutoBidsRules', advertsAutoBidsRules);
+
+                resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
+
                 setChangedDoc(resData);
                 setChangedDocUpdateType(true);
                 // console.log(response ? response['data'] : undefined);
