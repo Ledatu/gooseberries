@@ -93,7 +93,7 @@ export const TagsFilterModal = ({filterByButton}) => {
                                     )}
                                     itemHeight={36}
                                     renderItem={(item) => {
-                                        console.log(item);
+                                        // console.log(item);
 
                                         return (
                                             <Button
