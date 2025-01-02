@@ -55,6 +55,7 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [doNotContainTextInput, setDoNotContainTextInput] = useState('');
     const [doNotContainWords, setDoNotContainWords] = useState([] as string[]);
     const [reportReview, setReportReview] = useState(false);
+    const [starsButtonsState, setStarsButtonsState] = useState<Boolean[]>([false]);
 
     // const [productValuations, setProductValuations] = useState([] as any[]);
     const [feedbackValuations, setFeedbackValuations] = useState([] as any[]);
@@ -89,6 +90,7 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [bindingKeys, setBindingKeys] = useState([] as any[]);
     const [availableBindingKeys, setAvailableBindingKeys] = useState([] as any[]);
     const [availableBindingKeysFiltered, setAvailableBindingKeysFiltered] = useState([] as any[]);
+    const [userRatings, setUserRatings] = useState<Number[]>([]);
 
     const {availableTags, availableTagsPending, selectValue} = useCampaign();
 
@@ -120,25 +122,54 @@ export const AutoFeedbackTemplateCreationModal = ({
             console.error(error);
         }
     };
-    const generateRates = (
+
+    useEffect(() => {
+        setStarsButtonsState([false, false, false, false, false]);
+    }, []);
+    const genarateRatesButtons = (
         num: number,
-        func: React.Dispatch<React.SetStateAction<string>>,
-        filter: string,
+        buttonsState: Boolean[],
+        setButtonsState: React.Dispatch<React.SetStateAction<Boolean[]>>,
     ) => {
         const stars: React.JSX.Element[] = [];
         for (let i = 1; i <= num; i++) {
             stars.push(
                 <Button
                     view="flat"
-                    onClick={() => func(String(i))}
+                    onClick={() => {
+                        const buttonsStateNew = [...buttonsState];
+                        buttonsStateNew[i - 1] = !buttonsState[i - 1];
+                        console.log(buttonsStateNew);
+                        setButtonsState(buttonsStateNew);
+                    }}
                     style={{color: 'rgb(255, 190, 92)'}}
                 >
-                    <Icon data={Number(filter) >= i ? StarFill : Star} />
+                    <Text>{i}</Text>
+                    <Icon data={buttonsState[i - 1] ? StarFill : Star} />
                 </Button>,
             );
         }
         return stars;
     };
+    // const generateRates = (
+    //     num: number,
+    //     func: React.Dispatch<React.SetStateAction<string>>,
+    //     filter: string,
+    // ) => {
+    //     const stars: React.JSX.Element[] = [];
+    //     for (let i = 1; i <= num; i++) {
+    //         stars.push(
+    //             <Button
+    //                 view="flat"
+    //                 onClick={() => func(String(i))}
+    //                 style={{color: 'rgb(255, 190, 92)'}}
+    //             >
+    //                 <Icon data={Number(filter) >= i ? StarFill : Star} />
+    //             </Button>,
+    //         );
+    //     }
+    //     return stars;
+    // };
     useEffect(() => {
         getValuation();
     }, [sellerId]);
@@ -158,11 +189,20 @@ export const AutoFeedbackTemplateCreationModal = ({
         }
     }, [binding, artsData]);
 
+    useEffect(() => {
+        const temp: Number[] = [];
+        for (let i = 0; i < starsButtonsState.length; i++) {
+            if (starsButtonsState[i]) {
+                temp.push(i + 1);
+            }
+        }
+        setUserRatings(temp);
+    }, [starsButtonsState]);
     const textAreaRef = useRef(null as unknown as HTMLTextAreaElement);
 
     const infoText = useMemo(() => {
         const str =
-            'Используйте замены: {имя} - имя покупателя, {товар} - название товара, {текст1|текст2|текст3} - случайный вариант текста из списка.';
+            'Используйте замены: {имя} - имя покупателя, {товар} - название товара, {бренд} - название бренда, {текст1|текст2|текст3} - случайный вариант текста из списка.';
         const nodes = str.split(' ') as any[];
         for (let i = 0; i < nodes.length; i++) {
             const word = nodes[i];
@@ -394,7 +434,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                     }}
                                 />
                             </motion.div>
-                            <motion.div
+                            {/* <motion.div
                                 style={{
                                     height: 0,
                                     display: 'flex',
@@ -415,7 +455,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                     Оценки от:
                                 </Text>
                                 {generateRates(5, setRatingFrom, ratingFrom)}
-                            </motion.div>
+                            </motion.div> */}
                             <motion.div
                                 style={{
                                     height: 0,
@@ -434,9 +474,9 @@ export const AutoFeedbackTemplateCreationModal = ({
                                     style={{margin: '0 8px', whiteSpace: 'nowrap'}}
                                     variant="subheader-2"
                                 >
-                                    Оценки до:
+                                    Оценки:
                                 </Text>
-                                {generateRates(5, setRatingTo, ratingTo)}
+                                {genarateRatesButtons(5, starsButtonsState, setStarsButtonsState)}
                             </motion.div>
                             <div
                                 style={{
@@ -629,9 +669,10 @@ export const AutoFeedbackTemplateCreationModal = ({
                                                 bindingKeys,
                                                 ratingFrom,
                                                 ratingTo,
+                                                ratings: userRatings,
                                             },
                                         };
-                                        console.log(params);
+                                        console.log(params, 'params');
                                         ApiClient.post(
                                             'buyers/save-auto-feedbacks-template',
                                             params,
