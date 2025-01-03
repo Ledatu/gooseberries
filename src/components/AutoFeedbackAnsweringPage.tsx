@@ -3,7 +3,7 @@ import TheTable, {compare} from './TheTable';
 import callApi, {getUid} from 'src/utilities/callApi';
 
 import {Button, Loader, Text, Icon} from '@gravity-ui/uikit';
-import {Pencil, Xmark, Plus} from '@gravity-ui/icons';
+import {Pencil, Xmark, Plus, StarFill} from '@gravity-ui/icons';
 import {AutoFeedbackTemplateCreationModal} from './AutoFeedbackTemplateCreationModal';
 import ApiClient from 'src/utilities/ApiClient';
 
@@ -20,18 +20,21 @@ export const AutoFeedbackAnsweringPage = ({
     const [refetch, setRefetch] = useState(false);
     const [productValuations, setProductValuations] = useState([] as any);
     const [feedbackValuations, setFeedbackValuations] = useState([] as any);
+    const getAutoFeedbackTemplates = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            const response = await ApiClient.post('buyers/getAutoFeedbackTemplates', params);
+            if (!response?.data) {
+                throw new Error(`Cant get valuations for campaign ${sellerId}`);
+            }
+            console.log('lfksjlkdjadjad', response.data);
+            setData(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
     useEffect(() => {
-        const params = {uid: getUid(), campaignName: selectValue[0]};
-        console.log('getFeedbacks', params);
-        callApi('getAutoFeedbackTemplates', params)
-            .then((res) => {
-                if (!res || !res.data) return;
-                console.log(res);
-                setData(res.data);
-            })
-            .catch((e) => {
-                console.log(e);
-            });
+        getAutoFeedbackTemplates();
     }, [selectValue, refetch]);
 
     const filterData = (withfFilters = {}, tableData = {}) => {
@@ -213,14 +216,46 @@ export const AutoFeedbackAnsweringPage = ({
             name: 'productValuation',
             placeholder: 'Оценка',
             render: ({row}) => {
-                const {ratingFrom, ratingTo} = row;
-
-                if (!ratingFrom || !ratingTo) return undefined;
-                return (
-                    <Button size="xs" selected pin="circle-circle">
-                        {`${ratingFrom} - ${ratingTo}`}
-                    </Button>
-                );
+                const {ratings} = row;
+                if (ratings.length == 0 || ratings.length[0] == 0) return undefined;
+                else {
+                    const stars = ratings.map((rating) => {
+                        const color =
+                            rating > 3
+                                ? 'outlined-success'
+                                : rating == 3
+                                ? 'outlined-warning'
+                                : 'outlined-danger';
+                        return (
+                            <Button
+                                view={color}
+                                selected
+                                pin="circle-circle"
+                                style={{margin: '4px'}}
+                            >
+                                {rating}
+                                <Icon data={StarFill} size={13} />
+                            </Button>
+                        );
+                    });
+                    return (
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-start',
+                            }}
+                        >
+                            {stars}
+                        </div>
+                    );
+                }
+                // if (!ratingFrom || !ratingTo) return undefined;
+                // return (
+                //     <Button size="xs" selected pin="circle-circle">
+                //         {`${ratingFrom} - ${ratingTo}`}
+                //     </Button>
+                // );
             },
         },
         // {name: 'containsMedia', placeholder: 'Фото или видео'},
