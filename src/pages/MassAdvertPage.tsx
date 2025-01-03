@@ -2901,11 +2901,15 @@ export const MassAdvertPage = ({
                 const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
                     seller_id: sellerId,
                 });
+                const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
+                    seller_id: sellerId,
+                });
                 const resData = res['data'];
 
                 console.log('advertsAutoBidsRules', advertsAutoBidsRules);
 
                 resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
+                resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
                 setChangedDoc(resData);
                 setSwitchingCampaignsFlag(false);
                 // recalc(dateRange, selectValue[0], filters, resData);
@@ -2972,10 +2976,14 @@ export const MassAdvertPage = ({
                 const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
                     seller_id: sellerId,
                 });
+                const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
+                    seller_id: sellerId,
+                });
 
                 console.log('advertsAutoBidsRules', advertsAutoBidsRules);
 
                 resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
+                resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
 
                 setChangedDoc(resData);
                 setChangedDocUpdateType(true);
