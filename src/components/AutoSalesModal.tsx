@@ -1,4 +1,4 @@
-import {Button, Card, Icon, Modal, Select, Text} from '@gravity-ui/uikit';
+import {Button, Card, Checkbox, Icon, Modal, Select, Text, TextArea} from '@gravity-ui/uikit';
 import {Calculator, TagRuble} from '@gravity-ui/icons';
 import React, {useEffect, useMemo, useState} from 'react';
 import {RangeCalendar} from '@gravity-ui/date-components';
@@ -21,11 +21,36 @@ export const AutoSalesModal = ({
     const {showError} = useError();
     const [availableAutoSales, setAvailableAutoSales] = useState({});
     const [availableAutoSalesPending, setAvailableAutoSalesPending] = useState(false);
+    const [sendOborState, setSendOborState] = useState(false);
+    const [obor, setObor] = useState<undefined | Number>(undefined);
     const availableAutoSalesOptions = [{content: 'Выберите Акцию', value: 'none'}] as any[];
     for (const [autoSaleName, _] of Object.entries(availableAutoSales)) {
         availableAutoSalesOptions.push({content: autoSaleName, value: autoSaleName});
     }
+    useEffect(() => {
+        if (!sendOborState) setObor(undefined);
+    }, [sendOborState]);
+    const getTextArea = () => {
+        if (!sendOborState) return undefined;
+        // setObor(0);
+        return (
+            <TextArea
+                onUpdate={(value) => {
+                    console.log(obor);
+                    const num = Number(value);
 
+                    if (!isNaN(num)) {
+                        setObor(num);
+                    } else {
+                        setObor(undefined);
+                    }
+                    console.log(obor);
+                }}
+                errorMessage={obor === undefined ? 'Введите число' : undefined}
+                validationState={obor === undefined ? 'invalid' : undefined}
+            ></TextArea>
+        );
+    };
     const updateInfo = () => {
         if (disabled) return;
         setAvailableAutoSalesPending(true);
@@ -137,7 +162,7 @@ export const AutoSalesModal = ({
                         }}
                     >
                         <motion.div
-                            animate={{height: currentStep ? 382 : 36}}
+                            animate={{height: currentStep ? 504 : 36}}
                             style={{
                                 height: '100%',
                                 display: 'flex',
@@ -308,6 +333,36 @@ export const AutoSalesModal = ({
                                 />
                             </motion.div>
                             <motion.div
+                                transition={{
+                                    duration: 0.8,
+                                    type: 'spring',
+                                    damping: 24,
+                                    stiffness: 200,
+                                }}
+                                animate={{
+                                    height: !fileRequiredButNotUploaded && currentStep ? 100 : 0,
+                                }}
+                                style={{
+                                    overflow: 'hidden',
+                                    height: 0,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Checkbox
+                                    size="l"
+                                    onUpdate={(checked) => {
+                                        setSendOborState(checked);
+                                    }}
+                                    style={{marginBottom: '8px'}}
+                                >
+                                    <Text>Учитывать обрачиваемость</Text>
+                                </Checkbox>
+                                {getTextArea()}
+                            </motion.div>
+                            <motion.div
                                 animate={{
                                     height: currentStep == 2 ? 44 : currentStep == 3 ? 80 : 0,
                                 }}
@@ -342,6 +397,7 @@ export const AutoSalesModal = ({
                                                 seller_id: sellerId,
                                                 promotion_id:
                                                     availableAutoSales[autoSaleName[0]].id,
+                                                obor: obor,
                                             },
                                         };
 
