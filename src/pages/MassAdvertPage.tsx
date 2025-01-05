@@ -2218,6 +2218,20 @@ export const MassAdvertPage = ({
                       } стр.`
                     : ''),
             width: placementsDisplayPhrase != '' ? '15vw' : undefined,
+            sortFunction: (a, b, order) => {
+                const dataA = a?.placements;
+                const dataB = b?.placements;
+
+                // console.log(dataA, dataB);
+
+                const isNaNa = isNaN(dataA);
+                const isNaNb = isNaN(dataB);
+                if (isNaNa && isNaNb) return 1;
+                else if (isNaNa) return 1;
+                else if (isNaNb) return -1;
+
+                return (dataA - dataB) * order;
+            },
             additionalNodes: [
                 <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                     <Button
