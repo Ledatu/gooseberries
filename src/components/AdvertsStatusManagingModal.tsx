@@ -142,7 +142,7 @@ export const AdvertsStatusManagingModal = ({
                             }}
                         >
                             <Icon data={Play} />
-                            Запуск
+                            Возобновить показы
                         </Button>
                         <div style={{minHeight: 8}} />
                         <Button
@@ -156,8 +156,13 @@ export const AdvertsStatusManagingModal = ({
                             }}
                         >
                             <Icon data={TrashBin} />
-                            Завершить
+                            Завершить РК на WB
                         </Button>
+                        <div style={{minHeight: 8}} />
+                        <Text style={{margin: '0 8px'}}>
+                            <b>Подсказка: </b>Чтобы отключить РК от управления AURUM, удалите
+                            бюджет, шаблон фраз и автоставки.
+                        </Text>
                     </motion.div>
                 </Card>
             </Modal>

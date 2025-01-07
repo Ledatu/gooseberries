@@ -4089,6 +4089,10 @@ export const MassAdvertPage = ({
             header: 'Цена 1 буста, ₽',
             name: 'avgBoostPrice',
         },
+        {
+            header: 'Акция',
+            name: 'promotion',
+        },
         // {header: 'Частота, шт', name: 'freq'},
         // {header: 'Частота, шт (пр. пер.)', name: 'freqPrev'},
     ] as Column<any>[];
