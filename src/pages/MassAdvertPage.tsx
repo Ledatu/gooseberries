@@ -4091,7 +4091,7 @@ export const MassAdvertPage = ({
         },
         {
             header: 'Акция',
-            name: 'promotion',
+            name: 'promoTextCard',
         },
         // {header: 'Частота, шт', name: 'freq'},
         // {header: 'Частота, шт (пр. пер.)', name: 'freqPrev'},
