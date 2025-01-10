@@ -134,7 +134,7 @@ export const AdvertsBidsModal = ({
     const [cpmInputValue, setCpmInputValue] = useState('');
     const cpmInputValueValid = useMemo(() => {
         const temp = parseInt(cpmInputValue);
-        return temp && temp >= 125 && !isNaN(temp) && isFinite(temp);
+        return temp !== undefined && temp >= 0 && !isNaN(temp) && isFinite(temp);
     }, [cpmInputValue]);
 
     const [drrInputValue, setDrrInputValue] = useState('');
@@ -242,10 +242,14 @@ export const AdvertsBidsModal = ({
         cpm: {
             input: (
                 <TextInput
+                    hasClear
+                    type="number"
                     size="l"
                     value={cpmInputValue}
                     validationState={cpmInputValueValid ? undefined : 'invalid'}
-                    onUpdate={(val) => setCpmInputValue(val)}
+                    onUpdate={(val) => {
+                        setCpmInputValue(val == '' ? '0' : val);
+                    }}
                 />
             ),
             title: 'Введите ставку',

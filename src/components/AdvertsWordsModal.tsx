@@ -1492,7 +1492,7 @@ export const AdvertsWordsModal = ({
                             >
                                 <TextTitleWrapper
                                     title={
-                                        'Первичная фильтрация фраз\nесли показы больше или равно'
+                                        'Первичная фильтрация кластеров\nесли показы больше или равно'
                                     }
                                     style={{
                                         width: '100%',
@@ -1526,7 +1526,9 @@ export const AdvertsWordsModal = ({
                                 </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
                                 <TextTitleWrapper
-                                    title={'Первичная фильтрация фраз\nесли %CTR меньше или равно'}
+                                    title={
+                                        'Первичная фильтрация кластеров\nесли %CTR меньше или равно'
+                                    }
                                     style={{
                                         width: '100%',
                                         border: '1px solid var(--yc-color-base-generic-hover)',
@@ -1548,6 +1550,7 @@ export const AdvertsWordsModal = ({
                                             style={{width: '90%', margin: '0 5%'}}
                                             view="clear"
                                             value={semanticsModalSemanticsCTRThresholdValue}
+                                            rightContent={<Text>%</Text>}
                                             onUpdate={(val) => {
                                                 val = val.replace(',', '.');
 
@@ -1570,7 +1573,7 @@ export const AdvertsWordsModal = ({
                                 <div style={{minWidth: 8}} />
                                 <TextTitleWrapper
                                     title={
-                                        'Вторичная фильтрация фраз\nесли показы больше или равно'
+                                        'Вторичная фильтрация кластеров\nесли показы больше или равно'
                                     }
                                     style={{
                                         width: '100%',
@@ -1606,7 +1609,9 @@ export const AdvertsWordsModal = ({
                                 </TextTitleWrapper>
                                 <div style={{minWidth: 8}} />
                                 <TextTitleWrapper
-                                    title={'Вторичная фильтрация фраз\nесли %CTR меньше или равно'}
+                                    title={
+                                        'Вторичная фильтрация кластеров\nесли %CTR меньше или равно'
+                                    }
                                     style={{
                                         width: '100%',
                                         border: '1px solid var(--yc-color-base-generic-hover)',
@@ -2153,7 +2158,7 @@ export const AdvertsWordsModal = ({
                                         theme="success"
                                         columnData={renameFirstColumn(
                                             columnDataSemantics,
-                                            'Фразы в показах',
+                                            'Активные кластеры',
                                             disabled
                                                 ? []
                                                 : [
@@ -2182,7 +2187,7 @@ export const AdvertsWordsModal = ({
                                                 const temp = row;
                                                 temp.active[
                                                     'cluster'
-                                                ] = `На странице фраз: ${paginatedData.length} Всего фраз: ${semanticsModalSemanticsItemsFiltratedValue.length}`;
+                                                ] = `Кластеров на странице: ${paginatedData.length} Всего кластеров: ${semanticsModalSemanticsItemsFiltratedValue.length}`;
 
                                                 return temp;
                                             });
@@ -2203,7 +2208,7 @@ export const AdvertsWordsModal = ({
                                         theme="danger"
                                         columnData={renameFirstColumn(
                                             columnDataSemantics2,
-                                            'Исключенные фразы',
+                                            'Исключенные кластеры',
                                             disabled
                                                 ? []
                                                 : [
@@ -2232,7 +2237,7 @@ export const AdvertsWordsModal = ({
                                                 const temp = row;
                                                 temp.minus[
                                                     'cluster'
-                                                ] = `На странице фраз: ${paginatedData.length} Всего фраз: ${semanticsModalSemanticsMinusItemsFiltratedValue.length}`;
+                                                ] = `Кластеров на странице: ${paginatedData.length} Всего кластеров: ${semanticsModalSemanticsMinusItemsFiltratedValue.length}`;
 
                                                 return temp;
                                             });

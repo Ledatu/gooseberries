@@ -2756,7 +2756,7 @@ export const MassAdvertPage = ({
                         columnGap: 8,
                     }}
                 >
-                    <Text>Обор.</Text>
+                    <Text variant="subheader-1">Обор.</Text>
                     <HelpPopover
                         size="l"
                         content="Показывает через сколько дней закончится текущий остаток с учетом средней скорости заказов в день за выбранные период в календаре"
