@@ -641,7 +641,8 @@ export const AutoFeedbackTemplateCreationModal = ({
                                         templateName == '' ||
                                         (templateText == '' &&
                                             currentFeedbackValuations == 0 &&
-                                            currentProductValuations == 0),
+                                            currentProductValuations == 0) ||
+                                        !starsButtonsState.includes(true),
                                     // currentFeedbackValuations == 0 &&
                                     // currentProductValuations == 0
                                     placeholder: 'Сохранить',
