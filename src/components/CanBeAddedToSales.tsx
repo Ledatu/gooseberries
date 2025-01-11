@@ -20,6 +20,7 @@ export const CanBeAddedToSales = ({
 
     useEffect(() => {
         if (!open) return;
+        setTimeout(() => setOpen(false), 4000);
         let availableSalesTemp = [] as any[];
         const params = {seller_id: sellerId, nmId};
         setPending(true);
