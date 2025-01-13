@@ -719,22 +719,22 @@ export const DeliveryPage = ({permission, sellerId}) => {
                 {name: 'toOrder', placeholder: 'Отгрузить, шт.'},
                 {name: 'primeCost', placeholder: 'Себестоимость, ₽'},
                 {name: 'fullPrice', placeholder: 'Сумма, ₽'},
-                {
-                    name: 'profit',
-                    placeholder: 'Профит ₽ / Рент. %',
-                    render: ({row, value}, warehouseName) => {
-                        const sumOrders = row[warehouseName + '_sumOrders'];
-                        return (
-                            <Text color={value > 0 ? 'positive' : 'danger'}>
-                                {`${new Intl.NumberFormat('ru-RU').format(
-                                    value,
-                                )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                    getRoundValue(value, sumOrders, true),
-                                )}%`}
-                            </Text>
-                        );
-                    },
-                },
+                // {
+                //     name: 'profit',
+                //     placeholder: 'Профит ₽ / Рент. %',
+                //     render: ({row, value}, warehouseName) => {
+                //         const sumOrders = row[warehouseName + '_sumOrders'];
+                //         return (
+                //             <Text color={value > 0 ? 'positive' : 'danger'}>
+                //                 {`${new Intl.NumberFormat('ru-RU').format(
+                //                     value,
+                //                 )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                //                     getRoundValue(value, sumOrders, true),
+                //                 )}%`}
+                //             </Text>
+                //         );
+                //     },
+                // },
             ];
             const columnsTemp = [] as any[];
             const createNewWarehouseColumn = (warehouse) => {
