@@ -700,49 +700,11 @@ export const MassAdvertPage = ({
                                 selected={false}
                                 setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
                             />
-                            <Popover
-                                openOnHover={fixedPrices?.dateRange}
-                                delayOpening={1000}
-                                placement={'bottom'}
-                                content={
-                                    <Text variant="subheader-1">
-                                        {autoSalesInfo['fixedPrices'] &&
-                                        autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                            autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                                `${new Date(
-                                                    autoSalesInfo['fixedPrices']['dateRange'][0],
-                                                ).toLocaleDateString('ru-RU')}
-                                            - ${new Date(
-                                                autoSalesInfo['fixedPrices']['dateRange'][1],
-                                            ).toLocaleDateString('ru-RU')}`
-                                            ) : (
-                                                'Выберите даты акции'
-                                            )
-                                        ) : (
-                                            <></>
-                                        )}
-                                    </Text>
-                                }
-                            >
-                                <Button
-                                    size="xs"
-                                    pin={
-                                        autoSalesInfo['fixedPrices'] &&
-                                        autoSalesInfo['fixedPrices']['dateRange']
-                                            ? 'clear-clear'
-                                            : 'clear-circle'
-                                    }
-                                    view={inActionNow ? 'outlined-action' : 'outlined'}
-                                    selected={false}
-                                >
-                                    <Text>{autoSaleName ?? autoSalesInfo?.autoSaleName}</Text>
-                                </Button>
-                            </Popover>
                             {autoSalesInfo['fixedPrices'] &&
                             autoSalesInfo['fixedPrices']['dateRange'] ? (
                                 <Button
                                     size="xs"
-                                    pin="clear-circle"
+                                    pin="clear-clear"
                                     view={inActionNow ? 'outlined-action' : 'outlined'}
                                     selected={false}
                                     onClick={() => {
@@ -765,6 +727,41 @@ export const MassAdvertPage = ({
                             ) : (
                                 <></>
                             )}
+                            <Popover
+                                openOnHover={fixedPrices?.dateRange}
+                                delayOpening={1000}
+                                placement={'bottom'}
+                                content={
+                                    <Text variant="subheader-1">
+                                        {autoSalesInfo['fixedPrices'] &&
+                                        autoSalesInfo['fixedPrices']['dateRange'] ? (
+                                            autoSalesInfo['fixedPrices']['dateRange'] ? (
+                                                `${new Date(
+                                                    autoSalesInfo['fixedPrices']['dateRange'][0],
+                                                ).toLocaleDateString('ru-RU')}
+                                                        - ${new Date(
+                                                            autoSalesInfo['fixedPrices'][
+                                                                'dateRange'
+                                                            ][1],
+                                                        ).toLocaleDateString('ru-RU')}`
+                                            ) : (
+                                                'Выберите даты акции'
+                                            )
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </Text>
+                                }
+                            >
+                                <Button
+                                    size="xs"
+                                    pin={'clear-circle'}
+                                    view={inActionNow ? 'outlined-action' : 'outlined'}
+                                    selected={false}
+                                >
+                                    <Text>{autoSaleName ?? autoSalesInfo?.autoSaleName}</Text>
+                                </Button>
+                            </Popover>
                         </div>,
                     );
                     tagsNodes.push(<div style={{minWidth: 8}} />);
