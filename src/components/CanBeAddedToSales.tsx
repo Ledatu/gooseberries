@@ -2,8 +2,8 @@ import {Button, Card, Icon, List, Loader, Popup, Text} from '@gravity-ui/uikit';
 import {TagRuble, Xmark} from '@gravity-ui/icons';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
-import callApi from 'src/utilities/callApi';
 import {useError} from 'src/pages/ErrorContext';
+import ApiClient from 'src/utilities/ApiClient';
 
 export const CanBeAddedToSales = ({
     nmId,
@@ -17,27 +17,32 @@ export const CanBeAddedToSales = ({
     const [open, setOpen] = useState(false);
     const [availableSales, setAvailableSales] = useState([] as any[]);
     const [pending, setPending] = useState(false);
+    const getAvailableSales = async () => {
+        let availableSalesTemp = [] as any[];
+        try {
+            const params = {nmId: nmId, seller_id: sellerId};
+            const response = await ApiClient.post('massAdvert/availableSalesForNmId', params);
+            if (!response?.data) {
+                throw new Error('No available sales');
+            }
+            if (!response || !response['data']) return;
+            availableSalesTemp = response['data'];
+            console.log(response.data.dzhemPhrases, nmId);
+        } catch (error) {
+            showError(error.response?.data?.error || 'Не удалось узнать доступные акции.');
+            console.error(error);
+        } finally {
+            console.log(availableSalesTemp);
+
+            setAvailableSales(availableSalesTemp);
+            setPending(false);
+        }
+    };
 
     useEffect(() => {
         if (!open) return;
         setTimeout(() => setOpen(false), 4000);
-        let availableSalesTemp = [] as any[];
-        const params = {seller_id: sellerId, nmId};
-        setPending(true);
-        callApi('availableSalesForNmId', params, false, true)
-            .then((res) => {
-                if (!res || !res['data']) return;
-                availableSalesTemp = res['data'];
-            })
-            .catch((error) => {
-                showError(error.response?.data?.error || 'Не удалось узнать доступные акции.');
-            })
-            .finally(() => {
-                console.log(availableSalesTemp);
-
-                setAvailableSales(availableSalesTemp);
-                setPending(false);
-            });
+        getAvailableSales();
     }, [open]);
 
     const ref = useRef(null);
@@ -61,9 +66,9 @@ export const CanBeAddedToSales = ({
                             boxShadow: '#0006 0px 2px 8px 0px',
                             borderRadius: 30,
                             border: '1px solid #eee2',
-                            width: 340,
+                            width: 420,
                             left: -70,
-                            height: 170,
+                            height: 178,
                             overflow: 'auto',
                             position: 'absolute',
                         }}
@@ -114,22 +119,39 @@ export const CanBeAddedToSales = ({
                                 >
                                     <List
                                         itemsHeight={136}
-                                        itemHeight={48}
+                                        itemHeight={44}
                                         renderItem={(item) => {
                                             return (
                                                 <Card
+                                                    theme="warning"
                                                     style={{
                                                         height: 36,
-                                                        borderRadius: 30,
+                                                        borderRadius: 24,
                                                         width: '100%',
                                                         display: 'flex',
-                                                        flexDirection: 'column',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        paddingLeft: 12,
-                                                        margin: '0 8px',
+                                                        paddingLeft: 8,
+                                                        margin: '4px 4px 4px 4px',
+                                                        // marginBottom: '8px',
                                                     }}
                                                 >
-                                                    <Text variant="subheader-1">{item}</Text>
+                                                    <Text variant="subheader-1">{item.name}</Text>
+                                                    <Card
+                                                        theme="warning"
+                                                        style={{
+                                                            borderRadius: 16,
+                                                            width: 'fit-content',
+                                                            marginLeft: 8,
+                                                            paddingLeft: '8px',
+                                                            paddingRight: '8px',
+                                                        }}
+                                                    >
+                                                        <Text color="warning" variant="subheader-1">
+                                                            {item.planPrice} ₽
+                                                        </Text>
+                                                    </Card>
                                                 </Card>
                                             );
                                         }}
