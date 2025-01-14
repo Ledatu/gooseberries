@@ -63,7 +63,7 @@ settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from 'src/utilities/callApi';
 import axios, {CancelTokenSource} from 'axios';
 import {
-    // defaultRender,
+    defaultRender,
     getLocaleDateString,
     getNormalDateRange,
     getRoundValue,
@@ -89,9 +89,6 @@ import {useError} from './ErrorContext';
 import {AdvertCreateModal} from 'src/components/AdvertCreateModal';
 import ApiClient from 'src/utilities/ApiClient';
 import {getEnumurationString} from 'src/utilities/getEnumerationString';
-import DzhemModal from 'src/components/DzhemPhrasesModal';
-// import {genTextColumn} from 'src/utilities/genTextColumn';
-// import {renderGradNumber} from 'src/utilities/renderGradNumber';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -177,7 +174,6 @@ export const MassAdvertPage = ({
     }, [sellerId]);
 
     const [selectedSearchPhrase, setSelectedSearchPhrase] = useState<string>('');
-    const [selectedNmId, setSelectedNmId] = useState<Number>(0);
 
     const auctionOptions: any[] = [
         {value: 'Выдача', content: 'Выдача'},
@@ -211,125 +207,130 @@ export const MassAdvertPage = ({
     ]);
 
     const [showDzhemModalOpen, setShowDzhemModalOpen] = useState(false);
-    // const [dzhemData, setDzhemData] = useState<any[]>([]);
+    const [dzhemData, setDzhemData] = useState<any[]>([]);
+    const [dzhemDataFilteredData, setDzhemDataFilteredData] = useState<any[]>([]);
     const [dzhemDataFilters, setDzhemDataFilters] = useState({undef: false});
 
-    // const [dzhemDataFilteredSummary, setDzhemDataFilteredSummary] = useState({
-    //     freq: 0,
-    //     freqPrev: 0,
-    //     visibility: 0,
-    //     visibilityPrev: 0,
-    //     avgPosition: 0,
-    //     avgPositionPrev: 0,
-    //     medianPosition: 0,
-    //     medianPositionPrev: 0,
-    //     openCardCount: 0,
-    //     openCardCountPrev: 0,
-    //     openCardCountBetterThanN: 0,
-    //     addToCartCount: 0,
-    //     addToCartCountPrev: 0,
-    //     addToCartCountBetterThanN: 0,
-    //     addToCartPercent: 0,
-    //     addToCartPercentPrev: 0,
-    //     orders: 0,
-    //     avgOrders: 0,
-    //     avgOpenCardCount: 0,
-    //     ordersPrev: 0,
-    //     ordersBetterThanN: 0,
-    //     cartToOrderPercent: 0,
-    //     cartToOrderPercentPrev: 0,
-    //     minPriceWithSppBySizes: 0,
-    //     maxPriceWithSppBySizes: 0,
-    // });
-    // const dzhemDataFilter = (withfFilters: any, stats: any[]) => {
-    //     const _filters = withfFilters ?? dzhemDataFilters;
-    //     const _stats = stats ?? dzhemData;
+    const [dzhemDataFilteredSummary, setDzhemDataFilteredSummary] = useState({
+        freq: 0,
+        freqPrev: 0,
+        visibility: 0,
+        visibilityPrev: 0,
+        avgPosition: 0,
+        avgPositionPrev: 0,
+        medianPosition: 0,
+        medianPositionPrev: 0,
+        openCardCount: 0,
+        openCardCountPrev: 0,
+        openCardCountBetterThanN: 0,
+        addToCartCount: 0,
+        addToCartCountPrev: 0,
+        addToCartCountBetterThanN: 0,
+        addToCartPercent: 0,
+        addToCartPercentPrev: 0,
+        orders: 0,
+        avgOrders: 0,
+        avgOpenCardCount: 0,
+        ordersPrev: 0,
+        ordersBetterThanN: 0,
+        cartToOrderPercent: 0,
+        cartToOrderPercentPrev: 0,
+        minPriceWithSppBySizes: 0,
+        maxPriceWithSppBySizes: 0,
+    });
+    const dzhemDataFilter = (withfFilters: any, stats: any[]) => {
+        const _filters = withfFilters ?? dzhemDataFilters;
+        const _stats = stats ?? dzhemData;
 
-    //     let count = 0;
-    //     const dzhemDataFilteredSummaryTemp = {
-    //         addToCartCurrent: 0,
-    //         addToCartDynamic: 0,
-    //         addToCartPercentile: 0,
-    //         frequencyCurrent: 0,
-    //         frequencyDynamic: 0,
-    //         frequencyPercentile: 0,
-    //         avgPositionCurrent: 0,
-    //         avgPositionDynamic: 0,
-    //         cartToOrderCurrent: 0,
-    //         cartToOrderDynamic: 0,
-    //         cartToOrderPercentile: 0,
-    //         openCardCurrent: 0,
-    //         openCardDynamic: 0,
-    //         openCardPercentile: 0,
-    //         openToCartCurrent : 0,
-    //         openToCartDynamic : 0,
-    //         openToCartPercentile : 0,
-    //         ordersCurrent: 0,
-    //         ordersDynamic: 0,
-    //         ordersPercentile: 0,
-    //         text: ''
+        let count = 0;
 
-    //     };
+        const dzhemDataFilteredSummaryTemp = {
+            freq: 0,
+            freqPrev: 0,
+            visibility: 0,
+            visibilityPrev: 0,
+            avgPosition: 0,
+            avgPositionPrev: 0,
+            medianPosition: 0,
+            medianPositionPrev: 0,
+            openCardCount: 0,
+            openCardCountPrev: 0,
+            openCardCountBetterThanN: 0,
+            addToCartCount: 0,
+            addToCartCountPrev: 0,
+            addToCartCountBetterThanN: 0,
+            addToCartPercent: 0,
+            addToCartPercentPrev: 0,
+            orders: 0,
+            avgOrders: 0,
+            avgOpenCardCount: 0,
+            ordersPrev: 0,
+            ordersBetterThanN: 0,
+            cartToOrderPercent: 0,
+            cartToOrderPercentPrev: 0,
+            minPriceWithSppBySizes: 0,
+            maxPriceWithSppBySizes: 0,
+        };
 
-    //     setDzhemDataFilteredData(
-    //         _stats.filter((stat) => {
-    //             for (const [filterArg, filterData] of Object.entries(_filters)) {
-    //                 if (filterArg == 'undef' || !filterData) continue;
-    //                 if (filterData['val'] == '') continue;
-    //                 else if (!compare(stat[filterArg], filterData)) {
-    //                     return false;
-    //                 }
-    //             }
+        setDzhemDataFilteredData(
+            _stats.filter((stat) => {
+                for (const [filterArg, filterData] of Object.entries(_filters)) {
+                    if (filterArg == 'undef' || !filterData) continue;
+                    if (filterData['val'] == '') continue;
+                    else if (!compare(stat[filterArg], filterData)) {
+                        return false;
+                    }
+                }
 
-    //             for (const [key, val] of Object.entries(stat)) {
-    //                 if (val === undefined) continue;
+                for (const [key, val] of Object.entries(stat)) {
+                    if (val === undefined) continue;
 
-    //                 if (key == 'text') continue;
+                    if (key == 'phrase') continue;
 
-    //                 // if (key === 'orders')
-    //                 //     dzhemDataFilteredSummaryTemp['avgOrders'] +=
-    //                 //         isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
+                    if (key === 'orders')
+                        dzhemDataFilteredSummaryTemp['avgOrders'] +=
+                            isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
 
-    //                 // if (key === 'openCardCount')
-    //                 //     dzhemDataFilteredSummaryTemp['avgOpenCardCount'] +=
-    //                 //         isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
+                    if (key === 'openCardCount')
+                        dzhemDataFilteredSummaryTemp['avgOpenCardCount'] +=
+                            isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
 
-    //                 dzhemDataFilteredSummaryTemp[key] +=
-    //                     isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
-    //             }
-    //             count++;
+                    dzhemDataFilteredSummaryTemp[key] +=
+                        isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
+                }
+                count++;
 
-    //             // dzhemDataFilteredSummaryTemp['date']++;
+                // dzhemDataFilteredSummaryTemp['date']++;
 
-    //             return true;
-    //         }),
-    //     );
+                return true;
+            }),
+        );
 
-    //     for (const key of [
-    //         'visibility',
-    //         'visibilityPrev',
-    //         'avgPosition',
-    //         'avgPositionPrev',
-    //         'medianPosition',
-    //         'medianPositionPrev',
-    //         'openCardCountBetterThanN',
-    //         'addToCartCountBetterThanN',
-    //         'addToCartPercent',
-    //         'addToCartPercentPrev',
-    //         'ordersBetterThanN',
-    //         'cartToOrderPercent',
-    //         'cartToOrderPercentPrev',
-    //         'minPriceWithSppBySizes',
-    //         'maxPriceWithSppBySizes',
-    //         'avgOrders',
-    //         'avgOpenCardCount',
-    //     ])
-    //         dzhemDataFilteredSummaryTemp[key] = getRoundValue(
-    //             dzhemDataFilteredSummaryTemp[key],
-    //             count,
-    //         );
-    //     setDzhemDataFilteredSummary(dzhemDataFilteredSummaryTemp);
-    // };
+        for (const key of [
+            'visibility',
+            'visibilityPrev',
+            'avgPosition',
+            'avgPositionPrev',
+            'medianPosition',
+            'medianPositionPrev',
+            'openCardCountBetterThanN',
+            'addToCartCountBetterThanN',
+            'addToCartPercent',
+            'addToCartPercentPrev',
+            'ordersBetterThanN',
+            'cartToOrderPercent',
+            'cartToOrderPercentPrev',
+            'minPriceWithSppBySizes',
+            'maxPriceWithSppBySizes',
+            'avgOrders',
+            'avgOpenCardCount',
+        ])
+            dzhemDataFilteredSummaryTemp[key] = getRoundValue(
+                dzhemDataFilteredSummaryTemp[key],
+                count,
+            );
+        setDzhemDataFilteredSummary(dzhemDataFilteredSummaryTemp);
+    };
 
     const [showArtStatsModalOpen, setShowArtStatsModalOpen] = useState(false);
     const [artsStatsByDayData, setArtsStatsByDayData] = useState<any[]>([]);
@@ -723,42 +724,13 @@ export const MassAdvertPage = ({
                                     </Text>
                                 }
                             >
-                                {' '}
-                                {autoSalesInfo['fixedPrices'] &&
-                                autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                    <Button
-                                        size="xs"
-                                        pin="clear-clear"
-                                        view={inActionNow ? 'outlined-action' : 'outlined'}
-                                        selected={false}
-                                        onClick={() => {
-                                            const params = {
-                                                uid: getUid(),
-                                                campaignName: selectValue[0],
-                                                nmIds: [nmId],
-                                            };
-
-                                            console.log(params);
-
-                                            delete doc.autoSales[selectValue[0]][nmId];
-                                            setChangedDoc({...doc});
-
-                                            callApi('deleteAutoSaleFromNmIds', params);
-                                        }}
-                                    >
-                                        <Icon data={Xmark} size={12} />
-                                    </Button>
-                                ) : (
-                                    <></>
-                                )}
                                 <Button
                                     size="xs"
                                     pin={
-                                        'clear-circle'
-                                        // autoSalesInfo['fixedPrices'] &&
-                                        // autoSalesInfo['fixedPrices']['dateRange']
-                                        //     ? 'clear-clear'
-                                        //     : 'clear-circle'
+                                        autoSalesInfo['fixedPrices'] &&
+                                        autoSalesInfo['fixedPrices']['dateRange']
+                                            ? 'clear-clear'
+                                            : 'clear-circle'
                                     }
                                     view={inActionNow ? 'outlined-action' : 'outlined'}
                                     selected={false}
@@ -766,6 +738,33 @@ export const MassAdvertPage = ({
                                     <Text>{autoSaleName ?? autoSalesInfo?.autoSaleName}</Text>
                                 </Button>
                             </Popover>
+                            {autoSalesInfo['fixedPrices'] &&
+                            autoSalesInfo['fixedPrices']['dateRange'] ? (
+                                <Button
+                                    size="xs"
+                                    pin="clear-circle"
+                                    view={inActionNow ? 'outlined-action' : 'outlined'}
+                                    selected={false}
+                                    onClick={() => {
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            nmIds: [nmId],
+                                        };
+
+                                        console.log(params);
+
+                                        delete doc.autoSales[selectValue[0]][nmId];
+                                        setChangedDoc({...doc});
+
+                                        callApi('deleteAutoSaleFromNmIds', params);
+                                    }}
+                                >
+                                    <Icon data={Xmark} size={12} />
+                                </Button>
+                            ) : (
+                                <></>
+                            )}
                         </div>,
                     );
                     tagsNodes.push(<div style={{minWidth: 8}} />);
@@ -994,7 +993,8 @@ export const MassAdvertPage = ({
                                                     temp.sort((a, b) => {
                                                         return b?.openCardCount - a?.openCardCount;
                                                     });
-                                                    setSelectedNmId(nmId);
+
+                                                    setDzhemData(temp);
                                                     setShowDzhemModalOpen(true);
                                                 }}
                                                 // style={{
@@ -3834,110 +3834,131 @@ export const MassAdvertPage = ({
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
 
-    // const columnDataDzhem = [
-    //     {placeholder: genTextColumn(['', 'Поисковая фраза']), name: 'phrase', valueType: 'text'},
-    //     {
-    //         placeholder: genTextColumn(['', 'Переходы, шт.']),
-    //         name: 'openCardCount',
-    //         render: (args) =>
-    //             renderGradNumber(args, dzhemDataFilteredSummary['avgOpenCardCount'], defaultRender),
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['', 'Заказов, шт.']),
-    //         name: 'orders',
-    //         render: (args) =>
-    //             renderGradNumber(args, dzhemDataFilteredSummary['avgOrders'], defaultRender),
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['', 'CR в корзину, %']),
-    //         name: 'addToCartPercent',
-    //         render: (args) =>
-    //             renderGradNumber(
-    //                 args,
-    //                 dzhemDataFilteredSummary['addToCartPercent'],
-    //                 renderAsPercent,
-    //             ),
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['', 'CR в заказ, %']),
-    //         name: 'cartToOrderPercent',
-    //         render: (args) =>
-    //             renderGradNumber(
-    //                 args,
-    //                 dzhemDataFilteredSummary['cartToOrderPercent'],
-    //                 renderAsPercent,
-    //             ),
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['', 'Видимость, %']),
-    //         name: 'visibility',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['', 'Ср. позиция']),
-    //         name: 'avgPosition',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['', 'Мед. позиция']),
-    //         name: 'medianPosition',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['', 'В корзину, шт.']),
-    //         name: 'addToCartCount',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['CR в корзину, %', '(пр. период)']),
-    //         name: 'addToCartPercentPrev',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['CR в заказ, %', '(пр. период)']),
-    //         name: 'cartToOrderPercentPrev',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['Видимость, %', '(пр. период)']),
-    //         name: 'visibilityPrev',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['Ср. позиция', '(пр. период)']),
-    //         name: 'avgPositionPrev',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['Мед. позиция', '(пр. период)']),
-    //         name: 'medianPositionPrev',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['Переходы, шт.', '(пр. период)']),
-    //         name: 'openCardCountPrev',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['В корзину, шт.', '(пр. период)']),
-    //         name: 'addToCartCountPrev',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['Заказов, шт.', '(пр. период)']),
-    //         name: 'ordersPrev',
-    //     },
+    const genTextColumn = (textArray) => {
+        const wrapped = [] as any[];
+        for (const row of textArray) {
+            wrapped.push(<div style={{height: 18}}>{row}</div>);
+        }
 
-    //     {
-    //         placeholder: genTextColumn(['Переходы, шт.', 'лучше, чем у n% КТ конкурентов']),
-    //         name: 'openCardCountBetterThanN',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['В корзину, шт.', 'лучше, чем у n% КТ конкурентов']),
-    //         name: 'addToCartCountBetterThanN',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['Заказы, шт.', 'лучше, чем у n% КТ конкурентов']),
-    //         name: 'ordersBetterThanN',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['Мин. цена со скидкой', '(по размерам)']),
-    //         name: 'minPriceWithSppBySizes',
-    //     },
-    //     {
-    //         placeholder: genTextColumn(['Макс. цена со скидкой', '(по размерам)']),
-    //         name: 'maxPriceWithSppBySizes',
-    //     },
-    // ];
+        return <div style={{display: 'flex', flexDirection: 'column'}}>{wrapped}</div>;
+    };
+
+    const renderGradNumber = (args, footerValue, renderer) => {
+        const {value, footer} = args;
+        const color = footer
+            ? 'primary'
+            : value >= footerValue
+            ? 'positive'
+            : value >= footerValue / 2
+            ? 'warning'
+            : 'danger';
+        return <Text color={color}>{renderer(args)}</Text>;
+    };
+
+    const columnDataDzhem = [
+        {placeholder: genTextColumn(['', 'Поисковая фраза']), name: 'phrase', valueType: 'text'},
+        {
+            placeholder: genTextColumn(['', 'Переходы, шт.']),
+            name: 'openCardCount',
+            render: (args) =>
+                renderGradNumber(args, dzhemDataFilteredSummary['avgOpenCardCount'], defaultRender),
+        },
+        {
+            placeholder: genTextColumn(['', 'Заказов, шт.']),
+            name: 'orders',
+            render: (args) =>
+                renderGradNumber(args, dzhemDataFilteredSummary['avgOrders'], defaultRender),
+        },
+        {
+            placeholder: genTextColumn(['', 'CR в корзину, %']),
+            name: 'addToCartPercent',
+            render: (args) =>
+                renderGradNumber(
+                    args,
+                    dzhemDataFilteredSummary['addToCartPercent'],
+                    renderAsPercent,
+                ),
+        },
+        {
+            placeholder: genTextColumn(['', 'CR в заказ, %']),
+            name: 'cartToOrderPercent',
+            render: (args) =>
+                renderGradNumber(
+                    args,
+                    dzhemDataFilteredSummary['cartToOrderPercent'],
+                    renderAsPercent,
+                ),
+        },
+        {
+            placeholder: genTextColumn(['', 'Видимость, %']),
+            name: 'visibility',
+        },
+        {
+            placeholder: genTextColumn(['', 'Ср. позиция']),
+            name: 'avgPosition',
+        },
+        {
+            placeholder: genTextColumn(['', 'Мед. позиция']),
+            name: 'medianPosition',
+        },
+        {
+            placeholder: genTextColumn(['', 'В корзину, шт.']),
+            name: 'addToCartCount',
+        },
+        {
+            placeholder: genTextColumn(['CR в корзину, %', '(пр. период)']),
+            name: 'addToCartPercentPrev',
+        },
+        {
+            placeholder: genTextColumn(['CR в заказ, %', '(пр. период)']),
+            name: 'cartToOrderPercentPrev',
+        },
+        {
+            placeholder: genTextColumn(['Видимость, %', '(пр. период)']),
+            name: 'visibilityPrev',
+        },
+        {
+            placeholder: genTextColumn(['Ср. позиция', '(пр. период)']),
+            name: 'avgPositionPrev',
+        },
+        {
+            placeholder: genTextColumn(['Мед. позиция', '(пр. период)']),
+            name: 'medianPositionPrev',
+        },
+        {
+            placeholder: genTextColumn(['Переходы, шт.', '(пр. период)']),
+            name: 'openCardCountPrev',
+        },
+        {
+            placeholder: genTextColumn(['В корзину, шт.', '(пр. период)']),
+            name: 'addToCartCountPrev',
+        },
+        {
+            placeholder: genTextColumn(['Заказов, шт.', '(пр. период)']),
+            name: 'ordersPrev',
+        },
+
+        {
+            placeholder: genTextColumn(['Переходы, шт.', 'лучше, чем у n% КТ конкурентов']),
+            name: 'openCardCountBetterThanN',
+        },
+        {
+            placeholder: genTextColumn(['В корзину, шт.', 'лучше, чем у n% КТ конкурентов']),
+            name: 'addToCartCountBetterThanN',
+        },
+        {
+            placeholder: genTextColumn(['Заказы, шт.', 'лучше, чем у n% КТ конкурентов']),
+            name: 'ordersBetterThanN',
+        },
+        {
+            placeholder: genTextColumn(['Мин. цена со скидкой', '(по размерам)']),
+            name: 'minPriceWithSppBySizes',
+        },
+        {
+            placeholder: genTextColumn(['Макс. цена со скидкой', '(по размерам)']),
+            name: 'maxPriceWithSppBySizes',
+        },
+    ];
 
     // const [auctionFilters, setAuctionFilters] = useState({undef: false});
     // const [auctionTableData, setAuctionTableData] = useState<any[]>([]);
@@ -4837,20 +4858,49 @@ export const MassAdvertPage = ({
                                 />
                             </div>
                         </Modal>
-                        {showDzhemModalOpen && (
-                            <DzhemModal
-                                open={showDzhemModalOpen}
-                                onClose={() => setShowDzhemModalOpen(false)}
-                                sellerId={sellerId}
-                                nmId={selectedNmId}
-                                // dzhemDataFilter={dzhemDataFilter}
-                                // columnDataDzhem={columnDataDzhem}
-                                // dzhemDataFilteredData={dzhemDataFilteredData}
-                                dzhemDataFilters={dzhemDataFilters}
-                                setDzhemDataFilters={setDzhemDataFilters}
-                                // dzhemDataFilteredSummary={dzhemDataFilteredSummary}
-                            />
-                        )}
+                        <Modal
+                            open={showDzhemModalOpen}
+                            onClose={() => setShowDzhemModalOpen(false)}
+                        >
+                            <motion.div
+                                onAnimationStart={async () => {
+                                    await new Promise((resolve) => setTimeout(resolve, 300));
+                                    dzhemDataFilter({freq: {val: '', mode: 'include'}}, dzhemData);
+                                }}
+                                animate={{height: showDzhemModalOpen ? '60em' : 0}}
+                                style={{
+                                    margin: 20,
+                                    maxWidth: '90vw',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text variant="header-2" style={{marginBottom: 8}}>
+                                    Статистика Джема
+                                </Text>
+                                <Card
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        boxShadow:
+                                            'inset 0px 0px 10px var(--g-color-base-background)',
+                                        overflow: 'auto',
+                                    }}
+                                >
+                                    <TheTable
+                                        columnData={columnDataDzhem}
+                                        data={dzhemDataFilteredData}
+                                        filters={dzhemDataFilters}
+                                        setFilters={setDzhemDataFilters}
+                                        filterData={dzhemDataFilter}
+                                        footerData={[dzhemDataFilteredSummary]}
+                                        tableId={''}
+                                        usePagination={false}
+                                    />
+                                </Card>
+                            </motion.div>
+                        </Modal>
                         <Modal
                             open={showArtStatsModalOpen}
                             onClose={() => setShowArtStatsModalOpen(false)}
