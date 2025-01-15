@@ -785,7 +785,8 @@ export const Dashboard = ({setThemeAurum}) => {
                     }}
                 >
                     {currentTime >= new Date(subscriptionExpDate) &&
-                    ![1122958293, 933839157].includes(userInfo?.user?._id) ? (
+                    ![1122958293, 933839157].includes(userInfo?.user?._id) &&
+                    !['noModules', 'api'].includes(page) ? (
                         <NoSubscriptionPage />
                     ) : (
                         <PageElem
