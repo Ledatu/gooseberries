@@ -156,7 +156,7 @@ export const CanBeAddedToSales = ({
                                             );
                                         }}
                                         onItemClick={(item) => {
-                                            setAutoSalesModalOpenFromParent(item);
+                                            setAutoSalesModalOpenFromParent(item?.name);
                                             setOpen(false);
                                         }}
                                         filterable={false}
