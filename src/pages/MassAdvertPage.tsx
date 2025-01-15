@@ -102,7 +102,6 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
             doc['advertsPlusPhrasesTemplates'][selectValue] =
                 docum['advertsPlusPhrasesTemplates'][selectValue];
-            doc['advertsBudgetsToKeep'][selectValue] = docum['advertsBudgetsToKeep'][selectValue];
             doc['adverts'][selectValue] = docum['adverts'][selectValue];
             doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
             doc['advertsSelectedPhrases'][selectValue] =
@@ -149,6 +148,28 @@ export const MassAdvertPage = ({
     const {showError} = useError();
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
     const isMobile = useMediaQuery('(max-width: 768px)');
+
+    const [advertBudgetRules, setAdvertBudgetRules] = useState([]);
+    const fetchAdvertBudgetRules = async () => {
+        try {
+            const response = await ApiClient.post('massAdvert/get-advert-budget-rules', {
+                seller_id: sellerId,
+            });
+            if (!response?.data) {
+                throw new Error('error while getting advertBudgetRules');
+            }
+            const temp = response?.data;
+            setAdvertBudgetRules(temp);
+            console.log('advertBudgetRules', temp);
+        } catch (error) {
+            console.error(error);
+            showError(error);
+        }
+    };
+    useEffect(() => {
+        console.log('advertBudgetRules', advertBudgetRules);
+        fetchAdvertBudgetRules();
+    }, [sellerId]);
 
     const cardStyle = {
         minWidth: '10em',
@@ -1237,6 +1258,9 @@ export const MassAdvertPage = ({
                                   ) {
                                       switches.push(
                                           <AdvertCard
+                                              sellerId={sellerId}
+                                              advertBudgetRules={advertBudgetRules}
+                                              setAdvertBudgetRules={setAdvertBudgetRules}
                                               permission={permission}
                                               id={advertId}
                                               index={index}
@@ -1279,6 +1303,9 @@ export const MassAdvertPage = ({
                                   ) {
                                       switches.push(
                                           <AdvertCard
+                                              sellerId={sellerId}
+                                              advertBudgetRules={advertBudgetRules}
+                                              setAdvertBudgetRules={setAdvertBudgetRules}
                                               permission={permission}
                                               id={advertId}
                                               index={index}
@@ -1318,6 +1345,9 @@ export const MassAdvertPage = ({
                               } else {
                                   switches.push(
                                       <AdvertCard
+                                          sellerId={sellerId}
+                                          advertBudgetRules={advertBudgetRules}
+                                          setAdvertBudgetRules={setAdvertBudgetRules}
                                           permission={permission}
                                           id={advertId}
                                           index={index}
@@ -1938,7 +1968,9 @@ export const MassAdvertPage = ({
                                     }}
                                     // pin="brick-brick"
                                 >
-                                    {`${priceRub} ₽`}
+                                    {`Цена СПП: ${new Intl.NumberFormat('ru-RU').format(
+                                        priceRub,
+                                    )} ₽`}
                                 </Button>
                             </Popover>
                         ) : (
@@ -2915,16 +2947,12 @@ export const MassAdvertPage = ({
                 const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
                     seller_id: sellerId,
                 });
-                const advertsBudgetsToKeep = await ApiClient.post('massAdvert/get-budget-rules', {
-                    seller_id: sellerId,
-                });
                 const resData = res['data'];
 
                 console.log('advertsAutoBidsRules', advertsAutoBidsRules);
 
                 resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
                 resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
-                resData['advertsBudgetsToKeep'][selectValue[0]] = advertsBudgetsToKeep?.data;
                 setChangedDoc(resData);
                 setSwitchingCampaignsFlag(false);
                 // recalc(dateRange, selectValue[0], filters, resData);
@@ -2994,15 +3022,10 @@ export const MassAdvertPage = ({
                 const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
                     seller_id: sellerId,
                 });
-                const advertsBudgetsToKeep = await ApiClient.post('massAdvert/get-budget-rules', {
-                    seller_id: sellerId,
-                });
-
                 console.log('advertsAutoBidsRules', advertsAutoBidsRules);
 
                 resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
                 resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
-                resData['advertsBudgetsToKeep'][selectValue[0]] = advertsBudgetsToKeep?.data;
 
                 setChangedDoc(resData);
                 setChangedDocUpdateType(true);
@@ -3234,8 +3257,6 @@ export const MassAdvertPage = ({
 
                         artInfo.drrAI[advertId] =
                             campaignData.advertsAutoBidsRules[_selectedCampaignName][advertId];
-                        artInfo.budgetToKeep[advertId] =
-                            campaignData.advertsBudgetsToKeep[_selectedCampaignName][advertId];
                         artInfo.advertsSelectedPhrases[advertId] =
                             campaignData.advertsSelectedPhrases[_selectedCampaignName][advertId];
                         artInfo.bidLog[advertId] = advertData['bidLog'];
@@ -4335,8 +4356,6 @@ export const MassAdvertPage = ({
                 resData['plusPhrasesTemplates'][selectValue[0]];
             doc['advertsPlusPhrasesTemplates'][selectValue[0]] =
                 resData['advertsPlusPhrasesTemplates'][selectValue[0]];
-            doc['advertsBudgetsToKeep'][selectValue[0]] =
-                resData['advertsBudgetsToKeep'][selectValue[0]];
             doc['advertsSelectedPhrases'][selectValue[0]] =
                 resData['advertsSelectedPhrases'][selectValue[0]];
             doc['advertsAutoBidsRules'][selectValue[0]] =
@@ -4586,8 +4605,9 @@ export const MassAdvertPage = ({
                             <AdvertsBudgetsModal
                                 disabled={permission != 'Управление'}
                                 selectValue={selectValue}
-                                doc={doc}
-                                setChangedDoc={setChangedDoc}
+                                sellerId={sellerId}
+                                advertBudgetsRules={advertBudgetRules}
+                                setAdvertBudgetsRules={setAdvertBudgetRules}
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                                 advertId={undefined}
                             >
@@ -4721,6 +4741,9 @@ export const MassAdvertPage = ({
                                                 }}
                                             >
                                                 <AdvertCard
+                                                    sellerId={sellerId}
+                                                    advertBudgetRules={advertBudgetRules}
+                                                    setAdvertBudgetRules={setAdvertBudgetRules}
                                                     permission={permission}
                                                     id={advertId}
                                                     index={-1}

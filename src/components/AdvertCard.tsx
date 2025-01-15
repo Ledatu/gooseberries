@@ -29,6 +29,9 @@ export const AdvertCard = ({
     permission,
     id,
     index,
+    sellerId,
+    advertBudgetRules,
+    setAdvertBudgetRules,
     art,
     doc,
     selectValue,
@@ -85,7 +88,7 @@ export const AdvertCard = ({
 
     const advertData = doc.adverts[selectValue[0]][id];
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
-    const budgetToKeep = doc.advertsBudgetsToKeep[selectValue[0]][id];
+    const budgetToKeep = advertBudgetRules?.[id];
     if (!advertData) return <></>;
     const {advertId, status, budget, daysInWork, type, budgetLog, pregenerated, cpm} = advertData;
     if (![4, 9, 11].includes(status)) return <></>;
@@ -520,8 +523,9 @@ export const AdvertCard = ({
                         <AdvertsBudgetsModal
                             disabled={permission != 'Управление'}
                             selectValue={selectValue}
-                            doc={doc}
-                            setChangedDoc={setChangedDoc}
+                            sellerId={sellerId}
+                            advertBudgetsRules={advertBudgetRules}
+                            setAdvertBudgetsRules={setAdvertBudgetRules}
                             getUniqueAdvertIdsFromThePage={undefined}
                             advertId={advertId}
                         >
@@ -531,7 +535,9 @@ export const AdvertCard = ({
                                         curBudget !== undefined ? curBudget : 'Нет инф.'
                                     } / ${
                                         budgetToKeep !== undefined
-                                            ? budgetToKeep
+                                            ? `${
+                                                  budgetToKeep?.mode == 'setAutoPurchase' ? '+' : ''
+                                              }${budgetToKeep?.budget}`
                                             : 'Бюджет не задан.'
                                     }` +
                                         (drrAI

@@ -1,30 +1,33 @@
-import {Button, Card, Icon, Modal, Select, TextInput} from '@gravity-ui/uikit';
-import {CloudArrowUpIn, TrashBin} from '@gravity-ui/icons';
+import {HelpPopover} from '@gravity-ui/components';
+import {Button, Card, Modal, Select, TextInput, Text, Checkbox} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import React, {useState, Children, isValidElement, ReactElement, useMemo, useEffect} from 'react';
-import {TextTitleWrapper} from './TextTitleWrapper';
+import {useError} from 'src/pages/ErrorContext';
+import ApiClient from 'src/utilities/ApiClient';
 import callApi, {getUid} from 'src/utilities/callApi';
 
 export const AdvertsBudgetsModal = ({
+    sellerId,
+    setAdvertBudgetsRules,
     disabled,
     children,
     selectValue,
-    doc,
-    setChangedDoc,
     getUniqueAdvertIdsFromThePage,
     advertId,
 }: {
     disabled: boolean;
     children: ReactElement | ReactElement[];
     selectValue: string[];
-    doc: any;
-    setChangedDoc: Function;
+    sellerId: String;
+    advertBudgetsRules: object[];
+    setAdvertBudgetsRules: Function;
     getUniqueAdvertIdsFromThePage: Function | undefined;
     advertId: number | undefined;
 }) => {
+    const {showError} = useError();
     const [open, setOpen] = useState(false);
 
-    const advertIds = (() => {
+    const advertIds = useMemo(() => {
         if (advertId) return [advertId];
         if (!getUniqueAdvertIdsFromThePage) return [];
         const temp = [] as number[];
@@ -35,16 +38,22 @@ export const AdvertsBudgetsModal = ({
             if (!temp.includes(id)) temp.push(id);
         }
         return temp;
-    })();
+    }, [open]);
+
+    const [useDesiredDrr, setUseDesiredDrr] = useState(false);
 
     const budgetModalOptions = [
+        {
+            value: 'setAutoPurchase',
+            content: 'Установить автопополнение',
+        },
         {
             value: 'setBudgetToKeep',
             content: 'Установить бюджет на день',
         },
         {
             value: 'deleteBudgetToKeep',
-            content: 'Удалить бюджет на день',
+            content: 'Удалить управление бюджетом',
         },
         {
             value: 'purchase',
@@ -75,15 +84,32 @@ export const AdvertsBudgetsModal = ({
         onClick: handleOpen,
     });
 
-    const [budgetInputValue, setBudgetInputValue] = useState('');
+    const [desiredDrrInputValue, setDesiredDrrInputValue] = useState('5');
+    const desiredDrrInputValueValid = useMemo(() => {
+        const temp = Number(desiredDrrInputValue);
+        return temp && temp > 0 && !isNaN(temp) && isFinite(temp);
+    }, [desiredDrrInputValue]);
+
+    const [budgetInputValue, setBudgetInputValue] = useState('1000');
     const budgetInputValueValid = useMemo(() => {
         const temp = parseInt(budgetInputValue);
         return temp && temp >= 1000 && !isNaN(temp) && isFinite(temp);
     }, [budgetInputValue]);
 
+    const [maxBudgetInputValue, setMaxBudgetInputValue] = useState('3000');
+    const maxBudgetInputValueValid = useMemo(() => {
+        const temp = parseInt(maxBudgetInputValue);
+        return temp && temp >= 1000 && !isNaN(temp) && isFinite(temp);
+    }, [maxBudgetInputValue]);
+
+    const [depositValueTriggerInputValue, setDepositValueTriggerInputValue] = useState('500');
+    const depositValueTriggerInputValueValid = useMemo(() => {
+        const temp = parseInt(depositValueTriggerInputValue);
+        return temp && temp > 0 && temp < 100000 && !isNaN(temp) && isFinite(temp);
+    }, [depositValueTriggerInputValue]);
+
     useEffect(() => {
         setBudgetModalOption([budgetModalOptions[0].value]);
-        setBudgetInputValue('1000');
     }, [open]);
 
     const transition = useMemo(() => {
@@ -119,13 +145,12 @@ export const AdvertsBudgetsModal = ({
                             flexWrap: 'nowrap',
                             display: 'flex',
                             flexDirection: 'column',
-                            alignItems: 'center',
                             justifyContent: 'space-between',
                             backdropFilter: 'blur(8px)',
+                            WebkitBackdropFilter: 'blur(8px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
-                            width: 250,
                             border: '1px solid #eee2',
                         }}
                     >
@@ -137,85 +162,355 @@ export const AdvertsBudgetsModal = ({
                             onUpdate={(opt) => setBudgetModalOption(opt)}
                         />
                         <motion.div
-                            style={{
-                                height: 0,
-                                overflow: 'hidden',
-                                width: '100%',
-                            }}
-                            transition={transition}
                             animate={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'end',
                                 height:
-                                    open && budgetModalOption[0] != 'deleteBudgetToKeep' ? 62 : 0,
+                                    open && budgetModalOption[0] !== 'deleteBudgetToKeep'
+                                        ? budgetModalOption[0] !== 'setAutoPurchase'
+                                            ? 62
+                                            : 194
+                                        : 0,
+                            }}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                columnGap: 8,
+                                overflow: 'hidden',
+                                alignItems: 'end',
                             }}
                         >
-                            <TextTitleWrapper title="Сумма" padding={16}>
+                            <motion.div
+                                style={{
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    rowGap: 8,
+                                    width: '100%',
+                                }}
+                                transition={transition}
+                                animate={{
+                                    marginTop:
+                                        open && budgetModalOption[0] !== 'deleteBudgetToKeep'
+                                            ? 16
+                                            : 0,
+                                }}
+                            >
+                                <Text
+                                    style={{height: 36, alignItems: 'center', display: 'flex'}}
+                                    variant="body-2"
+                                    color="secondary"
+                                    whiteSpace="nowrap"
+                                >
+                                    {'Если бюджет меньше'}
+                                </Text>
+                                <Text
+                                    style={{height: 36, alignItems: 'center', display: 'flex'}}
+                                    variant="body-2"
+                                    color="secondary"
+                                    whiteSpace="nowrap"
+                                >
+                                    {'Если ДРР меньше'}
+                                </Text>
+                                <Text
+                                    style={{height: 36, alignItems: 'center', display: 'flex'}}
+                                    variant="body-2"
+                                    color="secondary"
+                                    whiteSpace="nowrap"
+                                >
+                                    {'Если сумма за день меньше'}
+                                </Text>
+                                <Text
+                                    style={{height: 36, alignItems: 'center', display: 'flex'}}
+                                    variant="body-2"
+                                    color="secondary"
+                                    whiteSpace="nowrap"
+                                >
+                                    {budgetModalOption[0] === 'purchase'
+                                        ? 'Пополнить на'
+                                        : budgetModalOption[0] === 'setBudgetToKeep'
+                                        ? 'Пополнять до'
+                                        : 'Пополнять на'}
+                                </Text>
+                                <div style={{height: 12}} />
+                            </motion.div>
+                            <motion.div
+                                style={{
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    minWidth: 187,
+                                    rowGap: 8,
+                                }}
+                                transition={transition}
+                                animate={{
+                                    marginTop:
+                                        open && budgetModalOption[0] !== 'deleteBudgetToKeep'
+                                            ? 16
+                                            : 0,
+                                }}
+                            >
                                 <TextInput
+                                    hasClear
+                                    size="l"
+                                    value={new Intl.NumberFormat('ru-RU').format(
+                                        Number(depositValueTriggerInputValue),
+                                    )}
+                                    onBlur={() => {
+                                        if (depositValueTriggerInputValueValid) return;
+                                        setDepositValueTriggerInputValue('1');
+                                    }}
+                                    validationState={
+                                        depositValueTriggerInputValueValid ? undefined : 'invalid'
+                                    }
+                                    onUpdate={(val) =>
+                                        setDepositValueTriggerInputValue(
+                                            val.replace(/[%\s\D]/g, ''),
+                                        )
+                                    }
+                                />
+                                <TextInput
+                                    hasClear
+                                    disabled={!useDesiredDrr}
+                                    size="l"
+                                    value={desiredDrrInputValue + '%'}
+                                    onBlur={() => {
+                                        if (desiredDrrInputValueValid) return;
+                                        setDesiredDrrInputValue('1');
+                                    }}
+                                    validationState={
+                                        desiredDrrInputValueValid ? undefined : 'invalid'
+                                    }
+                                    onKeyDown={(event) => {
+                                        if (event.key == 'Backspace')
+                                            setDesiredDrrInputValue(
+                                                desiredDrrInputValue.slice(
+                                                    0,
+                                                    desiredDrrInputValue.length - 1,
+                                                ),
+                                            );
+                                    }}
+                                    onUpdate={(val) => {
+                                        console.log(
+                                            val
+                                                .replace(/[%\s]/g, '')
+                                                .replace(/,/g, '.')
+                                                .replace(/[^\d.]/g, ''),
+                                        );
+
+                                        setDesiredDrrInputValue(
+                                            val
+                                                .replace(/[%\s]/g, '')
+                                                .replace(/,/g, '.')
+                                                .replace(/[^\d.]/g, ''),
+                                        );
+                                    }}
+                                />
+                                <TextInput
+                                    hasClear
+                                    size="l"
+                                    value={new Intl.NumberFormat('ru-RU').format(
+                                        Number(maxBudgetInputValue),
+                                    )}
+                                    onBlur={() => {
+                                        if (maxBudgetInputValueValid) return;
+                                        setMaxBudgetInputValue('1000');
+                                    }}
+                                    validationState={
+                                        maxBudgetInputValueValid ? undefined : 'invalid'
+                                    }
+                                    onUpdate={(val) =>
+                                        setMaxBudgetInputValue(val.replace(/[%\s\D]/g, ''))
+                                    }
+                                />
+                                <TextInput
+                                    hasClear
                                     autoFocus
                                     size="l"
-                                    value={budgetInputValue}
+                                    value={new Intl.NumberFormat('ru-RU').format(
+                                        Number(budgetInputValue),
+                                    )}
+                                    onBlur={() => {
+                                        if (budgetInputValueValid) return;
+                                        setBudgetInputValue('1000');
+                                    }}
                                     validationState={budgetInputValueValid ? undefined : 'invalid'}
-                                    onUpdate={(val) => setBudgetInputValue(val)}
+                                    onUpdate={(val) =>
+                                        setBudgetInputValue(val.replace(/[%\s\D]/g, ''))
+                                    }
+                                    note={
+                                        <Text variant="code-1" color="secondary">
+                                            Минимальная сумма – 1000 ₽
+                                        </Text>
+                                    }
                                 />
-                            </TextTitleWrapper>
+                            </motion.div>
+                            <motion.div
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    rowGap: 8,
+                                    overflow: 'hidden',
+                                    marginTop: 16,
+                                }}
+                                transition={transition}
+                                animate={{
+                                    minWidth: budgetModalOption[0] === 'setAutoPurchase' ? 204 : 0,
+                                    maxWidth: budgetModalOption[0] === 'setAutoPurchase' ? 204 : 0,
+                                }}
+                            >
+                                <div style={{height: 36}} />
+                                <motion.div
+                                    transition={transition}
+                                    style={{
+                                        height: 36,
+                                        alignItems: 'center',
+                                        display: 'flex',
+                                        columnGap: 8,
+                                    }}
+                                >
+                                    <Checkbox
+                                        checked={useDesiredDrr}
+                                        onUpdate={(val) => setUseDesiredDrr(val)}
+                                        style={{
+                                            height: 36,
+                                            alignItems: 'center',
+                                            display: 'flex',
+                                        }}
+                                        size="l"
+                                        content={
+                                            <Text
+                                                variant="body-2"
+                                                color="secondary"
+                                                whiteSpace="nowrap"
+                                            >
+                                                ограничивать по ДРР
+                                            </Text>
+                                        }
+                                    />
+                                    <HelpPopover
+                                        size="l"
+                                        content={`Пополнять на ${new Intl.NumberFormat(
+                                            'ru-RU',
+                                        ).format(
+                                            Number(budgetInputValue),
+                                        )} ₽ только если ДРР меньше указанного значения`}
+                                    />
+                                </motion.div>
+                                <div
+                                    style={{
+                                        height: 100,
+                                    }}
+                                />
+                            </motion.div>
                         </motion.div>
                         <motion.div style={{height: 0}} animate={{height: open ? 16 : 0}} />
-                        <Button
-                            size="l"
-                            pin="circle-circle"
-                            selected
-                            view={
-                                budgetModalOption[0] != 'deleteBudgetToKeep'
-                                    ? 'outlined-success'
-                                    : 'outlined-danger'
-                            }
-                            disabled={!budgetInputValueValid || disabled}
-                            onClick={() => {
-                                const params = {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
-                                    data: {
-                                        mode: budgetModalOption[0],
-                                        budget: parseInt(budgetInputValue),
-                                        advertIds,
-                                    },
-                                };
-
-                                for (const id of advertIds) {
-                                    if (budgetModalOption[0] == 'deleteBudgetToKeep') {
-                                        doc.advertsBudgetsToKeep[selectValue[0]][id] = undefined;
-                                        console.log(doc.advertsBudgetsToKeep[selectValue[0]][id]);
-                                    } else if (budgetModalOption[0] == 'setBudgetToKeep')
-                                        doc.advertsBudgetsToKeep[selectValue[0]][id] =
-                                            parseInt(budgetInputValue);
-                                }
-
-                                console.log(params);
-
-                                //////////////////////////////////
-                                callApi('depositAdvertsBudgets', params);
-                                setChangedDoc({...doc});
-                                setOpen(false);
-                                //////////////////////////////////
+                        <div
+                            style={{
+                                columnGap: 16,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                width: '100%',
                             }}
                         >
-                            <Icon
-                                data={
-                                    budgetModalOption[0] != 'deleteBudgetToKeep'
-                                        ? CloudArrowUpIn
-                                        : TrashBin
+                            <Button
+                                size="l"
+                                pin="circle-circle"
+                                selected
+                                view={
+                                    budgetModalOption[0] !== 'deleteBudgetToKeep'
+                                        ? 'outlined-success'
+                                        : 'outlined-danger'
                                 }
-                            />
-                            {
+                                disabled={!budgetInputValueValid || disabled}
+                                onClick={async () => {
+                                    setOpen(false);
+
+                                    if (budgetModalOption[0] === 'purchase') {
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            data: {
+                                                mode: budgetModalOption[0],
+                                                budget: parseInt(budgetInputValue),
+                                                advertIds,
+                                            },
+                                        };
+
+                                        console.log(params);
+
+                                        //////////////////////////////////
+                                        callApi('depositAdvertsBudgets', params);
+                                        //////////////////////////////////
+                                    } else {
+                                        let params = {};
+                                        if (budgetModalOption[0] === 'setAutoPurchase') {
+                                            params = {
+                                                seller_id: sellerId,
+                                                advertIds,
+                                                rules: {
+                                                    mode: budgetModalOption[0],
+                                                    desiredDrr: useDesiredDrr
+                                                        ? Number(desiredDrrInputValue)
+                                                        : undefined,
+                                                    depositValueTrigger: parseInt(
+                                                        depositValueTriggerInputValue,
+                                                    ),
+                                                    maxBudget: parseInt(maxBudgetInputValue),
+                                                    budget: parseInt(budgetInputValue),
+                                                },
+                                            };
+                                        } else if (budgetModalOption[0] === 'setBudgetToKeep') {
+                                            params = {
+                                                seller_id: sellerId,
+                                                advertIds,
+                                                rules: {
+                                                    mode: budgetModalOption[0],
+                                                    budget: parseInt(budgetInputValue),
+                                                },
+                                            };
+                                        } else if (budgetModalOption[0] === 'deleteBudgetToKeep') {
+                                            params = {
+                                                seller_id: sellerId,
+                                                advertIds,
+                                            };
+                                        }
+                                        console.log(params);
+
+                                        const url =
+                                            budgetModalOption[0] === 'deleteBudgetToKeep'
+                                                ? 'massAdvert/delete-advert-budget-rules'
+                                                : 'massAdvert/set-advert-budget-rules';
+
+                                        try {
+                                            const response = await ApiClient.post(url, params);
+                                            if (!response?.data) {
+                                                throw new Error(
+                                                    `Cant set advertsBudgetRules for campaign ${sellerId}`,
+                                                );
+                                            }
+                                            console.log('set', response);
+
+                                            setAdvertBudgetsRules(response.data);
+                                        } catch (error) {
+                                            console.error(error);
+                                            showError('Возникла ошибка');
+                                        }
+                                    }
+                                }}
+                            >
                                 {
-                                    purchase: 'Пополнить',
-                                    setBudgetToKeep: 'Установить',
-                                    deleteBudgetToKeep: 'Удалить',
-                                }[budgetModalOption[0]]
-                            }
-                        </Button>
+                                    {
+                                        purchase: 'Пополнить',
+                                        setBudgetToKeep: 'Сохранить',
+                                        setAutoPurchase: 'Сохранить',
+                                        deleteBudgetToKeep: 'Удалить',
+                                    }[budgetModalOption[0]]
+                                }
+                            </Button>
+                            <Button size="l" pin="circle-circle" onClick={handleClose}>
+                                Отмена
+                            </Button>
+                        </div>
                     </motion.div>
                 </Card>
             </Modal>

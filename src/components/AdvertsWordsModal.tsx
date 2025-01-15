@@ -1628,6 +1628,7 @@ export const AdvertsWordsModal = ({
                                             }}
                                         />
                                         <TextInput
+                                            rightContent="%"
                                             disabled={disabled}
                                             hasClear
                                             style={{width: '90%', margin: '0 5%'}}
