@@ -25,7 +25,6 @@ import {AnalyticsPage} from './AnalyticsPage';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {DeliveryPage} from './DeliveryPage';
 import {SEOPage} from './SEOPage';
-import {UploadModal} from 'src/components/UploadModal';
 import {SelectCampaign} from 'src/components/SelectCampaign';
 import {BuyersPage} from './BuyersPage';
 
@@ -550,7 +549,6 @@ export const Dashboard = ({setThemeAurum}) => {
                                                 >
                                                     <div style={{minWidth: 12}} />
                                                     <Button
-                                                        pin="round-brick"
                                                         view="flat"
                                                         loading={availableTagsPending}
                                                         size="l"
@@ -723,12 +721,6 @@ export const Dashboard = ({setThemeAurum}) => {
                                                             </div>
                                                         </div>
                                                     </Modal>
-                                                    <UploadModal
-                                                        selectOptions={selectOptions}
-                                                        selectValue={selectValue}
-                                                        setRefetchAutoSales={setRefetchAutoSales}
-                                                        setDzhemRefetch={setDzhemRefetch}
-                                                    />
                                                     <div style={{minWidth: 8}} />
                                                 </div>
                                             ) : (

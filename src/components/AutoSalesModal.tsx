@@ -82,16 +82,16 @@ export const AutoSalesModal = ({
     }, [uploaded]);
 
     const [autoSalesModalOpen, setAutoSalesModalOpen] = useState(false);
+    const [autoSaleName, setAutoSaleName] = useState(['']);
+
     const [dateRange, setDateRange] = useState([] as any[]);
     const [startDate, endDate] = dateRange;
-    const [autoSaleName, setAutoSaleName] = useState(['']);
     const [currentStep, setCurrentStep] = useState(0);
 
     useEffect(() => {
         if (autoSalesModalOpen) return;
         console.log(availableAutoSales, availableAutoSalesOptions);
         setCurrentStep(0);
-        setDateRange([]);
         setAutoSaleName([availableAutoSalesOptions[0] ? availableAutoSalesOptions[0].value : '']);
         setAutoSalesProfits({});
     }, [autoSalesModalOpen]);
@@ -99,11 +99,21 @@ export const AutoSalesModal = ({
     useEffect(() => {
         if (!openFromParent || openFromParent == '') return;
         setCurrentStep(1);
-        setDateRange([]);
         setAutoSaleName([openFromParent]);
         setAutoSalesModalOpen(true);
         setOpenFromParent('');
     }, [openFromParent]);
+
+    useEffect(() => {
+        setDateRange(
+            availableAutoSales[autoSaleName[0]]
+                ? [
+                      new Date(availableAutoSales[autoSaleName[0]].startDateTime),
+                      new Date(availableAutoSales[autoSaleName[0]].endDateTime),
+                  ]
+                : [],
+        );
+    }, [autoSaleName]);
 
     const fileRequiredButNotUploaded = useMemo(
         () =>
@@ -228,13 +238,13 @@ export const AutoSalesModal = ({
                                     view={
                                         fileRequiredButNotUploaded
                                             ? 'outlined-action'
-                                            : startDate && endDate
+                                            : startDate && endDate && currentStep == 2
                                             ? 'outlined'
                                             : 'outlined-danger'
                                     }
                                 >
                                     <Text variant="subheader-1">
-                                        {startDate && endDate
+                                        {startDate && endDate && currentStep == 2
                                             ? `${startDate.toLocaleDateString(
                                                   'ru-RU',
                                               )} - ${endDate.toLocaleDateString('ru-RU')}`

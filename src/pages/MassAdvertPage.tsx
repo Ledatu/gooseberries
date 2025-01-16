@@ -160,14 +160,12 @@ export const MassAdvertPage = ({
             }
             const temp = response?.data;
             setAdvertBudgetRules(temp);
-            console.log('advertBudgetRules', temp);
         } catch (error) {
             console.error(error);
             showError(error);
         }
     };
     useEffect(() => {
-        console.log('advertBudgetRules', advertBudgetRules);
         fetchAdvertBudgetRules();
     }, [sellerId]);
 
@@ -1907,7 +1905,7 @@ export const MassAdvertPage = ({
                 return (
                     <Card
                         style={{
-                            width: 140,
+                            width: 160,
                             height: 110.5,
                             display: 'flex',
                             flexDirection: 'column',
@@ -1961,7 +1959,7 @@ export const MassAdvertPage = ({
                                     size="xs"
                                     pin="clear-clear"
                                     style={{
-                                        width: 140,
+                                        width: 160,
                                         overflow: 'hidden',
                                         borderTopLeftRadius: 7,
                                         borderTopRightRadius: 7,
@@ -2034,7 +2032,7 @@ export const MassAdvertPage = ({
                                             pin="clear-brick"
                                             style={{
                                                 height: 20,
-                                                width: 70,
+                                                width: 80,
                                             }}
                                             // pin="brick-brick"
                                         >
@@ -2107,7 +2105,7 @@ export const MassAdvertPage = ({
                                     >
                                         <Button
                                             style={{
-                                                width: 70,
+                                                width: 80,
                                                 height: 20,
                                                 overflow: 'hidden',
                                             }}
@@ -2138,7 +2136,7 @@ export const MassAdvertPage = ({
                         {stocksBySizes && stocksBySizes.all > 1 ? (
                             <Button
                                 style={{
-                                    width: 140,
+                                    width: 160,
                                     overflow: 'hidden',
                                 }}
                                 width="max"
