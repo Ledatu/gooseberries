@@ -216,9 +216,9 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         {
             placeholder: 'CR в корзину, %',
             name: 'openToCartCurrent',
-            render: (args) => {
+            render: ({value}) => {
                 return renderGradNumber(
-                    args,
+                    {value: getRoundValue(value, 100, true)},
                     dzhemDataFilteredSummary['openToCartCurrent'],
                     renderAsPercent,
                 );
@@ -227,9 +227,9 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         {
             placeholder: 'CR в заказ, %',
             name: 'cartToOrderCurrent',
-            render: (args) => {
+            render: ({value}) => {
                 return renderGradNumber(
-                    args,
+                    {value: getRoundValue(value, 100, true)},
                     dzhemDataFilteredSummary['cartToOrderCurrent'],
                     renderAsPercent,
                 );
@@ -260,20 +260,21 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         {
             placeholder: 'Ср. позиция',
             name: 'avgPositionCurrent',
-            render: (args) => {
+            render: ({value}) => {
                 return renderGradNumber(
-                    args,
+                    {value: getRoundValue(value, 1)},
                     dzhemDataFilteredSummary['avgPositionCurrent'],
                     defaultRender,
+                    'desc',
                 );
             },
         },
         {
             placeholder: 'Видимость, %',
             name: 'visibilityCurrent',
-            render: (args) => {
+            render: ({value}) => {
                 return renderGradNumber(
-                    args,
+                    {value: getRoundValue(value, 100, true)},
                     dzhemDataFilteredSummary['visibilityCurrent'],
                     renderAsPercent,
                 );
