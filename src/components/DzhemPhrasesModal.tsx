@@ -214,28 +214,6 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             },
         },
         {
-            placeholder: 'Частота использования, шт.',
-            name: 'frequencyCurrent',
-            render: (args) => {
-                return renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['frequencyCurrent'],
-                    defaultRender,
-                );
-            },
-        },
-        {
-            placeholder: 'Заказов, шт.',
-            name: 'ordersCurrent',
-            render: (args) => {
-                return renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['ordersCurrent'],
-                    defaultRender,
-                );
-            },
-        },
-        {
             placeholder: 'CR в корзину, %',
             name: 'openToCartCurrent',
             render: (args) => {
@@ -258,13 +236,24 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             },
         },
         {
-            placeholder: 'Видимость, %',
-            name: 'visibilityCurrent',
+            placeholder: 'В корзину, шт.',
+            name: 'addToCartCurrent',
             render: (args) => {
                 return renderGradNumber(
                     args,
-                    dzhemDataFilteredSummary['visibilityCurrent'],
-                    renderAsPercent,
+                    dzhemDataFilteredSummary['addToCartCurrent'],
+                    defaultRender,
+                );
+            },
+        },
+        {
+            placeholder: 'Заказов, шт.',
+            name: 'ordersCurrent',
+            render: (args) => {
+                return renderGradNumber(
+                    args,
+                    dzhemDataFilteredSummary['ordersCurrent'],
+                    defaultRender,
                 );
             },
         },
@@ -280,12 +269,23 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             },
         },
         {
-            placeholder: 'В корзину, шт.',
-            name: 'addToCartCurrent',
+            placeholder: 'Видимость, %',
+            name: 'visibilityCurrent',
             render: (args) => {
                 return renderGradNumber(
                     args,
-                    dzhemDataFilteredSummary['addToCartCurrent'],
+                    dzhemDataFilteredSummary['visibilityCurrent'],
+                    renderAsPercent,
+                );
+            },
+        },
+        {
+            placeholder: 'Частота использования, шт.',
+            name: 'frequencyCurrent',
+            render: (args) => {
+                return renderGradNumber(
+                    args,
+                    dzhemDataFilteredSummary['frequencyCurrent'],
                     defaultRender,
                 );
             },
