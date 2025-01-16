@@ -535,9 +535,13 @@ export const AdvertCard = ({
                                         curBudget !== undefined ? curBudget : 'Нет инф.'
                                     } / ${
                                         budgetToKeep !== undefined
-                                            ? `${
-                                                  budgetToKeep?.mode == 'setAutoPurchase' ? '+' : ''
-                                              }${budgetToKeep?.budget}`
+                                            ? budgetToKeep?.mode === 'setAutoPurchase'
+                                                ? `+${budgetToKeep?.budget}${
+                                                      budgetToKeep?.desiredDrr
+                                                          ? ' ДРР: ' + budgetToKeep?.desiredDrr
+                                                          : ''
+                                                  } (${budgetToKeep?.maxBudget} ₽)`
+                                                : budgetToKeep?.budget
                                             : 'Бюджет не задан.'
                                     }` +
                                         (drrAI

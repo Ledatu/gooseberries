@@ -488,7 +488,7 @@ export const AdvertsBudgetsModal = ({
                                                     mode: budgetModalOption[0],
                                                     desiredDrr: useDesiredDrr
                                                         ? Number(desiredDrrInputValue)
-                                                        : undefined,
+                                                        : null,
                                                     depositValueTrigger: parseInt(
                                                         depositValueTriggerInputValue,
                                                     ),
