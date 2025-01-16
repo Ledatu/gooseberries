@@ -224,7 +224,7 @@ export const AdvertsBudgetsModal = ({
                                     color="secondary"
                                     whiteSpace="nowrap"
                                 >
-                                    {'Если бюджет РК меньше'}
+                                    {'Если баланс РК меньше'}
                                 </Text>
                                 <Text
                                     style={{height: 36, alignItems: 'center', display: 'flex'}}
