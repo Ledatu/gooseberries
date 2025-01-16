@@ -216,9 +216,9 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         {
             placeholder: 'CR в корзину, %',
             name: 'openToCartCurrent',
-            render: ({value}) => {
+            render: ({value, footer}) => {
                 return renderGradNumber(
-                    {value: getRoundValue(value, 100, true)},
+                    {value: getRoundValue(value, 1), footer},
                     dzhemDataFilteredSummary['openToCartCurrent'],
                     renderAsPercent,
                 );
@@ -227,9 +227,9 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         {
             placeholder: 'CR в заказ, %',
             name: 'cartToOrderCurrent',
-            render: ({value}) => {
+            render: ({value, footer}) => {
                 return renderGradNumber(
-                    {value: getRoundValue(value, 100, true)},
+                    {value: getRoundValue(value, 1), footer},
                     dzhemDataFilteredSummary['cartToOrderCurrent'],
                     renderAsPercent,
                 );
@@ -260,9 +260,9 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         {
             placeholder: 'Ср. позиция',
             name: 'avgPositionCurrent',
-            render: ({value}) => {
+            render: ({value, footer}) => {
                 return renderGradNumber(
-                    {value: getRoundValue(value, 1)},
+                    {value: getRoundValue(value, 1), footer},
                     dzhemDataFilteredSummary['avgPositionCurrent'],
                     defaultRender,
                     'desc',
@@ -272,9 +272,9 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         {
             placeholder: 'Видимость, %',
             name: 'visibilityCurrent',
-            render: ({value}) => {
+            render: ({value, footer}) => {
                 return renderGradNumber(
-                    {value: getRoundValue(value, 100, true)},
+                    {value: getRoundValue(value, 1), footer},
                     dzhemDataFilteredSummary['visibilityCurrent'],
                     renderAsPercent,
                 );
