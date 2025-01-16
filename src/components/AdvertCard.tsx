@@ -24,6 +24,7 @@ import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {ChartModal} from './ChartModal';
 import {AdvertsWordsButton} from './AdvertsWordsButton';
 import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
+import ApiClient from 'src/utilities/ApiClient';
 
 export const AdvertCard = ({
     permission,
@@ -90,7 +91,7 @@ export const AdvertCard = ({
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
     const budgetToKeep = advertBudgetRules?.[id];
     if (!advertData) return <></>;
-    const {advertId, status, budget, daysInWork, type, budgetLog, pregenerated, cpm} = advertData;
+    const {advertId, status, budget, daysInWork, type, pregenerated, cpm} = advertData;
     if (![4, 9, 11].includes(status)) return <></>;
 
     const curCpm = cpm;
@@ -369,8 +370,7 @@ export const AdvertCard = ({
                         <ChartModal
                             fetchingFunction={async () => {
                                 const params = {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
+                                    seller_id: sellerId,
                                     advertId: advertId,
                                     startDate: getLocaleDateString(dateRange[0], 10),
                                     endDate: getLocaleDateString(dateRange[1], 10),
@@ -378,8 +378,8 @@ export const AdvertCard = ({
                                 console.log(params);
 
                                 try {
-                                    const res = await callApi(
-                                        'getAdvertBidsLogsForAdvertId',
+                                    const res = await ApiClient.post(
+                                        'massAdvert/get-advert-bids-logs',
                                         params,
                                     );
                                     if (!res) throw 'its undefined';
@@ -553,8 +553,26 @@ export const AdvertCard = ({
                             </Button>
                         </AdvertsBudgetsModal>
                         <ChartModal
-                            fetchingFunction={() => {
-                                return new Promise((resolve) => {
+                            fetchingFunction={async () => {
+                                const params = {
+                                    seller_id: sellerId,
+                                    advertId: advertId,
+                                    startDate: getLocaleDateString(dateRange[0], 10),
+                                    endDate: getLocaleDateString(dateRange[1], 10),
+                                };
+                                console.log(params);
+
+                                let yagrBudgetData = undefined as unknown as YagrWidgetData;
+
+                                try {
+                                    const res = await ApiClient.post(
+                                        'massAdvert/get-advert-budgets-logs',
+                                        params,
+                                    );
+                                    if (!res) throw 'its undefined';
+                                    const budgetLog = res['data'];
+                                    console.log(res);
+
                                     const timelineBudget: any[] = [];
                                     const graphsDataBudgets: any[] = [];
                                     const graphsDataBudgetsDiv: any[] = [];
@@ -606,7 +624,7 @@ export const AdvertCard = ({
                                         }
                                     }
 
-                                    const yagrBudgetData = {
+                                    yagrBudgetData = {
                                         data: {
                                             timeline: timelineBudget,
                                             graphs: [
@@ -659,10 +677,10 @@ export const AdvertCard = ({
                                             },
                                         },
                                     } as YagrWidgetData;
-
-                                    resolve(yagrBudgetData);
-                                    return yagrBudgetData;
-                                });
+                                } catch (error) {
+                                    console.log(error);
+                                }
+                                return yagrBudgetData;
                             }}
                         >
                             <Button pin="round-brick" size="xs" view="flat">

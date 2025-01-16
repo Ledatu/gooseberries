@@ -31,7 +31,7 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
             }
         } else if (!yagrData && data) tempData = data;
 
-        if (addTime !== false) {
+        if (addTime !== false && tempData) {
             const timeline = tempData.data.timeline;
             tempData.data.graphs.push({
                 id: '4',
