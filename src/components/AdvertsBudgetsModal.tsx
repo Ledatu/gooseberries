@@ -169,6 +169,12 @@ export const AdvertsBudgetsModal = ({
                                             ? 62
                                             : 194
                                         : 0,
+                                minHeight:
+                                    open && budgetModalOption[0] !== 'deleteBudgetToKeep'
+                                        ? budgetModalOption[0] !== 'setAutoPurchase'
+                                            ? 62
+                                            : 194
+                                        : 0,
                             }}
                             style={{
                                 display: 'flex',
@@ -184,7 +190,6 @@ export const AdvertsBudgetsModal = ({
                                     display: 'flex',
                                     flexDirection: 'column',
                                     rowGap: 8,
-                                    width: '100%',
                                 }}
                                 transition={transition}
                                 animate={{
@@ -200,7 +205,7 @@ export const AdvertsBudgetsModal = ({
                                     color="secondary"
                                     whiteSpace="nowrap"
                                 >
-                                    {'Если бюджет меньше'}
+                                    {'Если бюджет РК меньше'}
                                 </Text>
                                 <Text
                                     style={{height: 36, alignItems: 'center', display: 'flex'}}
@@ -208,7 +213,7 @@ export const AdvertsBudgetsModal = ({
                                     color="secondary"
                                     whiteSpace="nowrap"
                                 >
-                                    {'Если ДРР меньше'}
+                                    {'Если ДРР РК меньше'}
                                 </Text>
                                 <Text
                                     style={{height: 36, alignItems: 'center', display: 'flex'}}
@@ -216,7 +221,7 @@ export const AdvertsBudgetsModal = ({
                                     color="secondary"
                                     whiteSpace="nowrap"
                                 >
-                                    {'Если сумма за день меньше'}
+                                    {'Суточный лимит'}
                                 </Text>
                                 <Text
                                     style={{height: 36, alignItems: 'center', display: 'flex'}}
@@ -224,11 +229,22 @@ export const AdvertsBudgetsModal = ({
                                     color="secondary"
                                     whiteSpace="nowrap"
                                 >
-                                    {budgetModalOption[0] === 'purchase'
-                                        ? 'Пополнить на'
-                                        : budgetModalOption[0] === 'setBudgetToKeep'
-                                        ? 'Пополнять до'
-                                        : 'Пополнять на'}
+                                    {budgetModalOption[0] === 'purchase' ? (
+                                        'Пополнить баланс РК на'
+                                    ) : budgetModalOption[0] === 'setBudgetToKeep' ? (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                columnGap: 8,
+                                            }}
+                                        >
+                                            <Text>Бюджет на день</Text>
+                                            <HelpPopover content="Пополнит баланс РК до заданной суммы 1 раз в 00:00 по GMT+3, Москва" />
+                                        </div>
+                                    ) : (
+                                        'Пополнять баланс РК на'
+                                    )}
                                 </Text>
                                 <div style={{height: 12}} />
                             </motion.div>
@@ -337,7 +353,11 @@ export const AdvertsBudgetsModal = ({
                                         setBudgetInputValue(val.replace(/[%\s\D]/g, ''))
                                     }
                                     note={
-                                        <Text variant="code-1" color="secondary">
+                                        <Text
+                                            variant="code-1"
+                                            color="secondary"
+                                            whiteSpace="nowrap"
+                                        >
                                             Минимальная сумма – 1000 ₽
                                         </Text>
                                     }
@@ -345,7 +365,6 @@ export const AdvertsBudgetsModal = ({
                             </motion.div>
                             <motion.div
                                 style={{
-                                    width: '100%',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     rowGap: 8,
@@ -354,8 +373,7 @@ export const AdvertsBudgetsModal = ({
                                 }}
                                 transition={transition}
                                 animate={{
-                                    minWidth: budgetModalOption[0] === 'setAutoPurchase' ? 204 : 0,
-                                    maxWidth: budgetModalOption[0] === 'setAutoPurchase' ? 204 : 0,
+                                    width: budgetModalOption[0] === 'setAutoPurchase' ? 210 : 0,
                                 }}
                             >
                                 <div style={{height: 36}} />
