@@ -2504,7 +2504,7 @@ export const MassAdvertPage = ({
                                                         style={{
                                                             background:
                                                                 'var(--yc-color-base-background)',
-                                                            maxWidth: '60em',
+                                                            maxWidth: '80em',
                                                             maxHeight: '30em',
                                                             height: 'fit-content',
                                                             overflow: 'auto',

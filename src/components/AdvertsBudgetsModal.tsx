@@ -9,6 +9,7 @@ import callApi, {getUid} from 'src/utilities/callApi';
 export const AdvertsBudgetsModal = ({
     sellerId,
     setAdvertBudgetsRules,
+    advertBudgetsRules,
     disabled,
     children,
     selectValue,
@@ -109,7 +110,25 @@ export const AdvertsBudgetsModal = ({
     }, [depositValueTriggerInputValue]);
 
     useEffect(() => {
-        setBudgetModalOption([budgetModalOptions[0].value]);
+        const rules = advertBudgetsRules?.[advertId as any];
+        if (rules) {
+            setBudgetModalOption([
+                rules['mode'] == 'oneTimeDeposit' ? 'setBudgetToKeep' : rules['mode'],
+            ]);
+            if (rules?.['desiredDrr']) {
+                setDesiredDrrInputValue(rules?.['desiredDrr']);
+                setUseDesiredDrr(true);
+            }
+            setMaxBudgetInputValue(rules?.['maxBudget'] ?? '3000');
+            setBudgetInputValue(rules?.['budget'] ?? '1000');
+            setDepositValueTriggerInputValue(rules?.['depositValueTrigger'] ?? '500');
+        } else {
+            setBudgetModalOption([budgetModalOptions[0].value]);
+            setUseDesiredDrr(false);
+            setMaxBudgetInputValue('3000');
+            setBudgetInputValue('1000');
+            setDepositValueTriggerInputValue('500');
+        }
     }, [open]);
 
     const transition = useMemo(() => {
