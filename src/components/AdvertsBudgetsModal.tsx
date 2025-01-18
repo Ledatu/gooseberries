@@ -139,6 +139,11 @@ export const AdvertsBudgetsModal = ({
         };
     }, []);
 
+    const dis = useMemo(() => {
+        if (typeof maxBudgetInputValue !== 'string') return false;
+        return maxBudgetInputValue?.includes('123456789');
+    }, [maxBudgetInputValue]);
+
     return (
         <div>
             {triggerButton}
@@ -342,9 +347,9 @@ export const AdvertsBudgetsModal = ({
                                 <TextInput
                                     hasClear
                                     size="l"
-                                    disabled={maxBudgetInputValue?.includes('123456789')}
+                                    disabled={dis}
                                     value={
-                                        maxBudgetInputValue?.includes('123456789')
+                                        dis
                                             ? '∞'
                                             : new Intl.NumberFormat('ru-RU').format(
                                                   Number(maxBudgetInputValue),
@@ -448,7 +453,7 @@ export const AdvertsBudgetsModal = ({
                                     }}
                                 >
                                     <Checkbox
-                                        checked={maxBudgetInputValue?.includes('123456789')}
+                                        checked={dis}
                                         onUpdate={(val) => {
                                             setMaxBudgetInputValue(
                                                 val
