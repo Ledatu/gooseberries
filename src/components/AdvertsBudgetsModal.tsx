@@ -342,9 +342,14 @@ export const AdvertsBudgetsModal = ({
                                 <TextInput
                                     hasClear
                                     size="l"
-                                    value={new Intl.NumberFormat('ru-RU').format(
-                                        Number(maxBudgetInputValue),
-                                    )}
+                                    disabled={maxBudgetInputValue.includes('123456789')}
+                                    value={
+                                        maxBudgetInputValue.includes('123456789')
+                                            ? '∞'
+                                            : new Intl.NumberFormat('ru-RU').format(
+                                                  Number(maxBudgetInputValue),
+                                              )
+                                    }
                                     onBlur={() => {
                                         if (maxBudgetInputValueValid) return;
                                         setMaxBudgetInputValue('1000');
@@ -433,9 +438,55 @@ export const AdvertsBudgetsModal = ({
                                         )} ₽ только если ДРР меньше указанного значения`}
                                     />
                                 </motion.div>
+                                <motion.div
+                                    transition={transition}
+                                    style={{
+                                        height: 36,
+                                        alignItems: 'center',
+                                        display: 'flex',
+                                        columnGap: 8,
+                                    }}
+                                >
+                                    <Checkbox
+                                        checked={maxBudgetInputValue.includes('123456789')}
+                                        onUpdate={(val) => {
+                                            setMaxBudgetInputValue(
+                                                val
+                                                    ? maxBudgetInputValue + '123456789'
+                                                    : maxBudgetInputValue.slice(0, -9),
+                                            );
+                                        }}
+                                        style={{
+                                            height: 36,
+                                            alignItems: 'center',
+                                            display: 'flex',
+                                        }}
+                                        size="l"
+                                        content={
+                                            <Text
+                                                variant="body-2"
+                                                color="secondary"
+                                                whiteSpace="nowrap"
+                                            >
+                                                без ограничений
+                                            </Text>
+                                        }
+                                    />
+                                    <HelpPopover
+                                        size="l"
+                                        content={
+                                            'Сумма пополнения в день не будет ограничена, будьте внимательны, выбирая данный вариант.'
+                                        }
+                                    />
+                                </motion.div>
                                 <div
                                     style={{
-                                        height: 100,
+                                        height: 36,
+                                    }}
+                                />
+                                <div
+                                    style={{
+                                        height: 12,
                                     }}
                                 />
                             </motion.div>
