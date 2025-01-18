@@ -1632,7 +1632,6 @@ export const MassAdvertPage = ({
 
                 const {firstPage} = doc?.placementsAuctions?.[selectValue[0]]?.[phrase] ?? {};
 
-                const timeline: any[] = [];
                 const pricesData: any[] = [];
                 const pricesDataCur: any[] = [];
                 const reviewRatingsData: any[] = [];
@@ -1646,7 +1645,6 @@ export const MassAdvertPage = ({
                 if (placementsValue && reviewRating) {
                     if (firstPage) {
                         for (let i = 0; i < firstPage.length; i++) {
-                            timeline.push(i);
                             const card = firstPage[i];
                             // console.log(card);
 
@@ -1657,9 +1655,10 @@ export const MassAdvertPage = ({
                             const {total} = price ?? {total: 0};
                             const priceRub = Math.round(total / 100);
 
-                            pricesData.push(priceRub);
-                            reviewRatingsData.push(reviewRating);
-                            feedbacksData.push(feedbacks);
+                            if (!pricesData.includes(priceRub)) pricesData.push(priceRub);
+                            if (!reviewRatingsData.includes(reviewRating))
+                                reviewRatingsData.push(reviewRating);
+                            if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
                         }
                     }
                     pricesData.sort((a, b) => a - b);
@@ -1702,7 +1701,7 @@ export const MassAdvertPage = ({
                     ) => {
                         return {
                             data: {
-                                timeline: timeline,
+                                timeline: [...Array(all.length).keys()],
                                 graphs: [
                                     {
                                         color: colorCur,
