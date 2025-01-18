@@ -2845,6 +2845,19 @@ export const MassAdvertPage = ({
         };
     }, [selectValue]);
 
+    const getBidderRules = async () => {
+        if (!doc) return;
+        const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
+            seller_id: sellerId,
+        });
+        doc.advertsAutoBidsRules[selectValue[0]] = advertsAutoBidsRules?.data;
+        setChangedDoc({...doc});
+    };
+
+    useEffect(() => {
+        getBidderRules();
+    }, [advertBudgetRules]);
+
     useEffect(() => {
         if (!selectValue[0]) return;
 
