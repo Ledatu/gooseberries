@@ -342,9 +342,9 @@ export const AdvertsBudgetsModal = ({
                                 <TextInput
                                     hasClear
                                     size="l"
-                                    disabled={maxBudgetInputValue.includes('123456789')}
+                                    disabled={maxBudgetInputValue?.includes('123456789')}
                                     value={
-                                        maxBudgetInputValue.includes('123456789')
+                                        maxBudgetInputValue?.includes('123456789')
                                             ? '∞'
                                             : new Intl.NumberFormat('ru-RU').format(
                                                   Number(maxBudgetInputValue),
@@ -448,7 +448,7 @@ export const AdvertsBudgetsModal = ({
                                     }}
                                 >
                                     <Checkbox
-                                        checked={maxBudgetInputValue.includes('123456789')}
+                                        checked={maxBudgetInputValue?.includes('123456789')}
                                         onUpdate={(val) => {
                                             setMaxBudgetInputValue(
                                                 val
