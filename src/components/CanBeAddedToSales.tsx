@@ -1,5 +1,5 @@
-import {Button, Card, Icon, List, Loader, Popup, Text} from '@gravity-ui/uikit';
-import {TagRuble, Xmark} from '@gravity-ui/icons';
+import {Button, Card, Icon, List, Loader, Popup, Text, Tooltip} from '@gravity-ui/uikit';
+import {ArrowRight, TagRuble, Xmark} from '@gravity-ui/icons';
 import React, {useEffect, useRef, useState} from 'react';
 import {motion} from 'framer-motion';
 import {useError} from 'src/pages/ErrorContext';
@@ -41,7 +41,7 @@ export const CanBeAddedToSales = ({
 
     useEffect(() => {
         if (!open) return;
-        setTimeout(() => setOpen(false), 4000);
+        setTimeout(() => setOpen(false), 10000);
         getAvailableSales();
     }, [open]);
 
@@ -119,40 +119,54 @@ export const CanBeAddedToSales = ({
                                 >
                                     <List
                                         itemsHeight={136}
-                                        itemHeight={44}
+                                        itemHeight={52}
                                         renderItem={(item) => {
                                             return (
-                                                <Card
-                                                    theme="warning"
-                                                    style={{
-                                                        height: 36,
-                                                        borderRadius: 24,
-                                                        width: '100%',
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        paddingLeft: 8,
-                                                        margin: '4px 4px 4px 4px',
-                                                        // marginBottom: '8px',
-                                                    }}
-                                                >
-                                                    <Text variant="subheader-1">{item.name}</Text>
+                                                <Tooltip content={item.name}>
                                                     <Card
                                                         theme="warning"
                                                         style={{
-                                                            borderRadius: 16,
-                                                            width: 'fit-content',
-                                                            marginLeft: 8,
-                                                            paddingLeft: '8px',
-                                                            paddingRight: '8px',
+                                                            height: 48,
+                                                            borderRadius: 24,
+                                                            width: '100%',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            paddingLeft: 8,
+                                                            margin: '4px 4px 4px 4px',
+                                                            // marginBottom: '8px',
                                                         }}
                                                     >
-                                                        <Text color="warning" variant="subheader-1">
-                                                            {item.planPrice} ₽
+                                                        <Text variant="subheader-1" ellipsis={true}>
+                                                            {item.name}
                                                         </Text>
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                flexDirection: 'row',
+                                                                justifyContent: 'center',
+                                                                alignContent: 'center',
+                                                            }}
+                                                        >
+                                                            <Text
+                                                                color="danger"
+                                                                variant="body-1"
+                                                                style={{marginInline: '8px'}}
+                                                            >
+                                                                <s>{item.price} ₽</s>
+                                                            </Text>
+                                                            <Icon data={ArrowRight} size={18} />
+                                                            <Text
+                                                                color="positive"
+                                                                variant="body-1"
+                                                                style={{marginInline: '8px'}}
+                                                            >
+                                                                {item.planPrice} ₽
+                                                            </Text>
+                                                        </div>
                                                     </Card>
-                                                </Card>
+                                                </Tooltip>
                                             );
                                         }}
                                         onItemClick={(item) => {
