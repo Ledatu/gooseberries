@@ -13,6 +13,9 @@ export const CanBeAddedToSales = ({
     selected,
     setAutoSalesModalOpenFromParent,
 }) => {
+    const themeVal = localStorage.getItem('theme');
+    const initialTheme =
+        themeVal !== 'undefined' && themeVal !== 'null' && themeVal ? JSON.parse(themeVal) : 'dark';
     const {showError} = useError();
     const [open, setOpen] = useState(false);
     const [availableSales, setAvailableSales] = useState([] as any[]);
@@ -61,7 +64,8 @@ export const CanBeAddedToSales = ({
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            background: '#221d22af',
+                            background: initialTheme == 'light' ? '#fff9' : undefined,
+
                             backdropFilter: 'blur(12px)',
                             boxShadow: '#0006 0px 2px 8px 0px',
                             borderRadius: 30,
@@ -150,15 +154,28 @@ export const CanBeAddedToSales = ({
                                                             }}
                                                         >
                                                             <Text
-                                                                color="danger"
                                                                 variant="body-1"
                                                                 style={{marginInline: '8px'}}
                                                             >
                                                                 <s>{item.price} ₽</s>
                                                             </Text>
-                                                            <Icon data={ArrowRight} size={18} />
                                                             <Text
-                                                                color="positive"
+                                                                color={
+                                                                    item.price < item.planPrice
+                                                                        ? 'positive'
+                                                                        : item.price >
+                                                                          item.planPrice
+                                                                        ? 'danger'
+                                                                        : 'primary'
+                                                                }
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                }}
+                                                            >
+                                                                <Icon data={ArrowRight} size={18} />
+                                                            </Text>
+                                                            <Text
                                                                 variant="body-1"
                                                                 style={{marginInline: '8px'}}
                                                             >

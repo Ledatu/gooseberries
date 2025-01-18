@@ -30,6 +30,10 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
     // dzhemDataFilteredData,
     // dzhemDataFilteredSummary,
 }) => {
+    const themeVal = localStorage.getItem('theme');
+    const initialTheme =
+        themeVal !== 'undefined' && themeVal !== 'null' && themeVal ? JSON.parse(themeVal) : 'dark';
+
     const [dzhemDataFilters, setDzhemDataFilters] = useState({undef: false});
     const [dzhem, setDzhem] = useState<[]>(undefined as any);
     const [load, setLoad] = useState<boolean>(true);
@@ -380,7 +384,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                     // top: '5%',
                     // left: '5%',
                     // boxShadow: open ? '#0002 0px 2px 8px 0px' : undefined,
-                    // background: '#221d220f',
+                    background: initialTheme == 'light' ? '#fff9' : undefined,
                     WebkitBackdropFilter: 'blur(12px)',
                     backdropFilter: 'blur(12px)',
                     overflow: 'hidden',
@@ -461,7 +465,9 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                         <React.Fragment>
                             <style>
                                 {`.data-table_theme_yandex-cloud {
-                                    --data-table-color-base: rgba(14, 14, 14, 1);
+                                    --data-table-color-base: ${
+                                        initialTheme == 'dark' ? 'rgba(14, 14, 14, 1)' : '#eee'
+                                    };
                                     --data-table-color-stripe: var(--yc-color-base-generic-ultralight, var(--yc-color-base-area, var(--color-base-area)));
                                     --data-table-border-color: var(--yc-color-base-generic-hover, var(--yc-color-contrast-15-solid, var(--color-contrast-15-solid)));
                                     --data-table-color-hover-area: var(--yc-color-base-simple-hover, var(--yc-color-hover-area, var(--color-hover-area)));
