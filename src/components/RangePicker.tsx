@@ -16,8 +16,6 @@ export const RangePicker = ({args}) => {
     const [startDate, endDate] = dateRange;
 
     const anchorRef = useRef(null);
-    console.log(maxDate, minDate);
-    console.log(startDate, endDate);
 
     return (
         <div>

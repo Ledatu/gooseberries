@@ -43,11 +43,11 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
     useEffect(() => {
         const today = new Date();
         today.setDate(today.getDate() - (today.getHours() > 3 ? 1 : 2));
-        // today.setHours(23, 59, 59, 0);
+        today.setHours(23, 59, 59, 0);
         const oldDate = new Date(today);
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - selectedPeriod);
-        console.log(today, oldDate);
+        console.log('TODAY AND OLDDATE', today, oldDate);
         setSelectedDateRange([oldDate, today]);
     }, []);
     // const renderNumberAndPercent = (args, fieldOfNumber, fieldOfPercent) => {
@@ -78,6 +78,8 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
     // };
     const setOldDate = (value) => {
         const today = new Date(rangeAvailable[1]);
+        today.setHours(23, 59, 59, 0);
+        console.log('TODAY', today);
         const oldDate = new Date(rangeAvailable[1]);
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - Number(value));
