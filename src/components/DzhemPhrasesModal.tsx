@@ -84,18 +84,17 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         setSelectedPeriod(Number(value));
     };
     const getDzhemData = async () => {
+        console.log('selectedDateRange', selectedDateRange);
         if (!selectedDateRange[0] || !selectedDateRange[1]) return;
         try {
             setLoad(true);
-            const startData = new Date(selectedDateRange[0].getTime());
-            startData.setDate(startData.getDate() - 1);
             const params = {
                 nmId: nmId,
                 seller_id: sellerId,
-                startDate: startData,
+                startDate: selectedDateRange[0],
                 endDate: selectedDateRange[1],
             };
-            console.log(params);
+            console.log('params', params);
             const response = await ApiClient.post('massAdvert/dzhemPhrases', params);
             if (!response?.data) {
                 throw new Error('No dzhemPhrases');
@@ -108,7 +107,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             setSelectedDateRange(selectedDateRange);
             // dzhemDataFilter({frequencyCurrent: {val: '', mode: 'include'}}, dzhem);
 
-            console.log(response.data.dzhemPhrases, nmId);
+            console.log('responseDzhem', nmId, response.data.dzhemPhrases);
         } catch (error) {
             console.error(error);
         } finally {
@@ -466,7 +465,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                             <style>
                                 {`.data-table_theme_yandex-cloud {
                                     --data-table-color-base: ${
-                                        initialTheme == 'dark' ? 'rgba(14, 14, 14, 1)' : '#eee'
+                                        initialTheme == 'dark' ? 'rgba(14, 14, 14, 1)' : '#eeea'
                                     };
                                     --data-table-color-stripe: var(--yc-color-base-generic-ultralight, var(--yc-color-base-area, var(--color-base-area)));
                                     --data-table-border-color: var(--yc-color-base-generic-hover, var(--yc-color-contrast-15-solid, var(--color-contrast-15-solid)));
