@@ -157,7 +157,7 @@ export const CanBeAddedToSales = ({
                                                                 variant="body-1"
                                                                 style={{marginInline: '8px'}}
                                                             >
-                                                                <s>{item.price} ₽</s>
+                                                                {item.price} ₽
                                                             </Text>
                                                             <Text
                                                                 color={
