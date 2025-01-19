@@ -38,11 +38,13 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
     const [dzhem, setDzhem] = useState<[]>(undefined as any);
     const [load, setLoad] = useState<boolean>(true);
     const [selectedPeriod, setSelectedPeriod] = useState(7);
+    const [rangeAvailable, setRangeAvailable] = useState([undefined, undefined] as any[]);
     const [selectedDateRange, setSelectedDateRange] = useState([] as any);
     useEffect(() => {
         const today = new Date();
+        today.setDate(today.getDate() - (today.getHours() > 3 ? 1 : 2));
         // today.setHours(23, 59, 59, 0);
-        const oldDate = new Date();
+        const oldDate = new Date(today);
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - selectedPeriod);
         console.log(today, oldDate);
@@ -75,11 +77,11 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
     //     );
     // };
     const setOldDate = (value) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const oldDate = new Date();
+        const today = new Date(rangeAvailable[1]);
+        const oldDate = new Date(rangeAvailable[1]);
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - Number(value));
+        console.log(today, 'today', oldDate, 'oldDate');
         setSelectedDateRange([oldDate, today]);
         setSelectedPeriod(Number(value));
     };
@@ -105,6 +107,11 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             }
             setDzhem(response.data.dzhemData);
             setSelectedDateRange(selectedDateRange);
+            if (!data.rangeToChoose) {
+                throw new Error('no range To choose');
+            }
+            setRangeAvailable(data.rangeToChoose);
+            console.log(data.rangeToChoose, rangeAvailable);
             // dzhemDataFilter({frequencyCurrent: {val: '', mode: 'include'}}, dzhem);
 
             console.log('responseDzhem', nmId, response.data.dzhemPhrases);
@@ -443,6 +450,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                                 recalc: () => {},
                                 dateRange: selectedDateRange,
                                 setDateRange: setSelectedDateRange,
+                                rangeToChoose: rangeAvailable,
                             }}
                         />
                     )}
