@@ -381,8 +381,8 @@ export const RangePicker = ({args}) => {
                                     start: dateTimeParse(new Date(dateRange[0] ?? 0)) as any,
                                     end: dateTimeParse(new Date(dateRange[1] ?? 0)) as any,
                                 }}
-                                maxValue={maxDate ?? dateTimeParse(new Date(maxDate))}
-                                minValue={minDate ?? dateTimeParse(new Date(minDate))}
+                                maxValue={maxDate ? dateTimeParse(new Date(maxDate)) : undefined}
+                                minValue={minDate ? dateTimeParse(new Date(minDate)) : undefined}
                                 size={align == 'column' ? 'l' : 'm'}
                                 timeZone="Europe/Moscow"
                                 onUpdate={(val) => {
