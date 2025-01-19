@@ -30,12 +30,13 @@ import React, {Children, isValidElement, ReactElement, useEffect, useState} from
 import TheTable, {compare} from './TheTable';
 import {parseFirst10Pages} from 'src/pages/MassAdvertPage';
 import callApi, {getUid} from 'src/utilities/callApi';
-import {getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
+import {defaultRender, getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
 import DataTable from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 import {AutoPhrasesWordsSelection} from './AutoPhrasesWordsSelection';
 import {TextTitleWrapper} from './TextTitleWrapper';
 import {useCampaign} from 'src/contexts/CampaignContext';
+import {renderGradNumber} from 'src/utilities/renderGradNumber';
 
 export const AdvertsWordsModal = ({
     children,
@@ -149,6 +150,32 @@ export const AdvertsWordsModal = ({
         template: {cluster: {summary: 0}},
     });
 
+    const [semanticsFilteredSummaryAvg, setSemanticsFilteredSummaryAvg] = useState({
+        active: {
+            cluster: '',
+            cpc: 0,
+            sum: 0,
+            count: 0,
+            ctr: 0,
+            clicks: 0,
+            freq: 0,
+            freqTrend: 0,
+            placements: null,
+        },
+        minus: {
+            cluster: '',
+            freq: 0,
+            freqTrend: 0,
+            count: 0,
+            clicks: 0,
+            sum: 0,
+            cpc: 0,
+            ctr: 0,
+            placements: null,
+        },
+        template: {cluster: {summary: 0}},
+    });
+
     const [clustersFiltersActive, setClustersFiltersActive] = useState({undef: false});
     const clustersFilterDataActive = (withfFilters: any, clusters: any[]) => {
         const _clustersFilters = withfFilters ?? clustersFiltersActive;
@@ -190,13 +217,21 @@ export const AdvertsWordsModal = ({
         semanticsFilteredSummary.active.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
         semanticsFilteredSummary.active.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
+        for (const [key, val] of Object.entries(semanticsFilteredSummary.active)) {
+            if (typeof val !== 'number') continue;
+            if (key === 'cpc' || key === 'ctr') {
+                semanticsFilteredSummaryAvg.active[key] = val;
+                continue;
+            }
+            semanticsFilteredSummaryAvg.active[key] = Math.round(val / _clusters.length);
+        }
+        setSemanticsFilteredSummaryAvg(semanticsFilteredSummaryAvg);
     };
 
     const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
     const clustersFilterDataMinus = (withfFilters: any, clusters: any[]) => {
         const _clustersFilters = withfFilters ?? clustersFiltersMinus;
         const _clusters = clusters ?? semanticsModalSemanticsMinusItemsValue;
-        // console.log(_clustersFilters, _clusters);
 
         semanticsFilteredSummary.minus = {
             cluster: '',
@@ -238,6 +273,16 @@ export const AdvertsWordsModal = ({
         semanticsFilteredSummary.minus.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
         semanticsFilteredSummary.minus.ctr = getRoundValue(clicks, count, true);
         setSemanticsFilteredSummary(semanticsFilteredSummary);
+        for (const [key, val] of Object.entries(semanticsFilteredSummary.minus)) {
+            if (typeof val !== 'number') continue;
+            if (key === 'cpc' || key === 'ctr') {
+                semanticsFilteredSummaryAvg.minus[key] = val;
+                continue;
+            }
+            semanticsFilteredSummaryAvg.minus[key] = Math.round(val / _clusters.length);
+        }
+
+        setSemanticsFilteredSummaryAvg(semanticsFilteredSummaryAvg);
     };
 
     useEffect(() => {
@@ -730,12 +775,16 @@ export const AdvertsWordsModal = ({
         {
             name: 'freq',
             placeholder: 'Частота',
-            render: ({value, row}) => {
+            render: ({value, row, footer}) => {
                 const {freqTrend} = row;
                 return (
                     <Tooltip content={`${freqTrend > 0 ? '+' : ''}${freqTrend}`}>
                         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                            <Text>{value}</Text>
+                            {renderGradNumber(
+                                {value: value, footer},
+                                semanticsFilteredSummaryAvg.minus['freq'],
+                                defaultRender,
+                            )}
                             {freqTrend ? (
                                 <Text
                                     color={
@@ -759,23 +808,57 @@ export const AdvertsWordsModal = ({
         {
             name: 'count',
             placeholder: 'Показы, шт',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.active['count'],
+                    defaultRender,
+                );
+            },
         },
         {
             name: 'clicks',
             placeholder: 'Клики, шт',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.active['clicks'],
+                    defaultRender,
+                );
+            },
         },
         {
             name: 'ctr',
             placeholder: 'CTR, %',
-            render: renderAsPercent,
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.active['ctr'],
+                    renderAsPercent,
+                );
+            },
         },
         {
             name: 'sum',
             placeholder: 'Расход, ₽',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.active['sum'],
+                    defaultRender,
+                );
+            },
         },
         {
             name: 'cpc',
             placeholder: 'CPC, ₽',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.active['cpc'],
+                    defaultRender,
+                );
+            },
         },
         {
             name: 'placements',
@@ -1179,12 +1262,16 @@ export const AdvertsWordsModal = ({
         {
             name: 'freq',
             placeholder: 'Частота',
-            render: ({value, row}) => {
+            render: ({value, row, footer}) => {
                 const {freqTrend} = row;
                 return (
                     <Tooltip content={`${freqTrend > 0 ? '+' : ''}${freqTrend}`}>
                         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                            <Text>{value}</Text>
+                            {renderGradNumber(
+                                {value: value, footer},
+                                semanticsFilteredSummaryAvg.minus['freq'],
+                                defaultRender,
+                            )}
                             {freqTrend ? (
                                 <Text
                                     color={
@@ -1208,23 +1295,57 @@ export const AdvertsWordsModal = ({
         {
             name: 'count',
             placeholder: 'Показы, шт',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.minus['count'],
+                    defaultRender,
+                );
+            },
         },
         {
             name: 'clicks',
             placeholder: 'Клики, шт',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.minus['clicks'],
+                    defaultRender,
+                );
+            },
         },
         {
             name: 'ctr',
             placeholder: 'CTR, %',
-            render: renderAsPercent,
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.minus['ctr'],
+                    renderAsPercent,
+                );
+            },
         },
         {
             name: 'sum',
             placeholder: 'Расход, ₽',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.minus['sum'],
+                    defaultRender,
+                );
+            },
         },
         {
             name: 'cpc',
             placeholder: 'CPC, ₽',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: value, footer},
+                    semanticsFilteredSummaryAvg.minus['cpc'],
+                    defaultRender,
+                );
+            },
         },
         {
             name: 'placements',
