@@ -857,6 +857,7 @@ export const AdvertsWordsModal = ({
                     {value: value, footer},
                     semanticsFilteredSummaryAvg.active['cpc'],
                     defaultRender,
+                    'desc',
                 );
             },
         },
