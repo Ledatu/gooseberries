@@ -839,17 +839,6 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            name: 'sum',
-            placeholder: 'Расход, ₽',
-            render: ({value, footer}) => {
-                return renderGradNumber(
-                    {value: value, footer},
-                    semanticsFilteredSummaryAvg.active['sum'],
-                    defaultRender,
-                );
-            },
-        },
-        {
             name: 'cpc',
             placeholder: 'CPC, ₽',
             render: ({value, footer}) => {
@@ -860,6 +849,11 @@ export const AdvertsWordsModal = ({
                     'desc',
                 );
             },
+        },
+        {
+            name: 'sum',
+            placeholder: 'Расход, ₽',
+            render: ({value}) => defaultRender({value: getRoundValue(value, 1)}),
         },
         {
             name: 'placements',
@@ -1327,26 +1321,21 @@ export const AdvertsWordsModal = ({
             },
         },
         {
-            name: 'sum',
-            placeholder: 'Расход, ₽',
-            render: ({value, footer}) => {
-                return renderGradNumber(
-                    {value: value, footer},
-                    semanticsFilteredSummaryAvg.minus['sum'],
-                    defaultRender,
-                );
-            },
-        },
-        {
             name: 'cpc',
             placeholder: 'CPC, ₽',
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.minus['cpc'],
+                    semanticsFilteredSummaryAvg.active['cpc'],
                     defaultRender,
+                    'desc',
                 );
             },
+        },
+        {
+            name: 'sum',
+            placeholder: 'Расход, ₽',
+            render: ({value}) => defaultRender({value: getRoundValue(value, 1)}),
         },
         {
             name: 'placements',
