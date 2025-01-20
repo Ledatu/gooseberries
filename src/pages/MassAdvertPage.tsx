@@ -89,6 +89,8 @@ import {AdvertCreateModal} from 'src/components/AdvertCreateModal';
 import ApiClient from 'src/utilities/ApiClient';
 import {getEnumurationString} from 'src/utilities/getEnumerationString';
 import DzhemPhrasesModal from 'src/components/DzhemPhrasesModal';
+// import {PopupFilterArts} from 'src/components/PopupFilterArts';
+// import {PopupFilterArts} from 'src/components/PopupFilterArts';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -194,6 +196,12 @@ export const MassAdvertPage = ({
     }, [sellerId]);
 
     const [selectedSearchPhrase, setSelectedSearchPhrase] = useState<string>('');
+    // const [filtersRK, setFiltersRK] = useState({
+    //     scheduleRules: false,
+    //     budgetRules: false,
+    //     phrasesRules: false,
+    //     bidderRules: false,
+    // });
 
     const auctionOptions: any[] = [
         {value: 'Выдача', content: 'Выдача'},
@@ -1024,6 +1032,9 @@ export const MassAdvertPage = ({
                       >
                           <Icon data={Magnifier} size={14} />
                       </Button>,
+                      //   <PopupFilterArts setFilters={setFilters} filterTableData={filterByMany} />,
+                      //   <PopupFilterArts setFilters={setFiltersRK} filters={filtersRK} />,
+
                       <div
                           style={{
                               display: 'flex',
@@ -1115,7 +1126,6 @@ export const MassAdvertPage = ({
                           for (const [advertId, _] of Object.entries(value)) {
                               const advertData = doc?.adverts?.[selectValue[0]]?.[advertId];
                               if (!advertData) continue;
-
                               // console.log('popa', advertData, filters['adverts'].val);
                               if (
                                   filters['adverts'] &&
