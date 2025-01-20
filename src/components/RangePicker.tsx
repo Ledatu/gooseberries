@@ -5,11 +5,13 @@ import {dateTimeParse} from '@gravity-ui/date-utils';
 import React, {useRef, useState} from 'react';
 
 export const RangePicker = ({args}) => {
-    const {recalc, dateRange, setDateRange, align, translate} = args;
+    const {recalc, dateRange, setDateRange, align, translate, rangeToChoose} = args;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const [rangePickerOpen, setRangePickerOpen] = useState(false);
+    // console.log(rangeToChoose);
+    const [minDate, maxDate] = rangeToChoose ?? [undefined, undefined];
 
     const [startDate, endDate] = dateRange;
 
@@ -377,6 +379,8 @@ export const RangePicker = ({args}) => {
                                     start: dateTimeParse(new Date(dateRange[0] ?? 0)) as any,
                                     end: dateTimeParse(new Date(dateRange[1] ?? 0)) as any,
                                 }}
+                                maxValue={maxDate ? dateTimeParse(new Date(maxDate)) : undefined}
+                                minValue={minDate ? dateTimeParse(new Date(minDate)) : undefined}
                                 size={align == 'column' ? 'l' : 'm'}
                                 timeZone="Europe/Moscow"
                                 onUpdate={(val) => {

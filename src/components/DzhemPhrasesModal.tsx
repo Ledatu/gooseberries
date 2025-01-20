@@ -38,14 +38,16 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
     const [dzhem, setDzhem] = useState<[]>(undefined as any);
     const [load, setLoad] = useState<boolean>(true);
     const [selectedPeriod, setSelectedPeriod] = useState(7);
+    const [rangeAvailable, setRangeAvailable] = useState([undefined, undefined] as any[]);
     const [selectedDateRange, setSelectedDateRange] = useState([] as any);
     useEffect(() => {
         const today = new Date();
-        // today.setHours(23, 59, 59, 0);
-        const oldDate = new Date();
+        today.setDate(today.getDate() - (today.getHours() > 3 ? 1 : 2));
+        today.setHours(23, 59, 59, 0);
+        const oldDate = new Date(today);
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - selectedPeriod);
-        console.log(today, oldDate);
+        console.log('TODAY AND OLDDATE', today, oldDate);
         setSelectedDateRange([oldDate, today]);
     }, []);
     // const renderNumberAndPercent = (args, fieldOfNumber, fieldOfPercent) => {
@@ -75,27 +77,28 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
     //     );
     // };
     const setOldDate = (value) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const oldDate = new Date();
+        const today = new Date(rangeAvailable[1]);
+        today.setHours(23, 59, 59, 0);
+        console.log('TODAY', today);
+        const oldDate = new Date(rangeAvailable[1]);
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - Number(value));
+        console.log(today, 'today', oldDate, 'oldDate');
         setSelectedDateRange([oldDate, today]);
         setSelectedPeriod(Number(value));
     };
     const getDzhemData = async () => {
+        console.log('selectedDateRange', selectedDateRange);
         if (!selectedDateRange[0] || !selectedDateRange[1]) return;
         try {
             setLoad(true);
-            const startData = new Date(selectedDateRange[0].getTime());
-            startData.setDate(startData.getDate() - 1);
             const params = {
                 nmId: nmId,
                 seller_id: sellerId,
-                startDate: startData,
+                startDate: selectedDateRange[0],
                 endDate: selectedDateRange[1],
             };
-            console.log(params);
+            console.log('params', params);
             const response = await ApiClient.post('massAdvert/dzhemPhrases', params);
             if (!response?.data) {
                 throw new Error('No dzhemPhrases');
@@ -106,9 +109,14 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             }
             setDzhem(response.data.dzhemData);
             setSelectedDateRange(selectedDateRange);
+            if (!data.rangeToChoose) {
+                throw new Error('no range To choose');
+            }
+            setRangeAvailable(data.rangeToChoose);
+            console.log(data.rangeToChoose, rangeAvailable);
             // dzhemDataFilter({frequencyCurrent: {val: '', mode: 'include'}}, dzhem);
 
-            console.log(response.data.dzhemPhrases, nmId);
+            console.log('responseDzhem', nmId, response.data.dzhemPhrases);
         } catch (error) {
             console.error(error);
         } finally {
@@ -444,6 +452,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                                 recalc: () => {},
                                 dateRange: selectedDateRange,
                                 setDateRange: setSelectedDateRange,
+                                rangeToChoose: rangeAvailable,
                             }}
                         />
                     )}
@@ -466,7 +475,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                             <style>
                                 {`.data-table_theme_yandex-cloud {
                                     --data-table-color-base: ${
-                                        initialTheme == 'dark' ? 'rgba(14, 14, 14, 1)' : '#eee'
+                                        initialTheme == 'dark' ? 'rgba(14, 14, 14, 1)' : '#eeea'
                                     };
                                     --data-table-color-stripe: var(--yc-color-base-generic-ultralight, var(--yc-color-base-area, var(--color-base-area)));
                                     --data-table-border-color: var(--yc-color-base-generic-hover, var(--yc-color-contrast-15-solid, var(--color-contrast-15-solid)));

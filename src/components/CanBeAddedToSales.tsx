@@ -157,14 +157,15 @@ export const CanBeAddedToSales = ({
                                                                 variant="body-1"
                                                                 style={{marginInline: '8px'}}
                                                             >
-                                                                {item.price} ₽
+                                                                {Math.round(item.price)} ₽
                                                             </Text>
                                                             <Text
                                                                 color={
-                                                                    item.price < item.planPrice
+                                                                    Math.round(item.price) <
+                                                                    Math.round(item.planPrice)
                                                                         ? 'positive'
-                                                                        : item.price >
-                                                                          item.planPrice
+                                                                        : Math.round(item.price) >
+                                                                          Math.round(item.planPrice)
                                                                         ? 'danger'
                                                                         : 'primary'
                                                                 }
@@ -179,7 +180,7 @@ export const CanBeAddedToSales = ({
                                                                 variant="body-1"
                                                                 style={{marginInline: '8px'}}
                                                             >
-                                                                {item.planPrice} ₽
+                                                                {Math.round(item.planPrice)} ₽
                                                             </Text>
                                                         </div>
                                                     </Card>
