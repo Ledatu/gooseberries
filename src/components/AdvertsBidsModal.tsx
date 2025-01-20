@@ -236,7 +236,7 @@ export const AdvertsBidsModal = ({
         setSumOrdersInputValue('1000');
         setSumInputValue('1000');
         setPlacementsInputValue('50');
-        setPlacementsTriggerInputValue('50');
+        setPlacementsTriggerInputValue('10');
         setAuctionInputValue('50');
         setOborInputValue('30');
         setMaxCpmInputValue('1000');
@@ -612,7 +612,13 @@ export const AdvertsBidsModal = ({
                                         alignItems: 'center',
                                     }}
                                     animate={{
-                                        maxHeight: autoBidderOption[0] != 'placements' ? 86.5 : 0,
+                                        maxHeight: ![
+                                            'placements',
+                                            'auction',
+                                            'bestPlacement',
+                                        ].includes(autoBidderOption[0])
+                                            ? 87
+                                            : 0,
                                     }}
                                 >
                                     <div
