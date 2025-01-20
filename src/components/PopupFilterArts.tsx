@@ -79,7 +79,7 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
         return elements;
     };
     return (
-        <div>
+        <>
             <Popup offset={[-4, 9]} anchorRef={ref} open={showPopup} placement={'bottom-end'}>
                 <div
                     style={{
@@ -130,19 +130,22 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
                 </div>
             </Popup>
             <Button
-                style={{marginLeft: 5, alignItems: 'center', justifyContent: 'center'}}
-                // size="l"
+                style={{
+                    marginLeft: 5,
+                    width: '28px',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
                 ref={ref}
-                view="outlined"
+                view={checkFilters() ? 'outlined-warning' : 'outlined'}
                 onClick={() => {
                     setShowPopup(!showPopup);
                 }}
             >
-                <Text color={checkFilters() ? 'warning' : undefined}>
-                    <div style={{height: '6px'}}></div>
-                    <Icon data={ListCheck} size={16} />
-                </Text>
+                {/* <Text color={checkFilters() ? 'warning' : undefined}> */}
+                <Icon data={ListCheck} size={14} />
+                {/* </Text> */}
             </Button>
-        </div>
+        </>
     );
 };

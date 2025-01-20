@@ -90,7 +90,6 @@ import ApiClient from 'src/utilities/ApiClient';
 import {getEnumurationString} from 'src/utilities/getEnumerationString';
 import DzhemPhrasesModal from 'src/components/DzhemPhrasesModal';
 // import {PopupFilterArts} from 'src/components/PopupFilterArts';
-// import {PopupFilterArts} from 'src/components/PopupFilterArts';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -1032,7 +1031,6 @@ export const MassAdvertPage = ({
                       >
                           <Icon data={Magnifier} size={14} />
                       </Button>,
-                      //   <PopupFilterArts setFilters={setFilters} filterTableData={filterByMany} />,
                       //   <PopupFilterArts setFilters={setFiltersRK} filters={filtersRK} />,
 
                       <div
