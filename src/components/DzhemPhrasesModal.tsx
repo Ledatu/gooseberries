@@ -47,35 +47,9 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         const oldDate = new Date(today);
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - selectedPeriod);
-        console.log('TODAY AND OLDDATE', today, oldDate);
         setSelectedDateRange([oldDate, today]);
     }, []);
-    // const renderNumberAndPercent = (args, fieldOfNumber, fieldOfPercent) => {
-    //     const {row} = args;
-    //     const number = row[fieldOfNumber];
-    //     const percent = row[fieldOfPercent];
-    //     return (
-    //         <div
-    //             style={{
-    //                 display: 'flex',
-    //                 flexDirection: 'row',
-    //                 alignItems: 'center',
-    //                 justifyContent: 'space-between',
-    //             }}
-    //         >
-    //             {renderGradNumber(
-    //                 {value: number},
-    //                 dzhemDataFilteredSummary[fieldOfNumber],
-    //                 defaultRender,
-    //             )}
-    //             {renderGradNumber(
-    //                 {value: percent},
-    //                 dzhemDataFilteredSummary[fieldOfPercent],
-    //                 renderAsPercent,
-    //             )}
-    //         </div>
-    //     );
-    // };
+
     const setOldDate = (value) => {
         const today = new Date(rangeAvailable[1]);
         today.setHours(23, 59, 59, 0);
@@ -131,9 +105,10 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
     }, [selectedDateRange]);
 
     const [dzhemDataFilteredData, setDzhemDataFilteredData] = useState<any[]>([]);
-    const [dzhemDataFilteredSummary, setDzhemDataFilteredSummary] = useState({
+    const [dzhemDataFilteredFooter, setDzhemDataFilteredFooter] = useState({
         text: '',
     });
+    const [dzhemDataFilteredAvg, setDzhemDataFilteredAvg] = useState({text: ''});
 
     const dzhemDataFilter = (withfFilters: any, stats: any[]) => {
         const _filters = withfFilters ?? dzhemDataFilters;
@@ -141,7 +116,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         console.log('_stats', _stats);
 
         let count = 0;
-        const dzhemDataFilteredSummaryTemp = {
+        const dzhemDataFilteredFooterTemp = {
             frequencyCurrent: 0,
             weekFrequency: 0,
             avgPositionCurrent: 0,
@@ -172,7 +147,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                     if (val === undefined) continue;
 
                     if (key == 'text') continue;
-                    dzhemDataFilteredSummaryTemp[key] +=
+                    dzhemDataFilteredFooterTemp[key] +=
                         isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
                 }
                 count++;
@@ -182,6 +157,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                 return true;
             }),
         );
+        const dzhemDataFilteredAvgTemp = {...dzhemDataFilteredFooterTemp};
         console.log('dzhemDataFilteredData', dzhemDataFilteredData);
 
         for (const key of [
@@ -199,12 +175,24 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             'cartToOrderCurrent',
             'cartToOrderPercentile',
             'visibilityCurrent',
-        ])
-            dzhemDataFilteredSummaryTemp[key] = getRoundValue(
-                dzhemDataFilteredSummaryTemp[key],
-                count,
-            );
-        setDzhemDataFilteredSummary(dzhemDataFilteredSummaryTemp);
+        ]) {
+            if (
+                ![
+                    'openCardCurrent',
+                    'addToCartCurrent',
+                    'ordersCurrent',
+                    'frequencyCurrent',
+                ].includes(key)
+            ) {
+                dzhemDataFilteredFooterTemp[key] = getRoundValue(
+                    dzhemDataFilteredFooterTemp[key],
+                    count,
+                );
+            }
+            dzhemDataFilteredAvgTemp[key] = getRoundValue(dzhemDataFilteredAvgTemp[key], count);
+        }
+        setDzhemDataFilteredFooter(dzhemDataFilteredFooterTemp);
+        setDzhemDataFilteredAvg(dzhemDataFilteredAvgTemp);
     };
 
     useEffect(() => {
@@ -220,7 +208,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: (args) => {
                 return renderGradNumber(
                     args,
-                    dzhemDataFilteredSummary['openCardCurrent'],
+                    dzhemDataFilteredAvg['openCardCurrent'],
                     defaultRender,
                 );
             },
@@ -231,7 +219,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
-                    dzhemDataFilteredSummary['openToCartCurrent'],
+                    dzhemDataFilteredAvg['openToCartCurrent'],
                     renderAsPercent,
                 );
             },
@@ -242,7 +230,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
-                    dzhemDataFilteredSummary['cartToOrderCurrent'],
+                    dzhemDataFilteredAvg['cartToOrderCurrent'],
                     renderAsPercent,
                 );
             },
@@ -253,7 +241,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: (args) => {
                 return renderGradNumber(
                     args,
-                    dzhemDataFilteredSummary['addToCartCurrent'],
+                    dzhemDataFilteredAvg['addToCartCurrent'],
                     defaultRender,
                 );
             },
@@ -262,11 +250,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             placeholder: 'Заказов, шт.',
             name: 'ordersCurrent',
             render: (args) => {
-                return renderGradNumber(
-                    args,
-                    dzhemDataFilteredSummary['ordersCurrent'],
-                    defaultRender,
-                );
+                return renderGradNumber(args, dzhemDataFilteredAvg['ordersCurrent'], defaultRender);
             },
         },
         {
@@ -275,7 +259,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
-                    dzhemDataFilteredSummary['avgPositionCurrent'],
+                    dzhemDataFilteredAvg['avgPositionCurrent'],
                     defaultRender,
                     'desc',
                 );
@@ -287,7 +271,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
-                    dzhemDataFilteredSummary['visibilityCurrent'],
+                    dzhemDataFilteredAvg['visibilityCurrent'],
                     renderAsPercent,
                 );
             },
@@ -298,7 +282,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: (args) => {
                 return renderGradNumber(
                     args,
-                    dzhemDataFilteredSummary['frequencyCurrent'],
+                    dzhemDataFilteredAvg['frequencyCurrent'],
                     defaultRender,
                 );
             },
@@ -488,7 +472,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                                 filters={dzhemDataFilters}
                                 setFilters={setDzhemDataFilters}
                                 filterData={dzhemDataFilter}
-                                footerData={[dzhemDataFilteredSummary]}
+                                footerData={[dzhemDataFilteredFooter]}
                                 tableId={'dzhemTable'}
                                 usePagination={false}
                                 width="90vw"
