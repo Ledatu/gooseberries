@@ -478,7 +478,7 @@ export const AdvertsBidsModal = ({
                 >
                     <motion.div
                         style={{
-                            width: 230,
+                            width: 250,
                             overflow: 'hidden',
                             flexWrap: 'nowrap',
                             display: 'flex',
@@ -617,7 +617,7 @@ export const AdvertsBidsModal = ({
                                             'auction',
                                             'bestPlacement',
                                         ].includes(autoBidderOption[0])
-                                            ? 87
+                                            ? 88
                                             : 0,
                                     }}
                                 >
@@ -634,6 +634,7 @@ export const AdvertsBidsModal = ({
                                         <Checkbox
                                             checked={usePlacementsTrigger}
                                             onUpdate={(val) => setUsePlacementsTrigger(val)}
+                                            style={{whiteSpace: 'none'}}
                                         >
                                             Учитывать место в выдаче
                                         </Checkbox>
