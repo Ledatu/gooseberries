@@ -264,7 +264,10 @@ export const AdvertsBudgetsModal = ({
                                             }}
                                         >
                                             <Text>Бюджет на день</Text>
-                                            <HelpPopover content="Пополнит баланс РК до заданной суммы 1 раз в 00:00 по GMT+3, Москва" />
+                                            <HelpPopover
+                                                size="l"
+                                                content="Пополнит баланс РК до заданной суммы 1 раз в 00:00 по GMT+3, Москва"
+                                            />
                                         </div>
                                     ) : (
                                         'Пополнять баланс РК на'

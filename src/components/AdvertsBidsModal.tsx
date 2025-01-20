@@ -130,6 +130,7 @@ export const AdvertsBidsModal = ({
     });
 
     const [useAutoMaxCpm, setUseAutoMaxCpm] = useState(true);
+    const [usePlacementsTrigger, setUsePlacementsTrigger] = useState(false);
 
     const [cpmInputValue, setCpmInputValue] = useState('');
     const cpmInputValueValid = useMemo(() => {
@@ -172,6 +173,12 @@ export const AdvertsBidsModal = ({
         const temp = parseInt(placementsInputValue);
         return temp && temp > 0 && !isNaN(temp) && isFinite(temp);
     }, [placementsInputValue]);
+
+    const [placementsTriggerInputValue, setPlacementsTriggerInputValue] = useState('');
+    const placementsTriggerInputValueValid = useMemo(() => {
+        const temp = parseInt(placementsTriggerInputValue);
+        return temp && temp > 0 && !isNaN(temp) && isFinite(temp);
+    }, [placementsTriggerInputValue]);
 
     const [auctionInputValue, setAuctionInputValue] = useState('');
     const auctionInputValueValid = useMemo(() => {
@@ -229,6 +236,7 @@ export const AdvertsBidsModal = ({
         setSumOrdersInputValue('1000');
         setSumInputValue('1000');
         setPlacementsInputValue('50');
+        setPlacementsTriggerInputValue('50');
         setAuctionInputValue('50');
         setOborInputValue('30');
         setMaxCpmInputValue('1000');
@@ -330,6 +338,17 @@ export const AdvertsBidsModal = ({
                 />
             ),
             title: 'Введите оборачиваемость',
+        },
+        placementsTrigger: {
+            input: (
+                <TextInput
+                    size="l"
+                    value={placementsTriggerInputValue}
+                    validationState={placementsTriggerInputValueValid ? undefined : 'invalid'}
+                    onUpdate={(val) => setPlacementsTriggerInputValue(val)}
+                />
+            ),
+            title: 'Введите позицию в выдаче',
         },
         sellByDate: {
             input: (
@@ -545,7 +564,6 @@ export const AdvertsBidsModal = ({
                                         }
                                     </TextTitleWrapper>
                                 </motion.div>
-
                                 <motion.div
                                     style={{
                                         maxHeight: 0,
@@ -579,6 +597,57 @@ export const AdvertsBidsModal = ({
                                             padding={16}
                                         >
                                             {textInputs.maxCpm.input}
+                                        </TextTitleWrapper>
+                                    </motion.div>
+                                </motion.div>
+
+                                <motion.div
+                                    style={{
+                                        maxHeight: 0,
+                                        overflow: 'hidden',
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                    animate={{
+                                        maxHeight: autoBidderOption[0] != 'placements' ? 86.5 : 0,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            columnGap: 8,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            marginTop: 8,
+                                        }}
+                                    >
+                                        <Checkbox
+                                            checked={usePlacementsTrigger}
+                                            onUpdate={(val) => setUsePlacementsTrigger(val)}
+                                        >
+                                            Учитывать место в выдаче
+                                        </Checkbox>
+                                        <HelpPopover
+                                            size="l"
+                                            content="При достижении данной позиции биддер не будет больше поднимать ставку."
+                                        />
+                                    </div>
+                                    <motion.div
+                                        style={{height: 0, overflow: 'hidden', width: '100%'}}
+                                        animate={{
+                                            marginTop: usePlacementsTrigger ? 8 : 0,
+                                            height: usePlacementsTrigger ? 54 : 0,
+                                        }}
+                                    >
+                                        <TextTitleWrapper
+                                            title={textInputs.placementsTrigger.title}
+                                            padding={16}
+                                        >
+                                            {textInputs.placementsTrigger.input}
                                         </TextTitleWrapper>
                                     </motion.div>
                                 </motion.div>
@@ -710,6 +779,9 @@ export const AdvertsBidsModal = ({
                                             desiredCpo: parseInt(cpoInputValue),
                                             desiredSum: parseInt(sumInputValue),
                                             desiredObor: parseInt(oborInputValue),
+                                            placementsTrigger: usePlacementsTrigger
+                                                ? parseInt(placementsTriggerInputValue)
+                                                : undefined,
                                             desiredSumOrders: parseInt(sumOrdersInputValue),
                                             bid: parseInt(cpmInputValue),
                                             maxBid: parseInt(maxCpmInputValue),
