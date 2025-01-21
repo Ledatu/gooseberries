@@ -61,7 +61,12 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
         for (const [key, val] of Object.entries(names)) {
             elements.push(
                 <Checkbox
-                    content={val}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}
+                    content={<Text whiteSpace="nowrap">{val}</Text>}
                     defaultChecked={filtersRK[key]}
                     onUpdate={(value) => {
                         const states = {...filtersRK};
@@ -96,7 +101,6 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
                             left: -197,
                             top: -3,
                             padding: '0 8px',
-                            width: 210,
                         }}
                     >
                         <div
@@ -115,14 +119,13 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
                                 size="l"
                                 selected
                                 pin="circle-circle"
-                                style={{marginLeft: 8}}
                                 disabled={isFiltersSame}
                                 onClick={() => {
                                     setFilters(filtersRK);
                                     setShowPopup(false);
                                 }}
                             >
-                                <Text variant="subheader-1">Установить фильтр</Text>
+                                <Text variant="subheader-1">Сохранить</Text>
                             </Button>
                             <motion.div
                                 style={{
