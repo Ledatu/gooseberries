@@ -616,6 +616,7 @@ export const AdvertsBidsModal = ({
                                             'placements',
                                             'auction',
                                             'bestPlacement',
+                                            'delete',
                                         ].includes(autoBidderOption[0])
                                             ? 88
                                             : 0,

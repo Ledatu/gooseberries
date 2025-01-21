@@ -89,7 +89,7 @@ import {AdvertCreateModal} from 'src/components/AdvertCreateModal';
 import ApiClient from 'src/utilities/ApiClient';
 import {getEnumurationString} from 'src/utilities/getEnumerationString';
 import DzhemPhrasesModal from 'src/components/DzhemPhrasesModal';
-// import {PopupFilterArts} from 'src/components/PopupFilterArts';
+import {PopupFilterArts} from 'src/components/PopupFilterArts';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -195,12 +195,12 @@ export const MassAdvertPage = ({
     }, [sellerId]);
 
     const [selectedSearchPhrase, setSelectedSearchPhrase] = useState<string>('');
-    // const [filtersRK, setFiltersRK] = useState({
-    //     scheduleRules: false,
-    //     budgetRules: false,
-    //     phrasesRules: false,
-    //     bidderRules: false,
-    // });
+    const [filtersRK, setFiltersRK] = useState({
+        scheduleRules: false,
+        budgetRules: false,
+        phrasesRules: false,
+        bidderRules: false,
+    });
 
     const auctionOptions: any[] = [
         {value: 'Выдача', content: 'Выдача'},
@@ -1031,7 +1031,7 @@ export const MassAdvertPage = ({
                       >
                           <Icon data={Magnifier} size={14} />
                       </Button>,
-                      //   <PopupFilterArts setFilters={setFiltersRK} filters={filtersRK} />,
+                      <PopupFilterArts setFilters={setFiltersRK} filters={filtersRK} />,
 
                       <div
                           style={{
@@ -3290,6 +3290,10 @@ export const MassAdvertPage = ({
         filterTableData(withfFilters, temp, undefined, daterng);
     };
 
+    useEffect(() => {
+        recalc(dateRange);
+    }, [filtersRK]);
+
     const getBalanceYagrData = () => {
         const balanceLog =
             doc.balances && doc.balances[selectValue[0]]
@@ -3461,6 +3465,9 @@ export const MassAdvertPage = ({
 
             let addFlag = true;
             const useFilters = withfFilters['undef'] ? withfFilters : filters;
+            if (Object.values(filtersRK).includes(true)) useFilters['filtersRK'] = filtersRK;
+            else delete useFilters['filtersRK'];
+
             for (const [filterArg, filterData] of Object.entries(useFilters)) {
                 if (filterArg == 'undef' || !filterData) continue;
                 if (filterData['val'] == '' && filterArg != 'placements') continue;
@@ -3468,9 +3475,9 @@ export const MassAdvertPage = ({
                 const fldata = filterData['val'];
                 const flarg = tempTypeRow[filterArg];
 
-                if (fldata.trim() == '+') {
+                if (flarg && fldata.trim() == '+') {
                     if (flarg !== undefined) continue;
-                } else if (fldata.trim() == '-') {
+                } else if (flarg && fldata.trim() == '-') {
                     if (flarg === undefined) continue;
                 }
 
@@ -3515,6 +3522,30 @@ export const MassAdvertPage = ({
                         addFlag = false;
                         break;
                     }
+                } else if (filterArg == 'filtersRK') {
+                    const adverts = tempTypeRow['adverts'];
+
+                    let add = false;
+                    if (adverts)
+                        for (const id of Object.keys(adverts)) {
+                            if (
+                                filtersRK['bidderRules'] &&
+                                !doc?.advertsAutoBidsRules?.[selectValue[0]]?.[id]
+                            )
+                                add = true;
+                            if (filtersRK['budgetRules'] && !advertBudgetRules[id]) add = true;
+                            if (
+                                filtersRK['phrasesRules'] &&
+                                !doc?.advertsPlusPhrasesTemplates?.[selectValue[0]]?.[id]
+                            )
+                                add = true;
+                            if (
+                                filtersRK['scheduleRules'] &&
+                                !doc?.advertsSchedules?.[selectValue[0]]?.[id]
+                            )
+                                add = true;
+                        }
+                    if (!add) addFlag = false;
                 } else if (filterArg == 'placements') {
                     if (filterData['val'] == '') {
                         setPlacementsDisplayPhrase('');
