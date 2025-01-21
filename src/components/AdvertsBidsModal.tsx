@@ -478,7 +478,6 @@ export const AdvertsBidsModal = ({
                 >
                     <motion.div
                         style={{
-                            width: 250,
                             overflow: 'hidden',
                             flexWrap: 'nowrap',
                             display: 'flex',
