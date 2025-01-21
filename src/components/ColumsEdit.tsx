@@ -9,7 +9,7 @@ import {
     PopoverInstanceProps,
 } from '@gravity-ui/uikit';
 import {LayoutColumns3} from '@gravity-ui/icons';
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 
 export const arrayMove = (arrayTemp, oldIndex, newIndex) => {
     const arr = [...arrayTemp];
@@ -32,6 +32,7 @@ export const arrayMove = (arrayTemp, oldIndex, newIndex) => {
 
 export const ColumnsEdit = ({columns, setColumns, columnDataObj, saveColumnsData}) => {
     const popoverRef = useRef<PopoverInstanceProps>(null);
+    const [rerenderList, setRerenderList] = useState(true);
 
     const close = () => {
         popoverRef.current?.closeTooltip();
@@ -86,6 +87,7 @@ export const ColumnsEdit = ({columns, setColumns, columnDataObj, saveColumnsData
                                 const {key, visibility} = item as any;
                                 return (
                                     <div
+                                        key={key}
                                         style={{
                                             display: 'flex',
                                             flexDirection: 'row',
@@ -93,7 +95,7 @@ export const ColumnsEdit = ({columns, setColumns, columnDataObj, saveColumnsData
                                         }}
                                     >
                                         <Checkbox
-                                            defaultChecked={visibility}
+                                            checked={visibility}
                                             onUpdate={(value) => toggleColumnVisibility(key, value)}
                                         />
                                         <div style={{minWidth: 4}} />
@@ -102,7 +104,9 @@ export const ColumnsEdit = ({columns, setColumns, columnDataObj, saveColumnsData
                                 );
                             }}
                             onSortEnd={({oldIndex, newIndex}) => {
-                                setColumns(arrayMove(columns, oldIndex, newIndex));
+                                const movedArray = arrayMove(columns, oldIndex, newIndex);
+                                setColumns(movedArray);
+                                setRerenderList(rerenderList);
                             }}
                         />
                         <Button
