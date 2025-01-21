@@ -98,12 +98,29 @@ export const AutoFeedbackAnsweringPage = ({
             console.error(error);
         }
     };
-    useState(() => {
+    useEffect(() => {
         getValuation();
-    });
+    }, []);
+
+    const [artsData, setArtsData] = useState({});
+    const getArtsData = async () => {
+        if (sellerId == '') return;
+        const params = {seller_id: sellerId, key: 'byNmId'};
+        const artsDataTemp = await callApi('getArtsData', params).catch((e) => {
+            console.log(e);
+        });
+        console.log('getArtsData', params, artsDataTemp);
+        if (artsDataTemp && artsDataTemp['data']) setArtsData(artsDataTemp['data']);
+        else setArtsData({});
+    };
+    useEffect(() => {
+        getArtsData();
+    }, [sellerId]);
+
     const columns = [
         {
             name: 'name',
+            valueType: 'text',
             placeholder: 'Название',
             render: ({value, row}) => {
                 return (
@@ -149,6 +166,8 @@ export const AutoFeedbackAnsweringPage = ({
                             </Button>
                             <div style={{minWidth: 8}} />
                             <AutoFeedbackTemplateCreationModal
+                                feedbackValuations={feedbackValuations}
+                                artsData={artsData}
                                 sellerId={sellerId}
                                 setRefetch={setRefetch}
                                 templateValues={row}
@@ -164,6 +183,7 @@ export const AutoFeedbackAnsweringPage = ({
         },
         // {name: 'priority', placeholder: 'Приоритет'},
         {
+            valueType: 'text',
             name: 'text',
             placeholder: 'Шаблон ответа',
             render: ({value}) => {
@@ -175,6 +195,7 @@ export const AutoFeedbackAnsweringPage = ({
             },
         },
         {
+            valueType: 'text',
             name: 'valuations',
             placeholder: 'Жалобы',
             render: ({row}) => {
@@ -260,6 +281,7 @@ export const AutoFeedbackAnsweringPage = ({
         },
         // {name: 'containsMedia', placeholder: 'Фото или видео'},
         {
+            valueType: 'text',
             name: 'doNotContain',
             placeholder: 'Минус слова',
             render: ({value}) => {
@@ -272,6 +294,7 @@ export const AutoFeedbackAnsweringPage = ({
             },
         },
         {
+            valueType: 'text',
             name: 'contains',
             placeholder: 'Ключевые слова',
             render: ({value}) => {
@@ -284,6 +307,7 @@ export const AutoFeedbackAnsweringPage = ({
             },
         },
         {
+            valueType: 'text',
             name: 'bindingKeys',
             placeholder: 'Привязка',
             render: ({value}) => {
@@ -311,7 +335,12 @@ export const AutoFeedbackAnsweringPage = ({
             }}
         >
             <div style={{position: 'absolute', left: 0, top: -44}}>
-                <AutoFeedbackTemplateCreationModal sellerId={sellerId} setRefetch={setRefetch}>
+                <AutoFeedbackTemplateCreationModal
+                    feedbackValuations={feedbackValuations}
+                    sellerId={sellerId}
+                    setRefetch={setRefetch}
+                    artsData={artsData}
+                >
                     <Button size="l" view="action">
                         <Icon data={Plus} />
                         <Text variant="subheader-1">Добавить шаблон</Text>

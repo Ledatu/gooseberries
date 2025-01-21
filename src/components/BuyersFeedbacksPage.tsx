@@ -82,7 +82,7 @@ export const BuyersFeedbacksPage = ({
 
     const [artsData, setArtsData] = useState({});
     const getArtsData = async () => {
-        if (sellerId == '') setArtsData({});
+        if (sellerId == '') return;
         const params = {seller_id: sellerId, key: 'byNmId'};
         const artsDataTemp = await callApi('getArtsData', params).catch((e) => {
             console.log(e);
@@ -92,7 +92,7 @@ export const BuyersFeedbacksPage = ({
         else setArtsData({});
     };
     const getArtsTags = async () => {
-        if (sellerId == '') setArtsTags({});
+        if (sellerId == '') return;
         const params = {seller_id: sellerId};
         const artsTagsTemp = await callApi('getArtsTags', params).catch((e) => {
             console.log(e);
@@ -166,6 +166,12 @@ export const BuyersFeedbacksPage = ({
                         if (tempFlagInc != rulesForAnd.length) {
                             addFlag = false;
                             continue;
+                        }
+                    } else if (filterArg == 'answer') {
+                        const text = tempTypeRow[filterArg]?.text ?? '';
+                        if (!compare(text, filterData)) {
+                            addFlag = false;
+                            break;
                         }
                     } else if (!compare(tempTypeRow[filterArg], filterData)) {
                         addFlag = false;
@@ -405,8 +411,9 @@ export const BuyersFeedbacksPage = ({
             group: true,
         },
 
-        {name: 'createdDate', placeholder: 'Дата', render: renderAsDate},
+        {name: 'createdDate', placeholder: 'Дата', render: renderAsDate, valueType: 'text'},
         {
+            valueType: 'text',
             name: 'valuations',
             placeholder: 'Жалобы',
             render: ({row}) => {
@@ -474,7 +481,6 @@ export const BuyersFeedbacksPage = ({
                 );
             },
         },
-
         {
             valueType: 'text',
             name: 'cons',
@@ -499,7 +505,6 @@ export const BuyersFeedbacksPage = ({
                 );
             },
         },
-
         {
             valueType: 'text',
             name: 'answer',

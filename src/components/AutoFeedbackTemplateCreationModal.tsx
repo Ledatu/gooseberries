@@ -21,7 +21,6 @@ import React, {
     useState,
 } from 'react';
 import {motion} from 'framer-motion';
-import callApi from 'src/utilities/callApi';
 import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import ApiClient from 'src/utilities/ApiClient';
@@ -30,12 +29,16 @@ interface AutoFeedbackTemplateCreationModalInterface {
     children: ReactElement | ReactElement[];
     sellerId: string;
     setRefetch: Function;
+    artsData: any;
+    feedbackValuations: any;
     templateValues?: any;
 }
 
 export const AutoFeedbackTemplateCreationModal = ({
     children,
     sellerId,
+    artsData,
+    feedbackValuations,
     setRefetch,
     templateValues,
 }: AutoFeedbackTemplateCreationModalInterface) => {
@@ -58,23 +61,8 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [starsButtonsState, setStarsButtonsState] = useState<Boolean[]>([false]);
 
     // const [productValuations, setProductValuations] = useState([] as any[]);
-    const [feedbackValuations, setFeedbackValuations] = useState([] as any[]);
     const [currentProductValuations, setCurrentProductValuations] = useState(0);
     const [currentFeedbackValuations, setCurrentFeedbackValuations] = useState(0);
-    const [artsData, setArtsData] = useState({});
-    const getArtsData = async () => {
-        if (sellerId == '') setArtsData({});
-        const params = {seller_id: sellerId, key: 'byNmId'};
-        const artsDataTemp = await callApi('getArtsData', params).catch((e) => {
-            console.log(e);
-        });
-        console.log('getArtsData', params, artsDataTemp);
-        if (artsDataTemp && artsDataTemp['data']) setArtsData(artsDataTemp['data']);
-        else setArtsData({});
-    };
-    useEffect(() => {
-        getArtsData();
-    }, [sellerId]);
 
     const bindingOptions = [
         {value: 'none', content: 'Задать параметры'},
@@ -93,35 +81,6 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [userRatings, setUserRatings] = useState<Number[]>([]);
 
     const {availableTags, availableTagsPending, selectValue} = useCampaign();
-
-    const getValuation = async () => {
-        try {
-            const params = {seller_id: sellerId};
-            const response = await ApiClient.post(
-                'buyers/get-feedback-and-product-valuation',
-                params,
-            );
-            console.log(response);
-            if (!response?.data) {
-                throw new Error(`Cant get valuations for campaign ${sellerId}`);
-            }
-            const valuations = response?.data?.valuations;
-            console.log(valuations);
-            const {feedbackValuation, productValuation} = valuations;
-            const fv = [{value: 0, content: 'Без жалобы'}];
-            for (const val of feedbackValuation) {
-                fv.push({value: val.id, content: val.reason});
-            }
-            const pv = [{value: 0, content: 'Без жалобы'}];
-            for (const val of productValuation) {
-                pv.push({value: val.id, content: val.reason});
-            }
-            setFeedbackValuations([...fv]);
-            // setProductValuations([...pv]);
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     useEffect(() => {
         setStarsButtonsState([false, false, false, false, false]);
@@ -170,9 +129,6 @@ export const AutoFeedbackTemplateCreationModal = ({
     //     }
     //     return stars;
     // };
-    useEffect(() => {
-        getValuation();
-    }, [sellerId]);
 
     useEffect(() => {
         if (binding[0] == 'tags') setAvailableBindingKeys(availableTags);
