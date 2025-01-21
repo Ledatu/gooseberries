@@ -831,7 +831,7 @@ const PageElem = ({
         ),
         prices: <PricesPage permission={permission} sellerId={sellerId} />,
         nomenclatures: <NomenclaturesPage permission={permission} sellerId={sellerId} />,
-        analytics: <AnalyticsPage permission={permission} />,
+        analytics: <AnalyticsPage permission={permission} sellerId={sellerId} />,
         buyers: <BuyersPage permission={permission} sellerId={sellerId} />,
         reports: <DetailedReportsPage sellerId={sellerId} />,
         seo: <SEOPage />,

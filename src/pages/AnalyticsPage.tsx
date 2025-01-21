@@ -37,6 +37,7 @@ import {ColumnsEdit} from 'src/components/ColumsEdit';
 import {ManageDeletionOfOldPlansModal} from 'src/components/ManageDeletionOfOldPlansModal';
 import {useUser} from 'src/components/RequireAuth';
 import {useCampaign} from 'src/contexts/CampaignContext';
+import ApiClient from 'src/utilities/ApiClient';
 
 const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -69,10 +70,9 @@ const getUserDoc = (dateRange, docum = undefined, mode = false, selectValue = ''
     return doc;
 };
 
-export const AnalyticsPage = ({permission}) => {
+export const AnalyticsPage = ({permission, sellerId}) => {
     const {selectValue, setSwitchingCampaignsFlag} = useCampaign();
 
-    const apiPageColumnsVal = localStorage.getItem('apiPageColumns');
     const [selectedButton, setSelectedButton] = useState('');
 
     const [planModalOpen, setPlanModalOpen] = useState(false);
@@ -87,6 +87,49 @@ export const AnalyticsPage = ({permission}) => {
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
 
+    // const defaulColumnsShow = [
+    //     {key: 'entity', visibility: true},
+    //     {key: 'date', visibility: true},
+    //     {key: 'sum', visibility: true},
+    //     {key: 'sum_orders', visibility: true},
+    //     {key: 'orders', visibility: true},
+    //     {key: 'avgCost', visibility: true},
+    //     {key: 'sum_sales', visibility: true},
+    //     {key: 'sales', visibility: true},
+    //     {key: 'profit', visibility: true},
+    //     {key: 'rentabelnost', visibility: true},
+    //     {key: 'rentSales', visibility: true},
+    //     {key: 'rentPrimeCost', visibility: true},
+    //     {key: 'salesPrimeCost', visibility: true},
+    //     {key: 'tax', visibility: true},
+    //     {key: 'expences', visibility: true},
+    //     {key: 'logistics', visibility: true},
+    //     {key: 'logisticsPercent', visibility: true},
+    //     {key: 'drr_orders', visibility: true},
+    //     {key: 'drr_sales', visibility: true},
+    //     {key: 'romi', visibility: true},
+    //     {key: 'stocks', visibility: true},
+    //     {key: 'skuInStock', visibility: true},
+    //     {key: 'primeCost', visibility: true},
+    //     {key: 'obor', visibility: true},
+    //     {key: 'oborSales', visibility: true},
+    //     {key: 'orderPrice', visibility: true},
+    //     {key: 'buyoutsPercent', visibility: true},
+    //     {key: 'cr', visibility: true},
+    //     {key: 'addToCartPercent', visibility: true},
+    //     {key: 'cartToOrderPercent', visibility: true},
+    //     {key: 'storageCost', visibility: true},
+    //     {key: 'views', visibility: true},
+    //     {key: 'clicks', visibility: true},
+    //     {key: 'ctr', visibility: true},
+    //     {key: 'cpc', visibility: true},
+    //     {key: 'cpm', visibility: true},
+    //     {key: 'openCardCount', visibility: true},
+    //     {key: 'sppPrice', visibility: true},
+    //     {key: 'addToCartCount', visibility: true},
+    //     {key: 'cpl', visibility: true},
+    // ];
+    // const [columnsToShowData, setColumnsToShowData] = useState(defaulColumnsShow);
     const columnDataObj = {
         entity: {
             valueType: 'text',
@@ -444,6 +487,52 @@ export const AnalyticsPage = ({permission}) => {
             render: (args) => renderWithGraph(args, 'cpl', 'CPL, ₽'),
         },
     };
+    const [columnsDataToShow, setColumnsDataToShow] = useState([] as any);
+
+    const getColumnsData = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            const response = await ApiClient.post('analytics/get-columns-analytics', params);
+            if (!response?.data) {
+                throw new Error('No columns Data');
+            }
+            const data = response.data;
+            if (!data.columns) {
+                throw new Error('No columns Data');
+            }
+            console.log(data.columns);
+            const columns = Object.keys(columnDataObj);
+            const columnsData = data.columns;
+            const columnsKeyData = columnsData.map((column) => column.key);
+            const columnsNotExists = columns.filter((x) => !columnsKeyData.includes(x));
+            for (const column of columnsNotExists) {
+                columnsData.push({key: column, visibility: true});
+            }
+            console.log(columnsData);
+            setColumnsDataToShow(columnsData);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const saveColumnsData = async () => {
+        try {
+            const params = {seller_id: sellerId, columns: columnsDataToShow};
+            const response = await ApiClient.post('analytics/set-columns-analytics', params);
+            if (!response?.data) {
+                throw new Error('No columns Data');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    useEffect(() => {
+        getColumnsData();
+    }, [sellerId]);
+    const [columnsArray, setColumnsArray] = useState([] as any);
+    useEffect(() => {
+        const arr = columnsDataToShow.filter((column) => column.visibility);
+        setColumnsArray(arr);
+    }, [columnsDataToShow]);
 
     const columnDataReversed = (() => {
         const temp = {};
@@ -663,21 +752,8 @@ export const AnalyticsPage = ({permission}) => {
             </div>
         );
     };
-    const columnTempState = Object.keys(columnDataObj);
 
-    const apiPageColumnsInitial =
-        apiPageColumnsVal !== 'undefined' &&
-        apiPageColumnsVal &&
-        JSON.parse(apiPageColumnsVal).length == columnTempState.length
-            ? JSON.parse(apiPageColumnsVal)
-            : columnTempState;
     // : columnTempState;
-
-    const [apiPageColumns, setApiPageColumns] = useState(apiPageColumnsInitial);
-
-    useEffect(() => {
-        localStorage.setItem('apiPageColumns', JSON.stringify(apiPageColumns));
-    }, [apiPageColumns]);
 
     const [entityKeysLastCalc, setEntityKeysLastCalc] = useState([] as any[]);
     const [enteredKeysDateTypeLastCalc, setEnteredKeysDateTypeLastCalc] = useState('');
@@ -743,9 +819,10 @@ export const AnalyticsPage = ({permission}) => {
 
     const columnData = (() => {
         const temp = [] as any[];
-        for (const key of apiPageColumns) {
-            const tempColumn = columnDataObj[key] ?? {};
-            tempColumn['name'] = key;
+        for (const key of columnsArray) {
+            const name = key.key;
+            const tempColumn = columnDataObj[name] ?? {};
+            tempColumn['name'] = name;
             temp.push(tempColumn);
         }
         return temp;
@@ -2002,9 +2079,10 @@ export const AnalyticsPage = ({permission}) => {
                     }}
                 >
                     <ColumnsEdit
-                        columns={apiPageColumns}
-                        setColumns={setApiPageColumns}
+                        columns={columnsDataToShow}
+                        setColumns={setColumnsDataToShow}
                         columnDataObj={columnDataObj}
+                        saveColumnsData={saveColumnsData}
                     />
                     <div style={{minWidth: 8}} />
                     <Button

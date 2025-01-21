@@ -1,6 +1,15 @@
-import {Button, Card, Icon, List, Popover, Text} from '@gravity-ui/uikit';
+import {
+    Button,
+    Card,
+    Icon,
+    List,
+    Checkbox,
+    Popover,
+    Text,
+    PopoverInstanceProps,
+} from '@gravity-ui/uikit';
 import {LayoutColumns3} from '@gravity-ui/icons';
-import React from 'react';
+import React, {useRef} from 'react';
 
 export const arrayMove = (arrayTemp, oldIndex, newIndex) => {
     const arr = [...arrayTemp];
@@ -21,9 +30,22 @@ export const arrayMove = (arrayTemp, oldIndex, newIndex) => {
     return arr;
 };
 
-export const ColumnsEdit = ({columns, setColumns, columnDataObj}) => {
+export const ColumnsEdit = ({columns, setColumns, columnDataObj, saveColumnsData}) => {
+    const popoverRef = useRef<PopoverInstanceProps>(null);
+
+    const close = () => {
+        popoverRef.current?.closeTooltip();
+    };
+    const toggleColumnVisibility = (key: string, value: boolean) => {
+        setColumns((prevColumns) =>
+            prevColumns.map((col) => (col.key === key ? {...col, visibility: value} : col)),
+        );
+    };
+    // const [initialColumnData, setInitialColumnData] = useState(Object.keys(columnDataObj));
+    // const [tempColumns, setTempColumns] = useState(Object.keys(columnDataObj));
     return (
         <Popover
+            ref={popoverRef}
             content={
                 <div
                     style={{
@@ -38,23 +60,30 @@ export const ColumnsEdit = ({columns, setColumns, columnDataObj}) => {
                         theme="warning"
                         style={{
                             position: 'absolute',
-                            background: 'var(--g-color-base-background)',
                             height: 300,
-                            width: 200,
+                            width: 250,
                             padding: 8,
                             overflow: 'auto',
                             top: -10,
                             left: -9,
                             display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            backdropFilter: 'blur(8px)',
+                            background: '#221d220f',
+                            // boxShadow: '#0006 0px 2px 8px 0px',
+                            border: '1px solid #eee2',
+                            borderRadius: '0px 0px 8px 8px',
                         }}
                     >
                         <List
-                            sortable
+                            sortable={true}
                             filterable={false}
                             itemHeight={28}
                             items={columns}
                             sortHandleAlign="right"
                             renderItem={(item) => {
+                                const {key, visibility} = item as any;
                                 return (
                                     <div
                                         style={{
@@ -63,9 +92,12 @@ export const ColumnsEdit = ({columns, setColumns, columnDataObj}) => {
                                             alignItems: 'center',
                                         }}
                                     >
-                                        {/* <Checkbox defaultChecked /> */}
-                                        {/* <div style={{minWidth: 4}} /> */}
-                                        <Text>{columnDataObj[item as string].placeholder}</Text>
+                                        <Checkbox
+                                            defaultChecked={visibility}
+                                            onUpdate={(value) => toggleColumnVisibility(key, value)}
+                                        />
+                                        <div style={{minWidth: 4}} />
+                                        <Text>{columnDataObj[key].placeholder}</Text>
                                     </div>
                                 );
                             }}
@@ -73,6 +105,15 @@ export const ColumnsEdit = ({columns, setColumns, columnDataObj}) => {
                                 setColumns(arrayMove(columns, oldIndex, newIndex));
                             }}
                         />
+                        <Button
+                            style={{marginTop: '8px'}}
+                            onClick={() => {
+                                saveColumnsData();
+                                close();
+                            }}
+                        >
+                            <Text>Сохранить положение столбцов</Text>
+                        </Button>
                     </Card>
                 </div>
             }
