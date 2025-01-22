@@ -37,6 +37,7 @@ import {AutoPhrasesWordsSelection} from './AutoPhrasesWordsSelection';
 import {TextTitleWrapper} from './TextTitleWrapper';
 import {useCampaign} from 'src/contexts/CampaignContext';
 import {renderGradNumber} from 'src/utilities/renderGradNumber';
+import {getMedian} from 'src/utilities/getMedian';
 
 export const AdvertsWordsModal = ({
     children,
@@ -176,6 +177,31 @@ export const AdvertsWordsModal = ({
         template: {cluster: {summary: 0}},
     });
 
+    const [semanticsFilteredSummaryMedian, setSemanticsFilteredSummaryMedian] = useState({
+        active: {
+            cluster: '',
+            cpc: 0,
+            sum: 0,
+            count: 0,
+            ctr: 0,
+            clicks: 0,
+            freq: 0,
+            freqTrend: 0,
+            placements: null,
+        },
+        minus: {
+            cluster: '',
+            freq: 0,
+            freqTrend: 0,
+            count: 0,
+            clicks: 0,
+            sum: 0,
+            cpc: 0,
+            ctr: 0,
+            placements: null,
+        },
+        template: {cluster: {summary: 0}},
+    });
     const [clustersFiltersActive, setClustersFiltersActive] = useState({undef: false});
     const clustersFilterDataActive = (withfFilters: any, clusters: any[]) => {
         const _clustersFilters = withfFilters ?? clustersFiltersActive;
@@ -226,6 +252,14 @@ export const AdvertsWordsModal = ({
             semanticsFilteredSummaryAvg.active[key] = Math.round(val / _clusters.length);
         }
         setSemanticsFilteredSummaryAvg(semanticsFilteredSummaryAvg);
+        console.log('clusters', clusters);
+        semanticsFilteredSummaryMedian.active = getMedian(
+            clusters,
+            semanticsFilteredSummaryMedian.active,
+        ) as any;
+        console.log('median active', semanticsFilteredSummaryMedian.active);
+
+        setSemanticsFilteredSummaryMedian(semanticsFilteredSummaryMedian);
     };
 
     const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
@@ -283,6 +317,12 @@ export const AdvertsWordsModal = ({
         }
 
         setSemanticsFilteredSummaryAvg(semanticsFilteredSummaryAvg);
+        semanticsFilteredSummaryMedian.minus = getMedian(
+            clusters,
+            semanticsFilteredSummaryMedian.active,
+        ) as any;
+        console.log('median minus', semanticsFilteredSummaryMedian.minus);
+        setSemanticsFilteredSummaryMedian(semanticsFilteredSummaryMedian);
     };
 
     useEffect(() => {
@@ -782,7 +822,7 @@ export const AdvertsWordsModal = ({
                         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                             {renderGradNumber(
                                 {value: value, footer},
-                                semanticsFilteredSummaryAvg.minus['freq'],
+                                semanticsFilteredSummaryMedian.active['freq'],
                                 defaultRender,
                             )}
                             {freqTrend ? (
@@ -811,7 +851,7 @@ export const AdvertsWordsModal = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.active['count'],
+                    semanticsFilteredSummaryMedian.active['count'],
                     defaultRender,
                 );
             },
@@ -822,7 +862,7 @@ export const AdvertsWordsModal = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.active['clicks'],
+                    semanticsFilteredSummaryMedian.active['clicks'],
                     defaultRender,
                 );
             },
@@ -833,7 +873,7 @@ export const AdvertsWordsModal = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.active['ctr'],
+                    semanticsFilteredSummaryMedian.active['ctr'],
                     renderAsPercent,
                 );
             },
@@ -844,7 +884,7 @@ export const AdvertsWordsModal = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.active['cpc'],
+                    semanticsFilteredSummaryMedian.active['cpc'],
                     defaultRender,
                     'desc',
                 );
@@ -1264,7 +1304,7 @@ export const AdvertsWordsModal = ({
                         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                             {renderGradNumber(
                                 {value: value, footer},
-                                semanticsFilteredSummaryAvg.minus['freq'],
+                                semanticsFilteredSummaryMedian.minus['freq'],
                                 defaultRender,
                             )}
                             {freqTrend ? (
@@ -1293,7 +1333,7 @@ export const AdvertsWordsModal = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.minus['count'],
+                    semanticsFilteredSummaryMedian.minus['count'],
                     defaultRender,
                 );
             },
@@ -1304,7 +1344,7 @@ export const AdvertsWordsModal = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.minus['clicks'],
+                    semanticsFilteredSummaryMedian.minus['clicks'],
                     defaultRender,
                 );
             },
@@ -1315,7 +1355,7 @@ export const AdvertsWordsModal = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.minus['ctr'],
+                    semanticsFilteredSummaryMedian.minus['ctr'],
                     renderAsPercent,
                 );
             },
@@ -1326,7 +1366,7 @@ export const AdvertsWordsModal = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: value, footer},
-                    semanticsFilteredSummaryAvg.active['cpc'],
+                    semanticsFilteredSummaryMedian.active['cpc'],
                     defaultRender,
                     'desc',
                 );
