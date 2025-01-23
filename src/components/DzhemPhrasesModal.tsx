@@ -196,6 +196,20 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         setDzhemDataFilteredFooter(dzhemDataFilteredFooterTemp);
         setDzhemDataFilteredAvg(dzhemDataFilteredAvgTemp);
         const mediana = getMedian(_stats, dzhemDataFilteredFooterTemp);
+        for (const [key, val] of Object.entries(dzhemDataFilteredFooterTemp)) {
+            if (typeof val !== 'number') continue;
+            if (
+                [
+                    'openToCartCurrent',
+                    'cartToOrderCurrent',
+                    'avgPositionCurrent',
+                    'visibilityCurrent',
+                ].includes(key)
+            ) {
+                dzhemDataFilteredFooterTemp[key] = mediana[key];
+                continue;
+            }
+        }
         console.log(dzhemDataFilteredAvg);
         setDzhemDataFilteredMed(mediana as any);
     };

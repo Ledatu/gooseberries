@@ -306,7 +306,6 @@ export const AdvertsWordsModal = ({
         const {sum, count, clicks} = semanticsFilteredSummary.minus;
         semanticsFilteredSummary.minus.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
         semanticsFilteredSummary.minus.ctr = getRoundValue(clicks, count, true);
-        setSemanticsFilteredSummary(semanticsFilteredSummary);
         for (const [key, val] of Object.entries(semanticsFilteredSummary.minus)) {
             if (typeof val !== 'number') continue;
             if (key === 'cpc' || key === 'ctr') {
@@ -323,6 +322,14 @@ export const AdvertsWordsModal = ({
         ) as any;
         console.log('median minus', semanticsFilteredSummaryMedian.minus);
         setSemanticsFilteredSummaryMedian(semanticsFilteredSummaryMedian);
+
+        for (const [key, val] of Object.entries(semanticsFilteredSummary.minus)) {
+            if (typeof val !== 'number') continue;
+            if (key === 'cpc' || key === 'ctr') {
+                semanticsFilteredSummary.minus[key] = semanticsFilteredSummaryMedian.minus[key];
+            }
+        }
+        setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
 
     useEffect(() => {
