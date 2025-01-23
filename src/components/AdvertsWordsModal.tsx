@@ -254,7 +254,7 @@ export const AdvertsWordsModal = ({
         setSemanticsFilteredSummaryAvg(semanticsFilteredSummaryAvg);
         console.log('clusters', clusters);
         semanticsFilteredSummaryMedian.active = getMedian(
-            clusters,
+            _clusters,
             semanticsFilteredSummaryMedian.active,
         ) as any;
         console.log('median active', semanticsFilteredSummaryMedian.active);
@@ -318,7 +318,7 @@ export const AdvertsWordsModal = ({
 
         setSemanticsFilteredSummaryAvg(semanticsFilteredSummaryAvg);
         semanticsFilteredSummaryMedian.minus = getMedian(
-            clusters,
+            _clusters,
             semanticsFilteredSummaryMedian.active,
         ) as any;
         console.log('median minus', semanticsFilteredSummaryMedian.minus);

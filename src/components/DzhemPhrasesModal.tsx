@@ -195,7 +195,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         }
         setDzhemDataFilteredFooter(dzhemDataFilteredFooterTemp);
         setDzhemDataFilteredAvg(dzhemDataFilteredAvgTemp);
-        const mediana = getMedian(stats, dzhemDataFilteredFooterTemp);
+        const mediana = getMedian(_stats, dzhemDataFilteredFooterTemp);
         console.log(dzhemDataFilteredAvg);
         setDzhemDataFilteredMed(mediana as any);
     };
