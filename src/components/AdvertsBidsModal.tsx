@@ -574,7 +574,7 @@ export const AdvertsBidsModal = ({
                                         alignItems: 'center',
                                     }}
                                     animate={{
-                                        maxHeight: autoBidderOption[0] != 'delete' ? 86.5 : 0,
+                                        maxHeight: autoBidderOption[0] != 'delete' ? 90 : 0,
                                     }}
                                 >
                                     <Checkbox
@@ -644,10 +644,10 @@ export const AdvertsBidsModal = ({
                                         />
                                     </div>
                                     <motion.div
-                                        style={{height: 0, overflow: 'hidden', width: '100%'}}
+                                        style={{maxHeight: 0, overflow: 'hidden', width: '100%'}}
                                         animate={{
                                             marginTop: usePlacementsTrigger ? 8 : 0,
-                                            height: usePlacementsTrigger ? 54 : 0,
+                                            maxHeight: usePlacementsTrigger ? 70 : 0,
                                         }}
                                     >
                                         <TextTitleWrapper
