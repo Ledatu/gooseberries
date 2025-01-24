@@ -1,4 +1,4 @@
-import {Button, Card, Icon, Text, Tooltip} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Text} from '@gravity-ui/uikit';
 import {
     TrashBin,
     Clock,
@@ -51,139 +51,134 @@ const BidRuleInfo = ({rule}) => {
     const toDisplay = useMemo(() => {
         if (autoBidsMode == 'placements')
             return (
-                <Tooltip content="Место в выдаче">
-                    <IconWithText
-                        text={placementsRange?.to}
-                        // variant="caption-2"
-                        icon={BarsAscendingAlignLeftArrowUp}
-                        size={13}
-                    />
-                </Tooltip>
+                <IconWithText
+                    text={placementsRange?.to}
+                    tooltipText={'Место в выдаче'}
+                    // variant="caption-2"
+                    icon={BarsAscendingAlignLeftArrowUp}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'auction')
             return (
-                <Tooltip content="Позиция в аукционе">
-                    <IconWithText
-                        text={placementsRange?.to}
-                        // variant="caption-2"
-                        icon={BarsAscendingAlignLeftArrowUp}
-                        size={13}
-                    />
-                </Tooltip>
+                <IconWithText
+                    text={placementsRange?.to}
+                    tooltipText={'Позиция в аукционе'}
+                    // variant="caption-2"
+                    icon={BarsAscendingAlignLeftArrowUp}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'bestPlacement')
             return (
-                <Tooltip content="Топ позиция">
-                    <IconWithText
-                        text={'Топ'}
-                        // variant="caption-2"
-                        icon={BarsAscendingAlignLeftArrowUp}
-                        size={13}
-                    />
-                </Tooltip>
+                <IconWithText
+                    text={'Топ'}
+                    tooltipText={'Топ позиция в выдаче'}
+                    // variant="caption-2"
+                    icon={BarsAscendingAlignLeftArrowUp}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'obor')
             return (
-                <Tooltip content={`Оборачиваемость`}>
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            columnGap: 8,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <IconWithText
-                            text={`${desiredObor} д.`}
-                            // variant="caption-2"
-                            icon={ArrowsRotateLeft}
-                            size={13}
-                        />
-                        <IconWithText
-                            text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                            // variant="caption-2"
-                            icon={ShoppingCart}
-                            size={13}
-                        />
-                    </div>
-                </Tooltip>
-            );
-        if (autoBidsMode == 'sum_orders')
-            return (
-                <Tooltip content={`Сумма заказов, ₽`}>
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            columnGap: 8,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <IconWithText
-                            text={`${desiredSumOrders} ₽`}
-                            // variant="caption-2"
-                            icon={ShoppingCart}
-                            size={13}
-                        />
-                        <IconWithText
-                            text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                            // variant="caption-2"
-                            icon={ShoppingCart}
-                            size={13}
-                        />
-                    </div>
-                </Tooltip>
-            );
-        if (autoBidsMode == 'sellByDate')
-            return (
-                <Tooltip content={`Распродать к дате`}>
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            columnGap: 8,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <IconWithText
-                            text={new Date(sellByDate ?? '').toLocaleDateString('ru-RU')}
-                            // variant="caption-2"
-                            icon={Calendar}
-                            size={13}
-                        />
-                        <IconWithText
-                            text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                            // variant="caption-2"
-                            icon={ShoppingCart}
-                            size={13}
-                        />
-                    </div>
-                </Tooltip>
-            );
-        if (autoBidsMode == 'orders')
-            return (
-                <Tooltip content={`Заказы`}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        columnGap: 8,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
                     <IconWithText
-                        text={`${desiredOrders} шт.`}
+                        text={`${desiredObor} д.`}
+                        tooltipText={'Оборачиваемость'}
+                        // variant="caption-2"
+                        icon={ArrowsRotateLeft}
+                        size={13}
+                    />
+                    <IconWithText
+                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
+                        tooltipText={'Заказы'}
                         // variant="caption-2"
                         icon={ShoppingCart}
                         size={13}
                     />
-                </Tooltip>
+                </div>
+            );
+        if (autoBidsMode == 'sum_orders')
+            return (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        columnGap: 8,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <IconWithText
+                        text={`${desiredSumOrders} ₽`}
+                        tooltipText={'Сумма заказов'}
+                        // variant="caption-2"
+                        icon={ShoppingCart}
+                        size={13}
+                    />
+                    <IconWithText
+                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
+                        tooltipText={'Заказы'}
+                        // variant="caption-2"
+                        icon={ShoppingCart}
+                        size={13}
+                    />
+                </div>
+            );
+        if (autoBidsMode == 'sellByDate')
+            return (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        columnGap: 8,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <IconWithText
+                        text={new Date(sellByDate ?? '').toLocaleDateString('ru-RU')}
+                        tooltipText={'Дата к которой нужно распродать товар'}
+                        // variant="caption-2"
+                        icon={Calendar}
+                        size={13}
+                    />
+                    <IconWithText
+                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
+                        tooltipText={'Заказы'}
+                        // variant="caption-2"
+                        icon={ShoppingCart}
+                        size={13}
+                    />
+                </div>
+            );
+        if (autoBidsMode == 'orders')
+            return (
+                <IconWithText
+                    text={`${desiredOrders} шт.`}
+                    tooltipText={'Заказы'}
+                    // variant="caption-2"
+                    icon={ShoppingCart}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'sum')
             return (
-                <Tooltip content={`Плановый расход`}>
-                    <IconWithText
-                        // variant="caption-2"
-                        icon={ClockArrowRotateLeft}
-                        size={13}
-                        text={`${new Intl.NumberFormat('ru-RU').format(desiredSum)} ₽`}
-                    />
-                </Tooltip>
+                <IconWithText
+                    tooltipText={'Плановый расход'}
+                    // variant="caption-2"
+                    icon={ClockArrowRotateLeft}
+                    size={13}
+                    text={`${new Intl.NumberFormat('ru-RU').format(desiredSum)} ₽`}
+                />
             );
         else return <></>;
     }, [rule]);
