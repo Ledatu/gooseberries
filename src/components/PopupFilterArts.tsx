@@ -9,6 +9,8 @@ interface PopupFilterArtsProps {
         budgetRules: boolean;
         phrasesRules: boolean;
         bidderRules: boolean;
+        activeAdverts: boolean;
+        pausedAdverts: boolean;
     };
     setFilters: React.Dispatch<
         React.SetStateAction<{
@@ -16,6 +18,8 @@ interface PopupFilterArtsProps {
             budgetRules: boolean;
             phrasesRules: boolean;
             bidderRules: boolean;
+            activeAdverts: boolean;
+            pausedAdverts: boolean;
         }>
     >;
 }
@@ -32,6 +36,8 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
             budgetRules: false,
             phrasesRules: false,
             bidderRules: false,
+            activeAdverts: false,
+            pausedAdverts: false,
         }),
         [],
     );
@@ -56,6 +62,8 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
             budgetRules: 'РК без бюджета',
             phrasesRules: 'РК без управления фразами',
             scheduleRules: 'РК без графика',
+            activeAdverts: 'РК в работе',
+            pausedAdverts: 'РК на паузе',
         };
         const elements: React.JSX.Element[] = [];
         for (const [key, val] of Object.entries(names)) {

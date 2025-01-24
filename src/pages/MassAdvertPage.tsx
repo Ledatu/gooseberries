@@ -200,6 +200,8 @@ export const MassAdvertPage = ({
         budgetRules: false,
         phrasesRules: false,
         bidderRules: false,
+        activeAdverts: false,
+        pausedAdverts: false,
     });
 
     const auctionOptions: any[] = [
@@ -3528,20 +3530,46 @@ export const MassAdvertPage = ({
                     let add = false;
                     if (adverts)
                         for (const id of Object.keys(adverts)) {
+                            const status = doc?.adverts?.[selectValue[0]]?.[id]?.status;
+
+                            const hasStatusFilter =
+                                filtersRK['activeAdverts'] || filtersRK['pausedAdverts'];
+                            let byStatus = !hasStatusFilter;
+
+                            if (filtersRK['activeAdverts'] && status != 9) continue;
+                            else if (filtersRK['activeAdverts']) byStatus = true;
+
+                            if (filtersRK['pausedAdverts'] && status != 11) continue;
+                            else if (filtersRK['pausedAdverts']) byStatus = true;
+
                             if (
                                 filtersRK['bidderRules'] &&
-                                !doc?.advertsAutoBidsRules?.[selectValue[0]]?.[id]
+                                !doc?.advertsAutoBidsRules?.[selectValue[0]]?.[id] &&
+                                byStatus
                             )
                                 add = true;
-                            if (filtersRK['budgetRules'] && !advertBudgetRules[id]) add = true;
+                            if (filtersRK['budgetRules'] && !advertBudgetRules[id] && byStatus)
+                                add = true;
                             if (
                                 filtersRK['phrasesRules'] &&
-                                !doc?.advertsPlusPhrasesTemplates?.[selectValue[0]]?.[id]
+                                !doc?.advertsPlusPhrasesTemplates?.[selectValue[0]]?.[id] &&
+                                byStatus
                             )
                                 add = true;
                             if (
                                 filtersRK['scheduleRules'] &&
-                                !doc?.advertsSchedules?.[selectValue[0]]?.[id]
+                                !doc?.advertsSchedules?.[selectValue[0]]?.[id] &&
+                                byStatus
+                            )
+                                add = true;
+
+                            if (
+                                !filtersRK['bidderRules'] &&
+                                !filtersRK['budgetRules'] &&
+                                !filtersRK['phrasesRules'] &&
+                                !filtersRK['scheduleRules'] &&
+                                byStatus &&
+                                hasStatusFilter
                             )
                                 add = true;
                         }
