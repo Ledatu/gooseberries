@@ -1137,7 +1137,7 @@ export const AdvertsWordsModal = ({
                     >
                         <Text style={{whiteSpace: 'wrap'}}>{valueWrapped}</Text>
                         <div style={{width: 8}} />
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div style={{display: 'flex', flexDirection: 'row', columnGap: 4}}>
                             <Button
                                 size="xs"
                                 view="outlined"
@@ -1146,7 +1146,6 @@ export const AdvertsWordsModal = ({
                             >
                                 <Icon data={Magnifier} />
                             </Button>
-                            <div style={{width: 4}} />
                             <Popover
                                 placement={'bottom-start'}
                                 content={
@@ -1261,7 +1260,6 @@ export const AdvertsWordsModal = ({
                                     <Icon data={Eye} />
                                 </Button>
                             </Popover>
-                            <div style={{width: 4}} />
                             <Button
                                 size="xs"
                                 view={isSelected ? 'outlined-success' : 'outlined'}
@@ -1300,7 +1298,6 @@ export const AdvertsWordsModal = ({
                             >
                                 <Icon data={ArrowShapeUp} />
                             </Button>
-                            <div style={{width: 4}} />
                             <Button
                                 size="xs"
                                 view={
@@ -1321,6 +1318,28 @@ export const AdvertsWordsModal = ({
                                 }}
                             >
                                 <Icon data={Plus} />
+                            </Button>
+                            <Button
+                                disabled={disabled}
+                                size="xs"
+                                view={
+                                    phrasesExcludedByMinus.includes(value)
+                                        ? 'outlined-danger'
+                                        : 'outlined'
+                                }
+                                onClick={() => {
+                                    let val = Array.from(phrasesExcludedByMinus);
+                                    const cluster = value;
+                                    if (!val.includes(cluster)) {
+                                        val.push(cluster);
+                                    } else {
+                                        val = val.filter((value) => value != cluster);
+                                    }
+
+                                    setPhrasesExcludedByMinus(val);
+                                }}
+                            >
+                                <Icon data={Minus} />
                             </Button>
                         </div>
                     </div>
