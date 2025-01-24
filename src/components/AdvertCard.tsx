@@ -101,7 +101,7 @@ const BidRuleInfo = ({rule}) => {
                             size={13}
                         />
                         <IconWithText
-                            text={`${desiredOrders} шт.`}
+                            text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
                             // variant="caption-2"
                             icon={ShoppingCart}
                             size={13}
@@ -128,7 +128,7 @@ const BidRuleInfo = ({rule}) => {
                             size={13}
                         />
                         <IconWithText
-                            text={`${desiredOrders} шт.`}
+                            text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
                             // variant="caption-2"
                             icon={ShoppingCart}
                             size={13}
@@ -155,7 +155,7 @@ const BidRuleInfo = ({rule}) => {
                             size={13}
                         />
                         <IconWithText
-                            text={`${desiredOrders} шт.`}
+                            text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
                             // variant="caption-2"
                             icon={ShoppingCart}
                             size={13}
