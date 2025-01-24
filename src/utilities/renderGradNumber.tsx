@@ -7,7 +7,7 @@ export const renderGradNumber = (args, footerValue, renderer, mode = 'asc') => {
         ? 'primary'
         : (mode == 'asc' ? value >= footerValue : value <= footerValue)
         ? 'positive'
-        : (mode == 'asc' ? value >= footerValue * 0.7 : value * 0.7 <= footerValue)
+        : (mode == 'asc' ? value >= footerValue * 0.7 : value <= footerValue * 1.3)
         ? 'warning'
         : 'danger';
     return <Text color={color}>{renderer(args)}</Text>;
