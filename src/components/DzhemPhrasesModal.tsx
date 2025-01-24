@@ -7,6 +7,7 @@ import ApiClient from 'src/utilities/ApiClient';
 import {renderGradNumber} from 'src/utilities/renderGradNumber';
 import {defaultRender, getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
 import {RangePicker} from './RangePicker';
+import {getMedian} from 'src/utilities/getMedian';
 
 interface DzhemModalProps {
     open: boolean;
@@ -109,6 +110,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         text: '',
     });
     const [dzhemDataFilteredAvg, setDzhemDataFilteredAvg] = useState({text: ''});
+    const [dzhemDataFilteredMed, setDzhemDataFilteredMed] = useState({text: ''});
 
     const dzhemDataFilter = (withfFilters: any, stats: any[]) => {
         const _filters = withfFilters ?? dzhemDataFilters;
@@ -193,6 +195,23 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         }
         setDzhemDataFilteredFooter(dzhemDataFilteredFooterTemp);
         setDzhemDataFilteredAvg(dzhemDataFilteredAvgTemp);
+        const mediana = getMedian(_stats, dzhemDataFilteredFooterTemp);
+        for (const [key, val] of Object.entries(dzhemDataFilteredFooterTemp)) {
+            if (typeof val !== 'number') continue;
+            if (
+                [
+                    'openToCartCurrent',
+                    'cartToOrderCurrent',
+                    'avgPositionCurrent',
+                    'visibilityCurrent',
+                ].includes(key)
+            ) {
+                dzhemDataFilteredFooterTemp[key] = mediana[key];
+                continue;
+            }
+        }
+        console.log(dzhemDataFilteredAvg);
+        setDzhemDataFilteredMed(mediana as any);
     };
 
     useEffect(() => {
@@ -208,7 +227,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: (args) => {
                 return renderGradNumber(
                     args,
-                    dzhemDataFilteredAvg['openCardCurrent'],
+                    dzhemDataFilteredMed['openCardCurrent'],
                     defaultRender,
                 );
             },
@@ -219,7 +238,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
-                    dzhemDataFilteredAvg['openToCartCurrent'],
+                    dzhemDataFilteredMed['openToCartCurrent'],
                     renderAsPercent,
                 );
             },
@@ -230,7 +249,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
-                    dzhemDataFilteredAvg['cartToOrderCurrent'],
+                    dzhemDataFilteredMed['cartToOrderCurrent'],
                     renderAsPercent,
                 );
             },
@@ -241,7 +260,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: (args) => {
                 return renderGradNumber(
                     args,
-                    dzhemDataFilteredAvg['addToCartCurrent'],
+                    dzhemDataFilteredMed['addToCartCurrent'],
                     defaultRender,
                 );
             },
@@ -250,7 +269,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             placeholder: 'Заказов, шт.',
             name: 'ordersCurrent',
             render: (args) => {
-                return renderGradNumber(args, dzhemDataFilteredAvg['ordersCurrent'], defaultRender);
+                return renderGradNumber(args, dzhemDataFilteredMed['ordersCurrent'], defaultRender);
             },
         },
         {
@@ -259,7 +278,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
-                    dzhemDataFilteredAvg['avgPositionCurrent'],
+                    dzhemDataFilteredMed['avgPositionCurrent'],
                     defaultRender,
                     'desc',
                 );
@@ -271,7 +290,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: ({value, footer}) => {
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
-                    dzhemDataFilteredAvg['visibilityCurrent'],
+                    dzhemDataFilteredMed['visibilityCurrent'],
                     renderAsPercent,
                 );
             },
@@ -282,7 +301,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             render: (args) => {
                 return renderGradNumber(
                     args,
-                    dzhemDataFilteredAvg['frequencyCurrent'],
+                    dzhemDataFilteredMed['frequencyCurrent'],
                     defaultRender,
                 );
             },
