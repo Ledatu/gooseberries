@@ -19,7 +19,8 @@ import {CopyButton} from 'src/components/CopyButton';
 import {SetArtStatusModal} from 'src/components/SetArtStatusModal';
 
 export const NomenclaturesPage = ({permission, sellerId}) => {
-    const {selectValue, setSwitchingCampaignsFlag, switchingCampaignsFlag} = useCampaign();
+    const {selectValue, setSelectValue, setSwitchingCampaignsFlag, switchingCampaignsFlag} =
+        useCampaign();
     const {showError} = useError();
     const [filters, setFilters] = useState({undef: false});
 
@@ -579,7 +580,9 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
                                                             params.data.nmIds.push(nmId);
                                                     }
 
-                                                    callApi('setTags', params);
+                                                    callApi('setTags', params).then(() => {
+                                                        setSelectValue([String(selectValue[0])]);
+                                                    });
 
                                                     setUpdate(true);
 
@@ -630,7 +633,9 @@ export const NomenclaturesPage = ({permission, sellerId}) => {
                                                             params.data.nmIds.push(nmId);
                                                     }
 
-                                                    callApi('setTags', params);
+                                                    callApi('setTags', params).then(() => {
+                                                        setSelectValue([String(selectValue[0])]);
+                                                    });
 
                                                     setUpdate(true);
                                                     setTagsModalFormOpen(false);

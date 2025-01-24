@@ -1,4 +1,4 @@
-import {Button, Card, Icon, Text} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Text, Tooltip} from '@gravity-ui/uikit';
 import {
     TrashBin,
     Clock,
@@ -9,13 +9,17 @@ import {
     Calendar,
     Pause,
     Play,
+    ArrowsRotateLeft,
     Magnifier,
+    ShoppingCart,
     ChartAreaStacked,
     Rocket,
+    BarsAscendingAlignLeftArrowUp,
+    ClockArrowRotateLeft,
     LayoutList,
 } from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {getLocaleDateString, getRoundValue} from 'src/utilities/getRoundValue';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
@@ -25,6 +29,167 @@ import {ChartModal} from './ChartModal';
 import {AdvertsWordsButton} from './AdvertsWordsButton';
 import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
 import ApiClient from 'src/utilities/ApiClient';
+import {IconWithText} from './IconWithText';
+
+const BidRuleInfo = ({rule}) => {
+    if (!rule) return <></>;
+    const {
+        // placementsTrigger,
+        placementsRange,
+        autoBidsMode,
+        desiredOrders,
+        desiredSum,
+        desiredSumOrders,
+        desiredObor,
+        // useManualMaxCpm,
+        // useAutoBudget,
+        // useMaxBudget,
+        // maxBudget,
+        sellByDate,
+    } = rule;
+
+    const toDisplay = useMemo(() => {
+        if (autoBidsMode == 'placements')
+            return (
+                <Tooltip content="Место в выдаче">
+                    <IconWithText
+                        text={placementsRange?.to}
+                        // variant="caption-2"
+                        icon={BarsAscendingAlignLeftArrowUp}
+                        size={13}
+                    />
+                </Tooltip>
+            );
+        if (autoBidsMode == 'auction')
+            return (
+                <Tooltip content="Позиция в аукционе">
+                    <IconWithText
+                        text={placementsRange?.to}
+                        // variant="caption-2"
+                        icon={BarsAscendingAlignLeftArrowUp}
+                        size={13}
+                    />
+                </Tooltip>
+            );
+        if (autoBidsMode == 'bestPlacement')
+            return (
+                <Tooltip content="Топ позиция">
+                    <IconWithText
+                        text={'Топ'}
+                        // variant="caption-2"
+                        icon={BarsAscendingAlignLeftArrowUp}
+                        size={13}
+                    />
+                </Tooltip>
+            );
+        if (autoBidsMode == 'obor')
+            return (
+                <Tooltip content={`Оборачиваемость`}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            columnGap: 8,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <IconWithText
+                            text={`${desiredObor} д.`}
+                            // variant="caption-2"
+                            icon={ArrowsRotateLeft}
+                            size={13}
+                        />
+                        <IconWithText
+                            text={`${desiredOrders} шт.`}
+                            // variant="caption-2"
+                            icon={ShoppingCart}
+                            size={13}
+                        />
+                    </div>
+                </Tooltip>
+            );
+        if (autoBidsMode == 'sum_orders')
+            return (
+                <Tooltip content={`Сумма заказов, ₽`}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            columnGap: 8,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <IconWithText
+                            text={`${desiredSumOrders} ₽`}
+                            // variant="caption-2"
+                            icon={ShoppingCart}
+                            size={13}
+                        />
+                        <IconWithText
+                            text={`${desiredOrders} шт.`}
+                            // variant="caption-2"
+                            icon={ShoppingCart}
+                            size={13}
+                        />
+                    </div>
+                </Tooltip>
+            );
+        if (autoBidsMode == 'sellByDate')
+            return (
+                <Tooltip content={`Распродать к дате`}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            columnGap: 8,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <IconWithText
+                            text={new Date(sellByDate ?? '').toLocaleDateString('ru-RU')}
+                            // variant="caption-2"
+                            icon={Calendar}
+                            size={13}
+                        />
+                        <IconWithText
+                            text={`${desiredOrders} шт.`}
+                            // variant="caption-2"
+                            icon={ShoppingCart}
+                            size={13}
+                        />
+                    </div>
+                </Tooltip>
+            );
+        if (autoBidsMode == 'orders')
+            return (
+                <Tooltip content={`Заказы`}>
+                    <IconWithText
+                        text={`${desiredOrders} шт.`}
+                        // variant="caption-2"
+                        icon={ShoppingCart}
+                        size={13}
+                    />
+                </Tooltip>
+            );
+        if (autoBidsMode == 'sum')
+            return (
+                <Tooltip content={`Плановый расход`}>
+                    <IconWithText
+                        // variant="caption-2"
+                        icon={ClockArrowRotateLeft}
+                        size={13}
+                        text={`${new Intl.NumberFormat('ru-RU').format(desiredSum)} ₽`}
+                    />
+                </Tooltip>
+            );
+        else return <></>;
+    }, [rule]);
+
+    return toDisplay;
+};
 
 export const AdvertCard = ({
     permission,
@@ -217,6 +382,8 @@ export const AdvertCard = ({
                             <></>
                         )}
                         <div style={{width: 8}} />
+                        <BidRuleInfo rule={drrAI} />
+                        <div style={{width: 8}} />
                     </div>
                     <Button
                         pin="clear-clear"
@@ -291,75 +458,6 @@ export const AdvertCard = ({
                                         {`${drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
                                             drrAI.desiredDRR
                                         }`}
-                                    </Text>
-                                ) : (
-                                    <></>
-                                )}
-                                {drrAI !== undefined &&
-                                drrAI.autoBidsMode != 'bestPlacement' &&
-                                drrAI.autoBidsMode != 'orders' &&
-                                drrAI.autoBidsMode != 'drr' &&
-                                drrAI.autoBidsMode != 'sum' &&
-                                drrAI.autoBidsMode != 'sum_orders' &&
-                                drrAI.autoBidsMode != 'obor' &&
-                                drrAI.autoBidsMode != 'sellByDate' &&
-                                drrAI.autoBidsMode != 'cpo' ? (
-                                    <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`${
-                                            drrAI.autoBidsMode == 'auction' ? 'Аукцион:' : 'Выдача:'
-                                        } ${drrAI.placementsRange.from}`}
-                                    </Text>
-                                ) : (
-                                    <></>
-                                )}
-                                {drrAI !== undefined && drrAI.autoBidsMode == 'bestPlacement' ? (
-                                    <Text style={{marginLeft: 4}} variant="caption-2">
-                                        Топ позиция
-                                    </Text>
-                                ) : (
-                                    <></>
-                                )}
-                                {drrAI !== undefined && drrAI.autoBidsMode == 'orders' ? (
-                                    <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Заказы: ${drrAI.desiredOrders} шт.`}
-                                    </Text>
-                                ) : (
-                                    <></>
-                                )}
-                                {drrAI !== undefined && drrAI.autoBidsMode == 'sum_orders' ? (
-                                    <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Сумм. заказов: ${drrAI.desiredSumOrders} ₽`}
-                                    </Text>
-                                ) : (
-                                    <></>
-                                )}
-                                {drrAI !== undefined && drrAI.autoBidsMode == 'obor' ? (
-                                    <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Обор: ${drrAI.desiredObor} Заказы: ${
-                                            !isNaN(drrAI.desiredOrders) && drrAI.desiredOrders
-                                                ? drrAI.desiredOrders + ' шт.'
-                                                : 'Нет. инф.'
-                                        }`}
-                                    </Text>
-                                ) : (
-                                    <></>
-                                )}
-                                {drrAI !== undefined && drrAI.autoBidsMode == 'sellByDate' ? (
-                                    <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Распр. к: ${new Date(
-                                            drrAI.sellByDate ?? '',
-                                        ).toLocaleDateString('ru-RU')} Заказы: ${
-                                            !isNaN(drrAI.desiredOrders) && drrAI.desiredOrders
-                                                ? drrAI.desiredOrders + ' шт.'
-                                                : 'Нет. инф.'
-                                        }`}
-                                    </Text>
-                                ) : (
-                                    <></>
-                                )}
-                                {drrAI !== undefined && drrAI.autoBidsMode == 'sum' ? (
-                                    <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`Расход (${drrAI.desiredSum} ₽)`}
                                     </Text>
                                 ) : (
                                     <></>
