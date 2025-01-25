@@ -440,23 +440,44 @@ export const AdvertCard = ({
                             advertId={advertId}
                         >
                             <Button pin="brick-round" size="xs" view="flat">
-                                <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} / ${
-                                    drrAI !== undefined
-                                        ? `${drrAI.maxBid ?? 'Нет инф.'}`
-                                        : 'Автоставки выкл.'
-                                }`}</Text>
-                                {drrAI !== undefined &&
-                                (drrAI.useManualMaxCpm
-                                    ? ['drr', 'cpo'].includes(drrAI.autoBidsMode)
-                                    : true) ? (
-                                    <Text style={{marginLeft: 4}} variant="caption-2">
-                                        {`${drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
-                                            drrAI.desiredDRR
-                                        }`}
-                                    </Text>
-                                ) : (
-                                    <></>
-                                )}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        flexWrap: 'nowrap',
+                                        columnGap: 4,
+                                    }}
+                                >
+                                    <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} / ${
+                                        drrAI !== undefined
+                                            ? `${drrAI.maxBid ?? 'Нет инф.'}`
+                                            : 'Автоставки выкл.'
+                                    }`}</Text>
+                                    {drrAI !== undefined &&
+                                    (drrAI.useManualMaxCpm
+                                        ? ['drr', 'cpo'].includes(drrAI.autoBidsMode)
+                                        : true) ? (
+                                        <Text variant="caption-2">
+                                            {`${drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
+                                                drrAI.desiredDRR
+                                            }`}
+                                        </Text>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    {drrAI?.placementsTrigger ? (
+                                        <IconWithText
+                                            icon={BarsAscendingAlignLeftArrowUp}
+                                            text={drrAI?.placementsTrigger}
+                                            variant="caption-2"
+                                            size={12}
+                                            tooltipText={'Ограничение по выдаче'}
+                                        />
+                                    ) : (
+                                        <></>
+                                    )}
+                                </div>
                             </Button>
                         </AdvertsBidsModal>
 
