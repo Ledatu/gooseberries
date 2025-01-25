@@ -26,18 +26,28 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
     const [sellerId, setSellerId] = useState('');
 
     const [modules, setModules] = useState({
-        content: {name: 'Контент', presented: false, readOnly: false},
-        analytics: {name: 'Аналитика', presented: false, readOnly: false},
-        prices_and_discounts: {name: 'Цены и скидки', presented: false, readOnly: false},
-        marketplace: {name: 'Маркетплейс', presented: false, readOnly: false},
-        statistics: {name: 'Статистика', presented: false, readOnly: false},
-        promotion: {name: 'Продвижение', presented: false, readOnly: false},
-        questions_and_feedbacks: {name: 'Вопросы и отзывы', presented: false, readOnly: false},
+        content: {name: 'Контент', presented: false, readOnly: false, required: true},
+        analytics: {name: 'Аналитика', presented: false, readOnly: false, required: true},
+        prices_and_discounts: {
+            name: 'Цены и скидки',
+            presented: false,
+            readOnly: false,
+            required: false,
+        },
+        marketplace: {name: 'Маркетплейс', presented: false, readOnly: false, required: false},
+        statistics: {name: 'Статистика', presented: false, readOnly: false, required: true},
+        promotion: {name: 'Продвижение', presented: false, readOnly: false, required: true},
+        questions_and_feedbacks: {
+            name: 'Вопросы и отзывы',
+            presented: false,
+            readOnly: false,
+            required: false,
+        },
     });
 
     const modulesValid = useMemo(() => {
         for (const [_, data] of Object.entries(modules)) {
-            if (!data?.presented) return false;
+            if (!data?.presented && data?.required) return false;
         }
         return true;
     }, [modules]);
@@ -59,6 +69,13 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                     pin="circle-circle"
                 >
                     {data?.name}
+                    {data?.required ? (
+                        <Text color="danger" variant="subheader-2" style={{marginLeft: 3}}>
+                            *
+                        </Text>
+                    ) : (
+                        <></>
+                    )}
                 </Button>,
             );
         }
@@ -82,7 +99,7 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
             const readOnly = tokenModules.includes('read-only');
             if (isOnlyRead != readOnly) throw new Error('Вы вставили токен не в его поле');
             for (const key of Object.keys(temp)) {
-                if (tokenModules.includes(key)) {
+                if (tokenModules.includes(key) && (readOnly ? !temp[key].presented : true)) {
                     temp[key].presented = true;
                     temp[key].readOnly = readOnly;
                 }
@@ -100,13 +117,23 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
 
     const handleOpen = async () => {
         setModules({
-            content: {name: 'Контент', presented: false, readOnly: false},
-            analytics: {name: 'Аналитика', presented: false, readOnly: false},
-            prices_and_discounts: {name: 'Цены и скидки', presented: false, readOnly: false},
-            marketplace: {name: 'Маркетплейс', presented: false, readOnly: false},
-            statistics: {name: 'Статистика', presented: false, readOnly: false},
-            promotion: {name: 'Продвижение', presented: false, readOnly: false},
-            questions_and_feedbacks: {name: 'Вопросы и отзывы', presented: false, readOnly: false},
+            content: {name: 'Контент', presented: false, readOnly: false, required: true},
+            analytics: {name: 'Аналитика', presented: false, readOnly: false, required: true},
+            prices_and_discounts: {
+                name: 'Цены и скидки',
+                presented: false,
+                readOnly: false,
+                required: false,
+            },
+            marketplace: {name: 'Маркетплейс', presented: false, readOnly: false, required: false},
+            statistics: {name: 'Статистика', presented: false, readOnly: false, required: true},
+            promotion: {name: 'Продвижение', presented: false, readOnly: false, required: true},
+            questions_and_feedbacks: {
+                name: 'Вопросы и отзывы',
+                presented: false,
+                readOnly: false,
+                required: false,
+            },
         });
         setOpen(true);
         setName('');
@@ -136,6 +163,23 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
         onClick: handleOpen,
     });
 
+    const addApiCall = async () => {
+        const params = {
+            user_id: user?._id,
+            campaignName: name,
+            apiKey: key,
+            apiReadKey: readKey,
+            modules: modules,
+        };
+        try {
+            await ApiClient.post('auth/create-campaign', params);
+            refetchUser();
+        } catch (error) {
+            showError(error.response?.data?.error || 'An unknown error occurred');
+        }
+        handleClose();
+    };
+
     return (
         <>
             {triggerButton}
@@ -164,153 +208,164 @@ export const AddApiModal = ({children}: AddApiModalInterface) => {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             backdropFilter: 'blur(8px)',
+                            WebkitBackdropFilter: 'blur(8px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
+                            gap: 8,
                             border: '1px solid #eee2',
                         }}
                     >
                         <div
                             style={{
-                                maxWidth: 350,
                                 display: 'flex',
                                 flexDirection: 'row',
                                 flexWrap: 'wrap',
-                                columnGap: 8,
-                                rowGap: 8,
-                            }}
-                        >
-                            {moduleButtons}
-                        </div>
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                rowGap: 8,
-                                marginTop: 8,
+                                gap: 8,
                             }}
                         >
                             <div
                                 style={{
                                     display: 'flex',
-                                    flexDirection: 'row',
+                                    flexDirection: 'column',
                                     alignItems: 'center',
-                                    columnGap: 4,
+                                    gap: 8,
                                 }}
                             >
-                                <Button size="s" pin="circle-circle" view="flat-success" selected>
-                                    Зеленый
-                                </Button>
-                                - Раздел доступен на чтение и запись
+                                <div
+                                    style={{
+                                        maxWidth: 350,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        flexWrap: 'wrap',
+                                        gap: 8,
+                                    }}
+                                >
+                                    {moduleButtons}
+                                </div>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        rowGap: 8,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            columnGap: 4,
+                                        }}
+                                    >
+                                        <Button
+                                            size="s"
+                                            pin="circle-circle"
+                                            view="flat-success"
+                                            selected
+                                        >
+                                            Зеленый
+                                        </Button>
+                                        - Раздел доступен на чтение и запись
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            columnGap: 4,
+                                        }}
+                                    >
+                                        <Button
+                                            size="s"
+                                            pin="circle-circle"
+                                            view="flat-warning"
+                                            selected
+                                        >
+                                            Желтый
+                                        </Button>
+                                        - Раздел доступен только на чтение
+                                    </div>
+                                </div>
+                                <Text
+                                    variant="caption-2"
+                                    color="secondary"
+                                    style={{
+                                        width: 300,
+                                        textWrap: 'wrap',
+                                    }}
+                                >
+                                    API токен(-ы), вместе, должны включать все следующие разделы. Вы
+                                    можете добавить часть из них только на чтение, но тогда будет
+                                    доступен не весь функционал.
+                                </Text>
                             </div>
                             <div
                                 style={{
+                                    maxWidth: 350,
                                     display: 'flex',
-                                    flexDirection: 'row',
+                                    flexDirection: 'column',
                                     alignItems: 'center',
-                                    columnGap: 4,
+                                    gap: 8,
                                 }}
                             >
-                                <Button size="s" pin="circle-circle" view="flat-warning" selected>
-                                    Желтый
-                                </Button>
-                                - Раздел доступен только на чтение
+                                <TextInput
+                                    value={name}
+                                    onUpdate={(val) => setName(val)}
+                                    size="l"
+                                    placeholder="Введите название магазина"
+                                />
+                                <TextTitleWrapper title={'Токен на чтение и запись'} padding={8}>
+                                    <PasteTextField
+                                        onPaste={(value) => {
+                                            checkApiToken(value, false);
+                                            setKey(value);
+                                        }}
+                                    />
+                                </TextTitleWrapper>
+                                <TextTitleWrapper
+                                    title={'Токен только на чтение (не обязательно)'}
+                                    padding={8}
+                                >
+                                    <PasteTextField
+                                        onPaste={(value) => {
+                                            checkApiToken(value, true);
+                                            setReadKey(value);
+                                        }}
+                                    />
+                                </TextTitleWrapper>
+                                <Text
+                                    style={{margin: '0 16px'}}
+                                    variant="caption-2"
+                                    color="secondary"
+                                >
+                                    Вы можете начать работать уже через 30 минут, а через 3 - 4 часа
+                                    вам будет доступна подробная статистика за последние 90 дней.
+                                </Text>
+                                <Link
+                                    href="https://seller.wildberries.ru/supplier-settings/access-to-api"
+                                    target="_blank"
+                                >
+                                    Сгенерируйте API токен здесь
+                                </Link>
                             </div>
                         </div>
-                        <Text
-                            variant="body-1"
-                            color="secondary"
-                            style={{
-                                width: 300,
-                                margin: '8px',
-                                marginBottom: 30,
-                                textWrap: 'wrap',
-                            }}
-                        >
-                            API токен(-ы), вместе, должны включать все следующие разделы. Вы можете
-                            добавить часть из них только на чтение, но тогда будет доступен не весь
-                            функционал.
-                        </Text>
-                        <motion.div
-                            animate={{height: open ? 300 : 0}}
-                            style={{
-                                height: 0,
-                                width: 300,
-                                overflow: 'auto',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                position: 'relative',
-                                justifyContent: 'space-between',
-                            }}
-                        >
-                            <TextInput
-                                value={name}
-                                onUpdate={(val) => setName(val)}
-                                size="l"
-                                placeholder="Введите название магазина"
-                            />
-                            <div style={{minHeight: 8}} />
-                            <TextTitleWrapper title={'Токен на чтение и запись'} padding={8}>
-                                <PasteTextField
-                                    onPaste={(value) => {
-                                        checkApiToken(value, false);
-                                        setKey(value);
-                                    }}
-                                />
-                            </TextTitleWrapper>
-                            <div style={{minHeight: 8}} />
-                            <TextTitleWrapper
-                                title={'Токен только на чтение (не обязательно)'}
-                                padding={8}
-                            >
-                                <PasteTextField
-                                    onPaste={(value) => {
-                                        checkApiToken(value, true);
-                                        setReadKey(value);
-                                    }}
-                                />
-                            </TextTitleWrapper>
-                            <div style={{minHeight: 8}} />
+
+                        <div style={{display: 'flex', flexDirection: 'row', gap: 8, width: '100%'}}>
                             <Button
-                                width="max"
                                 size="l"
+                                pin="circle-circle"
                                 view="outlined-success"
                                 selected
                                 disabled={name === '' || key === '' || !modulesValid}
-                                onClick={async () => {
-                                    const params = {
-                                        user_id: user?._id,
-                                        campaignName: name,
-                                        apiKey: key,
-                                        apiReadKey: readKey,
-                                        modules: modules,
-                                    };
-                                    try {
-                                        await ApiClient.post('auth/create-campaign', params);
-                                        refetchUser();
-                                    } catch (error) {
-                                        showError(
-                                            error.response?.data?.error ||
-                                                'An unknown error occurred',
-                                        );
-                                    }
-                                    handleClose();
-                                }}
+                                onClick={addApiCall}
                             >
-                                <Text variant="subheader-1">Добавить магазин</Text>
+                                Добавить магазин
                             </Button>
-                            <Text style={{margin: '0 16px'}} variant="caption-2" color="secondary">
-                                Вы можете начать работать уже через 30 минут, а через 3 - 4 часа вам
-                                будет доступна подробная статистика за последние 90 дней!
-                            </Text>
-                            <Link
-                                href="https://seller.wildberries.ru/supplier-settings/access-to-api"
-                                target="_blank"
-                            >
-                                Сгенерируйте API токен здесь
-                            </Link>
-                        </motion.div>
+                            <Button size="l" pin="circle-circle" onClick={handleClose}>
+                                Отмена
+                            </Button>
+                        </div>
                     </motion.div>
                 </Card>
             </Modal>
