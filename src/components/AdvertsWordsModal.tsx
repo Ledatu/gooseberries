@@ -244,7 +244,6 @@ export const AdvertsWordsModal = ({
         const {sum, count, clicks} = semanticsFilteredSummary.active;
         semanticsFilteredSummary.active.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
         semanticsFilteredSummary.active.ctr = getRoundValue(clicks, count, true);
-        setSemanticsFilteredSummary(semanticsFilteredSummary);
         for (const [key, val] of Object.entries(semanticsFilteredSummary.active)) {
             if (typeof val !== 'number') continue;
             if (key === 'cpc' || key === 'ctr') {
@@ -262,6 +261,9 @@ export const AdvertsWordsModal = ({
         console.log('median active', semanticsFilteredSummaryMedian.active);
 
         setSemanticsFilteredSummaryMedian(semanticsFilteredSummaryMedian);
+        semanticsFilteredSummary.active.cpc = semanticsFilteredSummaryMedian.active.cpc;
+        semanticsFilteredSummary.active.ctr = semanticsFilteredSummaryMedian.active.ctr;
+        setSemanticsFilteredSummary(semanticsFilteredSummary);
     };
 
     const [clustersFiltersMinus, setClustersFiltersMinus] = useState({undef: false});
