@@ -3586,6 +3586,9 @@ export const MassAdvertPage = ({
                         setPlacementsDisplayPhrase(filterData['val']);
                         if (placementsDisplayPhrase != filterData['val'])
                             setSelectedSearchPhrase('');
+                    } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                        addFlag = false;
+                        break;
                     }
                 } else if (filterArg == 'adverts') {
                     const rulesForAnd = [filterData['val']];
