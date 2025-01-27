@@ -261,7 +261,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             name: 'openToOrderPercent',
             render: ({value, footer}) => {
                 return renderGradNumber(
-                    {value: getRoundValue(value, 1), footer},
+                    {value: getRoundValue(value * 100, 1), footer},
                     dzhemDataFilteredMed['openToOrderPercent'],
                     renderAsPercent,
                 );
