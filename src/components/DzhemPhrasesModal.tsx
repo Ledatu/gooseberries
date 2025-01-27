@@ -125,6 +125,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             openCardCurrent: 0,
             openCardPercentile: 0,
             addToCartCurrent: 0,
+            openToOrderPercent: 0,
             addToCartPercentile: 0,
             openToCartCurrent: 0,
             openToCartPercentile: 0,
@@ -201,6 +202,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
             if (
                 [
                     'openToCartCurrent',
+                    'openToOrderPercent',
                     'cartToOrderCurrent',
                     'avgPositionCurrent',
                     'visibilityCurrent',
@@ -250,6 +252,17 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
                 return renderGradNumber(
                     {value: getRoundValue(value, 1), footer},
                     dzhemDataFilteredMed['cartToOrderCurrent'],
+                    renderAsPercent,
+                );
+            },
+        },
+        {
+            placeholder: 'CR, %',
+            name: 'openToOrderPercent',
+            render: ({value, footer}) => {
+                return renderGradNumber(
+                    {value: getRoundValue(value, 1), footer},
+                    dzhemDataFilteredMed['openToOrderPercent'],
                     renderAsPercent,
                 );
             },
