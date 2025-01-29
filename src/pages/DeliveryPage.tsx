@@ -837,6 +837,7 @@ export const DeliveryPage = ({permission, sellerId}) => {
                                             factoryArt: docData.factoryArt,
                                             art: docData.art,
                                             barcode: docData.barcode,
+                                            orderRate: warehouseData.orderRate,
                                             toOrder: toOrder,
                                             primeCost: warehouseData.primeCost,
                                             fullPrice: warehouseData.fullPrice,
