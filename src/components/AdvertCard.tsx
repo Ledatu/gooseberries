@@ -206,15 +206,11 @@ export const AdvertCard = ({
     setFetchedPlacements,
     currentParsingProgress,
     setCurrentParsingProgress,
-    columnDataAuction,
-    auctionOptions,
-    auctionSelectedOption,
     setDateRange,
     setShowArtStatsModalOpen,
     dateRange,
     recalc,
     filterByButton,
-    setAuctionSelectedOption,
     getUniqueAdvertIdsFromThePage,
 }) => {
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
@@ -817,10 +813,6 @@ export const AdvertCard = ({
                             setFetchedPlacements={setFetchedPlacements}
                             currentParsingProgress={currentParsingProgress}
                             setCurrentParsingProgress={setCurrentParsingProgress}
-                            columnDataAuction={columnDataAuction}
-                            auctionOptions={auctionOptions}
-                            auctionSelectedOption={auctionSelectedOption}
-                            setAuctionSelectedOption={setAuctionSelectedOption}
                         />
                     </div>
                     <div

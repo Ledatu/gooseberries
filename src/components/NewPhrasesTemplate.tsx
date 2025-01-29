@@ -26,10 +26,6 @@ export const NewPhrasesTemplate = ({children, doc, setChangedDoc}) => {
                 setFetchedPlacements={undefined}
                 currentParsingProgress={undefined}
                 setCurrentParsingProgress={undefined}
-                columnDataAuction={undefined}
-                auctionOptions={undefined}
-                auctionSelectedOption={undefined}
-                setAuctionSelectedOption={undefined}
             >
                 {triggerElement}
             </AdvertsWordsModal>

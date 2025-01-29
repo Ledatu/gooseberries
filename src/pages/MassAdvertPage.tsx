@@ -11,7 +11,6 @@ import {
     PopoverBehavior,
     Modal,
     Skeleton,
-    RadioButton,
     List,
     Tooltip,
 } from '@gravity-ui/uikit';
@@ -19,9 +18,6 @@ import {HelpPopover} from '@gravity-ui/components';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import '../App.scss';
 import block from 'bem-cn-lite';
-
-import DataTable, {Column} from '@gravity-ui/react-data-table';
-import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 const b = block('app');
 
 import {
@@ -90,6 +86,7 @@ import ApiClient from 'src/utilities/ApiClient';
 import {getEnumurationString} from 'src/utilities/getEnumerationString';
 import DzhemPhrasesModal from 'src/components/DzhemPhrasesModal';
 import {PopupFilterArts} from 'src/components/PopupFilterArts';
+import {Auction} from 'src/components/Auction';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -104,7 +101,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
             doc['advertsPlusPhrasesTemplates'][selectValue] =
                 docum['advertsPlusPhrasesTemplates'][selectValue];
             doc['adverts'][selectValue] = docum['adverts'][selectValue];
-            doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
+            // doc['placementsAuctions'][selectValue] = docum['placementsAuctions'][selectValue];
             doc['advertsSelectedPhrases'][selectValue] =
                 docum['advertsSelectedPhrases'][selectValue];
             doc['advertsSchedules'][selectValue] = docum['advertsSchedules'][selectValue];
@@ -204,12 +201,6 @@ export const MassAdvertPage = ({
         pausedAdverts: false,
     });
 
-    const auctionOptions: any[] = [
-        {value: 'Выдача', content: 'Выдача'},
-        {value: 'Аукцион Авто', content: 'Аукцион Авто'},
-        {value: 'Аукцион Поиска', content: 'Аукцион Поиска'},
-    ];
-    const [auctionSelectedOption, setAuctionSelectedOption] = useState('Выдача');
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
 
@@ -1163,21 +1154,16 @@ export const MassAdvertPage = ({
                                               setFetchedPlacements={setFetchedPlacements}
                                               currentParsingProgress={currentParsingProgress}
                                               setCurrentParsingProgress={setCurrentParsingProgress}
-                                              columnDataAuction={columnDataAuction}
-                                              auctionOptions={auctionOptions}
-                                              auctionSelectedOption={auctionSelectedOption}
                                               setDateRange={setDateRange}
                                               setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                               dateRange={dateRange}
                                               recalc={recalc}
                                               filterByButton={filterByButton}
-                                              setAuctionSelectedOption={setAuctionSelectedOption}
                                               getUniqueAdvertIdsFromThePage={
                                                   getUniqueAdvertIdsFromThePage
                                               }
                                           />,
                                       );
-                                      switches.push(<div style={{minWidth: 8}} />);
                                   } else if (
                                       filters['adverts'] &&
                                       String(filters['adverts'].val)
@@ -1208,21 +1194,16 @@ export const MassAdvertPage = ({
                                               setFetchedPlacements={setFetchedPlacements}
                                               currentParsingProgress={currentParsingProgress}
                                               setCurrentParsingProgress={setCurrentParsingProgress}
-                                              columnDataAuction={columnDataAuction}
-                                              auctionOptions={auctionOptions}
-                                              auctionSelectedOption={auctionSelectedOption}
                                               setDateRange={setDateRange}
                                               setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                               dateRange={dateRange}
                                               recalc={recalc}
                                               filterByButton={filterByButton}
-                                              setAuctionSelectedOption={setAuctionSelectedOption}
                                               getUniqueAdvertIdsFromThePage={
                                                   getUniqueAdvertIdsFromThePage
                                               }
                                           />,
                                       );
-                                      switches.push(<div style={{minWidth: 8}} />);
                                   } else {
                                       continue;
                                   }
@@ -1250,25 +1231,18 @@ export const MassAdvertPage = ({
                                           setFetchedPlacements={setFetchedPlacements}
                                           currentParsingProgress={currentParsingProgress}
                                           setCurrentParsingProgress={setCurrentParsingProgress}
-                                          columnDataAuction={columnDataAuction}
-                                          auctionOptions={auctionOptions}
-                                          auctionSelectedOption={auctionSelectedOption}
                                           setDateRange={setDateRange}
                                           setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                           dateRange={dateRange}
                                           recalc={recalc}
                                           filterByButton={filterByButton}
-                                          setAuctionSelectedOption={setAuctionSelectedOption}
                                           getUniqueAdvertIdsFromThePage={
                                               getUniqueAdvertIdsFromThePage
                                           }
                                       />,
                                   );
-                                  switches.push(<div style={{minWidth: 8}} />);
                               }
                           }
-
-                      switches.pop();
 
                       return (
                           <div
@@ -1277,7 +1251,7 @@ export const MassAdvertPage = ({
                                   flexDirection: 'row',
                                   overflowX: 'scroll',
                                   overflowY: 'hidden',
-                                  // justifyContent: 'space-between',
+                                  gap: 8,
                               }}
                           >
                               {switches}
@@ -1633,159 +1607,159 @@ export const MassAdvertPage = ({
                 const stocksByWarehousesArt = stocksByWarehouses?.[nmId];
 
                 // if (!placementsValue) return undefined;
-                const {reviewRating, sizes, feedbacks, phrase} = placementsValue ?? {};
+                const {reviewRating, sizes, feedbacks} = placementsValue ?? {};
                 // if (!reviewRating) return undefined;
                 const {price} = sizes ? sizes[0] ?? {price: undefined} : {price: undefined};
                 const {total} = price ?? {total: 0};
                 const priceRub = Math.round(total / 100);
                 // console.log(placementsValue);
 
-                const {firstPage} = doc?.placementsAuctions?.[selectValue[0]]?.[phrase] ?? {};
+                // const {firstPage} = doc?.placementsAuctions?.[selectValue[0]]?.[phrase] ?? {};
 
-                const pricesData: any[] = [];
-                const pricesDataCur: any[] = [];
-                const reviewRatingsData: any[] = [];
-                const reviewRatingsDataCur: any[] = [];
-                const feedbacksData: any[] = [];
-                const feedbacksDataCur: any[] = [];
-                let yagrPricesData = {} as any;
-                let yagrReviewRatingsData = {} as any;
-                let yagrFeedbacksData = {} as any;
+                // const pricesData: any[] = [];
+                // const pricesDataCur: any[] = [];
+                // const reviewRatingsData: any[] = [];
+                // const reviewRatingsDataCur: any[] = [];
+                // const feedbacksData: any[] = [];
+                // const feedbacksDataCur: any[] = [];
+                // let yagrPricesData = {} as any;
+                // let yagrReviewRatingsData = {} as any;
+                // let yagrFeedbacksData = {} as any;
 
-                if (placementsValue && reviewRating) {
-                    if (firstPage) {
-                        for (let i = 0; i < firstPage.length; i++) {
-                            const card = firstPage[i];
-                            // console.log(card);
+                // if (placementsValue && reviewRating) {
+                //     if (firstPage) {
+                //         for (let i = 0; i < firstPage.length; i++) {
+                //             const card = firstPage[i];
+                //             // console.log(card);
 
-                            const {reviewRating, sizes, feedbacks} = card;
-                            const {price} = sizes
-                                ? sizes[0] ?? {price: undefined}
-                                : {price: undefined};
-                            const {total} = price ?? {total: 0};
-                            const priceRub = Math.round(total / 100);
+                //             const {reviewRating, sizes, feedbacks} = card;
+                //             const {price} = sizes
+                //                 ? sizes[0] ?? {price: undefined}
+                //                 : {price: undefined};
+                //             const {total} = price ?? {total: 0};
+                //             const priceRub = Math.round(total / 100);
 
-                            if (!pricesData.includes(priceRub)) pricesData.push(priceRub);
-                            if (!reviewRatingsData.includes(reviewRating))
-                                reviewRatingsData.push(reviewRating);
-                            if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
-                        }
-                    }
-                    pricesData.sort((a, b) => a - b);
-                    for (let i = 0; i < pricesData.length; i++) {
-                        if (pricesData[i] == priceRub) {
-                            pricesDataCur.push(priceRub);
-                            break;
-                        } else {
-                            pricesDataCur.push(null);
-                        }
-                    }
-                    reviewRatingsData.sort((a, b) => a - b);
-                    for (let i = 0; i < reviewRatingsData.length; i++) {
-                        if (reviewRatingsData[i] == reviewRating) {
-                            reviewRatingsDataCur.push(reviewRating);
-                            break;
-                        } else {
-                            reviewRatingsDataCur.push(null);
-                        }
-                    }
-                    feedbacksData.sort((a, b) => a - b);
-                    for (let i = 0; i < feedbacksData.length; i++) {
-                        if (feedbacksData[i] == feedbacks) {
-                            feedbacksDataCur.push(feedbacks);
-                            break;
-                        } else {
-                            feedbacksDataCur.push(null);
-                        }
-                    }
+                //             if (!pricesData.includes(priceRub)) pricesData.push(priceRub);
+                //             if (!reviewRatingsData.includes(reviewRating))
+                //                 reviewRatingsData.push(reviewRating);
+                //             if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
+                //         }
+                //     }
+                //     pricesData.sort((a, b) => a - b);
+                //     for (let i = 0; i < pricesData.length; i++) {
+                //         if (pricesData[i] == priceRub) {
+                //             pricesDataCur.push(priceRub);
+                //             break;
+                //         } else {
+                //             pricesDataCur.push(null);
+                //         }
+                //     }
+                //     reviewRatingsData.sort((a, b) => a - b);
+                //     for (let i = 0; i < reviewRatingsData.length; i++) {
+                //         if (reviewRatingsData[i] == reviewRating) {
+                //             reviewRatingsDataCur.push(reviewRating);
+                //             break;
+                //         } else {
+                //             reviewRatingsDataCur.push(null);
+                //         }
+                //     }
+                //     feedbacksData.sort((a, b) => a - b);
+                //     for (let i = 0; i < feedbacksData.length; i++) {
+                //         if (feedbacksData[i] == feedbacks) {
+                //             feedbacksDataCur.push(feedbacks);
+                //             break;
+                //         } else {
+                //             feedbacksDataCur.push(null);
+                //         }
+                //     }
 
-                    const genYagrData = (
-                        all,
-                        cur,
-                        colorAll,
-                        title,
-                        axisName,
-                        cursorName,
-                        min = -1,
-                        colorCur = '#ffbe5c',
-                    ) => {
-                        return {
-                            data: {
-                                timeline: [...Array(all.length).keys()],
-                                graphs: [
-                                    {
-                                        color: colorCur,
-                                        type: 'column',
-                                        data: cur,
-                                        id: '1',
-                                        name: 'Этот артикул',
-                                        scale: 'y',
-                                    },
-                                    {
-                                        id: '0',
-                                        name: cursorName,
-                                        data: all,
-                                        color: colorAll,
-                                        scale: 'y',
-                                    },
-                                ],
-                            },
+                //     const genYagrData = (
+                //         all,
+                //         cur,
+                //         colorAll,
+                //         title,
+                //         axisName,
+                //         cursorName,
+                //         min = -1,
+                //         colorCur = '#ffbe5c',
+                //     ) => {
+                //         return {
+                //             data: {
+                //                 timeline: [...Array(all.length).keys()],
+                //                 graphs: [
+                //                     {
+                //                         color: colorCur,
+                //                         type: 'column',
+                //                         data: cur,
+                //                         id: '1',
+                //                         name: 'Этот артикул',
+                //                         scale: 'y',
+                //                     },
+                //                     {
+                //                         id: '0',
+                //                         name: cursorName,
+                //                         data: all,
+                //                         color: colorAll,
+                //                         scale: 'y',
+                //                     },
+                //                 ],
+                //             },
 
-                            libraryConfig: {
-                                chart: {
-                                    series: {
-                                        type: 'column',
-                                    },
-                                },
-                                axes: {
-                                    y: {
-                                        label: axisName,
-                                        precision: 'auto',
-                                        show: true,
-                                    },
-                                    x: {
-                                        show: true,
-                                    },
-                                },
-                                series: [],
-                                scales: {
-                                    y: {
-                                        min: min == -1 ? Math.floor(all[0]) : min,
-                                    },
-                                },
-                                title: {
-                                    text: title,
-                                },
-                            },
-                        } as YagrWidgetData;
-                    };
+                //             libraryConfig: {
+                //                 chart: {
+                //                     series: {
+                //                         type: 'column',
+                //                     },
+                //                 },
+                //                 axes: {
+                //                     y: {
+                //                         label: axisName,
+                //                         precision: 'auto',
+                //                         show: true,
+                //                     },
+                //                     x: {
+                //                         show: true,
+                //                     },
+                //                 },
+                //                 series: [],
+                //                 scales: {
+                //                     y: {
+                //                         min: min == -1 ? Math.floor(all[0]) : min,
+                //                     },
+                //                 },
+                //                 title: {
+                //                     text: title,
+                //                 },
+                //             },
+                //         } as YagrWidgetData;
+                //     };
 
-                    yagrPricesData = genYagrData(
-                        pricesData,
-                        pricesDataCur,
-                        '#5fb8a5',
-                        'Цены топ 100 артикулов по запросу',
-                        'Цены',
-                        'Цена',
-                    );
-                    yagrReviewRatingsData = genYagrData(
-                        reviewRatingsData,
-                        reviewRatingsDataCur,
-                        '#9a63d1',
-                        'Рейтинг топ 100 артикулов по запросу',
-                        'Рейтинг',
-                        'Рейтинг',
-                    );
-                    yagrFeedbacksData = genYagrData(
-                        feedbacksData,
-                        feedbacksDataCur,
-                        '#4aa1f2',
-                        'Количество отзывов топ 100 артикулов по запросу',
-                        'Отзывы',
-                        'Отзывов',
-                        0,
-                    );
-                }
+                //     yagrPricesData = genYagrData(
+                //         pricesData,
+                //         pricesDataCur,
+                //         '#5fb8a5',
+                //         'Цены топ 100 артикулов по запросу',
+                //         'Цены',
+                //         'Цена',
+                //     );
+                //     yagrReviewRatingsData = genYagrData(
+                //         reviewRatingsData,
+                //         reviewRatingsDataCur,
+                //         '#9a63d1',
+                //         'Рейтинг топ 100 артикулов по запросу',
+                //         'Рейтинг',
+                //         'Рейтинг',
+                //     );
+                //     yagrFeedbacksData = genYagrData(
+                //         feedbacksData,
+                //         feedbacksDataCur,
+                //         '#4aa1f2',
+                //         'Количество отзывов топ 100 артикулов по запросу',
+                //         'Отзывы',
+                //         'Отзывов',
+                //         0,
+                //     );
+                // }
 
                 return (
                     <Card
@@ -1798,64 +1772,62 @@ export const MassAdvertPage = ({
                         }}
                     >
                         {priceRub ? (
-                            <Popover
-                                openOnHover={reviewRating}
-                                content={
-                                    <div
-                                        style={{
-                                            height: 'calc(30em - 60px)',
-                                            width: '60em',
-                                            overflow: 'auto',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Card
-                                            view="outlined"
-                                            theme="warning"
-                                            style={{
-                                                position: 'absolute',
-                                                height: '30em',
-                                                width: '60em',
-                                                overflow: 'auto',
-                                                top: -10,
-                                                left: -10,
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                            }}
-                                        >
-                                            <ChartKit type="yagr" data={yagrPricesData} />
-                                            <div
-                                                style={{
-                                                    // background: 'var(--g-color-base-background)',
-                                                    background: '#2d2c33',
-                                                    position: 'absolute',
-                                                    height: 20,
-                                                    width: '100%',
-                                                    bottom: 0,
-                                                }}
-                                            ></div>
-                                        </Card>
-                                    </div>
-                                }
+                            // <Popover
+                            //     openOnHover={reviewRating}
+                            //     content={
+                            //         <div
+                            //             style={{
+                            //                 height: 'calc(30em - 60px)',
+                            //                 width: '60em',
+                            //                 overflow: 'auto',
+                            //                 display: 'flex',
+                            //             }}
+                            //         >
+                            //             <Card
+                            //                 view="outlined"
+                            //                 theme="warning"
+                            //                 style={{
+                            //                     position: 'absolute',
+                            //                     height: '30em',
+                            //                     width: '60em',
+                            //                     overflow: 'auto',
+                            //                     top: -10,
+                            //                     left: -10,
+                            //                     display: 'flex',
+                            //                     flexDirection: 'column',
+                            //                 }}
+                            //             >
+                            //                 <ChartKit type="yagr" data={yagrPricesData} />
+                            //                 <div
+                            //                     style={{
+                            //                         // background: 'var(--g-color-base-background)',
+                            //                         background: '#2d2c33',
+                            //                         position: 'absolute',
+                            //                         height: 20,
+                            //                         width: '100%',
+                            //                         bottom: 0,
+                            //                     }}
+                            //                 ></div>
+                            //             </Card>
+                            //         </div>
+                            //     }
+                            // >
+                            // </Popover>
+                            <Button
+                                view="flat"
+                                width="max"
+                                size="xs"
+                                pin="clear-clear"
+                                style={{
+                                    width: 160,
+                                    overflow: 'hidden',
+                                    borderTopLeftRadius: 7,
+                                    borderTopRightRadius: 7,
+                                }}
+                                // pin="brick-brick"
                             >
-                                <Button
-                                    view="flat"
-                                    width="max"
-                                    size="xs"
-                                    pin="clear-clear"
-                                    style={{
-                                        width: 160,
-                                        overflow: 'hidden',
-                                        borderTopLeftRadius: 7,
-                                        borderTopRightRadius: 7,
-                                    }}
-                                    // pin="brick-brick"
-                                >
-                                    {`Цена СПП: ${new Intl.NumberFormat('ru-RU').format(
-                                        priceRub,
-                                    )} ₽`}
-                                </Button>
-                            </Popover>
+                                {`Цена СПП: ${new Intl.NumberFormat('ru-RU').format(priceRub)} ₽`}
+                            </Button>
                         ) : (
                             <></>
                         )}
@@ -1869,7 +1841,7 @@ export const MassAdvertPage = ({
                                     }}
                                 />
                                 <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    <Popover
+                                    {/* <Popover
                                         content={
                                             <div
                                                 style={{
@@ -1910,36 +1882,36 @@ export const MassAdvertPage = ({
                                             </div>
                                         }
                                     >
-                                        <Button
-                                            width="max"
-                                            size="xs"
-                                            view="flat"
-                                            pin="clear-brick"
+                                    </Popover> */}
+                                    <Button
+                                        width="max"
+                                        size="xs"
+                                        view="flat"
+                                        pin="clear-brick"
+                                        style={{
+                                            height: 20,
+                                            width: 80,
+                                        }}
+                                        // pin="brick-brick"
+                                    >
+                                        <div
                                             style={{
-                                                height: 20,
-                                                width: 80,
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
                                             }}
-                                            // pin="brick-brick"
                                         >
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                }}
+                                            <Text>{reviewRating}</Text>
+                                            <div style={{minWidth: 3}} />
+                                            <Text
+                                                color="warning"
+                                                style={{display: 'flex', alignItems: 'center'}}
                                             >
-                                                <Text>{reviewRating}</Text>
-                                                <div style={{minWidth: 3}} />
-                                                <Text
-                                                    color="warning"
-                                                    style={{display: 'flex', alignItems: 'center'}}
-                                                >
-                                                    <Icon data={Star} size={11} />
-                                                </Text>
-                                            </div>
-                                        </Button>
-                                    </Popover>
+                                                <Icon data={Star} size={11} />
+                                            </Text>
+                                        </div>
+                                    </Button>
                                     <div
                                         style={{
                                             background: 'var(--yc-color-base-generic-hover)',
@@ -1947,7 +1919,7 @@ export const MassAdvertPage = ({
                                             minWidth: 0.5,
                                         }}
                                     />
-                                    <Popover
+                                    {/* <Popover
                                         content={
                                             <div
                                                 style={{
@@ -1988,31 +1960,31 @@ export const MassAdvertPage = ({
                                             </div>
                                         }
                                     >
-                                        <Button
+                                    </Popover> */}
+                                    <Button
+                                        style={{
+                                            width: 80,
+                                            height: 20,
+                                            overflow: 'hidden',
+                                        }}
+                                        width="max"
+                                        size="xs"
+                                        view="flat"
+                                        pin="brick-clear"
+                                    >
+                                        <div
                                             style={{
-                                                width: 80,
-                                                height: 20,
-                                                overflow: 'hidden',
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
                                             }}
-                                            width="max"
-                                            size="xs"
-                                            view="flat"
-                                            pin="brick-clear"
                                         >
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                <Text>{feedbacks}</Text>
-                                                <div style={{minWidth: 3}} />
-                                                <Icon data={Comment} size={11} />
-                                            </div>
-                                        </Button>
-                                    </Popover>
+                                            <Text>{feedbacks}</Text>
+                                            <div style={{minWidth: 3}} />
+                                            <Icon data={Comment} size={11} />
+                                        </div>
+                                    </Button>
                                 </div>
                             </div>
                         ) : (
@@ -2356,17 +2328,6 @@ export const MassAdvertPage = ({
                 };
                 const fistActiveAdvert = findFirstActive(adverts);
 
-                const mapAuctionsTypes = {
-                    Выдача: 'firstPage',
-                    'Аукцион Авто': 'auto',
-                    'Аукцион Поиска': 'search',
-                };
-
-                const auction =
-                    doc?.placementsAuctions?.[selectValue[0]]?.[phrase]?.[
-                        mapAuctionsTypes[auctionSelectedOption]
-                    ] ?? [];
-
                 const updateTimeObj = new Date(updateTime);
                 const moreThatHour =
                     new Date().getTime() / 1000 / 3600 - updateTimeObj.getTime() / 1000 / 3600 > 1;
@@ -2451,126 +2412,11 @@ export const MassAdvertPage = ({
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
+                                gap: 8,
                             }}
                         >
-                            <Popover
-                                placement={'bottom-start'}
-                                content={
-                                    <Card
-                                        view="clear"
-                                        style={{
-                                            height: 20,
-                                            overflow: 'auto',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Card
-                                            view="clear"
-                                            style={{
-                                                position: 'absolute',
-                                                maxHeight: '30em',
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                top: -10,
-                                                left: -10,
-                                            }}
-                                        >
-                                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                                <Card
-                                                    // theme="warning"
-                                                    style={{
-                                                        height: 'fit-content',
-                                                        width: 'fit-content',
-                                                        boxShadow:
-                                                            'var(--g-color-base-background) 0px 2px 8px',
-                                                    }}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            overflow: 'auto',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            justifyContent: 'space-between',
-                                                            padding: 5,
-                                                        }}
-                                                    >
-                                                        <RadioButton
-                                                            value={auctionSelectedOption}
-                                                            options={auctionOptions}
-                                                            onUpdate={(value) => {
-                                                                setAuctionSelectedOption(value);
-                                                            }}
-                                                        />
-                                                    </Card>
-                                                </Card>
-                                                <div style={{minHeight: 12}} />
-                                                <div
-                                                    style={{display: 'flex', flexDirection: 'row'}}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            maxWidth: '80em',
-                                                            maxHeight: '30em',
-                                                            height: 'fit-content',
-                                                            overflow: 'auto',
-                                                            boxShadow:
-                                                                'var(--g-color-base-background) 0px 2px 8px',
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            style={{
-                                                                background:
-                                                                    'var(--g-color-base-background)',
-                                                            }}
-                                                        >
-                                                            <DataTable
-                                                                settings={{
-                                                                    displayIndices: false,
-                                                                    stickyHead: MOVING,
-                                                                    stickyFooter: MOVING,
-                                                                    highlightRows: true,
-                                                                }}
-                                                                footerData={[
-                                                                    {
-                                                                        cpm: `${auctionSelectedOption}, ${
-                                                                            auction
-                                                                                ? auction.length
-                                                                                : 0
-                                                                        } шт.`,
-                                                                    },
-                                                                ]}
-                                                                theme="yandex-cloud"
-                                                                onRowClick={(row, index, event) => {
-                                                                    console.log(row, index, event);
-                                                                }}
-                                                                rowClassName={(
-                                                                    _row,
-                                                                    index,
-                                                                    isFooterData,
-                                                                ) =>
-                                                                    isFooterData
-                                                                        ? b('tableRow_footer')
-                                                                        : b('tableRow_' + index)
-                                                                }
-                                                                columns={columnDataAuction}
-                                                                data={auction}
-                                                            />
-                                                        </Card>
-                                                    </Card>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </Card>
-                                }
-                            >
-                                <Text variant="subheader-1">{phrase}</Text>
-                            </Popover>
-                            <div style={{minWidth: 8}} />
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <Auction sellerId={sellerId} phrase={phrase} />
+                            <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
                                 <Button
                                     size="xs"
                                     view="outlined"
@@ -2579,7 +2425,6 @@ export const MassAdvertPage = ({
                                 >
                                     <Icon data={Magnifier} />
                                 </Button>
-                                <div style={{minWidth: 4}} />
                                 <Button
                                     size="xs"
                                     view={isSelectedPhrase ? 'outlined-success' : 'outlined'}
@@ -3851,107 +3696,6 @@ export const MassAdvertPage = ({
         {name: 'cpl', placeholder: 'CPL, ₽'},
     ];
 
-    const columnDataAuction = [
-        {
-            header: '#',
-            name: 'index',
-            sortable: false,
-            render: ({index, footer}) => {
-                const displayIndex = index + 1;
-                return footer ? undefined : (
-                    <Button width="max" size="xs" view="flat">
-                        {displayIndex}
-                    </Button>
-                );
-            },
-        },
-        {
-            header: 'Ставка',
-            name: 'cpm',
-            render: ({value, row, footer}) => {
-                const {advertsType} = row;
-                if (!value) return undefined;
-                return footer ? (
-                    value
-                ) : (
-                    <Button size="xs" view="flat">
-                        {advertsType ? (
-                            <Icon data={advertsType == 'auto' ? Rocket : Magnifier} size={11} />
-                        ) : (
-                            <></>
-                        )}
-                        {value as number}
-                    </Button>
-                );
-            },
-        },
-        {
-            header: 'Позиция',
-            name: 'promoPosition',
-            render: ({value, row}) => {
-                if (value === undefined) return;
-                const {position} = row;
-                const displayIndex = (value as number) + 0;
-                return (
-                    <Button size="xs" view="flat">
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Text color="secondary">{`${position + 1}`}</Text>
-                            <div style={{width: 3}} />
-                            <Icon data={ArrowRight} size={13}></Icon>
-                            <div style={{width: 3}} />
-                            <Text>{`${displayIndex}`}</Text>
-                        </div>
-                    </Button>
-                );
-            },
-        },
-        {
-            header: 'Бренд',
-            name: 'brand',
-            render: ({value, row}) => {
-                if (!value) return undefined;
-                const {id} = row;
-                return (
-                    <Link
-                        view="primary"
-                        style={{whiteSpace: 'pre-wrap'}}
-                        href={`https://www.wildberries.ru/catalog/${id}/detail.aspx?targetUrl=BP`}
-                        target="_blank"
-                    >
-                        <Text variant="subheader-1">{value as string}</Text>
-                    </Link>
-                );
-            },
-        },
-        {
-            header: 'Цена с СПП, ₽',
-            name: 'sppPrice',
-        },
-        {
-            header: 'Цена 1 буста, ₽',
-            name: 'avgBoostPrice',
-        },
-        {
-            header: 'Акция',
-            name: 'promoTextCard',
-        },
-        // {header: 'Частота, шт', name: 'freq'},
-        // {header: 'Частота, шт (пр. пер.)', name: 'freqPrev'},
-    ] as Column<any>[];
-    // const auctionColumns = generateColumns(
-    //     columnDataAuction,
-    //     auctionFilters,
-    //     setAuctionFilters,
-    //     filterAuctionData,
-    // );
-    // console.log(columnsSemanticsTemplate);
-
     const balance = (() => {
         const map = {balance: 'Счет', bonus: 'Бонусы', net: 'Баланс'};
 
@@ -4191,8 +3935,8 @@ export const MassAdvertPage = ({
             doc['advertsAutoBidsRules'][selectValue[0]] =
                 resData['advertsAutoBidsRules'][selectValue[0]];
             doc['adverts'][selectValue[0]] = resData['adverts'][selectValue[0]];
-            doc['placementsAuctions'][selectValue[0]] =
-                resData['placementsAuctions'][selectValue[0]];
+            // doc['placementsAuctions'][selectValue[0]] =
+            // resData['placementsAuctions'][selectValue[0]];
             doc['advertsSchedules'][selectValue[0]] = resData['advertsSchedules'][selectValue[0]];
 
             setChangedDoc({...doc});
@@ -4596,9 +4340,6 @@ export const MassAdvertPage = ({
                                                     setCurrentParsingProgress={
                                                         setCurrentParsingProgress
                                                     }
-                                                    columnDataAuction={columnDataAuction}
-                                                    auctionOptions={auctionOptions}
-                                                    auctionSelectedOption={auctionSelectedOption}
                                                     setDateRange={setDateRange}
                                                     setShowArtStatsModalOpen={
                                                         setShowArtStatsModalOpen
@@ -4606,9 +4347,6 @@ export const MassAdvertPage = ({
                                                     dateRange={dateRange}
                                                     recalc={recalc}
                                                     filterByButton={filterByButton}
-                                                    setAuctionSelectedOption={
-                                                        setAuctionSelectedOption
-                                                    }
                                                     getUniqueAdvertIdsFromThePage={
                                                         getUniqueAdvertIdsFromThePage
                                                     }

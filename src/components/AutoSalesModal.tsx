@@ -1,4 +1,4 @@
-import {Button, Card, Icon, Modal, Select, Text} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Modal, Text} from '@gravity-ui/uikit';
 import {Calculator, TagRuble} from '@gravity-ui/icons';
 import React, {useEffect, useMemo, useState} from 'react';
 import {RangeCalendar} from '@gravity-ui/date-components';
@@ -8,6 +8,70 @@ import {motion} from 'framer-motion';
 import {TextTitleWrapper} from './TextTitleWrapper';
 import {AutoSalesUploadModal} from './AutoSalesUploadModal';
 import {useError} from 'src/pages/ErrorContext';
+
+const ButtonList = ({
+    availableAutoSales,
+    autoSaleName,
+    setAutoSaleName,
+    currentStep,
+    setCurrentStep,
+    setDateRange,
+}) => {
+    const buttons = [] as any[];
+    for (const [name, data] of Object.entries(availableAutoSales)) {
+        if (autoSaleName[0] == 'none' || autoSaleName[0] == name)
+            buttons.push(
+                <motion.div
+                    exit={{opacity: 0}}
+                    style={{
+                        width: name == autoSaleName[0] ? '250' : undefined,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: 8,
+                        alignItems: 'center',
+                    }}
+                >
+                    <Button
+                        style={{width: '100%'}}
+                        width="max"
+                        view="outlined"
+                        size="l"
+                        onClick={() => {
+                            setAutoSaleName(name == autoSaleName[0] ? ['none'] : [name]);
+                            setCurrentStep(name == autoSaleName[0] ? 0 : 1);
+                            setDateRange([]);
+                        }}
+                    >
+                        {name}
+                    </Button>
+                    {name == autoSaleName[0] ? (
+                        <></>
+                    ) : (
+                        <Text whiteSpace="nowrap" variant="subheader-2">
+                            {`${new Date(data?.['startDateTime'])
+                                .toLocaleDateString('ru-RU')
+                                .slice(0, 10)} -
+                ${new Date(data?.['endDateTime']).toLocaleDateString('ru-RU').slice(0, 10)}`}
+                        </Text>
+                    )}
+                </motion.div>,
+            );
+    }
+    return (
+        <motion.div
+            animate={{height: !currentStep ? 48 * buttons.length : 36}}
+            style={{
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                height: 36 * buttons.length + 8 * (buttons.length - 1),
+            }}
+        >
+            {buttons}
+        </motion.div>
+    );
+};
 
 export const AutoSalesModal = ({
     disabled,
@@ -172,21 +236,20 @@ export const AutoSalesModal = ({
                         }}
                     >
                         <motion.div
-                            animate={{height: currentStep ? 504 : 36}}
+                            // animate={{height: currentStep ? 504 : 36}}
                             style={{
                                 height: '100%',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                width: 250,
                             }}
                             transition={{
                                 ease: 'easeInOut',
                             }}
                         >
                             <motion.div
-                                animate={{height: currentStep < 3 ? 36 : 0}}
-                                style={{height: 36, overflow: 'hidden', width: '100%'}}
+                                // animate={{height: currentStep < 3 ? 36 : 0}}
+                                // style={{height: 36, overflow: 'hidden', width: '100%'}}
                                 transition={{
                                     duration: 0.8,
                                     type: 'spring',
@@ -194,16 +257,13 @@ export const AutoSalesModal = ({
                                     stiffness: 200,
                                 }}
                             >
-                                <Select
-                                    width={'max'}
-                                    options={availableAutoSalesOptions}
-                                    value={autoSaleName}
-                                    size="l"
-                                    onUpdate={(nextValue) => {
-                                        setAutoSaleName(nextValue);
-                                        setCurrentStep(nextValue[0] != 'none' ? 1 : 0);
-                                        if (nextValue[0] != 'none') setDateRange([]);
-                                    }}
+                                <ButtonList
+                                    setDateRange={setDateRange}
+                                    availableAutoSales={availableAutoSales}
+                                    setAutoSaleName={setAutoSaleName}
+                                    autoSaleName={autoSaleName}
+                                    currentStep={currentStep}
+                                    setCurrentStep={setCurrentStep}
                                 />
                             </motion.div>
                             <motion.div

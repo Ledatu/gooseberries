@@ -5,8 +5,6 @@ import {
     List,
     Loader,
     Modal,
-    Popover,
-    RadioButton,
     Skeleton,
     Spin,
     Text,
@@ -17,7 +15,6 @@ import {
     LayoutHeader,
     Pencil,
     TriangleExclamation,
-    Eye,
     ArrowRight,
     CaretUp,
     Plus,
@@ -32,8 +29,6 @@ import TheTable, {compare} from './TheTable';
 import {parseFirst10Pages} from 'src/pages/MassAdvertPage';
 import callApi, {getUid} from 'src/utilities/callApi';
 import {defaultRender, getRoundValue, renderAsPercent} from 'src/utilities/getRoundValue';
-import DataTable from '@gravity-ui/react-data-table';
-import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 import {AutoPhrasesWordsSelection} from './AutoPhrasesWordsSelection';
 import {TextTitleWrapper} from './TextTitleWrapper';
 import {useCampaign} from 'src/contexts/CampaignContext';
@@ -50,10 +45,6 @@ export const AdvertsWordsModal = ({
     setFetchedPlacements,
     currentParsingProgress,
     setCurrentParsingProgress,
-    columnDataAuction,
-    auctionOptions,
-    auctionSelectedOption,
-    setAuctionSelectedOption,
 }) => {
     const {selectValue} = useCampaign();
 
@@ -611,20 +602,6 @@ export const AdvertsWordsModal = ({
                         ? doc['advertsSelectedPhrases'][selectValue[0]][advertId].phrase
                         : '') == value;
 
-                const mapAuctionsTypes = {
-                    Выдача: 'firstPage',
-                    'Аукцион Авто': 'auto',
-                    'Аукцион Поиска': 'search',
-                };
-
-                const auction = (
-                    doc.fetchedPlacements[value]
-                        ? doc.fetchedPlacements[value].cpms[
-                              mapAuctionsTypes[auctionSelectedOption]
-                          ] ?? []
-                        : []
-                ).slice(0, 100);
-
                 return (
                     <div
                         style={{
@@ -645,120 +622,6 @@ export const AdvertsWordsModal = ({
                             >
                                 <Icon data={Magnifier} />
                             </Button>
-                            <Popover
-                                placement={'bottom-start'}
-                                content={
-                                    <Card
-                                        view="clear"
-                                        style={{
-                                            height: 20,
-                                            overflow: 'auto',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Card
-                                            view="clear"
-                                            style={{
-                                                position: 'absolute',
-                                                maxHeight: '30em',
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                top: -10,
-                                                left: -10,
-                                            }}
-                                        >
-                                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                                <Card
-                                                    // theme="warning"
-                                                    style={{
-                                                        height: 'fit-content',
-                                                        width: 'fit-content',
-                                                        boxShadow:
-                                                            'var(--g-color-base-background) 0px 2px 8px',
-                                                    }}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            overflow: 'auto',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            justifyContent: 'space-between',
-                                                            padding: 5,
-                                                        }}
-                                                    >
-                                                        <RadioButton
-                                                            value={auctionSelectedOption}
-                                                            options={auctionOptions}
-                                                            onUpdate={(value) => {
-                                                                setAuctionSelectedOption(value);
-                                                            }}
-                                                        />
-                                                    </Card>
-                                                </Card>
-                                                <div style={{minHeight: 12}} />
-                                                <div
-                                                    style={{display: 'flex', flexDirection: 'row'}}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            maxWidth: '60em',
-                                                            maxHeight: '30em',
-                                                            height: 'fit-content',
-                                                            overflow: 'auto',
-                                                            boxShadow:
-                                                                'var(--g-color-base-background) 0px 2px 8px',
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            style={{
-                                                                background:
-                                                                    'var(--g-color-base-background)',
-                                                            }}
-                                                        >
-                                                            <DataTable
-                                                                settings={{
-                                                                    displayIndices: false,
-                                                                    stickyHead: MOVING,
-                                                                    stickyFooter: MOVING,
-                                                                    highlightRows: true,
-                                                                }}
-                                                                footerData={[
-                                                                    {
-                                                                        cpm: `${auctionSelectedOption}, ${
-                                                                            auction
-                                                                                ? auction.length
-                                                                                : 0
-                                                                        } шт.`,
-                                                                    },
-                                                                ]}
-                                                                theme="yandex-cloud"
-                                                                onRowClick={(row, index, event) => {
-                                                                    console.log(row, index, event);
-                                                                }}
-                                                                columns={columnDataAuction}
-                                                                data={auction}
-                                                            />
-                                                        </Card>
-                                                    </Card>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </Card>
-                                }
-                            >
-                                <Button
-                                    size="xs"
-                                    view={'outlined'}
-                                    onClick={() => {}}
-                                    disabled={!doc.fetchedPlacements[value]}
-                                >
-                                    <Icon data={Eye} />
-                                </Button>
-                            </Popover>
                             <Button
                                 disabled={disabled}
                                 size="xs"
@@ -1117,17 +980,6 @@ export const AdvertsWordsModal = ({
                         ? doc['advertsSelectedPhrases'][selectValue[0]][advertId].phrase
                         : '') == value;
 
-                const mapAuctionsTypes = {
-                    Выдача: 'firstPage',
-                    'Аукцион Авто': 'auto',
-                    'Аукцион Поиска': 'search',
-                };
-
-                const auction = doc.fetchedPlacements[value]
-                    ? doc.fetchedPlacements[value].cpms[mapAuctionsTypes[auctionSelectedOption]] ??
-                      []
-                    : [];
-
                 return (
                     <div
                         style={{
@@ -1148,120 +1000,6 @@ export const AdvertsWordsModal = ({
                             >
                                 <Icon data={Magnifier} />
                             </Button>
-                            <Popover
-                                placement={'bottom-start'}
-                                content={
-                                    <Card
-                                        view="clear"
-                                        style={{
-                                            height: 20,
-                                            overflow: 'auto',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Card
-                                            view="clear"
-                                            style={{
-                                                position: 'absolute',
-                                                maxHeight: '30em',
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                top: -10,
-                                                left: -10,
-                                            }}
-                                        >
-                                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                                <Card
-                                                    // theme="warning"
-                                                    style={{
-                                                        height: 'fit-content',
-                                                        width: 'fit-content',
-                                                        boxShadow:
-                                                            'var(--g-color-base-background) 0px 2px 8px',
-                                                    }}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            overflow: 'auto',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            justifyContent: 'space-between',
-                                                            padding: 5,
-                                                        }}
-                                                    >
-                                                        <RadioButton
-                                                            value={auctionSelectedOption}
-                                                            options={auctionOptions}
-                                                            onUpdate={(value) => {
-                                                                setAuctionSelectedOption(value);
-                                                            }}
-                                                        />
-                                                    </Card>
-                                                </Card>
-                                                <div style={{minHeight: 12}} />
-                                                <div
-                                                    style={{display: 'flex', flexDirection: 'row'}}
-                                                >
-                                                    <Card
-                                                        style={{
-                                                            background:
-                                                                'var(--yc-color-base-background)',
-                                                            maxWidth: '60em',
-                                                            maxHeight: '30em',
-                                                            height: 'fit-content',
-                                                            overflow: 'auto',
-                                                            boxShadow:
-                                                                'var(--g-color-base-background) 0px 2px 8px',
-                                                        }}
-                                                    >
-                                                        <Card
-                                                            style={{
-                                                                background:
-                                                                    'var(--g-color-base-background)',
-                                                            }}
-                                                        >
-                                                            <DataTable
-                                                                settings={{
-                                                                    displayIndices: false,
-                                                                    stickyHead: MOVING,
-                                                                    stickyFooter: MOVING,
-                                                                    highlightRows: true,
-                                                                }}
-                                                                footerData={[
-                                                                    {
-                                                                        cpm: `${auctionSelectedOption}, ${
-                                                                            auction
-                                                                                ? auction.length
-                                                                                : 0
-                                                                        } шт.`,
-                                                                    },
-                                                                ]}
-                                                                theme="yandex-cloud"
-                                                                onRowClick={(row, index, event) => {
-                                                                    console.log(row, index, event);
-                                                                }}
-                                                                columns={columnDataAuction}
-                                                                data={auction}
-                                                            />
-                                                        </Card>
-                                                    </Card>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </Card>
-                                }
-                            >
-                                <Button
-                                    size="xs"
-                                    view={'outlined'}
-                                    onClick={() => {}}
-                                    disabled={!doc.fetchedPlacements[value]}
-                                >
-                                    <Icon data={Eye} />
-                                </Button>
-                            </Popover>
                             <Button
                                 size="xs"
                                 view={isSelected ? 'outlined-success' : 'outlined'}
