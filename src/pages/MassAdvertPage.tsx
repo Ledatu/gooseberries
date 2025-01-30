@@ -238,6 +238,7 @@ export const MassAdvertPage = ({
         date: 0,
         orders: 0,
         sum_orders: 0,
+        avg_price: 0,
         sum: 0,
         views: 0,
         clicks: 0,
@@ -261,6 +262,7 @@ export const MassAdvertPage = ({
             date: 0,
             orders: 0,
             sum_orders: 0,
+            avg_price: 0,
             sum: 0,
             views: 0,
             clicks: 0,
@@ -284,43 +286,54 @@ export const MassAdvertPage = ({
         });
 
         setArtsStatsByDayFilteredData(
-            _stats.filter((stat) => {
-                for (const [filterArg, filterData] of Object.entries(_filters)) {
-                    if (filterArg == 'undef' || !filterData) continue;
-                    if (filterData['val'] == '') continue;
-                    else if (!compare(stat[filterArg], filterData)) {
-                        return false;
+            _stats
+                .map((stat) => {
+                    const {sum_orders: SO, orders: O} = stat ?? {};
+                    const avgPrice = getRoundValue(SO, O);
+                    return {...stat, avg_price: avgPrice};
+                })
+                .filter((stat) => {
+                    for (const [filterArg, filterData] of Object.entries(_filters)) {
+                        if (filterArg == 'undef' || !filterData) continue;
+                        if (filterData['val'] == '') continue;
+                        else if (!compare(stat[filterArg], filterData)) {
+                            return false;
+                        }
                     }
-                }
 
-                for (const [key, val] of Object.entries(stat)) {
-                    if (
-                        [
-                            'sum',
-                            'clicks',
-                            'views',
-                            'orders',
-                            'sum_orders',
-                            'openCardCount',
-                            'addToCartCount',
-                            'addToCartPercent',
-                            'cartToOrderPercent',
-                        ].includes(key)
-                    )
-                        artsStatsByDayFilteredSummaryTemp[key] +=
-                            isFinite(val as number) && !isNaN(val as number) ? val : 0;
-                }
+                    for (const [key, val] of Object.entries(stat)) {
+                        if (
+                            [
+                                'sum',
+                                'clicks',
+                                'views',
+                                'orders',
+                                'sum_orders',
+                                'avg_prices',
+                                'openCardCount',
+                                'addToCartCount',
+                                'addToCartPercent',
+                                'cartToOrderPercent',
+                            ].includes(key)
+                        )
+                            artsStatsByDayFilteredSummaryTemp[key] +=
+                                isFinite(val as number) && !isNaN(val as number) ? val : 0;
+                    }
 
-                artsStatsByDayFilteredSummaryTemp['date']++;
+                    artsStatsByDayFilteredSummaryTemp['date']++;
 
-                return true;
-            }),
+                    return true;
+                }),
         );
 
         artsStatsByDayFilteredSummaryTemp.sum_orders = Math.round(
             artsStatsByDayFilteredSummaryTemp.sum_orders,
         );
         artsStatsByDayFilteredSummaryTemp.orders = Math.round(
+            artsStatsByDayFilteredSummaryTemp.orders,
+        );
+        artsStatsByDayFilteredSummaryTemp.avg_price = getRoundValue(
+            artsStatsByDayFilteredSummaryTemp.sum_orders,
             artsStatsByDayFilteredSummaryTemp.orders,
         );
         artsStatsByDayFilteredSummaryTemp.sum = Math.round(artsStatsByDayFilteredSummaryTemp.sum);
@@ -3702,6 +3715,10 @@ export const MassAdvertPage = ({
         {name: 'sum', placeholder: 'Расход, ₽'},
         {name: 'orders', placeholder: 'Заказы, шт.'},
         {name: 'sum_orders', placeholder: 'Заказы, ₽'},
+        {
+            name: 'avg_price',
+            placeholder: 'Ср. Чек, ₽',
+        },
         {
             name: 'drr',
             placeholder: 'ДРР, %',
