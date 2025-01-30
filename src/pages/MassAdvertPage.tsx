@@ -59,6 +59,7 @@ settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from 'src/utilities/callApi';
 import axios, {CancelTokenSource} from 'axios';
 import {
+    defaultRender,
     getLocaleDateString,
     getNormalDateRange,
     getRoundValue,
@@ -2525,6 +2526,27 @@ export const MassAdvertPage = ({
         {name: 'orders', placeholder: 'Заказы, шт.'},
         {name: 'sum_orders', placeholder: 'Заказы, ₽'},
         {
+            name: 'avg_price',
+            placeholder: 'Ср. Чек, ₽',
+            render: ({row}) => {
+                return defaultRender({value: getRoundValue(row?.sum_orders, row?.orders)});
+            },
+            sortFunction: (a, b, order) => {
+                const dataA = getRoundValue(a?.sum_orders, a?.orders);
+                const dataB = getRoundValue(b?.sum_orders, b?.orders);
+
+                // console.log(dataA, dataB);
+
+                const isNaNa = isNaN(dataA);
+                const isNaNb = isNaN(dataB);
+                if (isNaNa && isNaNb) return 1;
+                else if (isNaNa) return 1;
+                else if (isNaNb) return -1;
+
+                return (dataA - dataB) * order;
+            },
+        },
+        {
             name: 'drr',
             placeholder: 'ДРР, %',
             render: ({value, row}) => {
@@ -3486,6 +3508,16 @@ export const MassAdvertPage = ({
                     }
                 } else if (filterArg == 'semantics') {
                     if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'avg_price') {
+                    if (
+                        !compare(
+                            getRoundValue(tempTypeRow['sum_orders'], tempTypeRow['orders']),
+                            filterData,
+                        )
+                    ) {
                         addFlag = false;
                         break;
                     }
