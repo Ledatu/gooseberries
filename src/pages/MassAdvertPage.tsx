@@ -2572,7 +2572,7 @@ export const MassAdvertPage = ({
                         const drrAI = doc?.advertsAutoBidsRules[selectValue[0]]?.[advert?.advertId];
                         const {desiredDRR, useManualMaxCpm, autoBidsMode} = drrAI ?? {};
 
-                        if (useManualMaxCpm && !['drr', 'cpo'].includes(autoBidsMode)) continue;
+                        if (useManualMaxCpm && !['drr'].includes(autoBidsMode)) continue;
                         if (desiredDRR > minDrr) minDrr = desiredDRR;
                     }
                     return minDrr;
