@@ -853,6 +853,9 @@ export const AdvertsBidsModal = ({
                                                       useManualMaxCpm: !useAutoMaxCpm,
                                                       useAutoBudget,
                                                       useMaxBudget,
+                                                      placementsTrigger: usePlacementsTrigger
+                                                          ? parseInt(placementsTriggerInputValue)
+                                                          : undefined,
                                                       maxBudget: useMaxBudget
                                                           ? parseInt(maxBudgetInputValue)
                                                           : undefined,

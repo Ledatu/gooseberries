@@ -2710,12 +2710,16 @@ export const MassAdvertPage = ({
                 const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
                     seller_id: sellerId,
                 });
+                const autoSales = await ApiClient.post('massAdvert/get-sales-rules', {
+                    seller_id: sellerId,
+                });
                 const resData = res['data'];
 
                 console.log('advertsAutoBidsRules', advertsAutoBidsRules);
 
                 resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
                 resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
+                resData['autoSales'][selectValue[0]] = autoSales?.data;
                 setChangedDoc(resData);
                 setSwitchingCampaignsFlag(false);
                 // recalc(dateRange, selectValue[0], filters, resData);
@@ -2798,10 +2802,14 @@ export const MassAdvertPage = ({
                 const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
                     seller_id: sellerId,
                 });
+                const autoSales = await ApiClient.post('massAdvert/get-sales-rules', {
+                    seller_id: sellerId,
+                });
                 console.log('advertsAutoBidsRules', advertsAutoBidsRules);
 
                 resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
                 resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
+                resData['autoSales'][selectValue[0]] = autoSales?.data;
 
                 setChangedDoc(resData);
                 setChangedDocUpdateType(true);
@@ -3359,7 +3367,7 @@ export const MassAdvertPage = ({
 
                 if (flarg && fldata.trim() == '+') {
                     if (flarg !== undefined) continue;
-                } else if (flarg && fldata.trim() == '-') {
+                } else if (fldata.trim() == '-') {
                     if (flarg === undefined) continue;
                 }
 
