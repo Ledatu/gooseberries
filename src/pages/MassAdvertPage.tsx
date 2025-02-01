@@ -3367,7 +3367,7 @@ export const MassAdvertPage = ({
 
                 if (flarg && fldata.trim() == '+') {
                     if (flarg !== undefined) continue;
-                } else if (fldata.trim() == '-') {
+                } else if (fldata?.trim() == '-') {
                     if (flarg === undefined) continue;
                 }
 
