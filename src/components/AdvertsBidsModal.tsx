@@ -851,6 +851,7 @@ export const AdvertsBidsModal = ({
                                                           ? parseInt(maxCpmInputValue)
                                                           : undefined,
                                                       useManualMaxCpm: !useAutoMaxCpm,
+                                                      desiredCpo: parseInt(cpoInputValue),
                                                       useAutoBudget,
                                                       useMaxBudget,
                                                       placementsTrigger: usePlacementsTrigger

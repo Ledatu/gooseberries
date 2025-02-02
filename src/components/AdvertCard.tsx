@@ -456,7 +456,9 @@ export const AdvertCard = ({
                                         : true) ? (
                                         <Text variant="caption-2">
                                             {`${drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
-                                                drrAI.desiredDRR
+                                                drrAI.autoBidsMode == 'cpo'
+                                                    ? drrAI?.desiredCpo
+                                                    : drrAI.desiredDRR
                                             }`}
                                         </Text>
                                     ) : (
