@@ -1628,152 +1628,153 @@ export const MassAdvertPage = ({
                 const priceRub = Math.round(total / 100);
                 // console.log(placementsValue);
 
-                // const {firstPage} = doc?.placementsAuctions?.[selectValue[0]]?.[phrase] ?? {};
+                const {phrase} = placementsValue ?? {};
+                const pricesData: any[] = [];
+                const pricesDataCur: any[] = [];
+                const reviewRatingsData: any[] = [];
+                const reviewRatingsDataCur: any[] = [];
+                const feedbacksData: any[] = [];
+                const feedbacksDataCur: any[] = [];
+                let yagrPricesData = {} as any;
+                let yagrReviewRatingsData = {} as any;
+                let yagrFeedbacksData = {} as any;
 
-                // const pricesData: any[] = [];
-                // const pricesDataCur: any[] = [];
-                // const reviewRatingsData: any[] = [];
-                // const reviewRatingsDataCur: any[] = [];
-                // const feedbacksData: any[] = [];
-                // const feedbacksDataCur: any[] = [];
-                // let yagrPricesData = {} as any;
-                // let yagrReviewRatingsData = {} as any;
-                // let yagrFeedbacksData = {} as any;
+                const {firstPage} = doc?.placementsAuctions?.[selectValue[0]]?.[phrase] ?? {};
 
-                // if (placementsValue && reviewRating) {
-                //     if (firstPage) {
-                //         for (let i = 0; i < firstPage.length; i++) {
-                //             const card = firstPage[i];
-                //             // console.log(card);
+                if (placementsValue && reviewRating) {
+                    if (firstPage) {
+                        for (let i = 0; i < firstPage.length; i++) {
+                            const card = firstPage[i];
+                            // console.log(card);
 
-                //             const {reviewRating, sizes, feedbacks} = card;
-                //             const {price} = sizes
-                //                 ? sizes[0] ?? {price: undefined}
-                //                 : {price: undefined};
-                //             const {total} = price ?? {total: 0};
-                //             const priceRub = Math.round(total / 100);
+                            const {reviewRating, sizes, feedbacks} = card;
+                            const {price} = sizes
+                                ? sizes[0] ?? {price: undefined}
+                                : {price: undefined};
+                            const {total} = price ?? {total: 0};
+                            const priceRub = Math.round(total / 100);
 
-                //             if (!pricesData.includes(priceRub)) pricesData.push(priceRub);
-                //             if (!reviewRatingsData.includes(reviewRating))
-                //                 reviewRatingsData.push(reviewRating);
-                //             if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
-                //         }
-                //     }
-                //     pricesData.sort((a, b) => a - b);
-                //     for (let i = 0; i < pricesData.length; i++) {
-                //         if (pricesData[i] == priceRub) {
-                //             pricesDataCur.push(priceRub);
-                //             break;
-                //         } else {
-                //             pricesDataCur.push(null);
-                //         }
-                //     }
-                //     reviewRatingsData.sort((a, b) => a - b);
-                //     for (let i = 0; i < reviewRatingsData.length; i++) {
-                //         if (reviewRatingsData[i] == reviewRating) {
-                //             reviewRatingsDataCur.push(reviewRating);
-                //             break;
-                //         } else {
-                //             reviewRatingsDataCur.push(null);
-                //         }
-                //     }
-                //     feedbacksData.sort((a, b) => a - b);
-                //     for (let i = 0; i < feedbacksData.length; i++) {
-                //         if (feedbacksData[i] == feedbacks) {
-                //             feedbacksDataCur.push(feedbacks);
-                //             break;
-                //         } else {
-                //             feedbacksDataCur.push(null);
-                //         }
-                //     }
+                            if (!pricesData.includes(priceRub)) pricesData.push(priceRub);
+                            if (!reviewRatingsData.includes(reviewRating))
+                                reviewRatingsData.push(reviewRating);
+                            if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
+                        }
+                    }
+                    pricesData.sort((a, b) => a - b);
+                    for (let i = 0; i < pricesData.length; i++) {
+                        if (pricesData[i] == priceRub) {
+                            pricesDataCur.push(priceRub);
+                            break;
+                        } else {
+                            pricesDataCur.push(null);
+                        }
+                    }
+                    reviewRatingsData.sort((a, b) => a - b);
+                    for (let i = 0; i < reviewRatingsData.length; i++) {
+                        if (reviewRatingsData[i] == reviewRating) {
+                            reviewRatingsDataCur.push(reviewRating);
+                            break;
+                        } else {
+                            reviewRatingsDataCur.push(null);
+                        }
+                    }
+                    feedbacksData.sort((a, b) => a - b);
+                    for (let i = 0; i < feedbacksData.length; i++) {
+                        if (feedbacksData[i] == feedbacks) {
+                            feedbacksDataCur.push(feedbacks);
+                            break;
+                        } else {
+                            feedbacksDataCur.push(null);
+                        }
+                    }
 
-                //     const genYagrData = (
-                //         all,
-                //         cur,
-                //         colorAll,
-                //         title,
-                //         axisName,
-                //         cursorName,
-                //         min = -1,
-                //         colorCur = '#ffbe5c',
-                //     ) => {
-                //         return {
-                //             data: {
-                //                 timeline: [...Array(all.length).keys()],
-                //                 graphs: [
-                //                     {
-                //                         color: colorCur,
-                //                         type: 'column',
-                //                         data: cur,
-                //                         id: '1',
-                //                         name: 'Этот артикул',
-                //                         scale: 'y',
-                //                     },
-                //                     {
-                //                         id: '0',
-                //                         name: cursorName,
-                //                         data: all,
-                //                         color: colorAll,
-                //                         scale: 'y',
-                //                     },
-                //                 ],
-                //             },
+                    const genYagrData = (
+                        all,
+                        cur,
+                        colorAll,
+                        title,
+                        axisName,
+                        cursorName,
+                        min = -1,
+                        colorCur = '#ffbe5c',
+                    ) => {
+                        return {
+                            data: {
+                                timeline: [...Array(all.length).keys()],
+                                graphs: [
+                                    {
+                                        color: colorCur,
+                                        type: 'column',
+                                        data: cur,
+                                        id: '1',
+                                        name: 'Этот артикул',
+                                        scale: 'y',
+                                    },
+                                    {
+                                        id: '0',
+                                        name: cursorName,
+                                        data: all,
+                                        color: colorAll,
+                                        scale: 'y',
+                                    },
+                                ],
+                            },
 
-                //             libraryConfig: {
-                //                 chart: {
-                //                     series: {
-                //                         type: 'column',
-                //                     },
-                //                 },
-                //                 axes: {
-                //                     y: {
-                //                         label: axisName,
-                //                         precision: 'auto',
-                //                         show: true,
-                //                     },
-                //                     x: {
-                //                         show: true,
-                //                     },
-                //                 },
-                //                 series: [],
-                //                 scales: {
-                //                     y: {
-                //                         min: min == -1 ? Math.floor(all[0]) : min,
-                //                     },
-                //                 },
-                //                 title: {
-                //                     text: title,
-                //                 },
-                //             },
-                //         } as YagrWidgetData;
-                //     };
+                            libraryConfig: {
+                                chart: {
+                                    series: {
+                                        type: 'column',
+                                    },
+                                },
+                                axes: {
+                                    y: {
+                                        label: axisName,
+                                        precision: 'auto',
+                                        show: true,
+                                    },
+                                    x: {
+                                        show: true,
+                                    },
+                                },
+                                series: [],
+                                scales: {
+                                    y: {
+                                        min: min == -1 ? Math.floor(all[0]) : min,
+                                    },
+                                },
+                                title: {
+                                    text: title,
+                                },
+                            },
+                        } as YagrWidgetData;
+                    };
 
-                //     yagrPricesData = genYagrData(
-                //         pricesData,
-                //         pricesDataCur,
-                //         '#5fb8a5',
-                //         'Цены топ 100 артикулов по запросу',
-                //         'Цены',
-                //         'Цена',
-                //     );
-                //     yagrReviewRatingsData = genYagrData(
-                //         reviewRatingsData,
-                //         reviewRatingsDataCur,
-                //         '#9a63d1',
-                //         'Рейтинг топ 100 артикулов по запросу',
-                //         'Рейтинг',
-                //         'Рейтинг',
-                //     );
-                //     yagrFeedbacksData = genYagrData(
-                //         feedbacksData,
-                //         feedbacksDataCur,
-                //         '#4aa1f2',
-                //         'Количество отзывов топ 100 артикулов по запросу',
-                //         'Отзывы',
-                //         'Отзывов',
-                //         0,
-                //     );
-                // }
+                    yagrPricesData = genYagrData(
+                        pricesData,
+                        pricesDataCur,
+                        '#5fb8a5',
+                        'Цены топ 100 артикулов по запросу',
+                        'Цены',
+                        'Цена',
+                    );
+                    yagrReviewRatingsData = genYagrData(
+                        reviewRatingsData,
+                        reviewRatingsDataCur,
+                        '#9a63d1',
+                        'Рейтинг топ 100 артикулов по запросу',
+                        'Рейтинг',
+                        'Рейтинг',
+                    );
+                    yagrFeedbacksData = genYagrData(
+                        feedbacksData,
+                        feedbacksDataCur,
+                        '#4aa1f2',
+                        'Количество отзывов топ 100 артикулов по запросу',
+                        'Отзывы',
+                        'Отзывов',
+                        0,
+                    );
+                }
 
                 return (
                     <Card
@@ -1786,62 +1787,64 @@ export const MassAdvertPage = ({
                         }}
                     >
                         {priceRub ? (
-                            // <Popover
-                            //     openOnHover={reviewRating}
-                            //     content={
-                            //         <div
-                            //             style={{
-                            //                 height: 'calc(30em - 60px)',
-                            //                 width: '60em',
-                            //                 overflow: 'auto',
-                            //                 display: 'flex',
-                            //             }}
-                            //         >
-                            //             <Card
-                            //                 view="outlined"
-                            //                 theme="warning"
-                            //                 style={{
-                            //                     position: 'absolute',
-                            //                     height: '30em',
-                            //                     width: '60em',
-                            //                     overflow: 'auto',
-                            //                     top: -10,
-                            //                     left: -10,
-                            //                     display: 'flex',
-                            //                     flexDirection: 'column',
-                            //                 }}
-                            //             >
-                            //                 <ChartKit type="yagr" data={yagrPricesData} />
-                            //                 <div
-                            //                     style={{
-                            //                         // background: 'var(--g-color-base-background)',
-                            //                         background: '#2d2c33',
-                            //                         position: 'absolute',
-                            //                         height: 20,
-                            //                         width: '100%',
-                            //                         bottom: 0,
-                            //                     }}
-                            //                 ></div>
-                            //             </Card>
-                            //         </div>
-                            //     }
-                            // >
-                            // </Popover>
-                            <Button
-                                view="flat"
-                                width="max"
-                                size="xs"
-                                pin="clear-clear"
-                                style={{
-                                    width: 160,
-                                    overflow: 'hidden',
-                                    borderTopLeftRadius: 7,
-                                    borderTopRightRadius: 7,
-                                }}
-                                // pin="brick-brick"
+                            <Popover
+                                openOnHover={reviewRating}
+                                content={
+                                    <div
+                                        style={{
+                                            height: 'calc(30em - 60px)',
+                                            width: '60em',
+                                            overflow: 'auto',
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <Card
+                                            view="outlined"
+                                            theme="warning"
+                                            style={{
+                                                position: 'absolute',
+                                                height: '30em',
+                                                width: '60em',
+                                                overflow: 'auto',
+                                                top: -10,
+                                                left: -10,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                            }}
+                                        >
+                                            <ChartKit type="yagr" data={yagrPricesData} />
+                                            <div
+                                                style={{
+                                                    // background: 'var(--g-color-base-background)',
+                                                    background: '#2d2c33',
+                                                    position: 'absolute',
+                                                    height: 20,
+                                                    width: '100%',
+                                                    bottom: 0,
+                                                }}
+                                            ></div>
+                                        </Card>
+                                    </div>
+                                }
                             >
-                                {`Цена СПП: ${new Intl.NumberFormat('ru-RU').format(priceRub)} ₽`}
-                            </Button>
+                                <Button
+                                    view="flat"
+                                    width="max"
+                                    size="xs"
+                                    pin="clear-clear"
+                                    style={{
+                                        width: 160,
+                                        overflow: 'hidden',
+                                        borderTopLeftRadius: 7,
+                                        borderTopRightRadius: 7,
+                                    }}
+                                    // pin="brick-brick"
+                                >
+                                    {`Цена СПП: ${new Intl.NumberFormat('ru-RU').format(
+                                        priceRub,
+                                    )} ₽`}
+                                </Button>
+                            </Popover>
                         ) : (
                             <></>
                         )}
@@ -1855,7 +1858,10 @@ export const MassAdvertPage = ({
                                     }}
                                 />
                                 <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    {/* <Popover
+                                    <Popover
+                                        onOpenChange={(open) => {
+                                            if (!open) return;
+                                        }}
                                         content={
                                             <div
                                                 style={{
@@ -1896,36 +1902,36 @@ export const MassAdvertPage = ({
                                             </div>
                                         }
                                     >
-                                    </Popover> */}
-                                    <Button
-                                        width="max"
-                                        size="xs"
-                                        view="flat"
-                                        pin="clear-brick"
-                                        style={{
-                                            height: 20,
-                                            width: 80,
-                                        }}
-                                        // pin="brick-brick"
-                                    >
-                                        <div
+                                        <Button
+                                            width="max"
+                                            size="xs"
+                                            view="flat"
+                                            pin="clear-brick"
                                             style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
+                                                height: 20,
+                                                width: 80,
                                             }}
+                                            // pin="brick-brick"
                                         >
-                                            <Text>{reviewRating}</Text>
-                                            <div style={{minWidth: 3}} />
-                                            <Text
-                                                color="warning"
-                                                style={{display: 'flex', alignItems: 'center'}}
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
                                             >
-                                                <Icon data={Star} size={11} />
-                                            </Text>
-                                        </div>
-                                    </Button>
+                                                <Text>{reviewRating}</Text>
+                                                <div style={{minWidth: 3}} />
+                                                <Text
+                                                    color="warning"
+                                                    style={{display: 'flex', alignItems: 'center'}}
+                                                >
+                                                    <Icon data={Star} size={11} />
+                                                </Text>
+                                            </div>
+                                        </Button>
+                                    </Popover>
                                     <div
                                         style={{
                                             background: 'var(--yc-color-base-generic-hover)',
@@ -1933,7 +1939,7 @@ export const MassAdvertPage = ({
                                             minWidth: 0.5,
                                         }}
                                     />
-                                    {/* <Popover
+                                    <Popover
                                         content={
                                             <div
                                                 style={{
@@ -1974,31 +1980,31 @@ export const MassAdvertPage = ({
                                             </div>
                                         }
                                     >
-                                    </Popover> */}
-                                    <Button
-                                        style={{
-                                            width: 80,
-                                            height: 20,
-                                            overflow: 'hidden',
-                                        }}
-                                        width="max"
-                                        size="xs"
-                                        view="flat"
-                                        pin="brick-clear"
-                                    >
-                                        <div
+                                        <Button
                                             style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
+                                                width: 80,
+                                                height: 20,
+                                                overflow: 'hidden',
                                             }}
+                                            width="max"
+                                            size="xs"
+                                            view="flat"
+                                            pin="brick-clear"
                                         >
-                                            <Text>{feedbacks}</Text>
-                                            <div style={{minWidth: 3}} />
-                                            <Icon data={Comment} size={11} />
-                                        </div>
-                                    </Button>
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <Text>{feedbacks}</Text>
+                                                <div style={{minWidth: 3}} />
+                                                <Icon data={Comment} size={11} />
+                                            </div>
+                                        </Button>
+                                    </Popover>
                                 </div>
                             </div>
                         ) : (
