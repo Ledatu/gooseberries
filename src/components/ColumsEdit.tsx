@@ -61,7 +61,7 @@ export const ColumnsEdit = ({columns, setColumns, columnDataObj, saveColumnsData
                         theme="warning"
                         style={{
                             position: 'absolute',
-                            height: 300,
+                            height: '80vh',
                             width: 250,
                             padding: 8,
                             overflow: 'auto',
