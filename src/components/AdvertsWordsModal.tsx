@@ -350,9 +350,11 @@ export const AdvertsWordsModal = ({
                 setSemanticsModalOpenFromArt(art);
 
                 if (autoPhrasesTemplate) {
-                    setSemanticsAutoPhrasesModalIncludesList(autoPhrasesTemplate.includes ?? []);
+                    setSemanticsAutoPhrasesModalIncludesList(
+                        Array.from(autoPhrasesTemplate.includes ?? []),
+                    );
                     setSemanticsAutoPhrasesModalNotIncludesList(
-                        autoPhrasesTemplate.notIncludes ?? [],
+                        Array.from(autoPhrasesTemplate.notIncludes ?? []),
                     );
                 } else {
                     setSemanticsAutoPhrasesModalIncludesList([]);
@@ -1942,9 +1944,9 @@ export const AdvertsWordsModal = ({
                                                 size="l"
                                                 pin="circle-circle"
                                                 view="action"
-                                                onClick={() =>
-                                                    setSemanticsAutoPhrasesModalFormOpen(false)
-                                                }
+                                                onClick={() => {
+                                                    setSemanticsAutoPhrasesModalFormOpen(false);
+                                                }}
                                             >
                                                 <Text variant="subheader-1">Закрыть</Text>
                                             </Button>
@@ -2017,8 +2019,12 @@ export const AdvertsWordsModal = ({
                                         secondCtrThreshold:
                                             semanticsModalSemanticsSecondCTRThresholdValue,
                                         autoPhrasesTemplate: {
-                                            includes: semanticsAutoPhrasesModalIncludesList,
-                                            notIncludes: semanticsAutoPhrasesModalNotIncludesList,
+                                            includes: Array.from(
+                                                semanticsAutoPhrasesModalIncludesList,
+                                            ),
+                                            notIncludes: Array.from(
+                                                semanticsAutoPhrasesModalNotIncludesList,
+                                            ),
                                         },
                                         phrasesExcludedByMinus,
                                     };
@@ -2059,7 +2065,6 @@ export const AdvertsWordsModal = ({
                                     }
 
                                     console.log(params);
-
                                     setChangedDoc({...doc});
 
                                     callApi('setPlusPhraseTemplate', params);
