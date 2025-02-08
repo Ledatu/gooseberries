@@ -1320,6 +1320,38 @@ export const AdvertsWordsModal = ({
             </Button>
         );
     };
+    const generateMassMinusButton = ({placeholder, array, mode}) => {
+        return (
+            <Button
+                style={{marginLeft: 8}}
+                view="outlined"
+                onClick={() => {
+                    const val = [] as any[];
+                    if (mode == 'add') {
+                        val.push(...Array.from(phrasesExcludedByMinus));
+                        for (let i = 0; i < array.length; i++) {
+                            const cluster = array[i].cluster;
+                            if (val.includes(cluster)) continue;
+                            val.push(cluster);
+                        }
+                    } else if (mode == 'del') {
+                        const clustersToDel = [] as string[];
+                        for (const clusterData of array) clustersToDel.push(clusterData.cluster);
+                        for (let i = 0; i < phrasesExcludedByMinus.length; i++) {
+                            const cluster = phrasesExcludedByMinus[i];
+                            if (clustersToDel.includes(cluster)) continue;
+                            if (val.includes(cluster)) continue;
+                            val.push(cluster);
+                        }
+                    }
+
+                    setPhrasesExcludedByMinus(val);
+                }}
+            >
+                {placeholder}
+            </Button>
+        );
+    };
 
     const filterByButtonClusters = (val, activeFlag, key = 'art', compMode = 'include') => {
         if (activeFlag) {
@@ -2123,6 +2155,16 @@ export const AdvertsWordsModal = ({
                                                           array: semanticsModalSemanticsItemsFiltratedValue,
                                                           mode: 'del',
                                                       }),
+                                                      //   generateMassAddDelButton({
+                                                      //       placeholder: 'Поставить минусы',
+                                                      //       array: phrasesExcludedByMinus,
+                                                      //       mode: 'add',
+                                                      //   }),
+                                                      //   generateMassAddDelButton({
+                                                      //       placeholder: 'Убрать минусы',
+                                                      //       array: phrasesExcludedByMinus,
+                                                      //       mode: 'del',
+                                                      //   }),
                                                   ],
                                         )}
                                         data={semanticsModalSemanticsItemsFiltratedValue}
@@ -2163,13 +2205,33 @@ export const AdvertsWordsModal = ({
                                             disabled
                                                 ? []
                                                 : [
-                                                      generateMassAddDelButton({
-                                                          placeholder: 'Добавить все',
+                                                      //   generateMassAddDelButton({
+                                                      //       placeholder: 'Добавить все',
+                                                      //       array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                                      //       mode: 'add',
+                                                      //   }),
+                                                      //   generateMassAddDelButton({
+                                                      //       placeholder: 'Удалить все',
+                                                      //       array: semanticsModalSemanticsMinusItemsFiltratedValue,
+                                                      //       mode: 'del',
+                                                      //   }),
+                                                      //   generateMassAddDelButton({
+                                                      //       placeholder: 'Добавить все',
+                                                      //       array: semanticsModalSemanticsItemsFiltratedValue,
+                                                      //       mode: 'add',
+                                                      //   }),
+                                                      //   generateMassAddDelButton({
+                                                      //       placeholder: 'Удалить все',
+                                                      //       array: semanticsModalSemanticsItemsFiltratedValue,
+                                                      //       mode: 'del',
+                                                      //   }),
+                                                      generateMassMinusButton({
+                                                          placeholder: 'Минусы вкл',
                                                           array: semanticsModalSemanticsMinusItemsFiltratedValue,
                                                           mode: 'add',
                                                       }),
-                                                      generateMassAddDelButton({
-                                                          placeholder: 'Удалить все',
+                                                      generateMassMinusButton({
+                                                          placeholder: 'Минусы выкл',
                                                           array: semanticsModalSemanticsMinusItemsFiltratedValue,
                                                           mode: 'del',
                                                       }),
