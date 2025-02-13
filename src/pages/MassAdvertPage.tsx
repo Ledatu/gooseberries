@@ -87,6 +87,7 @@ import DzhemPhrasesModal from 'src/components/DzhemPhrasesModal';
 import {PopupFilterArts} from 'src/components/PopupFilterArts';
 import {Auction} from 'src/components/Auction';
 import {PageInfoGraphs} from 'src/components/PageInfoGraphs';
+import {CopyButton} from 'src/components/CopyButton';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -557,7 +558,7 @@ export const MassAdvertPage = ({
             width: 200,
             additionalNodes: [
                 <Button
-                    style={{marginLeft: 5}}
+                    style={{marginLeft: 5, marginRight: 5}}
                     view="outlined"
                     selected={filterAutoSales}
                     onClick={() => {
@@ -567,6 +568,18 @@ export const MassAdvertPage = ({
                 >
                     <Icon data={TagRuble} />
                 </Button>,
+                <CopyButton
+                    tooltip="Нажмите, чтобы скопировать артикулы в таблице в буфер обмена"
+                    view="outlined"
+                    copyText={() => {
+                        const arts: number[] = [];
+                        for (const row of filteredData) {
+                            const {nmId} = row;
+                            if (!arts.includes(nmId)) arts.push(nmId);
+                        }
+                        return arts.join(', ');
+                    }}
+                />,
             ],
             render: ({value, row, footer, index}) => {
                 const {title, brand, object, nmId, photos, imtId, art, tags} = row;
