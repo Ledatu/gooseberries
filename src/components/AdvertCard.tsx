@@ -255,6 +255,19 @@ export const AdvertCard = ({
     const curBudget = budget;
     // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
+    const infBudget = useMemo(() => {
+        if (!budgetToKeep?.maxBudget) return false;
+        return String(budgetToKeep?.maxBudget)?.includes('123456789');
+    }, [budgetToKeep?.maxBudget]);
+
+    const maxBudget = useMemo(
+        () =>
+            infBudget
+                ? '∞'
+                : new Intl.NumberFormat('ru-RU').format(Number(budgetToKeep?.maxBudget)) + ' ₽',
+        [infBudget, budgetToKeep?.maxBudget],
+    );
+
     return (
         <Card
             theme={pregenerated ? 'warning' : 'normal'}
@@ -652,7 +665,7 @@ export const AdvertCard = ({
                                                       budgetToKeep?.desiredDrr
                                                           ? ' ДРР: ' + budgetToKeep?.desiredDrr
                                                           : ''
-                                                  } (${budgetToKeep?.maxBudget} ₽)`
+                                                  } (${maxBudget})`
                                                 : budgetToKeep?.budget
                                             : 'Бюджет не задан.'
                                     }` +
