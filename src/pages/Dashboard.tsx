@@ -4,7 +4,7 @@ import {Text, Icon, Tabs, Link, Button, Modal, TextArea, List, Tooltip} from '@g
 import '../App.scss';
 import {MassAdvertPage} from './MassAdvertPage';
 // import {db} from '../utilities/firebase-config';
-import textLogo from '../assets/textLogo.png';
+import textLogo from '../assets/brlogo.svg';
 // import {doc, getDoc, updateDoc} from 'firebase/firestore';
 
 // import { Editable } from 'src/components/Editable';
@@ -382,15 +382,10 @@ export const Dashboard = ({setThemeAurum}) => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     flexDirection: 'row',
-                                    height: 68,
                                 }}
                             >
                                 <div style={{minWidth: 24}} />
-                                <img
-                                    style={{height: 'calc(100% - 24px)'}}
-                                    src={textLogo}
-                                    alt="Aurum logo"
-                                />
+                                <img style={{height: 30}} src={textLogo} />
                             </div>
                             <SelectCampaign
                                 apiKeyExpDate={apiKeyExpDate}
@@ -454,7 +449,7 @@ export const Dashboard = ({setThemeAurum}) => {
                                         >
                                             <div style={{minWidth: 12}} />
                                             <img
-                                                style={{height: 'calc(100% - 24px)'}}
+                                                style={{height: 30}}
                                                 src={textLogo}
                                                 alt="Aurum logo"
                                             />
