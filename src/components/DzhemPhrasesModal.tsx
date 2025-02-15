@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {motion} from 'framer-motion';
-import {Modal, Text, Loader, Button, Card} from '@gravity-ui/uikit';
+import {Modal, Text, Loader, Button, Card, ActionTooltip} from '@gravity-ui/uikit';
 import TheTable, {compare} from './TheTable';
 import ApiClient from 'src/utilities/ApiClient';
 // import ApiClient from 'src/utilities/ApiClient';
@@ -222,7 +222,18 @@ const DzhemModal: React.FC<DzhemModalProps> = ({
         }
     }, [load, dzhem]);
     const columnDataDzhem = [
-        {placeholder: 'Поисковая фраза', name: 'text', valueType: 'text'},
+        {
+            placeholder: 'Поисковая фраза',
+            name: 'text',
+            valueType: 'text',
+            render: ({value}) => {
+                return (
+                    <ActionTooltip title={value ?? ''}>
+                        <div style={{maxWidth: 400}}>{value}</div>
+                    </ActionTooltip>
+                );
+            },
+        },
         {
             placeholder: 'Переходы, шт.',
             name: 'openCardCurrent',

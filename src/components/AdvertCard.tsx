@@ -521,9 +521,22 @@ export const AdvertCard = ({
                                     const graphsDataPosition: any[] = [];
                                     const graphsDataPositionAuction: any[] = [];
                                     const graphsDataPositionOrganic: any[] = [];
+                                    const graphsDataOrders: any[] = [];
+                                    const graphsDataSum: any[] = [];
+                                    const graphsDataDrr: any[] = [];
+                                    const graphsDataCr: any[] = [];
                                     for (let i = 1; i < bidLog.length; i++) {
                                         const {val} = bidLog[i - 1];
-                                        const {time, index, cpmIndex, position} = bidLog[i];
+                                        const {
+                                            time,
+                                            index,
+                                            cpmIndex,
+                                            position,
+                                            orders,
+                                            sum,
+                                            drr,
+                                            cr,
+                                        } = bidLog[i];
                                         if (!time || !val) continue;
 
                                         // curCpm = val;
@@ -534,6 +547,11 @@ export const AdvertCard = ({
                                         if (timeObj < dateRange[0] || timeObj > rbd) continue;
                                         timeline.push(timeObj.getTime());
                                         graphsData.push(val);
+
+                                        graphsDataOrders.push(orders);
+                                        graphsDataSum.push(sum);
+                                        graphsDataDrr.push(drr);
+                                        graphsDataCr.push(cr);
 
                                         if (index == -1 || !index) graphsDataPosition.push(null);
                                         else graphsDataPosition.push(index);
@@ -576,6 +594,34 @@ export const AdvertCard = ({
                                                     color: '#708da6',
                                                     scale: 'r2',
                                                     data: graphsDataPositionOrganic,
+                                                },
+                                                {
+                                                    id: '4',
+                                                    name: 'Заказы',
+                                                    color: '#E91E63',
+                                                    scale: 'orders',
+                                                    data: graphsDataOrders,
+                                                },
+                                                {
+                                                    id: '5',
+                                                    name: 'Расход',
+                                                    color: '#FF7043',
+                                                    scale: 'sum',
+                                                    data: graphsDataSum,
+                                                },
+                                                {
+                                                    id: '6',
+                                                    name: 'ДРР',
+                                                    color: '#B2FF59',
+                                                    scale: 'percents',
+                                                    data: graphsDataDrr,
+                                                },
+                                                {
+                                                    id: '7',
+                                                    name: 'CR',
+                                                    color: '#9FA8DA',
+                                                    scale: 'percents',
+                                                    data: graphsDataCr,
                                                 },
                                             ],
                                         },
