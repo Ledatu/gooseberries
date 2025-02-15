@@ -17,10 +17,10 @@ const ButtonList = ({
     setCurrentStep,
     setDateRange,
 }) => {
-    const buttons = [] as any[];
+    let buttons = [] as any[];
     for (const [name, data] of Object.entries(availableAutoSales)) {
         if (autoSaleName[0] == 'none' || autoSaleName[0] == name)
-            buttons.push(
+            buttons.push([
                 <motion.div
                     exit={{opacity: 0}}
                     style={{
@@ -55,8 +55,12 @@ const ButtonList = ({
                         </Text>
                     )}
                 </motion.div>,
-            );
+                new Date(data?.['startDateTime']).getTime(),
+            ]);
     }
+
+    buttons = buttons.sort((a, b) => a[1] - b[1]).map((button) => button[0]);
+
     return (
         <motion.div
             animate={{height: !currentStep ? 48 * buttons.length : 36}}
@@ -344,10 +348,12 @@ export const AutoSalesModal = ({
                                 }}
                                 animate={{
                                     height: !fileRequiredButNotUploaded && currentStep ? 250 : 0,
+                                    opacity: !fileRequiredButNotUploaded && currentStep ? 1 : 0,
                                 }}
                                 style={{
                                     overflow: 'hidden',
                                     height: 0,
+                                    opacity: 0,
                                     display: 'flex',
                                     flexDirection: 'column',
                                     justifyContent: 'center',
@@ -355,13 +361,6 @@ export const AutoSalesModal = ({
                                 }}
                             >
                                 <RangeCalendar
-                                    // disabled={
-                                    //     new Date(
-                                    //         availableAutoSales[autoSaleName[0]]
-                                    //             ? availableAutoSales[autoSaleName[0]].startDateTime
-                                    //             : '',
-                                    //     ) > new Date()
-                                    // }
                                     value={{
                                         start: dateTimeParse(new Date(startDate ?? 0)) as any,
                                         end: dateTimeParse(new Date(endDate ?? 0)) as any,
