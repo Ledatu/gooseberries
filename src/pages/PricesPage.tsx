@@ -627,7 +627,7 @@ export const PricesPage = ({permission, sellerId}) => {
 
             const {percent} = response?.data ?? {percent: 2};
 
-            setWbWalletPercent([`${percent}`]);
+            setWbWalletPercent([`${percent ?? 2}`]);
         } catch (error) {
             console.error(error);
             showError(
