@@ -1,0 +1,32 @@
+*{
+	box-sizing: border-box;
+}
+.masonry-layout {
+	/* column-width: 100px; */
+	/* columns: 150px; */
+	display: flex;
+	flex-direction: row;
+	gap: '16px',
+  	/* grid-template-columns: repeat(2, 1fr);
+	grid-column: span; */
+  	/* grid-template-rows: masonry; */
+	/* display: flex;
+	flex-direction: column;
+	gap: 8px;
+	flex-wrap: ;
+	overflow: scroll;
+	columns: 2; */
+}
+
+.masonry-item {
+	display: flex;
+	box-sizing: border-box;
+	/* z-index: 10000; */
+	/* position: relative; */
+	/* width: calc(98%/2);
+	height: fit-content; */
+}
+
+.button-card {
+	padding: 0px !important;
+}

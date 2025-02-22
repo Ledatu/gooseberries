@@ -1,5 +1,6 @@
 // TelegramLoginButton.tsx
-import React, {useRef, useEffect} from 'react';
+'use client';
+import {useRef, useEffect} from 'react';
 
 export interface TelegramUser {
     id: number;

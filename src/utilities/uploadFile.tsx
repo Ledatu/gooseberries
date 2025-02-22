@@ -1,3 +1,5 @@
+'use client';
+
 import ApiClient from './ApiClient';
 import {AxiosProgressEvent} from 'axios';
 

@@ -1,72 +1,91 @@
 {
-  "name": "uikit-example-cra",
+  "type": "module",
+  "name": "gravity-ui-example-nextjs",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "dev": "bun --bun next dev",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start",
+    "lint:js": "bunx eslint --ext .js,.jsx,.ts,.tsx .",
+    "lint:styles": "bunx stylelint '{styles,src}/**/*.scss'",
+    "lint:prettier": "bunx prettier --check '**/*.md'",
+    "lint": "bun run lint:js && bun run lint:styles && bun run lint:prettier",
+    "postinstall": "bun run prepare"
+  },
   "dependencies": {
-    "@gravity-ui/navigation": "^1.10.3",
-    "@gravity-ui/react-data-table": "^1.2.0",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^18.17.19",
-    "@types/react": "^18.2.22",
-    "@types/react-dom": "^18.2.7",
-    "@userfront/toolkit": "^1.0.5",
-    "axios": "^1.6.2",
+    "@gravity-ui/icons": "^2.13.0",
+    "@gravity-ui/navigation": "^3.0.0",
+    "@gravity-ui/react-data-table": "^2.2.1",
+    "@mui/lab": "^6.0.0-beta.28",
+    "@radix-ui/react-tooltip": "^1.1.8",
+    "@remixicon/react": "^4.6.0",
+    "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/postcss": "^4.0.7",
+    "axios": "^1.7.9",
     "bem-cn-lite": "^4.1.0",
-    "crypto": "^1.0.1",
-    "firebase": "^10.7.1",
-    "firebase-admin": "^12.0.0",
-    "framer-motion": "^11.0.3",
-    "motion-number": "^0.1.6",
-    "node-schedule": "^2.1.1",
-    "react": "^18",
-    "react-datepicker": "^4.25.0",
-    "react-dom": "^18",
-    "react-router-dom": "^6.20.1",
-    "react-scripts": "5.0.1",
-    "react-use": "^17.4.3",
-    "typescript": "^4.9.5",
-    "web-vitals": "^3.4.0"
+    "clsx": "^2.1.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "firebase": "^11.3.1",
+    "framer-motion": "^12.4.5",
+    "next": "^15.1.7",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-layout-masonry": "^1.2.0",
+    "tailwind-merge": "^3.0.1",
+    "tailwind-variants": "^0.3.1",
+    "tailwindcss": "^4.0.7",
+    "typescript": "^5.7.3",
+    "url-loader": "^4.1.1"
   },
   "devDependencies": {
-    "@gravity-ui/chartkit": "^4.19.0",
-    "@gravity-ui/components": "^2.12.1",
-    "@gravity-ui/date-components": "^1.1.1",
-    "@gravity-ui/eslint-config": "^1.0.2",
-    "@gravity-ui/illustrations": "^1.0.0",
+    "@gravity-ui/browserslist-config": "^4.3.0",
+    "@gravity-ui/chartkit": "^6.0.0",
+    "@gravity-ui/components": "^4.0.1",
+    "@gravity-ui/date-components": "^3.0.1",
+    "@gravity-ui/eslint-config": "^3.3.0",
+    "@gravity-ui/illustrations": "^2.0.0",
     "@gravity-ui/prettier-config": "^1.1.0",
-    "@gravity-ui/stylelint-config": "^2.0.0",
+    "@gravity-ui/stylelint-config": "^4.0.1",
     "@gravity-ui/tsconfig": "^1.0.0",
-    "@gravity-ui/uikit": "^5.30.0",
-    "eslint": "^8.50.0",
-    "prettier": "^2.8.0",
-    "react-app-rewired": "^2.2.1",
-    "sass": "^1.68.0",
-    "stylelint": "^14.16.1",
-    "svg-inline-loader": "^0.8.2"
+    "@gravity-ui/uikit": "^7.4.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "@types/node": "^22.13.4",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.24.1",
+    "@typescript-eslint/parser": "^8.24.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.20.1",
+    "eslint-config-next": "^15.1.7",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-react": "^7.37.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "postcss": "^8.5.3",
+    "prettier": "^3.5.1",
+    "sass": "^1.85.0",
+    "stylelint": "^16.14.1"
   },
-  "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject",
-    "lint:js": "eslint --ext .js,.jsx,.ts,.tsx .",
-    "lint:styles": "stylelint '{styles,src}/**/*.scss'",
-    "lint:prettier": "prettier --check '**/*.md'",
-    "lint": "npm run lint:js && npm run lint:styles && npm run lint:prettier"
+  "engines": {
+    "node": ">=18",
+    "bun": ">=1.1.4"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+  "browserslist": [
+    "extends @gravity-ui/browserslist-config"
+  ],
+  "lint-staged": {
+    "*.{scss}": [
+      "bunx stylelint --fix --quiet"
     ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+    "*.{js,jsx,ts,tsx}": [
+      "bunx eslint --fix --quiet",
+      "bunx prettier --write"
+    ],
+    "*.md": [
+      "bunx prettier --write"
     ]
   }
 }

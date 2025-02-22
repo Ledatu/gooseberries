@@ -1,0 +1,308 @@
+// @import "tailwindcss";
+div {
+    box-sizing: unset
+}
+
+// #root {
+//     background: linear-gradient(
+//         180deg,
+//         rgba(45, 44, 51, 1) 0%,
+//         rgba(34, 33, 39, 1) 100%
+//     ) !important;
+// }
+
+
+.tablink:hover {
+    color: var(--g-color-text-complementary) !important;
+}
+.tablink:focus {
+    outline: none;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+    flex-wrap: nowrap !important;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1000px;
+    padding: 20px;
+    margin: 0 auto;
+
+    &__header {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    &__logo {
+        height: 20vmin;
+        pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .app__logo {
+            animation: app-logo-spin infinite 20s linear;
+        }
+    }
+
+    &__buttons-block {
+        margin-top: 10px;
+    }
+
+    &__button {
+        margin: 0 4px;
+    }
+
+    // &__appHeader {
+    //     // position: absolute;
+    //     // display: flex;
+    //     // flex-direction: row;
+    //     // align-items: center;
+    //     // align-content: space-between;
+    //     // top: 0;
+    //     // margin: 0 4px;
+    //     // background-color: teal;
+    //     // width: 100%;
+    //     // height: 50px;
+    //     // padding-bottom: 10px;
+    // }
+    &__tabs {
+        // position: absolute;
+        // display: flex;
+        // flex-direction: row;
+        // align-items: center;
+        // align-content: space-between;
+        // top: 0;
+        // margin: 0 4px;
+        // background-color: teal;
+        // width: auto;
+        justify-content: center;
+        // height: 50px;
+    }
+
+    &__selectCampaign {
+        margin-bottom: 8px;
+    }
+
+    td {
+        z-index: 10;
+        // max-width: 20vw;
+        overflow: hidden;
+    }
+
+    &__td_budget {
+        padding: 0;
+    }
+    .data-table__head-cell {
+        width: 100%;
+        z-index: 10 !important;
+        // max-width: 20vw;
+    }
+
+    // .td_fixed_adverts {
+    //     left: calc(20vw + 20px) !important;
+    // }
+
+    tr:hover {
+        .data-table__td.app__td_fixed::before {
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            content: '';
+            background: var(--data-table-color-hover-area);
+            // box-shadow: 60px -16px teal;
+        }
+        .app__td_fixed:hover {
+            .app__art_pin {
+                display: flex;
+            }
+            .app__art_index {
+                display: none;
+            }
+        }
+    }
+
+    .app__art_pin {
+        display: none;
+    }
+    .app__art_index {
+        display: flex;
+    }
+
+    .the-table__td_fixed {
+        position: relative;
+        top: 0;
+        left: 0;
+        z-index: 20 !important;
+        position: sticky !important;
+        background: var(--g-color-base-background) !important;
+        border: none !important;
+        // backdrop-filter: blur(12px);
+    }
+
+    .the-table__td_fixed::after {
+        pointer-events: none;
+        position: absolute;
+        top: -0.7px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        content: '';
+        border: 1px solid var(--data-table-border-color);
+        // border-collapse: separate;
+    }
+
+    .the-table__dividerColumn {
+        background: var(--g-color-base-background) !important;
+    }
+
+    &__summary-text {
+        font-weight: bold;
+        font-size: 18pt;
+        margin-top: 10px;
+    }
+
+    &__tableApi {
+        width: 100%;
+    }
+
+    &__tableStats {
+        height: 50vh;
+        // background-color: #1868d7;
+    }
+
+    &__datePickerRangeButton {
+        margin-bottom: 8px;
+    }
+
+    &__content {
+        margin-top: 20px;
+    }
+
+    &__content-item {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        // flex-direction: row;
+    }
+
+    &__label {
+        margin-left: 10px;
+    }
+
+    // &__tableRow_footer {
+
+    // }
+    // /.data-table__row_footer {
+    // }
+
+    // div.fade-in {
+    //     display: block;
+    //     animation: fade-in 0.7s ease-in forwards;
+    // }
+
+    // div.fade-out {
+    //     animation: fade-out 0.7s ease-out forwards;
+    // }
+
+    // /* Animation keyframes */
+
+    // @keyframes fade-in {
+    //     0% {
+    //         opacity: 0;
+    //         display: none;
+    //     }
+
+    //     100% {
+    //         opacity: 1;
+    //         display: block;
+    //     }
+    // }
+
+    // @keyframes fade-out {
+    //     0% {
+    //         opacity: 1;
+    //         display: block;
+    //     }
+
+    //     100% {
+    //         opacity: 0;
+    //         display: none;
+    //     }
+    // }
+}
+
+@keyframes app-logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.g-root {
+    &_theme_light {
+        background-color: #fff;
+    }
+
+    &_theme_dark {
+        background-color: #2d2c33;
+    }
+}
+
+// .g-card {
+//     border: 1px solid #eee2 !important; 
+//     border-radius: 30px;
+//     backdrop-filter: blur(20px) !important;
+//     box-shadow: var(--g-color-base-background) 0px 2px 8px !important;
+// }
+
+.centred-absolute-element {
+    position: absolute !important;
+    left: 0px !important;
+    top: 0px !important;
+    right: 0px !important;
+    margin-inline: auto !important;
+    margin-block: auto !important;
+    bottom: 0px !important;
+}
+
+.blurred-card {
+    border: 1px solid #eee2 !important; 
+    border-radius: 8px;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter:  blur(20px) !important;
+    // box-shadow: var(--g-color-base-background) 0px 2px 8px !important;
+}
+.select-color {
+    /* Create the circle */
+    width: 100%;
+    height: 4px;
+    margin-top: 4px;
+    border-radius: 8px;
+    /* Halve the circle */
+    // border-left-color: transparent !important;
+    /* Rotate the circle */
+}

@@ -1,7 +1,8 @@
+'use client';
 import {useState, useEffect} from 'react';
 
 // Custom hook to check if the screen size matches a media query
-export const useMediaQuery = (query) => {
+export const useMediaQuery = (query: any) => {
     const [matches, setMatches] = useState(false);
 
     useEffect(() => {

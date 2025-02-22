@@ -1,20 +1,41 @@
 {
   "extends": "@gravity-ui/tsconfig/tsconfig",
   "compilerOptions": {
-      "allowJs": true,
-      "outDir": "build/esm",
-      "module": "esnext",
-      "jsx": "react",
-      "baseUrl": ".",
-      "resolveJsonModule": true,
-      "importHelpers": true,
-      "noImplicitAny": false,
-      "useUnknownInCatchVariables": false
+    "target": "es2021",
+    "module": "esnext",
+    "jsx": "preserve", // Required for the new JSX runtime
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler", // Updated to node16
+    "resolveJsonModule": true,
+    // "types": ["tailwindcss"], // Added to resolve Tailwind types
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "noEmit": true,
+    "incremental": true,
+    "isolatedModules": true
   },
   "include": [
-      "src/**/*.ts",
-      "src/**/*.tsx",
-      "src/**/*.js",
-      "src/**/*.jsx"
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

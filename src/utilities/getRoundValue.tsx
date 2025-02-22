@@ -1,7 +1,8 @@
-import {Text, TextInput} from '@gravity-ui/uikit';
-import React from 'react';
+'use client';
 
-export const getRoundValue = (a, b, isPercentage = false, def = 0) => {
+import {Text, TextInput} from '@gravity-ui/uikit';
+
+export const getRoundValue = (a: number, b: number, isPercentage = false, def = 0) => {
     let result = b ? a / b : def;
     if (isPercentage) {
         result = Math.round(result * 100 * 100) / 100;
@@ -11,13 +12,13 @@ export const getRoundValue = (a, b, isPercentage = false, def = 0) => {
     return result;
 };
 
-export const getLocaleDateString = (date, autoSlice = 10) => {
+export const getLocaleDateString = (date: Date, autoSlice = 10) => {
     const str = date.toLocaleDateString('ru-RU').replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1');
 
     return autoSlice ? str.slice(0, autoSlice) : str;
 };
 
-export const getDateFromLocaleString = (str) => {
+export const getDateFromLocaleString = (str: string) => {
     if (!str) return new Date(`2100-01-01T00:00:00.000Z`);
     const date = str;
     const isoDate = date.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1').slice(0, 10);
@@ -25,8 +26,8 @@ export const getDateFromLocaleString = (str) => {
     return res;
 };
 
-export const getDateFromLocaleMonthName = (monthName, year) => {
-    const monthMap = {
+export const getDateFromLocaleMonthName = (monthName: string, year: number) => {
+    const monthMap: any = {
         январь: 0,
         февраль: 1,
         март: 2,
@@ -49,8 +50,8 @@ export const getDateFromLocaleMonthName = (monthName, year) => {
     return new Date(year, monthNumber);
 };
 
-export const getNormalDateRange = (dateRange) => {
-    const res = {};
+export const getNormalDateRange = (dateRange: any[]) => {
+    const res: any = {};
     res['lbd'] = getLocaleDateString(dateRange[0]);
     res['rbd'] = getLocaleDateString(dateRange[1]);
     return res;
@@ -62,7 +63,7 @@ export const defaultRender = ({value}: {value?: any}, valueType = 'number') => {
         : value;
 };
 
-export const renderSlashPercent = ({value, row}, key) => {
+export const renderSlashPercent = ({value, row}: any, key: any) => {
     const keyVal = row[key];
     if (value === undefined) return undefined;
     const percent = Math.round(((value as number) / keyVal) * 100);
@@ -73,23 +74,23 @@ export const renderSlashPercent = ({value, row}, key) => {
     );
 };
 
-export const renderAsPercent = (args) => {
+export const renderAsPercent = (args: any) => {
     const {value} = args;
     if (value === undefined) return undefined;
     return <Text>{defaultRender(args)}%</Text>;
 };
 
-export const renderAsDate = ({value}) => {
+export const renderAsDate = ({value}: any) => {
     if (value === undefined || value == 0) return undefined;
     return <Text>{new Date(value).toLocaleString('ru-RU')}</Text>;
 };
 
-export const renderDate = ({value}) => {
+export const renderDate = ({value}: any) => {
     if (value === undefined || value == 0) return undefined;
     return <Text>{new Date(value).toLocaleString('ru-RU').slice(0, 10)}</Text>;
 };
 
-export const daysInMonth = function (date) {
+export const daysInMonth = function (date: any) {
     date = new Date(date);
     if (date.getMonth() == new Date().getMonth()) {
         return new Date().getDate();
@@ -98,7 +99,7 @@ export const daysInMonth = function (date) {
     return d.getDate();
 };
 
-export const daysInPeriod = function (date) {
+export const daysInPeriod = function (date: any) {
     const [lbd, rbd] = date.split(' - ');
     const lbdDate = getDateFromLocaleString(lbd);
     const rbdDate = getDateFromLocaleString(rbd);
@@ -106,7 +107,7 @@ export const daysInPeriod = function (date) {
     return daysBetween + 1;
 };
 
-export const getMonth = (inputDate) => {
+export const getMonth = (inputDate: any) => {
     const date = new Date(inputDate);
     let str = date.toLocaleString('ru-RU', {
         month: 'long',
@@ -123,7 +124,7 @@ export const generateTextInputWithNoteOnTop = ({
     placeholder,
     onUpdateHandler,
     validationState,
-}) => {
+}: any) => {
     return (
         <div
             style={{

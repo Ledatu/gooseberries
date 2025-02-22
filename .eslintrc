@@ -1,22 +1,46 @@
 {
-  "extends": [
-    "@gravity-ui/eslint-config",
-    "@gravity-ui/eslint-config/prettier"
-  ],
-  "root": true,
-  "env": {
-    "node": true,
-    "jest": true
-  },
-  "overrides": [
-    {
-      "files": [
-        "**/__tests__/**/*.[jt]s?(x)",
-        "**/?(*.)+(spec|test).[jt]s?(x)"
-      ],
-      "extends": [
-        "plugin:testing-library/react"
-      ]
+    "env": {
+      "browser": true,
+      "es2021": true,
+      "node": true
+    },
+    "extends": [
+      "@gravity-ui/eslint-config",
+      "@gravity-ui/eslint-config/prettier",
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended",
+      "plugin:react-hooks/recommended"
+    ],
+    "settings": {
+      "react": {
+        "version": "detect",
+        "jsx-runtime": "automatic"
+      }
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    },
+    "plugins": ["react", "@typescript-eslint", "prettier"],
+    "rules": {
+      "react/react-in-jsx-scope": "off", // React import is not needed with the new JSX runtime
+      "@typescript-eslint/no-unused-vars": ["warn"],
+      "prettier/prettier": "error",
+        // Remove these rules:
+        " eslint-plugin-react-hooks" : "on",
+        "valid-jsdoc": "off",
+        "@typescript-eslint/no-duplicate-imports": "off",
+        "@typescript-eslint/no-parameter-properties": "off",
+        "@typescript-eslint/no-explicit-any" : "off",
+        "no-console" : "off",
+    
+        // Use the core rule for duplicate imports:
+        "no-duplicate-imports": "error"
     }
-  ]
-}
+  }

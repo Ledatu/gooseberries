@@ -1,0 +1,9 @@
+.masonry-layout {
+	column-gap: '1ep';
+	column-count: 2;
+}
+.masonry-item {
+	break-inside: avoid;
+	margin-bottom: 1em;
+	box-sizing: border-box;
+}

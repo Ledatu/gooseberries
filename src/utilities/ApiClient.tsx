@@ -1,33 +1,39 @@
 // ApiClient.tsx
-import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
+'use client';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-const {ipAddress} = require('../ipAddress');
+const ipAddress = 'https://seller.aurum-sky.net';
 
 class ApiClient {
     private baseUrl: string;
-    private authToken: string | null;
 
     constructor(baseUrl: string) {
         this.baseUrl = baseUrl;
-        this.authToken = localStorage.getItem('authToken'); // Fetch token from local storage
     }
 
-    get(
+    private getAuthToken(): string | null {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('authToken');
+        }
+        return null;
+    }
+
+    async get(
         endpoint: string,
         params: any = {},
         retry = false,
-        cancelToken: any = null,
+        cancelToken: any = null
     ): Promise<AxiosResponse<any> | undefined> {
         return this.request(endpoint, 'get', params, 'json', retry, cancelToken);
     }
 
-    post(
+    async post(
         endpoint: string,
         params: any = {},
         responseType: 'json' | 'blob' = 'json',
         retry = false,
         cancelToken: any = null,
-        additionalConfig: AxiosRequestConfig = {},
+        additionalConfig: AxiosRequestConfig = {}
     ): Promise<AxiosResponse<any> | undefined> {
         return this.request(
             endpoint,
@@ -36,7 +42,7 @@ class ApiClient {
             responseType,
             retry,
             cancelToken,
-            additionalConfig,
+            additionalConfig
         );
     }
 
@@ -47,13 +53,13 @@ class ApiClient {
         responseType: 'json' | 'blob' = 'json',
         retry = false,
         cancelToken: any = null,
-        additionalConfig: AxiosRequestConfig = {},
+        additionalConfig: AxiosRequestConfig = {}
     ): Promise<AxiosResponse<any> | undefined> {
         const maxRetries = retry ? 5 : 1;
-        const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-        const authHeader = `Bearer ${this.authToken}`;
-        if (additionalConfig.headers) additionalConfig.headers.Authorization = authHeader;
+        const authToken = this.getAuthToken();
+        const authHeader = authToken ? `Bearer ${authToken}` : undefined;
 
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
@@ -61,22 +67,20 @@ class ApiClient {
                     url: `${this.baseUrl}/api/${endpoint}`,
                     method,
                     headers: {
-                        Authorization: authHeader,
+                        ...(authHeader ? { Authorization: authHeader } : {}),
+                        ...additionalConfig.headers,
                     },
                     responseType,
                     cancelToken,
-                    ...additionalConfig, // Spread additional config here
+                    ...additionalConfig,
                 };
 
-                // For GET requests, use `params` as query parameters
                 if (method === 'get') {
                     config.params = params;
                 } else {
-                    // For POST requests, use `params` as the request body
                     config.data = params;
                 }
 
-                // Make the API request
                 const response = await axios(config);
                 return response;
             } catch (error) {
@@ -84,14 +88,17 @@ class ApiClient {
                     console.log('Request canceled:', error.message);
                     return undefined;
                 }
+
                 console.error(`API call failed on attempt ${attempt + 1}:`, error);
+
                 if (attempt < maxRetries - 1) {
-                    await delay(3000); // Delay before retrying
+                    await delay(3000);
                 } else {
                     throw error;
                 }
             }
         }
+
         return undefined;
     }
 }
