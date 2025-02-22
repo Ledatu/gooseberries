@@ -30,9 +30,11 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
     const {userInfo} = useUser();
     const {user} = userInfo ?? {};
     // const {modulesMap = {}} = campaignInfo?.modules || {};
+
     const modulesMap = useMemo(() => {
-        return campaignInfo?.modules || {};
+        return campaignInfo?.userModules || {};
     }, [campaignInfo]);
+    console.log('sss', campaignInfo, modulesMap);
 
     const [availableModules, setAvailableModules] = useState<string[]>([]);
     const [availableModulesMap, setAvailableModulesMap] = useState<any>({});
