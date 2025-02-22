@@ -1104,18 +1104,15 @@ export const PricesPage = () => {
                                 );
                             }
                         }}
-                        renderControl={({onClick, onKeyDown, ref}: any) => {
+                        renderControl={({triggerProps: {onClick, onKeyDown}}) => {
                             return (
                                 <Button
                                     disabled={permission != 'Управление'}
                                     loading={groupingFetching}
-                                    ref={ref}
                                     size="l"
                                     view="outlined-action"
                                     onClick={onClick}
-                                    extraProps={{
-                                        onKeyDown,
-                                    }}
+                                    onKeyDown={onKeyDown}
                                 >
                                     <Text variant="subheader-1">
                                         WB кошелёк: {wbWalletPercent[0]}%
