@@ -6,10 +6,9 @@ import '../styles/tailwind.scss';
 import {RootLayoutClient} from '@/components/RootLayoutClient';
 import {ReactNode} from 'react';
 
-
 export default function RootLayout({children}: {children: ReactNode}) {
     return (
-        <html lang="en">
+        <html lang="ru" translate="no">
             <body>
                 <RootLayoutClient>{children}</RootLayoutClient>
             </body>
