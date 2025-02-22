@@ -140,6 +140,8 @@ export const MassAdvertPage = () => {
     const {showError} = useError();
     const {availablemodulesMap} = useModules();
     const permission: string = useMemo(() => {
+        console.log(availablemodulesMap);
+
         return availablemodulesMap['massAdvert'];
     }, [availablemodulesMap]);
     const {selectValue, setSwitchingCampaignsFlag, sellerId} = useCampaign();

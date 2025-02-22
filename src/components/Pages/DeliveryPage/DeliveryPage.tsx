@@ -87,7 +87,7 @@ export const DeliveryPage = () => {
             return;
         }
         event.preventDefault();
-        const url = `https://seller.aurum-sky.net/api/convertDeliiveryOrdersTemplate`;
+        const url = `https://seller.aurum-sky.net/backend/convertDeliiveryOrdersTemplate`;
         const formData = new FormData();
         if (!file) return;
         formData.append('uid', getUid());

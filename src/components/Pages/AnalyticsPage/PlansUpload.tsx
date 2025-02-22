@@ -25,7 +25,7 @@ export const PlansUpload = ({selectValue, doc, setChangedDoc, disabled}: PlansUp
         }
 
         event.preventDefault();
-        const url = 'https://seller.aurum-sky.net/api/uploadPlans';
+        const url = 'https://seller.aurum-sky.net/backend/uploadPlans';
         const formData = new FormData();
 
         formData.append('uid', getUid());

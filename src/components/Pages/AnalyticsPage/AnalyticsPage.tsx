@@ -76,7 +76,7 @@ export const AnalyticsPage = () => {
     const {selectValue, setSwitchingCampaignsFlag, sellerId} = useCampaign();
     const {availablemodulesMap} = useModules();
     const permission: string = useMemo(() => {
-        return availablemodulesMap['buyers'];
+        return availablemodulesMap['analytics'];
     }, [availablemodulesMap]);
 
     const [planModalOpen, setPlanModalOpen] = useState(false);

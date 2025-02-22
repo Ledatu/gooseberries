@@ -64,7 +64,7 @@ class ApiClient {
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
                 const config: AxiosRequestConfig = {
-                    url: `${this.baseUrl}/api/${endpoint}`,
+                    url: `${this.baseUrl}/backend/${endpoint}`,
                     method,
                     headers: {
                         ...(authHeader ? { Authorization: authHeader } : {}),

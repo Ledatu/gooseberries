@@ -17,7 +17,7 @@ export default async function callApi(
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-            const response = await axios.post(`${ipAddress}/api/${endpoint}`, params, {
+            const response = await axios.post(`${ipAddress}/backend/${endpoint}`, params, {
                 responseType: endpoint.includes('download') ? 'blob' : undefined,
                 headers: {
                     Authorization: 'Bearer ' + token,

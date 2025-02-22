@@ -27,7 +27,7 @@ export const AutoWordsProvider = ({children}: {children: React.ReactNode}) => {
         if (nmId !== null) {
             setLoading(true);
             setData('al;dks;kd;lak');
-            //   fetch(`/api/getAutoWords?nmId=${nmId}`)
+            //   fetch(`/backend/getAutoWords?nmId=${nmId}`)
             //     .then((res) => res.json())
             //     .then((result) => {
             //       setData(result);

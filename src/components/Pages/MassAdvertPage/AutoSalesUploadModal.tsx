@@ -43,7 +43,7 @@ export const AutoSalesUploadModal = ({
         }
 
         event.preventDefault();
-        const url = 'https://seller.aurum-sky.net/api/uploadAutoSales';
+        const url = 'https://seller.aurum-sky.net/backend/uploadAutoSales';
         const formData = new FormData();
 
         formData.append('uid', getUid());
