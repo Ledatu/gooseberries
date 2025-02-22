@@ -1095,7 +1095,7 @@ export const PricesPage = () => {
                                 if (!response) throw new Error('Не удалось установить процент.');
 
                                 setUpdatingFlag(true);
-                            } catch (error) {
+                            } catch (error: any) {
                                 console.error(error);
                                 showError(
                                     error?.response?.data?.error ||
@@ -1104,7 +1104,7 @@ export const PricesPage = () => {
                                 );
                             }
                         }}
-                        renderControl={({onClick, onKeyDown, ref}) => {
+                        renderControl={({onClick, onKeyDown, ref}: any) => {
                             return (
                                 <Button
                                     disabled={permission != 'Управление'}
