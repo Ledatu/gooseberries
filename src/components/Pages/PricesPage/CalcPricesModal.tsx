@@ -62,6 +62,7 @@ export const CalcPricesModal = ({
     const selectOptionsEntered = [
         {value: 'Цена после скидки', content: 'Цена после скидки'},
         {value: 'Цена с СПП', content: 'Цена с СПП'},
+        {value: 'Цена с WB кошельком', content: 'Цена с WB кошельком'},
         {value: 'Наценка к себестоимости', content: 'Наценка к себестоимости'},
         {value: 'Рентабельность', content: 'Рентабельность'},
         {value: 'Профит', content: 'Профит'},
@@ -157,6 +158,7 @@ export const CalcPricesModal = ({
             const keys: any = {
                 'Цена после скидки': 'rozPrice',
                 'Цена с СПП': 'sppPrice',
+                'Цена с WB кошельком': 'wbWalletPrice',
                 'Наценка к себестоимости': 'primeCostMarkup',
                 Рентабельность: 'rentabelnost',
                 Профит: 'profit',

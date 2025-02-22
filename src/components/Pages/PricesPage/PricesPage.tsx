@@ -61,6 +61,7 @@ export const PricesPage = () => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
 
     const [groupingFetching, setGroupingFetching] = useState(false);
+    const [wbWalletFetching, setWbWalletFetching] = useState(false);
 
     const [currentPricesCalculatedBasedOn, setCurrentPricesCalculatedBasedOn] = useState('');
 
@@ -474,6 +475,25 @@ export const PricesPage = () => {
             render: (args: any) => fixedPriceRender(args, ['sppPrice'], defaultRender(args)),
         },
         {
+            name: 'wbWalletPrice',
+            placeholder: (
+                <Text
+                    className="g-link g-link_view_primary"
+                    onClick={() => {
+                        if (currentPricesCalculatedBasedOn == 'wbWalletPrice')
+                            setUpdatingFlag(true);
+                    }}
+                    variant="subheader-1"
+                    color={
+                        currentPricesCalculatedBasedOn == 'wbWalletPrice' ? undefined : 'primary'
+                    }
+                >
+                    Цена с WB кошельком, ₽
+                </Text>
+            ),
+            render: (args: any) => fixedPriceRender(args, ['wbWalletPrice'], defaultRender(args)),
+        },
+        {
             name: 'obor',
             placeholder: 'Оборачиваемость, дней.',
         },
@@ -587,6 +607,37 @@ export const PricesPage = () => {
         {value: 'art', content: 'Артикул'},
     ];
     const [groupingValue, setGroupingValue] = useState(['']);
+
+    const wbWalletPercentOptions = useMemo(
+        () => [2, 3, 5].map((percent) => ({value: `${percent}`, content: `${percent} %`})),
+        [],
+    );
+    const [wbWalletPercent, setWbWalletPercent] = useState([] as string[]);
+
+    const fetchWbWalletPercent = async () => {
+        setWbWalletFetching(true);
+        try {
+            const response = await ApiClient.post('prices/get-wb-wallet-percent', {
+                seller_id: sellerId,
+            });
+            if (!response) throw new Error('Не удалось получить скидку WB кошелька.');
+
+            const {percent} = response?.data ?? {percent: 2};
+
+            setWbWalletPercent([`${percent}`]);
+        } catch (error: any) {
+            console.error(error);
+            showError(
+                error?.response?.data?.error || error?.message || 'Не удалось обработать токен',
+            );
+        }
+        setWbWalletFetching(false);
+    };
+
+    useEffect(() => {
+        if (!sellerId) return;
+        fetchWbWalletPercent();
+    }, [sellerId]);
 
     const [updatePricesModalOpen, setUpdatePricesModalOpen] = useState(false);
 
@@ -1020,8 +1071,60 @@ export const PricesPage = () => {
                         alignItems: 'center',
                         justifyContent: 'center',
                         marginBottom: 8,
+                        gap: 8,
                     }}
                 >
+                    <Select
+                        loading={wbWalletFetching}
+                        disabled={permission != 'Управление'}
+                        options={wbWalletPercentOptions}
+                        onUpdate={async (nextValule) => {
+                            setWbWalletPercent(nextValule);
+                            const params = {
+                                seller_id: sellerId,
+                                percent: parseInt(nextValule[0]),
+                            };
+                            console.log(params);
+
+                            try {
+                                const response = await ApiClient.post(
+                                    'prices/set-wb-wallet-percent',
+                                    params,
+                                );
+                                console.log('prices/set-wb-wallet-percent', response);
+                                if (!response) throw new Error('Не удалось установить процент.');
+
+                                setUpdatingFlag(true);
+                            } catch (error) {
+                                console.error(error);
+                                showError(
+                                    error?.response?.data?.error ||
+                                        error?.message ||
+                                        'Не удалось установить процент.',
+                                );
+                            }
+                        }}
+                        renderControl={({onClick, onKeyDown, ref}) => {
+                            return (
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    loading={groupingFetching}
+                                    ref={ref}
+                                    size="l"
+                                    view="outlined-action"
+                                    onClick={onClick}
+                                    extraProps={{
+                                        onKeyDown,
+                                    }}
+                                >
+                                    <Text variant="subheader-1">
+                                        WB кошелёк: {wbWalletPercent[0]}%
+                                    </Text>
+                                    <Icon data={ChevronDown} />
+                                </Button>
+                            );
+                        }}
+                    />
                     <Select
                         disabled={permission != 'Управление'}
                         options={groupingOptions}
@@ -1075,9 +1178,7 @@ export const PricesPage = () => {
                             );
                         }}
                     />
-                    <div style={{minWidth: 8}} />
                     <CalcUnitEconomyModal />
-                    <div style={{minWidth: 8}} />
                     <RangePicker
                         args={{
                             recalc: () => setUpdatingFlag(true),
