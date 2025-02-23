@@ -5,15 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8b2914f3-4584-4bd4-8826-57117454baa9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/lib/cn.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gooseberries.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/prettier.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Pages/MassAdvertPage/AdvertCreateModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Pages/MassAdvertPage/AdvertCreateModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shared/ui/Modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/ui/Modal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/features/advertising/AdvertCreationModal/hooks/useAdvertCreation.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/features/advertising/AdvertCreationModal/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/features/advertising/AdvertCreationModal/ui/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CategoryBar/CategoryBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CategoryBar/CategoryBar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Pages/MassAdvertPage/AdvertConfirmationModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/advertising/AdvertCreationModal/hooks/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Pages/MassAdvertPage/AdvertCreateModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/advertising/AdvertCreationModal/ui/modal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Pages/MassAdvertPage/AutoSalesModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Pages/MassAdvertPage/AutoSalesModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Pages/MassAdvertPage/MassAdvertPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Pages/MassAdvertPage/MassAdvertPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tailwind.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,8 +24,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="TypeScript JSX File" />
         <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -62,6 +63,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/features/advertising/AdvertCreationModal/ui" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -78,7 +84,7 @@
       <option name="presentableId" value="Default" />
       <updated>1740325786342</updated>
       <workItem from="1740325787427" duration="1820000" />
-      <workItem from="1740327622702" duration="3858000" />
+      <workItem from="1740327622702" duration="5826000" />
     </task>
     <servers />
   </component>
