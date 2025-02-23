@@ -8,12 +8,17 @@ import {useCampaign} from '@/contexts/CampaignContext';
 import ApiClient from '@/utilities/ApiClient';
 import {ModalWindow} from '@/shared/ui/Modal';
 
-interface AdvertCreateModalInterface {
+interface AdvertCreateModalProps {
     sellerId: String;
     children: ReactElement | ReactElement[];
     doc: any;
     filteredData: Object[];
     setChangedDoc: Function;
+}
+
+interface AdvertTypeSwitch {
+    value: string;
+    content: string;
 }
 
 export const AdvertCreateModal = ({
@@ -22,14 +27,16 @@ export const AdvertCreateModal = ({
     doc,
     setChangedDoc,
     filteredData,
-}: AdvertCreateModalInterface) => {
-    const {showError} = useError(); // Access error context
+}: AdvertCreateModalProps) => {
+    const {showError} = useError();
     const {selectValue} = useCampaign();
 
     const [open, setOpen] = useState<boolean>(false);
+    const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false); // New state for confirmation modal
+    const [advertsCount, setAdvertsCount] = useState<number>(0); // State to store the number of adverts
 
     const [createAdvertsMode, setCreateAdvertsMode] = useState<boolean>(false);
-    const advertTypeSwitchValues: any[] = [
+    const advertTypeSwitchValues: AdvertTypeSwitch[] = [
         {value: 'Авто', content: 'Авто'},
         {value: 'Поиск', content: 'Поиск'},
     ];
@@ -41,6 +48,10 @@ export const AdvertCreateModal = ({
 
     const handleClose = () => {
         setOpen(false);
+    };
+
+    const handleConfirmationClose = () => {
+        setConfirmationOpen(false);
     };
 
     const childArray = Children.toArray(children);
@@ -56,6 +67,29 @@ export const AdvertCreateModal = ({
     }
 
     const handleCreateButtonClick = async () => {
+        console.log(filteredData[0]);
+
+        const count: number = filteredData.filter(
+            (item: any) => item.art !== undefined && item.nmId !== undefined && item.stocks !== 1,
+        ).length;
+        setAdvertsCount(count);
+        setConfirmationOpen(true);
+        setOpen(false);
+    };
+
+    const calculateSum = (): number => {
+        if (createAdvertsMode) {
+            return advertsCount;
+        }
+        if (advertTypeSwitchValue[0] === 'Авто') {
+            return Math.ceil(advertsCount / 100);
+        } else {
+            return Math.ceil(advertsCount / 50);
+        }
+    };
+
+    const handleConfirmCreate = async () => {
+        setConfirmationOpen(false);
         const params: any = {
             seller_id: sellerId,
             data: {
@@ -72,6 +106,7 @@ export const AdvertCreateModal = ({
             params.data.arts[art] = {art, nmId};
         }
         console.log(params);
+
         handleClose();
 
         try {
@@ -152,6 +187,36 @@ export const AdvertCreateModal = ({
                 >
                     <Icon data={CloudArrowUpIn} />
                     Создать
+                </Button>
+            </ModalWindow>
+
+            <ModalWindow isOpen={confirmationOpen} handleClose={handleConfirmationClose}>
+                <Text variant="display-2">Подтверждение</Text>
+                <div style={{minHeight: 8}} />
+                {advertsCount !== 0 && (
+                    <div className="text-center">
+                        <Text>Будет создано {advertsCount} реклам.</Text>
+                        <br />
+                        <Text>
+                            На сумму{' '}
+                            <span className="text-red-400 underline underline-offset-2">
+                                {calculateSum()} тыс. рублей
+                            </span>
+                        </Text>
+                    </div>
+                )}
+                <Button
+                    className={'mt-5 mb-5'}
+                    onClick={handleConfirmCreate}
+                    selected
+                    size="l"
+                    pin="circle-circle"
+                    view="flat-success"
+                >
+                    Подтвердить
+                </Button>
+                <Button onClick={handleConfirmationClose} size="l" pin="circle-circle" view="flat">
+                    Отмена
                 </Button>
             </ModalWindow>
         </>
