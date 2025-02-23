@@ -102,21 +102,31 @@ export const AdvertCreateModal = ({
                         </Text>
                     </div>
                 )}
-                <Button
-                    className={'mt-5 mb-5'}
-                    onClick={async () => {
-                        await handleConfirmCreate(filteredData);
-                        // handleConfirmationClose();
-                    }}
-                    selected
-                    size="l"
-                    pin="circle-circle"
-                    view="flat-success"
-                >
-                    Подтвердить
-                </Button>
+                {advertsCount === 0 && (
+                    <div className="text-center">
+                        <Text>
+                            У вас нет позиций с остатком товара на складе, оплата не будет
+                            произведена
+                        </Text>
+                    </div>
+                )}
+                {advertsCount !== 0 && (
+                    <Button
+                        className={'mt-5 mb-5'}
+                        onClick={async () => {
+                            await handleConfirmCreate(filteredData);
+                            // handleConfirmationClose();
+                        }}
+                        selected
+                        size="l"
+                        pin="circle-circle"
+                        view="flat-success"
+                    >
+                        Подтвердить
+                    </Button>
+                )}
                 <Button onClick={handleConfirmationClose} size="l" pin="circle-circle" view="flat">
-                    Отмена
+                    {advertsCount !== 0 ? 'Отмена' : 'Закрыть'}
                 </Button>
             </ModalWindow>
         </>
