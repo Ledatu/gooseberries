@@ -624,7 +624,7 @@ export const PricesPage = () => {
 
             const {percent} = response?.data ?? {percent: 2};
 
-            setWbWalletPercent([`${percent}`]);
+            setWbWalletPercent([`${percent ?? '2'}`]);
         } catch (error: any) {
             console.error(error);
             showError(
@@ -1115,7 +1115,7 @@ export const PricesPage = () => {
                                     onKeyDown={onKeyDown}
                                 >
                                     <Text variant="subheader-1">
-                                        WB кошелёк: {wbWalletPercent[0]}%
+                                        WB кошелёк: {wbWalletPercent[0] ?? '2'}%
                                     </Text>
                                     <Icon data={ChevronDown} />
                                 </Button>
