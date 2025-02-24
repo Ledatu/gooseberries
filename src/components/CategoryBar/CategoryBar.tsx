@@ -99,8 +99,8 @@ import React from 'react';
 //   AvailableChartColors,
 //   AvailableChartColorsKeys,
 //   getColorClassName,
-// } from "@/lib/chartUtils"
-// import { cx } from "@/lib/utils"
+// } from "@/hooks/chartUtils"
+// import { cx } from "@/hooks/utils"
 
 // import { Tooltip } from "./Tooltip"
 

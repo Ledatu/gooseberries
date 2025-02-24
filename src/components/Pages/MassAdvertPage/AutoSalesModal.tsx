@@ -12,7 +12,7 @@ import {TextTitleWrapper} from '@/components/TextTitleWrapper';
 import {AutoSalesUploadModal} from './AutoSalesUploadModal';
 import {useError} from '@/contexts/ErrorContext';
 import {CategoryBar} from '@/lib/CategoryBar/CategoryBar';
-// import {getColorClassName} from '@/lib/chartUtils';
+// import {getColorClassName} from '@/hooks/chartUtils';
 
 interface ButtonListProps {
     availableAutoSales: any;
