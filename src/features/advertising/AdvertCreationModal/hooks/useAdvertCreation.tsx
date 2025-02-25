@@ -19,7 +19,7 @@ export const useAdvertCreation = (sellerId: string, doc: any, setChangedDoc: Fun
 
     const handleCreateButtonClick = (filteredData: any[]) => {
         const count: number = filteredData.filter(
-            (item: any) => item.art !== undefined && item.nmId !== undefined && item.stocks !== 0,
+            (item: any) => item.art !== undefined && item.nmId !== undefined,
         ).length;
         setAdvertsCount(count);
         setConfirmationOpen(true);

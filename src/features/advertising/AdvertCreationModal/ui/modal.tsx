@@ -24,7 +24,6 @@ export const AdvertCreateModal = ({
     const {
         open,
         confirmationOpen,
-        advertsCount,
         createAdvertsMode,
         advertTypeSwitchValue,
         setAdvertTypeSwitchValue,
@@ -51,6 +50,8 @@ export const AdvertCreateModal = ({
     const triggerButton = cloneElement(triggerElement, {
         onClick: handleOpen,
     });
+
+    const count = calculateSum();
 
     return (
         <>
@@ -90,44 +91,47 @@ export const AdvertCreateModal = ({
             <ModalWindow isOpen={confirmationOpen} handleClose={handleConfirmationClose}>
                 <Text variant="display-2">Подтверждение</Text>
                 <div style={{minHeight: 8}} />
-                {advertsCount !== 0 && (
-                    <div className="text-center">
-                        <Text>Будет создано {advertsCount} реклам.</Text>
+                {count !== 0 && (
+                    <div className="text-center" style={{minWidth: 600}}>
+                        <Text variant="header-1">Будет создано {count} РК.</Text>
                         <br />
-                        <Text>
+                        <Text variant="header-1">
                             На сумму{' '}
                             <span className="text-red-400 underline underline-offset-2">
-                                {calculateSum()} тыс. рублей
+                                {count}к ₽
                             </span>
                         </Text>
                     </div>
                 )}
-                {advertsCount === 0 && (
+                {count === 0 && (
                     <div className="text-center">
-                        <Text>
-                            У вас нет позиций с остатком товара на складе, оплата не будет
-                            произведена
-                        </Text>
+                        <Text variant="header-1">Товары не выбраны, РК созданы не будут.</Text>
                     </div>
                 )}
-                {advertsCount !== 0 && (
+                <div style={{display: 'flex', flexDirection: 'row', marginTop: 8, gap: 8}}>
+                    {count !== 0 && (
+                        <Button
+                            onClick={async () => {
+                                await handleConfirmCreate(filteredData);
+                                // handleConfirmationClose();
+                            }}
+                            selected
+                            size="l"
+                            pin="circle-circle"
+                            view="flat-success"
+                        >
+                            Подтвердить
+                        </Button>
+                    )}
                     <Button
-                        className={'mt-5 mb-5'}
-                        onClick={async () => {
-                            await handleConfirmCreate(filteredData);
-                            // handleConfirmationClose();
-                        }}
-                        selected
+                        onClick={handleConfirmationClose}
                         size="l"
                         pin="circle-circle"
-                        view="flat-success"
+                        view="flat"
                     >
-                        Подтвердить
+                        {count !== 0 ? 'Отмена' : 'Закрыть'}
                     </Button>
-                )}
-                <Button onClick={handleConfirmationClose} size="l" pin="circle-circle" view="flat">
-                    {advertsCount !== 0 ? 'Отмена' : 'Закрыть'}
-                </Button>
+                </div>
             </ModalWindow>
         </>
     );
