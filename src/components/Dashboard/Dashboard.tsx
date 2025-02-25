@@ -148,10 +148,6 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
     // };
     const isMobile = useMediaQuery('(max-width: 768px)');
 
-    if (!campaigns.length) {
-        return <div></div>;
-    }
-
     return (
         <div className={b()}>
             {isMobile ? (

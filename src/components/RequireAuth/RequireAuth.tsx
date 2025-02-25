@@ -21,21 +21,23 @@ export function RequireAuth({children}: {children: React.ReactNode}) {
 
     const checkTokenValidity = async () => {
         const authToken = localStorage.getItem('authToken');
-        console.log(authToken);
+        console.log('userInfo', JSON.stringify(userInfo));
+        console.log('authtoken',!authToken);
         if (!authToken) {
             setIsAuthenticated(false);
+            console.log('isAuthentcated', isAuthenticated);
             return;
         }
 
         try {
             const response = await ApiClient.post('auth/verify-token', {token: authToken});
+            console.log('response', response);
+            console.log('userInfo', JSON.stringify(userInfo));
 
             if (response?.data?.valid) {
                 setIsAuthenticated(true);
                 console.log(response?.data?.campaigns);
                 if (JSON.stringify(userInfo) !== JSON.stringify(response.data)) {
-                    console.log('userInfo', JSON.stringify(userInfo));
-
                     setUserInfo({
                         ...response.data,
                         campaigns: response?.data?.campaigns || [], // Ensure campaigns array exists
@@ -69,9 +71,12 @@ export function RequireAuth({children}: {children: React.ReactNode}) {
 
     useEffect(() => {
         if (isAuthenticated === false) {
+            console.log(isAuthenticated, 'akdjaslkdjkaj');
+            
+            // window.history.replaceState(null, '', '/login');
             router.push('/login');
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated]);
 
     if (isAuthenticated === null) {
         return (
@@ -90,5 +95,9 @@ export function RequireAuth({children}: {children: React.ReactNode}) {
         );
     }
 
-    return <UserContext.Provider value={{userInfo, refetchUser}}>{children}</UserContext.Provider>;
+    return (
+        <UserContext.Provider value={{userInfo, refetchUser, isAuthenticated}}>
+            {children}
+        </UserContext.Provider>
+    );
 }

@@ -98,7 +98,7 @@ export const AdvertCreateModal = ({
                         <Text variant="header-1">
                             На сумму{' '}
                             <span className="text-red-400 underline underline-offset-2">
-                                {count}к ₽
+                                {count * 1000} ₽
                             </span>
                         </Text>
                     </div>
@@ -115,10 +115,9 @@ export const AdvertCreateModal = ({
                                 await handleConfirmCreate(filteredData);
                                 // handleConfirmationClose();
                             }}
-                            selected
                             size="l"
                             pin="circle-circle"
-                            view="flat-success"
+                            view="flat"
                         >
                             Подтвердить
                         </Button>
@@ -126,8 +125,9 @@ export const AdvertCreateModal = ({
                     <Button
                         onClick={handleConfirmationClose}
                         size="l"
+                        selected
                         pin="circle-circle"
-                        view="flat"
+                        view="flat-success"
                     >
                         {count !== 0 ? 'Отмена' : 'Закрыть'}
                     </Button>
