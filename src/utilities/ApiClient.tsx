@@ -1,6 +1,6 @@
 // ApiClient.tsx
 'use client';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 
 const ipAddress = 'https://seller.aurum-sky.net';
 
@@ -22,7 +22,7 @@ class ApiClient {
         endpoint: string,
         params: any = {},
         retry = false,
-        cancelToken: any = null
+        cancelToken: any = null,
     ): Promise<AxiosResponse<any> | undefined> {
         return this.request(endpoint, 'get', params, 'json', retry, cancelToken);
     }
@@ -33,7 +33,7 @@ class ApiClient {
         responseType: 'json' | 'blob' = 'json',
         retry = false,
         cancelToken: any = null,
-        additionalConfig: AxiosRequestConfig = {}
+        additionalConfig: AxiosRequestConfig = {},
     ): Promise<AxiosResponse<any> | undefined> {
         return this.request(
             endpoint,
@@ -42,7 +42,7 @@ class ApiClient {
             responseType,
             retry,
             cancelToken,
-            additionalConfig
+            additionalConfig,
         );
     }
 
@@ -53,10 +53,10 @@ class ApiClient {
         responseType: 'json' | 'blob' = 'json',
         retry = false,
         cancelToken: any = null,
-        additionalConfig: AxiosRequestConfig = {}
+        additionalConfig: AxiosRequestConfig = {},
     ): Promise<AxiosResponse<any> | undefined> {
         const maxRetries = retry ? 5 : 1;
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
         const authToken = this.getAuthToken();
         const authHeader = authToken ? `Bearer ${authToken}` : undefined;
@@ -67,13 +67,14 @@ class ApiClient {
                     url: `${this.baseUrl}/backend/${endpoint}`,
                     method,
                     headers: {
-                        ...(authHeader ? { Authorization: authHeader } : {}),
                         ...additionalConfig.headers,
                     },
                     responseType,
                     cancelToken,
                     ...additionalConfig,
                 };
+
+                if (config.headers) config.headers.Authorization = authHeader;
 
                 if (method === 'get') {
                     config.params = params;
