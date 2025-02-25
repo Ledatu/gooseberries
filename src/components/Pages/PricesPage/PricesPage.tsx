@@ -521,6 +521,25 @@ export const PricesPage = () => {
                 ),
         },
         {
+            name: 'rent_no_ad',
+            placeholder: 'Марж. без рекламы, ₽',
+            render: (args: any) =>
+                fixedPriceRender(
+                    args,
+                    ['profit_no_ad', 'rent_no_ad'],
+                    ((args) => {
+                        const {value, row} = args;
+                        const {rozPrice, profit_no_ad: profit} = row;
+                        if (value === undefined) return undefined;
+                        return (
+                            <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
+                                {`${profit} / ${getRoundValue(profit * 100, rozPrice)}%`}
+                            </Text>
+                        );
+                    })(args),
+                ),
+        },
+        {
             name: 'primeCost',
             placeholder: 'Себестоимость, ₽',
             render: (args: any) =>
@@ -746,6 +765,8 @@ export const PricesPage = () => {
                 profit: 0,
                 stock: undefined,
                 rentabelnost: 0,
+                rent_no_ad: 0,
+                profit_no_ad: 0,
                 roi: 0,
                 primeCost: 0,
                 primeCostMarkup: 0,
@@ -784,6 +805,8 @@ export const PricesPage = () => {
             artInfo.discount = artData['priceInfo'].discount;
             artInfo.spp = Math.round(artData['priceInfo'].spp);
             artInfo.profit = Math.round(artData['profit']);
+            artInfo.profit_no_ad = Math.round(artData['profit_no_ad']);
+            artInfo.rent_no_ad = getRoundValue(artData['rent_no_ad'], 1, true);
             artInfo.stock = artData['stock'];
             artInfo.rentabelnost = getRoundValue(artData['rentabelnost'], 1, true);
             artInfo.primeCost = artData['primeCost'];

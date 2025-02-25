@@ -66,6 +66,8 @@ export const CalcPricesModal = ({
         {value: 'Наценка к себестоимости', content: 'Наценка к себестоимости'},
         {value: 'Рентабельность', content: 'Рентабельность'},
         {value: 'Профит', content: 'Профит'},
+        {value: 'Марж. без рекламы', content: 'Марж. без рекламы'},
+        {value: 'Марж.% без рекламы', content: 'Марж.% без рекламы'},
     ];
     const [selectValueEntered, setSelectValueEntered] = useState<string[]>(['Цена после скидки']);
 
@@ -162,6 +164,8 @@ export const CalcPricesModal = ({
                 'Наценка к себестоимости': 'primeCostMarkup',
                 Рентабельность: 'rentabelnost',
                 Профит: 'profit',
+                'Марж. без рекламы': 'profit_no_ad',
+                'Марж.% без рекламы': 'rent_no_ad',
             };
 
             const key = keys[selectValueEntered[0]];
@@ -455,10 +459,14 @@ export const CalcPricesModal = ({
                                                             'Наценка к себестоимости'
                                                                 ? 'Введите наценку, %'
                                                                 : selectValueEntered[0] ==
-                                                                    'Рентабельность'
+                                                                        'Рентабельность' ||
+                                                                    selectValueEntered[0] ==
+                                                                        'Марж.% без рекламы'
                                                                   ? 'Введите рентабельность, %'
                                                                   : selectValueEntered[0] ==
-                                                                      'Профит'
+                                                                          'Профит' ||
+                                                                      selectValueEntered[0] ==
+                                                                          'Марж. без рекламы'
                                                                     ? 'Введите профит, ₽'
                                                                     : 'Введите цену, ₽'
                                                         }
@@ -528,9 +536,11 @@ export const CalcPricesModal = ({
                                     placeholder={
                                         selectValueEntered[0] == 'Наценка к себестоимости'
                                             ? 'Введите наценку, %'
-                                            : selectValueEntered[0] == 'Рентабельность'
+                                            : selectValueEntered[0] == 'Рентабельность' ||
+                                                selectValueEntered[0] == 'Марж.% без рекламы'
                                               ? 'Введите рентабельность, %'
-                                              : selectValueEntered[0] == 'Профит'
+                                              : selectValueEntered[0] == 'Профит' ||
+                                                  selectValueEntered[0] == 'Марж. без рекламы'
                                                 ? 'Введите профит, ₽'
                                                 : 'Введите цену, ₽'
                                     }
