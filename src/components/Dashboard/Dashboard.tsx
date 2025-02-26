@@ -3,7 +3,7 @@ import './Dashboard.scss';
 import {useEffect, useMemo, useState, ReactNode} from 'react';
 import block from 'bem-cn-lite';
 // import {Tabs} from '@gravity-ui/uikit/legacy';
-import {Icon, Button, Tooltip, Text} from '@gravity-ui/uikit';
+import {Icon, Button, Text} from '@gravity-ui/uikit';
 // import Link from 'next/link';
 // import '@/styles/App.scss'
 // import textLogo from '../../assets/brlogo.svg';
@@ -324,94 +324,81 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                                 }}
                                             >
                                                 <div style={{minWidth: 12}} />
-                                                <Tooltip content={'База знаний'}>
-                                                    <Button
-                                                        view="flat"
+                                                <Button
+                                                    view="flat"
+                                                    style={{
+                                                        height: 68,
+                                                        width: 68,
+                                                    }}
+                                                    size="l"
+                                                    pin="clear-clear"
+                                                    href={'https://aurum-wiki.tilda.ws/tdocs/'}
+                                                    target={'_blank'}
+                                                >
+                                                    <div
                                                         style={{
                                                             height: 68,
-                                                            width: 68,
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            gap: 4,
                                                         }}
-                                                        size="l"
-                                                        pin="clear-clear"
-                                                        href={'https://aurum-wiki.tilda.ws/tdocs/'}
-                                                        target={'_blank'}
                                                     >
-                                                        <div
-                                                            style={{
-                                                                height: 68,
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                gap: 4,
-                                                            }}
-                                                        >
-                                                            <Icon data={GraduationCap} size={18} />
-                                                            <Text variant="caption-1">
-                                                                База Знаний
-                                                            </Text>
-                                                        </div>
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip content={'Поддержка'}>
-                                                    <Button
-                                                        view="flat"
+                                                        <Icon data={GraduationCap} size={18} />
+                                                        <Text variant="caption-1">База Знаний</Text>
+                                                    </div>
+                                                </Button>
+                                                <Button
+                                                    view="flat"
+                                                    style={{
+                                                        height: 68,
+                                                        width: 68,
+                                                    }}
+                                                    size="l"
+                                                    pin="clear-clear"
+                                                    href={'https://t.me/AurumSkyNetSupportBot'}
+                                                    target={'_blank'}
+                                                >
+                                                    <div
                                                         style={{
                                                             height: 68,
-                                                            width: 68,
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            gap: 4,
                                                         }}
-                                                        size="l"
-                                                        pin="clear-clear"
-                                                        href={'https://t.me/AurumSkyNetSupportBot'}
-                                                        target={'_blank'}
                                                     >
-                                                        <div
-                                                            style={{
-                                                                height: 68,
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                gap: 4,
-                                                            }}
-                                                        >
-                                                            <Icon data={CircleQuestion} size={18} />
-                                                            <Text variant="caption-1">
-                                                                Поддержка
-                                                            </Text>
-                                                        </div>
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip content={'Наш телеграм канал'}>
-                                                    <Button
-                                                        view="flat"
-                                                        pin="clear-clear"
+                                                        <Icon data={CircleQuestion} size={18} />
+                                                        <Text variant="caption-1">Поддержка</Text>
+                                                    </div>
+                                                </Button>
+                                                <Button
+                                                    view="flat"
+                                                    pin="clear-clear"
+                                                    style={{
+                                                        height: 68,
+                                                        width: 68,
+                                                    }}
+                                                    size="l"
+                                                    href={'https://t.me/+5PHQ7OK2pT4yMDBi'}
+                                                    target={'_blank'}
+                                                >
+                                                    <div
                                                         style={{
                                                             height: 68,
-                                                            width: 68,
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            gap: 4,
                                                         }}
-                                                        size="l"
-                                                        href={'https://t.me/+5PHQ7OK2pT4yMDBi'}
-                                                        target={'_blank'}
                                                     >
-                                                        <div
-                                                            style={{
-                                                                height: 68,
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                gap: 4,
-                                                            }}
-                                                        >
-                                                            <Icon data={LogoTelegram} size={18} />
-                                                            <Text variant="caption-1">
-                                                                Наш TG Канал
-                                                            </Text>
-                                                        </div>
-                                                    </Button>
-                                                </Tooltip>
-                                                <div style={{minWidth: 24}} />
+                                                        <Icon data={LogoTelegram} size={18} />
+                                                        <Text variant="caption-1">Наш канал</Text>
+                                                    </div>
+                                                </Button>
                                             </div>
                                             {selectValue[0] ? (
                                                 <div
