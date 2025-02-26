@@ -36,7 +36,7 @@ export default function LoginPage() {
                 <Card
                     style={{
                         width: 330,
-                        height: 600,
+                        height: 450,
                         overflow: 'hidden',
                         flexWrap: 'nowrap',
                         display: 'flex',
