@@ -2,8 +2,9 @@
 
 import {createContext, useContext, useState, useEffect} from 'react';
 import {useRouter} from 'next/navigation';
-import {LogoLoader} from '@/components/LogoLoader/LogoLoader';
+// import {LogoLoader} from '@/components/LogoLoader/LogoLoader';
 import ApiClient from '@/utilities/ApiClient';
+import { LogoLoad } from '../logoLoad';
 
 // Create a Context for the user info
 const UserContext = createContext(null as any);
@@ -85,7 +86,7 @@ export function RequireAuth({children}: {children: React.ReactNode}) {
                     justifyContent: 'center',
                 }}
             >
-                <LogoLoader />
+                <LogoLoad />
             </div>
         );
     }

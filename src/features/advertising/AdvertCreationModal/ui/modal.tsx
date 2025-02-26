@@ -7,7 +7,6 @@ import {ModalWindow} from '@/shared/ui/Modal';
 import {useAdvertCreation} from '../hooks';
 
 interface AdvertCreateModalProps {
-    sellerId: string;
     children: ReactElement | ReactElement[];
     doc: any;
     filteredData: any[];
@@ -15,7 +14,6 @@ interface AdvertCreateModalProps {
 }
 
 export const AdvertCreateModal = ({
-    sellerId,
     children,
     doc,
     setChangedDoc,
@@ -34,7 +32,7 @@ export const AdvertCreateModal = ({
         handleCreateButtonClick,
         calculateSum,
         handleConfirmCreate,
-    } = useAdvertCreation(sellerId, doc, setChangedDoc);
+    } = useAdvertCreation(doc, setChangedDoc);
 
     const childArray = Children.toArray(children);
     const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<

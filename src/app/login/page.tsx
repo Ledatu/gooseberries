@@ -7,6 +7,7 @@ import {useEffect, useState} from 'react';
 import logo from '@/public/images/LogoLoader.svg';
 // import logo from '@/assets/textLogo.png'
 import TelegramLoginButton from '@/components/TelegramLoginButton';
+import {LogoLoad} from '@/components/logoLoad';
 
 export default function LoginPage() {
     const [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false);
@@ -34,8 +35,8 @@ export default function LoginPage() {
             >
                 <Card
                     style={{
-                        width: 350,
-                        height: 480,
+                        width: 480,
+                        height: 600,
                         overflow: 'hidden',
                         flexWrap: 'nowrap',
                         display: 'flex',
@@ -49,7 +50,10 @@ export default function LoginPage() {
                         position: 'relative',
                     }}
                 >
-                    <motion.svg
+                    <div>
+                        <LogoLoad />
+                    </div>
+                    {/* <motion.svg
                         // style={{height: '30%'}}
                         animate={{rotate: 120, height: '40%', marginTop: '20%'}}
                         xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +109,7 @@ export default function LoginPage() {
                                 <stop offset="1" stopColor="#FBB03F" />
                             </linearGradient>
                         </defs>
-                    </motion.svg>
+                    </motion.svg> */}
                     <div
                         style={{
                             display: 'flex',
@@ -115,7 +119,7 @@ export default function LoginPage() {
                             position: 'absolute',
                             backdropFilter: 'blur(20px)',
                             height: 83,
-                            width: '100%',
+                            width: '90%',
                             bottom: 0,
                             paddingBottom: 24,
                             zIndex: 1000,

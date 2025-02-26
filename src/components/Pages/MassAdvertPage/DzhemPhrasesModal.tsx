@@ -2,7 +2,7 @@
 
 import {CSSProperties, useEffect, useState} from 'react';
 import {motion} from 'framer-motion';
-import {Modal, Text, Loader, Button, Card, useTheme, ActionTooltip} from '@gravity-ui/uikit';
+import {Modal, Text, Button, Loader, Card, useTheme, ActionTooltip} from '@gravity-ui/uikit';
 import TheTable, {compare} from '@/components/TheTable';
 import ApiClient from '@/utilities/ApiClient';
 // import ApiClient from 'src/utilities/ApiClient';
@@ -481,6 +481,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                         style={{margin: '80px'}}
                     >
                         <Loader size="l" />
+                        {/* <LogoLoad /> */}
                     </motion.div>
                 ) : dzhem.length != 0 ? (
                     <motion.div

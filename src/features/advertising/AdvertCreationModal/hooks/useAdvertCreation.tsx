@@ -3,9 +3,9 @@ import ApiClient from '@/utilities/ApiClient';
 import {useError} from '@/contexts/ErrorContext';
 import {useCampaign} from '@/contexts/CampaignContext';
 
-export const useAdvertCreation = (sellerId: string, doc: any, setChangedDoc: Function) => {
+export const useAdvertCreation = (doc: any, setChangedDoc: Function) => {
     const {showError} = useError();
-    const {selectValue} = useCampaign();
+    const {selectValue, sellerId} = useCampaign();
 
     const [open, setOpen] = useState<boolean>(false);
     const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false);

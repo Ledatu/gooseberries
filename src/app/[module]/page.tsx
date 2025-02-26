@@ -10,7 +10,8 @@ import {useParams, useRouter} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {useUser} from '@/components/RequireAuth';
 import {NoSubscriptionPage} from '@/components/Pages/NoSubscriptionPage';
-import {LogoLoader} from '@/components/LogoLoader';
+import {LogoLoad} from '@/components/logoLoad';
+// import {LogoLoader} from '@/components/LogoLoader';
 
 const modulesMap: any = {
     // massAdvert: dynamic(() => import('@/components/MassAdvertPage')),
@@ -87,7 +88,7 @@ export default function ModulePage() {
     if (!modulesLoaded || !module) {
         return (
             // <div>
-            <LogoLoader />
+            <LogoLoad />
             // </div>
         );
     }
@@ -102,7 +103,9 @@ export default function ModulePage() {
     ) {
         return <NoSubscriptionPage />;
     }
+
     if (modulesMap[module]) {
+        console.log(module);
         const ModuleComponent = modulesMap[module];
 
         return (

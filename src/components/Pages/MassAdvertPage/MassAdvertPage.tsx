@@ -74,7 +74,7 @@ import {PhrasesModal} from './PhrasesModal';
 import {AdvertCard} from './AdvertCard';
 import {AdvertsBidsModal} from './AdvertsBidsModal';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
-import {LogoLoader} from '@/components/LogoLoader';
+import {LogoLoad} from '@/components/logoLoad';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {CanBeAddedToSales} from './CanBeAddedToSales';
@@ -3415,7 +3415,7 @@ export const MassAdvertPage = () => {
                     alignItems: 'center',
                 }}
             >
-                <LogoLoader />
+                <LogoLoad />
             </div>
         ) : (
             <div
@@ -3808,7 +3808,6 @@ export const MassAdvertPage = () => {
                             }}
                         >
                             <AdvertCreateModal
-                                sellerId={sellerId}
                                 doc={doc}
                                 filteredData={filteredData}
                                 setChangedDoc={setChangedDoc}

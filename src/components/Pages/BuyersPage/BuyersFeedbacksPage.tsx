@@ -3,13 +3,14 @@
 import {useEffect, useState} from 'react';
 import TheTable, {compare} from '@/components/TheTable';
 import ApiClient from '@/utilities/ApiClient';
-import {Button, Loader, Icon, Text, Link, Popover, Tooltip} from '@gravity-ui/uikit';
+import {Button, Icon, Text, Link, Popover, Tooltip} from '@gravity-ui/uikit';
 import {Star, PencilToLine, LogoTelegram} from '@gravity-ui/icons';
 import {renderAsDate} from '@/utilities/getRoundValue';
 import {TagsFilterModal} from '@/components/TagsFilterModal';
 import {AnswerFeedbackModal} from './AnswerFeedbackModal';
 import {useError} from '@/contexts/ErrorContext';
 import callApi from '@/utilities/callApi';
+import { LogoLoad } from '@/components/logoLoad';
 
 export const BuyersFeedbacksPage = ({
     permission,
@@ -592,6 +593,7 @@ export const BuyersFeedbacksPage = ({
             />
         </div>
     ) : (
-        <Loader size="l" />
+        <LogoLoad/>
+        // <Loader size="l" />
     );
 };

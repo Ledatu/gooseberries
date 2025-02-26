@@ -1,1 +1,1 @@
-export * from './ColumnsEdit'
+export * from './ui/ColumnsEdit'
