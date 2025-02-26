@@ -34,7 +34,7 @@ import {TagsFilterModal} from '@/components/TagsFilterModal';
 import {CalcAutoPlansModal} from './CalcAutoPlansModal';
 import {AnalyticsCalcModal} from './AnalyticsCalcModal';
 import {PlansUpload} from './PlansUpload';
-import {ColumnsEdit} from '@/components/ColumnsEdit';
+// import {ColumnsEdit} from '@/components/ColumnsEdit';
 import {ManageDeletionOfOldPlansModal} from './ManageDeletionOfOldPlansModal';
 import {useUser} from '@/components/RequireAuth';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -532,17 +532,17 @@ export const AnalyticsPage = () => {
             console.error(error);
         }
     };
-    const saveColumnsData = async () => {
-        try {
-            const params = {seller_id: sellerId, columns: columnsDataToShow};
-            const response = await ApiClient.post('analytics/set-columns-analytics', params);
-            if (!response?.data) {
-                throw new Error('No columns Data');
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    // const saveColumnsData = async () => {
+    //     try {
+    //         const params = {seller_id: sellerId, columns: columnsDataToShow};
+    //         const response = await ApiClient.post('analytics/set-columns-analytics', params);
+    //         if (!response?.data) {
+    //             throw new Error('No columns Data');
+    //         }
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // };
     useEffect(() => {
         getColumnsData();
     }, [sellerId]);
@@ -2088,12 +2088,12 @@ export const AnalyticsPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    <ColumnsEdit
+                    {/* <ColumnsEdit
                         columns={columnsDataToShow}
                         setColumns={setColumnsDataToShow}
                         columnDataObj={columnDataObj}
                         saveColumnsData={saveColumnsData}
-                    />
+                    /> */}
                     <div style={{minWidth: 8}} />
                     <Button
                         disabled={permission != 'Управление'}
