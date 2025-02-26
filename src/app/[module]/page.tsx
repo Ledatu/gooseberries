@@ -5,8 +5,8 @@ import {useModules} from '@/contexts/ModuleProvider';
 import {useCampaign} from '@/contexts/CampaignContext';
 
 // import { DeliveryPage } from '@/components/DeliveryPage';
-import {useEffect, useMemo, useState} from 'react';
-import {useParams, useRouter} from 'next/navigation';
+import {useMemo} from 'react';
+// import {useRouter} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {useUser} from '@/components/RequireAuth';
 import {NoSubscriptionPage} from '@/components/Pages/NoSubscriptionPage';
@@ -60,32 +60,44 @@ const modulesMap: any = {
 };
 
 export default function ModulePage() {
-    const router = useRouter();
-    const params = useParams();
-    const {userInfo} = useUser();
-    const {availableModules, modulesLoaded} = useModules();
-    const {sellerId, campaign} = useCampaign();
-    const [module, setModule] = useState<string | null>(null);
+    const {userInfo, isAuthenticated} = useUser();
+    const {modulesLoaded, currentModule} = useModules();
+    const {sellerId, campaign, campaigns} = useCampaign();
+    console.log('sellerId', sellerId);
     const currentTime = new Date();
-    useEffect(() => {
-        if (params?.module) {
-            setModule(Array.isArray(params.module) ? params.module[0] : params.module);
-        }
-    }, [params]);
+ 
 
-    // Handle initial module validation
-    useEffect(() => {
-        if (modulesLoaded && module && !availableModules.includes(module)) {
-            router.replace(`/api?seller_id=${sellerId}`);
-        }
-    }, [modulesLoaded, module, availableModules, router, sellerId]);
+    // // Handle initial currentModule validation
+    // useEffect(() => {
+    //     console.log(currentModule);
+    //     if (modulesLoaded && currentModule && isAuthenticated) {
+    //         if (!availableModules.includes(cur)) {
+    //             router.replace(`/api${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
+    //         } else {
+    //             router.replace(`/${module}${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
+    //         }
+    //     }
+    //     if (modulesLoaded && module && !availableModules.includes(module) && isAuthenticated) {
+    //         console.log(':LADK:LAKD:LDKJ;l');
+    //         router.replace(`/api${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
+    //     }
+    // }, [modulesLoaded, module, availableModules, sellerId, isAuthenticated]);
+    if (!campaigns.length && isAuthenticated) {
+        const ApiPage = modulesMap['api'];
+
+        return (
+            <div>
+                <ApiPage />
+            </div>
+        );
+    }
 
     const subscriptionUntil = useMemo(() => {
         console.log(campaign);
         return campaign?.subscriptionUntil;
     }, [campaign]);
 
-    if (!modulesLoaded || !module) {
+    if (!modulesLoaded || !currentModule) {
         return (
             // <div>
             <LogoLoad />
@@ -93,20 +105,20 @@ export default function ModulePage() {
         );
     }
 
-    if (!availableModules.includes(module)) {
-        return null;
-    }
+    // if (!availableModules.includes(currentModule)) {
+    //     return null;
+    // }
     if (
         currentTime >= new Date(subscriptionUntil) &&
         ![1122958293, 933839157].includes(userInfo?.user?._id) &&
-        !['noModules', 'api'].includes(module)
+        !['noModules', 'api'].includes(currentModule)
     ) {
         return <NoSubscriptionPage />;
     }
+    if (modulesMap[currentModule]) {
+        console.log(modulesMap, module);
 
-    if (modulesMap[module]) {
-        console.log(module);
-        const ModuleComponent = modulesMap[module];
+        const ModuleComponent = modulesMap[currentModule];
 
         return (
             <div>
@@ -114,5 +126,5 @@ export default function ModulePage() {
             </div>
         );
     }
-    return <div>{module}</div>;
+    return <div>{currentModule}</div>;
 }

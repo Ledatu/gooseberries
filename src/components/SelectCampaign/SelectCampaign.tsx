@@ -128,6 +128,7 @@ export const SelectCampaign = ({
             }}
         >
             <Select
+                disabled={!selectOptions.length}
                 value={selectValue}
                 placeholder="Values"
                 options={selectOptions}

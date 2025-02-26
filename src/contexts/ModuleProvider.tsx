@@ -26,8 +26,8 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const {modules = [], campaignInfo = {}, campaignLoaded, selectValue} = useCampaign(); // Add default value
-    const {userInfo} = useUser();
+    const {modules = [], campaignInfo = {}, campaigns, selectValue, campaignLoaded} = useCampaign(); // Add default value
+    const {userInfo, isAuthenticated} = useUser();
     const {user} = userInfo ?? {};
     // const {modulesMap = {}} = campaignInfo?.modules || {};
 
@@ -54,8 +54,10 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
     };
 
     useEffect(() => {
-        if (!modules || !campaignLoaded) return;
-        // Ensure modules is always an array
+        if (!isAuthenticated) {
+            console.log('s;d;als;dl', isAuthenticated);
+            return;
+        }
         const safeModules = Array.isArray(modules) ? modules : [];
 
         let baseModules = safeModules.includes('all')
@@ -73,7 +75,7 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
         if (![1122958293, 566810027, 933839157].includes(user?.['_id'])) {
             baseModules = baseModules.filter((item) => item != 'reports');
         }
-        console.log(baseModules);
+        console.log([...baseModules, 'api']);
         setAvailableModules([...baseModules, 'api']);
         const baseModulesMap = safeModules.includes('all')
             ? {
@@ -87,46 +89,41 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
                   seo: 'Управление',
               }
             : modulesMap;
+        baseModulesMap['api'] = 'Управление';
         setAvailableModulesMap(baseModulesMap);
         setModulesLoaded(true);
-    }, [modules, campaignLoaded]);
+    }, [modules, campaigns, isAuthenticated]);
 
     useEffect(() => {
-        console.log(campaignLoaded);
-        if (!campaignLoaded) return;
-        if (currentModule == null) {
+        // if (!modulesLoaded) return;
+
+        if (!campaigns.length && campaignLoaded) {
+            console.log('хуй хуй хуй хуй');
+            setCurrentModule('api');
+            return;
+        }
+        if (currentModule == null || 'api') {
             const pathModule = pathname.split('/').pop() || '';
+            console.log('pathModule', pathModule);
             if (availableModules.includes(pathModule)) {
                 setCurrentModule(pathModule);
             } else if (availableModules.length > 0) {
-                const defaultModule = availableModules.includes('massAdvert')
-                    ? 'massAdvert'
-                    : availableModules[0];
+                const defaultModule = availableModules[0] ?? 'api';
+                console.log('defaultmodule', defaultModule);
                 setCurrentModule(defaultModule);
             }
-            // router.replace(`/${module}?${searchParams.toString()}`);
         }
-        // const pathModule = pathname.split('/').pop() || '';
-
-        // console.log(availableModules, 'availableModules');
-
-        // if (availableModules.includes(pathModule)) {
-        //     setCurrentModule(pathModule);
-        // } else if (availableModules.length > 0) {
-        //     const defaultModule = availableModules.includes('massAdvert')
-        //         ? 'massAdvert'
-        //         : availableModules[0];
-        //     router.push(`/${defaultModule}?${searchParams.toString()}`);
-        // }
-    }, [availableModules, campaignLoaded]);
+    }, [availableModules, campaigns, isAuthenticated]);
 
     useEffect(() => {
-        const basePath = pathname.split('/').slice(0, 1);
-        console.log('basePath', basePath);
-        if (!currentModule) return;
-        router.replace(`${basePath}/${currentModule}?${searchParams.toString()}`);
-        document.title = `${moduleTitles[currentModule]} | ${selectValue[0]}`;
-    }, [currentModule, searchParams]);
+        if (isAuthenticated) {
+            const basePath = pathname.split('/').slice(0, 1);
+            console.log('basePath', basePath, currentModule, availableModules, availableModulesMap);
+            if (!currentModule) return;
+            router.replace(`${basePath}/${currentModule}?${searchParams.toString()}`);
+            document.title = `${moduleTitles[currentModule]} | ${selectValue[0]}`;
+        }
+    }, [currentModule, searchParams, isAuthenticated]);
 
     // const handleSetModule = useCallback(() => {}, [router, pathname, searchParams]);
 

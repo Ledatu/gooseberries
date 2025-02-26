@@ -18,7 +18,7 @@ export const CampaignProvider: React.FC<{children: React.ReactNode}> = ({childre
     const router = useRouter();
     const {showError} = useError();
     const searchParams = useSearchParams();
-    const {userInfo} = useUser();
+    const {userInfo, isAuthenticated} = useUser();
     const campaigns = useMemo(() => {
         return userInfo?.campaigns || [];
     }, [userInfo]);
@@ -54,6 +54,7 @@ export const CampaignProvider: React.FC<{children: React.ReactNode}> = ({childre
     const [modules, setModules] = useState([] as any);
 
     useEffect(() => {
+        if (!isAuthenticated) return;
         setCampaignLoaded(false);
         const sellerIdSearchParams = searchParams.get('seller_id');
         const seller_id = sellerId ? sellerId : sellerIdSearchParams;
@@ -71,8 +72,8 @@ export const CampaignProvider: React.FC<{children: React.ReactNode}> = ({childre
 
             // Only update if params actually changed
             if (newParams.toString() !== currentParams) {
-                window.history.replaceState(null, '', `?${newParams.toString()}`);
-                // router.replace(`?${newParams.toString()}`);
+                // window.history.replaceState(null, '', `?${newParams.toString()}`);
+                router.replace(`?${newParams.toString()}`);
             }
 
             // Directly set state without waiting for URL change
@@ -105,10 +106,11 @@ export const CampaignProvider: React.FC<{children: React.ReactNode}> = ({childre
                 setCampaignInfo(campaign);
                 setModules(campaign?.isOwner ? ['all'] : Object.keys(campaign?.userModules || {}));
                 setSwitchingCampaignsFlag(false);
-                setCampaignLoaded(true);
+
                 window.history.replaceState(null, '', `?${newParams.toString()}`);
             }
         }
+        setCampaignLoaded(true);
     }, [searchParams, campaigns, sellerId, router, findCampaign]); // Add sellerId to deps
 
     useEffect(() => {
