@@ -71,24 +71,24 @@ export const DetailedReportsPage = () => {
             },
         },
         // {name: 'retail_price', placeholder: 'Цена розничная'},
-        {
-            name: 'commission_amount',
-            placeholder: 'Комиссия WB',
-            render: ({row}: any) => {
-                const {ppvz_for_pay: ppvzForPay, retail_amount: retailAmount} = row;
-                return renderTwoDigits({value: retailAmount - ppvzForPay});
-            },
-        },
-        {
-            name: 'commission_percent',
-            placeholder: 'Комиссия WB %',
-            render: ({row}: any) => {
-                const {ppvz_for_pay: ppvzForPay, retail_amount: retailAmount} = row;
-                return renderAsPercent({
-                    value: 100 - getRoundValue(ppvzForPay, retailAmount, true),
-                });
-            },
-        },
+        // {
+        //     name: 'commission_amount',
+        //     placeholder: 'Комиссия WB',
+        //     render: ({row}: any) => {
+        //         const {ppvz_for_pay: ppvzForPay, retail_amount: retailAmount} = row;
+        //         return renderTwoDigits({value: retailAmount - ppvzForPay});
+        //     },
+        // },
+        // {
+        //     name: 'commission_percent',
+        //     placeholder: 'Комиссия WB %',
+        //     render: ({row}: any) => {
+        //         const {ppvz_for_pay: ppvzForPay, retail_amount: retailAmount} = row;
+        //         return renderAsPercent({
+        //             value: 100 - getRoundValue(ppvzForPay, retailAmount, true),
+        //         });
+        //     },
+        // },
         {name: 'acquiring_fee', placeholder: 'Эквайринг', render: renderTwoDigits},
         {
             name: 'acquiring_percent',
@@ -104,17 +104,17 @@ export const DetailedReportsPage = () => {
             name: 'all_commission_amount',
             placeholder: 'Итого Комиссия WB',
             render: ({row}: any) => {
-                const {retail_amount: retailAmount, retail_price_withdisc_rub: ourPrice} = row;
-                return renderTwoDigits({value: ourPrice - retailAmount});
+                const {ppvz_for_pay: ppvzForPay, retail_price_withdisc_rub: ourPrice} = row;
+                return renderTwoDigits({value: ourPrice - ppvzForPay});
             },
         },
         {
             name: 'all_commission_percent',
             placeholder: 'Итого Комиссия WB %',
             render: ({row}: any) => {
-                const {retail_amount: retailAmount, retail_price_withdisc_rub: ourPrice} = row;
+                const {ppvz_for_pay: ppvzForPay, retail_price_withdisc_rub: ourPrice} = row;
                 return renderAsPercent({
-                    value: 100 - getRoundValue(retailAmount, ourPrice, true),
+                    value: 100 - getRoundValue(ppvzForPay, ourPrice, true),
                 });
             },
         },
