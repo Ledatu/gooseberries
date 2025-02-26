@@ -4223,7 +4223,6 @@ export const MassAdvertPage = () => {
                                         height: '100%',
                                     }}
                                 >
-                                    {/* <div></div> */}
                                     <TheTable
                                         columnData={columnDataArtByDayStats}
                                         data={artsStatsByDayFilteredData}
@@ -4297,7 +4296,7 @@ export const MassAdvertPage = () => {
                     }}
                     defaultPaginationSize={300}
                     width="100%"
-                    height="calc(100vh - 10em - 68px - 32px - 36px - 70px - 38px)"
+                    height="calc(100vh - 68px - 70px - 38px)"
                 />
             )}
         </div>
