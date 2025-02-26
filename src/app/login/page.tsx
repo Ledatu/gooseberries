@@ -3,18 +3,12 @@
 import {Button, Card, Checkbox, Icon, Link, Text} from '@gravity-ui/uikit';
 import {LogoTelegram, Globe, CircleQuestion, GraduationCap} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-import {useEffect, useState} from 'react';
-import logo from '@/public/images/LogoLoader.svg';
-// import logo from '@/assets/textLogo.png'
+import {useState} from 'react';
 import TelegramLoginButton from '@/components/TelegramLoginButton';
 import {LogoLoad} from '@/components/logoLoad';
 
 export default function LoginPage() {
     const [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false);
-    useEffect(() => {
-        console.log('sdksd;kf;lfks;l');
-        console.log(logo);
-    });
 
     return (
         <div
@@ -50,7 +44,14 @@ export default function LoginPage() {
                         position: 'relative',
                     }}
                 >
-                    <div>
+                    <div
+                        style={{
+                            height: 48,
+                            width: '100%',
+                            position: 'relative',
+                            marginTop: 450 / 2 - 80,
+                        }}
+                    >
                         <LogoLoad />
                     </div>
                     <div
