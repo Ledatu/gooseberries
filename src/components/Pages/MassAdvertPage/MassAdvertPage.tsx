@@ -1,6 +1,6 @@
 'use client';
 import {PageInfoGraphs} from './PageInfoGraphs';
-import {CSSProperties, ReactNode, useEffect, useMemo, useRef, useState} from 'react';
+import {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {
     Spin,
     Button,
@@ -14,10 +14,6 @@ import {
     Skeleton,
     List,
     Tooltip,
-    ButtonPin,
-    ButtonSize,
-    ButtonView,
-    IconData,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import block from 'bem-cn-lite';
@@ -94,6 +90,7 @@ import {HelpMark} from '@/components/Popups/HelpMark';
 import {CopyButton} from '@/components/Buttons/CopyButton';
 import {Note} from './NotesForArt/types';
 import {NotesForArt} from './NotesForArt';
+import {StatisticsPanel} from '@/widgets/MassAdvert/overallStats/ui';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -2491,20 +2488,20 @@ export const MassAdvertPage = () => {
     // setLbd(new Date());
 
     const [summary, setSummary] = useState({
-        views: 0,
-        clicks: 0,
-        sum: 0,
-        drr_orders: 0,
-        drr_sales: 0,
-        drr: '',
-        orders: 0,
-        sales: 0,
-        sum_orders: 0,
-        sum_sales: 0,
-        addToCartCount: 0,
-        profit: '',
-        rent: '',
-        profitTemp: 0,
+            views: 0,
+            clicks: 0,
+            sum: 0,
+            drr_orders: 0,
+            drr_sales: 0,
+            drr: '',
+            orders: 0,
+            sales: 0,
+            sum_orders: 0,
+            sum_sales: 0,
+            addToCartCount: 0,
+            profit: '',
+            rent: '',
+            profitTemp: 0,
     });
 
     const getRoundValue = (a: any, b: any, isPercentage = false, def = 0) => {
@@ -3706,81 +3703,7 @@ export const MassAdvertPage = () => {
             ) : (
                 <></>
             )}
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    width: '100%',
-                    justifyContent: 'space-around',
-                    margin: '8px 0',
-                    flexWrap: 'wrap',
-                }}
-            >
-                {generateCard({
-                    summary,
-                    key: 'sum_orders',
-                    placeholder: 'ЗАКАЗЫ',
-                    cardStyle,
-                    rub: true,
-                })}
-                {generateCard({
-                    summary,
-                    key: 'sum_sales',
-                    placeholder: 'ПРОДАЖИ',
-                    cardStyle,
-                    rub: true,
-                })}
-                {generateCard({
-                    summary,
-                    key: 'sum',
-                    placeholder: 'РАСХОД',
-                    cardStyle,
-                    rub: true,
-                })}
-                {generateCard({
-                    summary,
-                    key: 'drr',
-                    placeholder: 'ДРР к ЗАКАЗАМ / к ПРОДАЖАМ',
-                    cardStyle,
-                    valueType: 'text',
-                })}
-                {generateCard({
-                    summary,
-                    key: 'profit',
-                    placeholder: 'ПРИБЫЛЬ',
-                    cardStyle,
-                    valueType: 'text',
-                })}
-                {generateCard({
-                    summary,
-                    key: 'rent',
-                    placeholder: 'РЕНТ к ЗАКАЗАМ / к ПРОДАЖАМ',
-                    cardStyle,
-                    valueType: 'text',
-                })}
-                {generateCard({summary, key: 'views', placeholder: 'ПОКАЗЫ', cardStyle})}
-                {generateCard({summary, key: 'clicks', placeholder: 'КЛИКИ', cardStyle})}
-                {generateCard({
-                    summary,
-                    key: 'addToCartCount',
-                    cardStyle,
-                    placeholder: 'КОРЗИНЫ',
-                })}
-                {generateCard({
-                    summary,
-                    key: 'orders',
-                    placeholder: 'ЗАКАЗЫ',
-                    cardStyle,
-                    count: true,
-                })}
-                {generateCard({
-                    summary,
-                    key: 'sales',
-                    placeholder: 'ПРОДАЖИ',
-                    count: true,
-                    cardStyle,
-                })}
-            </div>
+            <StatisticsPanel summary={summary}/>
             {!isMobile ? (
                 <div
                     style={{
@@ -4300,79 +4223,5 @@ export const MassAdvertPage = () => {
                 />
             )}
         </div>
-    );
-};
-
-export const generateModalButtonWithActions = (
-    params: {
-        disabled?: boolean;
-        pin?: ButtonPin;
-        size?: ButtonSize;
-        view?: ButtonView;
-        style?: CSSProperties;
-        selected?: boolean;
-        placeholder: string;
-        icon: IconData;
-        onClick?: any;
-    },
-    selectedButton: any,
-    setSelectedButton: any,
-) => {
-    const {pin, size, view, style, selected, placeholder, icon, onClick, disabled} = params;
-    if (selected || selectedButton || setSelectedButton) {
-    }
-    return (
-        <motion.div
-            style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}
-        >
-            <Button
-                disabled={disabled}
-                style={
-                    style ?? {
-                        margin: '4px 0px',
-                    }
-                }
-                pin={pin ?? 'circle-circle'}
-                size={size ?? 'l'}
-                view={view ?? 'action'}
-                selected={true}
-                onClick={() => {
-                    onClick();
-                }}
-            >
-                <Icon data={icon} />
-                {placeholder}
-            </Button>
-        </motion.div>
-    );
-};
-
-const generateCard = (args: any) => {
-    const {summary, key, placeholder, cardStyle, valueType, percent, rub} = args;
-    return (
-        <Card style={cardStyle} view="outlined">
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                <Text style={{whiteSpace: 'pre-wrap'}}>{`${placeholder}`}</Text>
-                <Text
-                    style={{
-                        fontWeight: 'bold',
-                        fontSize: '18pt',
-                        marginBottom: 10,
-                        marginTop: 4,
-                    }}
-                >
-                    {valueType == 'text'
-                        ? summary[key]
-                        : new Intl.NumberFormat('ru-RU').format(summary[key])}
-                    {percent ? '%' : ''}
-                    {rub ? ' ₽' : ''}
-                </Text>
-            </div>
-        </Card>
     );
 };

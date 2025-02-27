@@ -1,0 +1,16 @@
+export type Summary = {
+    views: number,
+    clicks: number,
+    sum: number,
+    drr_orders: number,
+    drr_sales: number,
+    drr: string,
+    orders: number,
+    sales: number,
+    sum_orders: number,
+    sum_sales: number,
+    addToCartCount: number,
+    profit: string,
+    rent: string,
+    profitTemp: number,
+}
