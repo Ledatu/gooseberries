@@ -1,6 +1,15 @@
 'use client';
-import {ArrowToggle, Button, Card, Icon, Popup, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
-import {Sun, Moon} from '@gravity-ui/icons';
+import {
+    ArrowToggle,
+    Button,
+    Card,
+    Icon,
+    Link,
+    Popup,
+    SegmentedRadioGroup,
+    Text,
+} from '@gravity-ui/uikit';
+import {Sun, Moon, ArrowRightFromSquare} from '@gravity-ui/icons';
 import {useMemo, useState} from 'react';
 import {useUser} from '@/components/RequireAuth/RequireAuth';
 import {CopyButton} from '@/components/Buttons/CopyButton';
@@ -108,6 +117,24 @@ export const UserPopup = ({theme, toggleTheme}: UserPopupProps) => {
                                     ID: {user?._id}
                                 </Text>
                             </CopyButton>
+                            <div>
+                                <Link
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        gap: 4,
+                                        alignItems: 'center',
+                                    }}
+                                    view="secondary"
+                                    href="https://seller.aurum-sky.net/login"
+                                    onClick={() => {
+                                        localStorage.removeItem('authToken');
+                                    }}
+                                >
+                                    Выйти
+                                    <Icon data={ArrowRightFromSquare} size={13} />
+                                </Link>
+                            </div>
                         </div>
                         <div
                             style={{
