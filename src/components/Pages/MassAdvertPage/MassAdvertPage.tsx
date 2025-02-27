@@ -25,19 +25,14 @@ import {
     LayoutHeader,
     ArrowsRotateLeft,
     ArrowShapeDown,
-    ChartLine,
     ArrowRotateLeft,
-    CircleRuble,
     TShirt,
-    SlidersVertical,
     ChevronDown,
     ArrowShapeUp,
     Minus,
     Plus,
-    Play,
     ArrowRight,
     LayoutList,
-    Clock,
     Check,
     TagRuble,
     Cherry,
@@ -49,7 +44,7 @@ import {
 
 import {motion} from 'framer-motion';
 
-import ChartKit, {settings} from '@gravity-ui/chartkit';
+import {settings} from '@gravity-ui/chartkit';
 import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
 import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 settings.set({plugins: [YagrPlugin]});
@@ -64,23 +59,15 @@ import {
 } from '@/utilities/getRoundValue';
 import TheTable, {compare} from '@/components/TheTable';
 import {RangePicker} from '@/components/RangePicker';
-import {AutoSalesModal} from './AutoSalesModal';
-import {TagsFilterModal} from '@/components/TagsFilterModal';
-import {PhrasesModal} from './PhrasesModal';
 import {AdvertCard} from './AdvertCard';
-import {AdvertsBidsModal} from './AdvertsBidsModal';
-import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {LogoLoad} from '@/components/logoLoad';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {CanBeAddedToSales} from './CanBeAddedToSales';
 import {StocksByWarehousesPopup} from './StocksByWarehousesPopup';
-import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
-import {AdvertsStatusManagingModal} from './AdvertsStatusManagingModal';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
 import {getEnumurationString} from '@/utilities/getEnumerationString';
-import {AdvertCreateModal} from '@/features/advertising/AdvertCreationModal';
 import DzhemPhrasesModal from './DzhemPhrasesModal';
 import {PopupFilterArts} from './PopupFilterArts';
 import {Auction} from './Auction';
@@ -91,6 +78,7 @@ import {CopyButton} from '@/components/Buttons/CopyButton';
 import {Note} from './NotesForArt/types';
 import {NotesForArt} from './NotesForArt';
 import {StatisticsPanel} from '@/widgets/MassAdvert/overallStats/ui';
+import {ButtonsList} from '@/widgets/MassAdvert/buttonsList/ui/list';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -130,6 +118,19 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     //         .catch((error) => console.error(error));
     // }, []);
     return doc;
+};
+
+const cardStyle: any = {
+    minWidth: '10em',
+    height: '10em',
+    display: 'flex',
+    flex: '1 1 auto',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '16px',
+    boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+    marginRight: '8px',
+    marginLeft: '8px',
 };
 
 export const MassAdvertPage = () => {
@@ -179,19 +180,6 @@ export const MassAdvertPage = () => {
                 console.log(e);
             });
     }, [sellerId]);
-
-    const cardStyle: any = {
-        minWidth: '10em',
-        height: '10em',
-        display: 'flex',
-        flex: '1 1 auto',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: '16px',
-        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-        marginRight: '8px',
-        marginLeft: '8px',
-    };
 
     const [stocksByWarehouses, setStocksByWarehouses] = useState<any>({});
     useEffect(() => {
@@ -2488,20 +2476,20 @@ export const MassAdvertPage = () => {
     // setLbd(new Date());
 
     const [summary, setSummary] = useState({
-            views: 0,
-            clicks: 0,
-            sum: 0,
-            drr_orders: 0,
-            drr_sales: 0,
-            drr: '',
-            orders: 0,
-            sales: 0,
-            sum_orders: 0,
-            sum_sales: 0,
-            addToCartCount: 0,
-            profit: '',
-            rent: '',
-            profitTemp: 0,
+        views: 0,
+        clicks: 0,
+        sum: 0,
+        drr_orders: 0,
+        drr_sales: 0,
+        drr: '',
+        orders: 0,
+        sales: 0,
+        sum_orders: 0,
+        sum_sales: 0,
+        addToCartCount: 0,
+        profit: '',
+        rent: '',
+        profitTemp: 0,
     });
 
     const getRoundValue = (a: any, b: any, isPercentage = false, def = 0) => {
@@ -3703,7 +3691,7 @@ export const MassAdvertPage = () => {
             ) : (
                 <></>
             )}
-            <StatisticsPanel summary={summary}/>
+            <StatisticsPanel summary={summary} />
             {!isMobile ? (
                 <div
                     style={{
@@ -3722,156 +3710,23 @@ export const MassAdvertPage = () => {
                             flexWrap: 'wrap',
                         }}
                     >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                marginBottom: 8,
-                            }}
-                        >
-                            <AdvertCreateModal
-                                doc={doc}
-                                filteredData={filteredData}
-                                setChangedDoc={setChangedDoc}
-                            >
-                                <Button
-                                    disabled={permission != 'Управление'}
-                                    view="action"
-                                    size="l"
-                                >
-                                    <Icon data={SlidersVertical} />
-                                    <Text variant="subheader-1">Создать</Text>
-                                </Button>
-                            </AdvertCreateModal>
-                            <div style={{minWidth: 8}} />
-                            <AdvertsStatusManagingModal
-                                disabled={permission != 'Управление'}
-                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                                doc={doc}
-                                setChangedDoc={setChangedDoc}
-                            >
-                                <Button
-                                    disabled={permission != 'Управление'}
-                                    view="action"
-                                    size="l"
-                                    style={{cursor: 'pointer'}}
-                                >
-                                    <Icon data={Play} />
-                                    <Text variant="subheader-1">Управление</Text>
-                                </Button>
-                            </AdvertsStatusManagingModal>
-                            <div style={{minWidth: 8}} />
-                            <AdvertsBidsModal
-                                disabled={permission != 'Управление'}
-                                selectValue={selectValue}
-                                doc={doc}
-                                setChangedDoc={setChangedDoc}
-                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                                advertId={undefined}
-                            >
-                                <Button
-                                    view="action"
-                                    size="l"
-                                    disabled={permission != 'Управление'}
-                                >
-                                    <Icon data={ChartLine} />
-                                    <Text variant="subheader-1">Ставки</Text>
-                                </Button>
-                            </AdvertsBidsModal>
-                            <div style={{minWidth: 8}} />
-                            <AdvertsBudgetsModal
-                                disabled={permission != 'Управление'}
-                                selectValue={selectValue}
-                                sellerId={sellerId}
-                                advertBudgetsRules={advertBudgetRules}
-                                setAdvertBudgetsRules={setAdvertBudgetRules}
-                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                                advertId={undefined}
-                            >
-                                <Button
-                                    view="action"
-                                    size="l"
-                                    disabled={permission != 'Управление'}
-                                >
-                                    <Icon data={CircleRuble} />
-                                    <Text variant="subheader-1">Бюджет</Text>
-                                </Button>
-                            </AdvertsBudgetsModal>
-                            <div style={{minWidth: 8}} />
-                            <PhrasesModal
-                                disabled={permission != 'Управление'}
-                                doc={doc}
-                                setChangedDoc={setChangedDoc}
-                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                            />
-                            <div style={{minWidth: 8}} />
-                            <AdvertsSchedulesModal
-                                disabled={permission != 'Управление'}
-                                doc={doc}
-                                setChangedDoc={setChangedDoc}
-                                advertId={undefined as any}
-                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                            >
-                                <Button
-                                    disabled={permission != 'Управление'}
-                                    view="action"
-                                    size="l"
-                                >
-                                    <Icon data={Clock} />
-                                    <Text variant="subheader-1">График</Text>
-                                </Button>
-                            </AdvertsSchedulesModal>
-                            <div style={{minWidth: 8}} />
-                            <TagsFilterModal filterByButton={filterByButton} />
-                            <div style={{minWidth: 8}} />
-                            <AutoSalesModal
-                                disabled={permission != 'Управление'}
-                                selectValue={selectValue}
-                                filteredData={filteredData}
-                                setAutoSalesProfits={setAutoSalesProfits}
-                                sellerId={sellerId}
-                                openFromParent={autoSalesModalOpenFromParent}
-                                setOpenFromParent={setAutoSalesModalOpenFromParent}
-                            />
-                            <div style={{minWidth: 8}} />
-                            <Popover
-                                enableSafePolygon={true}
-                                openDelay={500}
-                                // closeDelay={50000}
-                                placement={'bottom'}
-                                content={
-                                    <div
-                                        style={{
-                                            height: 'calc(30em)',
-                                            width: '60em',
-                                            overflow: 'auto',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <Card
-                                            view="outlined"
-                                            theme="warning"
-                                            style={{
-                                                // position: 'absolute',
-                                                height: '30em',
-                                                width: '60em',
-                                                overflow: 'auto',
-                                                top: -10,
-                                                left: -200,
-                                                display: 'flex',
-                                            }}
-                                        >
-                                            <ChartKit type="yagr" data={getBalanceYagrData()} />
-                                        </Card>
-                                    </div>
-                                }
-                            >
-                                <Button view="outlined-success" size="l">
-                                    <Text variant="subheader-1">{balance}</Text>
-                                </Button>
-                            </Popover>
-                        </div>
+                        <ButtonsList
+                            balance={balance}
+                            doc={doc}
+                            filteredData={filteredData}
+                            permission={permission}
+                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                            selectValue={selectValue}
+                            sellerId={sellerId}
+                            advertBudgetRules={advertBudgetRules}
+                            setAdvertBudgetRules={setAdvertBudgetRules}
+                            setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
+                            getBalanceYagrData={getBalanceYagrData}
+                            filterByButton={filterByButton}
+                            setAutoSalesProfits={setAutoSalesProfits}
+                            autoSalesModalOpenFromParent={autoSalesModalOpenFromParent}
+                            setChangedDoc={setChangedDoc}
+                        />
                         <Modal
                             open={advertsArtsListModalFromOpen}
                             onClose={() => {
