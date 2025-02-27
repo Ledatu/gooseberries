@@ -10,7 +10,7 @@ import {ReactNode} from 'react';
 export default function RootLayout({children}: {children: ReactNode}) {
     return (
         <html lang="ru" translate="no">
-            <body>
+            <body style={{overflowX: 'hidden'}}>
                 <RootLayoutClient>{children}</RootLayoutClient>
             </body>
         </html>
