@@ -1,11 +1,32 @@
 import {Card, Text} from '@gravity-ui/uikit';
+import {Summary} from '@/shared/types/summary';
+import {CSSProperties, FC} from 'react';
 
-export const StatisticsCard = (args: any) => {
-    const {summary, key, placeholder, cardStyle, valueType, percent, rub} = args;
+interface StatisticsCardProps {
+    summary: Summary;
+    val_key: keyof Summary;
+    placeholder: string;
+    cardStyle: CSSProperties;
+    valueType?: 'text';
+    percent?: boolean;
+    rub?: boolean;
+}
+
+export const StatisticsCard: FC<StatisticsCardProps> = ({
+    summary,
+    rub,
+    cardStyle,
+    valueType,
+    percent,
+    placeholder,
+    val_key,
+}) => {
     return (
         <Card style={cardStyle} view="outlined">
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                <Text style={{whiteSpace: 'pre-wrap'}}>{`${placeholder}`}</Text>
+                <Text
+                    style={{whiteSpace: 'pre-wrap', textAlign: 'center'}}
+                >{`${placeholder}`}</Text>
                 <Text
                     style={{
                         fontWeight: 'bold',
@@ -14,9 +35,10 @@ export const StatisticsCard = (args: any) => {
                         marginTop: 4,
                     }}
                 >
+                    {/*{10 ** Math.floor(Math.random() * 15)}*/}
                     {valueType == 'text'
-                        ? summary[key]
-                        : new Intl.NumberFormat('ru-RU').format(summary[key])}
+                        ? summary[val_key]
+                        : new Intl.NumberFormat('ru-RU').format(summary[val_key] as any)}
                     {percent ? '%' : ''}
                     {rub ? ' ₽' : ''}
                 </Text>

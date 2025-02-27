@@ -1,27 +1,27 @@
-import { Summary } from '@/shared/types/summary';
-import { FC } from 'react';
-import { StatisticsCard } from '@/widgets/MassAdvert/overallStats/ui/card';
+import {Summary} from '@/shared/types/summary';
+import {FC, HTMLProps} from 'react';
+import {StatisticsCard} from '@/widgets/MassAdvert/overallStats/ui/card';
 
-interface StatisticsPanelProps {
+interface StatisticsPanelProps extends Omit<HTMLProps<HTMLDivElement>, 'summary'> {
     summary: Summary;
 }
 
-export const StatisticsPanel: FC<StatisticsPanelProps> = ({ summary }) => {
-    const cardStyle: any = {
-        minWidth: '10em',
-        height: '10em',
-        display: 'flex',
-        flex: '1 1 auto',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: '16px',
-        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-        marginRight: '8px',
-        marginLeft: '8px',
-    };
+const cardStyle: any = {
+    minWidth: '10em',
+    height: '10em',
+    display: 'flex',
+    flex: '1 1 auto',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '16px',
+    boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+    marginRight: '8px',
+    marginLeft: '8px',
+    paddingLeft: '1em',
+    paddingRight: '1em',
+};
 
-    console.log("SUMMARY\N\N\N\N", summary)
-
+export const StatisticsPanel: FC<StatisticsPanelProps> = ({summary, ...rest}) => {
     return (
         <div
             style={{
@@ -32,80 +32,79 @@ export const StatisticsPanel: FC<StatisticsPanelProps> = ({ summary }) => {
                 margin: '8px 0',
                 flexWrap: 'wrap',
             }}
+            {...rest}
         >
             <StatisticsCard
                 summary={summary}
-                key="sum_orders"
+                val_key="sum_orders"
                 placeholder="ЗАКАЗЫ"
                 cardStyle={cardStyle}
                 rub={true}
             />
             <StatisticsCard
                 summary={summary}
-                key="sum_sales"
+                val_key="sum_sales"
                 placeholder="ПРОДАЖИ"
                 cardStyle={cardStyle}
                 rub={true}
             />
             <StatisticsCard
                 summary={summary}
-                key="sum"
+                val_key="sum"
                 placeholder="РАСХОД"
                 cardStyle={cardStyle}
                 rub={true}
             />
             <StatisticsCard
                 summary={summary}
-                key="drr"
+                val_key="drr"
                 placeholder="ДРР к ЗАКАЗАМ / к ПРОДАЖАМ"
                 cardStyle={cardStyle}
                 valueType="text"
             />
             <StatisticsCard
                 summary={summary}
-                key="profit"
+                val_key="profit"
                 placeholder="ПРИБЫЛЬ"
                 cardStyle={cardStyle}
                 valueType="text"
             />
             <StatisticsCard
                 summary={summary}
-                key="rent"
+                val_key="rent"
                 placeholder="РЕНТ к ЗАКАЗАМ / к ПРОДАЖАМ"
                 cardStyle={cardStyle}
                 valueType="text"
             />
             <StatisticsCard
                 summary={summary}
-                key="views"
+                val_key="views"
                 placeholder="ПОКАЗЫ"
                 cardStyle={cardStyle}
             />
             <StatisticsCard
                 summary={summary}
-                key="clicks"
+                val_key="clicks"
                 placeholder="КЛИКИ"
                 cardStyle={cardStyle}
             />
             <StatisticsCard
                 summary={summary}
-                key="addToCartCount"
+                val_key="addToCartCount"
                 placeholder="КОРЗИНЫ"
                 cardStyle={cardStyle}
             />
             <StatisticsCard
                 summary={summary}
-                key="orders"
+                val_key="orders"
                 placeholder="ЗАКАЗЫ"
                 cardStyle={cardStyle}
-                count={true}
             />
             <StatisticsCard
                 summary={summary}
-                key="sales"
+                val_key="sales"
                 placeholder="ПРОДАЖИ"
                 cardStyle={cardStyle}
-                count={true}
             />
         </div>
     );
