@@ -79,6 +79,28 @@ import {Note} from './NotesForArt/types';
 import {NotesForArt} from './NotesForArt';
 import {StatisticsPanel} from '@/widgets/MassAdvert/overallStats/ui';
 import {ButtonsList} from '@/widgets/MassAdvert/buttonsList/ui/list';
+import {
+    getAddToCardPercentColumn,
+    getAddToCartCountColumn,
+    getAvgPriceColum,
+    getCardToOrderPercentColumn,
+    getClicksColumn,
+    getCPCColumn,
+    getCPLColumn,
+    getCPMColumn,
+    getCpoColumn,
+    getCRColumn,
+    getCTRColumn,
+    getDrrColumn,
+    getDsiColumn,
+    getOpenCardCountColumn,
+    getOrdersColumn,
+    getRomiColumn,
+    getStocksColumn,
+    getSumColumn,
+    getSumOrdersColumn,
+    getViewsColumn,
+} from '@/widgets/MassAdvert/columnData/config/columns';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -409,6 +431,10 @@ export const MassAdvertPage = () => {
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
 
     const [unvalidatedArts, setUnvalidatedArts] = useState<any[]>([]);
+    const [changedDoc, setChangedDoc] = useState<any>(undefined);
+    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 
     const getUnvalidatedArts = async () => {
         try {
@@ -2119,150 +2145,26 @@ export const MassAdvertPage = () => {
             },
             group: true,
         },
-        {
-            name: 'stocks',
-            placeholder: 'Остаток',
-            group: true,
-            render: ({value}: any) => {
-                // const {advertsStocksThreshold} = row;
-                // if (!advertsStocksThreshold) return value;
-                // const {stocksThreshold} = advertsStocksThreshold ?? {};
-                // if (!stocksThreshold) return value;
-                return (
-                    <div>
-                        <Text>{`${value}`}</Text>
-                    </div>
-                );
-            },
-        },
-        {
-            name: 'dsi',
-            placeholder: (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        columnGap: 8,
-                    }}
-                >
-                    <Text variant="subheader-1">Обор.</Text>
-                    <HelpMark content="Показывает через сколько дней закончится текущий остаток с учетом средней скорости заказов в день за выбранные период в календаре" />
-                </div>
-            ),
-        },
-        {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'orders', placeholder: 'Заказы, шт.'},
-        {name: 'sum_orders', placeholder: 'Заказы, ₽'},
-        {
-            name: 'avg_price',
-            placeholder: 'Ср. Чек, ₽',
-            render: ({row}: any) => {
-                return defaultRender({value: getRoundValue(row?.sum_orders, row?.orders)});
-            },
-            sortFunction: (a: any, b: any, order: any) => {
-                const dataA = getRoundValue(a?.sum_orders, a?.orders);
-                const dataB = getRoundValue(b?.sum_orders, b?.orders);
-                // console.log(dataA, dataB);
-                const isNaNa = isNaN(dataA);
-                const isNaNb = isNaN(dataB);
-                if (isNaNa && isNaNb) return 1;
-                else if (isNaNa) return 1;
-                else if (isNaNb) return -1;
-                return (dataA - dataB) * order;
-            },
-        },
-        {
-            name: 'drr',
-            placeholder: 'ДРР, %',
-            render: ({value, row}: any) => {
-                const findMinDrr = (adverts: any) => {
-                    let minDrr = 0;
-                    for (const [id, _] of Object.entries(adverts ?? {})) {
-                        const advert = doc?.adverts?.[selectValue[0]]?.[id];
-                        if (!advert) continue;
-                        if (![9, 11].includes(advert?.status)) continue;
-                        const drrAI = doc?.advertsAutoBidsRules[selectValue[0]]?.[advert?.advertId];
-                        const {desiredDRR, useManualMaxCpm, autoBidsMode} = drrAI ?? {};
-                        if (useManualMaxCpm && !['drr'].includes(autoBidsMode)) continue;
-                        if (desiredDRR > minDrr) minDrr = desiredDRR;
-                    }
-                    return minDrr;
-                };
-                const {adverts} = row;
-                const minDrr = findMinDrr(adverts);
-                return (
-                    <Text
-                        color={
-                            minDrr
-                                ? value <= minDrr
-                                    ? value == 0
-                                        ? 'primary'
-                                        : 'positive'
-                                    : value / minDrr - 1 < 0.5
-                                      ? 'warning'
-                                      : 'danger'
-                                : 'primary'
-                        }
-                    >
-                        {value}%
-                    </Text>
-                );
-            },
-        },
-        {name: 'romi', placeholder: 'ROMI, %', render: renderAsPercent},
-        {
-            name: 'cpo',
-            placeholder: 'CPO, ₽',
-            render: ({value, row}: any) => {
-                const findFirstActive = (adverts: any) => {
-                    for (const [id, _] of Object.entries(adverts ?? {})) {
-                        const advert = doc?.adverts?.[selectValue[0]]?.[id];
-                        if (!advert) continue;
-                        if ([9, 11].includes(advert.status)) return advert;
-                    }
-                    return undefined;
-                };
-                const {adverts} = row;
-                const fistActiveAdvert = findFirstActive(adverts);
-                const drrAI =
-                    doc?.advertsAutoBidsRules?.[selectValue[0]]?.[fistActiveAdvert?.advertId];
-                const {desiredDRR, autoBidsMode} = drrAI ?? {};
-                return (
-                    <Text
-                        color={
-                            desiredDRR
-                                ? autoBidsMode == 'cpo'
-                                    ? value <= desiredDRR
-                                        ? value == 0
-                                            ? 'primary'
-                                            : 'positive'
-                                        : value / desiredDRR - 1 < 0.5
-                                          ? 'warning'
-                                          : 'danger'
-                                    : 'primary'
-                                : 'primary'
-                        }
-                    >
-                        {value}
-                    </Text>
-                );
-            },
-        },
-        {name: 'views', placeholder: 'Показы, шт.'},
-        {
-            name: 'clicks',
-            placeholder: 'Клики, шт.',
-            render: (args: any) => renderSlashPercent(args, 'openCardCount'),
-        },
-        {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},
-        {name: 'cpc', placeholder: 'CPC, ₽'},
-        {name: 'cpm', placeholder: 'CPM, ₽'},
-        {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
-        {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
-        {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
-        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
-        {name: 'addToCartCount', placeholder: 'Корзины, шт.'},
-        {name: 'cpl', placeholder: 'CPL, ₽'},
+        {...getStocksColumn()},
+        {...getDsiColumn()},
+        {...getSumColumn()},
+        {...getOrdersColumn()},
+        {...getSumOrdersColumn()},
+        {...getAvgPriceColum()},
+        doc ? {...getDrrColumn(doc, selectValue)} : null,
+        {...getRomiColumn()},
+        doc ? {...getCpoColumn(doc, selectValue)} : null,
+        {...getViewsColumn()},
+        {...getClicksColumn()},
+        {...getCTRColumn()},
+        {...getCPCColumn()},
+        {...getCPMColumn()},
+        {...getOpenCardCountColumn()},
+        {...getCRColumn()},
+        {...getAddToCardPercentColumn()},
+        {...getCardToOrderPercentColumn()},
+        {...getAddToCartCountColumn()},
+        {...getCPLColumn()},
     ];
 
     const [filteredSummary, setFilteredSummary] = useState({
@@ -2378,11 +2280,6 @@ export const MassAdvertPage = () => {
     //     setRefetchAutoSales(false);
     //     setDzhemRefetch(false);
     // }, [selectValue, refetchAutoSales, dzhemRefetch]);
-
-    const [changedDoc, setChangedDoc] = useState<any>(undefined);
-    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
-
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 
     const getCampaignName = () => {
         return selectValue[0];
