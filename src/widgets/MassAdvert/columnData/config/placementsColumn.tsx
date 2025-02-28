@@ -12,9 +12,9 @@ import {parseFirst10Pages} from '@/components/Pages/MassAdvertPage/ParseFirst10P
 import {Auction} from '@/components/Pages/MassAdvertPage/Auction';
 
 interface GetPlacementsColumnParams {
-    placementsDisplayPhrase: string;
+    placementsDisplayPhrase: any;
     currentParsingProgress: any;
-    selectedSearchPhrase: string;
+    selectedSearchPhrase: any;
     getUniqueAdvertIdsFromThePage: any;
     selectValue: any;
     setSelectedSearchPhrase: any;
@@ -36,6 +36,7 @@ export const getPlacementsColumn = ({
     setChangedDoc,
     setFetchedPlacements,
     setCurrentParsingProgress,
+    sellerId,
 }: GetPlacementsColumnParams) => ({
     name: 'placements',
     placeholder:

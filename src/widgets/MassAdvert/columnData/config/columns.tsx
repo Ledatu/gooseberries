@@ -4,7 +4,7 @@ import {
     renderAsPercent,
     renderSlashPercent,
 } from '@/utilities/getRoundValue';
-import {Button, Card, Icon, Spin, Text} from '@gravity-ui/uikit';
+import {Text} from '@gravity-ui/uikit';
 import {HelpMark} from '@/components/Popups/HelpMark';
 
 export const getOpenCardCountColumn = () => ({
