@@ -62,10 +62,9 @@ const modulesMap: any = {
 export default function ModulePage() {
     const {userInfo, isAuthenticated} = useUser();
     const {modulesLoaded, currentModule} = useModules();
-    const {sellerId, campaign, campaigns} = useCampaign();
+    const {sellerId, campaignInfo: campaign, campaigns} = useCampaign();
     console.log('sellerId', sellerId);
     const currentTime = new Date();
- 
 
     // // Handle initial currentModule validation
     // useEffect(() => {
@@ -93,7 +92,6 @@ export default function ModulePage() {
     }
 
     const subscriptionUntil = useMemo(() => {
-        console.log(campaign);
         return campaign?.subscriptionUntil;
     }, [campaign]);
 
