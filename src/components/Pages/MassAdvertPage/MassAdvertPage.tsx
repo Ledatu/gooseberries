@@ -1,20 +1,6 @@
 'use client';
-import {PageInfoGraphs} from './PageInfoGraphs';
-import {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
-import {
-    Spin,
-    Button,
-    Text,
-    Card,
-    Select,
-    Link,
-    Icon,
-    Popover,
-    Modal,
-    Skeleton,
-    List,
-    Tooltip,
-} from '@gravity-ui/uikit';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import {Spin, Button, Text, Card, Select, Icon, Modal, Skeleton, List} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import block from 'bem-cn-lite';
 const b = block('app');
@@ -24,16 +10,11 @@ import {
     Magnifier,
     ArrowsRotateLeft,
     ArrowShapeDown,
-    TShirt,
     ChevronDown,
     Minus,
     Plus,
-    LayoutList,
     Check,
-    TagRuble,
-    Cherry,
     Xmark,
-    TriangleExclamation,
 } from '@gravity-ui/icons';
 
 // import JarIcon from '../assets/jar-of-jam.svg';
@@ -58,18 +39,13 @@ import {AdvertCard} from './AdvertCard';
 import {LogoLoad} from '@/components/logoLoad';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
 import {useCampaign} from '@/contexts/CampaignContext';
-import {CanBeAddedToSales} from './CanBeAddedToSales';
-import {StocksByWarehousesPopup} from './StocksByWarehousesPopup';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
-import {getEnumurationString} from '@/utilities/getEnumerationString';
 import DzhemPhrasesModal from './DzhemPhrasesModal';
 import {PopupFilterArts} from './PopupFilterArts';
 import {useModules} from '@/contexts/ModuleProvider';
 import {HelpMark} from '@/components/Popups/HelpMark';
-import {CopyButton} from '@/components/Buttons/CopyButton';
 import {Note} from './NotesForArt/types';
-import {NotesForArt} from './NotesForArt';
 import {StatisticsPanel} from '@/widgets/MassAdvert/overallStats/ui';
 import {ButtonsList} from '@/widgets/MassAdvert/buttonsList/ui/list';
 import {
@@ -95,6 +71,8 @@ import {
     getViewsColumn,
 } from '@/widgets/MassAdvert/columnData/config/columns';
 import {getPlacementsColumn} from '@/widgets/MassAdvert/columnData/config/placementsColumn';
+import {getAnalyticsColumn} from '@/widgets/MassAdvert/columnData/config/analyticsColumn';
+import {getArtColumn} from '@/widgets/MassAdvert/columnData/config/artColumn';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -472,6 +450,394 @@ export const MassAdvertPage = () => {
         filterTableData({adverts: {val: '', mode: 'include'}}, data);
     };
 
+    const filterTableData = (
+        withfFilters: any = {},
+        tableData: any = {},
+        _filterAutoSales = undefined as any,
+        datering = undefined,
+    ) => {
+        const [startDate, endDate] = datering ?? dateRange;
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const daysBetween =
+            Math.abs(
+                startDate.getTime() -
+                    (today.getTime() > endDate.getTime() ? endDate.getTime() : today.getTime()),
+            ) /
+            1000 /
+            86400;
+
+        const temp = [] as any;
+        const usefilterAutoSales = _filterAutoSales ?? filterAutoSales;
+        // console.log(
+        //     tableData,
+        //     data,
+        //     Object.keys(tableData).length ? tableData : data,
+        //     withfFilters['undef'] ? withfFilters : filters,
+        // );
+
+        for (const [art, info] of Object.entries(
+            Object.keys(tableData).length ? tableData : data,
+        )) {
+            const artInfo: any = info;
+            if (!art || !artInfo) continue;
+
+            const tempTypeRow: any = artInfo;
+            tempTypeRow['placements'] =
+                artInfo['placements'] == -1 ? 10 * 1000 : artInfo['placements'];
+
+            let addFlag = true;
+            const useFilters = withfFilters['undef'] ? withfFilters : filters;
+            if (Object.values(filtersRK).includes(true)) useFilters['filtersRK'] = filtersRK;
+            else delete useFilters['filtersRK'];
+
+            for (const [filterArg, data] of Object.entries(useFilters)) {
+                const filterData: any = data;
+                if (filterArg == 'undef' || !filterData) continue;
+                if (filterData['val'] == '' && filterArg != 'placements') continue;
+
+                const fldata = filterData['val'];
+                const flarg = tempTypeRow[filterArg];
+
+                if (flarg && fldata.trim() == '+') {
+                    if (flarg !== undefined) continue;
+                } else if (fldata?.trim() == '-') {
+                    if (flarg === undefined) continue;
+                }
+
+                if (usefilterAutoSales && !availableAutoSalesNmIds.includes(tempTypeRow['nmId'])) {
+                    addFlag = false;
+                    break;
+                }
+
+                if (filterArg == 'art') {
+                    const rulesForAnd = filterData['val'].split('+');
+                    // console.log(rulesForAnd);
+
+                    let wholeText = '';
+                    for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
+                        wholeText += tempTypeRow[key] + ' ';
+                    }
+
+                    const tags = tempTypeRow['tags'];
+                    if (tags) {
+                        for (const key of tags) {
+                            wholeText += key + ' ';
+                        }
+                    }
+
+                    let tempFlagInc = 0;
+                    for (let k = 0; k < rulesForAnd.length; k++) {
+                        const ruleForAdd = rulesForAnd[k];
+                        if (ruleForAdd == '') {
+                            tempFlagInc++;
+                            continue;
+                        }
+                        if (
+                            compare(wholeText, {
+                                val: ruleForAdd,
+                                compMode: filterData['compMode'],
+                            })
+                        ) {
+                            tempFlagInc++;
+                        }
+                    }
+                    if (tempFlagInc != rulesForAnd.length) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'filtersRK') {
+                    const adverts = tempTypeRow['adverts'];
+
+                    let add = false;
+                    if (adverts)
+                        for (const id of Object.keys(adverts)) {
+                            const status = doc?.adverts?.[selectValue[0]]?.[id]?.status;
+
+                            const hasStatusFilter =
+                                filtersRK['activeAdverts'] || filtersRK['pausedAdverts'];
+                            let byStatus = !hasStatusFilter;
+
+                            if (filtersRK['activeAdverts'] && status != 9) continue;
+                            else if (filtersRK['activeAdverts']) byStatus = true;
+
+                            if (filtersRK['pausedAdverts'] && status != 11) continue;
+                            else if (filtersRK['pausedAdverts']) byStatus = true;
+
+                            if (
+                                filtersRK['bidderRules'] &&
+                                !doc?.advertsAutoBidsRules?.[selectValue[0]]?.[id] &&
+                                byStatus
+                            )
+                                add = true;
+                            if (filtersRK['budgetRules'] && !advertBudgetRules[id] && byStatus)
+                                add = true;
+                            if (
+                                filtersRK['phrasesRules'] &&
+                                !doc?.advertsPlusPhrasesTemplates?.[selectValue[0]]?.[id] &&
+                                byStatus
+                            )
+                                add = true;
+                            if (
+                                filtersRK['scheduleRules'] &&
+                                !doc?.advertsSchedules?.[selectValue[0]]?.[id] &&
+                                byStatus
+                            )
+                                add = true;
+
+                            if (
+                                !filtersRK['bidderRules'] &&
+                                !filtersRK['budgetRules'] &&
+                                !filtersRK['phrasesRules'] &&
+                                !filtersRK['scheduleRules'] &&
+                                byStatus &&
+                                hasStatusFilter
+                            )
+                                add = true;
+                        }
+                    if (!add) addFlag = false;
+                } else if (filterArg == 'placements') {
+                    if (filterData['val'] == '') {
+                        setPlacementsDisplayPhrase('');
+                        setSelectedSearchPhrase('');
+                        continue;
+                    }
+                    const temp = isNaN(parseInt(filterData['val']));
+
+                    if (temp) {
+                        setPlacementsDisplayPhrase(filterData['val']);
+                        if (placementsDisplayPhrase != filterData['val'])
+                            setSelectedSearchPhrase('');
+                    } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'adverts') {
+                    const rulesForAnd = [filterData['val']];
+                    const adverts = tempTypeRow[filterArg];
+                    // console.log(rulesForAnd);
+                    let wholeText = '';
+                    let wholeTextTypes = '';
+                    if (adverts)
+                        for (const [id, _] of Object.entries(adverts)) {
+                            wholeText += id + ' ';
+                            const advertData = doc?.adverts?.[selectValue[0]]?.[id];
+
+                            if (advertData)
+                                wholeTextTypes += advertData.type == 8 ? 'авто ' : 'поиск ';
+                        }
+
+                    const lwr = String(filterData['val']).toLocaleLowerCase().trim();
+                    if (['авто', 'поиск'].includes(lwr)) {
+                        if (wholeTextTypes.includes(lwr)) continue;
+                    }
+                    let tempFlagInc = 0;
+                    for (let k = 0; k < rulesForAnd.length; k++) {
+                        const ruleForAdd = rulesForAnd[k];
+                        if (ruleForAdd == '') {
+                            tempFlagInc++;
+                            continue;
+                        }
+                        if (
+                            compare(wholeText, {
+                                val: ruleForAdd,
+                                compMode: filterData['compMode'],
+                            })
+                        ) {
+                            tempFlagInc++;
+                        }
+                    }
+                    if (tempFlagInc != rulesForAnd.length) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'autoSales') {
+                    const rentabelnost = getRoundValue(
+                        autoSalesProfits[tempTypeRow['art']]?.rentabelnost,
+                        1,
+                        true,
+                    );
+                    if (!compare(rentabelnost, filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'semantics') {
+                    if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'avg_price') {
+                    if (
+                        !compare(
+                            getRoundValue(tempTypeRow['sum_orders'], tempTypeRow['orders']),
+                            filterData,
+                        )
+                    ) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                    addFlag = false;
+                    break;
+                }
+            }
+
+            if (addFlag) {
+                temp.push(tempTypeRow);
+            }
+        }
+
+        temp.sort((a: any, b: any) => {
+            return a.art.localeCompare(b.art, 'ru-RU');
+        });
+        const filteredSummaryTemp = {
+            art: '',
+            orders: 0,
+            sum_orders: 0,
+            sum: 0,
+            views: 0,
+            clicks: 0,
+            drr: 0,
+            ctr: 0,
+            analytics: 0,
+            profit: 0,
+            rentabelnost: 0,
+            cpc: 0,
+            cpm: 0,
+            cr: 0,
+            uniqueImtIds: 0,
+            stocks: 0,
+            dsi: 0,
+            cpo: 0,
+            cpl: 0,
+            adverts: 0,
+            semantics: null,
+            budget: 0,
+            romi: 0,
+            openCardCount: 0,
+            addToCartPercent: 0,
+            addToCartCount: 0,
+            cartToOrderPercent: 0,
+        };
+        const uniqueAdvertsIds: any[] = [];
+        const uniqueImtIds: any[] = [];
+        for (let i = 0; i < temp.length; i++) {
+            const row = temp[i];
+            const imtId = row['imtId'];
+            if (!uniqueImtIds.includes(imtId)) uniqueImtIds.push(imtId);
+
+            const adverts = row['adverts'];
+            if (adverts) {
+                for (const id of Object.keys(adverts)) {
+                    if (!uniqueAdvertsIds.includes(id)) uniqueAdvertsIds.push(id);
+                }
+            }
+            filteredSummaryTemp.sum_orders += row['sum_orders'];
+            filteredSummaryTemp.orders += row['orders'];
+            filteredSummaryTemp.stocks += row['stocks'];
+            filteredSummaryTemp.sum += row['sum'];
+            filteredSummaryTemp.views += row['views'];
+            filteredSummaryTemp.clicks += row['clicks'];
+            // if (row['art'] == 'страйп/15/16-1406')
+            //     console.log(
+            //         row['profit'],
+            //         filteredSummaryTemp.analytics,
+            //         filteredSummaryTemp.analytics + Math.round(row['profit'] ?? 0),
+            //     );
+            filteredSummaryTemp.profit += Math.round(row['profit'] ?? 0);
+
+            filteredSummaryTemp.budget += row['budget'] ?? 0;
+            filteredSummaryTemp.openCardCount += row['openCardCount'];
+            filteredSummaryTemp.addToCartCount += row['addToCartCount'];
+        }
+        filteredSummaryTemp.uniqueImtIds = Math.round(uniqueImtIds.length);
+
+        filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
+        filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
+        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks);
+        filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
+        filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
+        filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
+        filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
+        filteredSummaryTemp.adverts = uniqueAdvertsIds.length;
+
+        filteredSummaryTemp.profit = Math.round(filteredSummaryTemp.profit);
+        filteredSummaryTemp.rentabelnost = getRoundValue(
+            filteredSummaryTemp.profit,
+            filteredSummaryTemp.sum_orders,
+            true,
+        );
+        filteredSummaryTemp.analytics = filteredSummaryTemp.rentabelnost;
+
+        filteredSummaryTemp.openCardCount = Math.round(filteredSummaryTemp.openCardCount);
+        filteredSummaryTemp.addToCartPercent = getRoundValue(
+            filteredSummaryTemp.addToCartCount,
+            filteredSummaryTemp.openCardCount,
+            true,
+        );
+        filteredSummaryTemp.cartToOrderPercent = getRoundValue(
+            filteredSummaryTemp.orders,
+            filteredSummaryTemp.addToCartCount,
+            true,
+        );
+
+        filteredSummaryTemp.drr = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.sum_orders,
+            true,
+            1,
+        );
+        filteredSummaryTemp.ctr = getRoundValue(
+            filteredSummaryTemp.clicks,
+            filteredSummaryTemp.views,
+            true,
+        );
+        filteredSummaryTemp.cpc = getRoundValue(
+            filteredSummaryTemp.sum / 100,
+            filteredSummaryTemp.clicks,
+            true,
+            filteredSummaryTemp.sum / 100,
+        );
+        filteredSummaryTemp.cpm = getRoundValue(
+            filteredSummaryTemp.sum * 1000,
+            filteredSummaryTemp.views,
+        );
+        filteredSummaryTemp.cr = getRoundValue(
+            filteredSummaryTemp.orders,
+            filteredSummaryTemp.openCardCount,
+            true,
+        );
+        filteredSummaryTemp.cpo = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.orders,
+            false,
+            filteredSummaryTemp.sum,
+        );
+        filteredSummaryTemp.cpl = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.addToCartCount,
+            false,
+            filteredSummaryTemp.sum,
+        );
+
+        filteredSummaryTemp.romi = getRoundValue(
+            filteredSummaryTemp.profit,
+            filteredSummaryTemp.sum,
+            true,
+        );
+
+        filteredSummaryTemp.dsi = getRoundValue(
+            filteredSummaryTemp.stocks,
+            filteredSummaryTemp.orders / (daysBetween + 1),
+        );
+
+        setFilteredSummary(filteredSummaryTemp);
+        setFilteredData(temp);
+    };
+
     const getUniqueAdvertIdsFromThePage = () => {
         const lwr = filters['adverts']
             ? String(filters['adverts']['val']).toLocaleLowerCase().trim()
@@ -622,483 +988,38 @@ export const MassAdvertPage = () => {
     };
 
     const columnData: any = [
-        {
-            name: 'art',
-            placeholder: 'Артикул',
-            width: 200,
-            additionalNodes: [
-                <Button
-                    style={{marginLeft: 5, marginRight: 5}}
-                    view="outlined"
-                    selected={filterAutoSales}
-                    onClick={() => {
-                        setFilterAutoSales(!filterAutoSales);
-                        filterTableData(filters, data, !filterAutoSales);
-                    }}
-                >
-                    <Icon data={TagRuble} />
-                </Button>,
-                <CopyButton
-                    tooltip="Нажмите, чтобы скопировать артикулы в таблице в буфер обмена"
-                    view="outlined"
-                    copyText={() => {
-                        const arts: number[] = [];
-                        for (const row of filteredData) {
-                            const {nmId} = row;
-                            if (!arts.includes(nmId)) arts.push(nmId);
-                        }
-                        return arts.join(', ');
-                    }}
-                />,
-            ],
-            render: ({value, row, footer, index}: any) => {
-                const {title, brand, object, nmId, photos, imtId, art, tags} = row;
-                if (title === undefined) return <div style={{height: 28}}>{value}</div>;
-                const imgUrl = photos ? (photos[0] ? photos[0].big : undefined) : undefined;
-                let titleWrapped = title;
-                if (title.length > 30) {
-                    let wrapped = false;
-                    titleWrapped = '';
-                    const titleArr = title.split(' ');
-                    for (const word of titleArr) {
-                        titleWrapped += word;
-                        if (titleWrapped.length > 25 && !wrapped) {
-                            titleWrapped += '\n';
-                            wrapped = true;
-                        } else {
-                            titleWrapped += ' ';
-                        }
-                    }
-                }
-                /// tags
-                const tagsNodes = [] as ReactNode[];
-                const autoSalesInfo = doc?.['autoSales']?.[selectValue[0]]?.[nmId];
-                const {fixedPrices} = autoSalesInfo ?? {};
-                const inActionNow =
-                    autoSalesInfo?.autoSaleName && autoSalesInfo?.autoSaleName !== '';
-                const {autoSaleName} = fixedPrices ?? {};
-                if (autoSalesInfo && ((autoSaleName && autoSaleName != '') || inActionNow)) {
-                    tagsNodes.push(
-                        <div>
-                            <CanBeAddedToSales
-                                nmId={nmId}
-                                sellerId={sellerId}
-                                pin="circle-clear"
-                                view={inActionNow ? 'outlined-action' : 'outlined'}
-                                selected={false}
-                                setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
-                            />
-                            {autoSalesInfo['fixedPrices'] &&
-                            autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                <Button
-                                    size="xs"
-                                    pin="clear-clear"
-                                    view={inActionNow ? 'outlined-action' : 'outlined'}
-                                    selected={false}
-                                    onClick={() => {
-                                        const params = {
-                                            uid: getUid(),
-                                            campaignName: selectValue[0],
-                                            nmIds: [nmId],
-                                        };
-                                        console.log(params);
-                                        delete doc.autoSales[selectValue[0]][nmId];
-                                        setChangedDoc({...doc});
-                                        callApi('deleteAutoSaleFromNmIds', params);
-                                    }}
-                                >
-                                    <Icon data={Xmark} size={12} />
-                                </Button>
-                            ) : (
-                                <></>
-                            )}
-                            <Popover
-                                // open={fixedPrices?.dateRange}
-                                disabled={!fixedPrices?.dateRange}
-                                openDelay={1000}
-                                placement={'bottom'}
-                                content={
-                                    <Text variant="subheader-1">
-                                        {autoSalesInfo['fixedPrices'] &&
-                                        autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                            autoSalesInfo['fixedPrices']['dateRange'] ? (
-                                                `${new Date(
-                                                    autoSalesInfo['fixedPrices']['dateRange'][0],
-                                                ).toLocaleDateString('ru-RU')}
-                                                        - ${new Date(
-                                                            autoSalesInfo['fixedPrices'][
-                                                                'dateRange'
-                                                            ][1],
-                                                        ).toLocaleDateString('ru-RU')}`
-                                            ) : (
-                                                'Выберите даты акции'
-                                            )
-                                        ) : (
-                                            <></>
-                                        )}
-                                    </Text>
-                                }
-                            >
-                                <Button
-                                    size="xs"
-                                    pin={'clear-circle'}
-                                    view={inActionNow ? 'outlined-action' : 'outlined'}
-                                    selected={false}
-                                >
-                                    <Text>{autoSaleName ?? autoSalesInfo?.autoSaleName}</Text>
-                                </Button>
-                            </Popover>
-                        </div>,
-                    );
-                    tagsNodes.push(<div style={{minWidth: 8}} />);
-                } else if (availableAutoSalesNmIds.includes(nmId)) {
-                    tagsNodes.push(
-                        <CanBeAddedToSales
-                            nmId={nmId}
-                            sellerId={sellerId}
-                            view={'flat-action'}
-                            selected={false}
-                            pin="circle-circle"
-                            setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
-                        />,
-                    );
-                    tagsNodes.push(<div style={{minWidth: 8}} />);
-                }
-                if (tags) {
-                    for (let i = 0; i < tags.length; i++) {
-                        const tag = tags[i];
-                        if (!tag) continue;
-                        tagsNodes.push(
-                            <Button
-                                content={'div'}
-                                size="xs"
-                                pin="circle-circle"
-                                selected
-                                view="outlined-info"
-                                onClick={() => filterByButton(tag.toUpperCase())}
-                            >
-                                {tag.toUpperCase()}
-                            </Button>,
-                        );
-                        tagsNodes.push(<div style={{minWidth: 8}} />);
-                    }
-                    tagsNodes.pop();
-                }
-                return footer ? (
-                    <div style={{height: 28}}>{value}</div>
-                ) : (
-                    <div
-                        // title={value}
-                        style={{
-                            position: 'relative',
-                            maxWidth: '20vw',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            zIndex: 40,
-                            justifyContent: 'space-between',
-                        }}
-                    >
-                        <div
-                            style={{
-                                justifyContent: 'space-between',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                marginRight: 40,
-                                alignItems: 'center',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: `${String(filteredData.length).length * 6}px`,
-                                    // width: 20,
-                                    margin: '0 16px',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
-                            </div>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <Popover
-                                        openDelay={1000}
-                                        closeDelay={1000}
-                                        // behavior={'delayed' as PopoverBehavior}
-                                        disabled={value === undefined}
-                                        content={
-                                            <div style={{width: 200}}>
-                                                <img
-                                                    style={{width: '100%', height: 'auto'}}
-                                                    src={imgUrl}
-                                                />
-                                                <></>
-                                            </div>
-                                        }
-                                    >
-                                        <div style={{width: 40}}>
-                                            <img
-                                                style={{width: '100%', height: 'auto'}}
-                                                src={imgUrl}
-                                            />
-                                        </div>
-                                    </Popover>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <Button
-                                                disabled={permission != 'Управление'}
-                                                size="xs"
-                                                pin="brick-brick"
-                                                view="outlined"
-                                                onClick={() => {
-                                                    setAdvertsArtsListModalFromOpen(true);
-                                                    const adverts = doc.adverts[selectValue[0]];
-                                                    const temp = [] as any[];
-                                                    if (adverts) {
-                                                        for (const [_, data] of Object.entries(
-                                                            adverts,
-                                                        )) {
-                                                            const advertData: any = data;
-                                                            if (!advertData) continue;
-                                                            temp.push(advertData['advertId']);
-                                                        }
-                                                    }
-                                                    setSemanticsModalOpenFromArt(art);
-                                                    setRkList(temp ?? []);
-                                                    setRkListMode('add');
-                                                }}
-                                            >
-                                                <Icon data={Plus} />
-                                            </Button>
-                                            <div style={{minWidth: 2}} />
-                                            <Button
-                                                disabled={permission != 'Управление'}
-                                                size="xs"
-                                                pin="brick-brick"
-                                                view="outlined"
-                                                onClick={() => {
-                                                    setAdvertsArtsListModalFromOpen(true);
-                                                    const adverts = row.adverts;
-                                                    const temp = [] as any[];
-                                                    if (adverts) {
-                                                        for (const [_, data] of Object.entries(
-                                                            adverts,
-                                                        )) {
-                                                            const advertData: any = data;
-                                                            if (!advertData) continue;
-                                                            temp.push(advertData['advertId']);
-                                                        }
-                                                    }
-                                                    setSemanticsModalOpenFromArt(art);
-                                                    setRkList(temp ?? []);
-                                                    setRkListMode('delete');
-                                                }}
-                                            >
-                                                <Icon data={Xmark} />
-                                            </Button>
-                                        </div>
-                                        <div style={{minHeight: 2}} />
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <Button
-                                                pin="brick-brick"
-                                                view="outlined"
-                                                size="xs"
-                                                // selected
-                                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
-                                                onClick={() => {
-                                                    setShowArtStatsModalOpen(true);
-                                                    setArtsStatsByDayData(calcByDayStats([art]));
-                                                }}
-                                            >
-                                                <Icon data={LayoutList}></Icon>
-                                            </Button>
-                                            <div style={{minWidth: 2}} />
-                                            <Button
-                                                pin="brick-brick"
-                                                view="outlined"
-                                                size="xs"
-                                                // selected
-                                                // view={index % 2 == 0 ? 'flat' : 'flat-action'}
-                                                onClick={() => {
-                                                    const dzhem = doc.dzhemData
-                                                        ? doc.dzhemData[selectValue[0]]
-                                                            ? doc.dzhemData[selectValue[0]][value]
-                                                                ? (doc.dzhemData[selectValue[0]][
-                                                                      value
-                                                                  ].phrasesStats ?? undefined)
-                                                                : undefined
-                                                            : undefined
-                                                        : undefined;
-                                                    console.log(
-                                                        value,
-                                                        doc.dzhemData[selectValue[0]][value],
-                                                    );
-                                                    const temp = [] as any[];
-                                                    if (dzhem)
-                                                        for (const [
-                                                            phrase,
-                                                            stats,
-                                                        ] of Object.entries(dzhem)) {
-                                                            const phrasesStats: any = stats;
-                                                            if (!phrase || !phrasesStats) continue;
-                                                            phrasesStats['phrase'] = phrase;
-                                                            temp.push(phrasesStats);
-                                                        }
-                                                    temp.sort((a, b) => {
-                                                        return b?.openCardCount - a?.openCardCount;
-                                                    });
-                                                    setSelectedNmId(nmId);
-                                                    setShowDzhemModalOpen(true);
-                                                }}
-                                                // style={{
-                                                //     background:
-                                                //         'linear-gradient(135deg, #ff9649, #ff5e62)',
-                                                // }}
-                                            >
-                                                {/* <div style={{width: 11}}>
-                                                    <Text>
-                                                        <img
-                                                            color="white"
-                                                            style={{width: '100%', height: 'auto'}}
-                                                            src={JarIcon}
-                                                        />
-                                                    </Text>
-                                                </div> */}
-                                                <Icon data={Cherry}></Icon>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style={{width: 4}} />
-                                <div
-                                    style={{display: 'flex', flexDirection: 'column', width: '100'}}
-                                >
-                                    <div style={{marginLeft: 6}}>
-                                        <Link
-                                            view="primary"
-                                            style={{whiteSpace: 'pre-wrap'}}
-                                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
-                                            target="_blank"
-                                        >
-                                            <Text variant="subheader-1">{titleWrapped}</Text>
-                                        </Link>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(object)}
-                                        >
-                                            <Text variant="caption-2">{`${object}`}</Text>
-                                        </Button>
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(brand)}
-                                        >
-                                            <Text variant="caption-2">{`${brand}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            width: '100',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(nmId)}
-                                        >
-                                            <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
-                                        </Button>
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(imtId)}
-                                        >
-                                            <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(value)}
-                                        >
-                                            <Text variant="caption-2">{`Артикул: ${value}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            maxWidth: '100%',
-                                            paddingRight: '100%',
-                                            overflowX: 'scroll',
-                                        }}
-                                    >
-                                        {tagsNodes}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style={{position: 'absolute', top: 0, right: 0, zIndex: 1000}}>
-                            <NotesForArt
-                                notes={allNotes?.[nmId as string] || []}
-                                nmId={nmId}
-                                reloadNotes={setReloadNotes}
-                            />
-                        </div>
-                    </div>
-                );
-            },
-            valueType: 'text',
-            group: true,
-        },
+        doc
+            ? {
+                  ...getArtColumn({
+                      filterAutoSales: filterAutoSales,
+                      setFilterAutoSales: setFilterAutoSales,
+                      filters: filters,
+                      data: data,
+                      filteredData: filteredData,
+                      doc: doc,
+                      selectValue: selectValue,
+                      sellerId: sellerId,
+                      filterTableData: filterTableData,
+                      setAutoSalesModalOpenFromParent: setAutoSalesModalOpenFromParent,
+                      setChangedDoc: setChangedDoc,
+                      availableAutoSalesNmIds: availableAutoSalesNmIds,
+                      filterByButton: filterByButton,
+                      pagesCurrent: pagesCurrent,
+                      setSemanticsModalOpenFromArt: setSemanticsModalOpenFromArt,
+                      allNotes: allNotes,
+                      setReloadNotes: setReloadNotes,
+                      permission: permission,
+                      setAdvertsArtsListModalFromOpen: setAdvertsArtsListModalFromOpen,
+                      setRkList: setRkList,
+                      setRkListMode: setRkListMode,
+                      setShowArtStatsModalOpen: setShowArtStatsModalOpen,
+                      setShowDzhemModalOpen: setShowDzhemModalOpen,
+                      setSelectedNmId: setSelectedNmId,
+                      calcByDayStats: calcByDayStats,
+                      setArtsStatsByDayData: setArtsStatsByDayData,
+                  }),
+              }
+            : null,
         Object.keys(autoSalesProfits ?? []).length == 0
             ? {
                   name: 'adverts',
@@ -1623,180 +1544,11 @@ export const MassAdvertPage = () => {
                   },
               },
         {
-            name: 'analytics',
-            placeholder: 'Аналитика',
-            render: ({row, footer}: any) => {
-                const {profit, rentabelnost} = row;
-                if (footer) {
-                    return (
-                        <Text color={profit > 0 ? 'positive' : 'danger'}>
-                            {`${new Intl.NumberFormat('ru-RU').format(
-                                Math.round(profit),
-                            )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                Math.round(rentabelnost),
-                            )}%`}
-                        </Text>
-                    );
-                }
-                const warningArtIcon = () => {
-                    const nmIdArray = unvalidatedArts.map((art) => art.nmId);
-                    const nmIdIndex = nmIdArray.findIndex((element) => element == nmId);
-                    if (nmIdIndex != -1) {
-                        const art = unvalidatedArts[nmIdIndex];
-                        const keys = Object.keys(art);
-                        const words: string[] = [];
-                        for (const key of keys) {
-                            switch (key) {
-                                case 'prices':
-                                    words.push('себестоимость');
-                                    break;
-                                case 'tax':
-                                    words.push('налог');
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        return (
-                            // <span style={{pointerEvents: 'auto'}}>
-                            <div style={{pointerEvents: 'auto'}}>
-                                <Tooltip
-                                    style={{maxWidth: '400px'}}
-                                    content={
-                                        <Text>
-                                            Внимание: расчёт прибыли выполнен с ошибкой. Пожалуйста,
-                                            укажите&nbsp;{getEnumurationString(words)} для
-                                            корректного отображения данных
-                                        </Text>
-                                    }
-                                    disabled={false}
-                                >
-                                    <Text content={'div'} style={{color: 'rgb(255, 190, 92)'}}>
-                                        <Icon data={TriangleExclamation} size={11} />
-                                    </Text>
-                                </Tooltip>
-                            </div>
-                        );
-                    }
-                    return <div />;
-                };
-                const {placementsValue, stocksBySizes, nmId} = row ?? {};
-                const stocksByWarehousesArt = stocksByWarehouses?.[nmId];
-                const {phrase} = placementsValue ?? {};
-                return (
-                    <Card
-                        style={{
-                            width: 160,
-                            height: 110.5,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <PageInfoGraphs
-                            sellerId={sellerId}
-                            phrase={phrase}
-                            placementsValue={placementsValue}
-                        />
-                        {stocksBySizes && stocksBySizes.all > 1 ? (
-                            <Button
-                                style={{
-                                    width: 160,
-                                    overflow: 'hidden',
-                                }}
-                                width="max"
-                                size="xs"
-                                view={stocksBySizes ? 'outlined' : 'outlined-danger'}
-                                pin="clear-clear"
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <Text>{`${stocksBySizes.available ?? ''} / ${
-                                        stocksBySizes.all ?? ''
-                                    }`}</Text>
-                                    <div style={{minWidth: 3}} />
-                                    <Icon data={TShirt} size={11} />
-                                </div>
-                            </Button>
-                        ) : (
-                            <></>
-                        )}
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <div
-                                style={{
-                                    width: '100%',
-                                    background: 'var(--g-color-base-generic-hover)',
-                                    height: 0.5,
-                                }}
-                            />
-                            <StocksByWarehousesPopup
-                                stocksByWarehousesArt={stocksByWarehousesArt}
-                            />
-                        </div>
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <div
-                                style={{
-                                    width: '100%',
-                                    background: 'var(--g-color-base-generic-hover)',
-                                    height: 0.5,
-                                }}
-                            />
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <Button
-                                    disabled={!Math.round(profit)}
-                                    style={{
-                                        width: 'auto',
-                                        overflow: 'hidden',
-                                    }}
-                                    width="max"
-                                    size="xs"
-                                    view={'flat'}
-                                    pin="clear-clear"
-                                >
-                                    <Text
-                                        color={
-                                            !Math.round(profit)
-                                                ? undefined
-                                                : profit > 0
-                                                  ? 'positive'
-                                                  : 'danger'
-                                        }
-                                    >
-                                        {`${new Intl.NumberFormat('ru-RU').format(
-                                            Math.round(profit),
-                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                            Math.round(rentabelnost),
-                                        )}%`}
-                                    </Text>
-                                    {warningArtIcon()}
-                                </Button>
-                            </div>
-                        </div>
-                    </Card>
-                );
-            },
-            sortFunction: (a: any, b: any, order: any) => {
-                const profitsDataA = a?.profit;
-                const profitsDataB = b?.profit;
-                const isNaNa = isNaN(profitsDataA);
-                const isNaNb = isNaN(profitsDataB);
-                if (isNaNa && isNaNb) return 1;
-                else if (isNaNa) return 1;
-                else if (isNaNb) return -1;
-                return (profitsDataA - profitsDataB) * order;
-            },
+            ...getAnalyticsColumn({
+                unvalidatedArts: unvalidatedArts,
+                stocksByWarehouses: stocksByWarehouses,
+                sellerId: sellerId,
+            }),
         },
         doc && getUniqueAdvertIdsFromThePage
             ? {
@@ -2488,394 +2240,6 @@ export const MassAdvertPage = () => {
         };
 
         return yagrBalanceData;
-    };
-
-    const filterTableData = (
-        withfFilters: any = {},
-        tableData: any = {},
-        _filterAutoSales = undefined as any,
-        datering = undefined,
-    ) => {
-        const [startDate, endDate] = datering ?? dateRange;
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(0, 0, 0, 0);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const daysBetween =
-            Math.abs(
-                startDate.getTime() -
-                    (today.getTime() > endDate.getTime() ? endDate.getTime() : today.getTime()),
-            ) /
-            1000 /
-            86400;
-
-        const temp = [] as any;
-        const usefilterAutoSales = _filterAutoSales ?? filterAutoSales;
-        // console.log(
-        //     tableData,
-        //     data,
-        //     Object.keys(tableData).length ? tableData : data,
-        //     withfFilters['undef'] ? withfFilters : filters,
-        // );
-
-        for (const [art, info] of Object.entries(
-            Object.keys(tableData).length ? tableData : data,
-        )) {
-            const artInfo: any = info;
-            if (!art || !artInfo) continue;
-
-            const tempTypeRow: any = artInfo;
-            tempTypeRow['placements'] =
-                artInfo['placements'] == -1 ? 10 * 1000 : artInfo['placements'];
-
-            let addFlag = true;
-            const useFilters = withfFilters['undef'] ? withfFilters : filters;
-            if (Object.values(filtersRK).includes(true)) useFilters['filtersRK'] = filtersRK;
-            else delete useFilters['filtersRK'];
-
-            for (const [filterArg, data] of Object.entries(useFilters)) {
-                const filterData: any = data;
-                if (filterArg == 'undef' || !filterData) continue;
-                if (filterData['val'] == '' && filterArg != 'placements') continue;
-
-                const fldata = filterData['val'];
-                const flarg = tempTypeRow[filterArg];
-
-                if (flarg && fldata.trim() == '+') {
-                    if (flarg !== undefined) continue;
-                } else if (fldata?.trim() == '-') {
-                    if (flarg === undefined) continue;
-                }
-
-                if (usefilterAutoSales && !availableAutoSalesNmIds.includes(tempTypeRow['nmId'])) {
-                    addFlag = false;
-                    break;
-                }
-
-                if (filterArg == 'art') {
-                    const rulesForAnd = filterData['val'].split('+');
-                    // console.log(rulesForAnd);
-
-                    let wholeText = '';
-                    for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
-                        wholeText += tempTypeRow[key] + ' ';
-                    }
-
-                    const tags = tempTypeRow['tags'];
-                    if (tags) {
-                        for (const key of tags) {
-                            wholeText += key + ' ';
-                        }
-                    }
-
-                    let tempFlagInc = 0;
-                    for (let k = 0; k < rulesForAnd.length; k++) {
-                        const ruleForAdd = rulesForAnd[k];
-                        if (ruleForAdd == '') {
-                            tempFlagInc++;
-                            continue;
-                        }
-                        if (
-                            compare(wholeText, {
-                                val: ruleForAdd,
-                                compMode: filterData['compMode'],
-                            })
-                        ) {
-                            tempFlagInc++;
-                        }
-                    }
-                    if (tempFlagInc != rulesForAnd.length) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (filterArg == 'filtersRK') {
-                    const adverts = tempTypeRow['adverts'];
-
-                    let add = false;
-                    if (adverts)
-                        for (const id of Object.keys(adverts)) {
-                            const status = doc?.adverts?.[selectValue[0]]?.[id]?.status;
-
-                            const hasStatusFilter =
-                                filtersRK['activeAdverts'] || filtersRK['pausedAdverts'];
-                            let byStatus = !hasStatusFilter;
-
-                            if (filtersRK['activeAdverts'] && status != 9) continue;
-                            else if (filtersRK['activeAdverts']) byStatus = true;
-
-                            if (filtersRK['pausedAdverts'] && status != 11) continue;
-                            else if (filtersRK['pausedAdverts']) byStatus = true;
-
-                            if (
-                                filtersRK['bidderRules'] &&
-                                !doc?.advertsAutoBidsRules?.[selectValue[0]]?.[id] &&
-                                byStatus
-                            )
-                                add = true;
-                            if (filtersRK['budgetRules'] && !advertBudgetRules[id] && byStatus)
-                                add = true;
-                            if (
-                                filtersRK['phrasesRules'] &&
-                                !doc?.advertsPlusPhrasesTemplates?.[selectValue[0]]?.[id] &&
-                                byStatus
-                            )
-                                add = true;
-                            if (
-                                filtersRK['scheduleRules'] &&
-                                !doc?.advertsSchedules?.[selectValue[0]]?.[id] &&
-                                byStatus
-                            )
-                                add = true;
-
-                            if (
-                                !filtersRK['bidderRules'] &&
-                                !filtersRK['budgetRules'] &&
-                                !filtersRK['phrasesRules'] &&
-                                !filtersRK['scheduleRules'] &&
-                                byStatus &&
-                                hasStatusFilter
-                            )
-                                add = true;
-                        }
-                    if (!add) addFlag = false;
-                } else if (filterArg == 'placements') {
-                    if (filterData['val'] == '') {
-                        setPlacementsDisplayPhrase('');
-                        setSelectedSearchPhrase('');
-                        continue;
-                    }
-                    const temp = isNaN(parseInt(filterData['val']));
-
-                    if (temp) {
-                        setPlacementsDisplayPhrase(filterData['val']);
-                        if (placementsDisplayPhrase != filterData['val'])
-                            setSelectedSearchPhrase('');
-                    } else if (!compare(tempTypeRow[filterArg], filterData)) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (filterArg == 'adverts') {
-                    const rulesForAnd = [filterData['val']];
-                    const adverts = tempTypeRow[filterArg];
-                    // console.log(rulesForAnd);
-                    let wholeText = '';
-                    let wholeTextTypes = '';
-                    if (adverts)
-                        for (const [id, _] of Object.entries(adverts)) {
-                            wholeText += id + ' ';
-                            const advertData = doc?.adverts?.[selectValue[0]]?.[id];
-
-                            if (advertData)
-                                wholeTextTypes += advertData.type == 8 ? 'авто ' : 'поиск ';
-                        }
-
-                    const lwr = String(filterData['val']).toLocaleLowerCase().trim();
-                    if (['авто', 'поиск'].includes(lwr)) {
-                        if (wholeTextTypes.includes(lwr)) continue;
-                    }
-                    let tempFlagInc = 0;
-                    for (let k = 0; k < rulesForAnd.length; k++) {
-                        const ruleForAdd = rulesForAnd[k];
-                        if (ruleForAdd == '') {
-                            tempFlagInc++;
-                            continue;
-                        }
-                        if (
-                            compare(wholeText, {
-                                val: ruleForAdd,
-                                compMode: filterData['compMode'],
-                            })
-                        ) {
-                            tempFlagInc++;
-                        }
-                    }
-                    if (tempFlagInc != rulesForAnd.length) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (filterArg == 'autoSales') {
-                    const rentabelnost = getRoundValue(
-                        autoSalesProfits[tempTypeRow['art']]?.rentabelnost,
-                        1,
-                        true,
-                    );
-                    if (!compare(rentabelnost, filterData)) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (filterArg == 'semantics') {
-                    if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (filterArg == 'avg_price') {
-                    if (
-                        !compare(
-                            getRoundValue(tempTypeRow['sum_orders'], tempTypeRow['orders']),
-                            filterData,
-                        )
-                    ) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (!compare(tempTypeRow[filterArg], filterData)) {
-                    addFlag = false;
-                    break;
-                }
-            }
-
-            if (addFlag) {
-                temp.push(tempTypeRow);
-            }
-        }
-
-        temp.sort((a: any, b: any) => {
-            return a.art.localeCompare(b.art, 'ru-RU');
-        });
-        const filteredSummaryTemp = {
-            art: '',
-            orders: 0,
-            sum_orders: 0,
-            sum: 0,
-            views: 0,
-            clicks: 0,
-            drr: 0,
-            ctr: 0,
-            analytics: 0,
-            profit: 0,
-            rentabelnost: 0,
-            cpc: 0,
-            cpm: 0,
-            cr: 0,
-            uniqueImtIds: 0,
-            stocks: 0,
-            dsi: 0,
-            cpo: 0,
-            cpl: 0,
-            adverts: 0,
-            semantics: null,
-            budget: 0,
-            romi: 0,
-            openCardCount: 0,
-            addToCartPercent: 0,
-            addToCartCount: 0,
-            cartToOrderPercent: 0,
-        };
-        const uniqueAdvertsIds: any[] = [];
-        const uniqueImtIds: any[] = [];
-        for (let i = 0; i < temp.length; i++) {
-            const row = temp[i];
-            const imtId = row['imtId'];
-            if (!uniqueImtIds.includes(imtId)) uniqueImtIds.push(imtId);
-
-            const adverts = row['adverts'];
-            if (adverts) {
-                for (const id of Object.keys(adverts)) {
-                    if (!uniqueAdvertsIds.includes(id)) uniqueAdvertsIds.push(id);
-                }
-            }
-            filteredSummaryTemp.sum_orders += row['sum_orders'];
-            filteredSummaryTemp.orders += row['orders'];
-            filteredSummaryTemp.stocks += row['stocks'];
-            filteredSummaryTemp.sum += row['sum'];
-            filteredSummaryTemp.views += row['views'];
-            filteredSummaryTemp.clicks += row['clicks'];
-            // if (row['art'] == 'страйп/15/16-1406')
-            //     console.log(
-            //         row['profit'],
-            //         filteredSummaryTemp.analytics,
-            //         filteredSummaryTemp.analytics + Math.round(row['profit'] ?? 0),
-            //     );
-            filteredSummaryTemp.profit += Math.round(row['profit'] ?? 0);
-
-            filteredSummaryTemp.budget += row['budget'] ?? 0;
-            filteredSummaryTemp.openCardCount += row['openCardCount'];
-            filteredSummaryTemp.addToCartCount += row['addToCartCount'];
-        }
-        filteredSummaryTemp.uniqueImtIds = Math.round(uniqueImtIds.length);
-
-        filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
-        filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
-        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks);
-        filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
-        filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
-        filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
-        filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
-        filteredSummaryTemp.adverts = uniqueAdvertsIds.length;
-
-        filteredSummaryTemp.profit = Math.round(filteredSummaryTemp.profit);
-        filteredSummaryTemp.rentabelnost = getRoundValue(
-            filteredSummaryTemp.profit,
-            filteredSummaryTemp.sum_orders,
-            true,
-        );
-        filteredSummaryTemp.analytics = filteredSummaryTemp.rentabelnost;
-
-        filteredSummaryTemp.openCardCount = Math.round(filteredSummaryTemp.openCardCount);
-        filteredSummaryTemp.addToCartPercent = getRoundValue(
-            filteredSummaryTemp.addToCartCount,
-            filteredSummaryTemp.openCardCount,
-            true,
-        );
-        filteredSummaryTemp.cartToOrderPercent = getRoundValue(
-            filteredSummaryTemp.orders,
-            filteredSummaryTemp.addToCartCount,
-            true,
-        );
-
-        filteredSummaryTemp.drr = getRoundValue(
-            filteredSummaryTemp.sum,
-            filteredSummaryTemp.sum_orders,
-            true,
-            1,
-        );
-        filteredSummaryTemp.ctr = getRoundValue(
-            filteredSummaryTemp.clicks,
-            filteredSummaryTemp.views,
-            true,
-        );
-        filteredSummaryTemp.cpc = getRoundValue(
-            filteredSummaryTemp.sum / 100,
-            filteredSummaryTemp.clicks,
-            true,
-            filteredSummaryTemp.sum / 100,
-        );
-        filteredSummaryTemp.cpm = getRoundValue(
-            filteredSummaryTemp.sum * 1000,
-            filteredSummaryTemp.views,
-        );
-        filteredSummaryTemp.cr = getRoundValue(
-            filteredSummaryTemp.orders,
-            filteredSummaryTemp.openCardCount,
-            true,
-        );
-        filteredSummaryTemp.cpo = getRoundValue(
-            filteredSummaryTemp.sum,
-            filteredSummaryTemp.orders,
-            false,
-            filteredSummaryTemp.sum,
-        );
-        filteredSummaryTemp.cpl = getRoundValue(
-            filteredSummaryTemp.sum,
-            filteredSummaryTemp.addToCartCount,
-            false,
-            filteredSummaryTemp.sum,
-        );
-
-        filteredSummaryTemp.romi = getRoundValue(
-            filteredSummaryTemp.profit,
-            filteredSummaryTemp.sum,
-            true,
-        );
-
-        filteredSummaryTemp.dsi = getRoundValue(
-            filteredSummaryTemp.stocks,
-            filteredSummaryTemp.orders / (daysBetween + 1),
-        );
-
-        setFilteredSummary(filteredSummaryTemp);
-        setFilteredData(temp);
     };
 
     const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = useState(false);
