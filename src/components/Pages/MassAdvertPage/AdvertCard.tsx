@@ -25,7 +25,7 @@ import {useMemo, useState} from 'react';
 import callApi, {getUid} from '@/utilities/callApi';
 import {getLocaleDateString, getRoundValue} from '@/utilities/getRoundValue';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
-import {AdvertsBidsModal} from './AdvertsBidsModal';
+import {AdvertsBidsModal} from './AdvertsBidsModalNew';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {ChartModal} from './ChartModal';
 import {AdvertsWordsButton} from './AdvertsWordsButton';
@@ -470,6 +470,7 @@ export const AdvertCard = ({
                             width: '100%',
                         }}
                     >
+                        
                         <AdvertsBidsModal
                             disabled={permission != 'Управление'}
                             selectValue={selectValue}
