@@ -5,17 +5,7 @@ import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import block from 'bem-cn-lite';
 const b = block('app');
 
-import {
-    Rocket,
-    Magnifier,
-    ArrowsRotateLeft,
-    ArrowShapeDown,
-    ChevronDown,
-    Minus,
-    Plus,
-    Check,
-    Xmark,
-} from '@gravity-ui/icons';
+import {ArrowsRotateLeft, ArrowShapeDown, ChevronDown, Plus, Check, Xmark} from '@gravity-ui/icons';
 
 // import JarIcon from '../assets/jar-of-jam.svg';
 
@@ -42,9 +32,7 @@ import {useCampaign} from '@/contexts/CampaignContext';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
 import DzhemPhrasesModal from './DzhemPhrasesModal';
-import {PopupFilterArts} from './PopupFilterArts';
 import {useModules} from '@/contexts/ModuleProvider';
-import {HelpMark} from '@/components/Popups/HelpMark';
 import {Note} from './NotesForArt/types';
 import {StatisticsPanel} from '@/widgets/MassAdvert/overallStats/ui';
 import {ButtonsList} from '@/widgets/MassAdvert/buttonsList/ui/list';
@@ -73,6 +61,7 @@ import {
 import {getPlacementsColumn} from '@/widgets/MassAdvert/columnData/config/placementsColumn';
 import {getAnalyticsColumn} from '@/widgets/MassAdvert/columnData/config/analyticsColumn';
 import {getArtColumn} from '@/widgets/MassAdvert/columnData/config/artColumn';
+import {getAdvertsColumn} from '@/widgets/MassAdvert/columnData/config/advertsColumn';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -232,6 +221,17 @@ export const MassAdvertPage = () => {
             console.error('Error while getting all notes', error);
         }
     };
+
+    const today = new Date(
+        new Date()
+            .toLocaleDateString('ru-RU')
+            .replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
+            .slice(0, 10),
+    );
+    // const monthAgo = new Date(today);
+    // monthAgo.setDate(monthAgo.getDate() - 30);
+
+    const [dateRange, setDateRange] = useState([today, today]);
 
     const [allNotes, setAllNotes] = useState<{[key: string]: Note[]} | undefined>();
     const [reloadNotes, setReloadNotes] = useState<boolean>(true);
@@ -987,6 +987,293 @@ export const MassAdvertPage = () => {
         return temp;
     };
 
+    const recalc = (
+        daterng: any,
+        selected = '',
+        withfFilters = {},
+        campaignData_ = undefined as any,
+    ) => {
+        const [startDate, endDate] = daterng;
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const daysBetween =
+            Math.abs(
+                startDate.getTime() -
+                    (today.getTime() > endDate.getTime() ? endDate.getTime() : today.getTime()),
+            ) /
+            1000 /
+            86400;
+
+        const summaryTemp = {
+            views: 0,
+            clicks: 0,
+            sum: 0,
+            drr_orders: 0,
+            drr_sales: 0,
+            drr: '',
+            orders: 0,
+            sales: 0,
+            sum_orders: 0,
+            sum_sales: 0,
+            addToCartCount: 0,
+            profit: '',
+            rent: '',
+            profitTemp: 0,
+        };
+
+        const _selectedCampaignName = selected == '' ? selectValue[0] : selected;
+        let campaignData = doc;
+        if (campaignData_) campaignData = campaignData_;
+        if (
+            !(
+                campaignData &&
+                campaignData?.campaigns &&
+                campaignData?.campaigns[_selectedCampaignName] &&
+                campaignData?.adverts &&
+                campaignData?.adverts[_selectedCampaignName]
+            )
+        )
+            return;
+
+        const temp: any = {};
+        for (const [art, data] of Object.entries(campaignData.campaigns[_selectedCampaignName])) {
+            const artData: any = data;
+            if (!art || !artData) continue;
+            const artInfo: any = {
+                art: '',
+                photos: undefined,
+                imtId: undefined,
+                brand: '',
+                object: '',
+                nmId: 0,
+                title: '',
+                adverts: 0,
+                stocks: 0,
+                dsi: 0,
+                stocksBySizes: {},
+                profitLog: {},
+                advertsManagerRules: undefined,
+                tags: [] as any[],
+                advertsStocksThreshold: undefined,
+                placements: undefined,
+                placementsValue: undefined,
+                drrAI: {},
+                expectedBuyoutsPersent: 0,
+                plusPhrasesTemplate: undefined,
+                advertsSelectedPhrases: {},
+                semantics: {},
+                budget: {},
+                bid: {},
+                bidLog: {},
+                budgetToKeep: {},
+                orders: 0,
+                sum_orders: 0,
+                sum: 0,
+                views: 0,
+                clicks: 0,
+                drr: 0,
+                ctr: 0,
+                cpc: 0,
+                cpm: 0,
+                cr: 0,
+                cpo: 0,
+                analytics: 0,
+                rentabelnost: 0,
+                profit: 0,
+                sales: 0,
+                sum_sales: 0,
+                openCardCount: 0,
+                romi: 0,
+                addToCartPercent: 0,
+                addToCartCount: 0,
+                cartToOrderPercent: 0,
+                cpl: 0,
+            };
+
+            artInfo.art = artData['art'];
+            artInfo.photos = artData['photos'];
+            artInfo.imtId = artData['imtId'];
+            artInfo.object = artData['object'];
+            artInfo.nmId = artData['nmId'];
+            artInfo.tags = artData['tags'];
+            artInfo.title = artData['title'];
+            artInfo.brand = artData['brand'];
+            artInfo.stocks = artData['stocks'];
+
+            artInfo.stocksBySizes = artData['stocksBySizes'];
+            artInfo.adverts = artData['adverts'];
+            artInfo.advertsManagerRules = artData['advertsManagerRules'];
+            artInfo.profitLog = artData['profitLog'];
+            artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
+            artInfo.placementsValue = artData['placements'];
+            artInfo.expectedBuyoutsPersent = artData['expectedBuyoutsPersent'];
+            artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
+            artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
+
+            // console.log(artInfo);
+
+            if (artInfo.adverts) {
+                for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
+                    if (!advertType || advertType == 'none' || !advertsOfType) continue;
+
+                    for (const [advertId, _] of Object.entries(advertsOfType)) {
+                        if (!advertId) continue;
+                        const advertData = campaignData.adverts[_selectedCampaignName][advertId];
+                        if (!advertData) continue;
+                        const status = advertData['status'];
+                        if (![4, 9, 11].includes(status)) continue;
+
+                        artInfo.budget[advertId] = advertData['budget'];
+
+                        artInfo.bid[advertId] = advertData['cpm'];
+
+                        artInfo.semantics[advertId] = advertData['words'];
+
+                        artInfo.drrAI[advertId] =
+                            campaignData.advertsAutoBidsRules[_selectedCampaignName][advertId];
+                        artInfo.advertsSelectedPhrases[advertId] =
+                            campaignData.advertsSelectedPhrases[_selectedCampaignName][advertId];
+                        artInfo.bidLog[advertId] = advertData['bidLog'];
+                    }
+                }
+            }
+            if (artData['advertsStats']) {
+                for (const [strDate, data] of Object.entries(artData['advertsStats'])) {
+                    const dateData: any = data;
+                    if (strDate == 'updateTime' || !dateData) continue;
+
+                    if (!dateData) continue;
+                    const date = new Date(strDate);
+                    date.setHours(0, 0, 0, 0);
+                    if (date < startDate || date > endDate) continue;
+
+                    artInfo.sum_orders += dateData['sum_orders'];
+                    artInfo.orders += dateData['orders'];
+
+                    artInfo.sum_sales += dateData['sum_sales'];
+                    artInfo.sales += dateData['sales'];
+                    artInfo.sum += dateData['sum'];
+                    artInfo.views += dateData['views'];
+                    artInfo.clicks += dateData['clicks'];
+                    artInfo.profit += dateData['profit'];
+                    artInfo.rentabelnost = getRoundValue(
+                        artInfo['profit'],
+                        artInfo['sum_orders'],
+                        true,
+                    );
+                    artInfo.analytics += artInfo.rentabelnost;
+
+                    // console.log(
+                    //     artData['nmFullDetailReport']
+                    //         ? artData['nmFullDetailReport'].statistics
+                    //         : undefined,
+                    //     strDate,
+                    //     artData['nmFullDetailReport']
+                    //         ? artData['nmFullDetailReport'].statistics
+                    //             ? artData['nmFullDetailReport'].statistics[strDate]
+                    //             : undefined
+                    //         : undefined,
+                    // );
+
+                    const {openCardCount, addToCartCount} = artData['nmFullDetailReport']
+                        ? (artData['nmFullDetailReport'].statistics[strDate] ?? {
+                              openCardCount: 0,
+                              addToCartCount: 0,
+                          })
+                        : {
+                              openCardCount: 0,
+                              addToCartCount: 0,
+                          };
+
+                    artInfo.openCardCount += openCardCount ?? 0;
+                    artInfo.addToCartCount += addToCartCount ?? 0;
+                }
+                artInfo.openCardCount = Math.round(artInfo.openCardCount);
+
+                artInfo.addToCartPercent = getRoundValue(
+                    artInfo.addToCartCount,
+                    artInfo.openCardCount,
+                    true,
+                );
+                artInfo.cartToOrderPercent = getRoundValue(
+                    artInfo.orders,
+                    artInfo.addToCartCount,
+                    true,
+                );
+
+                artInfo.sum_orders = Math.round(artInfo.sum_orders);
+                artInfo.orders = Math.round(artInfo.orders);
+                artInfo.sum_sales = Math.round(artInfo.sum_sales);
+                artInfo.sales = Math.round(artInfo.sales * 100) / 100;
+                artInfo.sum = Math.round(artInfo.sum);
+                artInfo.views = Math.round(artInfo.views);
+                artInfo.clicks = Math.round(artInfo.clicks);
+
+                artInfo.dsi = getRoundValue(artInfo.stocks, artInfo.orders / (daysBetween + 1));
+
+                artInfo.drr = getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1);
+                artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
+                artInfo.cpc = getRoundValue(
+                    artInfo.sum / 100,
+                    artInfo.clicks,
+                    true,
+                    artInfo.sum / 100,
+                );
+                artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
+                artInfo.cr = getRoundValue(artInfo.orders, artInfo.openCardCount, true);
+                artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
+                artInfo.cpl = getRoundValue(
+                    artInfo.sum,
+                    artInfo.addToCartCount,
+                    false,
+                    artInfo.sum,
+                );
+                artInfo.romi = getRoundValue(artInfo.profit, artInfo.sum, true);
+
+                summaryTemp.sales += artInfo.sales;
+                summaryTemp.sum_sales += artInfo.sum_sales;
+                summaryTemp.sum_orders += artInfo.sum_orders;
+                summaryTemp.sum += artInfo.sum;
+                summaryTemp.views += artInfo.views;
+                summaryTemp.clicks += artInfo.clicks;
+                summaryTemp.addToCartCount += artInfo.addToCartCount;
+                summaryTemp.orders += artInfo.orders;
+
+                summaryTemp.profitTemp += Math.round(artInfo.profit);
+            }
+
+            temp[art] = artInfo;
+        }
+
+        summaryTemp.addToCartCount = Math.round(summaryTemp.addToCartCount);
+        summaryTemp.orders = Math.round(summaryTemp.orders);
+        summaryTemp.sales = Math.round(summaryTemp.sales);
+        summaryTemp.sum_orders = Math.round(summaryTemp.sum_orders);
+        summaryTemp.sum_sales = Math.round(summaryTemp.sum_sales);
+        summaryTemp.drr_orders = getRoundValue(summaryTemp.sum, summaryTemp.sum_orders, true, 1);
+        summaryTemp.drr_sales = getRoundValue(summaryTemp.sum, summaryTemp.sum_sales, true, 1);
+
+        summaryTemp.profit = `${new Intl.NumberFormat('ru-RU').format(summaryTemp.profitTemp)} ₽`;
+        summaryTemp.rent = `${new Intl.NumberFormat('ru-RU').format(
+            getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_orders, true),
+        )}% / ${new Intl.NumberFormat('ru-RU').format(
+            getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_sales, true),
+        )}%`;
+
+        summaryTemp.drr = `${new Intl.NumberFormat('ru-RU').format(
+            summaryTemp.drr_orders,
+        )}% / ${new Intl.NumberFormat('ru-RU').format(summaryTemp.drr_sales)}%`;
+
+        setSummary(summaryTemp);
+
+        setTableData(temp);
+
+        filterTableData(withfFilters, temp, undefined, daterng);
+    };
+
     const columnData: any = [
         doc
             ? {
@@ -1022,256 +1309,33 @@ export const MassAdvertPage = () => {
             : null,
         Object.keys(autoSalesProfits ?? []).length == 0
             ? {
-                  name: 'adverts',
-                  placeholder: 'Реклама',
-                  valueType: 'text',
-                  additionalNodes: [
-                      <Button
-                          style={{marginLeft: 5}}
-                          // size="l"
-                          view="outlined"
-                          onClick={() => filterByButton('авто', 'adverts')}
-                      >
-                          <Icon data={Rocket} size={14} />
-                      </Button>,
-                      <Button
-                          style={{marginLeft: 5}}
-                          // size="l"
-                          view="outlined"
-                          onClick={() => filterByButton('поиск', 'adverts')}
-                      >
-                          <Icon data={Magnifier} size={14} />
-                      </Button>,
-                      <PopupFilterArts setFilters={setFiltersRK} filters={filtersRK} />,
-                      <div
-                          style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              marginBottom: 5,
-                              marginLeft: 4,
-                          }}
-                      >
-                          <HelpMark
-                              position={'start'}
-                              content={
-                                  <div style={{display: 'flex', flexDirection: 'column'}}>
-                                      <Text variant="subheader-1">
-                                          Для поиска введите
-                                          <Text
-                                              style={{margin: '0 3px'}}
-                                              color="brand"
-                                              variant="subheader-1"
-                                          >
-                                              Id РК
-                                          </Text>
-                                      </Text>
-                                      <div style={{height: 4}} />
-                                      <Text variant="subheader-1">
-                                          Введите
-                                          <Button
-                                              size="s"
-                                              style={{margin: '0 3px'}}
-                                              view="outlined-action"
-                                              onClick={() => filterByButton('+', 'adverts')}
-                                          >
-                                              <Icon data={Plus} size={14} />
-                                          </Button>
-                                          чтобы показать артикулы с РК
-                                      </Text>
-                                      <div style={{height: 4}} />
-                                      <Text variant="subheader-1">
-                                          Введите
-                                          <Button
-                                              size="s"
-                                              style={{margin: '0 3px'}}
-                                              view="outlined-action"
-                                              onClick={() => filterByButton('-', 'adverts')}
-                                          >
-                                              <Icon data={Minus} size={14} />
-                                          </Button>
-                                          чтобы показать артикулы без РК
-                                      </Text>
-                                      <div style={{height: 4}} />
-                                      <Text variant="subheader-1">
-                                          Введите
-                                          <Button
-                                              size="s"
-                                              style={{margin: '0 3px'}}
-                                              view="outlined-action"
-                                              onClick={() => filterByButton('авто', 'adverts')}
-                                          >
-                                              авто
-                                          </Button>
-                                          чтобы показать артикулы с авто РК
-                                      </Text>
-                                      <div style={{height: 4}} />
-                                      <Text variant="subheader-1">
-                                          Введите
-                                          <Button
-                                              size="s"
-                                              style={{margin: '0 3px'}}
-                                              view="outlined-action"
-                                              onClick={() => filterByButton('поиск', 'adverts')}
-                                          >
-                                              поиск
-                                          </Button>
-                                          чтобы показать артикулы с поисковыми РК
-                                      </Text>
-                                  </div>
-                              }
-                          />
-                      </div>,
-                  ],
-                  render: ({value, row, index}: any) => {
-                      if (typeof value === 'number') {
-                          return <Text>{`Уникальных РК ID: ${value}`}</Text>;
-                      }
-                      const {art} = row;
-                      const switches: any[] = [];
-                      if (value)
-                          for (const [advertId, _] of Object.entries(value)) {
-                              const advertData = doc?.adverts?.[selectValue[0]]?.[advertId];
-                              if (!advertData) continue;
-                              // console.log('popa', advertData, filters['adverts'].val);
-                              if (
-                                  filters['adverts'] &&
-                                  ['авто', 'поиск'].includes(
-                                      String(filters['adverts'].val).toLowerCase().trim(),
-                                  )
-                              ) {
-                                  // console.log('popa2', advertData, filters['adverts'].val);
-                                  if (
-                                      String(filters['adverts'].val)
-                                          .toLowerCase()
-                                          .includes('поиск') &&
-                                      (advertData.type == 9 || advertData.type == 6)
-                                  ) {
-                                      switches.push(
-                                          <AdvertCard
-                                              sellerId={sellerId}
-                                              advertBudgetRules={advertBudgetRules}
-                                              setAdvertBudgetRules={setAdvertBudgetRules}
-                                              permission={permission}
-                                              id={advertId}
-                                              index={index}
-                                              art={art}
-                                              doc={doc}
-                                              selectValue={selectValue}
-                                              copiedAdvertsSettings={copiedAdvertsSettings}
-                                              setChangedDoc={setChangedDoc}
-                                              manageAdvertsActivityCallFunc={
-                                                  manageAdvertsActivityCallFunc
-                                              }
-                                              setArtsStatsByDayData={setArtsStatsByDayData}
-                                              updateColumnWidth={updateColumnWidth}
-                                              filteredData={filteredData}
-                                              setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                              setFetchedPlacements={setFetchedPlacements}
-                                              currentParsingProgress={currentParsingProgress}
-                                              setCurrentParsingProgress={setCurrentParsingProgress}
-                                              setDateRange={setDateRange}
-                                              setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                              dateRange={dateRange}
-                                              recalc={recalc}
-                                              filterByButton={filterByButton}
-                                              getUniqueAdvertIdsFromThePage={
-                                                  getUniqueAdvertIdsFromThePage
-                                              }
-                                          />,
-                                      );
-                                  } else if (
-                                      filters['adverts'] &&
-                                      String(filters['adverts'].val)
-                                          .toLowerCase()
-                                          .includes('авто') &&
-                                      advertData.type == 8
-                                  ) {
-                                      switches.push(
-                                          <AdvertCard
-                                              sellerId={sellerId}
-                                              advertBudgetRules={advertBudgetRules}
-                                              setAdvertBudgetRules={setAdvertBudgetRules}
-                                              permission={permission}
-                                              id={advertId}
-                                              index={index}
-                                              art={art}
-                                              doc={doc}
-                                              selectValue={selectValue}
-                                              copiedAdvertsSettings={copiedAdvertsSettings}
-                                              setChangedDoc={setChangedDoc}
-                                              manageAdvertsActivityCallFunc={
-                                                  manageAdvertsActivityCallFunc
-                                              }
-                                              setArtsStatsByDayData={setArtsStatsByDayData}
-                                              updateColumnWidth={updateColumnWidth}
-                                              filteredData={filteredData}
-                                              setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                              setFetchedPlacements={setFetchedPlacements}
-                                              currentParsingProgress={currentParsingProgress}
-                                              setCurrentParsingProgress={setCurrentParsingProgress}
-                                              setDateRange={setDateRange}
-                                              setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                              dateRange={dateRange}
-                                              recalc={recalc}
-                                              filterByButton={filterByButton}
-                                              getUniqueAdvertIdsFromThePage={
-                                                  getUniqueAdvertIdsFromThePage
-                                              }
-                                          />,
-                                      );
-                                  } else {
-                                      continue;
-                                  }
-                              } else {
-                                  switches.push(
-                                      <AdvertCard
-                                          sellerId={sellerId}
-                                          advertBudgetRules={advertBudgetRules}
-                                          setAdvertBudgetRules={setAdvertBudgetRules}
-                                          permission={permission}
-                                          id={advertId}
-                                          index={index}
-                                          art={art}
-                                          doc={doc}
-                                          selectValue={selectValue}
-                                          copiedAdvertsSettings={copiedAdvertsSettings}
-                                          setChangedDoc={setChangedDoc}
-                                          manageAdvertsActivityCallFunc={
-                                              manageAdvertsActivityCallFunc
-                                          }
-                                          setArtsStatsByDayData={setArtsStatsByDayData}
-                                          updateColumnWidth={updateColumnWidth}
-                                          filteredData={filteredData}
-                                          setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                          setFetchedPlacements={setFetchedPlacements}
-                                          currentParsingProgress={currentParsingProgress}
-                                          setCurrentParsingProgress={setCurrentParsingProgress}
-                                          setDateRange={setDateRange}
-                                          setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                          dateRange={dateRange}
-                                          recalc={recalc}
-                                          filterByButton={filterByButton}
-                                          getUniqueAdvertIdsFromThePage={
-                                              getUniqueAdvertIdsFromThePage
-                                          }
-                                      />,
-                                  );
-                              }
-                          }
-                      return (
-                          <div
-                              style={{
-                                  display: 'flex',
-                                  flexDirection: 'row',
-                                  overflowX: 'scroll',
-                                  overflowY: 'hidden',
-                                  gap: 8,
-                              }}
-                          >
-                              {switches}
-                          </div>
-                      );
-                  },
+                  ...getAdvertsColumn({
+                      doc: doc,
+                      filterByButton: filterByButton,
+                      setFiltersRK: setFiltersRK,
+                      filtersRK: filtersRK,
+                      selectValue: selectValue,
+                      filters: filters,
+                      sellerId: sellerId,
+                      advertBudgetRules: advertBudgetRules,
+                      setAdvertBudgetRules: setAdvertBudgetRules,
+                      recalc: recalc,
+                      permission: permission,
+                      copiedAdvertsSettings: copiedAdvertsSettings,
+                      setChangedDoc: setChangedDoc,
+                      manageAdvertsActivityCallFunc: manageAdvertsActivityCallFunc,
+                      filteredData: filteredData,
+                      setArtsStatsByDayData: setArtsStatsByDayData,
+                      updateColumnWidth: updateColumnWidth,
+                      setCopiedAdvertsSettings: setCopiedAdvertsSettings,
+                      setFetchedPlacements: setFetchedPlacements,
+                      currentParsingProgress: currentParsingProgress,
+                      setDateRange: setDateRange,
+                      dateRange: dateRange,
+                      getUniqueAdvertIdsFromThePage: getUniqueAdvertIdsFromThePage,
+                      setCurrentParsingProgress: setCurrentParsingProgress,
+                      setShowArtStatsModalOpen: setShowArtStatsModalOpen,
+                  }),
               }
             : {
                   constWidth: 400,
@@ -1777,16 +1841,6 @@ export const MassAdvertPage = () => {
     }
 
     // const doc = {};
-    const today = new Date(
-        new Date()
-            .toLocaleDateString('ru-RU')
-            .replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
-            .slice(0, 10),
-    );
-    // const monthAgo = new Date(today);
-    // monthAgo.setDate(monthAgo.getDate() - 30);
-
-    const [dateRange, setDateRange] = useState([today, today]);
     const anchorRef = useRef(null);
 
     // console.log(doc);
@@ -1819,292 +1873,6 @@ export const MassAdvertPage = () => {
             result = Math.round(result);
         }
         return result;
-    };
-    const recalc = (
-        daterng: any,
-        selected = '',
-        withfFilters = {},
-        campaignData_ = undefined as any,
-    ) => {
-        const [startDate, endDate] = daterng;
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(0, 0, 0, 0);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const daysBetween =
-            Math.abs(
-                startDate.getTime() -
-                    (today.getTime() > endDate.getTime() ? endDate.getTime() : today.getTime()),
-            ) /
-            1000 /
-            86400;
-
-        const summaryTemp = {
-            views: 0,
-            clicks: 0,
-            sum: 0,
-            drr_orders: 0,
-            drr_sales: 0,
-            drr: '',
-            orders: 0,
-            sales: 0,
-            sum_orders: 0,
-            sum_sales: 0,
-            addToCartCount: 0,
-            profit: '',
-            rent: '',
-            profitTemp: 0,
-        };
-
-        const _selectedCampaignName = selected == '' ? selectValue[0] : selected;
-        let campaignData = doc;
-        if (campaignData_) campaignData = campaignData_;
-        if (
-            !(
-                campaignData &&
-                campaignData?.campaigns &&
-                campaignData?.campaigns[_selectedCampaignName] &&
-                campaignData?.adverts &&
-                campaignData?.adverts[_selectedCampaignName]
-            )
-        )
-            return;
-
-        const temp: any = {};
-        for (const [art, data] of Object.entries(campaignData.campaigns[_selectedCampaignName])) {
-            const artData: any = data;
-            if (!art || !artData) continue;
-            const artInfo: any = {
-                art: '',
-                photos: undefined,
-                imtId: undefined,
-                brand: '',
-                object: '',
-                nmId: 0,
-                title: '',
-                adverts: 0,
-                stocks: 0,
-                dsi: 0,
-                stocksBySizes: {},
-                profitLog: {},
-                advertsManagerRules: undefined,
-                tags: [] as any[],
-                advertsStocksThreshold: undefined,
-                placements: undefined,
-                placementsValue: undefined,
-                drrAI: {},
-                expectedBuyoutsPersent: 0,
-                plusPhrasesTemplate: undefined,
-                advertsSelectedPhrases: {},
-                semantics: {},
-                budget: {},
-                bid: {},
-                bidLog: {},
-                budgetToKeep: {},
-                orders: 0,
-                sum_orders: 0,
-                sum: 0,
-                views: 0,
-                clicks: 0,
-                drr: 0,
-                ctr: 0,
-                cpc: 0,
-                cpm: 0,
-                cr: 0,
-                cpo: 0,
-                analytics: 0,
-                rentabelnost: 0,
-                profit: 0,
-                sales: 0,
-                sum_sales: 0,
-                openCardCount: 0,
-                romi: 0,
-                addToCartPercent: 0,
-                addToCartCount: 0,
-                cartToOrderPercent: 0,
-                cpl: 0,
-            };
-
-            artInfo.art = artData['art'];
-            artInfo.photos = artData['photos'];
-            artInfo.imtId = artData['imtId'];
-            artInfo.object = artData['object'];
-            artInfo.nmId = artData['nmId'];
-            artInfo.tags = artData['tags'];
-            artInfo.title = artData['title'];
-            artInfo.brand = artData['brand'];
-            artInfo.stocks = artData['stocks'];
-
-            artInfo.stocksBySizes = artData['stocksBySizes'];
-            artInfo.adverts = artData['adverts'];
-            artInfo.advertsManagerRules = artData['advertsManagerRules'];
-            artInfo.profitLog = artData['profitLog'];
-            artInfo.advertsStocksThreshold = artData['advertsStocksThreshold'];
-            artInfo.placementsValue = artData['placements'];
-            artInfo.expectedBuyoutsPersent = artData['expectedBuyoutsPersent'];
-            artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
-            artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
-
-            // console.log(artInfo);
-
-            if (artInfo.adverts) {
-                for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
-                    if (!advertType || advertType == 'none' || !advertsOfType) continue;
-
-                    for (const [advertId, _] of Object.entries(advertsOfType)) {
-                        if (!advertId) continue;
-                        const advertData = campaignData.adverts[_selectedCampaignName][advertId];
-                        if (!advertData) continue;
-                        const status = advertData['status'];
-                        if (![4, 9, 11].includes(status)) continue;
-
-                        artInfo.budget[advertId] = advertData['budget'];
-
-                        artInfo.bid[advertId] = advertData['cpm'];
-
-                        artInfo.semantics[advertId] = advertData['words'];
-
-                        artInfo.drrAI[advertId] =
-                            campaignData.advertsAutoBidsRules[_selectedCampaignName][advertId];
-                        artInfo.advertsSelectedPhrases[advertId] =
-                            campaignData.advertsSelectedPhrases[_selectedCampaignName][advertId];
-                        artInfo.bidLog[advertId] = advertData['bidLog'];
-                    }
-                }
-            }
-            if (artData['advertsStats']) {
-                for (const [strDate, data] of Object.entries(artData['advertsStats'])) {
-                    const dateData: any = data;
-                    if (strDate == 'updateTime' || !dateData) continue;
-
-                    if (!dateData) continue;
-                    const date = new Date(strDate);
-                    date.setHours(0, 0, 0, 0);
-                    if (date < startDate || date > endDate) continue;
-
-                    artInfo.sum_orders += dateData['sum_orders'];
-                    artInfo.orders += dateData['orders'];
-
-                    artInfo.sum_sales += dateData['sum_sales'];
-                    artInfo.sales += dateData['sales'];
-                    artInfo.sum += dateData['sum'];
-                    artInfo.views += dateData['views'];
-                    artInfo.clicks += dateData['clicks'];
-                    artInfo.profit += dateData['profit'];
-                    artInfo.rentabelnost = getRoundValue(
-                        artInfo['profit'],
-                        artInfo['sum_orders'],
-                        true,
-                    );
-                    artInfo.analytics += artInfo.rentabelnost;
-
-                    // console.log(
-                    //     artData['nmFullDetailReport']
-                    //         ? artData['nmFullDetailReport'].statistics
-                    //         : undefined,
-                    //     strDate,
-                    //     artData['nmFullDetailReport']
-                    //         ? artData['nmFullDetailReport'].statistics
-                    //             ? artData['nmFullDetailReport'].statistics[strDate]
-                    //             : undefined
-                    //         : undefined,
-                    // );
-
-                    const {openCardCount, addToCartCount} = artData['nmFullDetailReport']
-                        ? (artData['nmFullDetailReport'].statistics[strDate] ?? {
-                              openCardCount: 0,
-                              addToCartCount: 0,
-                          })
-                        : {
-                              openCardCount: 0,
-                              addToCartCount: 0,
-                          };
-
-                    artInfo.openCardCount += openCardCount ?? 0;
-                    artInfo.addToCartCount += addToCartCount ?? 0;
-                }
-                artInfo.openCardCount = Math.round(artInfo.openCardCount);
-
-                artInfo.addToCartPercent = getRoundValue(
-                    artInfo.addToCartCount,
-                    artInfo.openCardCount,
-                    true,
-                );
-                artInfo.cartToOrderPercent = getRoundValue(
-                    artInfo.orders,
-                    artInfo.addToCartCount,
-                    true,
-                );
-
-                artInfo.sum_orders = Math.round(artInfo.sum_orders);
-                artInfo.orders = Math.round(artInfo.orders);
-                artInfo.sum_sales = Math.round(artInfo.sum_sales);
-                artInfo.sales = Math.round(artInfo.sales * 100) / 100;
-                artInfo.sum = Math.round(artInfo.sum);
-                artInfo.views = Math.round(artInfo.views);
-                artInfo.clicks = Math.round(artInfo.clicks);
-
-                artInfo.dsi = getRoundValue(artInfo.stocks, artInfo.orders / (daysBetween + 1));
-
-                artInfo.drr = getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1);
-                artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
-                artInfo.cpc = getRoundValue(
-                    artInfo.sum / 100,
-                    artInfo.clicks,
-                    true,
-                    artInfo.sum / 100,
-                );
-                artInfo.cpm = getRoundValue(artInfo.sum * 1000, artInfo.views);
-                artInfo.cr = getRoundValue(artInfo.orders, artInfo.openCardCount, true);
-                artInfo.cpo = getRoundValue(artInfo.sum, artInfo.orders, false, artInfo.sum);
-                artInfo.cpl = getRoundValue(
-                    artInfo.sum,
-                    artInfo.addToCartCount,
-                    false,
-                    artInfo.sum,
-                );
-                artInfo.romi = getRoundValue(artInfo.profit, artInfo.sum, true);
-
-                summaryTemp.sales += artInfo.sales;
-                summaryTemp.sum_sales += artInfo.sum_sales;
-                summaryTemp.sum_orders += artInfo.sum_orders;
-                summaryTemp.sum += artInfo.sum;
-                summaryTemp.views += artInfo.views;
-                summaryTemp.clicks += artInfo.clicks;
-                summaryTemp.addToCartCount += artInfo.addToCartCount;
-                summaryTemp.orders += artInfo.orders;
-
-                summaryTemp.profitTemp += Math.round(artInfo.profit);
-            }
-
-            temp[art] = artInfo;
-        }
-
-        summaryTemp.addToCartCount = Math.round(summaryTemp.addToCartCount);
-        summaryTemp.orders = Math.round(summaryTemp.orders);
-        summaryTemp.sales = Math.round(summaryTemp.sales);
-        summaryTemp.sum_orders = Math.round(summaryTemp.sum_orders);
-        summaryTemp.sum_sales = Math.round(summaryTemp.sum_sales);
-        summaryTemp.drr_orders = getRoundValue(summaryTemp.sum, summaryTemp.sum_orders, true, 1);
-        summaryTemp.drr_sales = getRoundValue(summaryTemp.sum, summaryTemp.sum_sales, true, 1);
-
-        summaryTemp.profit = `${new Intl.NumberFormat('ru-RU').format(summaryTemp.profitTemp)} ₽`;
-        summaryTemp.rent = `${new Intl.NumberFormat('ru-RU').format(
-            getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_orders, true),
-        )}% / ${new Intl.NumberFormat('ru-RU').format(
-            getRoundValue(summaryTemp.profitTemp, summaryTemp.sum_sales, true),
-        )}%`;
-
-        summaryTemp.drr = `${new Intl.NumberFormat('ru-RU').format(
-            summaryTemp.drr_orders,
-        )}% / ${new Intl.NumberFormat('ru-RU').format(summaryTemp.drr_sales)}%`;
-
-        setSummary(summaryTemp);
-
-        setTableData(temp);
-
-        filterTableData(withfFilters, temp, undefined, daterng);
     };
 
     useEffect(() => {
