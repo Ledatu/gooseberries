@@ -1,13 +1,11 @@
 'use client';
 import {useEffect, useMemo, useRef, useState} from 'react';
-import {Spin, Button, Text, Card, Select, Icon, Modal, Skeleton, List} from '@gravity-ui/uikit';
+import {Spin, Button, Text, Card, Select, Icon, Modal, List} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import block from 'bem-cn-lite';
 const b = block('app');
 
-import {ArrowsRotateLeft, ArrowShapeDown, ChevronDown, Plus, Check, Xmark} from '@gravity-ui/icons';
-
-// import JarIcon from '../assets/jar-of-jam.svg';
+import {ArrowsRotateLeft, ChevronDown, Plus, Xmark} from '@gravity-ui/icons';
 
 import {motion} from 'framer-motion';
 
@@ -63,6 +61,7 @@ import {getAnalyticsColumn} from '@/widgets/MassAdvert/columnData/config/analyti
 import {getArtColumn} from '@/widgets/MassAdvert/columnData/config/artColumn';
 import {getAdvertsColumn} from '@/widgets/MassAdvert/columnData/config/advertsColumn';
 import {getAutoSalesColumn} from '@/widgets/MassAdvert/columnData/config/autoSalesColumn';
+import {MassAdvertPageSkeleton} from '@/components/Pages/MassAdvertPage/Skeleton';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -93,28 +92,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
         }
         setDocument(docum);
     }
-
-    // console.log(params);
-
-    // useEffect(() => {
-    //     callApi('getMassAdvertsNew', params, true)
-    //         .then((response) => setDocument(response ? response['data'] : undefined))
-    //         .catch((error) => console.error(error));
-    // }, []);
     return doc;
-};
-
-const cardStyle: any = {
-    minWidth: '10em',
-    height: '10em',
-    display: 'flex',
-    flex: '1 1 auto',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: '16px',
-    boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-    marginRight: '8px',
-    marginLeft: '8px',
 };
 
 export const MassAdvertPage = () => {
@@ -1480,25 +1458,6 @@ export const MassAdvertPage = () => {
         getBidderRules();
     }, [advertBudgetRules]);
 
-    // useEffect(() => {
-    //     if (!selectValue[0]) return;
-
-    //     callApi('getAvailableAutoSaleNmIds', {
-    //         seller_id: sellerId,
-    //     })
-    //         .then((res) => {
-    //             if (!res) throw 'no response';
-    //             const nmIds = res['data'] ?? {};
-    //             setAvailableAutoSalesNmIds(nmIds ?? []);
-    //         })
-    //         .catch((e) => {
-    //             console.log(e);
-    //         });
-
-    //     setRefetchAutoSales(false);
-    //     setDzhemRefetch(false);
-    // }, [selectValue, refetchAutoSales, dzhemRefetch]);
-
     const getCampaignName = () => {
         return selectValue[0];
     };
@@ -1540,11 +1499,6 @@ export const MassAdvertPage = () => {
             })
             .catch((error) => console.error(error));
     };
-    // useEffect(() => {
-    //     const interval = setInterval(updateTheData, 1 * 60 * 1000);
-
-    //     return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-    // }, []);
 
     if (fetchedPlacements) {
         for (const [phrase, phraseData] of Object.entries(fetchedPlacements)) {
@@ -1572,13 +1526,7 @@ export const MassAdvertPage = () => {
         setFetchedPlacements(undefined);
     }
 
-    // const doc = {};
     const anchorRef = useRef(null);
-
-    // console.log(doc);
-    // const lbdDate: DateTime =;
-    // lbdDate.subtract(90, 'day');
-    // setLbd(new Date());
 
     const [summary, setSummary] = useState({
         views: 0,
@@ -1834,181 +1782,7 @@ export const MassAdvertPage = () => {
                 <LogoLoad />
             </div>
         ) : (
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: '100%',
-                }}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        width: '100%',
-                        justifyContent: 'space-around',
-                        margin: '8px 0',
-                    }}
-                >
-                    <Card style={{...cardStyle, flexDirection: 'column'}}>
-                        <Skeleton style={{width: '50%', height: 18}} />
-                        <div style={{minHeight: 4}} />
-                        <Skeleton style={{width: '70%', height: 36}} />
-                    </Card>
-                    <Card style={{...cardStyle, flexDirection: 'column'}}>
-                        <Skeleton style={{width: '50%', height: 18}} />
-                        <div style={{minHeight: 4}} />
-                        <Skeleton style={{width: '70%', height: 36}} />
-                    </Card>
-                    <Card style={{...cardStyle, flexDirection: 'column'}}>
-                        <Skeleton style={{width: '50%', height: 18}} />
-                        <div style={{minHeight: 4}} />
-                        <Skeleton style={{width: '70%', height: 36}} />
-                    </Card>
-                    <Card style={{...cardStyle, flexDirection: 'column'}}>
-                        <Skeleton style={{width: '50%', height: 18}} />
-                        <div style={{minHeight: 4}} />
-                        <Skeleton style={{width: '70%', height: 36}} />
-                    </Card>
-                    <Card style={{...cardStyle, flexDirection: 'column'}}>
-                        <Skeleton style={{width: '50%', height: 18}} />
-                        <div style={{minHeight: 4}} />
-                        <Skeleton style={{width: '70%', height: 36}} />
-                    </Card>
-                    <Card style={{...cardStyle, flexDirection: 'column'}}>
-                        <Skeleton style={{width: '50%', height: 18}} />
-                        <div style={{minHeight: 4}} />
-                        <Skeleton style={{width: '70%', height: 36}} />
-                    </Card>
-                    <Card style={{...cardStyle, flexDirection: 'column'}}>
-                        <Skeleton style={{width: '50%', height: 18}} />
-                        <div style={{minHeight: 4}} />
-                        <Skeleton style={{width: '70%', height: 36}} />
-                    </Card>
-                    <Card style={{...cardStyle, flexDirection: 'column'}}>
-                        <Skeleton style={{width: '50%', height: 18}} />
-                        <div style={{minHeight: 4}} />
-                        <Skeleton style={{width: '70%', height: 36}} />
-                    </Card>
-                </div>
-                <div
-                    style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
-                >
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                        <div style={{minWidth: 4}} />
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                        <div style={{minWidth: 4}} />
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                        <div style={{minWidth: 4}} />
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                        <div style={{minWidth: 4}} />
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                        <div style={{minWidth: 4}} />
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                    </div>
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                        <div style={{minWidth: 4}} />
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                        <div style={{minWidth: 4}} />
-                        <Skeleton
-                            style={{
-                                width: 120,
-                                height: 36,
-                            }}
-                        />
-                    </div>
-                </div>
-                <div style={{minHeight: 8}} />
-                <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <Skeleton
-                        style={{
-                            width: '20vw',
-                            height: 48,
-                        }}
-                    />
-                    <div style={{minWidth: 4}} />
-                    <Skeleton
-                        style={{
-                            width: '100%',
-                            height: 48,
-                        }}
-                    />
-                </div>
-                <div style={{minHeight: 4}} />
-                <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <Skeleton
-                        style={{
-                            width: '20vw',
-                            height: 'calc(68vh - 96px)',
-                        }}
-                    />
-                    <div style={{minWidth: 4}} />
-                    <Skeleton
-                        style={{
-                            width: '100%',
-                            height: 'calc(68vh - 96px)',
-                        }}
-                    />
-                </div>
-                <div style={{minHeight: 4}} />
-                <div style={{display: 'flex', flexDirection: 'row'}}>
-                    <Skeleton
-                        style={{
-                            width: '20vw',
-                            height: 48,
-                        }}
-                    />
-                    <div style={{minWidth: 4}} />
-                    <Skeleton
-                        style={{
-                            width: '100%',
-                            height: 48,
-                        }}
-                    />
-                </div>
-            </div>
+            <MassAdvertPageSkeleton />
         );
 
     if (dateChangeRecalc) {
@@ -2058,18 +1832,8 @@ export const MassAdvertPage = () => {
         }
         setFilters({...filters});
 
-        // recalc(dateRange, selectValue[0]);
-
         setFirstRecalc(true);
     }
-
-    // if (firstRecalc && !secondRecalcForSticky) {
-    //     setSecondRecalcForSticky(true);
-    // }
-    // const artColumnElements = document.getElementsByClassName('td_fixed_art');
-    // if (artColumnElements[0]) {
-    //     myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
-    // }
 
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
