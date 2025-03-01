@@ -5,6 +5,7 @@ import {ReactNode} from 'react';
 import {CanBeAddedToSales} from '@/components/Pages/MassAdvertPage/CanBeAddedToSales';
 import callApi, {getUid} from '@/utilities/callApi';
 import {NotesForArt} from '@/components/Pages/MassAdvertPage/NotesForArt';
+import {campaignStore} from '@/shared/stores/campaignStore';
 
 interface GetArtColumnParams {
     filterAutoSales: any;
@@ -30,10 +31,11 @@ interface GetArtColumnParams {
     setRkListMode: any;
     setShowArtStatsModalOpen: any;
     setShowDzhemModalOpen: any;
-    setSelectedNmId: any;
     calcByDayStats: any;
     setArtsStatsByDayData: any;
 }
+
+const {setSelectedNmId} = campaignStore;
 
 export const getArtColumn = ({
     filterAutoSales,
@@ -59,7 +61,6 @@ export const getArtColumn = ({
     setRkListMode,
     setShowArtStatsModalOpen,
     setShowDzhemModalOpen,
-    setSelectedNmId,
     calcByDayStats,
     setArtsStatsByDayData,
 }: GetArtColumnParams) => ({
@@ -277,13 +278,21 @@ export const getArtColumn = ({
                                 disabled={value === undefined}
                                 content={
                                     <div style={{width: 200}}>
-                                        <img style={{width: '100%', height: 'auto'}} src={imgUrl} />
+                                        <img
+                                            style={{width: '100%', height: 'auto'}}
+                                            src={imgUrl}
+                                            alt={''}
+                                        />
                                         <></>
                                     </div>
                                 }
                             >
                                 <div style={{width: 40}}>
-                                    <img style={{width: '100%', height: 'auto'}} src={imgUrl} />
+                                    <img
+                                        style={{width: '100%', height: 'auto'}}
+                                        src={imgUrl}
+                                        alt={''}
+                                    />
                                 </div>
                             </Popover>
                             <div

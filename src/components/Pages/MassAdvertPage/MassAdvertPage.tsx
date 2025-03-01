@@ -1,17 +1,11 @@
 'use client';
 import {useEffect, useMemo, useRef, useState} from 'react';
-import {Spin, Button, Text, Card, Select, Icon, Modal, List} from '@gravity-ui/uikit';
+import {Text} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
-import block from 'bem-cn-lite';
-const b = block('app');
-
-import {ArrowsRotateLeft, ChevronDown, Plus, Xmark} from '@gravity-ui/icons';
-
-import {motion} from 'framer-motion';
 
 import {settings} from '@gravity-ui/chartkit';
 import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
-import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
+
 settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from '@/utilities/callApi';
 import axios, {CancelTokenSource} from 'axios';
@@ -23,17 +17,14 @@ import {
 } from '@/utilities/getRoundValue';
 import TheTable, {compare} from '@/components/TheTable';
 import {RangePicker} from '@/components/RangePicker';
-import {AdvertCard} from './AdvertCard';
 import {LogoLoad} from '@/components/logoLoad';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
-import DzhemPhrasesModal from './DzhemPhrasesModal';
 import {useModules} from '@/contexts/ModuleProvider';
 import {Note} from './NotesForArt/types';
 import {StatisticsPanel} from '@/widgets/MassAdvert/overallStats/ui';
-import {ButtonsList} from '@/widgets/MassAdvert/buttonsList/ui/list';
 import {
     getAddToCardPercentColumn,
     getAddToCartCountColumn,
@@ -62,6 +53,8 @@ import {getArtColumn} from '@/widgets/MassAdvert/columnData/config/artColumn';
 import {getAdvertsColumn} from '@/widgets/MassAdvert/columnData/config/advertsColumn';
 import {getAutoSalesColumn} from '@/widgets/MassAdvert/columnData/config/autoSalesColumn';
 import {MassAdvertPageSkeleton} from '@/components/Pages/MassAdvertPage/Skeleton';
+import {campaignStore} from '@/shared/stores/campaignStore';
+import {Something} from '@/shared/ui/Abstract';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -96,7 +89,12 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 };
 
 export const MassAdvertPage = () => {
-    const [selectedNmId, setSelectedNmId] = useState(0);
+    const {
+        setSummary,
+        setSemanticsModalOpenFromArt,
+        setAutoSalesModalOpenFromParent,
+        setArtsStatsByDayFilteredSummary,
+    } = campaignStore;
     const {showError} = useError();
     const {availablemodulesMap} = useModules();
     const permission: string = useMemo(() => {
@@ -162,11 +160,7 @@ export const MassAdvertPage = () => {
         activeAdverts: false,
         pausedAdverts: false,
     });
-
-    const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
-
-    const [autoSalesModalOpenFromParent, setAutoSalesModalOpenFromParent] = useState('');
 
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
@@ -180,13 +174,6 @@ export const MassAdvertPage = () => {
 
     const [copiedAdvertsSettings, setCopiedAdvertsSettings] = useState({advertId: 0});
 
-    const artsStatsByDayModeSwitchValues: any[] = [
-        {value: 'Статистика по дням', content: 'Статистика по дням'},
-        {value: 'Статистика по дням недели', content: 'Статистика по дням недели', disabled: true},
-    ];
-    const [artsStatsByDayModeSwitchValue, setArtsStatsByDayModeSwitchValue] = useState<any[]>([
-        'Статистика по дням',
-    ]);
     const getNotes = async () => {
         try {
             const params = {seller_id: sellerId};
@@ -229,26 +216,6 @@ export const MassAdvertPage = () => {
     const [artsStatsByDayFilteredData, setArtsStatsByDayFilteredData] = useState<any[]>([]);
     const [artsStatsByDayFilters, setArtsStatsByDayFilters] = useState<any>({undef: false});
 
-    const [artsStatsByDayFilteredSummary, setArtsStatsByDayFilteredSummary] = useState<any>({
-        date: 0,
-        orders: 0,
-        sum_orders: 0,
-        avg_price: 0,
-        sum: 0,
-        views: 0,
-        clicks: 0,
-        drr: 0,
-        ctr: 0,
-        cpc: 0,
-        cpm: 0,
-        cr: 0,
-        cpo: 0,
-        openCardCount: 0,
-        addToCartCount: 0,
-        addToCartPercent: 0,
-        cartToOrderPercent: 0,
-        cpl: 0,
-    });
     const artsStatsByDayDataFilter = (withfFilters: any, stats: any[]) => {
         const _filters = withfFilters ?? artsStatsByDayFilters;
         const _stats = stats ?? artsStatsByDayData;
@@ -405,25 +372,6 @@ export const MassAdvertPage = () => {
         getUnvalidatedArts();
     }, [sellerId]);
 
-    // const paramMap = {
-    //     status: {
-    //         '-1': 'В процессе удаления',
-    //         4: 'Готова к запуску',
-    //         7: 'Завершена',
-    //         8: 'Отказался',
-    //         // 9: 'Идут показы',
-    //         9: 'Активна',
-    //         11: 'Пауза',
-    //     },
-    //     type: {
-    //         4: 'Каталог',
-    //         5: 'Карточка товара',
-    //         6: 'Поиск',
-    //         7: 'Главная страница',
-    //         8: 'Авто',
-    //         9: 'Поиск + Каталог',
-    //     },
-    // };
     const updateColumnWidth = async () => {
         await new Promise((resolve) => setTimeout(resolve, 200));
         filterTableData({adverts: {val: '', mode: 'include'}}, data);
@@ -482,7 +430,7 @@ export const MassAdvertPage = () => {
                 const flarg = tempTypeRow[filterArg];
 
                 if (flarg && fldata.trim() == '+') {
-                    if (flarg !== undefined) continue;
+                    continue;
                 } else if (fldata?.trim() == '-') {
                     if (flarg === undefined) continue;
                 }
@@ -854,9 +802,7 @@ export const MassAdvertPage = () => {
         };
         params.data.advertsIds[advertId] = {advertId: advertId};
 
-        //////////////////////////////////
         return await callApi('manageAdvertsActivity', params);
-        //////////////////////////////////
     };
 
     const filterByButton = (val: any, key = 'art', compMode = 'include') => {
@@ -1278,7 +1224,6 @@ export const MassAdvertPage = () => {
                       setRkListMode: setRkListMode,
                       setShowArtStatsModalOpen: setShowArtStatsModalOpen,
                       setShowDzhemModalOpen: setShowDzhemModalOpen,
-                      setSelectedNmId: setSelectedNmId,
                       calcByDayStats: calcByDayStats,
                       setArtsStatsByDayData: setArtsStatsByDayData,
                   }),
@@ -1461,45 +1406,6 @@ export const MassAdvertPage = () => {
     const getCampaignName = () => {
         return selectValue[0];
     };
-    const updateTheData = async () => {
-        console.log('YOOO UPDATE INCOMING');
-        setFetchingDataFromServerFlag(true);
-        const params = {
-            uid: getUid(),
-            dateRange: {from: '2023', to: '2024'},
-            campaignName: getCampaignName(),
-        };
-        console.log(params);
-
-        await callApi('getMassAdvertsNew', params, true)
-            .then(async (response) => {
-                setFetchingDataFromServerFlag(false);
-                // console.log(response);
-                if (!response) return;
-                const resData = response['data'];
-
-                const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
-                    seller_id: sellerId,
-                });
-                const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
-                    seller_id: sellerId,
-                });
-                const autoSales = await ApiClient.post('massAdvert/get-sales-rules', {
-                    seller_id: sellerId,
-                });
-                console.log('advertsAutoBidsRules', advertsAutoBidsRules);
-
-                resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
-                resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
-                resData['autoSales'][selectValue[0]] = autoSales?.data;
-
-                setChangedDoc(resData);
-                setChangedDocUpdateType(true);
-                // console.log(response ? response['data'] : undefined);
-            })
-            .catch((error) => console.error(error));
-    };
-
     if (fetchedPlacements) {
         for (const [phrase, phraseData] of Object.entries(fetchedPlacements)) {
             if (!phrase || !phraseData) continue;
@@ -1528,23 +1434,6 @@ export const MassAdvertPage = () => {
 
     const anchorRef = useRef(null);
 
-    const [summary, setSummary] = useState({
-        views: 0,
-        clicks: 0,
-        sum: 0,
-        drr_orders: 0,
-        drr_sales: 0,
-        drr: '',
-        orders: 0,
-        sales: 0,
-        sum_orders: 0,
-        sum_sales: 0,
-        addToCartCount: 0,
-        profit: '',
-        rent: '',
-        profitTemp: 0,
-    });
-
     const getRoundValue = (a: any, b: any, isPercentage = false, def = 0) => {
         let result = b ? a / b : def;
         if (isPercentage) {
@@ -1559,138 +1448,6 @@ export const MassAdvertPage = () => {
         recalc(dateRange);
     }, [filtersRK]);
 
-    const getBalanceYagrData = () => {
-        const balanceLog =
-            doc.balances && doc.balances[selectValue[0]]
-                ? (doc.balances[selectValue[0]]?.data ?? {})
-                : {};
-        // console.log(balanceLog);
-
-        const timelineBudget: any[] = [];
-        const graphsDataBonus: any[] = [];
-        const graphsDataBalance: any[] = [];
-        const graphsDataNet: any[] = [];
-        // const graphsDataBudgetsDiv: any[] = [];
-        // const graphsDataBudgetsDivHours = {};
-        if (balanceLog) {
-            for (let i = 0; i < balanceLog.length; i++) {
-                const time = balanceLog[i].time;
-                const balanceData = balanceLog[i].balance;
-                if (!time || !balanceData) continue;
-
-                const {net, balance, bonus} = balanceData;
-
-                const timeObj = new Date(time);
-
-                timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
-
-                const lbd = new Date(dateRange[0]);
-                lbd.setHours(0, 0, 0, 0);
-                const rbd = new Date(dateRange[1]);
-                rbd.setHours(23, 59, 59);
-                if (timeObj < lbd || timeObj > rbd) continue;
-                timelineBudget.push(timeObj.getTime());
-                graphsDataBalance.push(balance ?? 0);
-                graphsDataBonus.push(bonus ?? 0);
-                graphsDataNet.push(net ?? 0);
-
-                // const hour = time.slice(0, 13);
-                // if (!graphsDataBudgetsDivHours[hour]) graphsDataBudgetsDivHours[hour] = budget;
-            }
-            // let prevHour = '';
-            // for (let i = 0; i < timelineBudget.length; i++) {
-            //     const dateObj = new Date(timelineBudget[i]);
-            //     const time = dateObj.toISOString();
-            //     if (dateObj.getMinutes() != 0) {
-            //         graphsDataBudgetsDiv.push(null);
-            //         continue;
-            //     }
-            //     const hour = time.slice(0, 13);
-            //     if (prevHour == '') {
-            //         graphsDataBudgetsDiv.push(null);
-            //         prevHour = hour;
-            //         continue;
-            //     }
-
-            //     const spent = graphsDataBudgetsDivHours[prevHour] - graphsDataBudgetsDivHours[hour];
-            //     graphsDataBudgetsDiv.push(spent);
-
-            //     prevHour = hour;
-            // }
-        }
-
-        const yagrBalanceData: YagrWidgetData = {
-            data: {
-                timeline: timelineBudget,
-                graphs: [
-                    {
-                        id: '0',
-                        name: 'Баланс',
-                        scale: 'y',
-                        color: '#ffbe5c',
-                        data: graphsDataNet,
-                    },
-                    {
-                        id: '1',
-                        name: 'Бонусы',
-                        scale: 'y',
-                        color: '#4aa1f2',
-                        data: graphsDataBonus,
-                    },
-                    {
-                        id: '2',
-                        name: 'Счет',
-                        scale: 'y',
-                        color: '#5fb8a5',
-                        data: graphsDataBalance,
-                    },
-                ],
-            },
-
-            libraryConfig: {
-                chart: {
-                    series: {
-                        spanGaps: false,
-                        type: 'line',
-                        interpolation: 'smooth',
-                    },
-                },
-                axes: {
-                    y: {
-                        label: 'Баланс',
-                        precision: 'auto',
-                        show: true,
-                    },
-                    // r: {
-                    //     label: 'Бонусы',
-                    //     precision: 'auto',
-                    //     side: 'right',
-                    //     show: true,
-                    // },
-                    // l: {
-                    //     label: 'Счет',
-                    //     precision: 'auto',
-                    //     side: 'right',
-                    //     show: true,
-                    // },
-                    x: {
-                        label: 'Время',
-                        precision: 'auto',
-                        show: true,
-                    },
-                },
-                series: [],
-                scales: {y: {min: 0}},
-                title: {
-                    text: 'Изменение баланса',
-                },
-            },
-        };
-
-        return yagrBalanceData;
-    };
-
-    const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = useState(false);
     const [firstRecalc, setFirstRecalc] = useState(false);
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
@@ -1860,365 +1617,8 @@ export const MassAdvertPage = () => {
             ) : (
                 <></>
             )}
-            <StatisticsPanel summary={summary} />
-            {!isMobile ? (
-                <div
-                    style={{
-                        display: 'flex',
-                        width: '100%',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                    }}
-                >
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'start',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                        }}
-                    >
-                        <ButtonsList
-                            balance={balance}
-                            doc={doc}
-                            filteredData={filteredData}
-                            permission={permission}
-                            getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                            selectValue={selectValue}
-                            sellerId={sellerId}
-                            advertBudgetRules={advertBudgetRules}
-                            setAdvertBudgetRules={setAdvertBudgetRules}
-                            setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
-                            getBalanceYagrData={getBalanceYagrData}
-                            filterByButton={filterByButton}
-                            setAutoSalesProfits={setAutoSalesProfits}
-                            autoSalesModalOpenFromParent={autoSalesModalOpenFromParent}
-                            setChangedDoc={setChangedDoc}
-                        />
-                        <Modal
-                            open={advertsArtsListModalFromOpen}
-                            onClose={() => {
-                                setAdvertsArtsListModalFromOpen(false);
-                                setSemanticsModalOpenFromArt('');
-                            }}
-                        >
-                            <div
-                                style={{
-                                    margin: 20,
-                                    width: '30vw',
-                                    height: '60vh',
-                                    overflow: 'scroll',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        margin: '8px 0',
-                                    }}
-                                    variant="display-2"
-                                >
-                                    {rkListMode == 'add'
-                                        ? 'Добавить артикул в РК'
-                                        : 'Удалить артикул из РК'}
-                                </Text>
-                                <List
-                                    filterPlaceholder={`Поиск по Id кампании среди ${rkList.length} шт.`}
-                                    items={rkList}
-                                    itemHeight={112}
-                                    renderItem={(advertId) => {
-                                        return (
-                                            <div
-                                                style={{
-                                                    padding: '0 16px',
-                                                    display: 'flex',
-                                                    margin: '4px 0',
-                                                    flexDirection: 'row',
-                                                    height: 96,
-                                                    width: '100%',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                }}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                }}
-                                            >
-                                                <AdvertCard
-                                                    sellerId={sellerId}
-                                                    advertBudgetRules={advertBudgetRules}
-                                                    setAdvertBudgetRules={setAdvertBudgetRules}
-                                                    permission={permission}
-                                                    id={advertId}
-                                                    index={-1}
-                                                    art={''}
-                                                    doc={doc}
-                                                    selectValue={selectValue}
-                                                    copiedAdvertsSettings={copiedAdvertsSettings}
-                                                    setChangedDoc={setChangedDoc}
-                                                    manageAdvertsActivityCallFunc={
-                                                        manageAdvertsActivityCallFunc
-                                                    }
-                                                    setArtsStatsByDayData={setArtsStatsByDayData}
-                                                    updateColumnWidth={updateColumnWidth}
-                                                    filteredData={filteredData}
-                                                    setCopiedAdvertsSettings={
-                                                        setCopiedAdvertsSettings
-                                                    }
-                                                    setFetchedPlacements={setFetchedPlacements}
-                                                    currentParsingProgress={currentParsingProgress}
-                                                    setCurrentParsingProgress={
-                                                        setCurrentParsingProgress
-                                                    }
-                                                    setDateRange={setDateRange}
-                                                    setShowArtStatsModalOpen={
-                                                        setShowArtStatsModalOpen
-                                                    }
-                                                    dateRange={dateRange}
-                                                    recalc={recalc}
-                                                    filterByButton={filterByButton}
-                                                    getUniqueAdvertIdsFromThePage={
-                                                        getUniqueAdvertIdsFromThePage
-                                                    }
-                                                />
-                                                <div style={{minWidth: 8}} />
-                                                <Button
-                                                    view={
-                                                        rkListMode == 'add'
-                                                            ? 'outlined-success'
-                                                            : 'outlined-danger'
-                                                    }
-                                                    disabled={
-                                                        !doc.adverts?.[selectValue[0]]?.[
-                                                            advertId
-                                                        ] ||
-                                                        doc?.adverts?.[selectValue[0]]?.[advertId]
-                                                            ?.type != 8
-                                                    }
-                                                    onClick={async () => {
-                                                        const params: any = {
-                                                            uid: getUid(),
-                                                            campaignName: selectValue[0],
-                                                            data: {
-                                                                advertsIds: {},
-                                                                mode: rkListMode,
-                                                            },
-                                                        };
-                                                        params.data.advertsIds[advertId] = {
-                                                            advertId: advertId,
-                                                            art: semanticsModalOpenFromArt,
-                                                        };
-
-                                                        console.log(params);
-
-                                                        const res = await callApi(
-                                                            'manageAdvertsNMs',
-                                                            params,
-                                                        );
-                                                        console.log(res);
-                                                        if (!res || res['data'] === undefined) {
-                                                            return;
-                                                        }
-
-                                                        if (res['data']['status'] == 'ok') {
-                                                            if (
-                                                                !doc.campaigns[selectValue[0]][
-                                                                    semanticsModalOpenFromArt
-                                                                ].adverts
-                                                            )
-                                                                doc.campaigns[selectValue[0]][
-                                                                    semanticsModalOpenFromArt
-                                                                ].adverts = {};
-
-                                                            doc.campaigns[selectValue[0]][
-                                                                semanticsModalOpenFromArt
-                                                            ].adverts[advertId] =
-                                                                rkListMode == 'add'
-                                                                    ? {advertId: advertId}
-                                                                    : undefined;
-
-                                                            if (rkListMode == 'delete') {
-                                                                delete doc.campaigns[
-                                                                    selectValue[0]
-                                                                ][semanticsModalOpenFromArt]
-                                                                    .adverts[advertId];
-                                                                const adverts =
-                                                                    doc.campaigns[selectValue[0]][
-                                                                        semanticsModalOpenFromArt
-                                                                    ].adverts;
-                                                                if (adverts) {
-                                                                    const temp = [] as any[];
-                                                                    for (const [
-                                                                        _,
-                                                                        data,
-                                                                    ] of Object.entries(adverts)) {
-                                                                        const advertData: any =
-                                                                            data;
-                                                                        if (!advertData) continue;
-                                                                        temp.push(
-                                                                            advertData['advertId'],
-                                                                        );
-                                                                    }
-                                                                    setRkList(temp);
-                                                                }
-                                                            }
-
-                                                            setAdvertsArtsListModalFromOpen(false);
-                                                        }
-                                                        setChangedDoc({...doc});
-                                                    }}
-                                                >
-                                                    <Icon
-                                                        data={rkListMode == 'add' ? Plus : Xmark}
-                                                    />
-                                                </Button>
-                                            </div>
-                                        );
-                                    }}
-                                />
-                            </div>
-                        </Modal>
-                        {showDzhemModalOpen && (
-                            <DzhemPhrasesModal
-                                open={showDzhemModalOpen}
-                                onClose={() => setShowDzhemModalOpen(false)}
-                                sellerId={sellerId}
-                                nmId={selectedNmId}
-                            />
-                        )}
-                        <Modal
-                            open={showArtStatsModalOpen}
-                            onClose={() => setShowArtStatsModalOpen(false)}
-                        >
-                            <motion.div
-                                onAnimationStart={async () => {
-                                    await new Promise((resolve) => setTimeout(resolve, 300));
-                                    artsStatsByDayDataFilter(
-                                        {sum: {val: '', mode: 'include'}},
-                                        artsStatsByDayData,
-                                    );
-                                }}
-                                animate={{maxHeight: showArtStatsModalOpen ? '60em' : 0}}
-                                style={{
-                                    margin: 20,
-                                    maxWidth: '90vw',
-                                    // maxHeight: '60em',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        margin: '8px 0',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    {/* <Text variant="display-2">Статистика по</Text> */}
-                                    <Select
-                                        className={b('selectCampaign')}
-                                        value={artsStatsByDayModeSwitchValue}
-                                        placeholder="Values"
-                                        options={artsStatsByDayModeSwitchValues}
-                                        renderControl={({triggerProps: {onClick, onKeyDown}}) => {
-                                            return (
-                                                <Button
-                                                    style={{
-                                                        marginTop: 12,
-                                                    }}
-                                                    // ref={ref as Ref<HTMLButtonElement>}
-                                                    size="xl"
-                                                    view="outlined"
-                                                    onClick={onClick}
-                                                    onKeyDown={onKeyDown}
-                                                    // extraProps={{
-                                                    //     onKeyDown,
-                                                    // }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            variant="display-2"
-                                                            style={{marginBottom: 8}}
-                                                        >
-                                                            {artsStatsByDayModeSwitchValue[0]}
-                                                        </Text>
-                                                        <div style={{width: 4}} />
-                                                        <Icon size={26} data={ChevronDown} />
-                                                    </div>
-                                                </Button>
-                                            );
-                                        }}
-                                        onUpdate={(nextValue) => {
-                                            setArtsStatsByDayModeSwitchValue(nextValue);
-                                        }}
-                                    />
-                                </div>
-                                <div style={{minHeight: 8}} />
-                                <Card
-                                    style={{
-                                        overflow: 'auto',
-                                        width: '100%',
-                                        height: '100%',
-                                    }}
-                                >
-                                    <TheTable
-                                        columnData={columnDataArtByDayStats}
-                                        data={artsStatsByDayFilteredData}
-                                        filters={artsStatsByDayFilters}
-                                        setFilters={setArtsStatsByDayFilters}
-                                        filterData={artsStatsByDayDataFilter}
-                                        footerData={[artsStatsByDayFilteredSummary]}
-                                        tableId={''}
-                                        usePagination={false}
-                                    />
-                                </Card>
-                            </motion.div>
-                        </Modal>
-                    </div>
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            flexWrap: 'wrap',
-                        }}
-                    >
-                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                            <Button
-                                style={{
-                                    marginBottom: 8,
-                                }}
-                                loading={fetchingDataFromServerFlag}
-                                size="l"
-                                view="action"
-                                onClick={updateTheData}
-                            >
-                                <Icon data={ArrowsRotateLeft} />
-                            </Button>
-                            <div style={{width: 8}} />
-                            {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
-                        </div>
-                        <RangePicker
-                            args={{
-                                recalc,
-                                dateRange,
-                                setDateRange,
-                                anchorRef,
-                            }}
-                        />
-                    </div>
-                </div>
-            ) : (
-                <div style={{marginBottom: 80}} />
-            )}
+            <StatisticsPanel />
+            {!isMobile ? <Something /> : <div style={{marginBottom: 80}} />}
 
             {isMobile ? (
                 <></>

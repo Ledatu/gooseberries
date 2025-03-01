@@ -1,10 +1,9 @@
-import {Summary} from '@/shared/types/summary';
 import {FC, HTMLProps} from 'react';
 import {StatisticsCard} from '@/widgets/MassAdvert/overallStats/ui/card';
+import {campaignStore} from '@/shared/stores/campaignStore';
+import {observer} from 'mobx-react-lite';
 
-interface StatisticsPanelProps extends Omit<HTMLProps<HTMLDivElement>, 'summary'> {
-    summary: Summary;
-}
+interface StatisticsPanelProps extends HTMLProps<HTMLDivElement> {}
 
 const cardStyle: any = {
     minWidth: '10em',
@@ -21,7 +20,9 @@ const cardStyle: any = {
     paddingRight: '1em',
 };
 
-export const StatisticsPanel: FC<StatisticsPanelProps> = ({summary, ...rest}) => {
+export const StatisticsPanel: FC<StatisticsPanelProps> = observer(({...rest}) => {
+    const {summary} = campaignStore;
+
     return (
         <div
             style={{
@@ -108,4 +109,4 @@ export const StatisticsPanel: FC<StatisticsPanelProps> = ({summary, ...rest}) =>
             />
         </div>
     );
-};
+});
