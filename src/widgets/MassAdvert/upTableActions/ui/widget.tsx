@@ -42,7 +42,7 @@ interface SomethingProps {
     currentParsingProgress: any;
 }
 
-export const Something: FC<SomethingProps> = observer(
+export const UpTableActions: FC<SomethingProps> = observer(
     ({
         doc,
         selectValue,
@@ -67,6 +67,9 @@ export const Something: FC<SomethingProps> = observer(
         setFetchedPlacements,
         updateColumnWidth,
     }) => {
+        // if (1 === 1) {
+        //     return <div>123123</div>;
+        // }
         const {
             selectedNmId,
             fetchingDataFromServerFlag,

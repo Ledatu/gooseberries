@@ -48,7 +48,7 @@ import {getAdvertsColumn} from '@/widgets/MassAdvert/columnData/config/advertsCo
 import {getAutoSalesColumn} from '@/widgets/MassAdvert/columnData/config/autoSalesColumn';
 import {MassAdvertPageSkeleton} from '@/components/Pages/MassAdvertPage/Skeleton';
 import {campaignStore} from '@/shared/stores/campaignStore';
-import {Something} from '@/shared/ui/Abstract';
+import {UpTableActions} from '@/widgets/MassAdvert/upTableActions/ui/widget';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -1426,7 +1426,7 @@ export const MassAdvertPage = () => {
             )}
             <StatisticsPanel />
             {!isMobile ? (
-                <Something
+                <UpTableActions
                     doc={doc}
                     permission={permission}
                     setAutoSalesProfits={setAutoSalesProfits}

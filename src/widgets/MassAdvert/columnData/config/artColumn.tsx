@@ -230,7 +230,7 @@ export const getArtColumn = ({
                 // title={value}
                 style={{
                     position: 'relative',
-                    maxWidth: '20vw',
+                    maxWidth: '450px',
                     display: 'flex',
                     flexDirection: 'row',
                     zIndex: 40,
@@ -492,10 +492,9 @@ export const getArtColumn = ({
                             <div
                                 style={{
                                     display: 'flex',
-                                    flexDirection: 'row',
-                                    maxWidth: '100%',
-                                    paddingRight: '100%',
-                                    overflowX: 'scroll',
+                                    overflowX: 'auto',
+                                    width: '100%',
+                                    maxWidth: '250px',
                                 }}
                             >
                                 {tagsNodes}
