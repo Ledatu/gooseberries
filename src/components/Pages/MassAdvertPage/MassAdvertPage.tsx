@@ -1425,7 +1425,34 @@ export const MassAdvertPage = () => {
                 <></>
             )}
             <StatisticsPanel />
-            {!isMobile ? <Something doc={doc} /> : <div style={{marginBottom: 80}} />}
+            {!isMobile ? (
+                <Something
+                    doc={doc}
+                    permission={permission}
+                    setAutoSalesProfits={setAutoSalesProfits}
+                    sellerId={sellerId}
+                    setAdvertBudgetRules={setAdvertBudgetRules}
+                    selectValue={selectValue}
+                    dateRange={dateRange}
+                    setChangedDoc={setChangedDoc}
+                    setChangedDocUpdateType={setChangedDocUpdateType}
+                    filteredData={filteredData}
+                    getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                    advertBudgetRules={advertBudgetRules}
+                    manageAdvertsActivityCallFunc={manageAdvertsActivityCallFunc}
+                    recalc={recalc}
+                    setDateRange={setDateRange}
+                    anchorRef={anchorRef}
+                    filterByButton={filterByButton}
+                    setCurrentParsingProgress={setCurrentParsingProgress}
+                    setArtsStatsByDayData={setArtsStatsByDayData}
+                    currentParsingProgress={currentParsingProgress}
+                    setFetchedPlacements={setFetchedPlacements}
+                    updateColumnWidth={updateColumnWidth}
+                />
+            ) : (
+                <div style={{marginBottom: 80}} />
+            )}
 
             {isMobile ? (
                 <></>

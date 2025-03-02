@@ -131,7 +131,14 @@ class CampaignStore {
     }
 
     setSummary(summary: Summary) {
-        this.summary = summary;
+        if (summary === undefined) {
+            return;
+        }
+        try {
+            this.summary = summary;
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     setFetchingDataFromServerFlag(flag: boolean) {
