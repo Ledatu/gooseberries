@@ -8,8 +8,10 @@ class CampaignStore {
         balance: 0,
     };
     selectedNmId: number = 0;
+    showDzhemModalOpen: boolean = false;
 
     fetchingDataFromServerFlag: boolean = false;
+    advertsArtsListModalFromOpen: boolean = false;
 
     filters: Record<string, any> = {};
     filtersRK: Record<string, boolean> = {
@@ -20,11 +22,15 @@ class CampaignStore {
         activeAdverts: false,
         pausedAdverts: false,
     };
+    rkListMode: any = 'add';
 
     semanticsModalOpenFromArt: string = '';
     autoSalesModalOpenFromParent: string = '';
 
     copiedAdvertsSettings: {advertId: number} = {advertId: 0};
+    showArtStatsModalOpen: boolean = false;
+    artsStatsByDayData: any[] = [];
+    rkList: any[] = [];
 
     summary: Summary = {
         views: 0,
@@ -71,6 +77,30 @@ class CampaignStore {
     setBalance(balance: {net: number; bonus: number; balance: number}) {
         this.balance = balance;
     }
+
+    setShowArtStatsModalOpen = (value: boolean) => {
+        this.showArtStatsModalOpen = value;
+    };
+
+    setRkListMode = (value: any) => {
+        this.rkListMode = value;
+    };
+
+    setAdvertsArtsListModalFromOpen = (value: boolean) => {
+        this.advertsArtsListModalFromOpen = value;
+    };
+
+    setArtsStatsByDayData = (value: any) => {
+        this.artsStatsByDayData = value;
+    };
+
+    setShowDzhemModalOpen = (value: boolean) => {
+        this.showDzhemModalOpen = value;
+    };
+
+    setRkList = (value: any) => {
+        this.rkList = value;
+    };
 
     setArtsStatsByDayFilteredSummary(something: any) {
         this.artsStatsByDayFilteredSummary = something;

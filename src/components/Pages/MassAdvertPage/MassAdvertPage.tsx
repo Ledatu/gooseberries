@@ -1,6 +1,5 @@
 'use client';
 import {useEffect, useMemo, useRef, useState} from 'react';
-import {Text} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
 import {settings} from '@gravity-ui/chartkit';
@@ -9,12 +8,7 @@ import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
 settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from '@/utilities/callApi';
 import axios, {CancelTokenSource} from 'axios';
-import {
-    getLocaleDateString,
-    getNormalDateRange,
-    renderAsPercent,
-    renderSlashPercent,
-} from '@/utilities/getRoundValue';
+import {getLocaleDateString, getNormalDateRange} from '@/utilities/getRoundValue';
 import TheTable, {compare} from '@/components/TheTable';
 import {RangePicker} from '@/components/RangePicker';
 import {LogoLoad} from '@/components/logoLoad';
@@ -93,7 +87,13 @@ export const MassAdvertPage = () => {
         setSummary,
         setSemanticsModalOpenFromArt,
         setAutoSalesModalOpenFromParent,
-        setArtsStatsByDayFilteredSummary,
+        setArtsStatsByDayData,
+        setShowDzhemModalOpen,
+        setAdvertsArtsListModalFromOpen,
+        setShowArtStatsModalOpen,
+        setFetchingDataFromServerFlag,
+        setRkList,
+        setRkListMode,
     } = campaignStore;
     const {showError} = useError();
     const {availablemodulesMap} = useModules();
@@ -208,139 +208,6 @@ export const MassAdvertPage = () => {
             setReloadNotes(false);
         }
     }, [sellerId, reloadNotes]);
-
-    const [showDzhemModalOpen, setShowDzhemModalOpen] = useState(false);
-
-    const [showArtStatsModalOpen, setShowArtStatsModalOpen] = useState(false);
-    const [artsStatsByDayData, setArtsStatsByDayData] = useState<any[]>([]);
-    const [artsStatsByDayFilteredData, setArtsStatsByDayFilteredData] = useState<any[]>([]);
-    const [artsStatsByDayFilters, setArtsStatsByDayFilters] = useState<any>({undef: false});
-
-    const artsStatsByDayDataFilter = (withfFilters: any, stats: any[]) => {
-        const _filters = withfFilters ?? artsStatsByDayFilters;
-        const _stats = stats ?? artsStatsByDayData;
-
-        const artsStatsByDayFilteredSummaryTemp: any = {
-            date: 0,
-            orders: 0,
-            sum_orders: 0,
-            avg_price: 0,
-            sum: 0,
-            views: 0,
-            clicks: 0,
-            drr: 0,
-            ctr: 0,
-            cpc: 0,
-            cpm: 0,
-            cr: 0,
-            cpo: 0,
-            openCardCount: 0,
-            addToCartCount: 0,
-            addToCartPercent: 0,
-            cartToOrderPercent: 0,
-            cpl: 0,
-        };
-
-        _stats.sort((a, b) => {
-            const dateA = new Date(a['date']);
-            const dateB = new Date(b['date']);
-            return dateB.getTime() - dateA.getTime();
-        });
-
-        setArtsStatsByDayFilteredData(
-            _stats
-                .map((stat) => {
-                    const {sum_orders: SO, orders: O} = stat ?? {};
-                    const avgPrice = getRoundValue(SO, O);
-                    return {...stat, avg_price: avgPrice};
-                })
-                .filter((stat) => {
-                    for (const [filterArg, data] of Object.entries(_filters)) {
-                        const filterData: any = data;
-                        if (filterArg == 'undef' || !filterData) continue;
-                        if (filterData['val'] == '') continue;
-                        else if (!compare(stat[filterArg], filterData)) {
-                            return false;
-                        }
-                    }
-
-                    for (const [key, val] of Object.entries(stat)) {
-                        if (
-                            [
-                                'sum',
-                                'clicks',
-                                'views',
-                                'orders',
-                                'sum_orders',
-                                'avg_prices',
-                                'openCardCount',
-                                'addToCartCount',
-                                'addToCartPercent',
-                                'cartToOrderPercent',
-                            ].includes(key)
-                        )
-                            artsStatsByDayFilteredSummaryTemp[key] +=
-                                isFinite(val as number) && !isNaN(val as number) ? val : 0;
-                    }
-
-                    artsStatsByDayFilteredSummaryTemp['date']++;
-
-                    return true;
-                }),
-        );
-
-        artsStatsByDayFilteredSummaryTemp.sum_orders = Math.round(
-            artsStatsByDayFilteredSummaryTemp.sum_orders,
-        );
-        artsStatsByDayFilteredSummaryTemp.orders = Math.round(
-            artsStatsByDayFilteredSummaryTemp.orders,
-        );
-        artsStatsByDayFilteredSummaryTemp.avg_price = getRoundValue(
-            artsStatsByDayFilteredSummaryTemp.sum_orders,
-            artsStatsByDayFilteredSummaryTemp.orders,
-        );
-        artsStatsByDayFilteredSummaryTemp.sum = Math.round(artsStatsByDayFilteredSummaryTemp.sum);
-        artsStatsByDayFilteredSummaryTemp.views = Math.round(
-            artsStatsByDayFilteredSummaryTemp.views,
-        );
-        artsStatsByDayFilteredSummaryTemp.clicks = Math.round(
-            artsStatsByDayFilteredSummaryTemp.clicks,
-        );
-        artsStatsByDayFilteredSummaryTemp.openCardCount = Math.round(
-            artsStatsByDayFilteredSummaryTemp.openCardCount,
-        );
-        artsStatsByDayFilteredSummaryTemp.addToCartPercent = getRoundValue(
-            artsStatsByDayFilteredSummaryTemp.addToCartCount,
-            artsStatsByDayFilteredSummaryTemp.openCardCount,
-            true,
-        );
-        artsStatsByDayFilteredSummaryTemp.cartToOrderPercent = getRoundValue(
-            artsStatsByDayFilteredSummaryTemp.orders,
-            artsStatsByDayFilteredSummaryTemp.addToCartCount,
-            true,
-        );
-        const {orders, sum, views, clicks, openCardCount, addToCartCount} =
-            artsStatsByDayFilteredSummaryTemp;
-
-        artsStatsByDayFilteredSummaryTemp.drr = getRoundValue(
-            artsStatsByDayFilteredSummaryTemp.sum,
-            artsStatsByDayFilteredSummaryTemp.sum_orders,
-            true,
-            1,
-        );
-        artsStatsByDayFilteredSummaryTemp.ctr = getRoundValue(clicks, views, true);
-        artsStatsByDayFilteredSummaryTemp.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
-        artsStatsByDayFilteredSummaryTemp.cpm = getRoundValue(sum * 1000, views);
-        artsStatsByDayFilteredSummaryTemp.cr = getRoundValue(orders, openCardCount, true);
-        artsStatsByDayFilteredSummaryTemp.cpo = getRoundValue(sum, orders, false, sum);
-        artsStatsByDayFilteredSummaryTemp.cpl = getRoundValue(sum, addToCartCount, false, sum);
-
-        setArtsStatsByDayFilteredSummary(artsStatsByDayFilteredSummaryTemp);
-    };
-
-    const [advertsArtsListModalFromOpen, setAdvertsArtsListModalFromOpen] = useState(false);
-    const [rkList, setRkList] = useState<any[]>([]);
-    const [rkListMode, setRkListMode] = useState('add');
 
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
@@ -1403,9 +1270,6 @@ export const MassAdvertPage = () => {
         getBidderRules();
     }, [advertBudgetRules]);
 
-    const getCampaignName = () => {
-        return selectValue[0];
-    };
     if (fetchedPlacements) {
         for (const [phrase, phraseData] of Object.entries(fetchedPlacements)) {
             if (!phrase || !phraseData) continue;
@@ -1456,48 +1320,6 @@ export const MassAdvertPage = () => {
     // const [auctionTableData, setAuctionTableData] = useState<any[]>([]);
     // const [auctionFiltratedTableData, setAuctionFiltratedTableData] = useState<any[]>([]);
     // const filterAuctionData = (withfFilters = {}, tableData = {}) => {};
-    const columnDataArtByDayStats = [
-        {
-            name: 'date',
-            placeholder: 'Дата',
-            render: ({value}: any) => {
-                if (!value) return;
-                if (typeof value === 'number') return `Всего SKU: ${value}`;
-                return <Text>{(value as Date).toLocaleDateString('ru-RU').slice(0, 10)}</Text>;
-            },
-        },
-        {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'orders', placeholder: 'Заказы, шт.'},
-        {name: 'sum_orders', placeholder: 'Заказы, ₽'},
-        {
-            name: 'avg_price',
-            placeholder: 'Ср. Чек, ₽',
-        },
-        {
-            name: 'drr',
-            placeholder: 'ДРР, %',
-            render: renderAsPercent,
-        },
-        {
-            name: 'cpo',
-            placeholder: 'CPO, ₽',
-        },
-        {name: 'views', placeholder: 'Показы, шт.'},
-        {
-            name: 'clicks',
-            placeholder: 'Клики, шт.',
-            render: (args: any) => renderSlashPercent(args, 'openCardCount'),
-        },
-        {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},
-        {name: 'cpc', placeholder: 'CPC, ₽'},
-        {name: 'cpm', placeholder: 'CPM, ₽'},
-        {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
-        {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
-        {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
-        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
-        {name: 'addToCartCount', placeholder: 'Корзины, шт.'},
-        {name: 'cpl', placeholder: 'CPL, ₽'},
-    ];
 
     const balance = (() => {
         const map: any = {balance: 'Счет', bonus: 'Бонусы', net: 'Баланс'};
