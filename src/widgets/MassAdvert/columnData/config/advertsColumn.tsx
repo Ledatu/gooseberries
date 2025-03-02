@@ -278,7 +278,7 @@ export const getAdvertsColumn = ({
                 style={{
                     display: 'flex',
                     flexDirection: 'row',
-                    overflowX: 'scroll',
+                    overflowX: 'hidden',
                     overflowY: 'hidden',
                     gap: 8,
                 }}
