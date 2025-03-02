@@ -1321,21 +1321,6 @@ export const MassAdvertPage = () => {
     // const [auctionFiltratedTableData, setAuctionFiltratedTableData] = useState<any[]>([]);
     // const filterAuctionData = (withfFilters = {}, tableData = {}) => {};
 
-    const balance = (() => {
-        const map: any = {balance: 'Счет', bonus: 'Бонусы', net: 'Баланс'};
-
-        const temp = doc?.balances?.[selectValue[0]]?.data?.slice(-1)?.[0]?.balance;
-        const arr = [] as string[];
-        if (temp)
-            for (const [type, val] of Object.entries(temp)) {
-                if (val)
-                    arr.push(
-                        map[type] + ': ' + new Intl.NumberFormat('ru-RU').format(val as number),
-                    );
-            }
-        return arr.join(' ');
-    })();
-
     if (changedDoc) {
         setChangedDoc(undefined);
         setChangedDocUpdateType(false);
@@ -1440,7 +1425,7 @@ export const MassAdvertPage = () => {
                 <></>
             )}
             <StatisticsPanel />
-            {!isMobile ? <Something /> : <div style={{marginBottom: 80}} />}
+            {!isMobile ? <Something doc={doc} /> : <div style={{marginBottom: 80}} />}
 
             {isMobile ? (
                 <></>
