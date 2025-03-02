@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "moduleResolution": "bundler", // Updated to node16
+    "experimentalDecorators": true,
     "resolveJsonModule": true,
     // "types": ["tailwindcss"], // Added to resolve Tailwind types
     "plugins": [
