@@ -1057,7 +1057,7 @@ export const MassAdvertPage = () => {
             summaryTemp.drr_orders,
         )}% / ${new Intl.NumberFormat('ru-RU').format(summaryTemp.drr_sales)}%`;
 
-        setSummary(summaryTemp);
+        setSummary({...summaryTemp});
 
         setTableData(temp);
 

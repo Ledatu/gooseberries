@@ -21,8 +21,7 @@ const cardStyle: any = {
 };
 
 export const StatisticsPanel: FC<StatisticsPanelProps> = observer(({...rest}) => {
-    const {summary} = campaignStore;
-
+    const summary = campaignStore.summary;
     return (
         <div
             style={{
@@ -36,77 +35,50 @@ export const StatisticsPanel: FC<StatisticsPanelProps> = observer(({...rest}) =>
             {...rest}
         >
             <StatisticsCard
-                summary={summary}
-                val_key="sum_orders"
+                value={summary.sum_orders}
                 placeholder="ЗАКАЗЫ"
                 cardStyle={cardStyle}
                 rub={true}
             />
             <StatisticsCard
-                summary={summary}
-                val_key="sum_sales"
+                value={summary.sum_sales}
                 placeholder="ПРОДАЖИ"
                 cardStyle={cardStyle}
                 rub={true}
             />
             <StatisticsCard
-                summary={summary}
-                val_key="sum"
+                value={summary.sum}
                 placeholder="РАСХОД"
                 cardStyle={cardStyle}
                 rub={true}
             />
             <StatisticsCard
-                summary={summary}
-                val_key="drr"
+                value={summary.drr}
                 placeholder="ДРР к ЗАКАЗАМ / к ПРОДАЖАМ"
                 cardStyle={cardStyle}
                 valueType="text"
             />
             <StatisticsCard
-                summary={summary}
-                val_key="profit"
+                value={summary.profit}
                 placeholder="ПРИБЫЛЬ"
                 cardStyle={cardStyle}
                 valueType="text"
             />
             <StatisticsCard
-                summary={summary}
-                val_key="rent"
+                value={summary.rent}
                 placeholder="РЕНТ к ЗАКАЗАМ / к ПРОДАЖАМ"
                 cardStyle={cardStyle}
                 valueType="text"
             />
+            <StatisticsCard value={summary.views} placeholder="ПОКАЗЫ" cardStyle={cardStyle} />
+            <StatisticsCard value={summary.clicks} placeholder="КЛИКИ" cardStyle={cardStyle} />
             <StatisticsCard
-                summary={summary}
-                val_key="views"
-                placeholder="ПОКАЗЫ"
-                cardStyle={cardStyle}
-            />
-            <StatisticsCard
-                summary={summary}
-                val_key="clicks"
-                placeholder="КЛИКИ"
-                cardStyle={cardStyle}
-            />
-            <StatisticsCard
-                summary={summary}
-                val_key="addToCartCount"
+                value={summary.addToCartCount}
                 placeholder="КОРЗИНЫ"
                 cardStyle={cardStyle}
             />
-            <StatisticsCard
-                summary={summary}
-                val_key="orders"
-                placeholder="ЗАКАЗЫ"
-                cardStyle={cardStyle}
-            />
-            <StatisticsCard
-                summary={summary}
-                val_key="sales"
-                placeholder="ПРОДАЖИ"
-                cardStyle={cardStyle}
-            />
+            <StatisticsCard value={summary.orders} placeholder="ЗАКАЗЫ" cardStyle={cardStyle} />
+            <StatisticsCard value={summary.sales} placeholder="ПРОДАЖИ" cardStyle={cardStyle} />
         </div>
     );
 });

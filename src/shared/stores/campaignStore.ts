@@ -74,10 +74,6 @@ class CampaignStore {
         makeAutoObservable(this);
     }
 
-    setBalance(balance: {net: number; bonus: number; balance: number}) {
-        this.balance = balance;
-    }
-
     setShowArtStatsModalOpen = (value: boolean) => {
         this.showArtStatsModalOpen = value;
     };
@@ -130,16 +126,20 @@ class CampaignStore {
         this.copiedAdvertsSettings = settings;
     }
 
-    setSummary(summary: Summary) {
-        if (summary === undefined) {
+    setSummary = (summary: Summary) => {
+        if (!summary) {
+            console.log('SUMMARY IS UNDEFINED');
             return;
         }
         try {
             this.summary = summary;
+            console.log(this.summary);
         } catch (e) {
+            console.log('Summary in error', JSON.stringify(summary));
+            console.log('||||||||||||||||||||');
             console.error(e);
         }
-    }
+    };
 
     setFetchingDataFromServerFlag(flag: boolean) {
         this.fetchingDataFromServerFlag = flag;
