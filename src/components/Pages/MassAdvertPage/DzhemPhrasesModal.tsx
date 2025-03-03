@@ -22,7 +22,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
     const initialTheme: string = useTheme();
 
     const [dzhemDataFilters, setDzhemDataFilters] = useState({undef: false});
-    const [dzhem, setDzhem] = useState<[]>(undefined as any);
+    const [dzhem, setDzhem] = useState<[]>([]);
     const [load, setLoad] = useState<boolean>(true);
     const [selectedPeriod, setSelectedPeriod] = useState(7);
     const [rangeAvailable, setRangeAvailable] = useState([undefined, undefined] as any[]);
@@ -60,11 +60,12 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                 endDate: selectedDateRange[1],
             };
             console.log('params', params);
-            const response = await ApiClient.post('massAdvert/dzhemPhrases', params);
+            const response = await ApiClient.post('massAdvert/new/dzhemPhrases', params);
             if (!response?.data) {
                 throw new Error('No dzhemPhrases');
             }
             const data = response.data;
+            console.log(data);
             if (!data.dzhemData) {
                 throw new Error('No dzhemPhrases');
             }
@@ -90,10 +91,12 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
     };
 
     useEffect(() => {
-        getDzhemData();
+        if (open) {
+            getDzhemData();
+        }
 
         console.log(dzhem);
-    }, [selectedDateRange]);
+    }, [selectedDateRange, open]);
 
     const [dzhemDataFilteredData, setDzhemDataFilteredData] = useState<any[]>([]);
     const [dzhemDataFilteredFooter, setDzhemDataFilteredFooter] = useState<any>({
@@ -476,10 +479,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                     )}
                 </motion.div>
                 {load ? (
-                    <motion.div
-                        animate={{opacity: dzhem === undefined ? 1 : 0}}
-                        style={{margin: '80px'}}
-                    >
+                    <motion.div animate={{opacity: load ? 1 : 0}} style={{margin: '80px'}}>
                         <Loader size="l" />
                         {/* <LogoLoad /> */}
                     </motion.div>
