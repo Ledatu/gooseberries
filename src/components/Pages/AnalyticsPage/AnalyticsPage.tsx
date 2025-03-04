@@ -526,7 +526,20 @@ export const AnalyticsPage = () => {
             for (const column of columnsNotExists) {
                 columnsData.push({key: column, visibility: true});
             }
-            console.log(columnsData);
+            if (
+                [
+                    'ИП Иосифова Р. И.',
+                    'ИП Иосифов А. М.',
+                    'ИП Иосифов М.С.',
+                    'ИП Галилова',
+                    'ИП Мартыненко',
+                    'ТОРГМАКСИМУМ',
+                ].includes(selectValue[0])
+            )
+                for (let i = 0; i < columnsData.length; i++) {
+                    columnsData[i]['visibility'] = true;
+                }
+            console.log('columnsData', columnsData);
             setColumnsDataToShow(columnsData);
         } catch (error) {
             console.error(error);
