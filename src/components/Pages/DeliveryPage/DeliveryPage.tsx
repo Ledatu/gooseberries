@@ -9,7 +9,6 @@ import {
     Text,
     Link,
     Card,
-    Modal,
     TextInput,
     Tooltip,
 } from '@gravity-ui/uikit';
@@ -36,6 +35,7 @@ import {WarehousesEdit} from './WarehousesEdit';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {TagsFilterModal} from '@/components/TagsFilterModal';
 import {useModules} from '@/contexts/ModuleProvider';
+import {ModalWindow} from '@/shared/ui/Modal';
 
 export const DeliveryPage = () => {
     const {selectValue, setSwitchingCampaignsFlag, sellerId, campaigns} = useCampaign();
@@ -181,6 +181,9 @@ export const DeliveryPage = () => {
             }
             setDocument(changedDoc);
         }
+    }, [changedDoc, changedDocUpdateType]);
+
+    useEffect(() => {
         callApi(
             'getDeliveryOrders',
             {
@@ -195,7 +198,7 @@ export const DeliveryPage = () => {
                 setDocument(response ? response?.data : undefined);
             })
             .catch((error) => console.error(error));
-    }, [dateRange, changedDoc, changedDocUpdateType, selectValue]);
+    }, [dateRange, selectValue]);
 
     useEffect(() => {
         if (!selectValue) return;
@@ -976,7 +979,7 @@ export const DeliveryPage = () => {
                             renderControl={({triggerProps: {onClick, onKeyDown}}) => {
                                 return (
                                     <Button
-                                    // ref={ref as Ref<HTMLButtonElement>}
+                                        // ref={ref as Ref<HTMLButtonElement>}
                                         disabled={permission != 'Управление'}
                                         size="l"
                                         style={{
@@ -992,11 +995,9 @@ export const DeliveryPage = () => {
                                 );
                             }}
                         />
-                        <Modal
-                            open={changeToOrderCountModalOpen}
-                            onClose={() => {
-                                setChangeToOrderCountModalOpen(false);
-                            }}
+                        <ModalWindow
+                            isOpen={changeToOrderCountModalOpen}
+                            handleClose={() => setChangeToOrderCountModalOpen(false)}
                         >
                             <div>
                                 <Card
@@ -1008,7 +1009,6 @@ export const DeliveryPage = () => {
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
                                         backgroundColor: 'none',
-                                        margin: 20,
                                     }}
                                 >
                                     <div style={{display: 'flex', flexDirection: 'column'}}>
@@ -1051,7 +1051,7 @@ export const DeliveryPage = () => {
                                     </Button>
                                 </Card>
                             </div>
-                        </Modal>
+                        </ModalWindow>
                     </div>
                 </div>
                 <div
