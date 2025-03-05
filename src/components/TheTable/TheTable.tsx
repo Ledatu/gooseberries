@@ -210,8 +210,7 @@ export default function TheTable({
     return (
         <div
             style={{
-                // height: `calc(${height ?? '100%'} - 16px - 28px)`,
-                height: '100%',
+                height: `calc(${height ?? '100%'} - 16px - 28px)`,
                 width: width ?? '100%',
             }}
         >
