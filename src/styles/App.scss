@@ -11,6 +11,27 @@ div {
 //     ) !important;
 // }
 
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #949494; /* Цвет фона трека */
+    border-radius: 10px;
+    transition: 500ms;
+}
+
+::-webkit-scrollbar-thumb {
+    transition: 500ms;
+    background: #5c5c5c; /* Цвет ползунка */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #323232; /* Цвет ползунка при наведении */
+}
+
 
 .tablink:hover {
     color: var(--g-color-text-complementary) !important;
