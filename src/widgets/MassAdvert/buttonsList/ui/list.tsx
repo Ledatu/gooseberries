@@ -52,7 +52,9 @@ export const ButtonsList: FC<ButtonsListProps> = ({
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
+                flexWrap: 'wrap',
                 marginBottom: 8,
+                rowGap: 8,
             }}
         >
             <AdvertCreateModal doc={doc} filteredData={filteredData} setChangedDoc={setChangedDoc}>
