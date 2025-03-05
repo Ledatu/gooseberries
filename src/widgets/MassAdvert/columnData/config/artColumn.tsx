@@ -230,7 +230,7 @@ export const getArtColumn = ({
                 // title={value}
                 style={{
                     position: 'relative',
-                    maxWidth: '450px',
+                    maxWidth: '380px',
                     display: 'flex',
                     flexDirection: 'row',
                     zIndex: 40,

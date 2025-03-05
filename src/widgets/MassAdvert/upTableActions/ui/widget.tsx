@@ -17,7 +17,7 @@ import {getRoundValue, renderAsPercent, renderSlashPercent} from '@/utilities/ge
 
 const b = block('app');
 
-interface SomethingProps {
+interface UpTableActionsParams {
     doc: any;
     selectValue: any;
     sellerId: any;
@@ -42,7 +42,7 @@ interface SomethingProps {
     currentParsingProgress: any;
 }
 
-export const UpTableActions: FC<SomethingProps> = observer(
+export const UpTableActions: FC<UpTableActionsParams> = observer(
     ({
         doc,
         selectValue,
