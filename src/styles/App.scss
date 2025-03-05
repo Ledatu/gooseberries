@@ -1,6 +1,6 @@
 // @import "tailwindcss";
 div {
-    box-sizing: unset
+    box-sizing: unset;
 }
 
 // #root {
@@ -11,27 +11,27 @@ div {
 //     ) !important;
 // }
 
-::-webkit-scrollbar {
+/* Default styles for Windows & Linux */
+:root:not(.macos) ::-webkit-scrollbar {
     width: 5px;
     height: 5px;
 }
 
-::-webkit-scrollbar-track {
-    background: #949494; /* Цвет фона трека */
+:root:not(.macos) ::-webkit-scrollbar-track {
+    background: #949494;
     border-radius: 10px;
     transition: 500ms;
 }
 
-::-webkit-scrollbar-thumb {
+:root:not(.macos) ::-webkit-scrollbar-thumb {
     transition: 500ms;
-    background: #5c5c5c; /* Цвет ползунка */
+    background: #5c5c5c;
     border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #323232; /* Цвет ползунка при наведении */
+:root:not(.macos) ::-webkit-scrollbar-thumb:hover {
+    background: #323232;
 }
-
 
 .tablink:hover {
     color: var(--g-color-text-complementary) !important;
@@ -270,11 +270,11 @@ div {
     }
 }
 
-
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+        'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -294,7 +294,7 @@ code {
 }
 
 // .g-card {
-//     border: 1px solid #eee2 !important; 
+//     border: 1px solid #eee2 !important;
 //     border-radius: 30px;
 //     backdrop-filter: blur(20px) !important;
 //     box-shadow: var(--g-color-base-background) 0px 2px 8px !important;
@@ -311,10 +311,10 @@ code {
 }
 
 .blurred-card {
-    border: 1px solid #eee2 !important; 
+    border: 1px solid #eee2 !important;
     border-radius: 8px;
     backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter:  blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
     // box-shadow: var(--g-color-base-background) 0px 2px 8px !important;
 }
 .select-color {

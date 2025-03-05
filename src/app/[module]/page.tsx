@@ -5,7 +5,7 @@ import {useModules} from '@/contexts/ModuleProvider';
 import {useCampaign} from '@/contexts/CampaignContext';
 
 // import { DeliveryPage } from '@/components/DeliveryPage';
-import {useMemo} from 'react';
+import {useEffect, useMemo} from 'react';
 // import {useRouter} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {useUser} from '@/components/RequireAuth';
@@ -65,7 +65,16 @@ export default function ModulePage() {
     const {sellerId, campaign, campaigns} = useCampaign();
     console.log('sellerId', sellerId);
     const currentTime = new Date();
- 
+
+    useEffect(() => {
+        const isMac = navigator.userAgent.toLowerCase().includes('mac');
+
+        if (isMac) {
+            document.documentElement.classList.add('macos');
+        } else {
+            document.documentElement.classList.remove('macos');
+        }
+    }, []);
 
     // // Handle initial currentModule validation
     // useEffect(() => {
