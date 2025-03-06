@@ -1627,8 +1627,7 @@ export const MassAdvertPage = () => {
                             }
                         }
                         return (
-                            // <span style={{pointerEvents: 'auto'}}>
-                            <div style={{pointerEvents: 'auto'}}>
+                            <div>
                                 <Tooltip
                                     style={{maxWidth: '400px'}}
                                     content={
@@ -1638,9 +1637,8 @@ export const MassAdvertPage = () => {
                                             корректного отображения данных
                                         </Text>
                                     }
-                                    disabled={false}
                                 >
-                                    <Text content={'div'} style={{color: 'rgb(255, 190, 92)'}}>
+                                    <Text style={{color: 'rgb(255, 190, 92)'}}>
                                         <Icon data={TriangleExclamation} size={11} />
                                     </Text>
                                 </Tooltip>
@@ -1716,42 +1714,41 @@ export const MassAdvertPage = () => {
                                     height: 0.5,
                                 }}
                             />
-                            <div
+                            <Button
+                                disabled={!Math.round(profit)}
                                 style={{
+                                    width: 160,
                                     display: 'flex',
                                     flexDirection: 'row',
-                                    justifyContent: 'center',
                                 }}
+                                width="max"
+                                size="xs"
+                                view={'flat'}
+                                pin="clear-clear"
                             >
-                                <Button
-                                    disabled={!Math.round(profit)}
+                                <Text
                                     style={{
-                                        width: 'auto',
-                                        overflow: 'hidden',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 4,
                                     }}
-                                    width="max"
-                                    size="xs"
-                                    view={'flat'}
-                                    pin="clear-clear"
+                                    color={
+                                        !Math.round(profit)
+                                            ? undefined
+                                            : profit > 0
+                                              ? 'positive'
+                                              : 'danger'
+                                    }
                                 >
-                                    <Text
-                                        color={
-                                            !Math.round(profit)
-                                                ? undefined
-                                                : profit > 0
-                                                  ? 'positive'
-                                                  : 'danger'
-                                        }
-                                    >
-                                        {`${new Intl.NumberFormat('ru-RU').format(
-                                            Math.round(profit),
-                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                            Math.round(rentabelnost),
-                                        )}%`}
-                                    </Text>
+                                    {`${new Intl.NumberFormat('ru-RU').format(
+                                        Math.round(profit),
+                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                        Math.round(rentabelnost),
+                                    )}%`}
                                     {warningArtIcon()}
-                                </Button>
-                            </div>
+                                </Text>
+                            </Button>
                         </div>
                     </Card>
                 );
