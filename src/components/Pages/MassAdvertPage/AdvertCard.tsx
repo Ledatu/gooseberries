@@ -488,10 +488,10 @@ export const AdvertCard = ({
                                         columnGap: 4,
                                     }}
                                 >
-                                    <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} / ${
+                                    <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} ${
                                         drrAI !== undefined
-                                            ? `${drrAI.maxBid ?? 'Нет инф.'}`
-                                            : 'Автоставки выкл.'
+                                            ? `${drrAI?.useManualMaxCpm ? `/ ${drrAI.maxBid}` : ''}`
+                                            : '/ Автоставки выкл.'
                                     }`}</Text>
                                     {drrAI !== undefined &&
                                     (drrAI.useManualMaxCpm
