@@ -112,84 +112,33 @@ const BidRuleInfo = ({rule}: any) => {
             );
         if (autoBidsMode == 'obor')
             return (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        columnGap: 8,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <IconWithText
-                        text={`${desiredObor} д.`}
-                        tooltipText={'Оборачиваемость'}
-                        // variant="caption-2"
-                        icon={ArrowsRotateLeft}
-                        size={13}
-                    />
-                    <IconWithText
-                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                        tooltipText={'Заказы'}
-                        // variant="caption-2"
-                        icon={ShoppingCart}
-                        size={13}
-                    />
-                </div>
+                <IconWithText
+                    text={`${desiredObor} д.`}
+                    tooltipText={'Оборачиваемость'}
+                    // variant="caption-2"
+                    icon={ArrowsRotateLeft}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'sum_orders')
             return (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        columnGap: 8,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <IconWithText
-                        text={`${desiredSumOrders} ₽`}
-                        tooltipText={'Сумма заказов'}
-                        // variant="caption-2"
-                        icon={ShoppingCart}
-                        size={13}
-                    />
-                    <IconWithText
-                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                        tooltipText={'Заказы'}
-                        // variant="caption-2"
-                        icon={ShoppingCart}
-                        size={13}
-                    />
-                </div>
+                <IconWithText
+                    text={`${desiredSumOrders} ₽`}
+                    tooltipText={'Сумма заказов'}
+                    // variant="caption-2"
+                    icon={ShoppingCart}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'sellByDate')
             return (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        columnGap: 8,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <IconWithText
-                        text={new Date(sellByDate ?? '').toLocaleDateString('ru-RU')}
-                        tooltipText={'Дата к которой нужно распродать товар'}
-                        // variant="caption-2"
-                        icon={Calendar}
-                        size={13}
-                    />
-                    <IconWithText
-                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                        tooltipText={'Заказы'}
-                        // variant="caption-2"
-                        icon={ShoppingCart}
-                        size={13}
-                    />
-                </div>
+                <IconWithText
+                    text={new Date(sellByDate ?? '').toLocaleDateString('ru-RU')}
+                    tooltipText={'Дата к которой нужно распродать товар'}
+                    // variant="caption-2"
+                    icon={Calendar}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'orders')
             return (
@@ -294,7 +243,7 @@ export const AdvertCard = ({
     const maxBudget = useMemo(
         () =>
             infBudget
-                ? '∞'
+                ? '(∞)'
                 : new Intl.NumberFormat('ru-RU').format(Number(budgetToKeep?.maxBudget)) + ' ₽',
         [infBudget, budgetToKeep?.maxBudget],
     );
@@ -805,14 +754,14 @@ export const AdvertCard = ({
                                 <Text variant="caption-2">
                                     {`Баланс: ${
                                         curBudget !== undefined ? curBudget : 'Нет инф.'
-                                    } / ${
+                                    } /${
                                         budgetToKeep !== undefined
                                             ? budgetToKeep?.mode === 'setAutoPurchase'
-                                                ? `+${budgetToKeep?.budget}${
+                                                ? `${
                                                       budgetToKeep?.desiredDrr
                                                           ? ' ДРР: ' + budgetToKeep?.desiredDrr
                                                           : ''
-                                                  } (${maxBudget})`
+                                                  } ${maxBudget}`
                                                 : budgetToKeep?.budget
                                             : 'Бюджет не задан.'
                                     }` +

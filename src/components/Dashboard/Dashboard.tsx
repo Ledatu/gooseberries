@@ -94,6 +94,7 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
     const [apiKeyExpDate, setApiKeyExpDate] = useState(undefined as any);
+    const {setModule} = useModules();
 
     // Replace the modules memo with useEffect
     useEffect(() => {
@@ -211,7 +212,11 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                             >
                                 <div style={{minWidth: 24}} />
                                 {/* <TextLogo /> */}
-                                <img style={{height: 30}} src={TextLogo} />
+                                <img
+                                    style={{height: 30}}
+                                    src={TextLogo}
+                                    onClick={() => setModule('massAdvert')}
+                                />
                                 {/* <Image style={{height: 30, width: '100px'}} alt="Aurum logo" src={TextLogo} /> */}
                                 {/* <img style={{height: 30}} src={textLogo} /> */}
                             </div>
@@ -278,8 +283,9 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                         >
                                             <div style={{minWidth: 'fit-content'}} />
                                             <img
-                                                style={{height: 30}}
+                                                style={{height: 30, cursor: 'pointer'}}
                                                 src={TextLogo}
+                                                onClick={() => setModule('massAdvert')}
                                                 alt="Aurum logo"
                                             />
                                             {/* <TextLogo /> */}
