@@ -506,7 +506,7 @@ export const ApiPage = () => {
             ),
             name: `На странице Магазинов: ${pagination} Всего Магазинов: ${filteredData.length}`,
         };
-        console.log(filteredSummaryTemp);
+        // console.log(filteredSummaryTemp);
 
         setFilteredSummary({...filteredSummaryTemp});
     };
