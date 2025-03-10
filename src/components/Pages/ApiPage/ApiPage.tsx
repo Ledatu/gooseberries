@@ -21,6 +21,7 @@ interface IRender {
     value?: any;
     footer?: boolean;
     row?: any;
+    index?: number;
 }
 
 export const ApiPage = () => {
@@ -67,6 +68,8 @@ export const ApiPage = () => {
     }, [update]);
 
     const [addedMember, setAddedMember] = useState({});
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState(50);
 
     const generateEditButton = (key: any, onClick = undefined as any) => {
         const triggerButton = (
@@ -104,26 +107,42 @@ export const ApiPage = () => {
                     name: 'name',
                     placeholder: 'Магазин',
                     valueType: 'text',
-                    render: ({value, row, footer}: IRender) => {
-                        if (footer) return undefined;
+                    render: ({value, row, footer, index}: IRender) => {
+                        if (footer) return value;
+
                         return (
-                            <Text
-                                variant="subheader-2"
-                                style={{cursor: 'pointer', maxWidth: '20vw', overflow: 'hidden'}}
-                                onClick={() => setSellerId(row?.seller_id)}
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    gap: 8,
+                                    alignItems: 'center',
+                                }}
                             >
-                                {value}
-                            </Text>
+                                <Text>{(index ?? 0) + 1 + (page - 1) * (pagination ?? 50)}</Text>
+                                <Text
+                                    variant="subheader-2"
+                                    style={{
+                                        cursor: 'pointer',
+                                        maxWidth: '20vw',
+                                        overflow: 'hidden',
+                                    }}
+                                    onClick={() => setSellerId(row?.seller_id)}
+                                >
+                                    {value}
+                                </Text>
+                            </div>
                         );
                     },
                 },
                 {
                     name: 'subscriptionUntil',
                     placeholder: 'Подписка до',
-                    valueType: 'text',
                     render: ({value, row, footer}: IRender) => {
                         if (footer) return undefined;
                         const date = new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
+                        const expired =
+                            new Date(value).getTime() - new Date().getTime() < 86400 * 7 * 1000;
                         return (
                             <div
                                 style={{
@@ -132,13 +151,14 @@ export const ApiPage = () => {
                                     alignItems: 'center',
                                 }}
                             >
-                                <Text variant="subheader-2">
+                                <Text variant="subheader-2" color={expired ? 'danger' : undefined}>
                                     {date == '01.01.2100' ? 'Бессрочная подписка' : date}
                                 </Text>
                                 {admin ? (
                                     <SetSubscriptionExpDateModal
+                                        setUpdate={setUpdate}
                                         campaignName={row?.name}
-                                        sellerId={sellerId}
+                                        sellerId={row?.seller_id}
                                     >
                                         <Button
                                             style={{marginLeft: 4}}
@@ -389,14 +409,14 @@ export const ApiPage = () => {
                       ] as any[])
                     : [],
             ),
-        [filteredData, data],
+        [filteredData, data, pagination, page],
     );
 
     const [filteredSummary, setFilteredSummary] = useState({});
 
     const filterTableData = (withfFilters: any = {}, tableData: any = []) => {
         const temp = [] as any;
-        const filteredSummaryTemp = {price: 0};
+        const filteredSummaryTemp = {price: 0, name: ''};
 
         for (const [art, artInfo] of Object.entries(tableData?.length ? tableData : data)) {
             if (!art || !artInfo) continue;
@@ -427,15 +447,30 @@ export const ApiPage = () => {
                         addFlag = false;
                         break;
                     }
-                } else if (filterArg == 'members') {
+                } else if (filterArg == 'ownerDetails') {
                     let wholeText = '';
-                    for (const member of flarg) {
-                        for (const [_, val] of Object.entries(member?.member_id ?? {})) {
-                            wholeText += val;
-                        }
+                    for (const [_, val] of Object.entries(flarg)) {
+                        wholeText += val;
                     }
-
                     if (!compare(wholeText, filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'subscriptionUntil') {
+                    const dateA = new Date(flarg); // Month is 0-based in JS
+
+                    const [day, month, year] = fldata.split('.').map(Number);
+                    let dateB = new Date(year, month - 1, day);
+
+                    if ((filterData as any)?.['compMode'] == 'include') {
+                        if (!compare(dateA.toLocaleDateString('ru-RU').slice(0, 10), filterData)) {
+                            addFlag = false;
+                            break;
+                        }
+                    } else if (
+                        !dateB.getTime() ||
+                        !compare(dateA.getTime(), {...filterData, val: dateB.getTime()})
+                    ) {
                         addFlag = false;
                         break;
                     }
@@ -462,7 +497,11 @@ export const ApiPage = () => {
             );
         });
 
+        setPage(1);
         setFilteredData([...temp]);
+        filteredSummaryTemp.name = `На странице Магазинов: ${pagination} Всего Магазинов: ${filteredData.length}`;
+        // console.log('filteredSummaryTemp', filteredSummaryTemp);
+
         setFilteredSummary(filteredSummaryTemp);
     };
 
@@ -556,8 +595,19 @@ export const ApiPage = () => {
                     footerData={[filteredSummary]}
                     tableId={'campaigns'}
                     usePagination={true}
-                    defaultPaginationSize={100}
+                    defaultPaginationSize={50}
                     height={'calc(100vh - 10em - 60px)'}
+                    onPaginationUpdate={({page, paginatedData, paginationSize}: any) => {
+                        setPage(page);
+                        setPagination(paginationSize);
+                        setFilteredSummary((row) => {
+                            const fstemp: any = row;
+                            fstemp['name'] =
+                                `На странице Магазинов: ${paginatedData.length} Всего Магазинов: ${filteredData.length}`;
+
+                            return fstemp;
+                        });
+                    }}
                 />
             )}
         </div>

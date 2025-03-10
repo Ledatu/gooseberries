@@ -17,19 +17,19 @@ import {dateTimeParse} from '@gravity-ui/date-utils';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
 import {getLocaleDateString} from '@/utilities/getRoundValue';
-import {useUser} from '@/components/RequireAuth';
 
 export const SetSubscriptionExpDateModal = ({
     children,
     campaignName,
+    setUpdate,
     sellerId,
 }: {
     children: ReactElement | ReactElement[];
     campaignName: string;
+    setUpdate: Function;
     sellerId: string;
 }) => {
     const {showError} = useError();
-    const {refetchUser} = useUser();
     const [open, setOpen] = useState(false);
 
     const handleOpen = () => setOpen(true);
@@ -161,7 +161,7 @@ export const SetSubscriptionExpDateModal = ({
 
                                 try {
                                     await ApiClient.post('auth/set-sub-exp-date', params);
-                                    refetchUser();
+                                    setUpdate(true);
                                 } catch (error: any) {
                                     console.error(error);
                                     showError(

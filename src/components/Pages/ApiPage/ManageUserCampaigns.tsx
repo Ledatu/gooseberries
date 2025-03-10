@@ -337,7 +337,11 @@ const CampaignInfo = ({
                         : 'Бессрочная подписка'}
                 </Text>
                 {[933839157, 1122958293].includes(user?._id) ? (
-                    <SetSubscriptionExpDateModal campaignName={name} sellerId={sellerId}>
+                    <SetSubscriptionExpDateModal
+                        setUpdate={() => {}}
+                        campaignName={name}
+                        sellerId={sellerId}
+                    >
                         <Button style={{marginLeft: 4}} view="flat" pin="circle-circle">
                             <Icon data={Calendar} size={13} />
                         </Button>
