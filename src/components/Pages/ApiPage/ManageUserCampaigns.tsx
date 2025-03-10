@@ -36,7 +36,12 @@ const EditMemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId,
                 photoUrl={photoUrl}
                 view={'clear'}
             />
-            <ManageUserModal sellerId={sellerId} memberInfo={{_id}} modules={modules}>
+            <ManageUserModal
+                sellerId={sellerId}
+                memberInfo={{_id}}
+                modules={modules}
+                setUpdate={() => {}}
+            >
                 <Button view="flat" style={{margin: '0 4px'}} pin="circle-circle">
                     <Icon data={Pencil} />
                 </Button>
@@ -276,6 +281,7 @@ const CampaignInfo = ({
                             Сотрудники
                         </Text>
                         <AddMemberModal
+                            setUpdate={() => {}}
                             sellerId={sellerId}
                             addedMember={addedMember}
                             setAddedMember={setAddedMember}
