@@ -10,7 +10,7 @@ import ApiClient from '@/utilities/ApiClient';
 import {useError} from '@/contexts/ErrorContext';
 import {EditMemberInfo, UserInfo} from './UserInfo';
 import {AddMemberModal} from './AddMemberModal';
-import {defaultRender, renderAsPercent} from '@/utilities/getRoundValue';
+import {defaultRender, getRoundValue, renderAsPercent} from '@/utilities/getRoundValue';
 import {useUser} from '@/components/RequireAuth';
 import {EditSubscription} from './EditSubscription';
 import {ChangeApiModal} from './ChangeApiModal';
@@ -176,6 +176,27 @@ export const ApiPage = () => {
                     },
                 },
                 {
+                    name: 'ownerDetails',
+                    wmaxWidth: 300,
+                    placeholder: 'Владелец',
+                    valueType: 'text',
+                    render: ({value, footer}: IRender) => {
+                        if (footer) return undefined;
+                        return (
+                            <div
+                                style={{
+                                    width: 'fit-content',
+                                    maxWidth: 300,
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                }}
+                            >
+                                <UserInfo user={value} view="outlined" />
+                            </div>
+                        );
+                    },
+                },
+                {
                     name: 'members',
                     placeholder: 'Сотрудники',
                     valueType: 'text',
@@ -214,31 +235,11 @@ export const ApiPage = () => {
                     },
                 },
                 {
-                    name: 'ownerDetails',
-                    wmaxWidth: 300,
-                    placeholder: 'Владелец',
-                    valueType: 'text',
-                    render: ({value, footer}: IRender) => {
-                        if (footer) return undefined;
-                        return (
-                            <div
-                                style={{
-                                    width: 'fit-content',
-                                    maxWidth: 300,
-                                    overflow: 'hidden',
-                                    display: 'flex',
-                                }}
-                            >
-                                <UserInfo user={value} view="outlined" />
-                            </div>
-                        );
-                    },
-                },
-                {
                     name: 'price',
                     placeholder: 'Тариф',
                     render: ({value, row, footer}: IRender) => {
-                        if (footer) return `${defaultRender({value: Math.round(value)})} ₽`;
+                        if (footer)
+                            return `${defaultRender({value: Math.round(value)})} ₽ / ${defaultRender({value: getRoundValue(value, filteredData.length)})} ₽`;
                         if (isNaN(value)) return 'Тариф будет рассчитан в ближайшее время';
                         const {fixedTarif, saleRubles, salePercent} = row ?? {};
                         if (fixedTarif)
@@ -416,7 +417,6 @@ export const ApiPage = () => {
 
     const filterTableData = (withfFilters: any = {}, tableData: any = []) => {
         const temp = [] as any;
-        const filteredSummaryTemp = {price: 0, name: ''};
 
         for (const [art, artInfo] of Object.entries(tableData?.length ? tableData : data)) {
             if (!art || !artInfo) continue;
@@ -485,9 +485,8 @@ export const ApiPage = () => {
 
                 const price =
                     fixedTarif ?? (curPrice - (saleRubles ?? 0)) * (1 - (salePercent ?? 0) / 100);
-                filteredSummaryTemp.price += !isNaN(price) ? (price ?? 0) : 0;
-                tempTypeRow.price = price;
-                temp.push({...tempTypeRow});
+
+                temp.push({...tempTypeRow, price});
             }
         }
 
@@ -499,10 +498,17 @@ export const ApiPage = () => {
 
         setPage(1);
         setFilteredData([...temp]);
-        filteredSummaryTemp.name = `На странице Магазинов: ${pagination} Всего Магазинов: ${filteredData.length}`;
-        // console.log('filteredSummaryTemp', filteredSummaryTemp);
 
-        setFilteredSummary(filteredSummaryTemp);
+        const filteredSummaryTemp = {
+            price: temp.reduce(
+                (sum: number, entry: any) => sum + (!isNaN(entry?.price) ? (entry?.price ?? 0) : 0),
+                0,
+            ),
+            name: `На странице Магазинов: ${pagination} Всего Магазинов: ${filteredData.length}`,
+        };
+        console.log(filteredSummaryTemp);
+
+        setFilteredSummary({...filteredSummaryTemp});
     };
 
     useEffect(() => {
