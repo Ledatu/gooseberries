@@ -99,7 +99,7 @@ export const ApiPage = () => {
         );
     };
 
-    const admin = useMemo(() => [1122958293, 933839157].includes(user?._id), [user]);
+    const admin = useMemo(() => [1122958293, 933839157, 438907355].includes(user?._id), [user]);
     const columnData = useMemo(
         () =>
             [
