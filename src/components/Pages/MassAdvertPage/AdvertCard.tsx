@@ -249,7 +249,7 @@ export const AdvertCard = ({
     );
     // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
-    const scheduleInfo = useMemo(() => doc.advertsSchedules[selectValue[0]][advertId], [doc]);
+    const scheduleInfo = doc.advertsSchedules[selectValue[0]][advertId];
     const scheduleStatus = (() => {
         if (!scheduleInfo) return 'none';
         for (let i = 0; i < 7; i++) {
