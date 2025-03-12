@@ -77,7 +77,10 @@ export const ApiPage = () => {
             setData(
                 tempData.filter(
                     (campaign) =>
-                        (groupToShowSelected == 'archieved') == (campaign?.['archieved'] ?? false),
+                        (groupToShowSelected == 'archieved') ==
+                        (typeof campaign?.['archieved'] == 'boolean'
+                            ? campaign?.['archieved']
+                            : false),
                 ),
             ),
         [tempData, groupToShowSelected],
