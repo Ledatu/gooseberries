@@ -1,6 +1,15 @@
 'use client';
 import {useEffect, useMemo, useState} from 'react';
-import {Spin, Icon, Button, Loader, Text, Tooltip} from '@gravity-ui/uikit';
+import {
+    Spin,
+    Icon,
+    Button,
+    Loader,
+    Text,
+    Tooltip,
+    SegmentedRadioGroup,
+    ActionTooltip,
+} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import {Pencil, Plus, Calendar} from '@gravity-ui/icons';
 import TheTable, {compare} from '@/components/TheTable';
@@ -33,8 +42,15 @@ export const ApiPage = () => {
     const {userInfo} = useUser();
     const {user} = userInfo ?? {};
 
+    const [tempData, setTempData] = useState([]);
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState<any[]>([]);
+
+    const groupToShow = [
+        {content: 'Активные', value: 'active'}, // archieved param
+        {content: 'Архив', value: 'archieved'},
+    ];
+    const [groupToShowSelected, setGroupToShowSelected] = useState(groupToShow[0].value);
 
     const getNomenclatures = async () => {
         try {
@@ -46,7 +62,7 @@ export const ApiPage = () => {
             console.log(response?.data);
 
             if (response && response.data) {
-                setData(response.data);
+                setTempData(response.data);
             } else {
                 console.error('No data received from the API');
             }
@@ -55,6 +71,17 @@ export const ApiPage = () => {
             showError('Возникла ошибка.');
         }
     };
+
+    useEffect(
+        () =>
+            setData(
+                tempData.filter(
+                    (campaign) =>
+                        (groupToShowSelected == 'archieved') == (campaign?.['archieved'] ?? false),
+                ),
+            ),
+        [tempData, groupToShowSelected],
+    );
 
     useEffect(() => {
         setSwitchingCampaignsFlag(true);
@@ -66,6 +93,26 @@ export const ApiPage = () => {
         if (!update) return;
         getNomenclatures().finally(() => setUpdate(false));
     }, [update]);
+
+    const toogleArchieved = async (sellerId: string) => {
+        const params = {
+            archieved: groupToShowSelected == 'active',
+            seller_ids: [sellerId],
+        };
+
+        console.log(params);
+
+        try {
+            const response = await ApiClient.post('campaigns/edit-archieve', params);
+            if (response && response.data) {
+                setUpdate(true);
+            } else {
+                console.error('No data received from the API');
+            }
+        } catch (error) {
+            showError('Не удалось изменить состояние архива.');
+        }
+    };
 
     const [addedMember, setAddedMember] = useState({});
     const [page, setPage] = useState(1);
@@ -114,23 +161,63 @@ export const ApiPage = () => {
                             <div
                                 style={{
                                     display: 'flex',
-                                    flexDirection: 'row',
+                                    flexDirection: 'column',
                                     gap: 8,
-                                    alignItems: 'center',
                                 }}
                             >
-                                <Text>{(index ?? 0) + 1 + (page - 1) * (pagination ?? 50)}</Text>
-                                <Text
-                                    variant="subheader-2"
+                                <div
                                     style={{
-                                        cursor: 'pointer',
-                                        maxWidth: '20vw',
-                                        overflow: 'hidden',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        gap: 8,
+                                        alignItems: 'center',
                                     }}
-                                    onClick={() => setSellerId(row?.seller_id)}
                                 >
-                                    {value}
-                                </Text>
+                                    <Text>
+                                        {(index ?? 0) + 1 + (page - 1) * (pagination ?? 50)}
+                                    </Text>
+                                    <Text
+                                        variant="subheader-2"
+                                        style={{
+                                            cursor: 'pointer',
+                                            maxWidth: '20vw',
+                                            overflow: 'hidden',
+                                        }}
+                                        onClick={() => setSellerId(row?.seller_id)}
+                                    >
+                                        {value}
+                                    </Text>
+                                </div>
+                                {row?.isOwner || admin ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            gap: 8,
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <ActionTooltip
+                                            title={
+                                                groupToShowSelected == 'active'
+                                                    ? 'Магазин будет отключен и помещен в архив, позже вы можете его вернуть'
+                                                    : 'Магазин будет включен и убран из архива, позже вы можете снова поместить его в архив'
+                                            }
+                                        >
+                                            <Button
+                                                size="s"
+                                                onClick={() => toogleArchieved(row?.seller_id)}
+                                                view="flat"
+                                            >
+                                                {groupToShowSelected == 'active'
+                                                    ? 'Архивировать'
+                                                    : 'Убрать из архива'}
+                                            </Button>
+                                        </ActionTooltip>
+                                    </div>
+                                ) : (
+                                    <></>
+                                )}
                             </div>
                         );
                     },
@@ -532,49 +619,57 @@ export const ApiPage = () => {
                     display: 'flex',
                     width: '100%',
                     alignItems: 'center',
-                    justifyContent: data?.length ? undefined : 'center',
+                    justifyContent: tempData?.length ? 'space-between' : 'center',
                     flexWrap: 'wrap',
                     marginBottom: 8,
                     flexDirection: 'row',
                 }}
             >
-                {/* <Button
-                    loading={update}
-                    size="l"
-                    view="action"
-                    onClick={() => {
-                        setUpdate(true);
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
                     }}
                 >
-                    <Icon data={ArrowsRotateLeft} />
-                </Button>*/}
-                <AddApiModal>
-                    <Button
-                        size="xl"
-                        view="flat"
+                    <AddApiModal>
+                        <Button
+                            size="xl"
+                            view="flat"
+                            style={{
+                                border: '1px solid var(--g-color-base-generic-hover)',
+                                borderRadius: 30,
+                                overflow: 'hidden',
+                                backdropFilter: 'blur(20px)',
+                                boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                            }}
+                        >
+                            <Text variant="subheader-1">Добавить магазин WB</Text>
+                        </Button>
+                    </AddApiModal>
+                    <motion.div
                         style={{
-                            border: '1px solid var(--g-color-base-generic-hover)',
-                            borderRadius: 30,
                             overflow: 'hidden',
-                            backdropFilter: 'blur(20px)',
-                            boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+                            marginTop: 4,
+                        }}
+                        animate={{
+                            maxWidth: update ? 40 : 0,
+                            opacity: update ? 1 : 0,
                         }}
                     >
-                        <Text variant="subheader-1">Добавить магазин WB</Text>
-                    </Button>
-                </AddApiModal>
-                <motion.div
-                    style={{
-                        overflow: 'hidden',
-                        marginTop: 4,
-                    }}
-                    animate={{
-                        maxWidth: update ? 40 : 0,
-                        opacity: update ? 1 : 0,
-                    }}
-                >
-                    <Spin style={{marginLeft: 8}} />
-                </motion.div>{' '}
+                        <Spin style={{marginLeft: 8}} />
+                    </motion.div>
+                </div>
+                {!tempData?.length ? (
+                    <></>
+                ) : (
+                    <SegmentedRadioGroup
+                        size="l"
+                        value={groupToShowSelected}
+                        options={groupToShow}
+                        onUpdate={(value) => setGroupToShowSelected(value)}
+                    />
+                )}
             </div>
 
             {switchingCampaignsFlag ? (
