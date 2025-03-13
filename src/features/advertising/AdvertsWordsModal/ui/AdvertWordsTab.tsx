@@ -3,7 +3,7 @@
 import {Tab, TabProvider, Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
 
-import {AdvertWordsTabModules} from './types';
+import {AdvertWordsTabModules} from '../types';
 import {motion} from 'framer-motion';
 
 interface CustomTabProps {

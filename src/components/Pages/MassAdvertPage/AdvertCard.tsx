@@ -28,7 +28,7 @@ import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {AdvertsBidsModal} from './AdvertsBidsModal';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {ChartModal} from './ChartModal';
-import {AdvertsWordsButton} from './AdvertsWordsButton';
+import {AdvertsWordsButton} from '@/features/advertising/AdvertsWordsModal';
 import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
 import ApiClient from '@/utilities/ApiClient';
 import {IconWithText} from '@/components/IconWithText';

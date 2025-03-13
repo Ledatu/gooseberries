@@ -2,6 +2,7 @@
 
 import {Button, Text} from '@gravity-ui/uikit';
 import {AdvertsWordsModal} from './AdvertsWordsModal';
+// import {AdvertsWordsModal} from './AdvertsWordsModal';
 
 interface AdvertsWordsButtonProps {
     disabled: boolean;
@@ -44,14 +45,15 @@ export const AdvertsWordsButton = ({
 
     return (
         <AdvertsWordsModal
-            disabled={disabled}
-            doc={doc}
+            // nmId={art}
+            // disabled={disabled}
+            // doc={doc}
             advertId={advertId}
-            art={art}
-            setChangedDoc={setChangedDoc}
-            setFetchedPlacements={setFetchedPlacements}
-            currentParsingProgress={currentParsingProgress}
-            setCurrentParsingProgress={setCurrentParsingProgress}
+            // art={art}
+            // setChangedDoc={setChangedDoc}
+            // setFetchedPlacements={setFetchedPlacements}
+            // currentParsingProgress={currentParsingProgress}
+            // setCurrentParsingProgress={setCurrentParsingProgress}
         >
             <Button size="xs" pin="brick-round" selected={themeToUse != 'normal'} view={themeToUse}>
                 <Text variant="caption-2">
