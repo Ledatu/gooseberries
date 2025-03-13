@@ -1411,9 +1411,8 @@ export const MassAdvertPage = () => {
                       const profitsData = autoSalesProfits[art];
                       const switches = [] as any[];
 
-                      const proftDiff = profitsData.profit - profitsData.oldProfit;
-
                       if (profitsData) {
+                          const proftDiff = profitsData.profit - profitsData.oldProfit;
                           switches.push(
                               <Card
                                   style={{
