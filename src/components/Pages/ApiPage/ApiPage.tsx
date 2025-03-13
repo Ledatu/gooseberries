@@ -537,10 +537,12 @@ export const ApiPage = () => {
                         addFlag = false;
                         break;
                     }
-                } else if (filterArg == 'ownerDetails') {
+                } else if (filterArg == 'members') {
                     let wholeText = '';
-                    for (const [_, val] of Object.entries(flarg)) {
-                        wholeText += val;
+                    for (const member of flarg) {
+                        for (const [_, val] of Object.entries(member?.member_id)) {
+                            wholeText += val;
+                        }
                     }
                     if (!compare(wholeText, filterData)) {
                         addFlag = false;
