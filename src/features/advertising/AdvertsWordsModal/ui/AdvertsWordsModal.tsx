@@ -2,32 +2,38 @@
 
 import {cx} from '@/lib/utils';
 import {Button, Card, Modal, Text} from '@gravity-ui/uikit';
-import {useState} from 'react';
-import {AutoWordsProvider} from './AdvertsWordsModalContext';
+import {ReactNode, useState} from 'react';
+import {AdvertWordsProvider} from '../hooks/AdvertsWordsModalContext';
 import {AdvertsWordsHeader} from './AdvertsWordsHeader';
-import {AdvertsWordsPage} from './AdvertsWordsPage';
+import {AdvertsWordsPage} from '../AdvertsWordsPages';
 // import Classes from '@/styles/cardStyle.module.scss';
 
-export const AdvertsWordsModal2 = (nmId: number) => {
+interface AdvertsWordsModal2Props {
+    advertId: number;
+    children: ReactNode;
+}
+
+export const AdvertsWordsModal = ({advertId, children}: AdvertsWordsModal2Props) => {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     return (
         <div>
-            <Button
+            <div onClick={() => setModalOpen(!modalOpen)}>{children}</div>
+            {/* <Button
                 onClick={() => {
                     setModalOpen(!modalOpen);
                 }}
             >
                 <Text>ХУЙЖдвфлж{nmId}</Text>
-            </Button>
+            </Button> */}
             <Modal open={modalOpen} onOpenChange={(open) => setModalOpen(open)}>
                 <Card
                     style={{width: '80%', height: '70%', display: 'flex', flexDirection: 'column'}}
                     className={cx(['centred-absolute-element', 'blurred-card'])}
                 >
-                    <AutoWordsProvider>
+                    <AdvertWordsProvider advertId={advertId}>
                         <AdvertsWordsHeader />
                         <AdvertsWordsPage />
-                    </AutoWordsProvider>
+                    </AdvertWordsProvider>
                     {/* <Text>хай</Text> */}
                 </Card>
             </Modal>

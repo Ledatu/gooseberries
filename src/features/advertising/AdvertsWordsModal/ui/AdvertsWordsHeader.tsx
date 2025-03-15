@@ -2,8 +2,8 @@
 
 import {Dispatch, SetStateAction} from 'react';
 import {AdvertWordsTab} from './AdvertWordsTab';
-import {AdvertWordsTabModules} from './types';
-import {useAdvertsWordsModal} from './AdvertsWordsModalContext';
+import {AdvertWordsTabModules} from '../types';
+import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 
 export interface AdvertWordsHeaderProps {
     currentValue: AdvertWordsTabModules;

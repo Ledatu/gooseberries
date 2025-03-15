@@ -1,10 +1,10 @@
 'use client';
 
 // import dynamic from 'next/dynamic';
-import {useAdvertsWordsModal} from '../AdvertsWordsModalContext';
+import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Loader, Text} from '@gravity-ui/uikit';
 import {useEffect} from 'react';
-import {ActiveClustersPage} from './ActiveClustersPage';
+import {ActiveClustersPage} from './ActiveClustersModule/ActiveClustersPage';
 import {InactiveClustersPage} from './InactiveClustersPage';
 import {SettingsPage} from './SettingsPage';
 import {AutoPhrasesPage} from './AutoPhrasesPage';
