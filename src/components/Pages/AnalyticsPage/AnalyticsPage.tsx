@@ -351,7 +351,14 @@ export const AnalyticsPage = () => {
             placeholder: '% Логист. к продажам',
             isReverseGrad: true,
             render: (args: any) =>
-                renderWithGraph(args, 'logisticsPercent', '% Логист. к продажам'),
+                renderWithGraph(
+                    args,
+                    'logisticsPercent',
+                    '% Логист. к продажам',
+                    ['logisticsPercent'],
+                    renderAsPercent,
+                ),
+            planType: 'avg',
         },
 
         drr_orders: {
@@ -561,8 +568,8 @@ export const AnalyticsPage = () => {
     }, [sellerId]);
     const [columnsArray, setColumnsArray] = useState([] as any);
     useEffect(() => {
-        const arr = columnsDataToShow.filter((column: any) => column.visibility);
-        setColumnsArray(arr);
+        // const arr = columnsDataToShow.filter((column: any) => column.visibility);
+        setColumnsArray(columnsDataToShow);
     }, [columnsDataToShow]);
 
     const columnDataReversed = (() => {

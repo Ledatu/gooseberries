@@ -102,7 +102,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
     const [dzhemDataFilteredFooter, setDzhemDataFilteredFooter] = useState<any>({
         text: '',
     });
-    const [dzhemDataFilteredAvg, setDzhemDataFilteredAvg] = useState<any>({text: ''});
+    const [_dzhemDataFilteredAvg, setDzhemDataFilteredAvg] = useState<any>({text: ''});
     const [dzhemDataFilteredMed, setDzhemDataFilteredMed] = useState<any>({text: ''});
 
     const dzhemDataFilter = (withfFilters: any, stats: any[]) => {
@@ -129,33 +129,32 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
             visibilityCurrent: 0,
             text: '',
         };
-        setDzhemDataFilteredData(
-            _stats.filter((stat) => {
-                for (const [filterArg, data] of Object.entries(_filters)) {
-                    const filterData: any = data;
-                    if (filterArg == 'undef' || !filterData) continue;
-                    if (filterData['val'] == '') continue;
-                    else if (!compare(stat[filterArg], filterData)) {
-                        return false;
-                    }
+        const filtered = _stats.filter((stat) => {
+            for (const [filterArg, data] of Object.entries(_filters)) {
+                const filterData: any = data;
+                if (filterArg == 'undef' || !filterData) continue;
+                if (filterData['val'] == '') continue;
+                else if (!compare(stat[filterArg], filterData)) {
+                    return false;
                 }
+            }
 
-                for (const [key, val] of Object.entries(stat)) {
-                    if (val === undefined) continue;
+            for (const [key, val] of Object.entries(stat)) {
+                if (val === undefined) continue;
 
-                    if (key == 'text') continue;
-                    dzhemDataFilteredFooterTemp[key] +=
-                        isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
-                }
-                count++;
+                if (key == 'text') continue;
+                dzhemDataFilteredFooterTemp[key] +=
+                    isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
+            }
+            count++;
 
-                // dzhemDataFilteredSummaryTemp['date']++;
+            // dzhemDataFilteredSummaryTemp['date']++;
 
-                return true;
-            }),
-        );
+            return true;
+        });
+        setDzhemDataFilteredData(filtered);
         const dzhemDataFilteredAvgTemp = {...dzhemDataFilteredFooterTemp};
-        console.log('dzhemDataFilteredData', dzhemDataFilteredData);
+        // console.log('dzhemDataFilteredData', dzhemDataFilteredData, filtered);
 
         for (const key of [
             'frequencyCurrent',
@@ -188,9 +187,8 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
             }
             dzhemDataFilteredAvgTemp[key] = getRoundValue(dzhemDataFilteredAvgTemp[key], count);
         }
-        setDzhemDataFilteredFooter(dzhemDataFilteredFooterTemp);
         setDzhemDataFilteredAvg(dzhemDataFilteredAvgTemp);
-        const mediana = getMedian(_stats, dzhemDataFilteredFooterTemp);
+        const mediana = getMedian(filtered, dzhemDataFilteredFooterTemp);
         for (const [key, val] of Object.entries(dzhemDataFilteredFooterTemp)) {
             if (typeof val !== 'number') continue;
             if (
@@ -206,7 +204,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                 continue;
             }
         }
-        console.log(dzhemDataFilteredAvg);
+        setDzhemDataFilteredFooter(dzhemDataFilteredFooterTemp);
         setDzhemDataFilteredMed(mediana as any);
     };
 

@@ -528,7 +528,10 @@ export const AdvertCard = ({
                                     ) : (
                                         <></>
                                     )}
-                                    {drrAI?.placementsTrigger ? (
+                                    {drrAI?.placementsTrigger &&
+                                    !['bestPlacement', 'placements', 'auction'].includes(
+                                        drrAI.autoBidsMode,
+                                    ) ? (
                                         <IconWithText
                                             icon={BarsAscendingAlignLeftArrowUp}
                                             text={drrAI?.placementsTrigger}
