@@ -23,11 +23,13 @@ export const SetSubscriptionExpDateModal = ({
     campaignName,
     setUpdate,
     sellerId,
+    sellerIds,
 }: {
     children: ReactElement | ReactElement[];
     campaignName: string;
     setUpdate: Function;
-    sellerId: string;
+    sellerId?: string;
+    sellerIds?: string[];
 }) => {
     const {showError} = useError();
     const [open, setOpen] = useState(false);
@@ -154,20 +156,40 @@ export const SetSubscriptionExpDateModal = ({
 
                                 const date = new Date(subExpDate);
 
-                                const params = {
-                                    seller_id: sellerId,
-                                    subscriptionUntil: getLocaleDateString(date),
-                                };
+                                if (sellerId) {
+                                    const params = {
+                                        seller_id: sellerId,
+                                        subscriptionUntil: getLocaleDateString(date),
+                                    };
 
-                                try {
-                                    await ApiClient.post('auth/set-sub-exp-date', params);
+                                    try {
+                                        await ApiClient.post('auth/set-sub-exp-date', params);
+                                        setUpdate(true);
+                                    } catch (error: any) {
+                                        console.error(error);
+                                        showError(
+                                            error.response?.data?.error ||
+                                                'Не удалось установить дату подписки.',
+                                        );
+                                    }
+                                } else if (sellerIds) {
+                                    for (const _sellerId of sellerIds) {
+                                        const params = {
+                                            seller_id: _sellerId,
+                                            subscriptionUntil: getLocaleDateString(date),
+                                        };
+
+                                        try {
+                                            await ApiClient.post('auth/set-sub-exp-date', params);
+                                        } catch (error: any) {
+                                            console.error(error);
+                                            showError(
+                                                error.response?.data?.error ||
+                                                    'Не удалось установить дату подписки.',
+                                            );
+                                        }
+                                    }
                                     setUpdate(true);
-                                } catch (error: any) {
-                                    console.error(error);
-                                    showError(
-                                        error.response?.data?.error ||
-                                            'Не удалось установить дату подписки.',
-                                    );
                                 }
                                 handleClose();
                             }}

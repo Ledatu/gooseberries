@@ -149,6 +149,18 @@ export const ApiPage = () => {
         );
     };
 
+    const sellerIdsInFiltreredData = useMemo(() => {
+        const temp = [] as string[];
+        for (const row of filteredData) {
+            const {seller_id: sellerId} = row ?? {};
+            if (!sellerId) continue;
+            if (!temp.includes(sellerId)) temp.push(sellerId);
+        }
+        console.log(temp);
+
+        return temp;
+    }, [filteredData]);
+
     const admin = useMemo(() => [1122958293, 933839157, 438907355].includes(user?._id), [user]);
     const columnData = useMemo(
         () =>
@@ -228,6 +240,19 @@ export const ApiPage = () => {
                 {
                     name: 'subscriptionUntil',
                     placeholder: 'Подписка до',
+                    additionalNodes: admin
+                        ? [
+                              <SetSubscriptionExpDateModal
+                                  setUpdate={setUpdate}
+                                  campaignName={`Магазинов: ${sellerIdsInFiltreredData.length}.`}
+                                  sellerIds={sellerIdsInFiltreredData}
+                              >
+                                  <Button style={{marginLeft: 4}} view="flat" pin="circle-circle">
+                                      <Icon data={Calendar} size={13} />
+                                  </Button>
+                              </SetSubscriptionExpDateModal>,
+                          ]
+                        : [],
                     render: ({value, row, footer}: IRender) => {
                         if (footer) return undefined;
                         const date = new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
