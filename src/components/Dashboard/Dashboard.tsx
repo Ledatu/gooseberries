@@ -68,7 +68,6 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
     }, [availableModules, searchParams]);
 
     useEffect(() => {
-        console.log(JSON.stringify(currentCampaign), 'currentCampaign');
         const titleMap: Record<string, string> = {
             massAdvert: 'Реклама',
             analytics: 'Аналитика',
@@ -211,14 +210,11 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                 }}
                             >
                                 <div style={{minWidth: 24}} />
-                                {/* <TextLogo /> */}
                                 <img
                                     style={{height: 30}}
                                     src={TextLogo}
                                     onClick={() => setModule('massAdvert')}
                                 />
-                                {/* <Image style={{height: 30, width: '100px'}} alt="Aurum logo" src={TextLogo} /> */}
-                                {/* <img style={{height: 30}} src={textLogo} /> */}
                             </div>
                             <SelectCampaign
                                 apiKeyExpDate={apiKeyExpDate}

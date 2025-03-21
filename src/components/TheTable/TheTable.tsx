@@ -209,7 +209,12 @@ export default function TheTable({
     };
 
     return (
-        <div style={{height: `calc(${height ?? '100%'} - 16px - 28px)`, width: width ?? '100%'}}>
+        <div
+            style={{
+                height: `calc(${height ?? '100%'} - 16px - 28px)`,
+                width: width ?? '100%',
+            }}
+        >
             <Card style={tableCardStyle} theme={theme}>
                 <DataTable
                     emptyDataMessage={emptyDataMessage ?? 'Нет данных.'}
