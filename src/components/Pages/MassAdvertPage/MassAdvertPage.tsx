@@ -72,7 +72,7 @@ import {AutoSalesModal} from './AutoSalesModal';
 import {TagsFilterModal} from '@/components/TagsFilterModal';
 import {PhrasesModal} from './PhrasesModal';
 import {AdvertCard} from './AdvertCard';
-import {AdvertsBidsModal} from './AdvertsBidsModal';
+import {AdvertsBidsModal} from './AdvertsBidsModalNew';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {LogoLoad} from '@/components/logoLoad';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
