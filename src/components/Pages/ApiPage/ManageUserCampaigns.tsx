@@ -36,7 +36,12 @@ const EditMemberInfo = ({_id, firstName, lastName, username, photoUrl, sellerId,
                 photoUrl={photoUrl}
                 view={'clear'}
             />
-            <ManageUserModal sellerId={sellerId} memberInfo={{_id}} modules={modules}>
+            <ManageUserModal
+                sellerId={sellerId}
+                memberInfo={{_id}}
+                modules={modules}
+                setUpdate={() => {}}
+            >
                 <Button view="flat" style={{margin: '0 4px'}} pin="circle-circle">
                     <Icon data={Pencil} />
                 </Button>
@@ -276,6 +281,7 @@ const CampaignInfo = ({
                             Сотрудники
                         </Text>
                         <AddMemberModal
+                            setUpdate={() => {}}
                             sellerId={sellerId}
                             addedMember={addedMember}
                             setAddedMember={setAddedMember}
@@ -331,7 +337,11 @@ const CampaignInfo = ({
                         : 'Бессрочная подписка'}
                 </Text>
                 {[933839157, 1122958293].includes(user?._id) ? (
-                    <SetSubscriptionExpDateModal campaignName={name} sellerId={sellerId}>
+                    <SetSubscriptionExpDateModal
+                        setUpdate={() => {}}
+                        campaignName={name}
+                        sellerId={sellerId}
+                    >
                         <Button style={{marginLeft: 4}} view="flat" pin="circle-circle">
                             <Icon data={Calendar} size={13} />
                         </Button>

@@ -71,6 +71,33 @@ export const PricesPage = () => {
         filterTableData(filters);
     };
 
+    const [currentPromotionPrices, setCurrentPromotionPrices] = useState([] as any[]);
+    const getCurrentPromotionPrices = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            // console.log('prices/get-prices-for-current-promotions', params);
+
+            const response = await ApiClient.post(
+                'prices/get-prices-for-current-promotions',
+                params,
+            );
+            if (!response?.data) {
+                throw new Error('No columns Data');
+            }
+            const data = response?.data?.filter(
+                (promo: any) => Object.values(promo?.prices ?? {}).length,
+            );
+            // console.log('getCurrentPromotionPrices', data);
+            setCurrentPromotionPrices(data);
+        } catch (error) {
+            console.error(error);
+            showError('Не удалось получить список цен для акций');
+        }
+    };
+    useEffect(() => {
+        getCurrentPromotionPrices();
+    }, [sellerId]);
+
     const handleSendButton = () => {
         const params = {
             uid: getUid(),
@@ -615,7 +642,14 @@ export const PricesPage = () => {
                     return `${value} / ${getRoundValue((value - primeCost) * 100, primeCost)}%`;
                 })(args),
         },
-    ];
+    ].concat(
+        currentPromotionPrices?.length
+            ? currentPromotionPrices.map((promo) => ({
+                  name: `promo_${promo?.id}`,
+                  placeholder: promo?.name,
+              }))
+            : [],
+    );
 
     const groupingOptions = [
         {value: 'campaignName', content: 'Магазин'},
@@ -784,7 +818,7 @@ export const PricesPage = () => {
                 cpoOrders: 0,
                 buyoutsPercent: 0,
                 allExpences: 0,
-            };
+            } as any;
             artInfo.art = artData['art'];
             artInfo.object = artData['object'];
             artInfo.brand = artData['brand'];
@@ -827,6 +861,13 @@ export const PricesPage = () => {
 
             artInfo.obor = Math.round(artData['obor']);
 
+            for (const promo of currentPromotionPrices) {
+                const {id, prices} = promo;
+                const promoPrice = prices?.[artData['nmId']];
+                if (!id || !promoPrice) continue;
+                artInfo[`promo_${id}`] = promoPrice;
+            }
+
             temp[art] = artInfo;
         }
 
@@ -836,10 +877,8 @@ export const PricesPage = () => {
     };
 
     useEffect(() => {
-        console.log('hrereee', doc);
-
         recalc();
-    }, [doc]);
+    }, [doc, currentPromotionPrices]);
 
     const [filteredSummary, setFilteredSummary] = useState({});
 

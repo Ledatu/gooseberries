@@ -62,10 +62,9 @@ const modulesMap: any = {
 export default function ModulePage() {
     const {userInfo, isAuthenticated} = useUser();
     const {modulesLoaded, currentModule} = useModules();
-    const {sellerId, campaign, campaigns} = useCampaign();
+    const {sellerId, campaignInfo: campaign, campaigns} = useCampaign();
     console.log('sellerId', sellerId);
     const currentTime = new Date();
-
     useEffect(() => {
         const isMac = navigator.userAgent.toLowerCase().includes('mac');
 
@@ -76,21 +75,6 @@ export default function ModulePage() {
         }
     }, []);
 
-    // // Handle initial currentModule validation
-    // useEffect(() => {
-    //     console.log(currentModule);
-    //     if (modulesLoaded && currentModule && isAuthenticated) {
-    //         if (!availableModules.includes(cur)) {
-    //             router.replace(`/api${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //         } else {
-    //             router.replace(`/${module}${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //         }
-    //     }
-    //     if (modulesLoaded && module && !availableModules.includes(module) && isAuthenticated) {
-    //         console.log(':LADK:LAKD:LDKJ;l');
-    //         router.replace(`/api${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //     }
-    // }, [modulesLoaded, module, availableModules, sellerId, isAuthenticated]);
     if (!campaigns.length && isAuthenticated) {
         const ApiPage = modulesMap['api'];
 
@@ -102,7 +86,6 @@ export default function ModulePage() {
     }
 
     const subscriptionUntil = useMemo(() => {
-        console.log(campaign);
         return campaign?.subscriptionUntil;
     }, [campaign]);
 

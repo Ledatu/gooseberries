@@ -32,6 +32,7 @@ import {AdvertsWordsButton} from './AdvertsWordsButton';
 import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
 import ApiClient from '@/utilities/ApiClient';
 import {IconWithText} from '@/components/IconWithText';
+import {useError} from '@/contexts/ErrorContext';
 
 interface AdvertCardProps {
     permission: string;
@@ -111,84 +112,33 @@ const BidRuleInfo = ({rule}: any) => {
             );
         if (autoBidsMode == 'obor')
             return (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        columnGap: 8,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <IconWithText
-                        text={`${desiredObor} д.`}
-                        tooltipText={'Оборачиваемость'}
-                        // variant="caption-2"
-                        icon={ArrowsRotateLeft}
-                        size={13}
-                    />
-                    <IconWithText
-                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                        tooltipText={'Заказы'}
-                        // variant="caption-2"
-                        icon={ShoppingCart}
-                        size={13}
-                    />
-                </div>
+                <IconWithText
+                    text={`${desiredObor} д.`}
+                    tooltipText={'Оборачиваемость'}
+                    // variant="caption-2"
+                    icon={ArrowsRotateLeft}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'sum_orders')
             return (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        columnGap: 8,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <IconWithText
-                        text={`${desiredSumOrders} ₽`}
-                        tooltipText={'Сумма заказов'}
-                        // variant="caption-2"
-                        icon={ShoppingCart}
-                        size={13}
-                    />
-                    <IconWithText
-                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                        tooltipText={'Заказы'}
-                        // variant="caption-2"
-                        icon={ShoppingCart}
-                        size={13}
-                    />
-                </div>
+                <IconWithText
+                    text={`${desiredSumOrders} ₽`}
+                    tooltipText={'Сумма заказов'}
+                    // variant="caption-2"
+                    icon={ShoppingCart}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'sellByDate')
             return (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        columnGap: 8,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <IconWithText
-                        text={new Date(sellByDate ?? '').toLocaleDateString('ru-RU')}
-                        tooltipText={'Дата к которой нужно распродать товар'}
-                        // variant="caption-2"
-                        icon={Calendar}
-                        size={13}
-                    />
-                    <IconWithText
-                        text={desiredOrders ? `${desiredOrders} шт.` : 'Нет инф.'}
-                        tooltipText={'Заказы'}
-                        // variant="caption-2"
-                        icon={ShoppingCart}
-                        size={13}
-                    />
-                </div>
+                <IconWithText
+                    text={new Date(sellByDate ?? '').toLocaleDateString('ru-RU')}
+                    tooltipText={'Дата к которой нужно распродать товар'}
+                    // variant="caption-2"
+                    icon={Calendar}
+                    size={13}
+                />
             );
         if (autoBidsMode == 'orders')
             return (
@@ -243,6 +193,7 @@ export const AdvertCard = ({
     filterByButton,
     getUniqueAdvertIdsFromThePage,
 }: AdvertCardProps) => {
+    const {showError} = useError();
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
 
     const setCopiedParams = (advertId: any) => {
@@ -292,11 +243,83 @@ export const AdvertCard = ({
     const maxBudget = useMemo(
         () =>
             infBudget
-                ? '∞'
+                ? '(∞)'
                 : new Intl.NumberFormat('ru-RU').format(Number(budgetToKeep?.maxBudget)) + ' ₽',
         [infBudget, budgetToKeep?.maxBudget],
     );
     // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
+
+    const scheduleInfo = doc.advertsSchedules[selectValue[0]][advertId];
+    const scheduleStatus = (() => {
+        if (!scheduleInfo) return 'none';
+        for (let i = 0; i < 7; i++) {
+            for (let j = 0; j < 24; j++) {
+                if (scheduleInfo?.schedule?.[i]?.[j]?.selected) return 'working';
+            }
+        }
+        return 'paused';
+    })();
+
+    const changeSchedule = () => {
+        const genSchedule = () => {
+            const temp = {} as any;
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j < 24; j++) {
+                    if (!temp[i]) temp[i] = {};
+                    temp[i][j] = {selected: status == 9 ? false : true}; // true for play false for pause
+                }
+            }
+            return temp;
+        };
+        const schedule = genSchedule();
+        const params: any = {
+            uid: getUid(),
+            campaignName: selectValue[0],
+            data: {
+                schedule,
+                mode: 'Установить',
+                advertsIds: {},
+            },
+        };
+
+        console.log('params', params);
+
+        params.data.advertsIds[advertId] = {
+            advertId: advertId,
+        };
+
+        doc.advertsSchedules[selectValue[0]][advertId] = {};
+        doc.advertsSchedules[selectValue[0]][advertId] = {
+            schedule,
+        };
+
+        callApi('setAdvertsSchedules', params)
+            .then(() => {
+                setChangedDoc({...doc});
+            })
+            .catch((error) => {
+                showError(error.response?.data?.error || 'An unknown error occurred');
+            });
+    };
+
+    const changeStatus = async () => {
+        const res = await manageAdvertsActivityCallFunc(
+            status ? (status == 9 ? 'pause' : 'start') : 'start',
+            advertId,
+        );
+        console.log(res);
+        if (!res || res['data'] === undefined) {
+            return;
+        }
+
+        if (res['data']['status'] == 'ok') {
+            doc.adverts[selectValue[0]][advertId].status = status == 9 ? 11 : 9;
+        } else if (res['data']['status'] == 'bad') {
+            doc.adverts[selectValue[0]][advertId].status = status == 11 ? 9 : 11;
+        }
+
+        changeSchedule();
+    };
 
     return (
         <Card
@@ -346,7 +369,6 @@ export const AdvertCard = ({
                         </Button>
                         <Button
                             style={{
-                                borderBottomRightRadius: status && status == 9 ? 9 : 0,
                                 overflow: 'hidden',
                             }}
                             selected
@@ -373,25 +395,7 @@ export const AdvertCard = ({
                                     borderBottomRightRadius: 9,
                                     overflow: 'hidden',
                                 }}
-                                onClick={async () => {
-                                    const res = await manageAdvertsActivityCallFunc(
-                                        status ? (status == 9 ? 'pause' : 'start') : 'start',
-                                        advertId,
-                                    );
-                                    console.log(res);
-                                    if (!res || res['data'] === undefined) {
-                                        return;
-                                    }
-
-                                    if (res['data']['status'] == 'ok') {
-                                        doc.adverts[selectValue[0]][advertId].status =
-                                            status == 9 ? 11 : 9;
-                                    } else if (res['data']['status'] == 'bad') {
-                                        doc.adverts[selectValue[0]][advertId].status =
-                                            status == 11 ? 9 : 11;
-                                    }
-                                    setChangedDoc({...doc});
-                                }}
+                                onClick={changeStatus}
                                 // style={{position: 'relative', top: -2}}
                                 disabled={status === undefined || permission != 'Управление'}
                                 // disabled
@@ -411,6 +415,23 @@ export const AdvertCard = ({
                                     data={status ? (status == 9 ? Pause : Play) : Play}
                                     size={11}
                                 />
+                            </Button>
+                        ) : (
+                            <></>
+                        )}
+                        {status == 9 ? (
+                            <Button
+                                size="xs"
+                                selected
+                                pin="clear-clear"
+                                style={{
+                                    borderBottomRightRadius: 9,
+                                    overflow: 'hidden',
+                                }}
+                                view={'outlined-success'}
+                                onClick={changeStatus}
+                            >
+                                <Icon data={Pause} size={11} />
                             </Button>
                         ) : (
                             <></>
@@ -488,10 +509,10 @@ export const AdvertCard = ({
                                         columnGap: 4,
                                     }}
                                 >
-                                    <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} / ${
+                                    <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} ${
                                         drrAI !== undefined
-                                            ? `${drrAI.maxBid ?? 'Нет инф.'}`
-                                            : 'Автоставки выкл.'
+                                            ? `${drrAI?.useManualMaxCpm ? `/ ${drrAI.maxBid}` : ''}`
+                                            : '/ Автоставки выкл.'
                                     }`}</Text>
                                     {drrAI !== undefined &&
                                     (drrAI.useManualMaxCpm
@@ -507,7 +528,10 @@ export const AdvertCard = ({
                                     ) : (
                                         <></>
                                     )}
-                                    {drrAI?.placementsTrigger ? (
+                                    {drrAI?.placementsTrigger &&
+                                    !['bestPlacement', 'placements', 'auction'].includes(
+                                        drrAI.autoBidsMode,
+                                    ) ? (
                                         <IconWithText
                                             icon={BarsAscendingAlignLeftArrowUp}
                                             text={drrAI?.placementsTrigger}
@@ -733,14 +757,14 @@ export const AdvertCard = ({
                                 <Text variant="caption-2">
                                     {`Баланс: ${
                                         curBudget !== undefined ? curBudget : 'Нет инф.'
-                                    } / ${
+                                    } /${
                                         budgetToKeep !== undefined
                                             ? budgetToKeep?.mode === 'setAutoPurchase'
-                                                ? `+${budgetToKeep?.budget}${
+                                                ? `${
                                                       budgetToKeep?.desiredDrr
                                                           ? ' ДРР: ' + budgetToKeep?.desiredDrr
                                                           : ''
-                                                  } (${maxBudget})`
+                                                  } ${maxBudget}`
                                                 : budgetToKeep?.budget
                                             : 'Бюджет не задан.'
                                     }` +
@@ -1173,9 +1197,11 @@ export const AdvertCard = ({
                                 size="xs"
                                 disabled={permission != 'Управление'}
                                 view={
-                                    doc.advertsSchedules[selectValue[0]][advertId]
+                                    scheduleStatus == 'working'
                                         ? 'flat-action'
-                                        : 'flat'
+                                        : scheduleStatus == 'paused'
+                                          ? 'flat-danger'
+                                          : 'flat'
                                 }
                                 onClick={() => {
                                     if (permission != 'Управление') return;

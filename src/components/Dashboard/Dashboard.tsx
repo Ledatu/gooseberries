@@ -93,6 +93,7 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
     const [apiKeyExpDate, setApiKeyExpDate] = useState(undefined as any);
+    const {setModule} = useModules();
 
     // Replace the modules memo with useEffect
     useEffect(() => {
@@ -209,10 +210,11 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                 }}
                             >
                                 <div style={{minWidth: 24}} />
-                                {/* <TextLogo /> */}
-                                <img style={{height: 30}} src={TextLogo || ''} />
-                                {/* <Image style={{height: 30, width: '100px'}} alt="Aurum logo" src={TextLogo} /> */}
-                                {/* <img style={{height: 30}} src={textLogo} /> */}
+                                <img
+                                    style={{height: 30}}
+                                    src={TextLogo}
+                                    onClick={() => setModule('massAdvert')}
+                                />
                             </div>
                             <SelectCampaign
                                 apiKeyExpDate={apiKeyExpDate}
@@ -277,8 +279,9 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                         >
                                             <div style={{minWidth: 'fit-content'}} />
                                             <img
-                                                style={{height: 30}}
-                                                src={TextLogo || ''}
+                                                style={{height: 30, cursor: 'pointer'}}
+                                                src={TextLogo}
+                                                onClick={() => setModule('massAdvert')}
                                                 alt="Aurum logo"
                                             />
                                             {/* <TextLogo /> */}
@@ -463,67 +466,8 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                     }}
                 >
                     {children}
-                    {/* {currentTime >= new Date(subscriptionExpDate) &&
-                    ![1122958293, 933839157].includes(userInfo?.user?._id) &&
-                    !['noModules', 'api'].includes(page) ? (
-                        <NoSubscriptionPage />
-                    ) : (
-                        <PageElem
-                            permission={modules.includes('all') ? 'Управление' : modulesMap?.[page]}
-                            page={page}
-                            refetchAutoSales={refetchAutoSales}
-                            setRefetchAutoSales={setRefetchAutoSales}
-                            dzhemRefetch={dzhemRefetch}
-                            setDzhemRefetch={setDzhemRefetch}
-                            sellerId={sellerId}
-                        />
-                    )} */}
                 </div>
-
-                <div
-                    style={{
-                        position: 'absolute',
-                        // background: 'var(--g-color-base-background)',
-                        width: '100vw',
-                        bottom: -100,
-                        left: -40,
-                        height: 100,
-                    }}
-                ></div>
             </div>
         </div>
     );
 };
-
-// const PageElem = ({
-//     page,
-//     permission,
-//     refetchAutoSales,
-//     setRefetchAutoSales,
-//     dzhemRefetch,
-//     setDzhemRefetch,
-//     sellerId,
-// }) => {
-//     const pages = {
-//         delivery: <DeliveryPage permission={permission} sellerId={sellerId} />,
-//         massAdvert: (
-//             <MassAdvertPage
-//                 permission={permission}
-//                 refetchAutoSales={refetchAutoSales}
-//                 setRefetchAutoSales={setRefetchAutoSales}
-//                 dzhemRefetch={dzhemRefetch}
-//                 setDzhemRefetch={setDzhemRefetch}
-//                 sellerId={sellerId}
-//             />
-//         ),
-//         prices: <PricesPage permission={permission} sellerId={sellerId} />,
-//         nomenclatures: <NomenclaturesPage permission={permission} sellerId={sellerId} />,
-//         analytics: <AnalyticsPage permission={permission} sellerId={sellerId} />,
-//         buyers: <BuyersPage permission={permission} sellerId={sellerId} />,
-//         reports: <DetailedReportsPage sellerId={sellerId} />,
-//         seo: <SEOPage />,
-//         api: <ApiPage />,
-//         noModules: <ApiPage />,
-//     };
-//     return pages[page] ?? <></>;
-// };

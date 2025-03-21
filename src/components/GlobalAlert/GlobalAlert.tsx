@@ -8,5 +8,12 @@ export const GlobalAlert = () => {
 
     if (!error) return null;
 
-    return <Alert theme="danger" className="global-alert" message={error} />;
+    return (
+        <Alert
+            style={{position: 'absolute', top: 100, right: 50}}
+            theme="danger"
+            className="global-alert"
+            message={error}
+        />
+    );
 };

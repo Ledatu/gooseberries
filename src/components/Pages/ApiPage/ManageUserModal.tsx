@@ -11,6 +11,7 @@ interface ManageUserModalInterface {
     sellerId: string;
     memberInfo: any;
     modules: string[];
+    setUpdate: Function;
     children: ReactElement | ReactElement[];
 }
 
@@ -18,9 +19,10 @@ export const ManageUserModal = ({
     sellerId,
     memberInfo,
     modules,
+    setUpdate,
     children,
 }: ManageUserModalInterface) => {
-    const {userInfo, refetchUser} = useUser();
+    const {userInfo} = useUser();
     const {user} = userInfo;
 
     const {showError} = useError();
@@ -229,7 +231,7 @@ export const ManageUserModal = ({
 
                                     try {
                                         await ApiClient.post('auth/update-member', params);
-                                        refetchUser();
+                                        setUpdate(true);
                                     } catch (error: any) {
                                         showError(
                                             error.response?.data?.error ||
@@ -257,8 +259,9 @@ export const ManageUserModal = ({
 
                                     try {
                                         await ApiClient.post('auth/delete-member', params);
-                                        refetchUser();
+                                        setUpdate(true);
                                     } catch (error: any) {
+                                        console.error(error);
                                         showError(
                                             error.response?.data?.error ||
                                                 'Не удалось удалить сотрудника.',

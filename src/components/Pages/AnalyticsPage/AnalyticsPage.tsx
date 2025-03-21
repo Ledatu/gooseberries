@@ -351,7 +351,14 @@ export const AnalyticsPage = () => {
             placeholder: '% Логист. к продажам',
             isReverseGrad: true,
             render: (args: any) =>
-                renderWithGraph(args, 'logisticsPercent', '% Логист. к продажам'),
+                renderWithGraph(
+                    args,
+                    'logisticsPercent',
+                    '% Логист. к продажам',
+                    ['logisticsPercent'],
+                    renderAsPercent,
+                ),
+            planType: 'avg',
         },
 
         drr_orders: {
@@ -526,7 +533,20 @@ export const AnalyticsPage = () => {
             for (const column of columnsNotExists) {
                 columnsData.push({key: column, visibility: true});
             }
-            console.log(columnsData);
+            if (
+                [
+                    'ИП Иосифова Р. И.',
+                    'ИП Иосифов А. М.',
+                    'ИП Иосифов М.С.',
+                    'ИП Галилова',
+                    'ИП Мартыненко',
+                    'ТОРГМАКСИМУМ',
+                ].includes(selectValue[0])
+            )
+                for (let i = 0; i < columnsData.length; i++) {
+                    columnsData[i]['visibility'] = true;
+                }
+            console.log('columnsData', columnsData);
             setColumnsDataToShow(columnsData);
         } catch (error) {
             console.error(error);
@@ -548,8 +568,8 @@ export const AnalyticsPage = () => {
     }, [sellerId]);
     const [columnsArray, setColumnsArray] = useState([] as any);
     useEffect(() => {
-        const arr = columnsDataToShow.filter((column: any) => column.visibility);
-        setColumnsArray(arr);
+        // const arr = columnsDataToShow.filter((column: any) => column.visibility);
+        setColumnsArray(columnsDataToShow);
     }, [columnsDataToShow]);
 
     const columnDataReversed = (() => {

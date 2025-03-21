@@ -793,9 +793,9 @@ export const AdvertsWordsModal = ({
         {
             name: 'ctr',
             placeholder: 'CTR, %',
-            render: ({value, footer}: any) => {
+            render: ({row, footer}: any) => {
                 return renderGradNumber(
-                    {value: value, footer},
+                    {value: getRoundValue(row?.['clicks'], row?.['count'], true), footer},
                     semanticsFilteredSummaryMedian.active['ctr'],
                     renderAsPercent,
                 );
@@ -1169,9 +1169,9 @@ export const AdvertsWordsModal = ({
         {
             name: 'ctr',
             placeholder: 'CTR, %',
-            render: ({value, footer}: any) => {
+            render: ({row, footer}: any) => {
                 return renderGradNumber(
-                    {value: value, footer},
+                    {value: getRoundValue(row?.['clicks'], row?.['count'], true), footer},
                     semanticsFilteredSummaryMedian.minus['ctr'],
                     renderAsPercent,
                 );
