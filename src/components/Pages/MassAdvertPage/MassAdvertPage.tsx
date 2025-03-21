@@ -1,54 +1,99 @@
 'use client';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {PageInfoGraphs} from './PageInfoGraphs';
+import {CSSProperties, ReactNode, useEffect, useMemo, useRef, useState} from 'react';
+import {
+    Spin,
+    Button,
+    Text,
+    Card,
+    Select,
+    Link,
+    Icon,
+    Popover,
+    Modal,
+    Skeleton,
+    List,
+    Tooltip,
+    ButtonPin,
+    ButtonSize,
+    ButtonView,
+    IconData,
+} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
+import block from 'bem-cn-lite';
+const b = block('app');
 
-import {settings} from '@gravity-ui/chartkit';
+import {
+    Rocket,
+    Magnifier,
+    LayoutHeader,
+    ArrowsRotateLeft,
+    ArrowShapeDown,
+    ChartLine,
+    ArrowRotateLeft,
+    CircleRuble,
+    TShirt,
+    SlidersVertical,
+    ChevronDown,
+    ArrowShapeUp,
+    Minus,
+    Plus,
+    Play,
+    ArrowRight,
+    LayoutList,
+    Clock,
+    Check,
+    TagRuble,
+    Cherry,
+    Xmark,
+    TriangleExclamation,
+} from '@gravity-ui/icons';
+
+// import JarIcon from '../assets/jar-of-jam.svg';
+
+import {motion} from 'framer-motion';
+
+import ChartKit, {settings} from '@gravity-ui/chartkit';
 import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
-
+import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from '@/utilities/callApi';
 import axios, {CancelTokenSource} from 'axios';
-import {getLocaleDateString, getNormalDateRange} from '@/utilities/getRoundValue';
+import {
+    defaultRender,
+    getLocaleDateString,
+    getNormalDateRange,
+    renderAsPercent,
+    renderSlashPercent,
+} from '@/utilities/getRoundValue';
 import TheTable, {compare} from '@/components/TheTable';
 import {RangePicker} from '@/components/RangePicker';
+import {AutoSalesModal} from './AutoSalesModal';
+import {TagsFilterModal} from '@/components/TagsFilterModal';
+import {PhrasesModal} from './PhrasesModal';
+import {AdvertCard} from './AdvertCard';
+import {AdvertsBidsModal} from './AdvertsBidsModal';
+import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {LogoLoad} from '@/components/logoLoad';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
 import {useCampaign} from '@/contexts/CampaignContext';
+import {CanBeAddedToSales} from './CanBeAddedToSales';
+import {StocksByWarehousesPopup} from './StocksByWarehousesPopup';
+import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
+import {AdvertsStatusManagingModal} from './AdvertsStatusManagingModal';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
+import {getEnumurationString} from '@/utilities/getEnumerationString';
+import {AdvertCreateModal} from '@/features/advertising/AdvertCreationModal';
+import DzhemPhrasesModal from './DzhemPhrasesModal';
+import {PopupFilterArts} from './PopupFilterArts';
+import {Auction} from './Auction';
+import {parseFirst10Pages} from './ParseFirst10Pages';
 import {useModules} from '@/contexts/ModuleProvider';
+import {HelpMark} from '@/components/Popups/HelpMark';
+import {CopyButton} from '@/components/Buttons/CopyButton';
 import {Note} from './NotesForArt/types';
-import {StatisticsPanel} from '@/widgets/MassAdvert/overallStats/ui';
-import {
-    getAddToCardPercentColumn,
-    getAddToCartCountColumn,
-    getAvgPriceColum,
-    getCardToOrderPercentColumn,
-    getClicksColumn,
-    getCPCColumn,
-    getCPLColumn,
-    getCPMColumn,
-    getCpoColumn,
-    getCRColumn,
-    getCTRColumn,
-    getDrrColumn,
-    getDsiColumn,
-    getOpenCardCountColumn,
-    getOrdersColumn,
-    getRomiColumn,
-    getStocksColumn,
-    getSumColumn,
-    getSumOrdersColumn,
-    getViewsColumn,
-} from '@/widgets/MassAdvert/columnData/config/columns';
-import {getPlacementsColumn} from '@/widgets/MassAdvert/columnData/config/placementsColumn';
-import {getAnalyticsColumn} from '@/widgets/MassAdvert/columnData/config/analyticsColumn';
-import {getArtColumn} from '@/widgets/MassAdvert/columnData/config/artColumn';
-import {getAdvertsColumn} from '@/widgets/MassAdvert/columnData/config/advertsColumn';
-import {getAutoSalesColumn} from '@/widgets/MassAdvert/columnData/config/autoSalesColumn';
-import {MassAdvertPageSkeleton} from '@/components/Pages/MassAdvertPage/Skeleton';
-import {campaignStore} from '@/shared/stores/campaignStore';
-import {UpTableActions} from '@/widgets/MassAdvert/upTableActions/ui/widget';
+import {NotesForArt} from './NotesForArt';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -79,22 +124,19 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
         }
         setDocument(docum);
     }
+
+    // console.log(params);
+
+    // useEffect(() => {
+    //     callApi('getMassAdvertsNew', params, true)
+    //         .then((response) => setDocument(response ? response['data'] : undefined))
+    //         .catch((error) => console.error(error));
+    // }, []);
     return doc;
 };
 
 export const MassAdvertPage = () => {
-    const {
-        setSummary,
-        setSemanticsModalOpenFromArt,
-        setAutoSalesModalOpenFromParent,
-        setArtsStatsByDayData,
-        setShowDzhemModalOpen,
-        setAdvertsArtsListModalFromOpen,
-        setShowArtStatsModalOpen,
-        setFetchingDataFromServerFlag,
-        setRkList,
-        setRkListMode,
-    } = campaignStore;
+    const [selectedNmId, setSelectedNmId] = useState(0);
     const {showError} = useError();
     const {availablemodulesMap} = useModules();
     const permission: string = useMemo(() => {
@@ -141,6 +183,19 @@ export const MassAdvertPage = () => {
             });
     }, [sellerId]);
 
+    const cardStyle: any = {
+        minWidth: '10em',
+        height: '10em',
+        display: 'flex',
+        flex: '1 1 auto',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '16px',
+        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
+        marginRight: '8px',
+        marginLeft: '8px',
+    };
+
     const [stocksByWarehouses, setStocksByWarehouses] = useState<any>({});
     useEffect(() => {
         const params = {seller_id: sellerId};
@@ -160,7 +215,11 @@ export const MassAdvertPage = () => {
         activeAdverts: false,
         pausedAdverts: false,
     });
+
+    const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
+
+    const [autoSalesModalOpenFromParent, setAutoSalesModalOpenFromParent] = useState('');
 
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
@@ -174,6 +233,13 @@ export const MassAdvertPage = () => {
 
     const [copiedAdvertsSettings, setCopiedAdvertsSettings] = useState({advertId: 0});
 
+    const artsStatsByDayModeSwitchValues: any[] = [
+        {value: 'Статистика по дням', content: 'Статистика по дням'},
+        {value: 'Статистика по дням недели', content: 'Статистика по дням недели', disabled: true},
+    ];
+    const [artsStatsByDayModeSwitchValue, setArtsStatsByDayModeSwitchValue] = useState<any[]>([
+        'Статистика по дням',
+    ]);
     const getNotes = async () => {
         try {
             const params = {seller_id: sellerId};
@@ -188,17 +254,6 @@ export const MassAdvertPage = () => {
         }
     };
 
-    const today = new Date(
-        new Date()
-            .toLocaleDateString('ru-RU')
-            .replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
-            .slice(0, 10),
-    );
-    // const monthAgo = new Date(today);
-    // monthAgo.setDate(monthAgo.getDate() - 30);
-
-    const [dateRange, setDateRange] = useState([today, today]);
-
     const [allNotes, setAllNotes] = useState<{[key: string]: Note[]} | undefined>();
     const [reloadNotes, setReloadNotes] = useState<boolean>(true);
     useEffect(() => {
@@ -209,6 +264,159 @@ export const MassAdvertPage = () => {
         }
     }, [sellerId, reloadNotes]);
 
+    const [showDzhemModalOpen, setShowDzhemModalOpen] = useState(false);
+
+    const [showArtStatsModalOpen, setShowArtStatsModalOpen] = useState(false);
+    const [artsStatsByDayData, setArtsStatsByDayData] = useState<any[]>([]);
+    const [artsStatsByDayFilteredData, setArtsStatsByDayFilteredData] = useState<any[]>([]);
+    const [artsStatsByDayFilters, setArtsStatsByDayFilters] = useState<any>({undef: false});
+
+    const [artsStatsByDayFilteredSummary, setArtsStatsByDayFilteredSummary] = useState<any>({
+        date: 0,
+        orders: 0,
+        sum_orders: 0,
+        avg_price: 0,
+        sum: 0,
+        views: 0,
+        clicks: 0,
+        drr: 0,
+        ctr: 0,
+        cpc: 0,
+        cpm: 0,
+        cr: 0,
+        cpo: 0,
+        openCardCount: 0,
+        addToCartCount: 0,
+        addToCartPercent: 0,
+        cartToOrderPercent: 0,
+        cpl: 0,
+    });
+    const artsStatsByDayDataFilter = (withfFilters: any, stats: any[]) => {
+        const _filters = withfFilters ?? artsStatsByDayFilters;
+        const _stats = stats ?? artsStatsByDayData;
+
+        const artsStatsByDayFilteredSummaryTemp: any = {
+            date: 0,
+            orders: 0,
+            sum_orders: 0,
+            avg_price: 0,
+            sum: 0,
+            views: 0,
+            clicks: 0,
+            drr: 0,
+            ctr: 0,
+            cpc: 0,
+            cpm: 0,
+            cr: 0,
+            cpo: 0,
+            openCardCount: 0,
+            addToCartCount: 0,
+            addToCartPercent: 0,
+            cartToOrderPercent: 0,
+            cpl: 0,
+        };
+
+        _stats.sort((a, b) => {
+            const dateA = new Date(a['date']);
+            const dateB = new Date(b['date']);
+            return dateB.getTime() - dateA.getTime();
+        });
+
+        setArtsStatsByDayFilteredData(
+            _stats
+                .map((stat) => {
+                    const {sum_orders: SO, orders: O} = stat ?? {};
+                    const avgPrice = getRoundValue(SO, O);
+                    return {...stat, avg_price: avgPrice};
+                })
+                .filter((stat) => {
+                    for (const [filterArg, data] of Object.entries(_filters)) {
+                        const filterData: any = data;
+                        if (filterArg == 'undef' || !filterData) continue;
+                        if (filterData['val'] == '') continue;
+                        else if (!compare(stat[filterArg], filterData)) {
+                            return false;
+                        }
+                    }
+
+                    for (const [key, val] of Object.entries(stat)) {
+                        if (
+                            [
+                                'sum',
+                                'clicks',
+                                'views',
+                                'orders',
+                                'sum_orders',
+                                'avg_prices',
+                                'openCardCount',
+                                'addToCartCount',
+                                'addToCartPercent',
+                                'cartToOrderPercent',
+                            ].includes(key)
+                        )
+                            artsStatsByDayFilteredSummaryTemp[key] +=
+                                isFinite(val as number) && !isNaN(val as number) ? val : 0;
+                    }
+
+                    artsStatsByDayFilteredSummaryTemp['date']++;
+
+                    return true;
+                }),
+        );
+
+        artsStatsByDayFilteredSummaryTemp.sum_orders = Math.round(
+            artsStatsByDayFilteredSummaryTemp.sum_orders,
+        );
+        artsStatsByDayFilteredSummaryTemp.orders = Math.round(
+            artsStatsByDayFilteredSummaryTemp.orders,
+        );
+        artsStatsByDayFilteredSummaryTemp.avg_price = getRoundValue(
+            artsStatsByDayFilteredSummaryTemp.sum_orders,
+            artsStatsByDayFilteredSummaryTemp.orders,
+        );
+        artsStatsByDayFilteredSummaryTemp.sum = Math.round(artsStatsByDayFilteredSummaryTemp.sum);
+        artsStatsByDayFilteredSummaryTemp.views = Math.round(
+            artsStatsByDayFilteredSummaryTemp.views,
+        );
+        artsStatsByDayFilteredSummaryTemp.clicks = Math.round(
+            artsStatsByDayFilteredSummaryTemp.clicks,
+        );
+        artsStatsByDayFilteredSummaryTemp.openCardCount = Math.round(
+            artsStatsByDayFilteredSummaryTemp.openCardCount,
+        );
+        artsStatsByDayFilteredSummaryTemp.addToCartPercent = getRoundValue(
+            artsStatsByDayFilteredSummaryTemp.addToCartCount,
+            artsStatsByDayFilteredSummaryTemp.openCardCount,
+            true,
+        );
+        artsStatsByDayFilteredSummaryTemp.cartToOrderPercent = getRoundValue(
+            artsStatsByDayFilteredSummaryTemp.orders,
+            artsStatsByDayFilteredSummaryTemp.addToCartCount,
+            true,
+        );
+        const {orders, sum, views, clicks, openCardCount, addToCartCount} =
+            artsStatsByDayFilteredSummaryTemp;
+
+        artsStatsByDayFilteredSummaryTemp.drr = getRoundValue(
+            artsStatsByDayFilteredSummaryTemp.sum,
+            artsStatsByDayFilteredSummaryTemp.sum_orders,
+            true,
+            1,
+        );
+        artsStatsByDayFilteredSummaryTemp.ctr = getRoundValue(clicks, views, true);
+        artsStatsByDayFilteredSummaryTemp.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
+        artsStatsByDayFilteredSummaryTemp.cpm = getRoundValue(sum * 1000, views);
+        artsStatsByDayFilteredSummaryTemp.cr = getRoundValue(orders, openCardCount, true);
+        artsStatsByDayFilteredSummaryTemp.cpo = getRoundValue(sum, orders, false, sum);
+        artsStatsByDayFilteredSummaryTemp.cpl = getRoundValue(sum, addToCartCount, false, sum);
+
+        setArtsStatsByDayFilteredSummary(artsStatsByDayFilteredSummaryTemp);
+    };
+
+    const [advertsArtsListModalFromOpen, setAdvertsArtsListModalFromOpen] = useState(false);
+    const [rkList, setRkList] = useState<any[]>([]);
+    const [rkListMode, setRkListMode] = useState('add');
+
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
     const [data, setTableData] = useState({});
@@ -216,10 +424,6 @@ export const MassAdvertPage = () => {
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
 
     const [unvalidatedArts, setUnvalidatedArts] = useState<any[]>([]);
-    const [changedDoc, setChangedDoc] = useState<any>(undefined);
-    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
-
-    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 
     const getUnvalidatedArts = async () => {
         try {
@@ -239,109 +443,313 @@ export const MassAdvertPage = () => {
         getUnvalidatedArts();
     }, [sellerId]);
 
+    // const paramMap = {
+    //     status: {
+    //         '-1': 'В процессе удаления',
+    //         4: 'Готова к запуску',
+    //         7: 'Завершена',
+    //         8: 'Отказался',
+    //         // 9: 'Идут показы',
+    //         9: 'Активна',
+    //         11: 'Пауза',
+    //     },
+    //     type: {
+    //         4: 'Каталог',
+    //         5: 'Карточка товара',
+    //         6: 'Поиск',
+    //         7: 'Главная страница',
+    //         8: 'Авто',
+    //         9: 'Поиск + Каталог',
+    //     },
+    // };
     const updateColumnWidth = async () => {
         await new Promise((resolve) => setTimeout(resolve, 200));
         filterTableData({adverts: {val: '', mode: 'include'}}, data);
     };
 
-    const filterTableData = (
-        withfFilters: any = {},
-        tableData: any = {},
-        _filterAutoSales = undefined as any,
-        datering = undefined,
-    ) => {
-        const [startDate, endDate] = datering ?? dateRange;
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(0, 0, 0, 0);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+    const manageAdvertsActivityCallFunc = async (mode: string, advertId: any) => {
+        const params: any = {
+            uid: getUid(),
+            campaignName: selectValue[0],
+            data: {
+                advertsIds: {},
+                mode: mode,
+            },
+        };
+        params.data.advertsIds[advertId] = {advertId: advertId};
+
+        //////////////////////////////////
+        return await callApi('manageAdvertsActivity', params);
+        //////////////////////////////////
+    };
+
+    const filterByButton = (val: any, key = 'art', compMode = 'include') => {
+        filters[key] = {val: String(val) + ' ', compMode: compMode};
+        setFilters({...filters});
+        filterTableData(filters);
+    };
+
+    const calcByDayStats = (arts: any[]) => {
+        const tempJson: any = {};
 
         const daysBetween =
-            Math.abs(
-                startDate.getTime() -
-                    (today.getTime() > endDate.getTime() ? endDate.getTime() : today.getTime()),
-            ) /
-            1000 /
-            86400;
+            dateRange[1].getTime() / 86400 / 1000 - dateRange[0].getTime() / 86400 / 1000;
 
-        const temp = [] as any;
-        const usefilterAutoSales = _filterAutoSales ?? filterAutoSales;
-        // console.log(
-        //     tableData,
-        //     data,
-        //     Object.keys(tableData).length ? tableData : data,
-        //     withfFilters['undef'] ? withfFilters : filters,
-        // );
+        const now = new Date();
+        for (let i = 0; i <= daysBetween; i++) {
+            const dateIter = new Date(dateRange[1]);
+            dateIter.setDate(dateIter.getDate() - i);
 
-        for (const [art, info] of Object.entries(
-            Object.keys(tableData).length ? tableData : data,
-        )) {
-            const artInfo: any = info;
-            if (!art || !artInfo) continue;
+            if (dateIter > now) continue;
+            const strDate = getLocaleDateString(dateIter);
 
-            const tempTypeRow: any = artInfo;
-            tempTypeRow['placements'] =
-                artInfo['placements'] == -1 ? 10 * 1000 : artInfo['placements'];
+            if (!tempJson[strDate])
+                tempJson[strDate] = {
+                    date: dateIter,
+                    orders: 0,
+                    sum_orders: 0,
+                    sum: 0,
+                    views: 0,
+                    clicks: 0,
+                    drr: 0,
+                    ctr: 0,
+                    cpc: 0,
+                    cpm: 0,
+                    cr: 0,
+                    cpo: 0,
+                    openCardCount: 0,
+                    addToCartCount: 0,
+                    addToCartPercent: 0,
+                    cartToOrderPercent: 0,
+                    cpl: 0,
+                };
 
-            let addFlag = true;
-            const useFilters = withfFilters['undef'] ? withfFilters : filters;
-            if (Object.values(filtersRK).includes(true)) useFilters['filtersRK'] = filtersRK;
-            else delete useFilters['filtersRK'];
+            for (const _art of arts) {
+                const {advertsStats, nmFullDetailReport} = doc.campaigns[selectValue[0]][_art];
+                if (!advertsStats) continue;
+                const dateData = advertsStats[strDate];
+                if (!dateData) continue;
 
-            for (const [filterArg, data] of Object.entries(useFilters)) {
-                const filterData: any = data;
-                if (filterArg == 'undef' || !filterData) continue;
-                if (filterData['val'] == '' && filterArg != 'placements') continue;
+                // console.log(dateData);
 
-                const fldata = filterData['val'];
-                const flarg = tempTypeRow[filterArg];
+                tempJson[strDate].orders += dateData['orders'];
+                tempJson[strDate].sum_orders += dateData['sum_orders'];
+                tempJson[strDate].sum += dateData['sum'];
+                tempJson[strDate].views += dateData['views'];
+                tempJson[strDate].clicks += dateData['clicks'];
 
-                if (flarg && fldata.trim() == '+') {
-                    continue;
-                } else if (fldata?.trim() == '-') {
-                    if (flarg === undefined) continue;
+                const {openCardCount, addToCartCount} = nmFullDetailReport.statistics[strDate] ?? {
+                    openCardCount: 0,
+                    addToCartCount: 0,
+                };
+
+                tempJson[strDate].openCardCount += openCardCount ?? 0;
+                tempJson[strDate].addToCartCount += addToCartCount ?? 0;
+            }
+            tempJson[strDate].openCardCount = Math.round(tempJson[strDate].openCardCount);
+
+            tempJson[strDate].addToCartPercent = getRoundValue(
+                tempJson[strDate].addToCartCount,
+                tempJson[strDate].openCardCount,
+                true,
+            );
+            tempJson[strDate].cartToOrderPercent = getRoundValue(
+                tempJson[strDate].orders,
+                tempJson[strDate].addToCartCount,
+                true,
+            );
+            tempJson[strDate].cpl = getRoundValue(
+                tempJson[strDate].sum,
+                tempJson[strDate].addToCartCount,
+            );
+        }
+
+        const temp = [] as any[];
+
+        for (const [strDate, data] of Object.entries(tempJson)) {
+            const dateData: any = data;
+            if (!strDate || !dateData) continue;
+
+            dateData['orders'] = Math.round(dateData['orders']);
+            dateData['sum_orders'] = Math.round(dateData['sum_orders']);
+            dateData['sum'] = Math.round(dateData['sum']);
+            dateData['views'] = Math.round(dateData['views']);
+            dateData['clicks'] = Math.round(dateData['clicks']);
+
+            const {orders, sum, clicks, views} = dateData as any;
+
+            dateData['drr'] = getRoundValue(dateData['sum'], dateData['sum_orders'], true, 1);
+            dateData['ctr'] = getRoundValue(clicks, views, true);
+            dateData['cpc'] = getRoundValue(sum / 100, clicks, true, sum / 100);
+            dateData['cpm'] = getRoundValue(sum * 1000, views);
+            dateData['cr'] = getRoundValue(orders, dateData['openCardCount'], true);
+            dateData['cpo'] = getRoundValue(sum, orders, false, sum);
+            temp.push(dateData);
+        }
+
+        return temp;
+    };
+
+    const columnData: any = [
+        {
+            name: 'art',
+            placeholder: 'Артикул',
+            width: 200,
+            additionalNodes: [
+                <Button
+                    style={{marginLeft: 5, marginRight: 5}}
+                    view="outlined"
+                    selected={filterAutoSales}
+                    onClick={() => {
+                        setFilterAutoSales(!filterAutoSales);
+                        filterTableData(filters, data, !filterAutoSales);
+                    }}
+                >
+                    <Icon data={TagRuble} />
+                </Button>,
+                <CopyButton
+                    tooltip="Нажмите, чтобы скопировать артикулы в таблице в буфер обмена"
+                    view="outlined"
+                    copyText={() => {
+                        const arts: number[] = [];
+                        for (const row of filteredData) {
+                            const {nmId} = row;
+                            if (!arts.includes(nmId)) arts.push(nmId);
+                        }
+                        return arts.join(', ');
+                    }}
+                />,
+            ],
+            render: ({value, row, footer, index}: any) => {
+                const {title, brand, object, nmId, photos, imtId, art, tags} = row;
+                if (title === undefined) return <div style={{height: 28}}>{value}</div>;
+                const imgUrl = photos ? (photos[0] ? photos[0].big : undefined) : undefined;
+                let titleWrapped = title;
+                if (title.length > 30) {
+                    let wrapped = false;
+                    titleWrapped = '';
+                    const titleArr = title.split(' ');
+                    for (const word of titleArr) {
+                        titleWrapped += word;
+                        if (titleWrapped.length > 25 && !wrapped) {
+                            titleWrapped += '\n';
+                            wrapped = true;
+                        } else {
+                            titleWrapped += ' ';
+                        }
+                    }
                 }
-
-                if (usefilterAutoSales && !availableAutoSalesNmIds.includes(tempTypeRow['nmId'])) {
-                    addFlag = false;
-                    break;
+                /// tags
+                const tagsNodes = [] as ReactNode[];
+                const autoSalesInfo = doc?.['autoSales']?.[selectValue[0]]?.[nmId];
+                const {fixedPrices} = autoSalesInfo ?? {};
+                const inActionNow =
+                    autoSalesInfo?.autoSaleName && autoSalesInfo?.autoSaleName !== '';
+                const {autoSaleName} = fixedPrices ?? {};
+                if (autoSalesInfo && ((autoSaleName && autoSaleName != '') || inActionNow)) {
+                    tagsNodes.push(
+                        <div>
+                            <CanBeAddedToSales
+                                nmId={nmId}
+                                sellerId={sellerId}
+                                pin="circle-clear"
+                                view={inActionNow ? 'outlined-action' : 'outlined'}
+                                selected={false}
+                                setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
+                            />
+                            {autoSalesInfo['fixedPrices'] &&
+                            autoSalesInfo['fixedPrices']['dateRange'] ? (
+                                <Button
+                                    size="xs"
+                                    pin="clear-clear"
+                                    view={inActionNow ? 'outlined-action' : 'outlined'}
+                                    selected={false}
+                                    onClick={() => {
+                                        const params = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            nmIds: [nmId],
+                                        };
+                                        console.log(params);
+                                        delete doc.autoSales[selectValue[0]][nmId];
+                                        setChangedDoc({...doc});
+                                        callApi('deleteAutoSaleFromNmIds', params);
+                                    }}
+                                >
+                                    <Icon data={Xmark} size={12} />
+                                </Button>
+                            ) : (
+                                <></>
+                            )}
+                            <Popover
+                                // open={fixedPrices?.dateRange}
+                                disabled={!fixedPrices?.dateRange}
+                                openDelay={1000}
+                                placement={'bottom'}
+                                content={
+                                    <Text variant="subheader-1">
+                                        {autoSalesInfo['fixedPrices'] &&
+                                        autoSalesInfo['fixedPrices']['dateRange'] ? (
+                                            autoSalesInfo['fixedPrices']['dateRange'] ? (
+                                                `${new Date(
+                                                    autoSalesInfo['fixedPrices']['dateRange'][0],
+                                                ).toLocaleDateString('ru-RU')}
+                                                        - ${new Date(
+                                                            autoSalesInfo['fixedPrices'][
+                                                                'dateRange'
+                                                            ][1],
+                                                        ).toLocaleDateString('ru-RU')}`
+                                            ) : (
+                                                'Выберите даты акции'
+                                            )
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </Text>
+                                }
+                            >
+                                <Button
+                                    size="xs"
+                                    pin={'clear-circle'}
+                                    view={inActionNow ? 'outlined-action' : 'outlined'}
+                                    selected={false}
+                                >
+                                    <Text>{autoSaleName ?? autoSalesInfo?.autoSaleName}</Text>
+                                </Button>
+                            </Popover>
+                        </div>,
+                    );
+                    tagsNodes.push(<div style={{minWidth: 8}} />);
+                } else if (availableAutoSalesNmIds.includes(nmId)) {
+                    tagsNodes.push(
+                        <CanBeAddedToSales
+                            nmId={nmId}
+                            sellerId={sellerId}
+                            view={'flat-action'}
+                            selected={false}
+                            pin="circle-circle"
+                            setAutoSalesModalOpenFromParent={setAutoSalesModalOpenFromParent}
+                        />,
+                    );
+                    tagsNodes.push(<div style={{minWidth: 8}} />);
                 }
-
-                if (filterArg == 'art') {
-                    const rulesForAnd = filterData['val'].split('+');
-                    // console.log(rulesForAnd);
-
-                    let wholeText = '';
-                    for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
-                        wholeText += tempTypeRow[key] + ' ';
-                    }
-
-                    const tags = tempTypeRow['tags'];
-                    if (tags) {
-                        for (const key of tags) {
-                            wholeText += key + ' ';
-                        }
-                    }
-
-                    let tempFlagInc = 0;
-                    for (let k = 0; k < rulesForAnd.length; k++) {
-                        const ruleForAdd = rulesForAnd[k];
-                        if (ruleForAdd == '') {
-                            tempFlagInc++;
-                            continue;
-                        }
-                        if (
-                            compare(wholeText, {
-                                val: ruleForAdd,
-                                compMode: filterData['compMode'],
-                            })
-                        ) {
-                            tempFlagInc++;
-                        }
-                    }
-                    if (tempFlagInc != rulesForAnd.length) {
-                        addFlag = false;
-                        break;
+                if (tags) {
+                    for (let i = 0; i < tags.length; i++) {
+                        const tag = tags[i];
+                        if (!tag) continue;
+                        tagsNodes.push(
+                            <Button
+                                content={'div'}
+                                size="xs"
+                                pin="circle-circle"
+                                selected
+                                view="outlined-info"
+                                onClick={() => filterByButton(tag.toUpperCase())}
+                            >
+                                {tag.toUpperCase()}
+                            </Button>,
+                        );
+                        tagsNodes.push(<div style={{minWidth: 8}} />);
                     }
                     tagsNodes.pop();
                 }
@@ -1396,40 +1804,187 @@ export const MassAdvertPage = () => {
                                 ? 'outlined-success'
                                 : 'outlined'
                         }
-
-                    const lwr = String(filterData['val']).toLocaleLowerCase().trim();
-                    if (['авто', 'поиск'].includes(lwr)) {
-                        if (wholeTextTypes.includes(lwr)) continue;
-                    }
-                    let tempFlagInc = 0;
-                    for (let k = 0; k < rulesForAnd.length; k++) {
-                        const ruleForAdd = rulesForAnd[k];
-                        if (ruleForAdd == '') {
-                            tempFlagInc++;
-                            continue;
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                            const params: any = {
+                                uid: getUid(),
+                                campaignName: selectValue[0],
+                                data: {
+                                    mode:
+                                        selectedSearchPhrase == placementsDisplayPhrase
+                                            ? 'Удалить'
+                                            : 'Установить',
+                                    advertsIds: {},
+                                },
+                            };
+                            for (const [id, advertData] of Object.entries(uniqueAdverts)) {
+                                if (!id || !advertData) continue;
+                                const {advertId} = advertData as any;
+                                params.data.advertsIds[advertId] = {};
+                                params.data.advertsIds[advertId].phrase = placementsDisplayPhrase;
+                                setSelectedSearchPhrase(
+                                    selectedSearchPhrase == placementsDisplayPhrase
+                                        ? ''
+                                        : placementsDisplayPhrase,
+                                );
+                                if (selectedSearchPhrase == placementsDisplayPhrase) {
+                                    delete doc.advertsSelectedPhrases[selectValue[0]][advertId];
+                                } else {
+                                    doc.advertsSelectedPhrases[selectValue[0]][advertId] = {
+                                        phrase: placementsDisplayPhrase,
+                                    };
+                                }
+                            }
+                            console.log(params);
+                            setChangedDoc({...doc});
+                            callApi('updateAdvertsSelectedPhrases', params);
+                        }}
+                    >
+                        <Icon size={12} data={ArrowShapeUp} />
+                    </Button>
+                    <Button
+                        disabled={
+                            currentParsingProgress[placementsDisplayPhrase] &&
+                            currentParsingProgress[placementsDisplayPhrase].isParsing
                         }
-                        if (
-                            compare(wholeText, {
-                                val: ruleForAdd,
-                                compMode: filterData['compMode'],
-                            })
-                        ) {
-                            tempFlagInc++;
+                        style={{
+                            marginLeft: 5,
+                            display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
+                        }}
+                        view="outlined"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            delete doc.fetchedPlacements[placementsDisplayPhrase];
+                            delete currentParsingProgress[placementsDisplayPhrase];
+                            parseFirst10Pages(
+                                placementsDisplayPhrase,
+                                setFetchedPlacements,
+                                setCurrentParsingProgress,
+                                100,
+                                placementsDisplayPhrase != '' &&
+                                    currentParsingProgress[placementsDisplayPhrase]
+                                    ? currentParsingProgress[placementsDisplayPhrase].progress / 100
+                                    : 0,
+                            );
+                            for (let i = 0; i < 9; i++) {
+                                parseFirst10Pages(
+                                    'тестовая фраза',
+                                    setFetchedPlacements,
+                                    setCurrentParsingProgress,
+                                    100,
+                                );
+                            }
+                            setChangedDoc({...doc});
+                        }}
+                    >
+                        <Icon size={12} data={ArrowRotateLeft} />
+                    </Button>
+                    <Button
+                        loading={
+                            currentParsingProgress[placementsDisplayPhrase] &&
+                            currentParsingProgress[placementsDisplayPhrase].isParsing
                         }
-                    }
-                    if (tempFlagInc != rulesForAnd.length) {
-                        addFlag = false;
-                        break;
-                    }
-                } else if (filterArg == 'autoSales') {
-                    const rentabelnost = getRoundValue(
-                        autoSalesProfits[tempTypeRow['art']]?.rentabelnost,
-                        1,
-                        true,
+                        style={{
+                            marginLeft: 5,
+                            display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
+                        }}
+                        view="outlined"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            parseFirst10Pages(
+                                placementsDisplayPhrase,
+                                setFetchedPlacements,
+                                setCurrentParsingProgress,
+                                100,
+                                placementsDisplayPhrase != '' &&
+                                    currentParsingProgress[placementsDisplayPhrase]
+                                    ? currentParsingProgress[placementsDisplayPhrase].progress / 100
+                                    : 0,
+                                doc.fetchedPlacements[placementsDisplayPhrase],
+                                currentParsingProgress[placementsDisplayPhrase],
+                            );
+                            for (let i = 0; i < 5; i++) {
+                                parseFirst10Pages(
+                                    'тестовая фраза',
+                                    setFetchedPlacements,
+                                    setCurrentParsingProgress,
+                                    100,
+                                );
+                            }
+                        }}
+                    >
+                        <Icon size={12} data={LayoutHeader} />
+                    </Button>
+                    {currentParsingProgress[placementsDisplayPhrase] &&
+                    currentParsingProgress[placementsDisplayPhrase].isParsing ? (
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{width: 5}} />
+                            <Spin size="s" />
+                        </div>
+                    ) : (
+                        <></>
+                    )}
+                </div>,
+            ],
+            render: ({value, row}: any) => {
+                if (placementsDisplayPhrase != '') {
+                    const phrase = placementsDisplayPhrase;
+                    const {nmId} = row;
+                    const {log, index} = doc.fetchedPlacements[phrase]
+                        ? (doc.fetchedPlacements[phrase].data?.[nmId] ?? ({} as any))
+                        : ({} as any);
+                    const {updateTime} = doc.fetchedPlacements[phrase] ?? ({} as any);
+                    const updateTimeObj = new Date(updateTime);
+                    // console.log(phrase, doc.fetchedPlacements[phrase], doc.fetchedPlacements, doc);
+                    if (!index || index == -1) return undefined;
+                    const {position} = log ?? {};
+                    return (
+                        <Card
+                            view="clear"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: 96,
+                                width: 'max',
+                            }}
+                        >
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                {position !== undefined ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Text color="secondary">{`${position + 1}`}</Text>
+                                        <div style={{minWidth: 3}} />
+                                        <Icon data={ArrowRight} size={13}></Icon>
+                                        <div style={{minWidth: 3}} />
+                                    </div>
+                                ) : (
+                                    <></>
+                                )}
+                                <Text>{`${!index || index == -1 ? 'Нет в выдаче' : index} `}</Text>
+                                <div style={{width: 4}} />
+                            </div>
+                            <Text>{`${updateTimeObj.toLocaleString('ru-RU')}`}</Text>
+                        </Card>
                     );
-                    if (!compare(rentabelnost, filterData)) {
-                        addFlag = false;
-                        break;
+                }
+                if (!value) return undefined;
+                const {drrAI, placementsValue, adverts} = row;
+                if (!placementsValue) return undefined;
+                const {updateTime, index, phrase, log, cpmIndex} = placementsValue;
+                const {placementsRange} = drrAI ?? {};
+                if (phrase == '') return undefined;
+                const {position, advertsType} = log ?? {};
+                const findFirstActive = (adverts: any[]) => {
+                    for (const [id, _] of Object.entries(adverts ?? {})) {
+                        const advert = doc?.adverts?.[selectValue[0]]?.[id];
+                        if (!advert) continue;
+                        if ([9, 11].includes(advert.status)) return advert;
                     }
                     return undefined;
                 };
@@ -1649,15 +2204,39 @@ export const MassAdvertPage = () => {
                         if (useManualMaxCpm || ['cpo'].includes(autoBidsMode)) continue;
                         if (desiredDRR > minDrr) minDrr = desiredDRR;
                     }
-                } else if (filterArg == 'avg_price') {
-                    if (
-                        !compare(
-                            getRoundValue(tempTypeRow['sum_orders'], tempTypeRow['orders']),
-                            filterData,
-                        )
-                    ) {
-                        addFlag = false;
-                        break;
+                    return minDrr;
+                };
+                const {adverts} = row;
+                const minDrr = findMinDrr(adverts);
+                return (
+                    <Text
+                        color={
+                            minDrr
+                                ? value <= minDrr
+                                    ? value == 0
+                                        ? 'primary'
+                                        : 'positive'
+                                    : value / minDrr - 1 < 0.5
+                                      ? 'warning'
+                                      : 'danger'
+                                : 'primary'
+                        }
+                    >
+                        {value}%
+                    </Text>
+                );
+            },
+        },
+        {name: 'romi', placeholder: 'ROMI, %', render: renderAsPercent},
+        {
+            name: 'cpo',
+            placeholder: 'CPO, ₽',
+            render: ({value, row}: any) => {
+                const findFirstActive = (adverts: any) => {
+                    for (const [id, _] of Object.entries(adverts ?? {})) {
+                        const advert = doc?.adverts?.[selectValue[0]]?.[id];
+                        if (!advert) continue;
+                        if ([9, 11].includes(advert.status)) return advert;
                     }
                     return undefined;
                 };
@@ -1730,304 +2309,216 @@ export const MassAdvertPage = () => {
     useEffect(() => {
         if (!selectValue) return;
         if (!selectValue[0] || selectValue[0] == '') return;
-            if (addFlag) {
-                temp.push(tempTypeRow);
-            }
+
+        // Cancel the previous request if it exists
+        if (cancelTokenRef.current) {
+            cancelTokenRef.current.cancel('Operation canceled due to new request.');
         }
 
-        temp.sort((a: any, b: any) => {
-            return a.art.localeCompare(b.art, 'ru-RU');
-        });
-        const filteredSummaryTemp = {
-            art: '',
-            orders: 0,
-            sum_orders: 0,
-            sum: 0,
-            views: 0,
-            clicks: 0,
-            drr: 0,
-            ctr: 0,
-            analytics: 0,
-            profit: 0,
-            rentabelnost: 0,
-            cpc: 0,
-            cpm: 0,
-            cr: 0,
-            uniqueImtIds: 0,
-            stocks: 0,
-            dsi: 0,
-            cpo: 0,
-            cpl: 0,
-            adverts: 0,
-            semantics: null,
-            budget: 0,
-            romi: 0,
-            openCardCount: 0,
-            addToCartPercent: 0,
-            addToCartCount: 0,
-            cartToOrderPercent: 0,
-        };
-        const uniqueAdvertsIds: any[] = [];
-        const uniqueImtIds: any[] = [];
-        for (let i = 0; i < temp.length; i++) {
-            const row = temp[i];
-            const imtId = row['imtId'];
-            if (!uniqueImtIds.includes(imtId)) uniqueImtIds.push(imtId);
+        // Create a new cancel token
+        cancelTokenRef.current = axios.CancelToken.source();
 
-            const adverts = row['adverts'];
-            if (adverts) {
-                for (const id of Object.keys(adverts)) {
-                    if (!uniqueAdvertsIds.includes(id)) uniqueAdvertsIds.push(id);
-                }
-            }
-            filteredSummaryTemp.sum_orders += row['sum_orders'];
-            filteredSummaryTemp.orders += row['orders'];
-            filteredSummaryTemp.stocks += row['stocks'];
-            filteredSummaryTemp.sum += row['sum'];
-            filteredSummaryTemp.views += row['views'];
-            filteredSummaryTemp.clicks += row['clicks'];
-            // if (row['art'] == 'страйп/15/16-1406')
-            //     console.log(
-            //         row['profit'],
-            //         filteredSummaryTemp.analytics,
-            //         filteredSummaryTemp.analytics + Math.round(row['profit'] ?? 0),
-            //     );
-            filteredSummaryTemp.profit += Math.round(row['profit'] ?? 0);
-
-            filteredSummaryTemp.budget += row['budget'] ?? 0;
-            filteredSummaryTemp.openCardCount += row['openCardCount'];
-            filteredSummaryTemp.addToCartCount += row['addToCartCount'];
-        }
-        filteredSummaryTemp.uniqueImtIds = Math.round(uniqueImtIds.length);
-
-        filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
-        filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
-        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks);
-        filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
-        filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
-        filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
-        filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
-        filteredSummaryTemp.adverts = uniqueAdvertsIds.length;
-
-        filteredSummaryTemp.profit = Math.round(filteredSummaryTemp.profit);
-        filteredSummaryTemp.rentabelnost = getRoundValue(
-            filteredSummaryTemp.profit,
-            filteredSummaryTemp.sum_orders,
-            true,
-        );
-        filteredSummaryTemp.analytics = filteredSummaryTemp.rentabelnost;
-
-        filteredSummaryTemp.openCardCount = Math.round(filteredSummaryTemp.openCardCount);
-        filteredSummaryTemp.addToCartPercent = getRoundValue(
-            filteredSummaryTemp.addToCartCount,
-            filteredSummaryTemp.openCardCount,
-            true,
-        );
-        filteredSummaryTemp.cartToOrderPercent = getRoundValue(
-            filteredSummaryTemp.orders,
-            filteredSummaryTemp.addToCartCount,
-            true,
-        );
-
-        filteredSummaryTemp.drr = getRoundValue(
-            filteredSummaryTemp.sum,
-            filteredSummaryTemp.sum_orders,
-            true,
-            1,
-        );
-        filteredSummaryTemp.ctr = getRoundValue(
-            filteredSummaryTemp.clicks,
-            filteredSummaryTemp.views,
-            true,
-        );
-        filteredSummaryTemp.cpc = getRoundValue(
-            filteredSummaryTemp.sum / 100,
-            filteredSummaryTemp.clicks,
-            true,
-            filteredSummaryTemp.sum / 100,
-        );
-        filteredSummaryTemp.cpm = getRoundValue(
-            filteredSummaryTemp.sum * 1000,
-            filteredSummaryTemp.views,
-        );
-        filteredSummaryTemp.cr = getRoundValue(
-            filteredSummaryTemp.orders,
-            filteredSummaryTemp.openCardCount,
-            true,
-        );
-        filteredSummaryTemp.cpo = getRoundValue(
-            filteredSummaryTemp.sum,
-            filteredSummaryTemp.orders,
-            false,
-            filteredSummaryTemp.sum,
-        );
-        filteredSummaryTemp.cpl = getRoundValue(
-            filteredSummaryTemp.sum,
-            filteredSummaryTemp.addToCartCount,
-            false,
-            filteredSummaryTemp.sum,
-        );
-
-        filteredSummaryTemp.romi = getRoundValue(
-            filteredSummaryTemp.profit,
-            filteredSummaryTemp.sum,
-            true,
-        );
-
-        filteredSummaryTemp.dsi = getRoundValue(
-            filteredSummaryTemp.stocks,
-            filteredSummaryTemp.orders / (daysBetween + 1),
-        );
-
-        setFilteredSummary(filteredSummaryTemp);
-        setFilteredData(temp);
-    };
-
-    const getUniqueAdvertIdsFromThePage = () => {
-        const lwr = filters['adverts']
-            ? String(filters['adverts']['val']).toLocaleLowerCase().trim()
-            : '';
-
-        const uniqueAdverts: any = {};
-        for (let i = 0; i < filteredData.length; i++) {
-            const {adverts} = filteredData[i];
-            if (!adverts) continue;
-
-            for (const [id, _] of Object.entries(adverts)) {
-                if (!id) continue;
-                const advertData = doc?.adverts?.[selectValue[0]]?.[id];
-                if (!advertData) continue;
-                const {advertId, type} = advertData;
-                if (!advertId) continue;
-
-                if (lwr == 'авто' && type != 8) continue;
-                else if (lwr == 'поиск' && ![6, 9].includes(type)) continue;
-
-                uniqueAdverts[advertId] = {advertId: advertId};
-            }
-        }
-        return uniqueAdverts;
-    };
-
-    const manageAdvertsActivityCallFunc = async (mode: string, advertId: any) => {
-        const params: any = {
+        if (doc) setSwitchingCampaignsFlag(true);
+        const params = {
             uid: getUid(),
+            dateRange: {from: '2023', to: '2024'},
             campaignName: selectValue[0],
-            data: {
-                advertsIds: {},
-                mode: mode,
-            },
         };
-        params.data.advertsIds[advertId] = {advertId: advertId};
+        console.log(params);
 
-        return await callApi('manageAdvertsActivity', params);
-    };
+        callApi(`getMassAdvertsNew`, params, true)
+            .then(async (res) => {
+                console.log(res);
+                if (!res) return;
+                const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
+                    seller_id: sellerId,
+                });
+                const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
+                    seller_id: sellerId,
+                });
+                const autoSales = await ApiClient.post('massAdvert/get-sales-rules', {
+                    seller_id: sellerId,
+                });
+                const resData = res['data'];
 
-    const filterByButton = (val: any, key = 'art', compMode = 'include') => {
-        filters[key] = {val: String(val) + ' ', compMode: compMode};
-        setFilters({...filters});
-        filterTableData(filters);
-    };
+                console.log('advertsAutoBidsRules', advertsAutoBidsRules);
 
-    const calcByDayStats = (arts: any[]) => {
-        const tempJson: any = {};
+                resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
+                resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
+                resData['autoSales'][selectValue[0]] = autoSales?.data;
+                setChangedDoc(resData);
+                setSwitchingCampaignsFlag(false);
+                // recalc(dateRange, selectValue[0], filters, resData);
+                console.log(resData);
+            })
+            .catch(() => {
+                setSwitchingCampaignsFlag(false);
+            });
 
-        const daysBetween =
-            dateRange[1].getTime() / 86400 / 1000 - dateRange[0].getTime() / 86400 / 1000;
+        setCopiedAdvertsSettings({advertId: 0});
 
-        const now = new Date();
-        for (let i = 0; i <= daysBetween; i++) {
-            const dateIter = new Date(dateRange[1]);
-            dateIter.setDate(dateIter.getDate() - i);
-
-            if (dateIter > now) continue;
-            const strDate = getLocaleDateString(dateIter);
-
-            if (!tempJson[strDate])
-                tempJson[strDate] = {
-                    date: dateIter,
-                    orders: 0,
-                    sum_orders: 0,
-                    sum: 0,
-                    views: 0,
-                    clicks: 0,
-                    drr: 0,
-                    ctr: 0,
-                    cpc: 0,
-                    cpm: 0,
-                    cr: 0,
-                    cpo: 0,
-                    openCardCount: 0,
-                    addToCartCount: 0,
-                    addToCartPercent: 0,
-                    cartToOrderPercent: 0,
-                    cpl: 0,
-                };
-
-            for (const _art of arts) {
-                const {advertsStats, nmFullDetailReport} = doc.campaigns[selectValue[0]][_art];
-                if (!advertsStats) continue;
-                const dateData = advertsStats[strDate];
-                if (!dateData) continue;
-
-                tempJson[strDate].orders += dateData['orders'];
-                tempJson[strDate].sum_orders += dateData['sum_orders'];
-                tempJson[strDate].sum += dateData['sum'];
-                tempJson[strDate].views += dateData['views'];
-                tempJson[strDate].clicks += dateData['clicks'];
-
-                const {openCardCount, addToCartCount} = nmFullDetailReport.statistics[strDate] ?? {
-                    openCardCount: 0,
-                    addToCartCount: 0,
-                };
-
-                tempJson[strDate].openCardCount += openCardCount ?? 0;
-                tempJson[strDate].addToCartCount += addToCartCount ?? 0;
+        // Cleanup function to cancel the request on component unmount or before the next useEffect call
+        return () => {
+            if (cancelTokenRef.current) {
+                cancelTokenRef.current.cancel('Component unmounted or selectValue changed.');
             }
-            tempJson[strDate].openCardCount = Math.round(tempJson[strDate].openCardCount);
+        };
+    }, [selectValue]);
 
-            tempJson[strDate].addToCartPercent = getRoundValue(
-                tempJson[strDate].addToCartCount,
-                tempJson[strDate].openCardCount,
-                true,
-            );
-            tempJson[strDate].cartToOrderPercent = getRoundValue(
-                tempJson[strDate].orders,
-                tempJson[strDate].addToCartCount,
-                true,
-            );
-            tempJson[strDate].cpl = getRoundValue(
-                tempJson[strDate].sum,
-                tempJson[strDate].addToCartCount,
-            );
-        }
-
-        const temp = [] as any[];
-
-        for (const [strDate, data] of Object.entries(tempJson)) {
-            const dateData: any = data;
-            if (!strDate || !dateData) continue;
-
-            dateData['orders'] = Math.round(dateData['orders']);
-            dateData['sum_orders'] = Math.round(dateData['sum_orders']);
-            dateData['sum'] = Math.round(dateData['sum']);
-            dateData['views'] = Math.round(dateData['views']);
-            dateData['clicks'] = Math.round(dateData['clicks']);
-
-            const {orders, sum, clicks, views} = dateData as any;
-
-            dateData['drr'] = getRoundValue(dateData['sum'], dateData['sum_orders'], true, 1);
-            dateData['ctr'] = getRoundValue(clicks, views, true);
-            dateData['cpc'] = getRoundValue(sum / 100, clicks, true, sum / 100);
-            dateData['cpm'] = getRoundValue(sum * 1000, views);
-            dateData['cr'] = getRoundValue(orders, dateData['openCardCount'], true);
-            dateData['cpo'] = getRoundValue(sum, orders, false, sum);
-            temp.push(dateData);
-        }
-
-        return temp;
+    const getBidderRules = async () => {
+        if (!doc) return;
+        const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
+            seller_id: sellerId,
+        });
+        doc.advertsAutoBidsRules[selectValue[0]] = advertsAutoBidsRules?.data;
+        setChangedDoc({...doc});
     };
 
+    useEffect(() => {
+        getBidderRules();
+    }, [advertBudgetRules]);
+
+    // useEffect(() => {
+    //     if (!selectValue[0]) return;
+
+    //     callApi('getAvailableAutoSaleNmIds', {
+    //         seller_id: sellerId,
+    //     })
+    //         .then((res) => {
+    //             if (!res) throw 'no response';
+    //             const nmIds = res['data'] ?? {};
+    //             setAvailableAutoSalesNmIds(nmIds ?? []);
+    //         })
+    //         .catch((e) => {
+    //             console.log(e);
+    //         });
+
+    //     setRefetchAutoSales(false);
+    //     setDzhemRefetch(false);
+    // }, [selectValue, refetchAutoSales, dzhemRefetch]);
+
+    const [changedDoc, setChangedDoc] = useState<any>(undefined);
+    const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
+
+    const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
+
+    const getCampaignName = () => {
+        return selectValue[0];
+    };
+    const updateTheData = async () => {
+        console.log('YOOO UPDATE INCOMING');
+        setFetchingDataFromServerFlag(true);
+        const params = {
+            uid: getUid(),
+            dateRange: {from: '2023', to: '2024'},
+            campaignName: getCampaignName(),
+        };
+        console.log(params);
+
+        await callApi('getMassAdvertsNew', params, true)
+            .then(async (response) => {
+                setFetchingDataFromServerFlag(false);
+                // console.log(response);
+                if (!response) return;
+                const resData = response['data'];
+
+                const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
+                    seller_id: sellerId,
+                });
+                const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
+                    seller_id: sellerId,
+                });
+                const autoSales = await ApiClient.post('massAdvert/get-sales-rules', {
+                    seller_id: sellerId,
+                });
+                console.log('advertsAutoBidsRules', advertsAutoBidsRules);
+
+                resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
+                resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
+                resData['autoSales'][selectValue[0]] = autoSales?.data;
+
+                setChangedDoc(resData);
+                setChangedDocUpdateType(true);
+                // console.log(response ? response['data'] : undefined);
+            })
+            .catch((error) => console.error(error));
+    };
+    // useEffect(() => {
+    //     const interval = setInterval(updateTheData, 1 * 60 * 1000);
+
+    //     return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+    // }, []);
+
+    if (fetchedPlacements) {
+        for (const [phrase, phraseData] of Object.entries(fetchedPlacements)) {
+            if (!phrase || !phraseData) continue;
+            const {data, updateTime, cpms} = phraseData as any;
+            if (!data || !updateTime) continue;
+            if (!Object.keys(data).length) continue;
+            if (!doc.fetchedPlacements[phrase]) doc.fetchedPlacements[phrase] = {};
+            if (
+                !doc.fetchedPlacements[phrase]['data'] ||
+                (doc.fetchedPlacements[phrase]['updateTime'] &&
+                    new Date(doc.fetchedPlacements[phrase]['updateTime']).getTime() / 1000 / 60 > 2)
+            ) {
+                doc.fetchedPlacements[phrase]['data'] = {};
+                doc.fetchedPlacements[phrase]['cpms'] = {};
+            }
+            doc.fetchedPlacements[phrase]['updateTime'] = updateTime;
+            Object.assign(doc.fetchedPlacements[phrase]['data'], data);
+            Object.assign(doc.fetchedPlacements[phrase]['cpms'], cpms);
+        }
+
+        console.log(doc);
+        setChangedDoc({...doc});
+
+        setFetchedPlacements(undefined);
+    }
+
+    // const doc = {};
+    const today = new Date(
+        new Date()
+            .toLocaleDateString('ru-RU')
+            .replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
+            .slice(0, 10),
+    );
+    // const monthAgo = new Date(today);
+    // monthAgo.setDate(monthAgo.getDate() - 30);
+
+    const [dateRange, setDateRange] = useState([today, today]);
+    const anchorRef = useRef(null);
+
+    // console.log(doc);
+    // const lbdDate: DateTime =;
+    // lbdDate.subtract(90, 'day');
+    // setLbd(new Date());
+
+    const [summary, setSummary] = useState({
+        views: 0,
+        clicks: 0,
+        sum: 0,
+        drr_orders: 0,
+        drr_sales: 0,
+        drr: '',
+        orders: 0,
+        sales: 0,
+        sum_orders: 0,
+        sum_sales: 0,
+        addToCartCount: 0,
+        profit: '',
+        rent: '',
+        profitTemp: 0,
+    });
+
+    const getRoundValue = (a: any, b: any, isPercentage = false, def = 0) => {
+        let result = b ? a / b : def;
+        if (isPercentage) {
+            result = Math.round(result * 100 * 100) / 100;
+        } else {
+            result = Math.round(result);
+        }
+        return result;
+    };
     const recalc = (
         daterng: any,
         selected = '',
@@ -2308,261 +2799,537 @@ export const MassAdvertPage = () => {
             summaryTemp.drr_orders,
         )}% / ${new Intl.NumberFormat('ru-RU').format(summaryTemp.drr_sales)}%`;
 
-        setSummary({...summaryTemp});
+        setSummary(summaryTemp);
 
         setTableData(temp);
 
         filterTableData(withfFilters, temp, undefined, daterng);
     };
 
-    const columnData: any = [
-        doc
-            ? {
-                  ...getArtColumn({
-                      filterAutoSales: filterAutoSales,
-                      setFilterAutoSales: setFilterAutoSales,
-                      filters: filters,
-                      data: data,
-                      filteredData: filteredData,
-                      doc: doc,
-                      selectValue: selectValue,
-                      sellerId: sellerId,
-                      filterTableData: filterTableData,
-                      setAutoSalesModalOpenFromParent: setAutoSalesModalOpenFromParent,
-                      setChangedDoc: setChangedDoc,
-                      availableAutoSalesNmIds: availableAutoSalesNmIds,
-                      filterByButton: filterByButton,
-                      pagesCurrent: pagesCurrent,
-                      setSemanticsModalOpenFromArt: setSemanticsModalOpenFromArt,
-                      allNotes: allNotes,
-                      setReloadNotes: setReloadNotes,
-                      permission: permission,
-                      setAdvertsArtsListModalFromOpen: setAdvertsArtsListModalFromOpen,
-                      setRkList: setRkList,
-                      setRkListMode: setRkListMode,
-                      setShowArtStatsModalOpen: setShowArtStatsModalOpen,
-                      setShowDzhemModalOpen: setShowDzhemModalOpen,
-                      calcByDayStats: calcByDayStats,
-                      setArtsStatsByDayData: setArtsStatsByDayData,
-                  }),
-              }
-            : null,
-        Object.keys(autoSalesProfits ?? []).length == 0
-            ? {
-                  ...getAdvertsColumn({
-                      doc: doc,
-                      filterByButton: filterByButton,
-                      setFiltersRK: setFiltersRK,
-                      filtersRK: filtersRK,
-                      selectValue: selectValue,
-                      filters: filters,
-                      sellerId: sellerId,
-                      advertBudgetRules: advertBudgetRules,
-                      setAdvertBudgetRules: setAdvertBudgetRules,
-                      recalc: recalc,
-                      permission: permission,
-                      copiedAdvertsSettings: copiedAdvertsSettings,
-                      setChangedDoc: setChangedDoc,
-                      manageAdvertsActivityCallFunc: manageAdvertsActivityCallFunc,
-                      filteredData: filteredData,
-                      setArtsStatsByDayData: setArtsStatsByDayData,
-                      updateColumnWidth: updateColumnWidth,
-                      setCopiedAdvertsSettings: setCopiedAdvertsSettings,
-                      setFetchedPlacements: setFetchedPlacements,
-                      currentParsingProgress: currentParsingProgress,
-                      setDateRange: setDateRange,
-                      dateRange: dateRange,
-                      getUniqueAdvertIdsFromThePage: getUniqueAdvertIdsFromThePage,
-                      setCurrentParsingProgress: setCurrentParsingProgress,
-                      setShowArtStatsModalOpen: setShowArtStatsModalOpen,
-                  }),
-              }
-            : {
-                  ...getAutoSalesColumn({
-                      autoSalesProfits: autoSalesProfits,
-                      selectValue: selectValue,
-                      doc: doc,
-                      filteredData: filteredData,
-                      setAutoSalesProfits: setAutoSalesProfits,
-                      setChangedDoc: setChangedDoc,
-                      showError: showError,
-                  }),
-              },
-        {
-            ...getAnalyticsColumn({
-                unvalidatedArts: unvalidatedArts,
-                stocksByWarehouses: stocksByWarehouses,
-                sellerId: sellerId,
-            }),
-        },
-        doc && getUniqueAdvertIdsFromThePage
-            ? {
-                  ...getPlacementsColumn({
-                      placementsDisplayPhrase: placementsDisplayPhrase,
-                      currentParsingProgress: currentParsingProgress,
-                      selectedSearchPhrase: selectedSearchPhrase,
-                      getUniqueAdvertIdsFromThePage: getUniqueAdvertIdsFromThePage,
-                      selectValue: selectValue,
-                      setSelectedSearchPhrase: setSelectedSearchPhrase,
-                      doc: doc,
-                      setChangedDoc: setChangedDoc,
-                      setFetchedPlacements: setFetchedPlacements,
-                      setCurrentParsingProgress: setCurrentParsingProgress,
-                      sellerId: sellerId,
-                  }),
-              }
-            : null,
-        {...getStocksColumn()},
-        {...getDsiColumn()},
-        {...getSumColumn()},
-        {...getOrdersColumn()},
-        {...getSumOrdersColumn()},
-        {...getAvgPriceColum()},
-        doc ? {...getDrrColumn(doc, selectValue)} : null,
-        {...getRomiColumn()},
-        doc ? {...getCpoColumn(doc, selectValue)} : null,
-        {...getViewsColumn()},
-        {...getClicksColumn()},
-        {...getCTRColumn()},
-        {...getCPCColumn()},
-        {...getCPMColumn()},
-        {...getOpenCardCountColumn()},
-        {...getCRColumn()},
-        {...getAddToCardPercentColumn()},
-        {...getCardToOrderPercentColumn()},
-        {...getAddToCartCountColumn()},
-        {...getCPLColumn()},
-    ];
-
-    const [filteredSummary, setFilteredSummary] = useState({
-        art: '',
-        uniqueImtIds: 0,
-        views: 0,
-        clicks: 0,
-        sum: 0,
-        ctr: 0,
-        drr: 0,
-        orders: 0,
-        analytics: 0,
-        stocks: 0,
-        sum_orders: 0,
-        romi: 0,
-        adverts: 0,
-        semantics: null,
-    });
-
-    const cancelTokenRef = useRef<CancelTokenSource | null>(null);
-
-    useEffect(() => {
-        if (!selectValue) return;
-        if (!selectValue[0] || selectValue[0] == '') return;
-
-        if (cancelTokenRef.current) {
-            cancelTokenRef.current.cancel('Operation canceled due to new request.');
-        }
-
-        cancelTokenRef.current = axios.CancelToken.source();
-
-        if (doc) setSwitchingCampaignsFlag(true);
-        const params = {
-            uid: getUid(),
-            dateRange: {from: '2023', to: '2024'},
-            campaignName: selectValue[0],
-        };
-        console.log(params);
-
-        callApi(`getMassAdvertsNew`, params, true)
-            .then(async (res) => {
-                console.log(res);
-                if (!res) return;
-                const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
-                    seller_id: sellerId,
-                });
-                const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
-                    seller_id: sellerId,
-                });
-                const autoSales = await ApiClient.post('massAdvert/get-sales-rules', {
-                    seller_id: sellerId,
-                });
-                const resData = res['data'];
-
-                console.log('advertsAutoBidsRules', advertsAutoBidsRules);
-
-                resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
-                resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
-                resData['autoSales'][selectValue[0]] = autoSales?.data;
-                setChangedDoc(resData);
-                setSwitchingCampaignsFlag(false);
-                console.log(resData);
-            })
-            .catch(() => {
-                setSwitchingCampaignsFlag(false);
-            });
-
-        setCopiedAdvertsSettings({advertId: 0});
-
-        return () => {
-            if (cancelTokenRef.current) {
-                cancelTokenRef.current.cancel('Component unmounted or selectValue changed.');
-            }
-        };
-    }, [selectValue]);
-
-    const getBidderRules = async () => {
-        if (!doc) return;
-        const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
-            seller_id: sellerId,
-        });
-        doc.advertsAutoBidsRules[selectValue[0]] = advertsAutoBidsRules?.data;
-        setChangedDoc({...doc});
-    };
-
-    useEffect(() => {
-        getBidderRules();
-    }, [advertBudgetRules]);
-
-    if (fetchedPlacements) {
-        for (const [phrase, phraseData] of Object.entries(fetchedPlacements)) {
-            if (!phrase || !phraseData) continue;
-            const {data, updateTime, cpms} = phraseData as any;
-            if (!data || !updateTime) continue;
-            if (!Object.keys(data).length) continue;
-            if (!doc.fetchedPlacements[phrase]) doc.fetchedPlacements[phrase] = {};
-            if (
-                !doc.fetchedPlacements[phrase]['data'] ||
-                (doc.fetchedPlacements[phrase]['updateTime'] &&
-                    new Date(doc.fetchedPlacements[phrase]['updateTime']).getTime() / 1000 / 60 > 2)
-            ) {
-                doc.fetchedPlacements[phrase]['data'] = {};
-                doc.fetchedPlacements[phrase]['cpms'] = {};
-            }
-            doc.fetchedPlacements[phrase]['updateTime'] = updateTime;
-            Object.assign(doc.fetchedPlacements[phrase]['data'], data);
-            Object.assign(doc.fetchedPlacements[phrase]['cpms'], cpms);
-        }
-
-        console.log(doc);
-        setChangedDoc({...doc});
-
-        setFetchedPlacements(undefined);
-    }
-
-    const anchorRef = useRef(null);
-
-    const getRoundValue = (a: any, b: any, isPercentage = false, def = 0) => {
-        let result = b ? a / b : def;
-        if (isPercentage) {
-            result = Math.round(result * 100 * 100) / 100;
-        } else {
-            result = Math.round(result);
-        }
-        return result;
-    };
-
     useEffect(() => {
         recalc(dateRange);
     }, [filtersRK]);
 
+    const getBalanceYagrData = () => {
+        const balanceLog =
+            doc.balances && doc.balances[selectValue[0]]
+                ? (doc.balances[selectValue[0]]?.data ?? {})
+                : {};
+        // console.log(balanceLog);
+
+        const timelineBudget: any[] = [];
+        const graphsDataBonus: any[] = [];
+        const graphsDataBalance: any[] = [];
+        const graphsDataNet: any[] = [];
+        // const graphsDataBudgetsDiv: any[] = [];
+        // const graphsDataBudgetsDivHours = {};
+        if (balanceLog) {
+            for (let i = 0; i < balanceLog.length; i++) {
+                const time = balanceLog[i].time;
+                const balanceData = balanceLog[i].balance;
+                if (!time || !balanceData) continue;
+
+                const {net, balance, bonus} = balanceData;
+
+                const timeObj = new Date(time);
+
+                timeObj.setMinutes(Math.floor(timeObj.getMinutes() / 15) * 15);
+
+                const lbd = new Date(dateRange[0]);
+                lbd.setHours(0, 0, 0, 0);
+                const rbd = new Date(dateRange[1]);
+                rbd.setHours(23, 59, 59);
+                if (timeObj < lbd || timeObj > rbd) continue;
+                timelineBudget.push(timeObj.getTime());
+                graphsDataBalance.push(balance ?? 0);
+                graphsDataBonus.push(bonus ?? 0);
+                graphsDataNet.push(net ?? 0);
+
+                // const hour = time.slice(0, 13);
+                // if (!graphsDataBudgetsDivHours[hour]) graphsDataBudgetsDivHours[hour] = budget;
+            }
+            // let prevHour = '';
+            // for (let i = 0; i < timelineBudget.length; i++) {
+            //     const dateObj = new Date(timelineBudget[i]);
+            //     const time = dateObj.toISOString();
+            //     if (dateObj.getMinutes() != 0) {
+            //         graphsDataBudgetsDiv.push(null);
+            //         continue;
+            //     }
+            //     const hour = time.slice(0, 13);
+            //     if (prevHour == '') {
+            //         graphsDataBudgetsDiv.push(null);
+            //         prevHour = hour;
+            //         continue;
+            //     }
+
+            //     const spent = graphsDataBudgetsDivHours[prevHour] - graphsDataBudgetsDivHours[hour];
+            //     graphsDataBudgetsDiv.push(spent);
+
+            //     prevHour = hour;
+            // }
+        }
+
+        const yagrBalanceData: YagrWidgetData = {
+            data: {
+                timeline: timelineBudget,
+                graphs: [
+                    {
+                        id: '0',
+                        name: 'Баланс',
+                        scale: 'y',
+                        color: '#ffbe5c',
+                        data: graphsDataNet,
+                    },
+                    {
+                        id: '1',
+                        name: 'Бонусы',
+                        scale: 'y',
+                        color: '#4aa1f2',
+                        data: graphsDataBonus,
+                    },
+                    {
+                        id: '2',
+                        name: 'Счет',
+                        scale: 'y',
+                        color: '#5fb8a5',
+                        data: graphsDataBalance,
+                    },
+                ],
+            },
+
+            libraryConfig: {
+                chart: {
+                    series: {
+                        spanGaps: false,
+                        type: 'line',
+                        interpolation: 'smooth',
+                    },
+                },
+                axes: {
+                    y: {
+                        label: 'Баланс',
+                        precision: 'auto',
+                        show: true,
+                    },
+                    // r: {
+                    //     label: 'Бонусы',
+                    //     precision: 'auto',
+                    //     side: 'right',
+                    //     show: true,
+                    // },
+                    // l: {
+                    //     label: 'Счет',
+                    //     precision: 'auto',
+                    //     side: 'right',
+                    //     show: true,
+                    // },
+                    x: {
+                        label: 'Время',
+                        precision: 'auto',
+                        show: true,
+                    },
+                },
+                series: [],
+                scales: {y: {min: 0}},
+                title: {
+                    text: 'Изменение баланса',
+                },
+            },
+        };
+
+        return yagrBalanceData;
+    };
+
+    const filterTableData = (
+        withfFilters: any = {},
+        tableData: any = {},
+        _filterAutoSales = undefined as any,
+        datering = undefined,
+    ) => {
+        const [startDate, endDate] = datering ?? dateRange;
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const daysBetween =
+            Math.abs(
+                startDate.getTime() -
+                    (today.getTime() > endDate.getTime() ? endDate.getTime() : today.getTime()),
+            ) /
+            1000 /
+            86400;
+
+        const temp = [] as any;
+        const usefilterAutoSales = _filterAutoSales ?? filterAutoSales;
+        // console.log(
+        //     tableData,
+        //     data,
+        //     Object.keys(tableData).length ? tableData : data,
+        //     withfFilters['undef'] ? withfFilters : filters,
+        // );
+
+        for (const [art, info] of Object.entries(
+            Object.keys(tableData).length ? tableData : data,
+        )) {
+            const artInfo: any = info;
+            if (!art || !artInfo) continue;
+
+            const tempTypeRow: any = artInfo;
+            tempTypeRow['placements'] =
+                artInfo['placements'] == -1 ? 10 * 1000 : artInfo['placements'];
+
+            let addFlag = true;
+            const useFilters = withfFilters['undef'] ? withfFilters : filters;
+            if (Object.values(filtersRK).includes(true)) useFilters['filtersRK'] = filtersRK;
+            else delete useFilters['filtersRK'];
+
+            for (const [filterArg, data] of Object.entries(useFilters)) {
+                const filterData: any = data;
+                if (filterArg == 'undef' || !filterData) continue;
+                if (filterData['val'] == '' && filterArg != 'placements') continue;
+
+                const fldata = filterData['val'];
+                const flarg = tempTypeRow[filterArg];
+
+                if (flarg && fldata.trim() == '+') {
+                    if (flarg !== undefined) continue;
+                } else if (fldata?.trim() == '-') {
+                    if (flarg === undefined) continue;
+                }
+
+                if (usefilterAutoSales && !availableAutoSalesNmIds.includes(tempTypeRow['nmId'])) {
+                    addFlag = false;
+                    break;
+                }
+
+                if (filterArg == 'art') {
+                    const rulesForAnd = filterData['val'].split('+');
+                    // console.log(rulesForAnd);
+
+                    let wholeText = '';
+                    for (const key of ['art', 'title', 'brand', 'nmId', 'imtId', 'object']) {
+                        wholeText += tempTypeRow[key] + ' ';
+                    }
+
+                    const tags = tempTypeRow['tags'];
+                    if (tags) {
+                        for (const key of tags) {
+                            wholeText += key + ' ';
+                        }
+                    }
+
+                    let tempFlagInc = 0;
+                    for (let k = 0; k < rulesForAnd.length; k++) {
+                        const ruleForAdd = rulesForAnd[k];
+                        if (ruleForAdd == '') {
+                            tempFlagInc++;
+                            continue;
+                        }
+                        if (
+                            compare(wholeText, {
+                                val: ruleForAdd,
+                                compMode: filterData['compMode'],
+                            })
+                        ) {
+                            tempFlagInc++;
+                        }
+                    }
+                    if (tempFlagInc != rulesForAnd.length) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'filtersRK') {
+                    const adverts = tempTypeRow['adverts'];
+
+                    let add = false;
+                    if (adverts)
+                        for (const id of Object.keys(adverts)) {
+                            const status = doc?.adverts?.[selectValue[0]]?.[id]?.status;
+
+                            const hasStatusFilter =
+                                filtersRK['activeAdverts'] || filtersRK['pausedAdverts'];
+                            let byStatus = !hasStatusFilter;
+
+                            if (filtersRK['activeAdverts'] && status != 9) continue;
+                            else if (filtersRK['activeAdverts']) byStatus = true;
+
+                            if (filtersRK['pausedAdverts'] && status != 11) continue;
+                            else if (filtersRK['pausedAdverts']) byStatus = true;
+
+                            if (
+                                filtersRK['bidderRules'] &&
+                                !doc?.advertsAutoBidsRules?.[selectValue[0]]?.[id] &&
+                                byStatus
+                            )
+                                add = true;
+                            if (filtersRK['budgetRules'] && !advertBudgetRules[id] && byStatus)
+                                add = true;
+                            if (
+                                filtersRK['phrasesRules'] &&
+                                !doc?.advertsPlusPhrasesTemplates?.[selectValue[0]]?.[id] &&
+                                byStatus
+                            )
+                                add = true;
+                            if (
+                                filtersRK['scheduleRules'] &&
+                                !doc?.advertsSchedules?.[selectValue[0]]?.[id] &&
+                                byStatus
+                            )
+                                add = true;
+
+                            if (
+                                !filtersRK['bidderRules'] &&
+                                !filtersRK['budgetRules'] &&
+                                !filtersRK['phrasesRules'] &&
+                                !filtersRK['scheduleRules'] &&
+                                byStatus &&
+                                hasStatusFilter
+                            )
+                                add = true;
+                        }
+                    if (!add) addFlag = false;
+                } else if (filterArg == 'placements') {
+                    if (filterData['val'] == '') {
+                        setPlacementsDisplayPhrase('');
+                        setSelectedSearchPhrase('');
+                        continue;
+                    }
+                    const temp = isNaN(parseInt(filterData['val']));
+
+                    if (temp) {
+                        setPlacementsDisplayPhrase(filterData['val']);
+                        if (placementsDisplayPhrase != filterData['val'])
+                            setSelectedSearchPhrase('');
+                    } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'adverts') {
+                    const rulesForAnd = [filterData['val']];
+                    const adverts = tempTypeRow[filterArg];
+                    // console.log(rulesForAnd);
+                    let wholeText = '';
+                    let wholeTextTypes = '';
+                    if (adverts)
+                        for (const [id, _] of Object.entries(adverts)) {
+                            wholeText += id + ' ';
+                            const advertData = doc?.adverts?.[selectValue[0]]?.[id];
+
+                            if (advertData)
+                                wholeTextTypes += advertData.type == 8 ? 'авто ' : 'поиск ';
+                        }
+
+                    const lwr = String(filterData['val']).toLocaleLowerCase().trim();
+                    if (['авто', 'поиск'].includes(lwr)) {
+                        if (wholeTextTypes.includes(lwr)) continue;
+                    }
+                    let tempFlagInc = 0;
+                    for (let k = 0; k < rulesForAnd.length; k++) {
+                        const ruleForAdd = rulesForAnd[k];
+                        if (ruleForAdd == '') {
+                            tempFlagInc++;
+                            continue;
+                        }
+                        if (
+                            compare(wholeText, {
+                                val: ruleForAdd,
+                                compMode: filterData['compMode'],
+                            })
+                        ) {
+                            tempFlagInc++;
+                        }
+                    }
+                    if (tempFlagInc != rulesForAnd.length) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'autoSales') {
+                    const rentabelnost = getRoundValue(
+                        autoSalesProfits[tempTypeRow['art']]?.rentabelnost,
+                        1,
+                        true,
+                    );
+                    if (!compare(rentabelnost, filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'semantics') {
+                    if (!compare(tempTypeRow['plusPhrasesTemplate'], filterData)) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (filterArg == 'avg_price') {
+                    if (
+                        !compare(
+                            getRoundValue(tempTypeRow['sum_orders'], tempTypeRow['orders']),
+                            filterData,
+                        )
+                    ) {
+                        addFlag = false;
+                        break;
+                    }
+                } else if (!compare(tempTypeRow[filterArg], filterData)) {
+                    addFlag = false;
+                    break;
+                }
+            }
+
+            if (addFlag) {
+                temp.push(tempTypeRow);
+            }
+        }
+
+        temp.sort((a: any, b: any) => {
+            return a.art.localeCompare(b.art, 'ru-RU');
+        });
+        const filteredSummaryTemp = {
+            art: '',
+            orders: 0,
+            sum_orders: 0,
+            sum: 0,
+            views: 0,
+            clicks: 0,
+            drr: 0,
+            ctr: 0,
+            analytics: 0,
+            profit: 0,
+            rentabelnost: 0,
+            cpc: 0,
+            cpm: 0,
+            cr: 0,
+            uniqueImtIds: 0,
+            stocks: 0,
+            dsi: 0,
+            cpo: 0,
+            cpl: 0,
+            adverts: 0,
+            semantics: null,
+            budget: 0,
+            romi: 0,
+            openCardCount: 0,
+            addToCartPercent: 0,
+            addToCartCount: 0,
+            cartToOrderPercent: 0,
+        };
+        const uniqueAdvertsIds: any[] = [];
+        const uniqueImtIds: any[] = [];
+        for (let i = 0; i < temp.length; i++) {
+            const row = temp[i];
+            const imtId = row['imtId'];
+            if (!uniqueImtIds.includes(imtId)) uniqueImtIds.push(imtId);
+
+            const adverts = row['adverts'];
+            if (adverts) {
+                for (const id of Object.keys(adverts)) {
+                    if (!uniqueAdvertsIds.includes(id)) uniqueAdvertsIds.push(id);
+                }
+            }
+            filteredSummaryTemp.sum_orders += row['sum_orders'];
+            filteredSummaryTemp.orders += row['orders'];
+            filteredSummaryTemp.stocks += row['stocks'];
+            filteredSummaryTemp.sum += row['sum'];
+            filteredSummaryTemp.views += row['views'];
+            filteredSummaryTemp.clicks += row['clicks'];
+            // if (row['art'] == 'страйп/15/16-1406')
+            //     console.log(
+            //         row['profit'],
+            //         filteredSummaryTemp.analytics,
+            //         filteredSummaryTemp.analytics + Math.round(row['profit'] ?? 0),
+            //     );
+            filteredSummaryTemp.profit += Math.round(row['profit'] ?? 0);
+
+            filteredSummaryTemp.budget += row['budget'] ?? 0;
+            filteredSummaryTemp.openCardCount += row['openCardCount'];
+            filteredSummaryTemp.addToCartCount += row['addToCartCount'];
+        }
+        filteredSummaryTemp.uniqueImtIds = Math.round(uniqueImtIds.length);
+
+        filteredSummaryTemp.sum_orders = Math.round(filteredSummaryTemp.sum_orders);
+        filteredSummaryTemp.orders = Math.round(filteredSummaryTemp.orders);
+        filteredSummaryTemp.stocks = Math.round(filteredSummaryTemp.stocks);
+        filteredSummaryTemp.sum = Math.round(filteredSummaryTemp.sum);
+        filteredSummaryTemp.views = Math.round(filteredSummaryTemp.views);
+        filteredSummaryTemp.clicks = Math.round(filteredSummaryTemp.clicks);
+        filteredSummaryTemp.budget = Math.round(filteredSummaryTemp.budget);
+        filteredSummaryTemp.adverts = uniqueAdvertsIds.length;
+
+        filteredSummaryTemp.profit = Math.round(filteredSummaryTemp.profit);
+        filteredSummaryTemp.rentabelnost = getRoundValue(
+            filteredSummaryTemp.profit,
+            filteredSummaryTemp.sum_orders,
+            true,
+        );
+        filteredSummaryTemp.analytics = filteredSummaryTemp.rentabelnost;
+
+        filteredSummaryTemp.openCardCount = Math.round(filteredSummaryTemp.openCardCount);
+        filteredSummaryTemp.addToCartPercent = getRoundValue(
+            filteredSummaryTemp.addToCartCount,
+            filteredSummaryTemp.openCardCount,
+            true,
+        );
+        filteredSummaryTemp.cartToOrderPercent = getRoundValue(
+            filteredSummaryTemp.orders,
+            filteredSummaryTemp.addToCartCount,
+            true,
+        );
+
+        filteredSummaryTemp.drr = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.sum_orders,
+            true,
+            1,
+        );
+        filteredSummaryTemp.ctr = getRoundValue(
+            filteredSummaryTemp.clicks,
+            filteredSummaryTemp.views,
+            true,
+        );
+        filteredSummaryTemp.cpc = getRoundValue(
+            filteredSummaryTemp.sum / 100,
+            filteredSummaryTemp.clicks,
+            true,
+            filteredSummaryTemp.sum / 100,
+        );
+        filteredSummaryTemp.cpm = getRoundValue(
+            filteredSummaryTemp.sum * 1000,
+            filteredSummaryTemp.views,
+        );
+        filteredSummaryTemp.cr = getRoundValue(
+            filteredSummaryTemp.orders,
+            filteredSummaryTemp.openCardCount,
+            true,
+        );
+        filteredSummaryTemp.cpo = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.orders,
+            false,
+            filteredSummaryTemp.sum,
+        );
+        filteredSummaryTemp.cpl = getRoundValue(
+            filteredSummaryTemp.sum,
+            filteredSummaryTemp.addToCartCount,
+            false,
+            filteredSummaryTemp.sum,
+        );
+
+        filteredSummaryTemp.romi = getRoundValue(
+            filteredSummaryTemp.profit,
+            filteredSummaryTemp.sum,
+            true,
+        );
+
+        filteredSummaryTemp.dsi = getRoundValue(
+            filteredSummaryTemp.stocks,
+            filteredSummaryTemp.orders / (daysBetween + 1),
+        );
+
+        setFilteredSummary(filteredSummaryTemp);
+        setFilteredData(temp);
+    };
+
+    const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = useState(false);
     const [firstRecalc, setFirstRecalc] = useState(false);
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
@@ -2571,6 +3338,63 @@ export const MassAdvertPage = () => {
     // const [auctionTableData, setAuctionTableData] = useState<any[]>([]);
     // const [auctionFiltratedTableData, setAuctionFiltratedTableData] = useState<any[]>([]);
     // const filterAuctionData = (withfFilters = {}, tableData = {}) => {};
+    const columnDataArtByDayStats = [
+        {
+            name: 'date',
+            placeholder: 'Дата',
+            render: ({value}: any) => {
+                if (!value) return;
+                if (typeof value === 'number') return `Всего SKU: ${value}`;
+                return <Text>{(value as Date).toLocaleDateString('ru-RU').slice(0, 10)}</Text>;
+            },
+        },
+        {name: 'sum', placeholder: 'Расход, ₽'},
+        {name: 'orders', placeholder: 'Заказы, шт.'},
+        {name: 'sum_orders', placeholder: 'Заказы, ₽'},
+        {
+            name: 'avg_price',
+            placeholder: 'Ср. Чек, ₽',
+        },
+        {
+            name: 'drr',
+            placeholder: 'ДРР, %',
+            render: renderAsPercent,
+        },
+        {
+            name: 'cpo',
+            placeholder: 'CPO, ₽',
+        },
+        {name: 'views', placeholder: 'Показы, шт.'},
+        {
+            name: 'clicks',
+            placeholder: 'Клики, шт.',
+            render: (args: any) => renderSlashPercent(args, 'openCardCount'),
+        },
+        {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},
+        {name: 'cpc', placeholder: 'CPC, ₽'},
+        {name: 'cpm', placeholder: 'CPM, ₽'},
+        {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
+        {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
+        {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
+        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
+        {name: 'addToCartCount', placeholder: 'Корзины, шт.'},
+        {name: 'cpl', placeholder: 'CPL, ₽'},
+    ];
+
+    const balance = (() => {
+        const map: any = {balance: 'Счет', bonus: 'Бонусы', net: 'Баланс'};
+
+        const temp = doc?.balances?.[selectValue[0]]?.data?.slice(-1)?.[0]?.balance;
+        const arr = [] as string[];
+        if (temp)
+            for (const [type, val] of Object.entries(temp)) {
+                if (val)
+                    arr.push(
+                        map[type] + ': ' + new Intl.NumberFormat('ru-RU').format(val as number),
+                    );
+            }
+        return arr.join(' ');
+    })();
 
     if (changedDoc) {
         setChangedDoc(undefined);
@@ -2597,7 +3421,181 @@ export const MassAdvertPage = () => {
                 <LogoLoad />
             </div>
         ) : (
-            <MassAdvertPageSkeleton />
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                }}
+            >
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        width: '100%',
+                        justifyContent: 'space-around',
+                        margin: '8px 0',
+                    }}
+                >
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                    <Card style={{...cardStyle, flexDirection: 'column'}}>
+                        <Skeleton style={{width: '50%', height: 18}} />
+                        <div style={{minHeight: 4}} />
+                        <Skeleton style={{width: '70%', height: 36}} />
+                    </Card>
+                </div>
+                <div
+                    style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
+                >
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                        <div style={{minWidth: 4}} />
+                        <Skeleton
+                            style={{
+                                width: 120,
+                                height: 36,
+                            }}
+                        />
+                    </div>
+                </div>
+                <div style={{minHeight: 8}} />
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <Skeleton
+                        style={{
+                            width: '20vw',
+                            height: 48,
+                        }}
+                    />
+                    <div style={{minWidth: 4}} />
+                    <Skeleton
+                        style={{
+                            width: '100%',
+                            height: 48,
+                        }}
+                    />
+                </div>
+                <div style={{minHeight: 4}} />
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <Skeleton
+                        style={{
+                            width: '20vw',
+                            height: 'calc(68vh - 96px)',
+                        }}
+                    />
+                    <div style={{minWidth: 4}} />
+                    <Skeleton
+                        style={{
+                            width: '100%',
+                            height: 'calc(68vh - 96px)',
+                        }}
+                    />
+                </div>
+                <div style={{minHeight: 4}} />
+                <div style={{display: 'flex', flexDirection: 'row'}}>
+                    <Skeleton
+                        style={{
+                            width: '20vw',
+                            height: 48,
+                        }}
+                    />
+                    <div style={{minWidth: 4}} />
+                    <Skeleton
+                        style={{
+                            width: '100%',
+                            height: 48,
+                        }}
+                    />
+                </div>
+            </div>
         );
 
     if (dateChangeRecalc) {
@@ -2647,8 +3645,44 @@ export const MassAdvertPage = () => {
         }
         setFilters({...filters});
 
+        // recalc(dateRange, selectValue[0]);
+
         setFirstRecalc(true);
     }
+
+    // if (firstRecalc && !secondRecalcForSticky) {
+    //     setSecondRecalcForSticky(true);
+    // }
+    // const artColumnElements = document.getElementsByClassName('td_fixed_art');
+    // if (artColumnElements[0]) {
+    //     myObserver.observe(artColumnElements[artColumnElements.length > 1 ? 1 : 0]);
+    // }
+
+    const getUniqueAdvertIdsFromThePage = () => {
+        const lwr = filters['adverts']
+            ? String(filters['adverts']['val']).toLocaleLowerCase().trim()
+            : '';
+
+        const uniqueAdverts: any = {};
+        for (let i = 0; i < filteredData.length; i++) {
+            const {adverts} = filteredData[i];
+            if (!adverts) continue;
+
+            for (const [id, _] of Object.entries(adverts)) {
+                if (!id) continue;
+                const advertData = doc?.adverts?.[selectValue[0]]?.[id];
+                if (!advertData) continue;
+                const {advertId, type} = advertData;
+                if (!advertId) continue;
+
+                if (lwr == 'авто' && type != 8) continue;
+                else if (lwr == 'поиск' && ![6, 9].includes(type)) continue;
+
+                uniqueAdverts[advertId] = {advertId: advertId};
+            }
+        }
+        return uniqueAdverts;
+    };
 
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
@@ -2675,32 +3709,569 @@ export const MassAdvertPage = () => {
             ) : (
                 <></>
             )}
-            <StatisticsPanel />
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    width: '100%',
+                    justifyContent: 'space-around',
+                    margin: '8px 0',
+                    flexWrap: 'wrap',
+                }}
+            >
+                {generateCard({
+                    summary,
+                    key: 'sum_orders',
+                    placeholder: 'ЗАКАЗЫ',
+                    cardStyle,
+                    rub: true,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'sum_sales',
+                    placeholder: 'ПРОДАЖИ',
+                    cardStyle,
+                    rub: true,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'sum',
+                    placeholder: 'РАСХОД',
+                    cardStyle,
+                    rub: true,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'drr',
+                    placeholder: 'ДРР к ЗАКАЗАМ / к ПРОДАЖАМ',
+                    cardStyle,
+                    valueType: 'text',
+                })}
+                {generateCard({
+                    summary,
+                    key: 'profit',
+                    placeholder: 'ПРИБЫЛЬ',
+                    cardStyle,
+                    valueType: 'text',
+                })}
+                {generateCard({
+                    summary,
+                    key: 'rent',
+                    placeholder: 'РЕНТ к ЗАКАЗАМ / к ПРОДАЖАМ',
+                    cardStyle,
+                    valueType: 'text',
+                })}
+                {generateCard({summary, key: 'views', placeholder: 'ПОКАЗЫ', cardStyle})}
+                {generateCard({summary, key: 'clicks', placeholder: 'КЛИКИ', cardStyle})}
+                {generateCard({
+                    summary,
+                    key: 'addToCartCount',
+                    cardStyle,
+                    placeholder: 'КОРЗИНЫ',
+                })}
+                {generateCard({
+                    summary,
+                    key: 'orders',
+                    placeholder: 'ЗАКАЗЫ',
+                    cardStyle,
+                    count: true,
+                })}
+                {generateCard({
+                    summary,
+                    key: 'sales',
+                    placeholder: 'ПРОДАЖИ',
+                    count: true,
+                    cardStyle,
+                })}
+            </div>
             {!isMobile ? (
-                <UpTableActions
-                    doc={doc}
-                    permission={permission}
-                    setAutoSalesProfits={setAutoSalesProfits}
-                    sellerId={sellerId}
-                    setAdvertBudgetRules={setAdvertBudgetRules}
-                    selectValue={selectValue}
-                    dateRange={dateRange}
-                    setChangedDoc={setChangedDoc}
-                    setChangedDocUpdateType={setChangedDocUpdateType}
-                    filteredData={filteredData}
-                    getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
-                    advertBudgetRules={advertBudgetRules}
-                    manageAdvertsActivityCallFunc={manageAdvertsActivityCallFunc}
-                    recalc={recalc}
-                    setDateRange={setDateRange}
-                    anchorRef={anchorRef}
-                    filterByButton={filterByButton}
-                    setCurrentParsingProgress={setCurrentParsingProgress}
-                    setArtsStatsByDayData={setArtsStatsByDayData}
-                    currentParsingProgress={currentParsingProgress}
-                    setFetchedPlacements={setFetchedPlacements}
-                    updateColumnWidth={updateColumnWidth}
-                />
+                <div
+                    style={{
+                        display: 'flex',
+                        width: '100%',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'start',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginBottom: 8,
+                            }}
+                        >
+                            <AdvertCreateModal
+                                doc={doc}
+                                filteredData={filteredData}
+                                setChangedDoc={setChangedDoc}
+                            >
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                >
+                                    <Icon data={SlidersVertical} />
+                                    <Text variant="subheader-1">Создать</Text>
+                                </Button>
+                            </AdvertCreateModal>
+                            <div style={{minWidth: 8}} />
+                            <AdvertsStatusManagingModal
+                                disabled={permission != 'Управление'}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                            >
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                    style={{cursor: 'pointer'}}
+                                >
+                                    <Icon data={Play} />
+                                    <Text variant="subheader-1">Управление</Text>
+                                </Button>
+                            </AdvertsStatusManagingModal>
+                            <div style={{minWidth: 8}} />
+                            <AdvertsBidsModal
+                                disabled={permission != 'Управление'}
+                                selectValue={selectValue}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                advertId={undefined}
+                            >
+                                <Button
+                                    view="action"
+                                    size="l"
+                                    disabled={permission != 'Управление'}
+                                >
+                                    <Icon data={ChartLine} />
+                                    <Text variant="subheader-1">Ставки</Text>
+                                </Button>
+                            </AdvertsBidsModal>
+                            <div style={{minWidth: 8}} />
+                            <AdvertsBudgetsModal
+                                disabled={permission != 'Управление'}
+                                selectValue={selectValue}
+                                sellerId={sellerId}
+                                advertBudgetsRules={advertBudgetRules}
+                                setAdvertBudgetsRules={setAdvertBudgetRules}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                advertId={undefined}
+                            >
+                                <Button
+                                    view="action"
+                                    size="l"
+                                    disabled={permission != 'Управление'}
+                                >
+                                    <Icon data={CircleRuble} />
+                                    <Text variant="subheader-1">Бюджет</Text>
+                                </Button>
+                            </AdvertsBudgetsModal>
+                            <div style={{minWidth: 8}} />
+                            <PhrasesModal
+                                disabled={permission != 'Управление'}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                            />
+                            <div style={{minWidth: 8}} />
+                            <AdvertsSchedulesModal
+                                disabled={permission != 'Управление'}
+                                doc={doc}
+                                setChangedDoc={setChangedDoc}
+                                advertId={undefined as any}
+                                getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                            >
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                >
+                                    <Icon data={Clock} />
+                                    <Text variant="subheader-1">График</Text>
+                                </Button>
+                            </AdvertsSchedulesModal>
+                            <div style={{minWidth: 8}} />
+                            <TagsFilterModal filterByButton={filterByButton} />
+                            <div style={{minWidth: 8}} />
+                            <AutoSalesModal
+                                disabled={permission != 'Управление'}
+                                selectValue={selectValue}
+                                filteredData={filteredData}
+                                setAutoSalesProfits={setAutoSalesProfits}
+                                sellerId={sellerId}
+                                openFromParent={autoSalesModalOpenFromParent}
+                                setOpenFromParent={setAutoSalesModalOpenFromParent}
+                            />
+                            <div style={{minWidth: 8}} />
+                            <Popover
+                                enableSafePolygon={true}
+                                openDelay={500}
+                                // closeDelay={50000}
+                                placement={'bottom'}
+                                content={
+                                    <div
+                                        style={{
+                                            height: 'calc(30em)',
+                                            width: '60em',
+                                            overflow: 'auto',
+                                            display: 'flex',
+                                        }}
+                                    >
+                                        <Card
+                                            view="outlined"
+                                            theme="warning"
+                                            style={{
+                                                // position: 'absolute',
+                                                height: '30em',
+                                                width: '60em',
+                                                overflow: 'auto',
+                                                top: -10,
+                                                left: -200,
+                                                display: 'flex',
+                                            }}
+                                        >
+                                            <ChartKit type="yagr" data={getBalanceYagrData()} />
+                                        </Card>
+                                    </div>
+                                }
+                            >
+                                <Button view="outlined-success" size="l">
+                                    <Text variant="subheader-1">{balance}</Text>
+                                </Button>
+                            </Popover>
+                        </div>
+                        <Modal
+                            open={advertsArtsListModalFromOpen}
+                            onClose={() => {
+                                setAdvertsArtsListModalFromOpen(false);
+                                setSemanticsModalOpenFromArt('');
+                            }}
+                        >
+                            <div
+                                style={{
+                                    margin: 20,
+                                    width: '30vw',
+                                    height: '60vh',
+                                    overflow: 'scroll',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        margin: '8px 0',
+                                    }}
+                                    variant="display-2"
+                                >
+                                    {rkListMode == 'add'
+                                        ? 'Добавить артикул в РК'
+                                        : 'Удалить артикул из РК'}
+                                </Text>
+                                <List
+                                    filterPlaceholder={`Поиск по Id кампании среди ${rkList.length} шт.`}
+                                    items={rkList}
+                                    itemHeight={112}
+                                    renderItem={(advertId) => {
+                                        return (
+                                            <div
+                                                style={{
+                                                    padding: '0 16px',
+                                                    display: 'flex',
+                                                    margin: '4px 0',
+                                                    flexDirection: 'row',
+                                                    height: 96,
+                                                    width: '100%',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                }}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                }}
+                                            >
+                                                <AdvertCard
+                                                    sellerId={sellerId}
+                                                    advertBudgetRules={advertBudgetRules}
+                                                    setAdvertBudgetRules={setAdvertBudgetRules}
+                                                    permission={permission}
+                                                    id={advertId}
+                                                    index={-1}
+                                                    art={''}
+                                                    doc={doc}
+                                                    selectValue={selectValue}
+                                                    copiedAdvertsSettings={copiedAdvertsSettings}
+                                                    setChangedDoc={setChangedDoc}
+                                                    manageAdvertsActivityCallFunc={
+                                                        manageAdvertsActivityCallFunc
+                                                    }
+                                                    setArtsStatsByDayData={setArtsStatsByDayData}
+                                                    updateColumnWidth={updateColumnWidth}
+                                                    filteredData={filteredData}
+                                                    setCopiedAdvertsSettings={
+                                                        setCopiedAdvertsSettings
+                                                    }
+                                                    setFetchedPlacements={setFetchedPlacements}
+                                                    currentParsingProgress={currentParsingProgress}
+                                                    setCurrentParsingProgress={
+                                                        setCurrentParsingProgress
+                                                    }
+                                                    setDateRange={setDateRange}
+                                                    setShowArtStatsModalOpen={
+                                                        setShowArtStatsModalOpen
+                                                    }
+                                                    dateRange={dateRange}
+                                                    recalc={recalc}
+                                                    filterByButton={filterByButton}
+                                                    getUniqueAdvertIdsFromThePage={
+                                                        getUniqueAdvertIdsFromThePage
+                                                    }
+                                                />
+                                                <div style={{minWidth: 8}} />
+                                                <Button
+                                                    view={
+                                                        rkListMode == 'add'
+                                                            ? 'outlined-success'
+                                                            : 'outlined-danger'
+                                                    }
+                                                    disabled={
+                                                        !doc.adverts?.[selectValue[0]]?.[
+                                                            advertId
+                                                        ] ||
+                                                        doc?.adverts?.[selectValue[0]]?.[advertId]
+                                                            ?.type != 8
+                                                    }
+                                                    onClick={async () => {
+                                                        const params: any = {
+                                                            uid: getUid(),
+                                                            campaignName: selectValue[0],
+                                                            data: {
+                                                                advertsIds: {},
+                                                                mode: rkListMode,
+                                                            },
+                                                        };
+                                                        params.data.advertsIds[advertId] = {
+                                                            advertId: advertId,
+                                                            art: semanticsModalOpenFromArt,
+                                                        };
+
+                                                        console.log(params);
+
+                                                        const res = await callApi(
+                                                            'manageAdvertsNMs',
+                                                            params,
+                                                        );
+                                                        console.log(res);
+                                                        if (!res || res['data'] === undefined) {
+                                                            return;
+                                                        }
+
+                                                        if (res['data']['status'] == 'ok') {
+                                                            if (
+                                                                !doc.campaigns[selectValue[0]][
+                                                                    semanticsModalOpenFromArt
+                                                                ].adverts
+                                                            )
+                                                                doc.campaigns[selectValue[0]][
+                                                                    semanticsModalOpenFromArt
+                                                                ].adverts = {};
+
+                                                            doc.campaigns[selectValue[0]][
+                                                                semanticsModalOpenFromArt
+                                                            ].adverts[advertId] =
+                                                                rkListMode == 'add'
+                                                                    ? {advertId: advertId}
+                                                                    : undefined;
+
+                                                            if (rkListMode == 'delete') {
+                                                                delete doc.campaigns[
+                                                                    selectValue[0]
+                                                                ][semanticsModalOpenFromArt]
+                                                                    .adverts[advertId];
+                                                                const adverts =
+                                                                    doc.campaigns[selectValue[0]][
+                                                                        semanticsModalOpenFromArt
+                                                                    ].adverts;
+                                                                if (adverts) {
+                                                                    const temp = [] as any[];
+                                                                    for (const [
+                                                                        _,
+                                                                        data,
+                                                                    ] of Object.entries(adverts)) {
+                                                                        const advertData: any =
+                                                                            data;
+                                                                        if (!advertData) continue;
+                                                                        temp.push(
+                                                                            advertData['advertId'],
+                                                                        );
+                                                                    }
+                                                                    setRkList(temp);
+                                                                }
+                                                            }
+
+                                                            setAdvertsArtsListModalFromOpen(false);
+                                                        }
+                                                        setChangedDoc({...doc});
+                                                    }}
+                                                >
+                                                    <Icon
+                                                        data={rkListMode == 'add' ? Plus : Xmark}
+                                                    />
+                                                </Button>
+                                            </div>
+                                        );
+                                    }}
+                                />
+                            </div>
+                        </Modal>
+                        {showDzhemModalOpen && (
+                            <DzhemPhrasesModal
+                                open={showDzhemModalOpen}
+                                onClose={() => setShowDzhemModalOpen(false)}
+                                sellerId={sellerId}
+                                nmId={selectedNmId}
+                            />
+                        )}
+                        <Modal
+                            open={showArtStatsModalOpen}
+                            onClose={() => setShowArtStatsModalOpen(false)}
+                        >
+                            <motion.div
+                                onAnimationStart={async () => {
+                                    await new Promise((resolve) => setTimeout(resolve, 300));
+                                    artsStatsByDayDataFilter(
+                                        {sum: {val: '', mode: 'include'}},
+                                        artsStatsByDayData,
+                                    );
+                                }}
+                                animate={{maxHeight: showArtStatsModalOpen ? '60em' : 0}}
+                                style={{
+                                    margin: 20,
+                                    maxWidth: '90vw',
+                                    // maxHeight: '60em',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        margin: '8px 0',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    {/* <Text variant="display-2">Статистика по</Text> */}
+                                    <Select
+                                        className={b('selectCampaign')}
+                                        value={artsStatsByDayModeSwitchValue}
+                                        placeholder="Values"
+                                        options={artsStatsByDayModeSwitchValues}
+                                        renderControl={({triggerProps: {onClick, onKeyDown}}) => {
+                                            return (
+                                                <Button
+                                                    style={{
+                                                        marginTop: 12,
+                                                    }}
+                                                    // ref={ref as Ref<HTMLButtonElement>}
+                                                    size="xl"
+                                                    view="outlined"
+                                                    onClick={onClick}
+                                                    onKeyDown={onKeyDown}
+                                                    // extraProps={{
+                                                    //     onKeyDown,
+                                                    // }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            variant="display-2"
+                                                            style={{marginBottom: 8}}
+                                                        >
+                                                            {artsStatsByDayModeSwitchValue[0]}
+                                                        </Text>
+                                                        <div style={{width: 4}} />
+                                                        <Icon size={26} data={ChevronDown} />
+                                                    </div>
+                                                </Button>
+                                            );
+                                        }}
+                                        onUpdate={(nextValue) => {
+                                            setArtsStatsByDayModeSwitchValue(nextValue);
+                                        }}
+                                    />
+                                </div>
+                                <div style={{minHeight: 8}} />
+                                <Card
+                                    style={{
+                                        overflow: 'auto',
+                                        width: '100%',
+                                        height: '100%',
+                                    }}
+                                >
+                                    <TheTable
+                                        columnData={columnDataArtByDayStats}
+                                        data={artsStatsByDayFilteredData}
+                                        filters={artsStatsByDayFilters}
+                                        setFilters={setArtsStatsByDayFilters}
+                                        filterData={artsStatsByDayDataFilter}
+                                        footerData={[artsStatsByDayFilteredSummary]}
+                                        tableId={''}
+                                        usePagination={false}
+                                    />
+                                </Card>
+                            </motion.div>
+                        </Modal>
+                    </div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                        }}
+                    >
+                        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <Button
+                                style={{
+                                    marginBottom: 8,
+                                }}
+                                loading={fetchingDataFromServerFlag}
+                                size="l"
+                                view="action"
+                                onClick={updateTheData}
+                            >
+                                <Icon data={ArrowsRotateLeft} />
+                            </Button>
+                            <div style={{width: 8}} />
+                            {fetchingDataFromServerFlag ? <Spin style={{marginRight: 8}} /> : <></>}
+                        </div>
+                        <RangePicker
+                            args={{
+                                recalc,
+                                dateRange,
+                                setDateRange,
+                                anchorRef,
+                            }}
+                        />
+                    </div>
+                </div>
             ) : (
                 <div style={{marginBottom: 80}} />
             )}
@@ -2732,5 +4303,79 @@ export const MassAdvertPage = () => {
                 />
             )}
         </div>
+    );
+};
+
+export const generateModalButtonWithActions = (
+    params: {
+        disabled?: boolean;
+        pin?: ButtonPin;
+        size?: ButtonSize;
+        view?: ButtonView;
+        style?: CSSProperties;
+        selected?: boolean;
+        placeholder: string;
+        icon: IconData;
+        onClick?: any;
+    },
+    selectedButton: any,
+    setSelectedButton: any,
+) => {
+    const {pin, size, view, style, selected, placeholder, icon, onClick, disabled} = params;
+    if (selected || selectedButton || setSelectedButton) {
+    }
+    return (
+        <motion.div
+            style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}
+        >
+            <Button
+                disabled={disabled}
+                style={
+                    style ?? {
+                        margin: '4px 0px',
+                    }
+                }
+                pin={pin ?? 'circle-circle'}
+                size={size ?? 'l'}
+                view={view ?? 'action'}
+                selected={true}
+                onClick={() => {
+                    onClick();
+                }}
+            >
+                <Icon data={icon} />
+                {placeholder}
+            </Button>
+        </motion.div>
+    );
+};
+
+const generateCard = (args: any) => {
+    const {summary, key, placeholder, cardStyle, valueType, percent, rub} = args;
+    return (
+        <Card style={cardStyle} view="outlined">
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <Text style={{whiteSpace: 'pre-wrap'}}>{`${placeholder}`}</Text>
+                <Text
+                    style={{
+                        fontWeight: 'bold',
+                        fontSize: '18pt',
+                        marginBottom: 10,
+                        marginTop: 4,
+                    }}
+                >
+                    {valueType == 'text'
+                        ? summary[key]
+                        : new Intl.NumberFormat('ru-RU').format(summary[key])}
+                    {percent ? '%' : ''}
+                    {rub ? ' ₽' : ''}
+                </Text>
+            </div>
+        </Card>
     );
 };

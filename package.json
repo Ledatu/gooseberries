@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
-    "dev": "bun --bun next dev --turbo",
+    "dev": "bun --bun next dev",
     "build": "bun --bun next build",
     "start": "bun --bun next start",
     "lint:js": "bunx eslint --ext .js,.jsx,.ts,.tsx .",
@@ -30,8 +30,6 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "firebase": "^11.3.1",
     "framer-motion": "^12.4.5",
-    "mobx": "^6.13.6",
-    "mobx-react-lite": "^4.1.0",
     "next": "^15.1.7",
     "react": "19.0.0",
     "react-dom": "19.0.0",
