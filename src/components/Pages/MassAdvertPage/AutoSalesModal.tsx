@@ -164,7 +164,6 @@ export const AutoSalesModal = ({
     useEffect(() => {
         if (autoSalesModalOpen) return;
         console.log(availableAutoSales, availableAutoSalesOptions);
-        setCurrentStep(0);
         setAutoSaleName([availableAutoSalesOptions[0] ? availableAutoSalesOptions[0].value : '']);
         setAutoSalesProfits({});
     }, [autoSalesModalOpen]);
@@ -186,6 +185,7 @@ export const AutoSalesModal = ({
                   ]
                 : [],
         );
+        if (availableAutoSales[autoSaleName[0]] && !fileRequiredButNotUploaded) setCurrentStep(2);
     }, [autoSaleName]);
 
     const fileRequiredButNotUploaded = useMemo(
