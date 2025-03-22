@@ -98,6 +98,7 @@ export const PhrasesModal = ({
                     <motion.div
                         style={{
                             width: '70em',
+                            height: '70vh',
                             overflow: 'hidden',
                             flexWrap: 'nowrap',
                             display: 'flex',
@@ -120,25 +121,22 @@ export const PhrasesModal = ({
                         >
                             Правила управления фразами РК
                         </Text>
-
+                        <TextInput
+                            placeholder={`Поиск в ${plusPhrasesTemplatesLabels.length} правилах`}
+                            value={filterText}
+                            size="l"
+                            onUpdate={(val) => setFilterText(val)}
+                            hasClear
+                            style={{marginBottom: 8}}
+                        />
                         <div
                             style={{
                                 display: 'flex',
                                 width: '100%',
-                                flexWrap: 'wrap',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                                height: '100%',
                                 marginBottom: 8,
                             }}
                         >
-                            <TextInput
-                                placeholder={`Поиск в ${plusPhrasesTemplatesLabels.length} правилах`}
-                                value={filterText}
-                                size="l"
-                                onUpdate={(val) => setFilterText(val)}
-                                hasClear
-                                style={{marginBottom: 8}}
-                            />
                             <List
                                 size="l"
                                 filterable={false}
@@ -298,7 +296,6 @@ export const PhrasesModal = ({
                                         .toLocaleLowerCase()
                                         .includes(filterText.toLocaleLowerCase());
                                 })}
-                                itemsHeight={300}
                                 itemHeight={44}
                             />
                         </div>
@@ -324,7 +321,7 @@ export const PhrasesModal = ({
                                 onClick={handleDeleteRuleOfRKButton}
                             >
                                 <Icon data={Xmark} />
-                                Убрать правило управления фразами с РК'
+                                Убрать правило управления фразами с РК
                             </Button>
                         </div>
                     </motion.div>
