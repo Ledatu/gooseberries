@@ -161,7 +161,7 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                         display: 'flex',
                         flexDirection: 'row',
                         justifyContent: 'center',
-                        backdropFilter: 'blur(20px)',
+                        backdropFilter: 'blur(48px)',
                     }}
                 >
                     <MobileTabs />
@@ -176,7 +176,7 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                     width: '100%',
                     height: 68,
                     zIndex: 1000,
-                    backdropFilter: 'blur(20px)',
+                    backdropFilter: 'blur(48px)',
                 }}
             >
                 {isMobile ? (

@@ -670,7 +670,7 @@ export const ApiPage = () => {
                                 border: '1px solid var(--g-color-base-generic-hover)',
                                 borderRadius: 30,
                                 overflow: 'hidden',
-                                backdropFilter: 'blur(20px)',
+                                backdropFilter: 'blur(48px)',
                                 boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
                             }}
                         >

@@ -86,7 +86,7 @@ export const AddMemberModal = ({
                     style={{
                         borderRadius: 30,
                         padding: 14,
-                        backdropFilter: 'blur(20px)',
+                        backdropFilter: 'blur(48px)',
                         display: 'flex',
                         flexDirection: 'row',
                         justifyContent: 'space-between',
@@ -229,7 +229,7 @@ export const AddMemberModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,

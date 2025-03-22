@@ -61,7 +61,7 @@ export default function LoginPage() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             position: 'absolute',
-                            backdropFilter: 'blur(20px)',
+                            backdropFilter: 'blur(48px)',
                             height: 83,
                             width: '90%',
                             bottom: 0,

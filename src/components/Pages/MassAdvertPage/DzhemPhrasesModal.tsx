@@ -412,8 +412,8 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                     // left: '5%',
                     // boxShadow: open ? '#0002 0px 2px 8px 0px' : undefined,
                     background: initialTheme == 'light' ? '#fff9' : undefined,
-                    WebkitBackdropFilter: 'blur(12px)',
-                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(48px)',
+                    backdropFilter: 'blur(48px)',
                     overflow: 'hidden',
                     border: open ? '1px solid #eee2' : 0,
                 }}

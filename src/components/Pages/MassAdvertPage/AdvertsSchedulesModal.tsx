@@ -248,7 +248,7 @@ export const AdvertsSchedulesModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,

@@ -316,7 +316,7 @@ const CampaignInfo = ({
                     bottom: 0,
                     height: 45,
                     width: cardStyle.width,
-                    backdropFilter: 'blur(20px)',
+                    backdropFilter: 'blur(48px)',
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -480,7 +480,7 @@ export const ManageUserCampaigns = () => {
                             flexDirection: 'row',
                             overflow: 'hidden',
                             alignItems: 'center',
-                            backdropFilter: 'blur(20px)',
+                            backdropFilter: 'blur(48px)',
                             borderRadius: 30,
                             boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
                         }}
@@ -535,7 +535,7 @@ export const ManageUserCampaigns = () => {
                                 border: '1px solid var(--g-color-base-generic-hover)',
                                 borderRadius: 30,
                                 overflow: 'hidden',
-                                backdropFilter: 'blur(20px)',
+                                backdropFilter: 'blur(48px)',
                                 boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
                             }}
                         >

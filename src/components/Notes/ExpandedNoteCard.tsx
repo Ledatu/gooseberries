@@ -40,7 +40,7 @@ export const ExpandedNoteCard = ({note, setSelectedCard}: NoteCardProps) => {
                         width: '334px',
                         height: '384px',
                         // margin: '8px',
-                        backdropFilter: 'blur(8px)',
+                        backdropFilter: 'blur(48px)',
                         boxShadow: '#0002 0px 2px 8px 0px',
                         borderRadius: 8,
                         border: '1px solid #eee2',

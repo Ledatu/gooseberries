@@ -87,7 +87,7 @@ export const CanBeAddedToSales = ({
                             alignItems: 'center',
                             background: initialTheme == 'light' ? '#fff9' : undefined,
 
-                            backdropFilter: 'blur(12px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0006 0px 2px 8px 0px',
                             borderRadius: 30,
                             border: '1px solid #eee2',

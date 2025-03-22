@@ -37,7 +37,7 @@ export const StocksByWarehousesPopup = ({stocksByWarehousesArt}: any) => {
                             flexDirection: 'column',
                             alignItems: 'center',
                             background: '#221d220f',
-                            backdropFilter: 'blur(20px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0006 0px 2px 8px 0px',
                             borderRadius: 30,
                             border: '1px solid #eee2',
