@@ -93,7 +93,7 @@ export const CanBeAddedToSales = ({
                             border: '1px solid #eee2',
                             width: 420,
                             left: -70,
-                            height: 178,
+                            height: 542,
                             overflow: 'auto',
                             position: 'absolute',
                         }}
@@ -123,7 +123,7 @@ export const CanBeAddedToSales = ({
                         <motion.div
                             style={{
                                 width: '100%',
-                                height: 136,
+                                height: 500,
                                 display: 'flex',
                                 flexDirection: 'row',
                                 justifyContent: 'center',
@@ -143,7 +143,7 @@ export const CanBeAddedToSales = ({
                                     }}
                                 >
                                     <List
-                                        itemsHeight={136}
+                                        itemsHeight={500}
                                         itemHeight={52}
                                         renderItem={(item) => {
                                             return (

@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Card, Icon, Modal, Text, TextInput} from '@gravity-ui/uikit';
+import {Button, Card, Icon, List, Modal, Text, TextInput} from '@gravity-ui/uikit';
 import {Tag} from '@gravity-ui/icons';
 import {useState} from 'react';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -73,14 +73,13 @@ export const TagsFilterModal = ({filterByButton}: any) => {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    gap: 16,
-                                    width: '70vw',
+                                    gap: 8,
+                                    width: '50vw',
                                     height: '70vh',
                                 }}
                             >
                                 <TextInput
                                     placeholder={`Поиск среди ${availableTags.length} тегов`}
-                                    style={{marginBottom: 16}}
                                     size="xl"
                                     value={filterValue}
                                     onUpdate={(val) => {
@@ -91,25 +90,22 @@ export const TagsFilterModal = ({filterByButton}: any) => {
                                     style={{
                                         overflow: 'auto',
                                         display: 'flex',
-                                        flexDirection: 'row',
-                                        flexWrap: 'wrap',
+                                        flexDirection: 'column',
+                                        // flexWrap: 'wrap',
+                                        height: '100%',
                                         width: '100%',
-                                        gap: 16,
+                                        gap: 8,
                                     }}
                                 >
-                                    {availableTags
-                                        .filter((item: any) =>
-                                            item
-                                                ?.toLocaleLowerCase()
-                                                ?.includes(filterValue?.toLocaleLowerCase()),
-                                        )
-                                        .map((item: any) => {
+                                    <List
+                                        itemHeight={44}
+                                        onItemClick={(item) => {
+                                            filterByButton(item);
+                                            setTagsModalOpen(false);
+                                        }}
+                                        renderItem={(item: any) => {
                                             return (
                                                 <Button
-                                                    onClick={() => {
-                                                        filterByButton(item);
-                                                        setTagsModalOpen(false);
-                                                    }}
                                                     size="l"
                                                     pin="circle-circle"
                                                     selected
@@ -118,7 +114,14 @@ export const TagsFilterModal = ({filterByButton}: any) => {
                                                     {item ? (item as string)?.toUpperCase() : ''}
                                                 </Button>
                                             );
-                                        })}
+                                        }}
+                                        filterable={false}
+                                        items={availableTags.filter((item: any) =>
+                                            item
+                                                ?.toLocaleLowerCase()
+                                                ?.includes(filterValue?.toLocaleLowerCase()),
+                                        )}
+                                    />
                                 </div>
                                 <Text style={{marginTop: 16}} variant="body-2" color="secondary">
                                     Добавлять и редактировать теги вы можете в модуле Товары
