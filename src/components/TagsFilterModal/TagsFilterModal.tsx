@@ -106,7 +106,7 @@ export const TagsFilterModal = ({filterByButton}: any) => {
                                         .map((item: any) => {
                                             return (
                                                 <Button
-                                                    onClick={(item) => {
+                                                    onClick={() => {
                                                         filterByButton(item);
                                                         setTagsModalOpen(false);
                                                     }}
