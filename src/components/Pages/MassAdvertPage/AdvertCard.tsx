@@ -1179,7 +1179,7 @@ export const AdvertCard = ({
                                 size="xs"
                                 disabled={permission != 'Управление'}
                                 view={
-                                    scheduleStatus == 'working'
+                                    scheduleStatus == 'working' && !pausedAdverts[advertId]
                                         ? 'flat-action'
                                         : scheduleStatus == 'paused' || pausedAdverts[advertId]
                                           ? 'flat-danger'
