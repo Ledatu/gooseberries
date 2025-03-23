@@ -1,7 +1,7 @@
 'use client';
 
 import {Button, Card, Icon, Modal, Text, Tooltip} from '@gravity-ui/uikit';
-import {TrashBin, CloudArrowUpIn, Pause} from '@gravity-ui/icons';
+import {TrashBin, CloudArrowUpIn} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, ReactNode, useState, cloneElement} from 'react';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -9,6 +9,8 @@ import callApi, {getUid} from '@/utilities/callApi';
 import {useError} from '@/contexts/ErrorContext';
 
 interface AdvertsSchedulesModalProps {
+    setUpdatePaused?: Function;
+    paused?: boolean;
     children: ReactNode;
     disabled: boolean;
     doc: any;
@@ -18,6 +20,7 @@ interface AdvertsSchedulesModalProps {
 }
 
 export const AdvertsSchedulesModal = ({
+    paused,
     children,
     disabled,
     doc,
@@ -63,7 +66,10 @@ export const AdvertsSchedulesModal = ({
                                 width: 16,
                                 height: 16,
                             }}
-                            view={isCheckboxChecked ? 'action' : 'outlined'}
+                            selected={paused && isCheckboxChecked}
+                            view={
+                                isCheckboxChecked ? (paused ? 'flat-danger' : 'action') : 'outlined'
+                            }
                             onClick={() => {
                                 const tempScheduleInput = Object.assign({}, scheduleInput);
                                 for (let i = 0; i < 7; i++) {
@@ -110,6 +116,7 @@ export const AdvertsSchedulesModal = ({
                         <Text variant="subheader-1">{weekDayNamesTemp[i]}</Text>
                         <div style={{minWidth: 4}} />
                         <Button
+                            selected={paused && isCheckboxChecked}
                             style={{
                                 width: 16,
                                 height: 16,
@@ -117,7 +124,9 @@ export const AdvertsSchedulesModal = ({
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             }}
-                            view={isCheckboxChecked ? 'action' : 'outlined'}
+                            view={
+                                isCheckboxChecked ? (paused ? 'flat-danger' : 'action') : 'outlined'
+                            }
                             onClick={() => {
                                 const tempScheduleInput = Object.assign({}, scheduleInput);
                                 for (let j = 0; j < 24; j++) {
@@ -140,14 +149,13 @@ export const AdvertsSchedulesModal = ({
                 temp.push(
                     <Tooltip content={`${weekDayNamesTemp[i]} ${j}:00 - ${j}:59`}>
                         <Button
+                            selected={paused && scheduleInput?.[i]?.[j]?.selected}
                             style={{width: 25, height: 25, margin: 2}}
                             view={
-                                scheduleInput[i]
-                                    ? scheduleInput[i][j]
-                                        ? scheduleInput[i][j].selected
-                                            ? 'action'
-                                            : 'outlined'
-                                        : 'outlined'
+                                scheduleInput?.[i]?.[j]?.selected
+                                    ? paused
+                                        ? 'flat-danger'
+                                        : 'action'
                                     : 'outlined'
                             }
                             onClick={() => {
@@ -208,18 +216,6 @@ export const AdvertsSchedulesModal = ({
     const triggerButton = cloneElement(triggerElement, {
         onClick: handleOpen,
     });
-
-    const turnOff = () => {
-        const temp = {} as any;
-        for (let i = 0; i < 7; i++) {
-            for (let j = 0; j < 24; j++) {
-                if (!temp[i]) temp[i] = {};
-                temp[i][j] = {selected: false};
-            }
-        }
-        setScheduleInput(temp);
-        return temp;
-    };
 
     return (
         <>
@@ -376,56 +372,6 @@ export const AdvertsSchedulesModal = ({
                             >
                                 <Icon data={TrashBin} />
                                 Удалить
-                            </Button>
-                            <Button
-                                size="l"
-                                pin="circle-circle"
-                                selected
-                                style={{margin: '8px 0'}}
-                                view={'outlined'}
-                                onClick={() => {
-                                    const schedule = turnOff();
-                                    const params: any = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            schedule,
-                                            mode: 'Установить',
-                                            advertsIds: {},
-                                        },
-                                    };
-                                    const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                    for (const [id, advertData] of Object.entries(uniqueAdverts)) {
-                                        if (!id || !advertData) continue;
-                                        const numId = parseInt(id);
-                                        if (advertId && numId != advertId) continue;
-
-                                        params.data.advertsIds[numId] = {
-                                            advertId: numId,
-                                        };
-
-                                        doc.advertsSchedules[selectValue[0]][numId] = {};
-                                        doc.advertsSchedules[selectValue[0]][numId] = {
-                                            schedule,
-                                        };
-                                    }
-                                    console.log(params);
-
-                                    callApi('setAdvertsSchedules', params)
-                                        .then(() => {
-                                            setChangedDoc({...doc});
-                                        })
-                                        .catch((error) => {
-                                            showError(
-                                                error.response?.data?.error ||
-                                                    'An unknown error occurred',
-                                            );
-                                        })
-                                        .finally(() => handleClose());
-                                }}
-                            >
-                                <Icon data={Pause} />
-                                Приостановить
                             </Button>
                         </div>
                     </motion.div>

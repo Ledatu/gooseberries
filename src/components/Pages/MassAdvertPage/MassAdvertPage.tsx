@@ -219,6 +219,29 @@ export const MassAdvertPage = () => {
     const [semanticsModalOpenFromArt, setSemanticsModalOpenFromArt] = useState('');
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
 
+    const [pausedAdverts, setPausedAdverts] = useState({} as any);
+    const [updatePaused, setUpdatePaused] = useState(true);
+
+    const getPaused = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            const res = await ApiClient.post('massAdvert/get-paused', params);
+            console.log(res?.data);
+            if (!res || !res.data) {
+                throw new Error('Request without result');
+            }
+            setPausedAdverts(res.data);
+        } catch (error) {
+            console.error('Error while getting paused adverts', error);
+        }
+        setUpdatePaused(false);
+    };
+
+    useEffect(() => {
+        if (!updatePaused) return;
+        getPaused();
+    }, [updatePaused]);
+
     const [autoSalesModalOpenFromParent, setAutoSalesModalOpenFromParent] = useState('');
 
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
@@ -1196,6 +1219,8 @@ export const MassAdvertPage = () => {
                                   ) {
                                       switches.push(
                                           <AdvertCard
+                                              pausedAdverts={pausedAdverts}
+                                              setUpdatePaused={setUpdatePaused}
                                               sellerId={sellerId}
                                               advertBudgetRules={advertBudgetRules}
                                               setAdvertBudgetRules={setAdvertBudgetRules}
@@ -1236,6 +1261,8 @@ export const MassAdvertPage = () => {
                                   ) {
                                       switches.push(
                                           <AdvertCard
+                                              pausedAdverts={pausedAdverts}
+                                              setUpdatePaused={setUpdatePaused}
                                               sellerId={sellerId}
                                               advertBudgetRules={advertBudgetRules}
                                               setAdvertBudgetRules={setAdvertBudgetRules}
@@ -1273,6 +1300,8 @@ export const MassAdvertPage = () => {
                               } else {
                                   switches.push(
                                       <AdvertCard
+                                          pausedAdverts={pausedAdverts}
+                                          setUpdatePaused={setUpdatePaused}
                                           sellerId={sellerId}
                                           advertBudgetRules={advertBudgetRules}
                                           setAdvertBudgetRules={setAdvertBudgetRules}
@@ -3826,6 +3855,7 @@ export const MassAdvertPage = () => {
                             </AdvertCreateModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsStatusManagingModal
+                                setUpdatePaused={setUpdatePaused}
                                 disabled={permission != 'Управление'}
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                                 doc={doc}
@@ -3887,6 +3917,7 @@ export const MassAdvertPage = () => {
                             />
                             <div style={{minWidth: 8}} />
                             <AdvertsSchedulesModal
+                                setUpdatePaused={setUpdatePaused}
                                 disabled={permission != 'Управление'}
                                 doc={doc}
                                 setChangedDoc={setChangedDoc}
@@ -4002,6 +4033,8 @@ export const MassAdvertPage = () => {
                                                 }}
                                             >
                                                 <AdvertCard
+                                                    pausedAdverts={pausedAdverts}
+                                                    setUpdatePaused={setUpdatePaused}
                                                     sellerId={sellerId}
                                                     advertBudgetRules={advertBudgetRules}
                                                     setAdvertBudgetRules={setAdvertBudgetRules}

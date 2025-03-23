@@ -35,6 +35,8 @@ import {IconWithText} from '@/components/IconWithText';
 import {useError} from '@/contexts/ErrorContext';
 
 interface AdvertCardProps {
+    pausedAdverts: any;
+    setUpdatePaused: Function;
     permission: string;
     id: string | number;
     index: number;
@@ -167,6 +169,8 @@ const BidRuleInfo = ({rule}: any) => {
 };
 
 export const AdvertCard = ({
+    pausedAdverts,
+    setUpdatePaused,
     permission,
     id,
     index,
@@ -260,46 +264,22 @@ export const AdvertCard = ({
         return 'paused';
     })();
 
-    const changeSchedule = () => {
-        const genSchedule = () => {
-            const temp = {} as any;
-            for (let i = 0; i < 7; i++) {
-                for (let j = 0; j < 24; j++) {
-                    if (!temp[i]) temp[i] = {};
-                    temp[i][j] = {selected: status == 9 ? false : true}; // true for play false for pause
-                }
-            }
-            return temp;
-        };
-        const schedule = genSchedule();
+    const setPaused = async () => {
+        const paused = status == 9;
         const params: any = {
-            uid: getUid(),
-            campaignName: selectValue[0],
-            data: {
-                schedule,
-                mode: 'Установить',
-                advertsIds: {},
-            },
+            seller_id: sellerId,
+            paused,
+            advertId,
         };
 
         console.log('params', params);
 
-        params.data.advertsIds[advertId] = {
-            advertId: advertId,
-        };
-
-        doc.advertsSchedules[selectValue[0]][advertId] = {};
-        doc.advertsSchedules[selectValue[0]][advertId] = {
-            schedule,
-        };
-
-        callApi('setAdvertsSchedules', params)
-            .then(() => {
-                setChangedDoc({...doc});
-            })
-            .catch((error) => {
-                showError(error.response?.data?.error || 'An unknown error occurred');
-            });
+        try {
+            await ApiClient.post('massAdvert/set-paused', params);
+            setUpdatePaused(true);
+        } catch (error: any) {
+            showError(error?.response?.data?.error || 'An unknown error occurred');
+        }
     };
 
     const changeStatus = async () => {
@@ -318,7 +298,7 @@ export const AdvertCard = ({
             doc.adverts[selectValue[0]][advertId].status = status == 11 ? 9 : 11;
         }
 
-        changeSchedule();
+        setPaused();
     };
 
     return (
@@ -1182,6 +1162,8 @@ export const AdvertCard = ({
                             <Icon size={11} data={LayoutList}></Icon>
                         </Button>
                         <AdvertsSchedulesModal
+                            paused={pausedAdverts[advertId]}
+                            setUpdatePaused={setUpdatePaused}
                             disabled={permission != 'Управление'}
                             advertId={advertId}
                             doc={doc}
@@ -1199,7 +1181,7 @@ export const AdvertCard = ({
                                 view={
                                     scheduleStatus == 'working'
                                         ? 'flat-action'
-                                        : scheduleStatus == 'paused'
+                                        : scheduleStatus == 'paused' || pausedAdverts[advertId]
                                           ? 'flat-danger'
                                           : 'flat'
                                 }
