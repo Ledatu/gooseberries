@@ -166,6 +166,7 @@ export const AutoSalesModal = ({
         console.log(availableAutoSales, availableAutoSalesOptions);
         setAutoSaleName([availableAutoSalesOptions[0] ? availableAutoSalesOptions[0].value : '']);
         setAutoSalesProfits({});
+        setCurrentStep(0);
     }, [autoSalesModalOpen]);
 
     useEffect(() => {
