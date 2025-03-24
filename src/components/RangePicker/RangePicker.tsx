@@ -62,7 +62,7 @@ export const RangePicker = ({args}: any) => {
                             display: 'flex',
                             flexDirection: align ?? 'row',
                             alignItems: 'center',
-                            backdropFilter: 'blur(20px)',
+                            backdropFilter: 'blur(48px)',
                             justifyContent: 'center',
                             boxShadow: '#0006 0px 2px 8px 0px',
                             borderRadius: 30,

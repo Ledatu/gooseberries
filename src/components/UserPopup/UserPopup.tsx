@@ -52,7 +52,7 @@ export const UserPopup = ({theme, toggleTheme}: UserPopupProps) => {
                             flexDirection: 'column',
                             alignItems: 'center',
                             background: '#221d220f',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             // boxShadow: '#0006 0px 2px 8px 0px',
                             borderBottomLeftRadius: 30,
                             borderBottomRightRadius: 30,

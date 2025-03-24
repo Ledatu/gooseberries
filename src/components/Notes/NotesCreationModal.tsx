@@ -92,7 +92,7 @@ export const NotesCreationModal = ({sellerId}: NotesCreationModalProps) => {
                             minHeight: '300px',
                             // height: 'auto',
                             width: '600px',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             borderRadius: 8,
                             border: '1px solid #eee2',

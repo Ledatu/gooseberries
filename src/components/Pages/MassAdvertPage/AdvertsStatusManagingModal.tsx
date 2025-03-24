@@ -1,14 +1,16 @@
 'use client';
 
 import {Button, Card, Icon, Modal, Spin, Text} from '@gravity-ui/uikit';
-import {TrashBin, Play} from '@gravity-ui/icons';
+import {TrashBin, Play, Pause} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, ReactNode, useState, cloneElement} from 'react';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {useError} from '@/contexts/ErrorContext';
 import callApi, {getUid} from '@/utilities/callApi';
+import ApiClient from '@/utilities/ApiClient';
 
 interface AdvertsStatusManagingModalProps {
+    setUpdatePaused: Function;
     children: ReactNode;
     disabled: boolean;
     getUniqueAdvertIdsFromThePage: (args?: any) => any;
@@ -17,6 +19,7 @@ interface AdvertsStatusManagingModalProps {
 }
 
 export const AdvertsStatusManagingModal = ({
+    setUpdatePaused,
     children,
     disabled,
     getUniqueAdvertIdsFromThePage,
@@ -24,7 +27,7 @@ export const AdvertsStatusManagingModal = ({
     setChangedDoc,
 }: AdvertsStatusManagingModalProps) => {
     const {showError} = useError();
-    const {selectValue} = useCampaign();
+    const {selectValue, sellerId} = useCampaign();
     const [open, setOpen] = useState(false);
     const [inProgress, setInProgress] = useState(false);
 
@@ -50,7 +53,22 @@ export const AdvertsStatusManagingModal = ({
         const uniqueAdverts = getUniqueAdvertIdsFromThePage();
         for (const [id, advertData] of Object.entries(uniqueAdverts)) {
             if (!id || !advertData) continue;
+
             const {advertId} = advertData as any;
+            if (newStatus != 7) {
+                const params = {
+                    seller_id: sellerId,
+                    advertId,
+                    paused: newStatus == 11,
+                };
+
+                try {
+                    await ApiClient.post('massAdvert/set-paused', params);
+                } catch (error: any) {
+                    showError(error?.response?.data?.error || 'An unknown error occurred');
+                }
+            }
+
             const res = await manageAdvertsActivityCallFunc(mode, advertId);
             console.log(res);
             if (!res || res['data'] === undefined) {
@@ -67,6 +85,7 @@ export const AdvertsStatusManagingModal = ({
             await new Promise((resolve) => setTimeout(resolve, 500));
             setChangedDoc({...doc});
         }
+        setUpdatePaused(true);
         setInProgress(false);
     };
 
@@ -131,16 +150,16 @@ export const AdvertsStatusManagingModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
                             border: '1px solid #eee2',
+                            gap: 8,
                             width: 200,
                         }}
                     >
                         <Text variant="display-2">Управление</Text>
-                        <div style={{minHeight: 8}} />
                         <Button
                             width="max"
                             selected
@@ -154,7 +173,19 @@ export const AdvertsStatusManagingModal = ({
                             <Icon data={Play} />
                             Возобновить показы
                         </Button>
-                        <div style={{minHeight: 8}} />
+                        <Button
+                            width="max"
+                            selected
+                            size="l"
+                            pin="circle-circle"
+                            view={'outlined'}
+                            onClick={async () => {
+                                manageAdvertsActivityOnClick('pause', 11);
+                            }}
+                        >
+                            <Icon data={Pause} />
+                            Приостановить
+                        </Button>
                         <Button
                             width="max"
                             selected

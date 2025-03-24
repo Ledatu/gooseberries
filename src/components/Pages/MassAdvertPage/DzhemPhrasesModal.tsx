@@ -22,7 +22,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
     const initialTheme: string = useTheme();
 
     const [dzhemDataFilters, setDzhemDataFilters] = useState({undef: false});
-    const [dzhem, setDzhem] = useState<[]>(undefined as any);
+    const [dzhem, setDzhem] = useState<[]>([]);
     const [load, setLoad] = useState<boolean>(true);
     const [selectedPeriod, setSelectedPeriod] = useState(7);
     const [rangeAvailable, setRangeAvailable] = useState([undefined, undefined] as any[]);
@@ -60,11 +60,12 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                 endDate: selectedDateRange[1],
             };
             console.log('params', params);
-            const response = await ApiClient.post('massAdvert/dzhemPhrases', params);
+            const response = await ApiClient.post('massAdvert/new/dzhemPhrases', params);
             if (!response?.data) {
                 throw new Error('No dzhemPhrases');
             }
             const data = response.data;
+            console.log(data);
             if (!data.dzhemData) {
                 throw new Error('No dzhemPhrases');
             }
@@ -90,16 +91,18 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
     };
 
     useEffect(() => {
-        getDzhemData();
+        if (open) {
+            getDzhemData();
+        }
 
         console.log(dzhem);
-    }, [selectedDateRange]);
+    }, [selectedDateRange, open]);
 
     const [dzhemDataFilteredData, setDzhemDataFilteredData] = useState<any[]>([]);
     const [dzhemDataFilteredFooter, setDzhemDataFilteredFooter] = useState<any>({
         text: '',
     });
-    const [dzhemDataFilteredAvg, setDzhemDataFilteredAvg] = useState<any>({text: ''});
+    const [_dzhemDataFilteredAvg, setDzhemDataFilteredAvg] = useState<any>({text: ''});
     const [dzhemDataFilteredMed, setDzhemDataFilteredMed] = useState<any>({text: ''});
 
     const dzhemDataFilter = (withfFilters: any, stats: any[]) => {
@@ -126,33 +129,32 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
             visibilityCurrent: 0,
             text: '',
         };
-        setDzhemDataFilteredData(
-            _stats.filter((stat) => {
-                for (const [filterArg, data] of Object.entries(_filters)) {
-                    const filterData: any = data;
-                    if (filterArg == 'undef' || !filterData) continue;
-                    if (filterData['val'] == '') continue;
-                    else if (!compare(stat[filterArg], filterData)) {
-                        return false;
-                    }
+        const filtered = _stats.filter((stat) => {
+            for (const [filterArg, data] of Object.entries(_filters)) {
+                const filterData: any = data;
+                if (filterArg == 'undef' || !filterData) continue;
+                if (filterData['val'] == '') continue;
+                else if (!compare(stat[filterArg], filterData)) {
+                    return false;
                 }
+            }
 
-                for (const [key, val] of Object.entries(stat)) {
-                    if (val === undefined) continue;
+            for (const [key, val] of Object.entries(stat)) {
+                if (val === undefined) continue;
 
-                    if (key == 'text') continue;
-                    dzhemDataFilteredFooterTemp[key] +=
-                        isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
-                }
-                count++;
+                if (key == 'text') continue;
+                dzhemDataFilteredFooterTemp[key] +=
+                    isFinite(val as number) && !isNaN(val as number) ? (val as number) : 0;
+            }
+            count++;
 
-                // dzhemDataFilteredSummaryTemp['date']++;
+            // dzhemDataFilteredSummaryTemp['date']++;
 
-                return true;
-            }),
-        );
+            return true;
+        });
+        setDzhemDataFilteredData(filtered);
         const dzhemDataFilteredAvgTemp = {...dzhemDataFilteredFooterTemp};
-        console.log('dzhemDataFilteredData', dzhemDataFilteredData);
+        // console.log('dzhemDataFilteredData', dzhemDataFilteredData, filtered);
 
         for (const key of [
             'frequencyCurrent',
@@ -185,9 +187,8 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
             }
             dzhemDataFilteredAvgTemp[key] = getRoundValue(dzhemDataFilteredAvgTemp[key], count);
         }
-        setDzhemDataFilteredFooter(dzhemDataFilteredFooterTemp);
         setDzhemDataFilteredAvg(dzhemDataFilteredAvgTemp);
-        const mediana = getMedian(_stats, dzhemDataFilteredFooterTemp);
+        const mediana = getMedian(filtered, dzhemDataFilteredFooterTemp);
         for (const [key, val] of Object.entries(dzhemDataFilteredFooterTemp)) {
             if (typeof val !== 'number') continue;
             if (
@@ -203,7 +204,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                 continue;
             }
         }
-        console.log(dzhemDataFilteredAvg);
+        setDzhemDataFilteredFooter(dzhemDataFilteredFooterTemp);
         setDzhemDataFilteredMed(mediana as any);
     };
 
@@ -411,8 +412,8 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                     // left: '5%',
                     // boxShadow: open ? '#0002 0px 2px 8px 0px' : undefined,
                     background: initialTheme == 'light' ? '#fff9' : undefined,
-                    WebkitBackdropFilter: 'blur(12px)',
-                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(48px)',
+                    backdropFilter: 'blur(48px)',
                     overflow: 'hidden',
                     border: open ? '1px solid #eee2' : 0,
                 }}
@@ -476,10 +477,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
                     )}
                 </motion.div>
                 {load ? (
-                    <motion.div
-                        animate={{opacity: dzhem === undefined ? 1 : 0}}
-                        style={{margin: '80px'}}
-                    >
+                    <motion.div animate={{opacity: load ? 1 : 0}} style={{margin: '80px'}}>
                         <Loader size="l" />
                         {/* <LogoLoad /> */}
                     </motion.div>

@@ -14,7 +14,7 @@ import {
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
 import callApi, {getUid} from '@/utilities/callApi';
-import { HelpMark } from '@/components/Popups/HelpMark';
+import {HelpMark} from '@/components/Popups/HelpMark';
 
 export const AdvertsBudgetsModal = ({
     sellerId,
@@ -130,7 +130,7 @@ export const AdvertsBudgetsModal = ({
                 setDesiredDrrInputValue(rules?.['desiredDrr']);
                 setUseDesiredDrr(true);
             }
-            setMaxBudgetInputValue(rules?.['maxBudget'] ?? '3000');
+            setMaxBudgetInputValue(String(rules?.['maxBudget'] ?? '3000'));
             setBudgetInputValue(rules?.['budget'] ?? '1000');
             setDepositValueTriggerInputValue(rules?.['depositValueTrigger'] ?? '500');
         } else {
@@ -181,8 +181,8 @@ export const AdvertsBudgetsModal = ({
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(8px)',
-                            WebkitBackdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
+                            WebkitBackdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,

@@ -66,7 +66,7 @@ export const RNPSwitch = () => {
                     onUpdate={(val) => {
                         setNotification(val);
                     }}
-                    className='gc-switch'
+                    className="gc-switch"
                 />
                 <Text style={{marginLeft: 8}} variant="subheader-1">
                     Получать уведомления РНП

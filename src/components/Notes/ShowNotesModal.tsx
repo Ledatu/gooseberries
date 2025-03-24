@@ -42,7 +42,7 @@ export const ShowNotesModal = ({notes, open}: ShowNotesModalProps) => {
                         padding: '8px',
                         width: '350px',
                         height: '400px',
-                        backdropFilter: 'blur(8px)',
+                        backdropFilter: 'blur(48px)',
                         boxShadow: '#0002 0px 2px 8px 0px',
                         borderRadius: 8,
                         border: '1px solid #eee2',

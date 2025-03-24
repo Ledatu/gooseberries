@@ -17,19 +17,21 @@ import {dateTimeParse} from '@gravity-ui/date-utils';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
 import {getLocaleDateString} from '@/utilities/getRoundValue';
-import {useUser} from '@/components/RequireAuth';
 
 export const SetSubscriptionExpDateModal = ({
     children,
     campaignName,
+    setUpdate,
     sellerId,
+    sellerIds,
 }: {
     children: ReactElement | ReactElement[];
     campaignName: string;
-    sellerId: string;
+    setUpdate: Function;
+    sellerId?: string;
+    sellerIds?: string[];
 }) => {
     const {showError} = useError();
-    const {refetchUser} = useUser();
     const [open, setOpen] = useState(false);
 
     const handleOpen = () => setOpen(true);
@@ -89,7 +91,7 @@ export const SetSubscriptionExpDateModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
@@ -154,20 +156,40 @@ export const SetSubscriptionExpDateModal = ({
 
                                 const date = new Date(subExpDate);
 
-                                const params = {
-                                    seller_id: sellerId,
-                                    subscriptionUntil: getLocaleDateString(date),
-                                };
+                                if (sellerId) {
+                                    const params = {
+                                        seller_id: sellerId,
+                                        subscriptionUntil: getLocaleDateString(date),
+                                    };
 
-                                try {
-                                    await ApiClient.post('auth/set-sub-exp-date', params);
-                                    refetchUser();
-                                } catch (error: any) {
-                                    console.error(error);
-                                    showError(
-                                        error.response?.data?.error ||
-                                            'Не удалось установить дату подписки.',
-                                    );
+                                    try {
+                                        await ApiClient.post('auth/set-sub-exp-date', params);
+                                        setUpdate(true);
+                                    } catch (error: any) {
+                                        console.error(error);
+                                        showError(
+                                            error.response?.data?.error ||
+                                                'Не удалось установить дату подписки.',
+                                        );
+                                    }
+                                } else if (sellerIds) {
+                                    for (const _sellerId of sellerIds) {
+                                        const params = {
+                                            seller_id: _sellerId,
+                                            subscriptionUntil: getLocaleDateString(date),
+                                        };
+
+                                        try {
+                                            await ApiClient.post('auth/set-sub-exp-date', params);
+                                        } catch (error: any) {
+                                            console.error(error);
+                                            showError(
+                                                error.response?.data?.error ||
+                                                    'Не удалось установить дату подписки.',
+                                            );
+                                        }
+                                    }
+                                    setUpdate(true);
                                 }
                                 handleClose();
                             }}

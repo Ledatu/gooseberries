@@ -30,6 +30,8 @@ interface GetAdvertsColumnParams {
     getUniqueAdvertIdsFromThePage: any;
     setCurrentParsingProgress: any;
     setShowArtStatsModalOpen: any;
+    pausedAdverts: any;
+    setUpdatePaused: any;
 }
 
 export const getAdvertsColumn = ({
@@ -58,6 +60,8 @@ export const getAdvertsColumn = ({
     getUniqueAdvertIdsFromThePage,
     setCurrentParsingProgress,
     setShowArtStatsModalOpen,
+    pausedAdverts,
+    setUpdatePaused,
 }: GetAdvertsColumnParams) => ({
     name: 'adverts',
     placeholder: 'Реклама',
@@ -177,6 +181,8 @@ export const getAdvertsColumn = ({
                     ) {
                         switches.push(
                             <AdvertCard
+                                pausedAdverts={pausedAdverts}
+                                setUpdatePaused={setUpdatePaused}
                                 sellerId={sellerId}
                                 advertBudgetRules={advertBudgetRules}
                                 setAdvertBudgetRules={setAdvertBudgetRules}
@@ -211,6 +217,8 @@ export const getAdvertsColumn = ({
                     ) {
                         switches.push(
                             <AdvertCard
+                                pausedAdverts={pausedAdverts}
+                                setUpdatePaused={setUpdatePaused}
                                 sellerId={sellerId}
                                 advertBudgetRules={advertBudgetRules}
                                 setAdvertBudgetRules={setAdvertBudgetRules}
@@ -244,6 +252,8 @@ export const getAdvertsColumn = ({
                 } else {
                     switches.push(
                         <AdvertCard
+                            pausedAdverts={pausedAdverts}
+                            setUpdatePaused={setUpdatePaused}
                             sellerId={sellerId}
                             advertBudgetRules={advertBudgetRules}
                             setAdvertBudgetRules={setAdvertBudgetRules}

@@ -68,17 +68,17 @@ export const getCpoColumn = (doc: any, selectValue: any) => ({
         const {adverts} = row;
         const fistActiveAdvert = findFirstActive(adverts);
         const drrAI = doc?.advertsAutoBidsRules?.[selectValue[0]]?.[fistActiveAdvert?.advertId];
-        const {desiredDRR, autoBidsMode} = drrAI ?? {};
+        const {desiredCpo, autoBidsMode} = drrAI ?? {};
         return (
             <Text
                 color={
-                    desiredDRR
+                    desiredCpo
                         ? autoBidsMode == 'cpo'
-                            ? value <= desiredDRR
+                            ? value <= desiredCpo
                                 ? value == 0
                                     ? 'primary'
                                     : 'positive'
-                                : value / desiredDRR - 1 < 0.5
+                                : value / desiredCpo - 1 < 0.5
                                   ? 'warning'
                                   : 'danger'
                             : 'primary'
@@ -103,7 +103,7 @@ export const getDrrColumn = (doc: any, selectValue: any) => ({
                 if (![9, 11].includes(advert?.status)) continue;
                 const drrAI = doc?.advertsAutoBidsRules[selectValue[0]]?.[advert?.advertId];
                 const {desiredDRR, useManualMaxCpm, autoBidsMode} = drrAI ?? {};
-                if (useManualMaxCpm && !['drr'].includes(autoBidsMode)) continue;
+                if (useManualMaxCpm || ['cpo'].includes(autoBidsMode)) continue;
                 if (desiredDRR > minDrr) minDrr = desiredDRR;
             }
             return minDrr;

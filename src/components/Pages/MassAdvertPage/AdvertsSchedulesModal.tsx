@@ -9,6 +9,8 @@ import callApi, {getUid} from '@/utilities/callApi';
 import {useError} from '@/contexts/ErrorContext';
 
 interface AdvertsSchedulesModalProps {
+    setUpdatePaused?: Function;
+    paused?: boolean;
     children: ReactNode;
     disabled: boolean;
     doc: any;
@@ -18,6 +20,7 @@ interface AdvertsSchedulesModalProps {
 }
 
 export const AdvertsSchedulesModal = ({
+    paused,
     children,
     disabled,
     doc,
@@ -63,7 +66,10 @@ export const AdvertsSchedulesModal = ({
                                 width: 16,
                                 height: 16,
                             }}
-                            view={isCheckboxChecked ? 'action' : 'outlined'}
+                            selected={paused && isCheckboxChecked}
+                            view={
+                                isCheckboxChecked ? (paused ? 'flat-danger' : 'action') : 'outlined'
+                            }
                             onClick={() => {
                                 const tempScheduleInput = Object.assign({}, scheduleInput);
                                 for (let i = 0; i < 7; i++) {
@@ -72,7 +78,7 @@ export const AdvertsSchedulesModal = ({
                                     tempScheduleInput[i][j] = {selected: !isCheckboxChecked};
                                 }
 
-                                console.log(tempScheduleInput);
+                                // console.log(tempScheduleInput);
 
                                 setScheduleInput(tempScheduleInput);
                             }}
@@ -110,6 +116,7 @@ export const AdvertsSchedulesModal = ({
                         <Text variant="subheader-1">{weekDayNamesTemp[i]}</Text>
                         <div style={{minWidth: 4}} />
                         <Button
+                            selected={paused && isCheckboxChecked}
                             style={{
                                 width: 16,
                                 height: 16,
@@ -117,7 +124,9 @@ export const AdvertsSchedulesModal = ({
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             }}
-                            view={isCheckboxChecked ? 'action' : 'outlined'}
+                            view={
+                                isCheckboxChecked ? (paused ? 'flat-danger' : 'action') : 'outlined'
+                            }
                             onClick={() => {
                                 const tempScheduleInput = Object.assign({}, scheduleInput);
                                 for (let j = 0; j < 24; j++) {
@@ -140,14 +149,13 @@ export const AdvertsSchedulesModal = ({
                 temp.push(
                     <Tooltip content={`${weekDayNamesTemp[i]} ${j}:00 - ${j}:59`}>
                         <Button
+                            selected={paused && scheduleInput?.[i]?.[j]?.selected}
                             style={{width: 25, height: 25, margin: 2}}
                             view={
-                                scheduleInput[i]
-                                    ? scheduleInput[i][j]
-                                        ? scheduleInput[i][j].selected
-                                            ? 'action'
-                                            : 'outlined'
-                                        : 'outlined'
+                                scheduleInput?.[i]?.[j]?.selected
+                                    ? paused
+                                        ? 'flat-danger'
+                                        : 'action'
                                     : 'outlined'
                             }
                             onClick={() => {
@@ -185,10 +193,7 @@ export const AdvertsSchedulesModal = ({
     };
 
     const handleOpen = () => {
-        const schedule = doc.advertsSchedules?.[selectValue[0]]?.[advertId]
-            ? doc.advertsSchedules[selectValue[0]][advertId].schedule
-            : undefined;
-
+        const schedule = doc.advertsSchedules?.[selectValue[0]]?.[advertId]?.schedule;
         setScheduleInput(advertId ? (schedule ?? genTempSchedule()) : genTempSchedule());
         setOpen(true);
     };
@@ -239,7 +244,7 @@ export const AdvertsSchedulesModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
@@ -269,8 +274,8 @@ export const AdvertsSchedulesModal = ({
                         <div
                             style={{
                                 display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-around',
+                                flexDirection: 'row',
+                                gap: 8,
                             }}
                         >
                             <Button

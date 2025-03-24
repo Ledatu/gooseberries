@@ -22,17 +22,19 @@ interface AddMemberModalInterface {
     children: ReactElement | ReactElement[];
     sellerId: string;
     addedMember: any;
+    setUpdate: Function;
     setAddedMember: Function;
 }
 
 export const AddMemberModal = ({
     children,
     sellerId,
+    setUpdate,
     addedMember,
     setAddedMember,
 }: AddMemberModalInterface) => {
     const {showError} = useError();
-    const {userInfo, refetchUser} = useUser();
+    const {userInfo} = useUser();
     const {user} = userInfo;
 
     const [open, setOpen] = useState(false);
@@ -84,7 +86,7 @@ export const AddMemberModal = ({
                     style={{
                         borderRadius: 30,
                         padding: 14,
-                        backdropFilter: 'blur(20px)',
+                        backdropFilter: 'blur(48px)',
                         display: 'flex',
                         flexDirection: 'row',
                         justifyContent: 'space-between',
@@ -227,7 +229,7 @@ export const AddMemberModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
@@ -290,7 +292,7 @@ export const AddMemberModal = ({
                                         member_identifier: identifier.replace(/@/g, ''),
                                         modules,
                                     });
-                                    refetchUser();
+                                    setUpdate(true);
                                 } catch (error: any) {
                                     showError(
                                         error.response?.data?.error ||

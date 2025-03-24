@@ -166,7 +166,7 @@ div {
         position: sticky !important;
         background: var(--g-color-base-background) !important;
         border: none !important;
-        // backdrop-filter: blur(12px);
+        //backdropFilter: 'blur(48px)';
     }
 
     .the-table__td_fixed::after {
@@ -296,7 +296,7 @@ code {
 // .g-card {
 //     border: 1px solid #eee2 !important;
 //     border-radius: 30px;
-//     backdrop-filter: blur(20px) !important;
+//     backdrop-filter: blur(48px) !important;
 //     box-shadow: var(--g-color-base-background) 0px 2px 8px !important;
 // }
 
@@ -313,8 +313,8 @@ code {
 .blurred-card {
     border: 1px solid #eee2 !important;
     border-radius: 8px;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
+    backdrop-filter: blur(48px) !important;
+    -webkit-backdrop-filter:  blur(48px) !important;
     // box-shadow: var(--g-color-base-background) 0px 2px 8px !important;
 }
 .select-color {

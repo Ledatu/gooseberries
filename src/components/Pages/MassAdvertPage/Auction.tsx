@@ -168,7 +168,7 @@ export const Auction = ({sellerId, phrase}: AuctionProps) => {
                 content={
                     // <Card
                     //     style={{
-                    //         // backdropFilter: 'blur(20px)',
+                    //         // backdropFilter: 'blur(48px)',
                     //         // borderRadius: 30,
                     //         // boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
                     //         // width: 'max-content',
@@ -187,8 +187,8 @@ export const Auction = ({sellerId, phrase}: AuctionProps) => {
                             maxHeight: '42em',
                             display: 'flex',
                             padding: 16,
-                            backdropFilter: 'blur(8px)',
-                            WebkitBackdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
+                            WebkitBackdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             // padding: 30,
                             borderRadius: 16,

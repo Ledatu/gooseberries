@@ -11,6 +11,7 @@ interface ManageUserModalInterface {
     sellerId: string;
     memberInfo: any;
     modules: string[];
+    setUpdate: Function;
     children: ReactElement | ReactElement[];
 }
 
@@ -19,8 +20,9 @@ export const ManageUserModal = ({
     memberInfo,
     modules,
     children,
+    setUpdate,
 }: ManageUserModalInterface) => {
-    const {userInfo, refetchUser} = useUser();
+    const {userInfo} = useUser();
     const {user} = userInfo;
 
     const {showError} = useError();
@@ -73,7 +75,7 @@ export const ManageUserModal = ({
                     style={{
                         borderRadius: 30,
                         padding: 14,
-                        backdropFilter: 'blur(20px)',
+                        backdropFilter: 'blur(48px)',
                         display: 'flex',
                         flexDirection: 'row',
                         justifyContent: 'space-between',
@@ -196,7 +198,7 @@ export const ManageUserModal = ({
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
@@ -229,7 +231,7 @@ export const ManageUserModal = ({
 
                                     try {
                                         await ApiClient.post('auth/update-member', params);
-                                        refetchUser();
+                                        setUpdate(true);
                                     } catch (error: any) {
                                         showError(
                                             error.response?.data?.error ||
@@ -257,8 +259,9 @@ export const ManageUserModal = ({
 
                                     try {
                                         await ApiClient.post('auth/delete-member', params);
-                                        refetchUser();
+                                        setUpdate(true);
                                     } catch (error: any) {
+                                        console.error(error);
                                         showError(
                                             error.response?.data?.error ||
                                                 'Не удалось удалить сотрудника.',

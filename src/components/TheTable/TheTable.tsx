@@ -128,7 +128,8 @@ export default function TheTable({
             );
         }
         setPaginatedData(tempPaginatedData);
-        if (onPaginationUpdate) onPaginationUpdate({page, paginatedData: tempPaginatedData});
+        if (onPaginationUpdate)
+            onPaginationUpdate({page, paginatedData: tempPaginatedData, paginationSize});
     }, [paginationSize, sortedData]);
 
     const columns = useMemo(() => {
@@ -279,7 +280,11 @@ export default function TheTable({
                             setPaginatedData(tempPaginatedData);
 
                             if (onPaginationUpdate)
-                                onPaginationUpdate({page, paginatedData: tempPaginatedData});
+                                onPaginationUpdate({
+                                    page,
+                                    paginatedData: tempPaginatedData,
+                                    paginationSize,
+                                });
                         }}
                     />
                 </div>

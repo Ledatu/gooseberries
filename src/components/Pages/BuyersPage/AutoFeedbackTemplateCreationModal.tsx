@@ -286,7 +286,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                             style={{
                                 position: 'absolute',
                                 background: '#221d220f',
-                                backdropFilter: 'blur(12px)',
+                                backdropFilter: 'blur(48px)',
                                 boxShadow: '#0002 0px 2px 8px 0px',
                                 borderRadius: 8,
                                 display: 'flex',
@@ -384,7 +384,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                 minWidth: 400,
                                 maxWidth: 400,
                                 background: '#221d220f',
-                                backdropFilter: 'blur(10px)',
+                                backdropFilter: 'blur(48px)',
                                 boxShadow: '#0002 0px 2px 8px 0px',
                                 border: '1px solid #eee2',
                             }}
@@ -641,7 +641,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                             }}
                             style={{
                                 background: '#221d220f',
-                                backdropFilter: 'blur(10px)',
+                                backdropFilter: 'blur(48px)',
                                 boxShadow: '#0002 0px 2px 8px 0px',
                                 border: '1px solid #eee2',
                                 display: 'flex',

@@ -162,6 +162,29 @@ export const MassAdvertPage = () => {
     });
     const [currentParsingProgress, setCurrentParsingProgress] = useState<any>({});
 
+    const [pausedAdverts, setPausedAdverts] = useState({} as any);
+    const [updatePaused, setUpdatePaused] = useState(true);
+
+    const getPaused = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            const res = await ApiClient.post('massAdvert/get-paused', params);
+            console.log(res?.data);
+            if (!res || !res.data) {
+                throw new Error('Request without result');
+            }
+            setPausedAdverts(res.data);
+        } catch (error) {
+            console.error('Error while getting paused adverts', error);
+        }
+        setUpdatePaused(false);
+    };
+
+    useEffect(() => {
+        if (!updatePaused) return;
+        getPaused();
+    }, [updatePaused]);
+
     const [fetchedPlacements, setFetchedPlacements] = useState<any>(undefined);
 
     const [filters, setFilters] = useState<any>({undef: false});
@@ -1100,6 +1123,8 @@ export const MassAdvertPage = () => {
             ? {
                   ...getAdvertsColumn({
                       doc: doc,
+                      pausedAdverts: pausedAdverts,
+                      setUpdatePaused: setUpdatePaused,
                       filterByButton: filterByButton,
                       setFiltersRK: setFiltersRK,
                       filtersRK: filtersRK,

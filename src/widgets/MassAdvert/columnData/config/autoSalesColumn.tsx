@@ -101,7 +101,9 @@ export const getAutoSalesColumn = ({
         if (footer) return undefined;
         const profitsData = autoSalesProfits[art];
         const switches = [] as any[];
+
         if (profitsData) {
+            const proftDiff = profitsData.profit - profitsData.oldProfit;
             switches.push(
                 <Card
                     style={{
@@ -132,6 +134,7 @@ export const getAutoSalesColumn = ({
                                 flexDirection: 'row',
                                 width: '100%',
                                 justifyContent: 'space-between',
+                                gap: 8,
                             }}
                         >
                             <Text color={profitsData.oldProfit > 0 ? 'positive' : 'danger'}>
@@ -152,17 +155,13 @@ export const getAutoSalesColumn = ({
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            gap: 8,
                             height: 20,
                         }}
-                        color={
-                            profitsData.profit == profitsData.oldProfit
-                                ? 'secondary'
-                                : profitsData.profit > profitsData.oldProfit
-                                  ? 'positive'
-                                  : 'danger'
-                        }
+                        color={proftDiff == 0 ? 'secondary' : proftDiff > 0 ? 'positive' : 'danger'}
                     >
                         <Icon data={ArrowShapeDown} />
+                        {`${proftDiff > 0 ? '+' : ''}${proftDiff} ₽`}
                     </Text>
                     <Button view="outlined" size="xs" pin="clear-clear" width="max">
                         <div
@@ -171,6 +170,7 @@ export const getAutoSalesColumn = ({
                                 flexDirection: 'row',
                                 width: '100%',
                                 justifyContent: 'space-between',
+                                gap: 8,
                             }}
                         >
                             <Text color={profitsData.profit > 0 ? 'positive' : 'danger'}>
@@ -180,8 +180,9 @@ export const getAutoSalesColumn = ({
                                     getRoundValue(profitsData.rentabelnost, 1, true),
                                 )}%`}
                             </Text>
-                            <div style={{minWidth: 8}} />
                             <Text>{`${profitsData.rozPrice} ₽`}</Text>
+                            <Text>{`с СПП: ${profitsData.sppPrice} ₽`}</Text>
+                            <Text>{`с WB к.: ${profitsData.wbWalletPrice} ₽`}</Text>
                         </div>
                     </Button>
                     <div

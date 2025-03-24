@@ -23,7 +23,7 @@ export const ModalWindow: FC<ModalWindowProps> = ({
             <Card
                 view="clear"
                 className={cn(
-                    'w-[300px] absolute top-1/2 left-1/2 transform -translate-x-1/2',
+                    'absolute top-1/2 left-1/2 transform -translate-x-1/2',
                     '-translate-y-1/2 flex flex-row items-center justify-between bg-transparent',
                     cardClassName,
                 )}

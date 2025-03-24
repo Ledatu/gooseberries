@@ -57,7 +57,7 @@ export const TagsFilterModal = ({filterByButton}: any) => {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             background: '#221d220f',
-                            backdropFilter: 'blur(8px)',
+                            backdropFilter: 'blur(48px)',
                             boxShadow: '#0002 0px 2px 8px 0px',
                             padding: 30,
                             borderRadius: 30,
@@ -69,50 +69,63 @@ export const TagsFilterModal = ({filterByButton}: any) => {
                         ) : (
                             <div
                                 style={{
+                                    position: 'relative',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    width: '30vw',
-                                    height: '60vh',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    width: '50vw',
+                                    height: '70vh',
                                 }}
                             >
                                 <TextInput
                                     placeholder={`Поиск среди ${availableTags.length} тегов`}
-                                    style={{marginBottom: 8}}
-                                    size="l"
+                                    size="xl"
                                     value={filterValue}
                                     onUpdate={(val) => {
                                         setFilterValue(val);
                                     }}
                                 />
-                                <List
-                                    filterable={false}
-                                    emptyPlaceholder="Такой тег отсутствует"
-                                    loading={availableTagsPending}
-                                    items={availableTags.filter((item: any) =>
-                                        item
-                                            ?.toLocaleLowerCase()
-                                            ?.includes(filterValue?.toLocaleLowerCase()),
-                                    )}
-                                    itemHeight={36}
-                                    renderItem={(item) => {
-                                        // console.log(item);
-
-                                        return (
-                                            <Button
-                                                size="m"
-                                                pin="circle-circle"
-                                                selected
-                                                view={'outlined-info'}
-                                            >
-                                                {item ? (item as string)?.toUpperCase() : ''}
-                                            </Button>
-                                        );
+                                <div
+                                    style={{
+                                        overflow: 'auto',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        // flexWrap: 'wrap',
+                                        height: '100%',
+                                        width: '100%',
+                                        gap: 8,
                                     }}
-                                    onItemClick={(item) => {
-                                        filterByButton(item);
-                                        setTagsModalOpen(false);
-                                    }}
-                                />
+                                >
+                                    <List
+                                        itemHeight={44}
+                                        onItemClick={(item) => {
+                                            filterByButton(item);
+                                            setTagsModalOpen(false);
+                                        }}
+                                        renderItem={(item: any) => {
+                                            return (
+                                                <Button
+                                                    size="l"
+                                                    pin="circle-circle"
+                                                    selected
+                                                    view={'outlined-info'}
+                                                >
+                                                    {item ? (item as string)?.toUpperCase() : ''}
+                                                </Button>
+                                            );
+                                        }}
+                                        filterable={false}
+                                        items={availableTags.filter((item: any) =>
+                                            item
+                                                ?.toLocaleLowerCase()
+                                                ?.includes(filterValue?.toLocaleLowerCase()),
+                                        )}
+                                    />
+                                </div>
+                                <Text style={{marginTop: 16}} variant="body-2" color="secondary">
+                                    Добавлять и редактировать теги вы можете в модуле Товары
+                                </Text>
                             </div>
                         )}
                     </motion.div>
