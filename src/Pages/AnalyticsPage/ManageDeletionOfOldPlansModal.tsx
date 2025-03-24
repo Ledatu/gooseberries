@@ -4,7 +4,7 @@ import {Button, Icon, Modal, Select, Text, List} from '@gravity-ui/uikit';
 import {useEffect, useState} from 'react';
 import {TrashBin, ListCheck} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-// import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
+// import {generateModalButtonWithActions} from 'src/Pages/MassAdvertPage';
 import callApi, {getUid} from '@/utilities/callApi';
 import {getMonth} from '@/utilities/getRoundValue';
 

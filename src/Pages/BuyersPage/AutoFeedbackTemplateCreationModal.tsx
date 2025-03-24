@@ -24,7 +24,7 @@ import {
     cloneElement,
 } from 'react';
 import {motion} from 'framer-motion';
-// import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
+// import {generateModalButtonWithActions} from 'src/Pages/MassAdvertPage';
 import {useCampaign} from '@/contexts/CampaignContext';
 import ApiClient from '@/utilities/ApiClient';
 

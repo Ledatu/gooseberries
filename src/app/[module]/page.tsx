@@ -9,52 +9,42 @@ import {useMemo} from 'react';
 // import {useRouter} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {useUser} from '@/components/RequireAuth';
-import {NoSubscriptionPage} from '@/components/Pages/NoSubscriptionPage';
+import {NoSubscriptionPage} from '@/Pages/NoSubscriptionPage';
 import {LogoLoad} from '@/components/logoLoad';
 // import {LogoLoader} from '@/components/LogoLoader';
 
 const modulesMap: any = {
     // massAdvert: dynamic(() => import('@/components/MassAdvertPage')),
     nomenclatures: dynamic(() =>
-        import('@/components/Pages/NomenclaturesPage').then((mod) => mod.NomenclaturesPage),
+        import('@/Pages/NomenclaturesPage').then((mod) => mod.NomenclaturesPage),
     ),
-    prices: dynamic(() => import('@/components/Pages/PricesPage').then((mod) => mod.PricesPage), {
+    prices: dynamic(() => import('@/Pages/PricesPage').then((mod) => mod.PricesPage), {
         ssr: false,
     }),
-    delivery: dynamic(
-        () => import('@/components/Pages/DeliveryPage').then((mod) => mod.DeliveryPage),
-        {
-            ssr: false,
-        },
-    ),
+    delivery: dynamic(() => import('@/Pages/DeliveryPage').then((mod) => mod.DeliveryPage), {
+        ssr: false,
+    }),
     reports: dynamic(
-        () =>
-            import('@/components/Pages/DetailedReportsPage').then((mod) => mod.DetailedReportsPage),
+        () => import('@/Pages/DetailedReportsPage').then((mod) => mod.DetailedReportsPage),
         {
             ssr: false,
         },
     ),
-    seo: dynamic(() => import('@/components/Pages/SEOPage').then((mod) => mod.SEOPage), {
+    seo: dynamic(() => import('@/Pages/SEOPage').then((mod) => mod.SEOPage), {
         ssr: false,
     }),
-    buyers: dynamic(() => import('@/components/Pages/BuyersPage').then((mod) => mod.BuyersPage), {
+    buyers: dynamic(() => import('@/Pages/BuyersPage').then((mod) => mod.BuyersPage), {
         ssr: false,
     }),
-    api: dynamic(() => import('@/components/Pages/ApiPage').then((mod) => mod.ApiPage), {
+    api: dynamic(() => import('@/Pages/ApiPage').then((mod) => mod.ApiPage), {
         ssr: false,
     }),
-    analytics: dynamic(
-        () => import('@/components/Pages/AnalyticsPage').then((mod) => mod.AnalyticsPage),
-        {
-            ssr: false,
-        },
-    ),
-    massAdvert: dynamic(
-        () => import('@/components/Pages/MassAdvertPage').then((mod) => mod.MassAdvertPage),
-        {
-            ssr: false,
-        },
-    ),
+    analytics: dynamic(() => import('@/Pages/AnalyticsPage').then((mod) => mod.AnalyticsPage), {
+        ssr: false,
+    }),
+    massAdvert: dynamic(() => import('@/Pages/MassAdvertPage').then((mod) => mod.MassAdvertPage), {
+        ssr: false,
+    }),
     // analytics: dynamic(() => import('@/components/AnalyticsPage')),
     // ... other modules
 };

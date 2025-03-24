@@ -4,7 +4,7 @@ import {Button, Card, Icon, List, Modal, Spin, Text, TextInput} from '@gravity-u
 import {FileText, CloudArrowUpIn, TrashBin} from '@gravity-ui/icons';
 import {useState} from 'react';
 import {motion} from 'framer-motion';
-// import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
+// import {generateModalButtonWithActions} from 'src/Pages/MassAdvertPage';
 import callApi, {getUid} from '@/utilities/callApi';
 import {getMonth} from '@/utilities/getRoundValue';
 import {cx} from '@/lib/utils';

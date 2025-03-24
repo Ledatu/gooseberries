@@ -1,10 +1,10 @@
 'use client';
 
-import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {Card, Loader, Modal} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, useState, cloneElement} from 'react';
+import {Graphic} from '@/shared/ui/Graphic';
 
 interface ChartModalInterface {
     children: ReactElement | ReactElement[];
@@ -27,7 +27,6 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
                 tempData = await fetchingFunction();
             } catch (error) {
                 console.error('Error fetching data:', error);
-                // Optionally, handle the error state here
             } finally {
                 setDataFetching(false);
             }
@@ -49,15 +48,33 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
         setYagrData(tempData);
     };
 
+    const calculateGraphicData = (): Record<string, number>[] => {
+        const graphicData: Record<string, number>[] = [];
+        if (!yagrData) {
+            return [];
+        }
+
+        for (let i = 0; i < yagrData.data.timeline.length; i++) {
+            const dataPoint: Record<string, number | string> = {};
+
+            for (let j = 0; j < yagrData.data.graphs.length; j++) {
+                const graph: any = yagrData.data.graphs[j];
+                dataPoint[graph.name] = graph.data[i];
+            }
+
+            graphicData.push(dataPoint as any);
+        }
+
+        return graphicData;
+    };
+
     const handleClose = () => {
         setOpen(false);
         setYagrData(null);
     };
 
-    // Ensure children is an array, even if only one child is passed
     const childArray = Children.toArray(children);
 
-    // Find the first valid React element to use as the trigger
     const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
         any,
         any
@@ -112,7 +129,11 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
                         }}
                     >
                         {yagrData ? (
-                            <ChartKit type="yagr" data={yagrData} />
+                            <Graphic
+                                data={calculateGraphicData()}
+                                yAxes={['Баланс', 'Расход']}
+                                colors={{Баланс: '#ffff00'}}
+                            />
                         ) : (
                             <p>No data available.</p>
                         )}
