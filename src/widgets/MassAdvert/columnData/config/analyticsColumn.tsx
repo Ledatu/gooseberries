@@ -48,7 +48,7 @@ export const getAnalyticsColumn = ({
                     }
                 }
                 return (
-                    <div style={{pointerEvents: 'auto'}}>
+                    <div>
                         <Tooltip
                             style={{maxWidth: '400px'}}
                             content={
@@ -58,9 +58,8 @@ export const getAnalyticsColumn = ({
                                     отображения данных
                                 </Text>
                             }
-                            disabled={false}
                         >
-                            <Text content={'div'} style={{color: 'rgb(255, 190, 92)'}}>
+                            <Text style={{color: 'rgb(255, 190, 92)'}}>
                                 <Icon data={TriangleExclamation} size={11} />
                             </Text>
                         </Tooltip>
@@ -162,7 +161,6 @@ export const getAnalyticsColumn = ({
                             )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
                                 Math.round(rentabelnost),
                             )}%`}
-
                             {warningArtIcon()}
                         </Text>
                     </Button>
