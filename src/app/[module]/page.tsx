@@ -5,7 +5,7 @@ import {useModules} from '@/contexts/ModuleProvider';
 import {useCampaign} from '@/contexts/CampaignContext';
 
 // import { DeliveryPage } from '@/components/DeliveryPage';
-import {useEffect, useMemo} from 'react';
+import {useMemo} from 'react';
 // import {useRouter} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {useUser} from '@/components/RequireAuth';
@@ -62,19 +62,9 @@ const modulesMap: any = {
 export default function ModulePage() {
     const {userInfo, isAuthenticated} = useUser();
     const {modulesLoaded, currentModule} = useModules();
-    const {sellerId, campaign, campaigns} = useCampaign();
+    const {sellerId, campaignInfo: campaign, campaigns} = useCampaign();
     console.log('sellerId', sellerId);
     const currentTime = new Date();
-
-    useEffect(() => {
-        const isMac = navigator.userAgent.toLowerCase().includes('mac');
-
-        if (isMac) {
-            document.documentElement.classList.add('macos');
-        } else {
-            document.documentElement.classList.remove('macos');
-        }
-    }, []);
 
     // // Handle initial currentModule validation
     // useEffect(() => {
@@ -102,7 +92,6 @@ export default function ModulePage() {
     }
 
     const subscriptionUntil = useMemo(() => {
-        console.log(campaign);
         return campaign?.subscriptionUntil;
     }, [campaign]);
 

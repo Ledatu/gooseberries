@@ -44,7 +44,7 @@ export interface DashboardProps {
 export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
     const searchParams = useSearchParams();
     // const {refetchUser} = useUser();
-    const {selectValue, currentCampaign, campaignInfo, campaigns, sellerId} = useCampaign();
+    const {selectValue, campaignInfo, campaigns, sellerId} = useCampaign();
     const {currentModule, availableModules = []} = useModules();
 
     const moduleTitles: Record<string, string> = {
@@ -469,67 +469,8 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                     }}
                 >
                     {children}
-                    {/* {currentTime >= new Date(subscriptionExpDate) &&
-                    ![1122958293, 933839157].includes(userInfo?.user?._id) &&
-                    !['noModules', 'api'].includes(page) ? (
-                        <NoSubscriptionPage />
-                    ) : (
-                        <PageElem
-                            permission={modules.includes('all') ? 'Управление' : modulesMap?.[page]}
-                            page={page}
-                            refetchAutoSales={refetchAutoSales}
-                            setRefetchAutoSales={setRefetchAutoSales}
-                            dzhemRefetch={dzhemRefetch}
-                            setDzhemRefetch={setDzhemRefetch}
-                            sellerId={sellerId}
-                        />
-                    )} */}
                 </div>
-
-                <div
-                    style={{
-                        position: 'absolute',
-                        // background: 'var(--g-color-base-background)',
-                        width: '100vw',
-                        bottom: -100,
-                        left: -40,
-                        height: 100,
-                    }}
-                ></div>
             </div>
         </div>
     );
 };
-
-// const PageElem = ({
-//     page,
-//     permission,
-//     refetchAutoSales,
-//     setRefetchAutoSales,
-//     dzhemRefetch,
-//     setDzhemRefetch,
-//     sellerId,
-// }) => {
-//     const pages = {
-//         delivery: <DeliveryPage permission={permission} sellerId={sellerId} />,
-//         massAdvert: (
-//             <MassAdvertPage
-//                 permission={permission}
-//                 refetchAutoSales={refetchAutoSales}
-//                 setRefetchAutoSales={setRefetchAutoSales}
-//                 dzhemRefetch={dzhemRefetch}
-//                 setDzhemRefetch={setDzhemRefetch}
-//                 sellerId={sellerId}
-//             />
-//         ),
-//         prices: <PricesPage permission={permission} sellerId={sellerId} />,
-//         nomenclatures: <NomenclaturesPage permission={permission} sellerId={sellerId} />,
-//         analytics: <AnalyticsPage permission={permission} sellerId={sellerId} />,
-//         buyers: <BuyersPage permission={permission} sellerId={sellerId} />,
-//         reports: <DetailedReportsPage sellerId={sellerId} />,
-//         seo: <SEOPage />,
-//         api: <ApiPage />,
-//         noModules: <ApiPage />,
-//     };
-//     return pages[page] ?? <></>;
-// };
