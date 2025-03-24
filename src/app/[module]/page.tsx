@@ -5,7 +5,7 @@ import {useModules} from '@/contexts/ModuleProvider';
 import {useCampaign} from '@/contexts/CampaignContext';
 
 // import { DeliveryPage } from '@/components/DeliveryPage';
-import {useMemo} from 'react';
+import {useEffect, useMemo} from 'react';
 // import {useRouter} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {useUser} from '@/components/RequireAuth';
@@ -66,21 +66,16 @@ export default function ModulePage() {
     console.log('sellerId', sellerId);
     const currentTime = new Date();
 
-    // // Handle initial currentModule validation
-    // useEffect(() => {
-    //     console.log(currentModule);
-    //     if (modulesLoaded && currentModule && isAuthenticated) {
-    //         if (!availableModules.includes(cur)) {
-    //             router.replace(`/api${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //         } else {
-    //             router.replace(`/${module}${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //         }
-    //     }
-    //     if (modulesLoaded && module && !availableModules.includes(module) && isAuthenticated) {
-    //         console.log(':LADK:LAKD:LDKJ;l');
-    //         router.replace(`/api${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //     }
-    // }, [modulesLoaded, module, availableModules, sellerId, isAuthenticated]);
+    useEffect(() => {
+        const isMac = navigator.userAgent.toLowerCase().includes('mac');
+
+        if (isMac) {
+            document.documentElement.classList.add('macos');
+        } else {
+            document.documentElement.classList.remove('macos');
+        }
+    }, []);
+
     if (!campaigns.length && isAuthenticated) {
         const ApiPage = modulesMap['api'];
 

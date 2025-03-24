@@ -27,8 +27,7 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const {modules = [], campaignInfo = {}, campaigns, selectValue, campaignLoaded} = useCampaign(); // Add default value
-    const {userInfo, isAuthenticated} = useUser();
-    const {user} = userInfo ?? {};
+    const {isAuthenticated} = useUser();
     // const {modulesMap = {}} = campaignInfo?.modules || {};
 
     const modulesMap = useMemo(() => {
@@ -72,9 +71,9 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
                   'seo',
               ]
             : safeModules;
-        if (![1122958293, 566810027, 933839157].includes(user?.['_id'])) {
-            baseModules = baseModules.filter((item) => item != 'reports');
-        }
+        // if (![1122958293, 566810027, 933839157].includes(user?.['_id'])) {
+        //     baseModules = baseModules.filter((item) => item != 'reports');
+        // }
         console.log([...baseModules, 'api']);
         setAvailableModules([...baseModules, 'api']);
         const baseModulesMap = safeModules.includes('all')
