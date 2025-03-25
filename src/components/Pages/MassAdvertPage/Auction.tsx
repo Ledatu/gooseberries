@@ -316,7 +316,6 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                         flexDirection: 'row-reverse',
                         gap: 12,
                         height: '80vh',
-                        width: '85vw',
                     }}
                 >
                     <div
@@ -332,6 +331,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 overflow: 'auto',
+                                width: 300,
                                 gap: 12,
                             }}
                         >
@@ -342,6 +342,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                         style={{
                             display: 'flex',
                             flexDirection: 'column',
+                            width: '70vw',
                             gap: 12,
                         }}
                     >
