@@ -286,7 +286,12 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                 <Text
                     onClick={() => filterByButton(brand, 'brand')}
                     style={{textWrap: 'nowrap', cursor: 'pointer'}}
-                >{`${brand}: ${getRoundValue(count, auctionFiltered.length, true)}%`}</Text>
+                >
+                    <Text ellipsis style={{maxWidth: 200}}>
+                        {brand}
+                    </Text>{' '}
+                    {`${getRoundValue(count, auctionFiltered.length, true)}%`}
+                </Text>
             ));
     }, [brandMap]);
 
