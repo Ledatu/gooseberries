@@ -27,6 +27,7 @@ interface ButtonsListProps {
     filterByButton: any;
     setAutoSalesProfits: any;
     autoSalesModalOpenFromParent: any;
+    setUpdatePaused: any;
 }
 
 export const ButtonsList: FC<ButtonsListProps> = ({
@@ -45,6 +46,7 @@ export const ButtonsList: FC<ButtonsListProps> = ({
     filterByButton,
     setAutoSalesProfits,
     autoSalesModalOpenFromParent,
+    setUpdatePaused,
 }) => {
     return (
         <div
@@ -69,6 +71,7 @@ export const ButtonsList: FC<ButtonsListProps> = ({
                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                 doc={doc}
                 setChangedDoc={setChangedDoc}
+                setUpdatePaused={setUpdatePaused}
             >
                 <Button
                     disabled={permission != 'Управление'}

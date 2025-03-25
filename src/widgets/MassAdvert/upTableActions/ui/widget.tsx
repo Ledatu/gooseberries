@@ -40,6 +40,8 @@ interface UpTableActionsParams {
     updateColumnWidth: any;
     setFetchedPlacements: any;
     currentParsingProgress: any;
+    setUpdatePaused: any;
+    pausedAdverts: any;
 }
 
 export const UpTableActions: FC<UpTableActionsParams> = observer(
@@ -66,6 +68,8 @@ export const UpTableActions: FC<UpTableActionsParams> = observer(
         currentParsingProgress,
         setFetchedPlacements,
         updateColumnWidth,
+        setUpdatePaused,
+        pausedAdverts,
     }) => {
         // if (1 === 1) {
         //     return <div>123123</div>;
@@ -468,6 +472,7 @@ export const UpTableActions: FC<UpTableActionsParams> = observer(
                         setAutoSalesProfits={setAutoSalesProfits}
                         autoSalesModalOpenFromParent={autoSalesModalOpenFromParent}
                         setChangedDoc={setChangedDoc}
+                        setUpdatePaused={setUpdatePaused}
                     />
                     <Modal
                         open={advertsArtsListModalFromOpen}
@@ -550,6 +555,8 @@ export const UpTableActions: FC<UpTableActionsParams> = observer(
                                                 getUniqueAdvertIdsFromThePage={
                                                     getUniqueAdvertIdsFromThePage
                                                 }
+                                                pausedAdverts={pausedAdverts}
+                                                setUpdatePaused={setUpdatePaused}
                                             />
                                             <div style={{minWidth: 8}} />
                                             <Button

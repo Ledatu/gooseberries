@@ -1452,6 +1452,8 @@ export const MassAdvertPage = () => {
             <StatisticsPanel />
             {!isMobile ? (
                 <UpTableActions
+                    setUpdatePaused={setUpdatePaused}
+                    pausedAdverts={pausedAdverts}
                     doc={doc}
                     permission={permission}
                     setAutoSalesProfits={setAutoSalesProfits}
