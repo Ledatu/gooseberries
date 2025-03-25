@@ -34,7 +34,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
     const [auction, setAuction] = useState([]);
     const [auctionFiltered, setAuctionFiltered] = useState([] as any[]);
     const [open, setOpen] = useState(false);
-    const [filters, setFilters] = useState({});
+    const [filters, setFilters] = useState({} as any);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -73,6 +73,12 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
     useEffect(() => {
         filterTableData(filters, auction);
     }, [auction, filters]);
+
+    const filterByButton = (val: any, key = 'nmId', compMode = 'include') => {
+        filters[key] = {val: String(val), compMode: compMode};
+        setFilters({...filters});
+        filterTableData(filters);
+    };
 
     const columnDataAuction = [
         {
@@ -135,6 +141,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
         {
             placeholder: 'Бренд',
             name: 'brand',
+            valueType: 'text',
             render: ({value, row}: any) => {
                 if (!value) return undefined;
                 const {id} = row;
@@ -163,6 +170,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
             name: 'avgBoostPrice',
         },
         {
+            valueType: 'text',
             placeholder: 'Акция',
             name: 'promoTextCard',
         },
@@ -276,7 +284,8 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
             .sort((a: any, b: any) => b[1] - a[1])
             .map(([brand, count]: any) => (
                 <Text
-                    style={{textWrap: 'nowrap'}}
+                    onClick={() => filterByButton(brand, 'brand')}
+                    style={{textWrap: 'nowrap', cursor: 'pointer'}}
                 >{`${brand}: ${getRoundValue(count, auctionFiltered.length, true)}%`}</Text>
             ));
     }, [brandMap]);
