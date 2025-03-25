@@ -170,7 +170,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
             name: 'avgBoostPrice',
             render: ({row}: any) => {
                 const {boost, cpm} = row;
-                return getRoundValue(boost, cpm);
+                return getRoundValue(cpm / 100, boost, true);
             },
         },
         {
@@ -295,11 +295,12 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
+                        gap: 4,
                     }}
                 >
                     <Text ellipsis style={{maxWidth: 200}}>
                         {brand}
-                    </Text>{' '}
+                    </Text>
                     {`${getRoundValue(count, auctionFiltered.length, true)}%`}
                 </Text>
             ));
