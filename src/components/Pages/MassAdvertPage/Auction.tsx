@@ -168,6 +168,10 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
         {
             placeholder: 'Цена 1 буста, ₽',
             name: 'avgBoostPrice',
+            render: ({row}: any) => {
+                const {boost, cpm} = row;
+                return getRoundValue(boost, cpm);
+            },
         },
         {
             valueType: 'text',
@@ -285,7 +289,13 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
             .map(([brand, count]: any) => (
                 <Text
                     onClick={() => filterByButton(brand, 'brand')}
-                    style={{textWrap: 'nowrap', cursor: 'pointer'}}
+                    style={{
+                        textWrap: 'nowrap',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}
                 >
                     <Text ellipsis style={{maxWidth: 200}}>
                         {brand}
