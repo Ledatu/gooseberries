@@ -286,7 +286,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                 <div
                     style={{
                         display: 'flex',
-                        flexDirection: 'row',
+                        flexDirection: 'row-reverse',
                         gap: 12,
                         height: '80vh',
                         width: '70vw',
