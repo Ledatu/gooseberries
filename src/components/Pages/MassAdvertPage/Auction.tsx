@@ -1,16 +1,30 @@
-import {Button, Card, Icon, Link, Popover, SegmentedRadioGroup, Text} from '@gravity-ui/uikit';
+import {Button, Icon, Link, SegmentedRadioGroup, Text, useTheme} from '@gravity-ui/uikit';
 import {Rocket, Magnifier, ArrowRight} from '@gravity-ui/icons';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import DataTable, {Column} from '@gravity-ui/react-data-table';
-import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
+import React, {
+    Children,
+    cloneElement,
+    CSSProperties,
+    isValidElement,
+    ReactElement,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import ApiClient from '@/utilities/ApiClient';
+import {ModalWindow} from '@/shared/ui/Modal';
+import TheTable, {compare} from '@/components/TheTable';
+import {getRoundValue} from '@/utilities/getRoundValue';
 
 interface AuctionProps {
     sellerId: string;
     phrase: any;
+    children: any;
 }
 
-export const Auction = ({sellerId, phrase}: AuctionProps) => {
+export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
+    const initialTheme: string = useTheme();
+
     const auctionOptions: any[] = [
         {value: 'firstPage', content: 'Выдача'},
         {value: 'auto', content: 'Аукцион Авто'},
@@ -18,9 +32,12 @@ export const Auction = ({sellerId, phrase}: AuctionProps) => {
     ];
     const [auctionSelectedOption, setAuctionSelectedOption] = useState('firstPage');
     const [auction, setAuction] = useState([]);
+    const [auctionFiltered, setAuctionFiltered] = useState([] as any[]);
     const [open, setOpen] = useState(false);
+    const [filters, setFilters] = useState({});
 
-    // const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     useEffect(() => {
         getAuction();
@@ -53,206 +70,289 @@ export const Auction = ({sellerId, phrase}: AuctionProps) => {
         }
     }, [sellerId, phrase, auctionOptions]);
 
-    const columnDataAuction = useMemo(
-        () => [
-            {
-                header: '#',
-                name: 'index',
-                sortable: false,
-                render: ({index, footer}: any) => {
-                    const displayIndex = index + 1;
-                    return footer ? undefined : (
-                        <Button width="max" size="xs" view="flat">
-                            {displayIndex}
-                        </Button>
-                    );
-                },
+    useEffect(() => {
+        filterTableData(filters, auction);
+    }, [auction, filters]);
+
+    const columnDataAuction = [
+        {
+            placeholder: '#',
+            name: 'index',
+            sortable: false,
+            render: ({index, footer}: any) => {
+                const displayIndex = index + 1;
+                return footer ? undefined : (
+                    <Button width="max" size="xs" view="flat">
+                        {displayIndex}
+                    </Button>
+                );
             },
-            {
-                header: 'Ставка',
-                name: 'cpm',
-                render: ({value, row, footer}: any) => {
-                    const {advertsType} = row;
-                    if (footer || !value) return undefined;
-                    return (
-                        <Button size="xs" view="flat">
-                            {advertsType ? (
-                                <Icon data={advertsType == 'auto' ? Rocket : Magnifier} size={11} />
-                            ) : (
-                                <></>
-                            )}
-                            {value as number}
-                        </Button>
-                    );
-                },
+        },
+        {
+            placeholder: 'Ставка',
+            name: 'cpm',
+            render: ({value, row}: any) => {
+                const {advertsType} = row;
+                if (!value) return undefined;
+                return (
+                    <Button size="xs" view="flat">
+                        {advertsType ? (
+                            <Icon data={advertsType == 'auto' ? Rocket : Magnifier} size={11} />
+                        ) : (
+                            <></>
+                        )}
+                        {value as number}
+                    </Button>
+                );
             },
-            {
-                header: 'Позиция',
-                name: 'promoPosition',
-                render: ({value, row}) => {
-                    if (value === undefined) return;
-                    const {position} = row;
-                    const displayIndex = (value as number) + 0;
-                    return (
-                        <Button size="xs" view="flat">
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Text color="secondary">{`${position + 1}`}</Text>
-                                <div style={{width: 3}} />
-                                <Icon data={ArrowRight} size={13}></Icon>
-                                <div style={{width: 3}} />
-                                <Text>{`${displayIndex}`}</Text>
-                            </div>
-                        </Button>
-                    );
-                },
-            },
-            {
-                header: 'Бренд',
-                name: 'brand',
-                render: ({value, row}) => {
-                    if (!value) return undefined;
-                    const {id} = row;
-                    return (
-                        <Link
-                            view="primary"
-                            style={{whiteSpace: 'pre-wrap'}}
-                            href={`https://www.wildberries.ru/catalog/${id}/detail.aspx?targetUrl=BP`}
-                            target="_blank"
+        },
+        {
+            placeholder: 'Позиция',
+            name: 'promoPosition',
+            render: ({value, row}: any) => {
+                if (value === undefined) return;
+                const {position} = row;
+                const displayIndex = (value as number) + 0;
+                return (
+                    <Button size="xs" view="flat">
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
                         >
-                            <Text variant="subheader-1">{value as string}</Text>
-                        </Link>
-                    );
-                },
+                            <Text color="secondary">{`${position + 1}`}</Text>
+                            <div style={{width: 3}} />
+                            <Icon data={ArrowRight} size={13}></Icon>
+                            <div style={{width: 3}} />
+                            <Text>{`${displayIndex}`}</Text>
+                        </div>
+                    </Button>
+                );
             },
-            {
-                header: 'Цена с СПП, ₽',
-                name: 'sppPrice',
+        },
+        {
+            placeholder: 'Бренд',
+            name: 'brand',
+            render: ({value, row}: any) => {
+                if (!value) return undefined;
+                const {id} = row;
+                return (
+                    <Link
+                        view="primary"
+                        style={{whiteSpace: 'pre-wrap'}}
+                        href={`https://www.wildberries.ru/catalog/${id}/detail.aspx?targetUrl=BP`}
+                        target="_blank"
+                    >
+                        <Text variant="subheader-1">{value as string}</Text>
+                    </Link>
+                );
             },
-            {
-                header: 'Цена 1 буста, ₽',
-                name: 'avgBoostPrice',
-            },
-            {
-                header: 'Акция',
-                name: 'promoTextCard',
-            },
-        ],
-        [],
-    );
+        },
+        {
+            placeholder: 'Цена с СПП, ₽',
+            name: 'sppPrice',
+        },
+        {
+            placeholder: 'Буст на',
+            name: 'boost',
+        },
+        {
+            placeholder: 'Цена 1 буста, ₽',
+            name: 'avgBoostPrice',
+        },
+        {
+            placeholder: 'Акция',
+            name: 'promoTextCard',
+        },
+    ] as any;
+
+    const filterTableData = (withfFilters: any = {}, tableData: any = {}) => {
+        const temp = [] as any;
+
+        for (const [art, artInfo] of Object.entries(
+            Object.keys(tableData).length ? tableData : auction,
+        )) {
+            if (!art || !artInfo) continue;
+
+            const tempTypeRow: any = artInfo;
+
+            let addFlag = true;
+            const useFilters: any = withfFilters['undef'] ? withfFilters : filters;
+            for (const [filterArg, filterData] of Object.entries(useFilters)) {
+                if (filterArg == 'undef' || !filterData) continue;
+                if ((filterData as any)['val'] == '') continue;
+
+                const fldata = (filterData as any)['val'];
+                const flarg = tempTypeRow[filterArg];
+
+                if (fldata.trim() == '+') {
+                    if (flarg !== undefined) continue;
+                } else if (fldata.trim() == '-') {
+                    if (flarg === undefined) continue;
+                }
+
+                if (!compare(tempTypeRow[filterArg], filterData)) {
+                    addFlag = false;
+                    break;
+                }
+            }
+
+            tempTypeRow.boost =
+                (tempTypeRow?.position ?? 0) - (tempTypeRow?.promoPosition ?? 0) + 2;
+
+            if (addFlag) {
+                temp.push(tempTypeRow);
+            }
+        }
+
+        setAuctionFiltered([...temp]);
+    };
+
+    useEffect(() => {
+        if (!open) return;
+        setTimeout(() => {
+            setFilters({});
+        }, 1000);
+    }, [open]);
+
+    const childArray = Children.toArray(children);
+
+    // Find the first valid React element to use as the trigger
+    const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
+        any,
+        any
+    >;
+
+    if (!triggerElement) {
+        console.error('AddApiModal: No valid React element found in children.');
+        return null;
+    }
+
+    const triggerButton = cloneElement(triggerElement, {
+        onClick: handleOpen,
+    });
+
+    const [brandMap, setBrandMap] = useState({} as any);
+
+    const footerData = useMemo(() => {
+        const temp = {
+            index: `${auctionSelectedOption}, ${auctionFiltered ? auctionFiltered.length : 0} шт.`,
+            promoTextCard: 0,
+            brand: 0,
+            boost: 0,
+            avgBoostPrice: 0,
+            sppPrice: 0,
+            cpm: 0,
+        };
+        const tempBrandMap = {} as any;
+        for (const row of auctionFiltered) {
+            const {brand, promoTextCard, boost, avgBoostPrice, sppPrice, cpm} = row;
+            if (brand) {
+                if (!tempBrandMap[brand]) tempBrandMap[brand] = 0;
+                tempBrandMap[brand]++;
+            }
+            if (promoTextCard?.length) temp.promoTextCard++;
+            temp.boost += boost ?? 0;
+            temp.avgBoostPrice += avgBoostPrice ?? 0;
+            temp.sppPrice += sppPrice ?? 0;
+            temp.cpm += cpm ?? 0;
+        }
+
+        temp.brand = Object.keys(tempBrandMap).length;
+
+        temp.boost = getRoundValue(temp.boost, auctionFiltered.length);
+        temp.avgBoostPrice = getRoundValue(temp.avgBoostPrice, auctionFiltered.length);
+        temp.sppPrice = getRoundValue(temp.sppPrice, auctionFiltered.length);
+        temp.cpm = getRoundValue(temp.cpm, auctionFiltered.length);
+
+        setBrandMap(tempBrandMap);
+        return temp;
+    }, [auctionFiltered]);
+
+    const brandList = useMemo(() => {
+        return Object.entries(brandMap)
+            .sort((a: any, b: any) => b[1] - a[1])
+            .map(([brand, count]: any) => (
+                <Text>{`${brand}: ${getRoundValue(count, auctionFiltered.length, true)}%`}</Text>
+            ));
+    }, [brandMap]);
 
     return (
-        <div>
-            <Popover
-                enableSafePolygon={true}
-                onOpenChange={(val) => {
-                    setOpen(val);
-                }}
-                placement={'bottom-start'}
-                // disablePortal={true}
-                // disableOutsideClickClose
-                closeDelay={1000}
-                // content={
-                //     <div>
-                //     <Card style={{width: 400, height: 500}}>
-                //         <Text>Попа</Text>
-                //     </Card>
-                //     </div>
-                // }
-                // style={{width: 200, height: 200}}
-                content={
-                    // <Card
-                    //     style={{
-                    //         // backdropFilter: 'blur(48px)',
-                    //         // borderRadius: 30,
-                    //         // boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-                    //         // width: 'max-content',
-                    //         // height: 'max-content',
-
-                    //         overflow: 'auto',
-                    //         display: 'flex',
-                    //     }}
-                    // >
-                    <Card
-                        // view="clear"
+        <>
+            {triggerButton}
+            <ModalWindow isOpen={open} handleClose={handleClose}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: 12,
+                        height: '80vh',
+                        width: '70vw',
+                    }}
+                >
+                    <div
                         style={{
-                            // width: 'max-content',
-                            // height: 'max-content',
-                            position: 'absolute',
-                            maxHeight: '42em',
                             display: 'flex',
-                            padding: 16,
-                            backdropFilter: 'blur(48px)',
-                            WebkitBackdropFilter: 'blur(48px)',
-                            boxShadow: '#0002 0px 2px 8px 0px',
-                            // padding: 30,
-                            borderRadius: 16,
-                            border: '1px solid #eee2',
-                            flexDirection: 'row',
-                            top: -10,
-                            left: -10,
+                            flexDirection: 'column',
+                            gap: 12,
                         }}
                     >
-                        <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
-                            <SegmentedRadioGroup
-                                size="l"
-                                value={auctionSelectedOption}
-                                options={auctionOptions}
-                                onUpdate={(value) => {
-                                    setAuctionSelectedOption(value);
-                                }}
-                            />
-                            <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <Card
-                                    style={{
-                                        background: 'var(--gc-color-base-background)',
-                                        maxWidth: '80em',
-                                        maxHeight: '30em',
-                                        height: 'fit-content',
-                                        overflow: 'auto',
-                                        boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-                                    }}
-                                >
-                                    {/* <Card
-                                        style={{
-                                            background: 'var(--g-color-base-background)',
-                                        }}
-                                    > */}
-                                    <DataTable
-                                        settings={{
-                                            displayIndices: false,
-                                            stickyHead: MOVING,
-                                            stickyFooter: MOVING,
-                                            highlightRows: true,
-                                        }}
-                                        footerData={[
-                                            {
-                                                cpm: `${auctionSelectedOption}, ${
-                                                    auction ? auction.length : 0
-                                                } шт.`,
-                                            },
-                                        ]}
-                                        theme="yandex-cloud"
-                                        columns={columnDataAuction as Column<any>[]}
-                                        data={auction}
-                                    />
-                                </Card>
-                                {/* </Card> */}
-                            </div>
+                        <Text variant="header-1">Доли брендов</Text>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'auto',
+                                gap: 12,
+                            }}
+                        >
+                            {brandList}
                         </div>
-                    </Card>
-                    // </Card>
-                }
-            >
-                <div>
-                    <Text>{phrase}</Text>
+                    </div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 12,
+                        }}
+                    >
+                        <SegmentedRadioGroup
+                            size="l"
+                            value={auctionSelectedOption}
+                            options={auctionOptions}
+                            onUpdate={(value) => {
+                                setAuctionSelectedOption(value);
+                            }}
+                        />
+                        <div
+                            style={
+                                {
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    height: '100%',
+                                    width: '100%',
+                                    '--g-color-base-background':
+                                        initialTheme === 'dark' ? 'rgba(14, 14, 14, 1)' : '#eeee',
+                                } as CSSProperties
+                            }
+                        >
+                            <TheTable
+                                footerData={[footerData]}
+                                columnData={columnDataAuction}
+                                data={auctionFiltered}
+                                tableId={'auction'}
+                                usePagination={false}
+                                filters={filters}
+                                height={'100%'}
+                                setFilters={setFilters}
+                                filterData={filterTableData}
+                            />
+                        </div>
+                    </div>
                 </div>
-            </Popover>
-        </div>
+            </ModalWindow>
+        </>
     );
 };

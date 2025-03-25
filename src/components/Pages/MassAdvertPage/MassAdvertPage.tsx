@@ -2100,7 +2100,13 @@ export const MassAdvertPage = () => {
                                 gap: 8,
                             }}
                         >
-                            {phrase ? <Auction sellerId={sellerId} phrase={phrase} /> : <></>}
+                            {phrase ? (
+                                <Auction sellerId={sellerId} phrase={phrase}>
+                                    <Text style={{cursor: 'pointer'}}>{phrase}</Text>
+                                </Auction>
+                            ) : (
+                                <></>
+                            )}
                             <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
                                 <Button
                                     size="xs"
