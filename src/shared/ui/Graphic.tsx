@@ -21,10 +21,16 @@ interface GraphicProps {
     colors?: Record<string, string>;
 }
 
+const timeToHHMM = (date: Date): string => {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+};
+
 export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors = {}}) => {
     const formattedData = data.map((item) => ({
         ...item,
-        'Дата и время': new Date(item['Дата и время']).toLocaleString(),
+        'Дата и время': timeToHHMM(new Date(item["Дата и время"]))
     }));
 
     const calculateCategories = (): string[] => {
@@ -35,19 +41,23 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
     const categories = calculateCategories();
 
     const chartData = {
-        labels: formattedData.map((item) => item['Дата и время']), // Ось X (даты)
+        labels: formattedData.map((item) => item['Дата и время']),
         datasets: categories.map((category, index) => ({
             label: category,
             // @ts-ignore
             data: formattedData.map((item) => Number(+item[category])),
-            borderColor: colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`, // Используем переданный цвет или генерируем его
-            yAxisID: yAxes.includes(category) ? `y${index + 1}` : 'y', // Используем базовую ось Y для категорий, не указанных в yAxes
-            tension: 0.4,
+            borderColor: colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
+            backgroundColor: colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
+            yAxisID: yAxes.includes(category) ? `y${index + 1}` : 'y',
+            tension: 0,
+            pointRadius: 0,
+            borderWidth: 2,
         })),
     };
 
     const options = {
         responsive: true,
+        maintainAspectRatio: false,
         interaction: {
             mode: 'index' as const,
             intersect: false,
@@ -56,43 +66,93 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
             x: {
                 display: true,
                 title: {
-                    display: true,
+                    display: false,
                     text: 'Дата и время',
                 },
-            },
-            y: {
-                type: 'linear' as const,
-                display: true,
-                position: 'left',
-                title: {
-                    display: true,
-                    text: 'Базовая ось Y',
+                ticks: {
+                    maxTicksLimit: 10,
+                    autoSkip: true,
+                    maxRotation: 0,
+                    minRotation: 0,
+                    color: '#ffffff',
+                },
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)',
                 },
             },
+            ...(categories.length > yAxes.length  && {
+                y: {
+                    type: 'linear' as const,
+                    display: true,
+                    position: 'left',
+                    ticks: {
+                        color: '#ffffff',
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                    },
+                },
+            }),
             ...(yAxes.length > 0
                 ? categories.reduce(
-                      (acc, category, index) => {
-                          if (yAxes.includes(category)) {
-                              acc[`y${index + 1}`] = {
-                                  type: 'linear' as const,
-                                  display: true,
-                                  position: index % 2 === 0 ? 'left' : 'right',
-                                  title: {
-                                      display: true,
-                                      text: category,
-                                  },
-                                  grid: {
-                                      drawOnChartArea: index === 0,
-                                  },
-                              };
-                          }
-                          return acc;
-                      },
-                      {} as Record<string, any>,
-                  )
-                : {}), // Создаем дополнительные оси только если yAxes не пустой
+                    (acc, category, index) => {
+                        if (yAxes.includes(category)) {
+                            acc[`y${index + 1}`] = {
+                                type: 'linear' as const,
+                                display: true,
+                                position: index % 2 === 0 ? 'left' : 'right',
+                                title: {
+                                    display: true,
+                                    text: category,
+                                    color: '#ffffff',
+                                },
+                                ticks: {
+                                    color: '#ffffff',
+                                },
+                                grid: {
+                                    drawOnChartArea: index === 0,
+                                    color: 'rgba(255, 255, 255, 0.1)',
+                                },
+                            };
+                        }
+                        return acc;
+                    },
+                    {} as Record<string, any>,
+                )
+                : {}),
         },
         plugins: {
+            legend: {
+                position: 'bottom' as const,
+                labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                    color: '#ffffff',
+                    font: {
+                        family: 'sans-serif',
+                        size: 12,
+                        weight: 'normal',
+                    },
+                    generateLabels: (chart: any) => {
+                        const { data } = chart;
+                        if (data.labels.length && data.datasets.length) {
+                            return data.datasets.map((dataset: any, i: number) => ({
+                                text: dataset.label,
+                                fillStyle: dataset.borderColor,
+                                strokeStyle: dataset.borderColor,
+                                lineWidth: 2,
+                                pointStyle: 'circle',
+                                hidden: !chart.isDatasetVisible(i),
+                                index: i,
+                                fontColor: '#ffffff',
+                                color: '#ffffff',
+                            }));
+                        }
+                        return [];
+                    },
+                },
+            },
             tooltip: {
                 callbacks: {
                     label: (context: any) => {
@@ -101,15 +161,23 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
                         return `${label}: ${value}`;
                     },
                 },
-                titleColor: '#fff',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 xAlign: 'right',
+                yAlign: 'center',
+                position: 'nearest',
             },
         },
     };
 
     return (
-        <div className={cn('w-[100%] h-[100%] mt-10', className)}>
-            <Line data={chartData} options={options as any} className={'h-100%'} />
+        <div className={cn('w-full h-full', className)} style={{ height: '100%', minHeight: '400px' }}>
+            <Line
+                data={chartData}
+                options={options as any}
+                style={{ width: '100%', height: '100%' }}
+            />
         </div>
     );
 };

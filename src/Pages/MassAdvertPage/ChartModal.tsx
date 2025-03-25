@@ -131,7 +131,7 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
                         {yagrData ? (
                             <Graphic
                                 data={calculateGraphicData()}
-                                yAxes={['Баланс', 'Расход']}
+                                yAxes={['Баланс', 'Расход', "Ставка", "ДРР"]}
                                 colors={{Баланс: '#ffff00'}}
                             />
                         ) : (
