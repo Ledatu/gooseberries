@@ -298,7 +298,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                         gap: 4,
                     }}
                 >
-                    <Text ellipsis style={{maxWidth: 200}}>
+                    <Text ellipsis style={{maxWidth: 150}}>
                         {brand}
                     </Text>
                     {`${getRoundValue(count, auctionFiltered.length, true)}%`}
@@ -316,7 +316,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                         flexDirection: 'row-reverse',
                         gap: 12,
                         height: '80vh',
-                        width: '70vw',
+                        width: '85vw',
                     }}
                 >
                     <div
