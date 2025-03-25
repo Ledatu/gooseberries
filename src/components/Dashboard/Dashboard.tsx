@@ -45,7 +45,7 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
     const searchParams = useSearchParams();
     // const {refetchUser} = useUser();
     const {selectValue, currentCampaign, campaignInfo, campaigns, sellerId} = useCampaign();
-    const {currentModule, availableModules = []} = useModules();
+    const {currentModule, availableModules = [], setModule} = useModules();
 
     const moduleTitles: Record<string, string> = {
         massAdvert: 'Реклама',
@@ -294,7 +294,8 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                                         item.title,
                                                     ),
                                             )}
-                                            activeTab={currentModule}
+                                            currentModule={currentModule}
+                                            setModule={setModule}
                                             // onSelectTab={handleModuleChange}
                                         />
                                     </div>

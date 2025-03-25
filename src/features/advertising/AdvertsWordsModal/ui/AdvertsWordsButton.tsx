@@ -17,15 +17,9 @@ interface AdvertsWordsButtonProps {
 }
 
 export const AdvertsWordsButton = ({
-    disabled,
     doc,
     selectValue,
     advertId,
-    art,
-    setChangedDoc,
-    setFetchedPlacements,
-    currentParsingProgress,
-    setCurrentParsingProgress,
 }: AdvertsWordsButtonProps) => {
     const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
         ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName

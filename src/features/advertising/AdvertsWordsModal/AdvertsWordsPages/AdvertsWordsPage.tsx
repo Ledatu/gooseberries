@@ -4,18 +4,22 @@
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Loader, Text} from '@gravity-ui/uikit';
 import {useEffect} from 'react';
-import {ActiveClustersPage} from './ActiveClustersModule/ActiveClustersPage';
-import {InactiveClustersPage} from './InactiveClustersPage';
 import {SettingsPage} from './SettingsPage';
-import {AutoPhrasesPage} from './AutoPhrasesPage';
+import {ActiveClustersTab} from '../ui/ActiveClustersTab';
+import {InactiveClusters} from '../ui/InactiveClustersTab';
+import {AutoPhrasesTab} from '../ui/AutoPhrasesTab/AutoPhrasesTab';
+import {FixedPhrasesTab} from '../ui/FixedPhrasesTab';
+import { ChangeTemplateTab } from '../ui/ChangeTemplateTab';
 // import {motion} from 'framer-motion';
 
 const pagesMap = {
     // massAdvert: dynamic(() => import('@/components/MassAdvertPage')),
-    ActiveClusters: ActiveClustersPage,
-    InActiveClusters: InactiveClustersPage,
+    ActiveClusters: ActiveClustersTab,
+    InActiveClusters: InactiveClusters,
     Settings: SettingsPage,
-    AutoPhrases: AutoPhrasesPage,
+    AutoPhrases: AutoPhrasesTab,
+    FixedPhrases: FixedPhrasesTab,
+    ChangeTemplate: ChangeTemplateTab
 };
 
 export const AdvertsWordsPage = () => {

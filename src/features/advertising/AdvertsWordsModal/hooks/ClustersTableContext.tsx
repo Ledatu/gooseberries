@@ -2,11 +2,11 @@ import {useEffect, useState} from 'react';
 import {ClusterData} from '../api/mapper';
 import {useAdvertsWordsModal} from './AdvertsWordsModalContext';
 import {getMedian} from '@/utilities/getMedian';
-import {ColumnData} from '../ui/ActiveClustersTable';
+import {ColumnData} from '../ui/ClustersTable';
 
 interface ClustersTableContext {
     data: ClusterData[];
-    footer: ClusterData;
+    footerData: ClusterData;
     showDzhem: boolean;
     setShowDzhem: (arg: boolean) => void;
     columns: ColumnData[];
@@ -92,7 +92,7 @@ export const useClustersTableContext = (columns: ColumnData[]): ClustersTableCon
     }, [showDzhem]);
 
     return {
-        footer: footer,
+        footerData: footer,
         data: data,
         columns: columnsData,
         showDzhem: showDzhem,

@@ -1,4 +1,4 @@
-export type AdvertWordsTabModules = 'ActiveClusters' | 'InActiveClusters' | 'Settings' | 'AutoPhrases'
+export type AdvertWordsTabModules = 'ActiveClusters' | 'InActiveClusters' | 'Settings' | 'AutoPhrases' | 'FixedPhrases'
 
 export type AdvertKeywordStat = {
 	cluster: string,

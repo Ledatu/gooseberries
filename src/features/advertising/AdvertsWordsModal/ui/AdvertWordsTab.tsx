@@ -5,6 +5,7 @@ import {ReactNode} from 'react';
 
 import {AdvertWordsTabModules} from '../types';
 import {motion} from 'framer-motion';
+import {tabsNames} from '../config';
 
 interface CustomTabProps {
     value: AdvertWordsTabModules;
@@ -46,13 +47,8 @@ export interface AdvertWordsTabProps {
 export const AdvertWordsTab = ({currentValue, setCurrentValue}: AdvertWordsTabProps) => {
     const Tabs = () => {
         const currentTabs: ReactNode[] = [];
-        const currentNamesTabs: {value: AdvertWordsTabModules; name: string}[] = [
-            {value: 'ActiveClusters', name: 'Активные кластеры'},
-            {value: 'InActiveClusters', name: 'Активные кластеры'},
-            {value: 'AutoPhrases', name: 'Авто фразы'},
-            {value: 'Settings', name: 'Настройки'},
-        ];
-        for (const name of currentNamesTabs) {
+        console.log(tabsNames);
+        for (const name of tabsNames) {
             currentTabs.push(
                 <CustomTab
                     name={name.name}
@@ -61,6 +57,7 @@ export const AdvertWordsTab = ({currentValue, setCurrentValue}: AdvertWordsTabPr
                 />,
             );
         }
+        console.log(currentTabs);
         return currentTabs;
     };
     return (

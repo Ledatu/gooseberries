@@ -1,4 +1,4 @@
-export interface ClusterDataDTO {
+export interface ClusterDataDto {
 	addToCartCurrent: number
 	addToCartPercentile: number
 	avgPositionCurrent: number
