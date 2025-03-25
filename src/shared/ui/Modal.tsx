@@ -31,7 +31,7 @@ export const ModalWindow: FC<ModalWindowProps> = ({
                 <motion.div
                     className={cn(
                         'overflow-hidden flex flex-col items-center justify-between bg-[#221d220f]',
-                        'backdrop-blur-sm shadow-md p-[30px] rounded-[30px] border border-[#eee2]',
+                        'backdrop-blur-2xl shadow-md p-[30px] rounded-[30px] border border-[#eee2]',
                         motionDivClassName,
                     )}
                 >

@@ -275,7 +275,9 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
         return Object.entries(brandMap)
             .sort((a: any, b: any) => b[1] - a[1])
             .map(([brand, count]: any) => (
-                <Text>{`${brand}: ${getRoundValue(count, auctionFiltered.length, true)}%`}</Text>
+                <Text
+                    style={{textWrap: 'nowrap'}}
+                >{`${brand}: ${getRoundValue(count, auctionFiltered.length, true)}%`}</Text>
             ));
     }, [brandMap]);
 
