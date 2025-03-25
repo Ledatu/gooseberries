@@ -11,7 +11,7 @@ import {
     ActionTooltip,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
-import {Pencil, Plus, Calendar} from '@gravity-ui/icons';
+import {Pencil, Plus, Calendar, QrCode} from '@gravity-ui/icons';
 import TheTable, {compare} from '@/components/TheTable';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {motion} from 'framer-motion';
@@ -25,6 +25,7 @@ import {EditSubscription} from './EditSubscription';
 import {ChangeApiModal} from './ChangeApiModal';
 import {SetSubscriptionExpDateModal} from './SetSubscriptionExpDateModal';
 import {AddApiModal} from './AddApiModal';
+import {PayModal} from '@/components/Payment/PayModal';
 
 interface IRender {
     value?: any;
@@ -171,39 +172,27 @@ export const ApiPage = () => {
                     valueType: 'text',
                     render: ({value, row, footer, index}: IRender) => {
                         if (footer) return value;
-
+                        const is10DaysOrLess =
+                            new Date(row?.subscriptionUntil ?? '1970-01-01').getTime() -
+                                Date.now() <
+                                86400 * 10 * 1000 || true;
                         return (
                             <div
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    height: '100%',
                                     gap: 8,
                                 }}
                             >
                                 <div
                                     style={{
                                         display: 'flex',
-                                        flexDirection: 'row',
+                                        flexDirection: 'column',
                                         gap: 8,
-                                        alignItems: 'center',
                                     }}
                                 >
-                                    <Text>
-                                        {(index ?? 0) + 1 + (page - 1) * (pagination ?? 50)}
-                                    </Text>
-                                    <Text
-                                        variant="subheader-2"
-                                        style={{
-                                            cursor: 'pointer',
-                                            maxWidth: '20vw',
-                                            overflow: 'hidden',
-                                        }}
-                                        onClick={() => setSellerId(row?.seller_id)}
-                                    >
-                                        {value}
-                                    </Text>
-                                </div>
-                                {row?.isOwner || admin ? (
                                     <div
                                         style={{
                                             display: 'flex',
@@ -212,24 +201,65 @@ export const ApiPage = () => {
                                             alignItems: 'center',
                                         }}
                                     >
-                                        <ActionTooltip
-                                            title={
-                                                groupToShowSelected == 'active'
-                                                    ? 'Магазин будет отключен и помещен в архив, позже вы можете его вернуть'
-                                                    : 'Магазин будет включен и убран из архива, позже вы можете снова поместить его в архив'
-                                            }
+                                        <Text>
+                                            {(index ?? 0) + 1 + (page - 1) * (pagination ?? 50)}
+                                        </Text>
+                                        <Text
+                                            variant="subheader-2"
+                                            style={{
+                                                cursor: 'pointer',
+                                                maxWidth: '50vw',
+                                                overflow: 'hidden',
+                                            }}
+                                            onClick={() => setSellerId(row?.seller_id)}
                                         >
-                                            <Button
-                                                size="s"
-                                                onClick={() => toogleArchieved(row?.seller_id)}
-                                                view="flat"
-                                            >
-                                                {groupToShowSelected == 'active'
-                                                    ? 'Архивировать'
-                                                    : 'Убрать из архива'}
-                                            </Button>
-                                        </ActionTooltip>
+                                            {value}
+                                        </Text>
                                     </div>
+                                    {row?.isOwner || admin ? (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                gap: 8,
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <ActionTooltip
+                                                title={
+                                                    groupToShowSelected == 'active'
+                                                        ? 'Магазин будет отключен и помещен в архив, позже вы можете его вернуть'
+                                                        : 'Магазин будет включен и убран из архива, позже вы можете снова поместить его в архив'
+                                                }
+                                            >
+                                                <Button
+                                                    pin="circle-circle"
+                                                    size="s"
+                                                    onClick={() => toogleArchieved(row?.seller_id)}
+                                                    view="flat"
+                                                >
+                                                    {groupToShowSelected == 'active'
+                                                        ? 'Архивировать'
+                                                        : 'Убрать из архива'}
+                                                </Button>
+                                            </ActionTooltip>
+                                        </div>
+                                    ) : (
+                                        <></>
+                                    )}
+                                </div>
+                                {admin ? (
+                                    <PayModal sellerId={row?.seller_id} name={row?.name}>
+                                        <Button
+                                            disabled={!is10DaysOrLess}
+                                            pin="circle-circle"
+                                            view="flat"
+                                            size="l"
+                                        >
+                                            <Icon data={QrCode} />
+                                            Оплатить подписку
+                                        </Button>
+                                    </PayModal>
                                 ) : (
                                     <></>
                                 )}
@@ -652,6 +682,7 @@ export const ApiPage = () => {
                     justifyContent: tempData?.length ? 'space-between' : 'center',
                     flexWrap: 'wrap',
                     marginBottom: 8,
+                    gap: 8,
                     flexDirection: 'row',
                 }}
             >

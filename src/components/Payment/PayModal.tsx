@@ -1,0 +1,211 @@
+import {ModalWindow} from '@/shared/ui/Modal';
+import {QrCode, Receipt} from '@gravity-ui/icons';
+import {Button, Card, Icon, Loader, Text, TextInput} from '@gravity-ui/uikit';
+import {
+    Children,
+    cloneElement,
+    isValidElement,
+    ReactElement,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
+import {motion} from 'framer-motion';
+import {useUser} from '../RequireAuth';
+import {useError} from '@/contexts/ErrorContext';
+import ApiClient from '@/utilities/ApiClient';
+
+interface PayModalInterface {
+    children: any;
+    sellerId: string;
+    name: string;
+}
+
+export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
+    const {showError} = useError();
+    const {userInfo, refetchUser} = useUser();
+    const {user} = userInfo;
+
+    const [open, setOpen] = useState(false);
+    const [isQrPay, setIsQrPay] = useState(false);
+
+    const [_qr, _setQr] = useState({image: '', payload: ''});
+    const [qrGenerating, setQrGenerating] = useState(false);
+
+    const [email, setEmail] = useState(user?.email ?? '');
+    useEffect(() => setEmail(user?.email ?? email), [user]);
+    const emailValid = useMemo(() => {
+        return String(email)
+            .toLowerCase()
+            .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            );
+    }, [email]);
+
+    const handleOpen = () => {
+        setOpen(true);
+        setIsQrPay(false);
+    };
+    const handleClose = () => setOpen(false);
+
+    const handleQrPay = async () => {
+        try {
+            if (user?.email != email) {
+                await ApiClient.post('auth/set-email', {email});
+                refetchUser();
+            }
+            setQrGenerating(true);
+        } catch (error: any) {
+            console.error(new Date(), 'error', error);
+            showError(error?.response?.data?.error || 'Возникла ошибка');
+            setQrGenerating(false);
+        }
+    };
+
+    const childArray = Children.toArray(children);
+
+    const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
+        any,
+        any
+    >;
+
+    if (!triggerElement) {
+        console.error('PayModal: No valid React element found in children.', sellerId);
+        return null;
+    }
+
+    const triggerButton = cloneElement(triggerElement, {
+        onClick: handleOpen,
+    });
+
+    return (
+        <>
+            {triggerButton}
+            <ModalWindow isOpen={open} handleClose={handleClose}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        gap: 12,
+                    }}
+                >
+                    <Text variant="header-1">Подписка на сервис AURUMSKYNET на 30 дней.</Text>
+                    <Text>Подписка для магазина {name}</Text>
+                    <motion.div
+                        animate={{
+                            maxHeight: qrGenerating ? 540 : 0,
+                            height: qrGenerating ? 'calc(100vw - 70px)' : 0,
+                            opacity: qrGenerating ? 1 : 0,
+                        }}
+                        style={{
+                            overflow: isQrPay ? undefined : 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: 'calc(100vw - 70px)',
+                            maxWidth: 540,
+                            justifyContent: 'center',
+                            maxHeight: 0,
+                            opacity: 0,
+                        }}
+                    >
+                        <Card
+                            style={{
+                                overflow: 'hidden',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%',
+                                width: '100%',
+                            }}
+                        >
+                            {_qr?.image?.length ? <></> : <Loader size="l" />}
+                        </Card>
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            maxHeight: isQrPay ? 160 : 0,
+                            opacity: isQrPay ? 1 : 0,
+                        }}
+                        style={{
+                            overflow: isQrPay ? undefined : 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: 'calc(100vw - 70px)',
+                            maxWidth: 540,
+                            justifyContent: 'center',
+                            gap: 12,
+                            maxHeight: 0,
+                            opacity: 0,
+                        }}
+                    >
+                        <TextInput
+                            size="xl"
+                            value={email}
+                            onUpdate={(val) => setEmail(val)}
+                            type="email"
+                            placeholder="Email для чека"
+                            validationState={emailValid ? undefined : 'invalid'}
+                        />
+                        <Button
+                            disabled={!emailValid}
+                            width="max"
+                            size="xl"
+                            pin="circle-circle"
+                            view="outlined-action"
+                            onClick={handleQrPay}
+                        >
+                            Оплатить
+                        </Button>
+                        <Button
+                            width="max"
+                            size="xl"
+                            pin="circle-circle"
+                            view="flat"
+                            onClick={() => {
+                                setIsQrPay(false);
+                                setQrGenerating(false);
+                            }}
+                        >
+                            Отмена
+                        </Button>
+                    </motion.div>
+                    <motion.div
+                        animate={{maxHeight: isQrPay ? 0 : 100}}
+                        style={{
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                            gap: 12,
+                            maxHeight: 100,
+                        }}
+                    >
+                        <Button
+                            size="xl"
+                            width="max"
+                            pin="circle-circle"
+                            view="outlined-action"
+                            onClick={() => setIsQrPay(true)}
+                        >
+                            <Icon data={QrCode} />
+                            Оплатить по QR
+                        </Button>
+                        <Button
+                            size="xl"
+                            width="max"
+                            pin="circle-circle"
+                            view="flat"
+                            href={'https://t.me/AurumSkyNetSupportBot'}
+                            target={'_blank'}
+                        >
+                            <Icon data={Receipt} />
+                            Запросить счет
+                        </Button>
+                    </motion.div>
+                </div>
+            </ModalWindow>
+        </>
+    );
+};
