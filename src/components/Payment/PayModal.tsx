@@ -94,7 +94,7 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                     <Text>Подписка для магазина {name}</Text>
                     <motion.div
                         animate={{
-                            maxHeight: qrGenerating ? 540 : 0,
+                            maxHeight: qrGenerating ? 500 : 0,
                             height: qrGenerating ? 'calc(100vw - 70px)' : 0,
                             opacity: qrGenerating ? 1 : 0,
                         }}
@@ -103,7 +103,7 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                             display: 'flex',
                             flexDirection: 'column',
                             width: 'calc(100vw - 70px)',
-                            maxWidth: 540,
+                            maxWidth: 500,
                             justifyContent: 'center',
                             maxHeight: 0,
                             opacity: 0,
@@ -132,7 +132,7 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                             display: 'flex',
                             flexDirection: 'column',
                             width: 'calc(100vw - 70px)',
-                            maxWidth: 540,
+                            maxWidth: 500,
                             justifyContent: 'center',
                             gap: 12,
                             maxHeight: 0,
@@ -140,6 +140,8 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                         }}
                     >
                         <TextInput
+                            autoComplete
+                            name="email"
                             size="xl"
                             value={email}
                             onUpdate={(val) => setEmail(val)}
