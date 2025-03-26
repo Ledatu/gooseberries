@@ -191,9 +191,13 @@ export const PayModal = ({children, sellerId, name, setUpdate}: PayModalInterfac
                         >
                             <Text>К оплате:</Text>
                             <Text>{defaultRender({value: tariff?.toPay})} ₽</Text>
-                            <Text color="secondary" style={{textDecoration: 'line-through'}}>
-                                {defaultRender({value: tariff?.initial})} ₽
-                            </Text>
+                            {tariff?.toPay != tariff?.initial ? (
+                                <Text color="secondary" style={{textDecoration: 'line-through'}}>
+                                    {defaultRender({value: tariff?.initial})} ₽
+                                </Text>
+                            ) : (
+                                <></>
+                            )}
                         </motion.div>
                     ) : (
                         <></>

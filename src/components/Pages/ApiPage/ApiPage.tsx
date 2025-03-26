@@ -175,7 +175,7 @@ export const ApiPage = () => {
                         const is10DaysOrLess =
                             new Date(row?.subscriptionUntil ?? '1970-01-01').getTime() -
                                 Date.now() <
-                                86400 * 10 * 1000 || true;
+                            86400 * 10 * 1000;
                         return (
                             <div
                                 style={{

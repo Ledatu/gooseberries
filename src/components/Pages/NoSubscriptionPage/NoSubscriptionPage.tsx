@@ -1,15 +1,21 @@
 'use client';
 
 import {Button, Icon, Text} from '@gravity-ui/uikit';
-import {useEffect} from 'react';
+import {useEffect, useMemo} from 'react';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {LogoLoad} from '@/components/logoLoad';
 import {QrCode} from '@gravity-ui/icons';
 import {PayModal} from '@/components/Payment/PayModal';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
+import {useUser} from '@/components/RequireAuth';
 
 export const NoSubscriptionPage = () => {
     const isMobile = useMediaQuery('(max-width: 768px)');
+
+    const {userInfo} = useUser();
+    const {user} = userInfo;
+
+    const admin = useMemo(() => [1122958293, 933839157, 438907355].includes(user?._id), [user]);
 
     const {setSwitchingCampaignsFlag, sellerId, selectValue} = useCampaign();
     useEffect(() => {
@@ -51,12 +57,16 @@ export const NoSubscriptionPage = () => {
                 </Text>
                 <br />
                 <br />
-                <PayModal sellerId={sellerId} name={selectValue[0]}>
-                    <Button pin="circle-circle" view="action" size="xl">
-                        <Icon data={QrCode} />
-                        Оплатить подписку
-                    </Button>
-                </PayModal>
+                {admin ? (
+                    <PayModal sellerId={sellerId} name={selectValue[0]}>
+                        <Button pin="circle-circle" view="action" size="xl">
+                            <Icon data={QrCode} />
+                            Оплатить подписку
+                        </Button>
+                    </PayModal>
+                ) : (
+                    <></>
+                )}
                 <br />
                 <br />
             </div>
