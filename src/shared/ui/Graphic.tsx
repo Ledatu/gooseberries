@@ -30,7 +30,7 @@ const timeToHHMM = (date: Date): string => {
 export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors = {}}) => {
     const formattedData = data.map((item) => ({
         ...item,
-        'Дата и время': timeToHHMM(new Date(item["Дата и время"]))
+        'Дата и время': timeToHHMM(new Date(item['Дата и время'])),
     }));
 
     const calculateCategories = (): string[] => {
@@ -42,17 +42,56 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
 
     const chartData = {
         labels: formattedData.map((item) => item['Дата и время']),
-        datasets: categories.map((category, index) => ({
-            label: category,
-            // @ts-ignore
-            data: formattedData.map((item) => Number(+item[category])),
-            borderColor: colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
-            backgroundColor: colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
-            yAxisID: yAxes.includes(category) ? `y${index + 1}` : 'y',
-            tension: 0,
-            pointRadius: 0,
-            borderWidth: 2,
-        })),
+        datasets: categories.map((category, index) => {
+            const filteredData = formattedData.map((item) => {
+                const value = Number(+item[category]);
+                return value === 0 ? NaN : value;
+            });
+
+            return {
+                label: category,
+                data: filteredData,
+                borderColor:
+                    colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
+                backgroundColor:
+                    colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
+                yAxisID: yAxes.includes(category) ? `y${index + 1}` : 'y',
+                tension: 0,
+                pointRadius: 0,
+                borderWidth: 2,
+                spanGaps: true,
+                hidden: false, // Добавляем начальное состояние видимости
+            };
+        }),
+    };
+
+    const hideLineOnClickPlugin = {
+        id: 'hideLineOnClick',
+        beforeEvent(chart: any, args: any) {
+            const event = args.event;
+            if (event.type === 'click') {
+                // Получаем элементы под курсором
+                const elements = chart.getElementsAtEventForMode(
+                    event,
+                    'nearest',
+                    {intersect: true},
+                    false,
+                );
+
+                if (elements.length > 0) {
+                    const element = elements[0];
+                    const datasetIndex = element.datasetIndex;
+                    const meta = chart.getDatasetMeta(datasetIndex);
+
+                    // Переключаем видимость
+                    meta.hidden =
+                        meta.hidden === null ? !chart.data.datasets[datasetIndex].hidden : null;
+
+                    // Обновляем chart
+                    chart.update();
+                }
+            }
+        },
     };
 
     const options = {
@@ -80,7 +119,7 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
                     color: 'rgba(255, 255, 255, 0.1)',
                 },
             },
-            ...(categories.length > yAxes.length  && {
+            ...(categories.length > yAxes.length && {
                 y: {
                     type: 'linear' as const,
                     display: true,
@@ -95,30 +134,30 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
             }),
             ...(yAxes.length > 0
                 ? categories.reduce(
-                    (acc, category, index) => {
-                        if (yAxes.includes(category)) {
-                            acc[`y${index + 1}`] = {
-                                type: 'linear' as const,
-                                display: true,
-                                position: index % 2 === 0 ? 'left' : 'right',
-                                title: {
-                                    display: true,
-                                    text: category,
-                                    color: '#ffffff',
-                                },
-                                ticks: {
-                                    color: '#ffffff',
-                                },
-                                grid: {
-                                    drawOnChartArea: index === 0,
-                                    color: 'rgba(255, 255, 255, 0.1)',
-                                },
-                            };
-                        }
-                        return acc;
-                    },
-                    {} as Record<string, any>,
-                )
+                      (acc, category, index) => {
+                          if (yAxes.includes(category)) {
+                              acc[`y${index + 1}`] = {
+                                  type: 'linear' as const,
+                                  display: true,
+                                  position: index % 2 === 0 ? 'left' : 'right',
+                                  title: {
+                                      display: true,
+                                      text: category,
+                                      color: '#ffffff',
+                                  },
+                                  ticks: {
+                                      color: '#ffffff',
+                                  },
+                                  grid: {
+                                      drawOnChartArea: index === 0,
+                                      color: 'rgba(255, 255, 255, 0.1)',
+                                  },
+                              };
+                          }
+                          return acc;
+                      },
+                      {} as Record<string, any>,
+                  )
                 : {}),
         },
         plugins: {
@@ -134,23 +173,15 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
                         size: 12,
                         weight: 'normal',
                     },
-                    generateLabels: (chart: any) => {
-                        const { data } = chart;
-                        if (data.labels.length && data.datasets.length) {
-                            return data.datasets.map((dataset: any, i: number) => ({
-                                text: dataset.label,
-                                fillStyle: dataset.borderColor,
-                                strokeStyle: dataset.borderColor,
-                                lineWidth: 2,
-                                pointStyle: 'circle',
-                                hidden: !chart.isDatasetVisible(i),
-                                index: i,
-                                fontColor: '#ffffff',
-                                color: '#ffffff',
-                            }));
-                        }
-                        return [];
-                    },
+                },
+                onClick: (e: any, legendItem: any, legend: any) => {
+                    const index = legendItem.datasetIndex;
+                    const chart = legend.chart;
+                    const meta = chart.getDatasetMeta(index);
+
+                    meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+
+                    chart.update();
                 },
             },
             tooltip: {
@@ -158,7 +189,7 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
                     label: (context: any) => {
                         const label = context.dataset.label || '';
                         const value = context.raw;
-                        return `${label}: ${value}`;
+                        return isNaN(value) ? `${label}: N/A` : `${label}: ${value}`;
                     },
                 },
                 titleColor: '#ffffff',
@@ -172,11 +203,15 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
     };
 
     return (
-        <div className={cn('w-full h-full', className)} style={{ height: '100%', minHeight: '400px' }}>
+        <div
+            className={cn('w-full h-full', className)}
+            style={{height: '100%', minHeight: '400px'}}
+        >
             <Line
                 data={chartData}
                 options={options as any}
-                style={{ width: '100%', height: '100%' }}
+                style={{width: '100%', height: '100%'}}
+                plugins={[hideLineOnClickPlugin]}
             />
         </div>
     );
