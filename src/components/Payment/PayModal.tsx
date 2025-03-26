@@ -1,6 +1,6 @@
 import {ModalWindow} from '@/shared/ui/Modal';
 import {QrCode, Receipt} from '@gravity-ui/icons';
-import {Button, Card, Icon, Loader, Text, TextInput} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Link, Loader, Text, TextInput} from '@gravity-ui/uikit';
 import {
     Children,
     cloneElement,
@@ -14,6 +14,7 @@ import {motion} from 'framer-motion';
 import {useUser} from '../RequireAuth';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
+import {useMediaQuery} from '@/hooks/useMediaQuery';
 
 interface PayModalInterface {
     children: any;
@@ -22,6 +23,7 @@ interface PayModalInterface {
 }
 
 export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
+    const isMobile = useMediaQuery('(max-width: 768px)');
     const {showError} = useError();
     const {userInfo, refetchUser} = useUser();
     const {user} = userInfo;
@@ -29,7 +31,7 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
     const [open, setOpen] = useState(false);
     const [isQrPay, setIsQrPay] = useState(false);
 
-    const [_qr, _setQr] = useState({image: '', payload: ''});
+    const [qr, setQr] = useState({} as any);
     const [qrGenerating, setQrGenerating] = useState(false);
 
     const [email, setEmail] = useState(user?.email ?? '');
@@ -42,9 +44,15 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
             );
     }, [email]);
 
+    useEffect(() => {
+        if (!qr?.payload || !isMobile) return;
+        window.location.href = qr?.payload;
+    }, [qr]);
+
     const handleOpen = () => {
         setOpen(true);
         setIsQrPay(false);
+        setQrGenerating(false);
     };
     const handleClose = () => setOpen(false);
 
@@ -55,6 +63,12 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                 refetchUser();
             }
             setQrGenerating(true);
+            const response = await ApiClient.post('campaigns/get-dynamic-qr', {
+                seller_id: sellerId,
+                email,
+            });
+            if (!response || !response?.data) throw new Error('No QR!');
+            setQr(response?.data);
         } catch (error: any) {
             console.error(new Date(), 'error', error);
             showError(error?.response?.data?.error || 'Возникла ошибка');
@@ -119,7 +133,13 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                                 width: '100%',
                             }}
                         >
-                            {_qr?.image?.length ? <></> : <Loader size="l" />}
+                            {qr?.qrcId ? (
+                                <Link href={qr?.payload} target="_blank">
+                                    {qr?.payload}
+                                </Link>
+                            ) : (
+                                <Loader size="l" />
+                            )}
                         </Card>
                     </motion.div>
                     <motion.div
