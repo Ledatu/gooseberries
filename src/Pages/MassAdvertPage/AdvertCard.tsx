@@ -729,6 +729,15 @@ export const AdvertCard = ({
                                     return {} as YagrWidgetData;
                                 }
                             }}
+                            colors={{
+                                Ставка: '#5fb8a5',
+                                Выдача: '#4aa1f2',
+                                'Позиция в аукционе': '#9a63d1',
+                                'Органическая позиция': '#708da6',
+                                Заказы: '#E91E63',
+                                Расход: '#FF7043',
+                                ДРР: '#B2FF59',
+                            }}
                         >
                             <Button pin="round-brick" size="xs" view="flat">
                                 <Icon data={ChartAreaStacked} size={11} />

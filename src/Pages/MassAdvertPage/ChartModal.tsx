@@ -3,7 +3,7 @@
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {Card, Loader, Modal} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
-import {Children, isValidElement, ReactElement, useState, cloneElement} from 'react';
+import {Children, isValidElement, ReactElement, useState, cloneElement, FC} from 'react';
 import {Graphic} from '@/shared/ui/Graphic';
 
 interface ChartModalInterface {
@@ -11,9 +11,18 @@ interface ChartModalInterface {
     data?: YagrWidgetData;
     fetchingFunction?: () => Promise<YagrWidgetData>;
     addTime?: boolean;
+    colors?: Record<string, string>;
+    extraYAxes?: string[];
 }
 
-export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartModalInterface) => {
+export const ChartModal: FC<ChartModalInterface> = ({
+    children,
+    data,
+    fetchingFunction,
+    addTime,
+    extraYAxes,
+    colors,
+}) => {
     const [open, setOpen] = useState(false);
     const [dataFetching, setDataFetching] = useState(false);
     const [yagrData, setYagrData] = useState<YagrWidgetData | null>(data ?? null);
@@ -102,6 +111,7 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
                         overflow: 'auto',
                         display: 'flex',
                         position: 'relative',
+                        backdropFilter: 'blur(48px)',
                     }}
                 >
                     <motion.div
@@ -130,9 +140,10 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
                     >
                         {yagrData ? (
                             <Graphic
+                                className={'p-5'}
                                 data={calculateGraphicData()}
-                                yAxes={['Баланс', 'Расход', "Ставка", "ДРР"]}
-                                colors={{Баланс: '#ffff00'}}
+                                yAxes={extraYAxes}
+                                colors={colors}
                             />
                         ) : (
                             <p>No data available.</p>

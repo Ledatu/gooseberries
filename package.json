@@ -29,6 +29,7 @@
     "axios": "^1.7.9",
     "bem-cn-lite": "^4.1.0",
     "chart.js": "^4.4.8",
+    "chartjs-plugin-zoom": "^2.2.0",
     "clsx": "^2.1.1",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react-hooks": "^5.1.0",
