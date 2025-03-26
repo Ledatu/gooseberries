@@ -1,6 +1,6 @@
 import {ModalWindow} from '@/shared/ui/Modal';
 import {QrCode, Receipt} from '@gravity-ui/icons';
-import {Button, Card, Icon, Link, Loader, Text, TextInput} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Loader, Text, TextInput} from '@gravity-ui/uikit';
 import {
     Children,
     cloneElement,
@@ -44,10 +44,28 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
             );
     }, [email]);
 
+    const [qrSrc, setQrSrc] = useState('');
+
     useEffect(() => {
+        if (!qr?.qrcId) return;
+        getBase64Img();
         if (!qr?.payload || !isMobile) return;
         window.location.href = qr?.payload;
     }, [qr]);
+
+    const getBase64Img = async () => {
+        try {
+            const response = await ApiClient.post('campaigns/get-qr-img', {
+                qrcId: qr?.qrcId,
+            });
+            if (!response || !response?.data) throw new Error('No QR!');
+            setQrSrc('data:image/png;base64,' + (response?.data ?? ''));
+            console.log('data:image/png;base64,' + (response?.data ?? ''));
+        } catch (error: any) {
+            console.error(new Date(), 'error', error);
+            showError(error?.response?.data?.error || 'Возникла ошибка');
+        }
+    };
 
     const handleOpen = () => {
         setOpen(true);
@@ -133,13 +151,7 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                                 width: '100%',
                             }}
                         >
-                            {qr?.qrcId ? (
-                                <Link href={qr?.payload} target="_blank">
-                                    {qr?.payload}
-                                </Link>
-                            ) : (
-                                <Loader size="l" />
-                            )}
+                            {qr?.qrcId && qrSrc.length ? <img src={qrSrc} /> : <Loader size="l" />}
                         </Card>
                     </motion.div>
                     <motion.div
