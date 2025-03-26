@@ -248,25 +248,21 @@ export const ApiPage = () => {
                                         <></>
                                     )}
                                 </div>
-                                {admin ? (
-                                    <PayModal
-                                        sellerId={row?.seller_id}
-                                        name={row?.name}
-                                        setUpdate={setUpdate}
+                                <PayModal
+                                    sellerId={row?.seller_id}
+                                    name={row?.name}
+                                    setUpdate={setUpdate}
+                                >
+                                    <Button
+                                        disabled={!is10DaysOrLess}
+                                        pin="circle-circle"
+                                        view="flat"
+                                        size="l"
                                     >
-                                        <Button
-                                            disabled={!is10DaysOrLess}
-                                            pin="circle-circle"
-                                            view="flat"
-                                            size="l"
-                                        >
-                                            <Icon data={QrCode} />
-                                            Оплатить подписку
-                                        </Button>
-                                    </PayModal>
-                                ) : (
-                                    <></>
-                                )}
+                                        <Icon data={QrCode} />
+                                        Оплатить подписку
+                                    </Button>
+                                </PayModal>
                             </div>
                         );
                     },

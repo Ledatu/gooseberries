@@ -76,7 +76,7 @@ export const PayModal = ({children, sellerId, name, setUpdate}: PayModalInterfac
     useEffect(() => {
         if (!sellerId) return;
         getSubscriptionTariff();
-    }, [sellerId]);
+    }, [sellerId, qr]);
 
     const checkSubscription = async () => {
         try {
