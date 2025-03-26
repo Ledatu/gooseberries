@@ -1,6 +1,6 @@
 import {ModalWindow} from '@/shared/ui/Modal';
 import {QrCode, Receipt} from '@gravity-ui/icons';
-import {Button, Card, Icon, Loader, Text, TextInput} from '@gravity-ui/uikit';
+import {Button, Card, Icon, Loader, Spin, Text, TextInput} from '@gravity-ui/uikit';
 import {
     Children,
     cloneElement,
@@ -15,14 +15,16 @@ import {useUser} from '../RequireAuth';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
+import {defaultRender} from '@/utilities/getRoundValue';
 
 interface PayModalInterface {
     children: any;
     sellerId: string;
     name: string;
+    setUpdate?: Function;
 }
 
-export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
+export const PayModal = ({children, sellerId, name, setUpdate}: PayModalInterface) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const {showError} = useError();
     const {userInfo, refetchUser} = useUser();
@@ -53,6 +55,58 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
         window.location.href = qr?.payload;
     }, [qr]);
 
+    const [checkingSubscription, setCheckingSubscription] = useState(false);
+
+    const [tariff, setTariff] = useState({} as any);
+
+    const getSubscriptionTariff = async () => {
+        try {
+            const response = await ApiClient.post('campaigns/get-subscription-tarif', {
+                seller_id: sellerId,
+            });
+            if (!response || !response?.data) return;
+
+            setTariff(response?.data);
+        } catch (error: any) {
+            console.error(new Date(), 'error', error);
+            showError(error?.response?.data?.error || 'Возникла ошибка');
+        }
+    };
+
+    useEffect(() => {
+        if (!sellerId) return;
+        getSubscriptionTariff();
+    }, [sellerId]);
+
+    const checkSubscription = async () => {
+        try {
+            if (!checkingSubscription) setCheckingSubscription(true);
+            const response = await ApiClient.post('campaigns/get-qr-subscription', {
+                qrcId: qr?.qrcId,
+            });
+            if (!response || !response?.data) return;
+
+            refetchUser();
+            handleClose();
+            if (setUpdate) setUpdate(true);
+        } catch (error: any) {
+            console.error(new Date(), 'error', error);
+            showError(error?.response?.data?.error || 'Возникла ошибка');
+        }
+    };
+
+    useEffect(() => {
+        if (qr?.qrcId !== undefined) {
+            const interval = setInterval(() => {
+                checkSubscription();
+            }, 20 * 1000);
+
+            return () => clearInterval(interval);
+        }
+
+        return undefined;
+    }, [qr]);
+
     const getBase64Img = async () => {
         try {
             const response = await ApiClient.post('campaigns/get-qr-img', {
@@ -60,7 +114,6 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
             });
             if (!response || !response?.data) throw new Error('No QR!');
             setQrSrc('data:image/png;base64,' + (response?.data ?? ''));
-            console.log('data:image/png;base64,' + (response?.data ?? ''));
         } catch (error: any) {
             console.error(new Date(), 'error', error);
             showError(error?.response?.data?.error || 'Возникла ошибка');
@@ -76,6 +129,7 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
 
     const handleQrPay = async () => {
         try {
+            if (qrGenerating) return;
             if (user?.email != email) {
                 await ApiClient.post('auth/set-email', {email});
                 refetchUser();
@@ -124,6 +178,26 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                 >
                     <Text variant="header-1">Подписка на сервис AURUMSKYNET на 30 дней.</Text>
                     <Text>Подписка для магазина {name}</Text>
+                    {tariff?.initial !== undefined ? (
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 4,
+                            }}
+                        >
+                            <Text>К оплате:</Text>
+                            <Text>{defaultRender({value: tariff?.toPay})} ₽</Text>
+                            <Text color="secondary" style={{textDecoration: 'line-through'}}>
+                                {defaultRender({value: tariff?.initial})} ₽
+                            </Text>
+                        </motion.div>
+                    ) : (
+                        <></>
+                    )}
                     <motion.div
                         animate={{
                             maxHeight: qrGenerating ? 500 : 0,
@@ -181,16 +255,36 @@ export const PayModal = ({children, sellerId, name}: PayModalInterface) => {
                             placeholder="Email для чека"
                             validationState={emailValid ? undefined : 'invalid'}
                         />
-                        <Button
-                            disabled={!emailValid}
-                            width="max"
-                            size="xl"
-                            pin="circle-circle"
-                            view="outlined-action"
-                            onClick={handleQrPay}
-                        >
-                            Оплатить
-                        </Button>
+
+                        <motion.div exit={{opacity: 0}}>
+                            <Button
+                                disabled={!emailValid}
+                                width="max"
+                                size="xl"
+                                pin="circle-circle"
+                                view="outlined-action"
+                                onClick={handleQrPay}
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        gap: 8,
+                                        alignItems: 'center',
+                                        width: '100%',
+                                    }}
+                                >
+                                    {checkingSubscription && qrGenerating
+                                        ? 'Ожидаем оплату'
+                                        : 'Оплатить'}
+                                    {checkingSubscription && qrGenerating ? (
+                                        <Spin size="xs" />
+                                    ) : (
+                                        <></>
+                                    )}
+                                </div>
+                            </Button>
+                        </motion.div>
                         <Button
                             width="max"
                             size="xl"

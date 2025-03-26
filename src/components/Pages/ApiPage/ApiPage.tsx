@@ -249,7 +249,11 @@ export const ApiPage = () => {
                                     )}
                                 </div>
                                 {admin ? (
-                                    <PayModal sellerId={row?.seller_id} name={row?.name}>
+                                    <PayModal
+                                        sellerId={row?.seller_id}
+                                        name={row?.name}
+                                        setUpdate={setUpdate}
+                                    >
                                         <Button
                                             disabled={!is10DaysOrLess}
                                             pin="circle-circle"
