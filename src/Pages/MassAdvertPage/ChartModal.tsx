@@ -145,6 +145,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
                                 data={calculateGraphicData()}
                                 yAxes={extraYAxes}
                                 colors={colors}
+                                removedEntities={['CR']}
                             />
                         ) : (
                             <p>No data available.</p>

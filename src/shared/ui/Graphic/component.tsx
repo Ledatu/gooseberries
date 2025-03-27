@@ -19,12 +19,30 @@ interface GraphicProps {
     className?: string;
     yAxes?: string[];
     colors?: Record<string, string>;
+    removedEntities?: string[];
 }
 
-export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors = {}}) => {
+export const Graphic: FC<GraphicProps> = ({
+    data,
+    className,
+    yAxes = [],
+    colors,
+    removedEntities = [],
+}) => {
     const chartRef = useRef<any>(null);
 
-    const chartData = formatChartData(data, yAxes, colors);
+    // Фильтруем данные, исключая removedEntities
+    const filteredData = data.map((item) => {
+        const filteredItem: Record<string, number | string> = {};
+        for (const key in item) {
+            if (!removedEntities.includes(key)) {
+                filteredItem[key] = item[key];
+            }
+        }
+        return filteredItem;
+    });
+
+    const chartData = formatChartData(filteredData, yAxes, colors);
     const categories: string[] = chartData.datasets.map((dataset) => dataset.label);
 
     const options = {
