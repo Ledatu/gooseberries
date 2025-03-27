@@ -22,6 +22,26 @@ interface GraphicProps {
     removedEntities?: string[];
 }
 
+/**
+ * Компонент для отображения линейного графика с возможностью масштабирования и настройки.
+ *
+ * param {Object} props - Свойства компонента.
+ *
+ * props.data: Record<string, number | string>[] - Данные для отображения на графике.
+ *        Каждый элемент массива представляет собой объект с данными для конкретного момента времени.
+ *        Ключи объекта - названия сущностей, значения - соответствующие значения.
+ *
+ * props.className: string - Дополнительные CSS-классы для контейнера графика.
+ *
+ * props.yAxes: string[] - Массив названий сущностей, для которых нужно создать
+ *        отдельные оси Y. Если не указано, все сущности будут отображаться на одной оси.
+ *
+ * props.colors: Record<string, string> - Объект с цветами для линий разных сущностей.
+ *        Ключи - названия сущностей, значения - цвет в формате CSS (hex, rgb, или название).
+ *
+ * props.removedEntities: string[] - Массив названий сущностей, которые нужно
+ *        исключить из отображения на графике.
+ */
 export const Graphic: FC<GraphicProps> = ({
     data,
     className,
@@ -31,7 +51,6 @@ export const Graphic: FC<GraphicProps> = ({
 }) => {
     const chartRef = useRef<any>(null);
 
-    // Фильтруем данные, исключая removedEntities
     const filteredData = data.map((item) => {
         const filteredItem: Record<string, number | string> = {};
         for (const key in item) {
