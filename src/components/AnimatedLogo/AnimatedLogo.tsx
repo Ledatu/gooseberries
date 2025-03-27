@@ -1,6 +1,12 @@
-export const LogoLoad = () => {
-    return (
+import {motion} from 'framer-motion';
 
+export const AnimatedLogo = () => {
+    return (
+        <motion.div
+            initial={{opacity: 0, scale: 0}}
+            animate={{opacity: 1, scale: 1}}
+            exit={{opacity: 0, scale: 0}}
+        >
             <svg
                 id="logo"
                 width="300"
@@ -49,5 +55,6 @@ export const LogoLoad = () => {
                     </clipPath>
                 </defs>
             </svg>
+        </motion.div>
     );
 };

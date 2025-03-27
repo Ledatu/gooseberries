@@ -1,0 +1,1 @@
+export { FixedPhrasesTab } from "./FixedPhrasesTab";
