@@ -52,7 +52,8 @@ export const createScalesConfig = (categories: string[], yAxes: string[]) => {
         x: DEFAULT_X_AXIS_CONFIG,
     };
 
-    if (categories.length > yAxes.length) {
+    const hasNonAxisCategories = categories.some((category) => !yAxes.includes(category));
+    if (hasNonAxisCategories) {
         scales.y = {
             type: 'linear' as const,
             display: true,
@@ -67,7 +68,10 @@ export const createScalesConfig = (categories: string[], yAxes: string[]) => {
     }
 
     yAxes.forEach((category, index) => {
-        scales[`y${index + 1}`] = {
+        const axisKey =
+            categories.length >= yAxes.length && yAxes.length === 1 ? 'y' : `y${index + 1}`;
+
+        scales[axisKey] = {
             type: 'linear' as const,
             display: true,
             position: index % 2 === 0 ? 'left' : 'right',

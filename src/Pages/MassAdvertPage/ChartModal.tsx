@@ -136,6 +136,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
                             cursor: 'default',
                             width: '100%',
                             height: '100%',
+                            backdropFilter: 'blur(48px)',
                         }}
                     >
                         {yagrData ? (

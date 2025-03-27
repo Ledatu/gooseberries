@@ -1,4 +1,4 @@
-import {FC, useRef, useState} from 'react';
+import {FC, useRef} from 'react';
 import {Line} from 'react-chartjs-2';
 import {cn} from '@/lib/cn';
 import zoomPlugin from 'chartjs-plugin-zoom';
@@ -23,7 +23,6 @@ interface GraphicProps {
 
 export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors = {}}) => {
     const chartRef = useRef<any>(null);
-    const [isZoomed, setIsZoomed] = useState<boolean>(false);
 
     const chartData = formatChartData(data, yAxes, colors);
     const categories: string[] = chartData.datasets.map((dataset) => dataset.label);
@@ -44,49 +43,41 @@ export const Graphic: FC<GraphicProps> = ({data, className, yAxes = [], colors =
                 },
             },
             tooltip: DEFAULT_TOOLTIP_CONFIG,
-            zoom: {
-                ...ZOOM_CONFIG,
-                onZoomComplete: ({chart}: {chart: any}) => {
-                    console.log(chart);
-                    const zoomScale = chart.getZoomLevel();
-                    setIsZoomed(zoomScale !== 1); // Если масштаб не равен 1, значит есть зум
-                },
-                onPanComplete: ({chart}: {chart: any}) => {
-                    console.log(chart);
-                    const zoomScale = chart.getZoomLevel();
-                    setIsZoomed(zoomScale !== 1);
-                },
-            },
+            zoom: ZOOM_CONFIG,
         },
     };
 
     const handleResetZoom = () => {
         if (chartRef.current) {
             chartRef.current.resetZoom();
-            setIsZoomed(false);
         }
     };
 
     return (
         <div
             className={cn('w-full h-full relative', className)}
-            style={{height: '100%', minHeight: '400px'}}
+            style={{
+                height: '45em',
+                backdropFilter: 'blur(48px)',
+                display: 'flex',
+                flexDirection: 'column',
+            }}
         >
-            {isZoomed && (
-                <button
-                    onClick={handleResetZoom}
-                    className="absolute top-2 right-2 bg-gray-800 text-white px-3 py-1 rounded text-sm z-10 hover:bg-gray-700 transition-colors"
-                >
-                    Сбросить масштаб
-                </button>
-            )}
-            <Line
-                ref={chartRef}
-                data={chartData}
-                options={options as any} // TODO: make normal types
-                style={{width: '100%', height: '100%'}}
-                plugins={[hideLineOnClickPlugin]}
-            />
+            <button
+                onClick={handleResetZoom}
+                className="absolute top-2 opacity-70 right-2 bg-gray-800 text-white px-3 py-1 rounded text-sm z-10 hover:bg-gray-700 transition-colors"
+            >
+                Сбросить масштаб
+            </button>
+            <div style={{flex: 1, position: 'relative'}}>
+                <Line
+                    ref={chartRef}
+                    data={chartData}
+                    options={options as any}
+                    plugins={[hideLineOnClickPlugin]}
+                    style={{width: '100%', height: '100%'}}
+                />
+            </div>
         </div>
     );
 };
