@@ -14,15 +14,17 @@ import React, {
 import ApiClient from '@/utilities/ApiClient';
 import {ModalWindow} from '@/shared/ui/Modal';
 import TheTable, {compare} from '@/components/TheTable';
-import {getRoundValue} from '@/utilities/getRoundValue';
+import {getRoundValue, renderAsPercent} from '@/utilities/getRoundValue';
+import {HelpMark} from '@/components/Popups/HelpMark';
 
 interface AuctionProps {
     sellerId: string;
     phrase: any;
     children: any;
+    nmId: number;
 }
 
-export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
+export const Auction = ({children, sellerId, phrase, nmId}: AuctionProps) => {
     const initialTheme: string = useTheme();
 
     const auctionOptions: any[] = [
@@ -51,6 +53,27 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
         }
     }, [open]);
 
+    const [monthNmAd, setMonthNmAd] = useState({} as any);
+    const getMonthNmAd = async () => {
+        if (!open) return;
+        try {
+            const response = await ApiClient.post('massAdvert/get-month-nm-ad-stat', {
+                seller_id: sellerId,
+                nmId,
+            });
+
+            const {data} = response ?? {};
+
+            setMonthNmAd(data ?? {cr: 0, avgCost: 0});
+        } catch (error) {
+            console.error('error getMonthNmAd', error);
+        }
+    };
+
+    useEffect(() => {
+        getMonthNmAd();
+    }, [sellerId, nmId, open]);
+
     const getAuction = useCallback(async () => {
         if (!open) return;
 
@@ -72,7 +95,7 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
 
     useEffect(() => {
         filterTableData(filters, auction);
-    }, [auction, filters]);
+    }, [auction, filters, monthNmAd]);
 
     const filterByButton = (val: any, key = 'nmId', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
@@ -111,6 +134,22 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
                     </Button>
                 );
             },
+        },
+        {
+            placeholder: (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: 8,
+                    }}
+                >
+                    <Text variant="subheader-1">Прогноз. ДРР%</Text>
+                    <HelpMark content="Расчет произведен на основе статистики артикула по конверсии из показа в заказ и среднему чеку за последние 30 дней." />
+                </div>
+            ),
+            name: 'calcDrr',
+            render: renderAsPercent,
         },
         {
             placeholder: 'Позиция',
@@ -213,6 +252,14 @@ export const Auction = ({children, sellerId, phrase}: AuctionProps) => {
 
             tempTypeRow.boost =
                 (tempTypeRow?.position ?? 0) - (tempTypeRow?.promoPosition ?? 0) + 2;
+
+            if (tempTypeRow.cpm !== undefined) {
+                const calculatedCPO = Math.round(
+                    (tempTypeRow.cpm ?? 0) / (monthNmAd?.cr ?? 0) / 10,
+                );
+                const calcDrr = getRoundValue(calculatedCPO, monthNmAd?.avgCost ?? 0, true);
+                tempTypeRow.calcDrr = calcDrr;
+            }
 
             if (addFlag) {
                 temp.push(tempTypeRow);

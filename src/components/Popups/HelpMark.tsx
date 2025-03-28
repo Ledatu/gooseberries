@@ -1,10 +1,10 @@
-import { CircleQuestion } from "@gravity-ui/icons"
-import { Icon, Popover } from "@gravity-ui/uikit"
-
+import {CircleQuestion} from '@gravity-ui/icons';
+import {ActionTooltip, Icon} from '@gravity-ui/uikit';
 
 export const HelpMark = ({content, placement}: any) => {
-return <Popover style={{padding: '8px'}} content={content}
-		placement={placement}>
-		<Icon data={CircleQuestion}/>
-		</Popover>
-}
+    return (
+        <ActionTooltip style={{padding: '8px'}} title={content} placement={placement}>
+            <Icon data={CircleQuestion} />
+        </ActionTooltip>
+    );
+};
