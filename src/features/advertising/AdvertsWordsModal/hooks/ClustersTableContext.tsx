@@ -59,19 +59,6 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
     return summaryData;
 };
 
-const notDzhem = [
-    'clicks',
-    'ctr',
-    'cpc',
-    'cluster',
-    'clicks',
-    'views',
-    'presets',
-    'totalFrequency',
-    'preset',
-    'totalSum',
-];
-
 export const useClustersTableContext = (columns: ColumnData[]): ClustersTableContext => {
     const {stats} = useAdvertsWordsModal();
     const [data, setData] = useState(stats);
@@ -82,19 +69,18 @@ export const useClustersTableContext = (columns: ColumnData[]): ClustersTableCon
     useEffect(() => {
         setFooter(calcFooter(data));
     }, [data]);
-    const [columnsData, setColumnsData] = useState(columns);
     const [showDzhem, setShowDzhem] = useState(true);
 
-    useEffect(() => {
-        showDzhem
-            ? setColumnsData(columns)
-            : setColumnsData(columns.filter((column) => notDzhem.includes(column.name)));
-    }, [showDzhem]);
+    // useEffect(() => {
+    //     showDzhem
+    //         ? setColumnsData(columns)
+    //         : setColumnsData(columns.filter((column) => notDzhem.includes(column.name)));
+    // }, [showDzhem, columns]);
 
     return {
         footerData: footer,
         data: data,
-        columns: columnsData,
+        columns: columns,
         showDzhem: showDzhem,
         setShowDzhem: setShowDzhem,
     };

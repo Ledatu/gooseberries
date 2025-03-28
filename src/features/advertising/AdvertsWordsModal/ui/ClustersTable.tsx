@@ -30,6 +30,8 @@ export const ClustersTable = () => {
         startAdvert,
         setDates,
         dates,
+        selectedPhrase,
+        updateSelectedPhrase,
     } = useAdvertsWordsModal();
     const columnData: ColumnData[] = [
         {
@@ -65,6 +67,7 @@ export const ClustersTable = () => {
                 const [isExcludedByMinus, setIsExcludedByMinus] = useState<boolean>(
                     template.phrasesExcludedByMinus.includes(value),
                 );
+                const isSelectedPhrase = selectedPhrase == value;
                 const handlePlusButton = (value: string) => {
                     if (isSelectedByPlus) {
                         advertWordsTemplateHandler.deletePhrasesSelectedByPlus(value);
@@ -115,8 +118,10 @@ export const ClustersTable = () => {
                                 </Button>
                                 <Button
                                     size="xs"
-                                    // view={isSelected ? 'outlined-success' : 'outlined'}
-                                    // onClick={(event) => {}}
+                                    view={isSelectedPhrase ? 'outlined-success' : 'outlined'}
+                                    onClick={() => {
+                                        updateSelectedPhrase(value);
+                                    }}
                                 >
                                     <Icon data={ArrowShapeUp} />
                                 </Button>

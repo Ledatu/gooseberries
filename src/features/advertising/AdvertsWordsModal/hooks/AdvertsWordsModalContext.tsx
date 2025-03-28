@@ -8,6 +8,8 @@ import {fetchAutoPhrasesTemplate} from '../api/fetchAutoPhrasesTemplate';
 import {getTemplateNames} from '../api/getTemplatesNames';
 import {changeTemplateNameOfAdvert} from '../api/changeTemplateNameOfAdvert';
 import {changeTemplateOfAdvert} from '../api/changeTemplateOfAdvert';
+import {changeSelectedPhrase} from '../api/changeSelectedPhrase';
+import {fetchSelectedPhrase} from '../api/fetchSelectedPhrase';
 changeTemplateNameOfAdvert;
 
 interface AutoWordsContextType {
@@ -30,6 +32,8 @@ interface AutoWordsContextType {
     changeTemplate: (arg: string) => void;
     saveOpen: boolean;
     setSaveOpen: (arg: boolean) => void;
+    updateSelectedPhrase: (phrase: string) => void;
+    selectedPhrase: string;
 }
 
 class AdvertWordsTemplateHandler {
@@ -129,11 +133,11 @@ class AdvertWordsTemplateHandler {
         this.setTemplate(newTemplate);
     };
 
-    changeIsFixed = (isFixed: boolean) : void => {
+    changeIsFixed = (isFixed: boolean): void => {
         const newTemplate = {...this.template};
         newTemplate.isFixed = isFixed;
         this.setTemplate(newTemplate);
-    }
+    };
 }
 interface AdvertsWordsProviderProps {
     children: React.ReactNode;
@@ -157,9 +161,10 @@ export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderPr
     const [templatesNames, setTemplatesNames] = useState<string[]>([]);
     const [newTemplateName, setNewTemplateName] = useState<string>('');
     const [saveOpen, setSaveOpen] = useState<boolean>(false);
+    const [selectedPhrase, setSelectedPhrase] = useState<string>('');
     useEffect(() => {
-        console.log('saveOpen', saveOpen);
-    }, [saveOpen]);
+        console.log('selectedPhrase', selectedPhrase);
+    }, [selectedPhrase]);
 
     useEffect(() => {
         if (newTemplateName != '') {
@@ -191,12 +196,24 @@ export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderPr
 
     const advertWordsTemplateHandler = new AdvertWordsTemplateHandler(setTemplate, template);
     const getTemplate = async () => {
-        const templateRes = await fetchAutoPhrasesTemplate(advertId, sellerId);
-        console.log(templateRes);
-        setTemplate(templateRes);
+        const template = await fetchAutoPhrasesTemplate(advertId, sellerId);
+        console.log(template);
+        setTemplate(template);
+    };
+    const getSelectedPhrase = async () => {
+        const selected = await fetchSelectedPhrase(sellerId, advertId);
+        console.log(selected);
+        setSelectedPhrase(selected);
+    };
+
+    const updateSelectedPhrase = (selectedPhrase: string) => {
+        changeSelectedPhrase({seller_id: sellerId, advertId, selectedPhrase}).then(() =>
+            getSelectedPhrase(),
+        );
     };
     useEffect(() => {
         getTemplate();
+        getSelectedPhrase();
         fetchTemplatesName();
     }, [advertId, sellerId]);
 
@@ -295,6 +312,8 @@ export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderPr
                 changeTemplate: setNewTemplateName,
                 saveOpen,
                 setSaveOpen,
+                updateSelectedPhrase,
+                selectedPhrase,
             }}
         >
             {children}

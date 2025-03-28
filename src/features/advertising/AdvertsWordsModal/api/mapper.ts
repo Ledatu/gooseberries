@@ -41,7 +41,7 @@ export function clusterDataMap(dto: ClusterDataDto): ClusterData {
 		frequencyCurrent: dto.frequencyCurrent,
 		openCardCurrent: dto.openCardCurrent,
 		openCardPercentile: dto.openCardPercentile,
-		openToCartCurrent: dto.openCardCurrent,
+		openToCartCurrent: dto.openToCartCurrent,
 		openToCartPercentile: dto.openToCartPercentile,
 		openToOrderPercent: dto.openToOrderPercent,
 		ordersCurrent: dto.ordersCurrent,

@@ -13,6 +13,7 @@ interface fetchClusterStatsParams {
 export const fetchClusterStats = async (advertId: number, sellerId: string, excluded: boolean = false, startDate?: Date, endDate?: Date): Promise<{ startTime: Date, endTime: Date, clusterData: ClusterData[] }> => {
 	try {
 		const params: fetchClusterStatsParams = { advertId: advertId, seller_id: sellerId };
+		console.log(params);
 		params['excluded'] = excluded ?? false;
 		startDate ? params['startDate'] = startDate : undefined;
 		endDate ? params['endDate'] = endDate : undefined;
