@@ -56,6 +56,9 @@ class AdvertWordsTemplateHandler {
 
     addRule = (rule: Rules): void => {
         const newTemplate = {...this.template};
+        newTemplate.rules = newTemplate.rules.filter(
+            (val) => val.key != rule.key && val.val != rule.val,
+        );
         newTemplate.rules.push(rule);
         this.setTemplate(newTemplate);
     };
@@ -113,6 +116,24 @@ class AdvertWordsTemplateHandler {
         newTemplate.name = newName;
         this.setTemplate(newTemplate);
     };
+    changeRules = (rules: Rules[]): void => {
+        const newTemplate = {...this.template};
+        newTemplate.rules = rules;
+        this.setTemplate(newTemplate);
+    };
+    deleteRule = (rule: Rules): void => {
+        const newTemplate = {...this.template};
+        newTemplate.rules = newTemplate.rules.filter(
+            (val) => val.key != rule.key && val.val != rule.val,
+        );
+        this.setTemplate(newTemplate);
+    };
+
+    changeIsFixed = (isFixed: boolean) : void => {
+        const newTemplate = {...this.template};
+        newTemplate.isFixed = isFixed;
+        this.setTemplate(newTemplate);
+    }
 }
 interface AdvertsWordsProviderProps {
     children: React.ReactNode;

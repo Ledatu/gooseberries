@@ -1,4 +1,4 @@
-import {Button, Icon, List, Text, TextInput} from '@gravity-ui/uikit';
+import {Button, Icon, List, Switch, Text, TextInput} from '@gravity-ui/uikit';
 import {useState} from 'react';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {Pencil} from '@gravity-ui/icons';
@@ -7,12 +7,21 @@ export const FixedPhrasesTab = () => {
     const {advertWordsTemplateHandler, template} = useAdvertsWordsModal();
     const [fixedPhrase, setFixedPhrase] = useState<string>('');
     return (
-        <div style={{alignItems: 'center', justifyItems: 'center', padding: 16}}>
-            <div style={{display: 'flex', flexDirection: 'column', gap: 8, width: '90%'}}>
-                <Text variant="header-2">Фразы должны содержать</Text>
+        <div style={{width : 300}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+                <div style={{display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent : 'space-between'}}>
+                    <Text variant="header-2">Фикс фразы</Text>
+                    <Switch
+                        checked={template.isFixed}
+                        onUpdate={(checked) => {
+                            advertWordsTemplateHandler.changeIsFixed(checked);
+                        }}
+                    />
+                </div>
                 <TextInput
                     placeholder="Введите фразу сюда"
                     size="m"
+                    disabled={!template.isFixed}
                     value={fixedPhrase}
                     onUpdate={(value) => setFixedPhrase(value)}
                     onKeyDown={(handler) => {
