@@ -5,10 +5,11 @@ import {ReactNode} from 'react';
 
 import {AdvertWordsTabModules} from '../types';
 import {motion} from 'framer-motion';
-import {tabsNames} from '../config';
+import { tabs } from '../config/tabs';
+// import {tabsNames} from '../config';
 
 interface CustomTabProps {
-    value: AdvertWordsTabModules;
+    value: string;
     name: string;
     isSelected: boolean;
 }
@@ -47,13 +48,13 @@ export interface AdvertWordsTabProps {
 export const AdvertWordsTab = ({currentValue, setCurrentValue}: AdvertWordsTabProps) => {
     const Tabs = () => {
         const currentTabs: ReactNode[] = [];
-        console.log(tabsNames);
-        for (const name of tabsNames) {
+        console.log(tabs);
+        for (const tab of tabs) {
             currentTabs.push(
                 <CustomTab
-                    name={name.name}
-                    value={name.value}
-                    isSelected={currentValue === name.value}
+                    name={tab.title}
+                    value={tab.id}
+                    isSelected={currentValue === tab.id}
                 />,
             );
         }

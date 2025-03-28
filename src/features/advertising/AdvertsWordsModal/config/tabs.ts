@@ -1,6 +1,8 @@
-import { TabsItemProps } from "@/components/CustomTabs/types";
-
-export const tabs: TabsItemProps[] = [{ id: 'ActiveClusters', title: 'Активные кластеры' },
+interface TabProps{
+	title : string,
+	id: string,
+}
+export const tabs: TabProps[] = [{ id: 'ActiveClusters', title: 'Активные кластеры' },
 { id: 'InActiveClusters', title: 'Исключённые кластеры' },
 { id: 'AutoPhrases', title: 'Авто фразы' },
 // { id: 'FixedPhrases', title: "Фиксированные фразы" },

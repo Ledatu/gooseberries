@@ -1,1 +1,0 @@
-export { tabsNames } from "./tabNames";
