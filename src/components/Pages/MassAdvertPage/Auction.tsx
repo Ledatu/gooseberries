@@ -145,7 +145,7 @@ export const Auction = ({children, sellerId, phrase, nmId}: AuctionProps) => {
                     }}
                 >
                     <Text variant="subheader-1">Прогноз. ДРР%</Text>
-                    <HelpMark content="Расчет произведен на основе статистики артикула по конверсии из показа в заказ и среднему чеку за последние 30 дней." />
+                    <HelpMark content="Расчет произведен на основе статистики вашего артикула по конверсии из показа в заказ и среднему чеку за последние 30 дней. Показывает прогнозируемый ДРР для вашего артикула при продвижении с такой ставкой." />
                 </div>
             ),
             name: 'calcDrr',
@@ -257,7 +257,9 @@ export const Auction = ({children, sellerId, phrase, nmId}: AuctionProps) => {
                 const calculatedCPO = Math.round(
                     (tempTypeRow.cpm ?? 0) / (monthNmAd?.cr ?? 0) / 10,
                 );
-                const calcDrr = getRoundValue(calculatedCPO, monthNmAd?.avgCost ?? 0, true);
+                const calcDrr = Math.round(
+                    getRoundValue(calculatedCPO, monthNmAd?.avgCost ?? 0, true),
+                );
                 tempTypeRow.calcDrr = calcDrr;
             }
 
