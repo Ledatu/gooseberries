@@ -521,6 +521,10 @@ export const PricesPage = () => {
             render: (args: any) => fixedPriceRender(args, ['wbWalletPrice'], defaultRender(args)),
         },
         {
+            name: 'avgOrders',
+            placeholder: 'Заказов/д.',
+        },
+        {
             name: 'obor',
             placeholder: 'Оборачиваемость, дней.',
         },
@@ -805,6 +809,7 @@ export const PricesPage = () => {
                 primeCost: 0,
                 primeCostMarkup: 0,
                 ad: 0,
+                avgOrders: 0,
                 obor: 0,
                 sales: 0,
                 orders: 0,
@@ -859,6 +864,7 @@ export const PricesPage = () => {
             artInfo.buyoutsPercent = Math.round(artData['buyoutsPercent']);
             artInfo.allExpences = Math.round(artData['allExpences']);
 
+            artInfo.avgOrders = getRoundValue(artData['avgOrders'] / 100, 1, true);
             artInfo.obor = Math.round(artData['obor']);
 
             for (const promo of currentPromotionPrices) {
