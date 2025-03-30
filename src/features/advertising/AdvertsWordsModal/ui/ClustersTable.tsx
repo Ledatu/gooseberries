@@ -262,7 +262,7 @@ export const ClustersTable = () => {
                         {renderGradNumber(
                             {value, footer},
                             footerData['openToCartCurrent'],
-                            defaultRender,
+                            renderAsPercent,
                         )}
                     </div>
                 );
@@ -278,7 +278,7 @@ export const ClustersTable = () => {
                         {renderGradNumber(
                             {value, footer},
                             footerData['cartToOrderCurrent'],
-                            defaultRender,
+                            renderAsPercent,
                         )}
                     </div>
                 );
@@ -296,6 +296,30 @@ export const ClustersTable = () => {
                             footerData['openToOrderPercent'],
                             renderAsPercent,
                         )}
+                    </div>
+                );
+            },
+        },
+        {
+            placeholder: 'ДРР, %',
+            name: 'drr',
+            value: 'number',
+            render: ({value, footer}) => {
+                return (
+                    <div>
+                        {renderGradNumber({value, footer}, footerData['drr'], renderAsPercent, 'desc')}
+                    </div>
+                );
+            },
+        },
+        {
+            placeholder: 'CPO, ₽',
+            name: 'cpo',
+            value: 'number',
+            render: ({value, footer}) => {
+                return (
+                    <div>
+                        {renderGradNumber({value, footer}, footerData['cpo'], defaultRender, 'desc')}
                     </div>
                 );
             },
@@ -369,8 +393,8 @@ export const ClustersTable = () => {
                     '--g-color-base-background': theme === 'dark' ? 'rgba(14, 14, 14, 1)' : '#eeee',
                     // alignItems: 'center',
                     gap: 8,
-                    padding: 8,
-                    justifyContent: 'center',
+                    // padding: 8,
+                    // justifyContent: 'center',
                     height: '100%',
                 } as CSSProperties
             }

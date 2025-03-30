@@ -59,6 +59,7 @@ interface AdvertCardProps {
     recalc: (args?: any) => any;
     filterByButton: any;
     getUniqueAdvertIdsFromThePage: (args?: any) => any;
+    name: string
 }
 
 const BidRuleInfo = ({rule}: any) => {
@@ -242,6 +243,7 @@ export const AdvertCard = ({
     recalc,
     filterByButton,
     getUniqueAdvertIdsFromThePage,
+    name
 }: AdvertCardProps) => {
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
 
@@ -903,6 +905,7 @@ export const AdvertCard = ({
                             setFetchedPlacements={setFetchedPlacements}
                             currentParsingProgress={currentParsingProgress}
                             setCurrentParsingProgress={setCurrentParsingProgress}
+                            name={name}
                         />
                     </div>
                     <div

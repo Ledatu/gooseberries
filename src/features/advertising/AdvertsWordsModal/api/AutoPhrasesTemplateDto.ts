@@ -25,6 +25,7 @@ interface Rules {
 
 interface AutoPhrasesTemplateDto {
 	// id: number,
+
 	name: string,
 	isFixed: boolean,
 	seller_id: string,
@@ -36,4 +37,6 @@ interface AutoPhrasesTemplateDto {
 	includes: string[],
 	notIncludes: string[],
 	rules: Rules[],
+	excludedNum: number,
+	clustersNum: number,
 }

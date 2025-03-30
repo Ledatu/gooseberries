@@ -22,4 +22,7 @@ export interface ClusterDataDto {
 	views: number
 	visibilityCurrent: number
 	weekFrequency: number
+	drr: number
+	cpo: number
+	profitSum: number
 }

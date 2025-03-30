@@ -1,0 +1,1 @@
+export {getNamesForAdverts} from './massAdvert'

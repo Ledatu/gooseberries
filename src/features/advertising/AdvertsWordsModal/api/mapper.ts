@@ -1,4 +1,4 @@
-import {ClusterDataDto} from './ClusterDataDto'
+import { ClusterDataDto } from './ClusterDataDto'
 
 export interface ClusterData {
 	[key: string]: string | number;
@@ -25,6 +25,10 @@ export interface ClusterData {
 	views: number
 	visibilityCurrent: number
 	weekFrequency: number
+	drr: number,
+	cpo: number,
+	profitSum: number
+
 }
 
 export function clusterDataMap(dto: ClusterDataDto): ClusterData {
@@ -52,5 +56,8 @@ export function clusterDataMap(dto: ClusterDataDto): ClusterData {
 		views: dto.views,
 		visibilityCurrent: dto.visibilityCurrent,
 		weekFrequency: dto.weekFrequency,
+		drr: dto.drr,
+		cpo: dto.cpo,
+		profitSum: dto.profitSum
 	}
 }

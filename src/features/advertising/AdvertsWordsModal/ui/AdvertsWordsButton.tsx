@@ -14,12 +14,14 @@ interface AdvertsWordsButtonProps {
     setFetchedPlacements: (args: any) => any;
     currentParsingProgress: any;
     setCurrentParsingProgress: (args: any) => any;
+    name: string;
 }
 
 export const AdvertsWordsButton = ({
     doc,
     selectValue,
     advertId,
+    name,
 }: AdvertsWordsButtonProps) => {
     const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
         ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
@@ -51,7 +53,7 @@ export const AdvertsWordsButton = ({
         >
             <Button size="xs" pin="brick-round" selected={themeToUse != 'normal'} view={themeToUse}>
                 <Text variant="caption-2">
-                    {themeToUse != 'normal' ? plusPhrasesTemplate : 'Фразы'}
+                    {themeToUse != 'normal' ? name : 'Фразы'}
                 </Text>
             </Button>
         </AdvertsWordsModal>

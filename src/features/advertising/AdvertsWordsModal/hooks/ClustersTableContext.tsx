@@ -20,6 +20,8 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
         'cartToOrderCurrent',
         'avgPositionCurrent',
         'visibilityCurrent',
+        'drr',
+        'cpo',
     ];
     let summaryData: ClusterData = {
         addToCartCurrent: 0,
@@ -45,6 +47,9 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
         views: 0,
         visibilityCurrent: 0,
         weekFrequency: 0,
+        drr: 0,
+        cpo: 0,
+        profitSum: 0,
     };
     for (const data of clusterData) {
         for (const [key, value] of Object.entries(data)) {

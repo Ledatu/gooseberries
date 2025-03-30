@@ -185,6 +185,8 @@ export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderPr
         viewsThreshold: 0,
         selectedByAutoPhrases: [],
         fixedClusters: [],
+        clustersNum: 0,
+        excludedNum: 0,
     });
 
     const [dates, setDates] = useState<Date[]>([new Date(), new Date()]);
