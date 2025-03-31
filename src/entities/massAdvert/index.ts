@@ -1,0 +1,2 @@
+export { getNamesForAdverts } from "./getNamesForAdvert";
+

@@ -94,6 +94,7 @@ import {HelpMark} from '@/components/Popups/HelpMark';
 import {CopyButton} from '@/components/Buttons/CopyButton';
 import {Note} from './NotesForArt/types';
 import {NotesForArt} from './NotesForArt';
+import { getNamesForAdverts } from '@/entities';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -441,6 +442,21 @@ export const MassAdvertPage = () => {
     const [rkListMode, setRkListMode] = useState('add');
 
     const [pagesCurrent, setPagesCurrent] = useState(1);
+
+    const [advertTemplateNames, setAdvertTemplateNames] = useState<any>({});
+
+    const getNames = async () => {
+        try {
+            const templates = await getNamesForAdverts(sellerId);
+            setAdvertTemplateNames(templates);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        getNames();
+    }, [sellerId]);
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -1200,7 +1216,8 @@ export const MassAdvertPage = () => {
                       const {art} = row;
                       const switches: any[] = [];
                       if (value)
-                          for (const [advertId, _] of Object.entries(value)) {
+                        for (const [advertId, _] of Object.entries(value)) {
+                            //   console.log(advertTemplateNames[parseInt(advertId)], advertId, advertTemplateNames)
                               const advertData = doc?.adverts?.[selectValue[0]]?.[advertId];
                               if (!advertData) continue;
                               // console.log('popa', advertData, filters['adverts'].val);
@@ -1250,6 +1267,7 @@ export const MassAdvertPage = () => {
                                               getUniqueAdvertIdsFromThePage={
                                                   getUniqueAdvertIdsFromThePage
                                               }
+                                              name={advertTemplateNames[parseInt(advertId)] ?? 'Фразы'}
                                           />,
                                       );
                                   } else if (
@@ -1292,6 +1310,7 @@ export const MassAdvertPage = () => {
                                               getUniqueAdvertIdsFromThePage={
                                                   getUniqueAdvertIdsFromThePage
                                               }
+                                              name={advertTemplateNames[advertId] ?? 'Фразы'}
                                           />,
                                       );
                                   } else {
@@ -1331,6 +1350,7 @@ export const MassAdvertPage = () => {
                                           getUniqueAdvertIdsFromThePage={
                                               getUniqueAdvertIdsFromThePage
                                           }
+                                          name={advertTemplateNames[parseInt(advertId)] ?? "Фразы"}
                                       />,
                                   );
                               }
@@ -4076,6 +4096,7 @@ export const MassAdvertPage = () => {
                                                     getUniqueAdvertIdsFromThePage={
                                                         getUniqueAdvertIdsFromThePage
                                                     }
+                                                    name={advertTemplateNames[parseInt(advertId)] ?? 'Фразы'}
                                                 />
                                                 <div style={{minWidth: 8}} />
                                                 <Button

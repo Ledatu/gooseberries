@@ -1,21 +1,26 @@
 'use client';
 
 // import dynamic from 'next/dynamic';
-import {useAdvertsWordsModal} from '../AdvertsWordsModalContext';
+import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Loader, Text} from '@gravity-ui/uikit';
 import {useEffect} from 'react';
-import {ActiveClustersPage} from './ActiveClustersPage';
-import {InactiveClustersPage} from './InactiveClustersPage';
-import {SettingsPage} from './SettingsPage';
-import {AutoPhrasesPage} from './AutoPhrasesPage';
+// import {SettingsPage} from './SettingsPage';
+import {ActiveClustersTab} from '../ui/ActiveClustersTab';
+import {InactiveClusters} from '../ui/InactiveClustersTab';
+import {AutoPhrasesTab} from '../ui/AutoPhrasesTab/AutoPhrasesTab';
+import {FixedPhrasesTab} from '../ui/FixedPhrasesTab';
+import { ChangeTemplateTab } from '../ui/ChangeTemplateTab';
+import { RulesTab } from '../ui/RulesTab/RulesTab';
 // import {motion} from 'framer-motion';
 
 const pagesMap = {
     // massAdvert: dynamic(() => import('@/components/MassAdvertPage')),
-    ActiveClusters: ActiveClustersPage,
-    InActiveClusters: InactiveClustersPage,
-    Settings: SettingsPage,
-    AutoPhrases: AutoPhrasesPage,
+    ActiveClusters: ActiveClustersTab,
+    InActiveClusters: InactiveClusters,
+    Settings: RulesTab,
+    AutoPhrases: AutoPhrasesTab,
+    FixedPhrases: FixedPhrasesTab,
+    ChangeTemplate: ChangeTemplateTab
 };
 
 export const AdvertsWordsPage = () => {

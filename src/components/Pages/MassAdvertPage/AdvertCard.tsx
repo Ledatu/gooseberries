@@ -28,7 +28,7 @@ import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {AdvertsBidsModal} from './AdvertsBidsModal';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {ChartModal} from './ChartModal';
-import {AdvertsWordsButton} from './AdvertsWordsButton';
+import {AdvertsWordsButton} from '@/features/advertising/AdvertsWordsModal';
 import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
 import ApiClient from '@/utilities/ApiClient';
 import {IconWithText} from '@/components/IconWithText';
@@ -62,6 +62,7 @@ interface AdvertCardProps {
     recalc: (args?: any) => any;
     filterByButton: any;
     getUniqueAdvertIdsFromThePage: (args?: any) => any;
+    name: string
 }
 
 const BidRuleInfo = ({rule}: any) => {
@@ -196,6 +197,7 @@ export const AdvertCard = ({
     recalc,
     filterByButton,
     getUniqueAdvertIdsFromThePage,
+    name
 }: AdvertCardProps) => {
     const {showError} = useError();
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
@@ -907,6 +909,7 @@ export const AdvertCard = ({
                             setFetchedPlacements={setFetchedPlacements}
                             currentParsingProgress={currentParsingProgress}
                             setCurrentParsingProgress={setCurrentParsingProgress}
+                            name={name}
                         />
                     </div>
                     <div
