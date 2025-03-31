@@ -320,7 +320,7 @@ export const AdvertCard = ({
     const standardDelete = async () => {
         setWarningBeforeDeleteConfirmation(false);
 
-        const res = await manageAdvertsActivityCallFunc('stop', advertId);
+        const res = await manageAdvertsActivityCallFunc(status == 4 ? 'delete' : 'stop', advertId);
         console.log(res);
         if (!res || res['data'] === undefined) {
             return;
@@ -329,7 +329,7 @@ export const AdvertCard = ({
         if (res['data']['status'] == 'ok') {
             doc.adverts[selectValue[0]][advertId] = undefined;
         }
-        setChangedDoc({...doc});
+        removeFromQueue();
     };
 
     const viewForId = isQueuedToCreate
@@ -1251,7 +1251,7 @@ export const AdvertCard = ({
                         <Button
                             disabled={permission != 'Управление'}
                             view={'outlined-danger'}
-                            onClick={isQueuedToCreate ? removeFromQueue : standardDelete}
+                            onClick={standardDelete}
                         >
                             Удалить
                         </Button>
