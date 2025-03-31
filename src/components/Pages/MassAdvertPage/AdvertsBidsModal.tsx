@@ -29,6 +29,8 @@ import {dateTimeParse} from '@gravity-ui/date-utils';
 import {getLocaleDateString} from '@/utilities/getRoundValue';
 import {useError} from '@/contexts/ErrorContext';
 import {HelpMark} from '@/components/Popups/HelpMark';
+// import {useCampaign} from '@/contexts/CampaignContext';
+// import ApiClient from '@/utilities/ApiClient';
 
 export const AdvertsBidsModal = ({
     disabled,
@@ -48,6 +50,7 @@ export const AdvertsBidsModal = ({
     advertId: number | undefined;
 }) => {
     const {showError} = useError();
+    // const {sellerId} = useCampaign();
     const [open, setOpen] = useState(false);
     const modalOptions = [
         {value: 'Автоставки', content: 'Автоставки'},
@@ -484,6 +487,47 @@ export const AdvertsBidsModal = ({
             ['sellByDate', 'orders', 'sum_orders', 'obor'].includes(autoBidderOption[0]) &&
             useAutoMaxCpm &&
             !maxBudgetInputValueValid);
+    
+    // const handleSetButton = async() => {
+    //     const params = {
+    //         seller_id: sellerId,
+    //         rules: {
+    //             autoBidsMode: autoBidderOption[0],
+    //             placements:
+    //                 autoBidderOption[0] == 'auction'
+    //                     ? parseInt(auctionInputValue)
+    //                     : parseInt(placementsInputValue),
+    //             desiredOrders:
+    //                 autoBidderOption[0] == 'obor' ||
+    //                 autoBidderOption[0] == 'sum_orders' ||
+    //                 autoBidderOption[0] == 'sellByDate'
+    //                     ? null
+    //                     : parseInt(ordersInputValue),
+    //             desiredDRR: parseInt(drrInputValue),
+    //             desiredCpo: parseInt(cpoInputValue),
+    //             desiredSum: parseInt(sumInputValue),
+    //             desiredObor: parseInt(oborInputValue),
+    //             placementsTrigger: usePlacementsTrigger
+    //                 ? parseInt(placementsTriggerInputValue)
+    //                 : undefined,
+    //             desiredSumOrders: parseInt(sumOrdersInputValue),
+    //             bid: parseInt(cpmInputValue),
+    //             maxBid: parseInt(maxCpmInputValue),
+    //             useManualMaxCpm: !useAutoMaxCpm,
+    //             useAutoBudget,
+    //             useMaxBudget,
+    //             maxBudget: useMaxBudget ? parseInt(maxBudgetInputValue) : undefined,
+    //             sellByDate:
+    //                 autoBidderOption[0] == 'sellByDate'
+    //                     ? getLocaleDateString(sellByDate, 10)
+    //                     : undefined,
+    //         },
+    //         advertIds: advertIds,
+    //     };
+
+    //     const res = await ApiClient.post('/massAdvert/set')
+        
+    // };
 
     const handleSetDeleteButton = () => {
         const params = {
