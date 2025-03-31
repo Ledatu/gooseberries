@@ -1,6 +1,6 @@
 'use client';
 import {PageInfoGraphs} from './PageInfoGraphs';
-import {CSSProperties, ReactNode, useEffect, useMemo, useRef, useState} from 'react';
+import {CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
     Spin,
     Button,
@@ -2380,7 +2380,7 @@ export const MassAdvertPage = () => {
     const getCampaignName = () => {
         return selectValue[0];
     };
-    const updateTheData = async () => {
+    const updateTheData = useCallback(async () => {
         if (!selectValue || !Object.entries(arts).length) return;
         console.log('YOOO UPDATE INCOMING');
         setFetchingDataFromServerFlag(true);
@@ -2413,7 +2413,7 @@ export const MassAdvertPage = () => {
                 });
                 const temp = adverts?.data;
                 resData.adverts[selectValue[0]] = temp;
-                console.log('adverts', temp);
+                // console.log('adverts', temp);
 
                 for (const [advertId, advertData] of Object.entries(temp) as any) {
                     const {type, autoParams, unitedParams, isQueuedToCreate} = advertData;
@@ -2448,12 +2448,12 @@ export const MassAdvertPage = () => {
                 // console.log(response ? response['data'] : undefined);
             })
             .catch((error) => console.error(error));
-    };
-    // useEffect(() => {
-    //     const interval = setInterval(updateTheData, 1 * 60 * 1000);
+    }, [sellerId, arts, selectValue]);
 
-    //     return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-    // }, []);
+    useEffect(() => {
+        const interval = setInterval(updateTheData, 30 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [updateTheData]);
 
     if (fetchedPlacements) {
         for (const [phrase, phraseData] of Object.entries(fetchedPlacements)) {

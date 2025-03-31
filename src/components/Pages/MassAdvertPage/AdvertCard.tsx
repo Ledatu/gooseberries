@@ -198,6 +198,14 @@ export const AdvertCard = ({
     filterByButton,
     getUniqueAdvertIdsFromThePage,
 }: AdvertCardProps) => {
+    const advertData = doc.adverts[selectValue[0]][id];
+    const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
+    const budgetToKeep = advertBudgetRules?.[id];
+    if (!advertData) return <></>;
+    const {advertId, status, budget, daysInWork, type, pregenerated, cpm, isQueuedToCreate} =
+        advertData;
+    if (![4, 9, 11].includes(status)) return <></>;
+
     const {showError} = useError();
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
 
@@ -228,14 +236,6 @@ export const AdvertCard = ({
                 console.log('error copiyng:', error);
             });
     };
-
-    const advertData = doc.adverts[selectValue[0]][id];
-    const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
-    const budgetToKeep = advertBudgetRules?.[id];
-    if (!advertData) return <></>;
-    const {advertId, status, budget, daysInWork, type, pregenerated, cpm, isQueuedToCreate} =
-        advertData;
-    if (![4, 9, 11].includes(status)) return <></>;
 
     const curCpm = cpm;
 
@@ -303,22 +303,16 @@ export const AdvertCard = ({
         setPaused();
     };
 
-    const removeFromQueue = async () => {
+    const standardDelete = async () => {
         setWarningBeforeDeleteConfirmation(false);
         try {
             await ApiClient.post('massAdvert/new/delete-advert-from-create-queue', {
                 seller_id: sellerId,
                 advertId,
             });
-            doc.adverts[selectValue[0]][advertId] = undefined;
-            setChangedDoc({...doc});
         } catch (error: any) {
             showError(error?.response?.data?.error || 'An unknown error occurred');
         }
-    };
-
-    const standardDelete = async () => {
-        setWarningBeforeDeleteConfirmation(false);
 
         const res = await manageAdvertsActivityCallFunc(status == 4 ? 'delete' : 'stop', advertId);
         console.log(res);
@@ -329,7 +323,7 @@ export const AdvertCard = ({
         if (res['data']['status'] == 'ok') {
             doc.adverts[selectValue[0]][advertId] = undefined;
         }
-        removeFromQueue();
+        setChangedDoc({...doc});
     };
 
     const viewForId = isQueuedToCreate
