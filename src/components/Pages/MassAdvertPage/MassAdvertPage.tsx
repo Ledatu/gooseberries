@@ -58,7 +58,6 @@ import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
 import type {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 settings.set({plugins: [YagrPlugin]});
 import callApi, {getUid} from '@/utilities/callApi';
-import axios, {CancelTokenSource} from 'axios';
 import {
     defaultRender,
     getLocaleDateString,
@@ -101,7 +100,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     if (docum) {
         // console.log(docum, mode, selectValue);
 
-        if (mode) {
+        if (mode && doc) {
             doc['campaigns'][selectValue] = docum['campaigns'][selectValue];
             doc['balances'][selectValue] = docum['balances'][selectValue];
             doc['plusPhrasesTemplates'][selectValue] = docum['plusPhrasesTemplates'][selectValue];
@@ -125,13 +124,6 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
         setDocument(docum);
     }
 
-    // console.log(params);
-
-    // useEffect(() => {
-    //     callApi('getMassAdvertsNew', params, true)
-    //         .then((response) => setDocument(response ? response['data'] : undefined))
-    //         .catch((error) => console.error(error));
-    // }, []);
     return doc;
 };
 
@@ -2338,67 +2330,15 @@ export const MassAdvertPage = () => {
     // const [selectedIds, setSelectedIds] = React.useState<Array<string>>([]);
     // const [sort, setSort] = React.useState<any[]>([{column: 'Расход', order: 'asc'}]);
     // const [doc, setUserDoc] = React.useState(getUserDoc());
-
-    const cancelTokenRef = useRef<CancelTokenSource | null>(null);
+    const [arts, setArts] = useState({} as any);
 
     useEffect(() => {
-        if (!selectValue) return;
+        if (!selectValue || fetchingDataFromServerFlag) return;
         if (!selectValue[0] || selectValue[0] == '') return;
 
-        // Cancel the previous request if it exists
-        if (cancelTokenRef.current) {
-            cancelTokenRef.current.cancel('Operation canceled due to new request.');
-        }
-
-        // Create a new cancel token
-        cancelTokenRef.current = axios.CancelToken.source();
-
-        if (doc) setSwitchingCampaignsFlag(true);
-        const params = {
-            uid: getUid(),
-            dateRange: {from: '2023', to: '2024'},
-            campaignName: selectValue[0],
-        };
-        console.log(params);
-
-        callApi(`getMassAdvertsNew`, params, true)
-            .then(async (res) => {
-                console.log(res);
-                if (!res) return;
-                const advertsAutoBidsRules = await ApiClient.post('massAdvert/get-bidder-rules', {
-                    seller_id: sellerId,
-                });
-                const advertsSchedules = await ApiClient.post('massAdvert/get-schedules', {
-                    seller_id: sellerId,
-                });
-                const autoSales = await ApiClient.post('massAdvert/get-sales-rules', {
-                    seller_id: sellerId,
-                });
-                const resData = res['data'];
-
-                console.log('advertsAutoBidsRules', advertsAutoBidsRules);
-
-                resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
-                resData['advertsSchedules'][selectValue[0]] = advertsSchedules?.data;
-                resData['autoSales'][selectValue[0]] = autoSales?.data;
-                setChangedDoc(resData);
-                setSwitchingCampaignsFlag(false);
-                // recalc(dateRange, selectValue[0], filters, resData);
-                console.log(resData);
-            })
-            .catch(() => {
-                setSwitchingCampaignsFlag(false);
-            });
-
         setCopiedAdvertsSettings({advertId: 0});
-
-        // Cleanup function to cancel the request on component unmount or before the next useEffect call
-        return () => {
-            if (cancelTokenRef.current) {
-                cancelTokenRef.current.cancel('Component unmounted or selectValue changed.');
-            }
-        };
-    }, [selectValue]);
+        updateTheData();
+    }, [selectValue, arts]);
 
     const getBidderRules = async () => {
         if (!doc) return;
@@ -2441,8 +2381,10 @@ export const MassAdvertPage = () => {
         return selectValue[0];
     };
     const updateTheData = async () => {
+        if (!selectValue || !Object.entries(arts).length) return;
         console.log('YOOO UPDATE INCOMING');
         setFetchingDataFromServerFlag(true);
+        setSwitchingCampaignsFlag(false);
         const params = {
             uid: getUid(),
             dateRange: {from: '2023', to: '2024'},
@@ -2466,6 +2408,35 @@ export const MassAdvertPage = () => {
                 const autoSales = await ApiClient.post('massAdvert/get-sales-rules', {
                     seller_id: sellerId,
                 });
+                const adverts = await ApiClient.post('massAdvert/new/get-adverts', {
+                    seller_id: sellerId,
+                });
+                const temp = adverts?.data;
+                resData.adverts[selectValue[0]] = temp;
+                console.log('adverts', temp);
+
+                for (const [advertId, advertData] of Object.entries(temp) as any) {
+                    const {type, autoParams, unitedParams, isQueuedToCreate} = advertData;
+                    let nms = [];
+                    if (type == 8) {
+                        nms = autoParams?.nms ?? [];
+                    } else if (type == 9) {
+                        nms = unitedParams?.[0].nms ?? [];
+                    }
+                    for (const nmId of nms) {
+                        const art = arts[nmId];
+                        if (!art) continue;
+                        if (isQueuedToCreate) console.log(nmId, art, advertId);
+                        if (resData?.campaigns?.[selectValue[0]]?.[art])
+                            if (!resData?.campaigns?.[selectValue[0]]?.[art]?.adverts)
+                                resData.campaigns[selectValue[0]][art].adverts = {};
+
+                        resData.campaigns[selectValue[0]][art].adverts[advertId] = {
+                            advertId: parseInt(advertId),
+                        };
+                    }
+                }
+
                 console.log('advertsAutoBidsRules', advertsAutoBidsRules);
 
                 resData['advertsAutoBidsRules'][selectValue[0]] = advertsAutoBidsRules?.data;
@@ -3366,6 +3337,26 @@ export const MassAdvertPage = () => {
 
     const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = useState(false);
     const [firstRecalc, setFirstRecalc] = useState(false);
+
+    const fetchArts = async () => {
+        try {
+            const response = await ApiClient.post('massAdvert/new/arts-nmIds', {
+                seller_id: sellerId,
+            });
+            if (!response?.data) {
+                throw new Error('error while getting advertBudgetRules');
+            }
+            const temp = response?.data;
+
+            setArts(temp);
+        } catch (error: any) {
+            console.error(error);
+            showError(error);
+        }
+    };
+    useEffect(() => {
+        fetchArts();
+    }, [sellerId, firstRecalc]);
 
     const [changedColumns, setChangedColumns] = useState<any>(false);
 

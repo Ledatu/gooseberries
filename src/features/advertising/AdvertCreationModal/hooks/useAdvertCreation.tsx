@@ -42,22 +42,18 @@ export const useAdvertCreation = (doc: any, setChangedDoc: Function) => {
 
         const params: any = {
             seller_id: sellerId,
-            data: {
-                arts: {},
-                mode: createAdvertsMode,
-                budget: 1000,
-                bid: 10,
-                type: advertTypeSwitchValue[0],
-            },
+            nmIds: [],
+            oneToOne: createAdvertsMode,
+            type: advertTypeSwitchValue[0] == 'Авто' ? 8 : 9,
         };
         for (let i: number = 0; i < filteredData.length; i++) {
-            const {art, nmId} = filteredData[i] as any;
-            if (art === undefined || nmId === undefined) continue;
-            params.data.arts[art] = {art, nmId};
+            const {nmId} = filteredData[i] as any;
+            if (nmId === undefined) continue;
+            params.nmIds.push(nmId);
         }
 
         try {
-            const res = await ApiClient.post('massAdvert/create-adverts', params);
+            const res = await ApiClient.post('massAdvert/new/create-adverts', params);
             if (!res) return;
 
             const advertsInfosPregenerated = res['data'];
@@ -65,7 +61,6 @@ export const useAdvertCreation = (doc: any, setChangedDoc: Function) => {
                 for (const [advertId, data] of Object.entries(advertsInfosPregenerated)) {
                     const advertsData: any = data;
                     if (!advertId || !advertsData) continue;
-                    advertsData['daysInWork'] = 1;
                     doc['adverts'][selectValue[0]][advertId] = advertsData;
 
                     const type = advertsData['type'];

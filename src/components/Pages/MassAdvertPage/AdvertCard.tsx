@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Card, Icon, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Card, Icon, Text} from '@gravity-ui/uikit';
 import {
     TrashBin,
     Clock,
@@ -19,6 +19,7 @@ import {
     BarsAscendingAlignLeftArrowUp,
     ClockArrowRotateLeft,
     LayoutList,
+    CircleInfo,
 } from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {useMemo, useState} from 'react';
@@ -232,7 +233,8 @@ export const AdvertCard = ({
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
     const budgetToKeep = advertBudgetRules?.[id];
     if (!advertData) return <></>;
-    const {advertId, status, budget, daysInWork, type, pregenerated, cpm} = advertData;
+    const {advertId, status, budget, daysInWork, type, pregenerated, cpm, isQueuedToCreate} =
+        advertData;
     if (![4, 9, 11].includes(status)) return <></>;
 
     const curCpm = cpm;
@@ -301,9 +303,48 @@ export const AdvertCard = ({
         setPaused();
     };
 
+    const removeFromQueue = async () => {
+        setWarningBeforeDeleteConfirmation(false);
+        try {
+            await ApiClient.post('massAdvert/new/delete-advert-from-create-queue', {
+                seller_id: sellerId,
+                advertId,
+            });
+            doc.adverts[selectValue[0]][advertId] = undefined;
+            setChangedDoc({...doc});
+        } catch (error: any) {
+            showError(error?.response?.data?.error || 'An unknown error occurred');
+        }
+    };
+
+    const standardDelete = async () => {
+        setWarningBeforeDeleteConfirmation(false);
+
+        const res = await manageAdvertsActivityCallFunc('stop', advertId);
+        console.log(res);
+        if (!res || res['data'] === undefined) {
+            return;
+        }
+
+        if (res['data']['status'] == 'ok') {
+            doc.adverts[selectValue[0]][advertId] = undefined;
+        }
+        setChangedDoc({...doc});
+    };
+
+    const viewForId = isQueuedToCreate
+        ? 'flat-warning'
+        : status
+          ? status == 9
+              ? 'flat-success'
+              : status == 11
+                ? 'flat-danger'
+                : 'flat-warning'
+          : 'flat';
+
     return (
         <Card
-            theme={pregenerated ? 'warning' : 'normal'}
+            theme={pregenerated || isQueuedToCreate ? 'warning' : 'normal'}
             style={{
                 height: 110.5,
                 width: 'fit-content',
@@ -325,28 +366,32 @@ export const AdvertCard = ({
                     }}
                 >
                     <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <Button
-                            selected
-                            style={{
-                                borderTopLeftRadius: 7,
-                                overflow: 'hidden',
-                            }}
-                            href={`https://cmp.wildberries.ru/campaigns/edit/${advertId}`}
-                            target="_blank"
-                            size="xs"
-                            pin="brick-brick"
-                            view={
-                                status
-                                    ? status == 9
-                                        ? 'flat-success'
-                                        : status == 11
-                                          ? 'flat-danger'
-                                          : 'flat-warning'
-                                    : 'flat'
+                        <ActionTooltip
+                            title={
+                                isQueuedToCreate
+                                    ? 'Данная РК еще не создана, поэтому перейти в ЛК по клику нельзя.'
+                                    : 'Перейти в настройки РК в личном кабинете WB.'
                             }
                         >
-                            <Icon data={type == 8 ? Rocket : Magnifier} size={11} />
-                        </Button>
+                            <Button
+                                selected
+                                style={{
+                                    borderTopLeftRadius: 7,
+                                    overflow: 'hidden',
+                                }}
+                                href={
+                                    isQueuedToCreate
+                                        ? undefined
+                                        : `https://cmp.wildberries.ru/campaigns/edit/${advertId}`
+                                }
+                                target={isQueuedToCreate ? undefined : '_blank'}
+                                size="xs"
+                                pin="brick-brick"
+                                view={viewForId}
+                            >
+                                <Icon data={type == 8 ? Rocket : Magnifier} size={11} />
+                            </Button>
+                        </ActionTooltip>
                         <Button
                             style={{
                                 overflow: 'hidden',
@@ -356,63 +401,46 @@ export const AdvertCard = ({
                             // style=x{{position: 'relative', top: -2}}
                             size="xs"
                             pin="brick-brick"
-                            view={
-                                status
-                                    ? status == 9
-                                        ? 'flat-success'
-                                        : status == 11
-                                          ? 'flat-danger'
-                                          : 'flat-warning'
-                                    : 'flat'
-                            }
+                            view={viewForId}
                         >
                             {advertId}
                         </Button>
-                        {status && status != 9 ? (
-                            <Button
-                                selected
-                                style={{
-                                    borderBottomRightRadius: 9,
-                                    overflow: 'hidden',
-                                }}
-                                onClick={changeStatus}
-                                // style={{position: 'relative', top: -2}}
-                                disabled={status === undefined || permission != 'Управление'}
-                                // disabled
-                                size="xs"
-                                pin="brick-brick"
-                                view={
-                                    status
-                                        ? status == 9
-                                            ? 'flat-success'
-                                            : status == 11
-                                              ? 'flat-danger'
-                                              : 'flat-warning'
-                                        : 'flat'
+                        {status ? (
+                            <ActionTooltip
+                                title={
+                                    isQueuedToCreate
+                                        ? 'Данная РК находится в очереди на генерацию и будет запущена в ближайшее время. Вы можете установить все необходимые правила на нее, они автоматически перебросятся на реальную РК после ее создания.'
+                                        : 'Изменяет статус РК.'
                                 }
                             >
-                                <Icon
-                                    data={status ? (status == 9 ? Pause : Play) : Play}
-                                    size={11}
-                                />
-                            </Button>
-                        ) : (
-                            <></>
-                        )}
-                        {status == 9 ? (
-                            <Button
-                                size="xs"
-                                selected
-                                pin="clear-clear"
-                                style={{
-                                    borderBottomRightRadius: 9,
-                                    overflow: 'hidden',
-                                }}
-                                view={'outlined-success'}
-                                onClick={changeStatus}
-                            >
-                                <Icon data={Pause} size={11} />
-                            </Button>
+                                <Button
+                                    selected
+                                    style={{
+                                        borderBottomRightRadius: 9,
+                                        overflow: 'hidden',
+                                    }}
+                                    onClick={isQueuedToCreate ? undefined : changeStatus}
+                                    // style={{position: 'relative', top: -2}}
+                                    disabled={status === undefined || permission != 'Управление'}
+                                    // disabled
+                                    size="xs"
+                                    pin="brick-brick"
+                                    view={viewForId}
+                                >
+                                    <Icon
+                                        data={
+                                            isQueuedToCreate
+                                                ? CircleInfo
+                                                : status
+                                                  ? status == 9
+                                                      ? Pause
+                                                      : Play
+                                                  : Play
+                                        }
+                                        size={11}
+                                    />
+                                </Button>
+                            </ActionTooltip>
                         ) : (
                             <></>
                         )}
@@ -1223,20 +1251,7 @@ export const AdvertCard = ({
                         <Button
                             disabled={permission != 'Управление'}
                             view={'outlined-danger'}
-                            onClick={async () => {
-                                setWarningBeforeDeleteConfirmation(false);
-
-                                const res = await manageAdvertsActivityCallFunc('stop', advertId);
-                                console.log(res);
-                                if (!res || res['data'] === undefined) {
-                                    return;
-                                }
-
-                                if (res['data']['status'] == 'ok') {
-                                    doc.adverts[selectValue[0]][advertId] = undefined;
-                                }
-                                setChangedDoc({...doc});
-                            }}
+                            onClick={isQueuedToCreate ? removeFromQueue : standardDelete}
                         >
                             Удалить
                         </Button>
