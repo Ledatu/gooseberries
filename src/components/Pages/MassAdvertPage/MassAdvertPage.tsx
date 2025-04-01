@@ -2426,13 +2426,14 @@ export const MassAdvertPage = () => {
                         const art = arts[nmId];
                         if (!art) continue;
                         if (isQueuedToCreate) console.log(nmId, art, advertId);
-                        if (resData?.campaigns?.[selectValue[0]]?.[art])
+                        if (resData?.campaigns?.[selectValue[0]]?.[art]) {
                             if (!resData?.campaigns?.[selectValue[0]]?.[art]?.adverts)
                                 resData.campaigns[selectValue[0]][art].adverts = {};
 
-                        resData.campaigns[selectValue[0]][art].adverts[advertId] = {
-                            advertId: parseInt(advertId),
-                        };
+                            resData.campaigns[selectValue[0]][art].adverts[advertId] = {
+                                advertId: parseInt(advertId),
+                            };
+                        }
                     }
                 }
 
