@@ -304,6 +304,16 @@ export const AdvertCard = ({
     };
 
     const standardDelete = async () => {
+        const res = await manageAdvertsActivityCallFunc(status == 4 ? 'delete' : 'stop', advertId);
+        console.log(res);
+        if (!res || res['data'] === undefined) {
+            return;
+        }
+
+        if (res['data']['status'] == 'ok') {
+            doc.adverts[selectValue[0]][advertId] = undefined;
+        }
+
         setWarningBeforeDeleteConfirmation(false);
         try {
             await ApiClient.post('massAdvert/new/delete-advert-from-create-queue', {
@@ -314,15 +324,6 @@ export const AdvertCard = ({
             showError(error?.response?.data?.error || 'An unknown error occurred');
         }
 
-        const res = await manageAdvertsActivityCallFunc(status == 4 ? 'delete' : 'stop', advertId);
-        console.log(res);
-        if (!res || res['data'] === undefined) {
-            return;
-        }
-
-        if (res['data']['status'] == 'ok') {
-            doc.adverts[selectValue[0]][advertId] = undefined;
-        }
         setChangedDoc({...doc});
     };
 
