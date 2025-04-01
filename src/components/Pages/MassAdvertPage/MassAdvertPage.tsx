@@ -1189,107 +1189,31 @@ export const MassAdvertPage = () => {
                       if (typeof value === 'number') {
                           return <Text>{`Уникальных РК ID: ${value}`}</Text>;
                       }
+                      if (!value) return <></>;
                       const {art} = row;
                       const switches: any[] = [];
-                      if (value)
-                          for (const [advertId, _] of Object.entries(value)) {
-                              const advertData = doc?.adverts?.[selectValue[0]]?.[advertId];
-                              if (!advertData) continue;
-                              // console.log('popa', advertData, filters['adverts'].val);
+
+                      const advertIds = Object.keys(value).sort(
+                          (a, b) =>
+                              doc.adverts[selectValue[0]]?.[a]?.type -
+                              doc.adverts[selectValue[0]]?.[b]?.type,
+                      );
+
+                      for (const advertId of advertIds) {
+                          const advertData = doc?.adverts?.[selectValue[0]]?.[advertId];
+                          if (!advertData) continue;
+                          // console.log('popa', advertData, filters['adverts'].val);
+                          if (
+                              filters['adverts'] &&
+                              ['авто', 'поиск'].includes(
+                                  String(filters['adverts'].val).toLowerCase().trim(),
+                              )
+                          ) {
+                              // console.log('popa2', advertData, filters['adverts'].val);
                               if (
-                                  filters['adverts'] &&
-                                  ['авто', 'поиск'].includes(
-                                      String(filters['adverts'].val).toLowerCase().trim(),
-                                  )
+                                  String(filters['adverts'].val).toLowerCase().includes('поиск') &&
+                                  (advertData.type == 9 || advertData.type == 6)
                               ) {
-                                  // console.log('popa2', advertData, filters['adverts'].val);
-                                  if (
-                                      String(filters['adverts'].val)
-                                          .toLowerCase()
-                                          .includes('поиск') &&
-                                      (advertData.type == 9 || advertData.type == 6)
-                                  ) {
-                                      switches.push(
-                                          <AdvertCard
-                                              pausedAdverts={pausedAdverts}
-                                              setUpdatePaused={setUpdatePaused}
-                                              sellerId={sellerId}
-                                              advertBudgetRules={advertBudgetRules}
-                                              setAdvertBudgetRules={setAdvertBudgetRules}
-                                              permission={permission}
-                                              id={advertId}
-                                              index={index}
-                                              art={art}
-                                              doc={doc}
-                                              selectValue={selectValue}
-                                              copiedAdvertsSettings={copiedAdvertsSettings}
-                                              setChangedDoc={setChangedDoc}
-                                              manageAdvertsActivityCallFunc={
-                                                  manageAdvertsActivityCallFunc
-                                              }
-                                              setArtsStatsByDayData={setArtsStatsByDayData}
-                                              updateColumnWidth={updateColumnWidth}
-                                              filteredData={filteredData}
-                                              setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                              setFetchedPlacements={setFetchedPlacements}
-                                              currentParsingProgress={currentParsingProgress}
-                                              setCurrentParsingProgress={setCurrentParsingProgress}
-                                              setDateRange={setDateRange}
-                                              setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                              dateRange={dateRange}
-                                              recalc={recalc}
-                                              filterByButton={filterByButton}
-                                              getUniqueAdvertIdsFromThePage={
-                                                  getUniqueAdvertIdsFromThePage
-                                              }
-                                          />,
-                                      );
-                                  } else if (
-                                      filters['adverts'] &&
-                                      String(filters['adverts'].val)
-                                          .toLowerCase()
-                                          .includes('авто') &&
-                                      advertData.type == 8
-                                  ) {
-                                      switches.push(
-                                          <AdvertCard
-                                              pausedAdverts={pausedAdverts}
-                                              setUpdatePaused={setUpdatePaused}
-                                              sellerId={sellerId}
-                                              advertBudgetRules={advertBudgetRules}
-                                              setAdvertBudgetRules={setAdvertBudgetRules}
-                                              permission={permission}
-                                              id={advertId}
-                                              index={index}
-                                              art={art}
-                                              doc={doc}
-                                              selectValue={selectValue}
-                                              copiedAdvertsSettings={copiedAdvertsSettings}
-                                              setChangedDoc={setChangedDoc}
-                                              manageAdvertsActivityCallFunc={
-                                                  manageAdvertsActivityCallFunc
-                                              }
-                                              setArtsStatsByDayData={setArtsStatsByDayData}
-                                              updateColumnWidth={updateColumnWidth}
-                                              filteredData={filteredData}
-                                              setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                              setFetchedPlacements={setFetchedPlacements}
-                                              currentParsingProgress={currentParsingProgress}
-                                              setCurrentParsingProgress={setCurrentParsingProgress}
-                                              setDateRange={setDateRange}
-                                              setShowArtStatsModalOpen={setShowArtStatsModalOpen}
-                                              dateRange={dateRange}
-                                              recalc={recalc}
-                                              filterByButton={filterByButton}
-                                              getUniqueAdvertIdsFromThePage={
-                                                  getUniqueAdvertIdsFromThePage
-                                              }
-                                          />,
-                                      );
-                                  } else {
-                                      continue;
-                                  }
-                              } else {
                                   switches.push(
                                       <AdvertCard
                                           pausedAdverts={pausedAdverts}
@@ -1325,8 +1249,83 @@ export const MassAdvertPage = () => {
                                           }
                                       />,
                                   );
+                              } else if (
+                                  filters['adverts'] &&
+                                  String(filters['adverts'].val).toLowerCase().includes('авто') &&
+                                  advertData.type == 8
+                              ) {
+                                  switches.push(
+                                      <AdvertCard
+                                          pausedAdverts={pausedAdverts}
+                                          setUpdatePaused={setUpdatePaused}
+                                          sellerId={sellerId}
+                                          advertBudgetRules={advertBudgetRules}
+                                          setAdvertBudgetRules={setAdvertBudgetRules}
+                                          permission={permission}
+                                          id={advertId}
+                                          index={index}
+                                          art={art}
+                                          doc={doc}
+                                          selectValue={selectValue}
+                                          copiedAdvertsSettings={copiedAdvertsSettings}
+                                          setChangedDoc={setChangedDoc}
+                                          manageAdvertsActivityCallFunc={
+                                              manageAdvertsActivityCallFunc
+                                          }
+                                          setArtsStatsByDayData={setArtsStatsByDayData}
+                                          updateColumnWidth={updateColumnWidth}
+                                          filteredData={filteredData}
+                                          setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                          setFetchedPlacements={setFetchedPlacements}
+                                          currentParsingProgress={currentParsingProgress}
+                                          setCurrentParsingProgress={setCurrentParsingProgress}
+                                          setDateRange={setDateRange}
+                                          setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                          dateRange={dateRange}
+                                          recalc={recalc}
+                                          filterByButton={filterByButton}
+                                          getUniqueAdvertIdsFromThePage={
+                                              getUniqueAdvertIdsFromThePage
+                                          }
+                                      />,
+                                  );
+                              } else {
+                                  continue;
                               }
+                          } else {
+                              switches.push(
+                                  <AdvertCard
+                                      pausedAdverts={pausedAdverts}
+                                      setUpdatePaused={setUpdatePaused}
+                                      sellerId={sellerId}
+                                      advertBudgetRules={advertBudgetRules}
+                                      setAdvertBudgetRules={setAdvertBudgetRules}
+                                      permission={permission}
+                                      id={advertId}
+                                      index={index}
+                                      art={art}
+                                      doc={doc}
+                                      selectValue={selectValue}
+                                      copiedAdvertsSettings={copiedAdvertsSettings}
+                                      setChangedDoc={setChangedDoc}
+                                      manageAdvertsActivityCallFunc={manageAdvertsActivityCallFunc}
+                                      setArtsStatsByDayData={setArtsStatsByDayData}
+                                      updateColumnWidth={updateColumnWidth}
+                                      filteredData={filteredData}
+                                      setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                      setFetchedPlacements={setFetchedPlacements}
+                                      currentParsingProgress={currentParsingProgress}
+                                      setCurrentParsingProgress={setCurrentParsingProgress}
+                                      setDateRange={setDateRange}
+                                      setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                      dateRange={dateRange}
+                                      recalc={recalc}
+                                      filterByButton={filterByButton}
+                                      getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                  />,
+                              );
                           }
+                      }
                       return (
                           <div
                               style={{
