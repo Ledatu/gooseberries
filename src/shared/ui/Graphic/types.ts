@@ -1,0 +1,1 @@
+export type MinMaxValue = Record<string, {min?: number; max?: number}>;
