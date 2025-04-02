@@ -2,7 +2,7 @@ import {FC, useRef} from 'react';
 import {Line} from 'react-chartjs-2';
 import {cn} from '@/lib/cn';
 import zoomPlugin from 'chartjs-plugin-zoom';
-import {Chart as ChartJS} from 'chart.js';
+import {Chart, Chart as ChartJS} from 'chart.js';
 import {
     CHART_JS_REGISTER_COMPONENTS,
     DEFAULT_CHART_OPTIONS,
@@ -10,8 +10,9 @@ import {
     DEFAULT_TOOLTIP_CONFIG,
     ZOOM_CONFIG,
 } from './config';
-import {formatChartData, createScalesConfig, hideLineOnClickPlugin} from './utils';
+import {formatChartData, createScalesConfig} from './utils';
 import {useTheme} from '@gravity-ui/uikit';
+import {hideLineOnClickPlugin} from '@/shared/ui/Graphic/plugins';
 
 ChartJS.register(...CHART_JS_REGISTER_COMPONENTS, zoomPlugin);
 
@@ -22,6 +23,56 @@ interface GraphicProps {
     colors?: Record<string, string>;
     removedEntities?: string[];
 }
+
+const verticalLinePlugin = {
+    id: 'verticalLinePlugin',
+    afterDraw(chart: Chart) {
+        const ctx = chart.ctx;
+        const datasets = chart.data.datasets;
+        const chartArea = chart.chartArea;
+
+        datasets.forEach((dataset, datasetIndex) => {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            if (!meta.hidden) {
+                const data = dataset.data as (number | null)[];
+                const xAxis = chart.scales.x;
+                const yAxisID = (dataset as any).yAxisID || 'y';
+                const yAxis = chart.scales[yAxisID];
+
+                data.forEach((value, index) => {
+                    if (value !== null && !isNaN(value)) {
+                        const prevValue = index > 0 ? data[index - 1] : null;
+                        const nextValue = index < data.length - 1 ? data[index + 1] : null;
+
+                        if (!prevValue && !nextValue) {
+                            const x = xAxis.getPixelForValue(index);
+
+                            const yStart = chartArea.bottom; // Начинаем снизу
+                            const yEnd = yAxis.getPixelForValue(value);
+
+                            const clampedY = Math.min(
+                                Math.max(yEnd, chartArea.top),
+                                chartArea.bottom,
+                            );
+
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.strokeStyle = (dataset.borderColor as string) || '#000';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([25, 25]);
+
+                            ctx.moveTo(x, yStart);
+                            ctx.lineTo(x, clampedY);
+
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    }
+                });
+            }
+        });
+    },
+};
 
 /**
  * Компонент для отображения линейного графика с возможностью масштабирования и настройки.
@@ -113,7 +164,7 @@ export const Graphic: FC<GraphicProps> = ({
                     ref={chartRef}
                     data={chartData}
                     options={options as any}
-                    plugins={[hideLineOnClickPlugin]}
+                    plugins={[hideLineOnClickPlugin, verticalLinePlugin]}
                     style={{width: '100%', height: '100%'}}
                 />
             </div>

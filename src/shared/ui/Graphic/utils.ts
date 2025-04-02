@@ -36,7 +36,7 @@ export const formatChartData = (
                     colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
                 backgroundColor:
                     colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
-                yAxisID: yAxes.includes(category) ? `y${index + 1}` : 'y',
+                yAxisID: yAxes.includes(category) ? `y${yAxes.indexOf(category) + 1}` : 'y',
                 tension: 0,
                 pointRadius: 0,
                 borderWidth: 2,
@@ -59,17 +59,18 @@ export const createScalesConfig = (categories: string[], yAxes: string[], isDark
             display: true,
             position: 'left',
             ticks: {
-                color: '#ffffff',
+                color: isDark ? '#ffffff' : '#000',
             },
             grid: {
-                color: 'rgba(255, 255, 255, 0.1)',
+                color: 'rgba(47,5,5,0.1)',
             },
+            min: 0,
+            beginAtZero: true,
         };
     }
 
     yAxes.forEach((category, index) => {
-        const axisKey =
-            categories.length >= yAxes.length && yAxes.length === 1 ? 'y' : `y${index + 1}`;
+        const axisKey = `y${index + 1}`;
 
         scales[axisKey] = {
             type: 'linear' as const,
@@ -91,29 +92,4 @@ export const createScalesConfig = (categories: string[], yAxes: string[], isDark
     });
 
     return scales;
-};
-
-export const hideLineOnClickPlugin = {
-    id: 'hideLineOnClick',
-    beforeEvent(chart: any, args: any) {
-        const event = args.event;
-        if (event.type === 'click') {
-            const elements = chart.getElementsAtEventForMode(
-                event,
-                'nearest',
-                {intersect: true},
-                false,
-            );
-
-            if (elements.length > 0) {
-                const element = elements[0];
-                const datasetIndex = element.datasetIndex;
-                const meta = chart.getDatasetMeta(datasetIndex);
-
-                meta.hidden =
-                    meta.hidden === null ? !chart.data.datasets[datasetIndex].hidden : null;
-                chart.update();
-            }
-        }
-    },
 };

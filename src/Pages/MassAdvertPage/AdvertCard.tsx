@@ -921,7 +921,7 @@ export const AdvertCard = ({
                                 return yagrBudgetData;
                             }}
                             colors={{Баланс: '#ffbe5c'}}
-                            extraYAxes={['Баланс']}
+                            extraYAxes={['Расход']}
                         >
                             <Button pin="round-brick" size="xs" view="flat">
                                 <Icon data={ChartAreaStacked} size={11} />

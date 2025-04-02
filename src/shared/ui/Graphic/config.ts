@@ -42,7 +42,7 @@ export const GET_DEFAULT_X_AXIS_CONFIG = (isDark: boolean) => {
             color: isDark ? '#ffffff' : '#000000',
         },
         grid: {
-            color: 'rgba(255, 255, 255, 0.1)',
+            color: isDark ? '#434343' : 'rgba(47,5,5,0.1)',
         },
     };
 };

@@ -5,7 +5,7 @@ import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 const ipAddress = 'https://seller.aurum-sky.net';
 
 class ApiClient {
-    private baseUrl: string;
+    private readonly baseUrl: string;
 
     constructor(baseUrl: string) {
         this.baseUrl = baseUrl;
