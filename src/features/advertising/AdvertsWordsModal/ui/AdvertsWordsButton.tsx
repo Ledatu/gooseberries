@@ -2,6 +2,7 @@
 
 import {Button, Text} from '@gravity-ui/uikit';
 import {AdvertsWordsModal} from './AdvertsWordsModal';
+import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
 // import {AdvertsWordsModal} from './AdvertsWordsModal';
 
 interface AdvertsWordsButtonProps {
@@ -14,27 +15,16 @@ interface AdvertsWordsButtonProps {
     setFetchedPlacements: (args: any) => any;
     currentParsingProgress: any;
     setCurrentParsingProgress: (args: any) => any;
-    name: string;
+    template: ShortAdvertTemplateInfo;
 }
 
-export const AdvertsWordsButton = ({
-    doc,
-    selectValue,
-    advertId,
-    name,
-}: AdvertsWordsButtonProps) => {
-    const plusPhrasesTemplate = doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId]
-        ? doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId].templateName
-        : undefined;
-    const {isFixed, autoPhrasesTemplate} =
-        doc.plusPhrasesTemplates[selectValue[0]][plusPhrasesTemplate] ?? {};
+export const AdvertsWordsButton = ({template}: AdvertsWordsButtonProps) => {
+    const {isFixed, includesNum, notIncludesNum, advertId} = template;
 
-    const themeToUse = plusPhrasesTemplate
-        ? isFixed
+    const themeToUse = isFixed !== undefined
+        ? isFixed === true
             ? 'flat-warning'
-            : autoPhrasesTemplate &&
-                ((autoPhrasesTemplate.includes && autoPhrasesTemplate.includes.length) ||
-                    (autoPhrasesTemplate.notIncludes && autoPhrasesTemplate.notIncludes.length))
+            : (includesNum && includesNum > 0) || (notIncludesNum && notIncludesNum > 0)
               ? 'flat-success'
               : 'flat-info'
         : 'normal';
@@ -52,9 +42,7 @@ export const AdvertsWordsButton = ({
             // setCurrentParsingProgress={setCurrentParsingProgress}
         >
             <Button size="xs" pin="brick-round" selected={themeToUse != 'normal'} view={themeToUse}>
-                <Text variant="caption-2">
-                    {themeToUse != 'normal' ? name : 'Фразы'}
-                </Text>
+                <Text variant="caption-2">{template.templateName}</Text>
             </Button>
         </AdvertsWordsModal>
     );

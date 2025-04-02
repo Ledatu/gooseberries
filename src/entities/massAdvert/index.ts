@@ -1,2 +1,2 @@
-export { getNamesForAdverts } from "./getNamesForAdvert";
+export { getNamesForAdverts } from "../api/getNamesForAdvert";
 

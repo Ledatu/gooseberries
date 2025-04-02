@@ -8,6 +8,7 @@ export const getNamesForAdverts = async (seller_id: string) => {
 			throw new Error('No data in res');
 		}
 		return res.data.names
+		
 
 	} catch (error: any) {
 		throw new Error("Error while getting names for adverts", error)

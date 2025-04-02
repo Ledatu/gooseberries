@@ -95,6 +95,7 @@ import {CopyButton} from '@/components/Buttons/CopyButton';
 import {Note} from './NotesForArt/types';
 import {NotesForArt} from './NotesForArt';
 import { getNamesForAdverts } from '@/entities';
+import { ShortAdvertTemplateInfo } from '@/entities/types/ShortAdvertTemplateInfo';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -420,12 +421,12 @@ export const MassAdvertPage = () => {
 
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
-    const [advertTemplateNames, setAdvertTemplateNames] = useState<any>({});
+    const [shortAdvertInfo, setShortAdvertInfo] = useState<{[key: string] : ShortAdvertTemplateInfo}>({});
 
     const getNames = async () => {
         try {
             const templates = await getNamesForAdverts(sellerId);
-            setAdvertTemplateNames(templates);
+            setShortAdvertInfo(templates);
         } catch (error) {
             console.error(error);
         }
@@ -434,6 +435,10 @@ export const MassAdvertPage = () => {
     useEffect(() => {
         getNames();
     }, [sellerId]);
+    useEffect(() => {
+        console.log(shortAdvertInfo);
+
+    }, [shortAdvertInfo])
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -1194,7 +1199,7 @@ export const MassAdvertPage = () => {
                       const switches: any[] = [];
                       if (value)
                         for (const [advertId, _] of Object.entries(value)) {
-                            //   console.log(advertTemplateNames[parseInt(advertId)], advertId, advertTemplateNames)
+                            //   console.log(shortAdvertInfo[parseInt(advertId)], advertId, shortAdvertInfo)
                               const advertData = doc?.adverts?.[selectValue[0]]?.[advertId];
                               if (!advertData) continue;
                               // console.log('popa', advertData, filters['adverts'].val);
@@ -1242,7 +1247,9 @@ export const MassAdvertPage = () => {
                                               getUniqueAdvertIdsFromThePage={
                                                   getUniqueAdvertIdsFromThePage
                                               }
-                                              name={advertTemplateNames[parseInt(advertId)] ?? 'Фразы'}
+                                              template={shortAdvertInfo[parseInt(advertId)] ?? {advertId: parseInt(advertId), Name: 'Фразы'}}
+
+                                            //   name={shortAdvertInfo[parseInt(advertId)] ?? 'Фразы'}
                                           />,
                                       );
                                   } else if (
@@ -1283,7 +1290,7 @@ export const MassAdvertPage = () => {
                                               getUniqueAdvertIdsFromThePage={
                                                   getUniqueAdvertIdsFromThePage
                                               }
-                                              name={advertTemplateNames[advertId] ?? 'Фразы'}
+                                              template={shortAdvertInfo[parseInt(advertId)] ?? {advertId: parseInt(advertId), templateName: 'Фразы'}}
                                           />,
                                       );
                                   } else {
@@ -1321,7 +1328,8 @@ export const MassAdvertPage = () => {
                                           getUniqueAdvertIdsFromThePage={
                                               getUniqueAdvertIdsFromThePage
                                           }
-                                          name={advertTemplateNames[parseInt(advertId)] ?? "Фразы"}
+                                          template={shortAdvertInfo[parseInt(advertId)] ?? {advertId: parseInt(advertId), templateName: 'Фразы'}}
+
                                       />,
                                   );
                               }
@@ -4054,7 +4062,7 @@ export const MassAdvertPage = () => {
                                                     getUniqueAdvertIdsFromThePage={
                                                         getUniqueAdvertIdsFromThePage
                                                     }
-                                                    name={advertTemplateNames[parseInt(advertId)] ?? 'Фразы'}
+                                                    template={shortAdvertInfo[advertId] ?? {advertId: parseInt(advertId), templateName: 'Фразы'}}
                                                 />
                                                 <div style={{minWidth: 8}} />
                                                 <Button
