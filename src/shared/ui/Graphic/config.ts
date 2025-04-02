@@ -27,37 +27,41 @@ export const DEFAULT_CHART_OPTIONS = {
     },
 };
 
-export const DEFAULT_X_AXIS_CONFIG = {
-    display: true,
-    title: {
-        display: false,
-        text: 'Дата и время',
-    },
-    ticks: {
-        maxTicksLimit: 10,
-        autoSkip: true,
-        maxRotation: 0,
-        minRotation: 0,
-        color: '#ffffff',
-    },
-    grid: {
-        color: 'rgba(255, 255, 255, 0.1)',
-    },
+export const GET_DEFAULT_X_AXIS_CONFIG = (isDark: boolean) => {
+    return {
+        display: true,
+        title: {
+            display: false,
+            text: 'Дата и время',
+        },
+        ticks: {
+            maxTicksLimit: 10,
+            autoSkip: true,
+            maxRotation: 0,
+            minRotation: 0,
+            color: isDark ? '#ffffff' : '#000000',
+        },
+        grid: {
+            color: 'rgba(255, 255, 255, 0.1)',
+        },
+    };
 };
 
-export const DEFAULT_LEGEND_CONFIG = {
-    position: 'bottom' as const,
-    labels: {
-        padding: 20,
-        usePointStyle: true,
-        pointStyle: 'circle',
-        color: '#ffffff',
-        font: {
-            family: 'sans-serif',
-            size: 12,
-            weight: 'normal',
+export const GET_DEFAULT_LEGEND_CONFIG = (isDark: boolean) => {
+    return {
+        position: 'bottom' as const,
+        labels: {
+            padding: 20,
+            usePointStyle: true,
+            pointStyle: 'circle',
+            color: isDark ? '#ffffff' : '#000',
+            font: {
+                family: 'sans-serif',
+                size: 12,
+                weight: 'normal',
+            },
         },
-    },
+    };
 };
 
 export const DEFAULT_TOOLTIP_CONFIG = {

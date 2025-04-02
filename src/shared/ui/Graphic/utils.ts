@@ -1,4 +1,4 @@
-import {DEFAULT_X_AXIS_CONFIG} from '@/shared/ui/Graphic/config';
+import {GET_DEFAULT_X_AXIS_CONFIG} from '@/shared/ui/Graphic/config';
 
 export const timeToHHMM = (date: Date): string => {
     const hours = date.getHours().toString().padStart(2, '0');
@@ -47,9 +47,9 @@ export const formatChartData = (
     };
 };
 
-export const createScalesConfig = (categories: string[], yAxes: string[]) => {
+export const createScalesConfig = (categories: string[], yAxes: string[], isDark: boolean) => {
     const scales: Record<string, any> = {
-        x: DEFAULT_X_AXIS_CONFIG,
+        x: GET_DEFAULT_X_AXIS_CONFIG(isDark),
     };
 
     const hasNonAxisCategories = categories.some((category) => !yAxes.includes(category));
@@ -78,10 +78,10 @@ export const createScalesConfig = (categories: string[], yAxes: string[]) => {
             title: {
                 display: true,
                 text: category,
-                color: '#ffffff',
+                color: isDark ? '#ffffff' : '#000',
             },
             ticks: {
-                color: '#ffffff',
+                color: isDark ? '#ffffff' : '#000',
             },
             grid: {
                 drawOnChartArea: index === 0,

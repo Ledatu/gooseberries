@@ -6,11 +6,12 @@ import {Chart as ChartJS} from 'chart.js';
 import {
     CHART_JS_REGISTER_COMPONENTS,
     DEFAULT_CHART_OPTIONS,
-    DEFAULT_LEGEND_CONFIG,
+    GET_DEFAULT_LEGEND_CONFIG,
     DEFAULT_TOOLTIP_CONFIG,
     ZOOM_CONFIG,
 } from './config';
 import {formatChartData, createScalesConfig, hideLineOnClickPlugin} from './utils';
+import {useTheme} from '@gravity-ui/uikit';
 
 ChartJS.register(...CHART_JS_REGISTER_COMPONENTS, zoomPlugin);
 
@@ -49,6 +50,7 @@ export const Graphic: FC<GraphicProps> = ({
     colors,
     removedEntities = [],
 }) => {
+    const theme = useTheme();
     const chartRef = useRef<any>(null);
 
     const filteredData = data.map((item) => {
@@ -66,10 +68,10 @@ export const Graphic: FC<GraphicProps> = ({
 
     const options = {
         ...DEFAULT_CHART_OPTIONS,
-        scales: createScalesConfig(categories, yAxes),
+        scales: createScalesConfig(categories, yAxes, theme === 'dark'),
         plugins: {
             legend: {
-                ...DEFAULT_LEGEND_CONFIG,
+                ...GET_DEFAULT_LEGEND_CONFIG(theme === 'dark'),
                 onClick: (_e: never, legendItem: any, legend: any) => {
                     const index = legendItem.datasetIndex;
                     const chart = legend.chart;
