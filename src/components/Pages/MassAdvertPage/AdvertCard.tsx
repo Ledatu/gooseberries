@@ -526,6 +526,10 @@ export const AdvertCard = ({
                                                 drrAI.autoBidsMode == 'cpo'
                                                     ? drrAI?.desiredCpo
                                                     : drrAI.desiredDRR
+                                            } ${
+                                                !drrAI.drrOption || drrAI.drrOption == 'art'
+                                                    ? '(Арт.)'
+                                                    : '(РК)'
                                             }`}
                                         </Text>
                                     ) : (

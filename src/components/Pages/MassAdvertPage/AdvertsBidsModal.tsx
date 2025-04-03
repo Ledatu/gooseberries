@@ -138,6 +138,18 @@ export const AdvertsBidsModal = ({
         onClick: handleOpen,
     });
 
+    const drrOptions = [
+        {
+            value: 'art',
+            content: 'Артикула',
+        },
+        {
+            value: 'advertId',
+            content: 'РК',
+        },
+    ];
+    const [drrOption, setDrrOption] = useState(drrOptions[0].value);
+
     const [useAutoMaxCpm, setUseAutoMaxCpm] = useState(true);
     const [usePlacementsTrigger, setUsePlacementsTrigger] = useState(false);
 
@@ -291,6 +303,19 @@ export const AdvertsBidsModal = ({
                         }
                     />
                 </div>
+            ),
+            select: (
+                <TextTitleWrapper
+                    title={`Использовать ${autoBidderOption[0] == 'cpo' ? 'CPO' : 'ДРР'}`}
+                    padding={16}
+                >
+                    <SegmentedRadioGroup
+                        size="l"
+                        value={drrOption}
+                        options={drrOptions}
+                        onUpdate={(opt) => setDrrOption(opt)}
+                    />
+                </TextTitleWrapper>
             ),
         },
         cpo: {
@@ -516,6 +541,7 @@ export const AdvertsBidsModal = ({
                     ? parseInt(placementsTriggerInputValue)
                     : undefined,
                 desiredSumOrders: parseInt(sumOrdersInputValue),
+                drrOption,
                 bid: parseInt(cpmInputValue),
                 maxBid: parseInt(maxCpmInputValue),
                 useManualMaxCpm: !useAutoMaxCpm,
@@ -561,6 +587,7 @@ export const AdvertsBidsModal = ({
                                     ? null
                                     : parseInt(ordersInputValue),
                             desiredSum: parseInt(sumInputValue),
+                            drrOption,
                             desiredObor: parseInt(oborInputValue),
                             desiredSumOrders: parseInt(sumOrdersInputValue),
                             desiredDRR: parseInt(drrInputValue),
@@ -673,7 +700,14 @@ export const AdvertsBidsModal = ({
                                     />
                                 </TextTitleWrapper>
                                 <motion.div
-                                    style={{height: 0, overflow: 'hidden', width: '100%'}}
+                                    style={{
+                                        height: 0,
+                                        overflow: 'hidden',
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 8,
+                                    }}
                                     animate={{
                                         marginTop:
                                             autoBidderOption[0] != 'delete' &&
@@ -703,6 +737,7 @@ export const AdvertsBidsModal = ({
                                                 .input
                                         }
                                     </TextTitleWrapper>
+                                    {textInputs['drr'].select}
                                 </motion.div>
                                 <motion.div
                                     style={{
