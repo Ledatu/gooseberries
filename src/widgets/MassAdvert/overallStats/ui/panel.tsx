@@ -1,12 +1,13 @@
 import {FC, HTMLProps} from 'react';
-import {StatisticsCard} from '@/widgets/MassAdvert/overallStats/ui/card';
 import {campaignStore} from '@/shared/stores/campaignStore';
 import {observer} from 'mobx-react-lite';
+import {StatisticsCard} from './card';
+import {Summary} from '@/shared/types/summary';
 
 interface StatisticsPanelProps extends HTMLProps<HTMLDivElement> {}
 
 const cardStyle: any = {
-    minWidth: '10em',
+    minWidth: '12em',
     height: '10em',
     display: 'flex',
     flex: '1 1 auto',
@@ -21,7 +22,7 @@ const cardStyle: any = {
 };
 
 export const StatisticsPanel: FC<StatisticsPanelProps> = observer(({...rest}) => {
-    const summary = campaignStore.summary;
+    const summary: Summary = campaignStore.summary;
     return (
         <div
             style={{
@@ -35,50 +36,43 @@ export const StatisticsPanel: FC<StatisticsPanelProps> = observer(({...rest}) =>
             {...rest}
         >
             <StatisticsCard
-                value={summary.sum_orders}
-                placeholder="ЗАКАЗЫ"
                 cardStyle={cardStyle}
-                rub={true}
+                entity1={{value: summary.sum_orders, placeholder: 'ЗАКАЗЫ', rub: true}}
+                entity2={{value: summary.sum_sales, placeholder: 'ПРОДАЖИ', rub: true}}
             />
             <StatisticsCard
-                value={summary.sum_sales}
-                placeholder="ПРОДАЖИ"
                 cardStyle={cardStyle}
-                rub={true}
+                entity1={{value: summary.sum, placeholder: 'РАСХОД', rub: true}}
+                entity2={{
+                    value: `${summary.drr}`,
+                    valueType: 'text',
+                    placeholder: 'ДРР к ЗАКАЗАМ / к ПРОДАЖАМ',
+                }}
             />
             <StatisticsCard
-                value={summary.sum}
-                placeholder="РАСХОД"
                 cardStyle={cardStyle}
-                rub={true}
+                entity1={{value: summary.profit, placeholder: 'ПРИБЫЛЬ'}}
+                entity2={{
+                    value: summary.rent,
+                    valueType: 'text',
+                    placeholder: 'РЕНТ к ЗАКАЗАМ / к ПРОДАЖАМ',
+                }}
             />
             <StatisticsCard
-                value={summary.drr}
-                placeholder="ДРР к ЗАКАЗАМ / к ПРОДАЖАМ"
                 cardStyle={cardStyle}
-                valueType="text"
+                entity1={{value: summary.views, placeholder: 'ПОКАЗЫ'}}
+                entity2={{value: summary.x, placeholder: 'CTR', percent: true}}
             />
             <StatisticsCard
-                value={summary.profit}
-                placeholder="ПРИБЫЛЬ"
                 cardStyle={cardStyle}
-                valueType="text"
+                entity1={{value: summary.clicks, placeholder: 'КЛИКИ'}}
+                entity2={{value: summary.s, placeholder: 'ПЕРЕХОДЫ'}}
             />
             <StatisticsCard
-                value={summary.rent}
-                placeholder="РЕНТ к ЗАКАЗАМ / к ПРОДАЖАМ"
                 cardStyle={cardStyle}
-                valueType="text"
+                entity1={{value: summary.orders, placeholder: 'ЗАКАЗЫ шт'}}
+                entity2={{value: summary.sales, placeholder: 'ПРОДАЖИ шт'}}
             />
-            <StatisticsCard value={summary.views} placeholder="ПОКАЗЫ" cardStyle={cardStyle} />
-            <StatisticsCard value={summary.clicks} placeholder="КЛИКИ" cardStyle={cardStyle} />
-            <StatisticsCard
-                value={summary.addToCartCount}
-                placeholder="КОРЗИНЫ"
-                cardStyle={cardStyle}
-            />
-            <StatisticsCard value={summary.orders} placeholder="ЗАКАЗЫ" cardStyle={cardStyle} />
-            <StatisticsCard value={summary.sales} placeholder="ПРОДАЖИ" cardStyle={cardStyle} />
         </div>
     );
 });
