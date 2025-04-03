@@ -791,6 +791,7 @@ export const AdvertCard = ({
                             </Button>
                         </AdvertsBudgetsModal>
                         <ChartModal
+                            minMaxValues={{Расход: {min: 0}}}
                             fetchingFunction={async () => {
                                 const params = {
                                     seller_id: sellerId,

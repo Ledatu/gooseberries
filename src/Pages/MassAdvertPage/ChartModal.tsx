@@ -4,7 +4,7 @@ import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {Card, Loader, Modal} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, useState, cloneElement, FC} from 'react';
-import {Graphic} from '@/shared/ui/Graphic';
+import {Graphic, MinMaxValue} from '@/shared/ui/Graphic';
 
 interface ChartModalInterface {
     children: ReactElement | ReactElement[];
@@ -13,6 +13,7 @@ interface ChartModalInterface {
     addTime?: boolean;
     colors?: Record<string, string>;
     extraYAxes?: string[];
+    minMaxValues?: MinMaxValue;
 }
 
 export const ChartModal: FC<ChartModalInterface> = ({
@@ -22,6 +23,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
     addTime,
     extraYAxes,
     colors,
+    minMaxValues,
 }) => {
     const [open, setOpen] = useState(false);
     const [dataFetching, setDataFetching] = useState(false);
@@ -146,6 +148,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
                                 yAxes={extraYAxes}
                                 colors={colors}
                                 removedEntities={['CR']}
+                                minMaxValues={minMaxValues}
                             />
                         ) : (
                             <p>No data available.</p>

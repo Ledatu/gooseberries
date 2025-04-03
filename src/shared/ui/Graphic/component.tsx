@@ -16,12 +16,15 @@ import {hideLineOnClickPlugin, verticalLinePlugin} from '@/shared/ui/Graphic/plu
 
 ChartJS.register(...CHART_JS_REGISTER_COMPONENTS, zoomPlugin);
 
+export type MinMaxValue = Record<string, {min?: number; max?: number}>;
+
 interface GraphicProps {
     data: Record<string, number | string>[];
     className?: string;
     yAxes?: string[];
     colors?: Record<string, string>;
     removedEntities?: string[];
+    minMaxValues?: MinMaxValue;
 }
 
 /**
@@ -50,11 +53,47 @@ export const Graphic: FC<GraphicProps> = ({
     yAxes = [],
     colors,
     removedEntities = [],
+    minMaxValues,
 }) => {
+    console.log('data', data);
     const theme = useTheme();
     const chartRef = useRef<any>(null);
 
-    const filteredData = data.map((item) => {
+    const filterDataByMinMax = (
+        data: Record<string, string | number>[],
+        minMaxes: MinMaxValue,
+    ): Record<string, string | number>[] => {
+        const valueKeys = Object.keys(minMaxes);
+        if (valueKeys.length === 0) {
+            return data;
+        }
+
+        for (let item of data) {
+            for (let key of valueKeys) {
+                if (
+                    minMaxes[key].min &&
+                    !Number.isNaN(+item[key]) &&
+                    item[key] &&
+                    +item[key] < minMaxes[key].min
+                ) {
+                    delete item[key];
+                    continue;
+                }
+                if (
+                    minMaxes[key].max &&
+                    !Number.isNaN(item[key]) &&
+                    item[key] &&
+                    +item[key] > minMaxes[key].max
+                ) {
+                    delete item[key];
+                }
+            }
+        }
+
+        return data;
+    };
+
+    let filteredData = data.map((item) => {
         const filteredItem: Record<string, number | string> = {};
         for (const key in item) {
             if (!removedEntities.includes(key)) {
@@ -63,6 +102,8 @@ export const Graphic: FC<GraphicProps> = ({
         }
         return filteredItem;
     });
+
+    filteredData = filterDataByMinMax(filteredData, minMaxValues || {});
 
     const chartData = formatChartData(filteredData, yAxes, colors);
     const categories: string[] = chartData.datasets.map((dataset) => dataset.label);
