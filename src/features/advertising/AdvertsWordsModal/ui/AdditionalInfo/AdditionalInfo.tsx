@@ -39,15 +39,17 @@ export const AdditionalInfoTab = () => {
                 >
                     <Text>{advertId}</Text>
                 </Button>
-                <Button
-                    size="l"
-                    pin="circle-circle"
-                    selected
-                    view={'outlined-info'}
-                    style={{paddingInline: 16}}
-                >
-                    <Text>{template.name}</Text>
-                </Button>
+                {template.name ? (
+                    <Button
+                        size="l"
+                        pin="circle-circle"
+                        selected
+                        view={'outlined-info'}
+                        style={{paddingInline: 16}}
+                    >
+                        <Text>{template.name}</Text>
+                    </Button>
+                ) : undefined}
             </div>
             {alert ? (
                 <Card

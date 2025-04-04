@@ -2,14 +2,27 @@ import {useEffect, useState} from 'react';
 import {ClusterData} from '../api/mapper';
 import {useAdvertsWordsModal} from './AdvertsWordsModalContext';
 import {getMedian} from '@/utilities/getMedian';
-import {ColumnData} from '../ui/ClustersTable';
+import {compare} from '@/components/TheTable';
+
+export interface InfoForDescription {
+    isPhrasesExcludedByMinus?: boolean;
+    isPhrasesSelectedByPlus?: boolean;
+    includesPhrases?: string[];
+    notIncludesPhrases?: string[];
+    rules: Rules[];
+    excluded: boolean;
+}
 
 interface ClustersTableContext {
     data: ClusterData[];
     footerData: ClusterData;
     showDzhem: boolean;
     setShowDzhem: (arg: boolean) => void;
-    columns: ColumnData[];
+    filteredData: ClusterData[];
+    filterTableData: Function;
+    setFilters: (filters: any) => void;
+    filters: any;
+    getInfoForDescription: (cluster: string, row: any, excluded: boolean) => InfoForDescription;
 }
 
 const calcFooter = (clusterData: ClusterData[]): ClusterData => {
@@ -64,8 +77,8 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
     return summaryData;
 };
 
-export const useClustersTableContext = (columns: ColumnData[]): ClustersTableContext => {
-    const {stats} = useAdvertsWordsModal();
+export const useClustersTableContext = (): ClustersTableContext => {
+    const {stats, template} = useAdvertsWordsModal();
     const [data, setData] = useState(stats);
     const [footer, setFooter] = useState(calcFooter(data));
     useEffect(() => {
@@ -81,13 +94,101 @@ export const useClustersTableContext = (columns: ColumnData[]): ClustersTableCon
     //         ? setColumnsData(columns)
     //         : setColumnsData(columns.filter((column) => notDzhem.includes(column.name)));
     // }, [showDzhem, columns]);
+    const [filters, setFilters] = useState({undef: true});
+    const [filteredData, setFilteredData] = useState(stats);
+    const filterTableData = (withfFilters: any = {}, tableData: any = []) => {
+        const temp = [] as any;
+        for (const tempTypeRow of tableData.length ? tableData : data) {
+            let addFlag = true;
+            const useFilters: any = withfFilters['undef'] ? withfFilters : filters;
+            for (const [filterArg, data] of Object.entries(useFilters)) {
+                const filterData: any = data;
+                if (filterArg == 'undef' || !filterData || filterArg == 'byWarehouses') continue;
+                if (filterData['val'] == '') continue;
+
+                const fldata = filterData['val'];
+                const flarg = tempTypeRow[filterArg];
+
+                if (fldata.trim() == '+') {
+                    if (flarg !== undefined) continue;
+                } else if (fldata.trim() == '-') {
+                    if (flarg === undefined) continue;
+                }
+
+                if (!compare(tempTypeRow[filterArg], filterData)) {
+                    addFlag = false;
+                    break;
+                }
+            }
+
+            if (addFlag) temp.push(tempTypeRow);
+        }
+
+        // temp.sort((a: any, b: any) => {
+        //     if (!a || !b) return false;
+        //     if (!a.art || !b.art) return false;
+        //     return a.art.localeCompare(b.art, 'ru-RU');
+        // });
+
+        setFilteredData(temp);
+    };
+
+    const getInfoForDescription = (
+        cluster: string,
+        row: any,
+        excluded: boolean,
+    ): InfoForDescription => {
+        if (excluded) {
+            const isPhrasesExcludedByMinus = template.phrasesExcludedByMinus.includes(cluster);
+            const includesPhrases = template.includes.filter((value) => cluster.includes(value));
+            const notIncludesPhrases = template.notIncludes.filter((value) =>
+                cluster.includes(value),
+            );
+
+            const rules: Rules[] = template.rules.filter((rule) => {
+                const ruleName = rule.key;
+                if (
+                    row['views'] >= rule.viewsThreshold &&
+                    ((rule.biggerOrEqual && row[ruleName] >= rule.val) ||
+                        (!rule.biggerOrEqual && row[ruleName] <= rule.val))
+                )
+                    return true;
+                return false;
+            });
+            return {
+                isPhrasesExcludedByMinus,
+                includesPhrases,
+                notIncludesPhrases,
+                rules,
+                excluded,
+            };
+        } else {
+            const isPhrasesSelectedByPlus = template.phrasesSelectedByPlus.includes(cluster);
+            const includesPhrases = template.includes.filter((value) => cluster.includes(value));
+            const rules: Rules[] = template.rules.filter((rule) => {
+                const ruleName = rule.key;
+                if (
+                    row['views'] >= rule.viewsThreshold &&
+                    ((rule.biggerOrEqual && row[ruleName] >= rule.val) ||
+                        (!rule.biggerOrEqual && row[ruleName] < rule.val))
+                )
+                    return true;
+                return false;
+            });
+            return {isPhrasesSelectedByPlus, includesPhrases, rules, excluded};
+        }
+    };
 
     return {
+        filteredData,
+        filterTableData,
+        setFilters,
+        filters,
         footerData: footer,
         data: data,
-        columns: columns,
         showDzhem: showDzhem,
         setShowDzhem: setShowDzhem,
+        getInfoForDescription: getInfoForDescription,
     };
 
     // Fetch data when advertId changes

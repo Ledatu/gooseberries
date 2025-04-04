@@ -11,18 +11,19 @@ import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
 import {defaultRender, renderAsPercent} from '@/utilities/getRoundValue';
 import {RangePicker} from '@/components/RangePicker';
+import {DescriptionClusterPopup} from './DescriptionClusterPopup';
+// import {HelpMark} from '@/components/Popups/HelpMark';
 
 export interface ColumnData {
     placeholder: string;
     name: string;
-    value?: string;
+    valueType?: string;
     constWidth?: number;
     render?: (data: any) => React.ReactNode;
 }
 
 export const ClustersTable = () => {
     const {
-        stats,
         loading,
         advertWordsTemplateHandler,
         template,
@@ -32,12 +33,14 @@ export const ClustersTable = () => {
         dates,
         selectedPhrase,
         updateSelectedPhrase,
+        excluded,
     } = useAdvertsWordsModal();
+
     const columnData: ColumnData[] = [
         {
             placeholder: 'Пресет',
             name: 'preset',
-            value: 'text',
+            valueType: 'text',
             constWidth: 100,
             render: ({value}: any) => {
                 return (
@@ -59,8 +62,8 @@ export const ClustersTable = () => {
         {
             placeholder: 'Кластер',
             name: 'cluster',
-            value: 'text',
-            render: ({value, footer}: any) => {
+            valueType: 'text',
+            render: ({value, footer, row}: any) => {
                 const [isSelectedByPlus, setIsSelectedByPlus] = useState<boolean>(
                     template.phrasesSelectedByPlus.includes(value),
                 );
@@ -145,6 +148,9 @@ export const ClustersTable = () => {
                                 >
                                     <Icon data={Minus} />
                                 </Button>
+                                <DescriptionClusterPopup
+                                    info={getInfoForDescription(value, row, excluded)}
+                                />
                             </div>
                         ) : undefined}
                     </div>
@@ -154,7 +160,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'Показы, шт',
             name: 'views',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -170,7 +175,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'Клики, шт',
             name: 'clicks',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -186,7 +190,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'CTR, %',
             name: 'ctr',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -198,7 +201,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'CPC, ₽',
             name: 'cpc',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -215,7 +217,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'Расход, ₽',
             name: 'totalSum',
-            value: 'number',
             render: ({value}) => {
                 return <div>{<Text>{value}</Text>}</div>;
             },
@@ -223,7 +224,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'Частота, шт',
             name: 'totalFrequency',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -239,7 +239,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'Переходы, шт',
             name: 'openCardCurrent',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -255,7 +254,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'CR в корзину, %',
             name: 'openToCartCurrent',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -271,7 +269,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'CR в заказ, %',
             name: 'cartToOrderCurrent',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -287,7 +284,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'CR, %',
             name: 'openToOrderPercent',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -303,11 +299,15 @@ export const ClustersTable = () => {
         {
             placeholder: 'ДРР, %',
             name: 'drr',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
-                        {renderGradNumber({value, footer}, footerData['drr'], renderAsPercent, 'desc')}
+                        {renderGradNumber(
+                            {value, footer},
+                            footerData['drr'],
+                            renderAsPercent,
+                            'desc',
+                        )}
                     </div>
                 );
             },
@@ -315,11 +315,15 @@ export const ClustersTable = () => {
         {
             placeholder: 'CPO, ₽',
             name: 'cpo',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
-                        {renderGradNumber({value, footer}, footerData['cpo'], defaultRender, 'desc')}
+                        {renderGradNumber(
+                            {value, footer},
+                            footerData['cpo'],
+                            defaultRender,
+                            'desc',
+                        )}
                     </div>
                 );
             },
@@ -327,7 +331,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'В корзину, шт',
             name: 'addToCartCurrent',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -344,7 +347,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'Заказов, шт',
             name: 'ordersCurrent',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -360,7 +362,6 @@ export const ClustersTable = () => {
         {
             placeholder: 'Средняя позиция, шт',
             name: 'avgPositionCurrent',
-            value: 'number',
             render: ({value, footer}) => {
                 return (
                     <div>
@@ -374,8 +375,16 @@ export const ClustersTable = () => {
             },
         },
     ];
+    const {
+        data,
+        footerData,
+        filteredData,
+        filterTableData,
+        setFilters,
+        filters,
+        getInfoForDescription,
+    } = useClustersTableContext();
 
-    const {data, footerData, columns} = useClustersTableContext(columnData);
     const rangeToChoose = [startAdvert, endAdvert];
     const theme = useTheme();
     return (
@@ -415,15 +424,15 @@ export const ClustersTable = () => {
                 </motion.div>
             ) : (
                 <TheTable
-                    data={stats}
+                    data={filteredData}
                     tableId="ActiveClustersTable"
                     usePagination={true}
                     defaultPaginationSize={100}
-                    columnData={columns}
-                    filters={[]}
+                    columnData={columnData}
+                    filters={filters}
                     footerData={[footerData]}
-                    setFilters={() => {}}
-                    filterData={stats}
+                    setFilters={setFilters}
+                    filterData={filterTableData}
                     height={'95%'}
                 />
             )}

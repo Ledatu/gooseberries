@@ -1121,7 +1121,7 @@ export const MassAdvertPage = () => {
                           }}
                       >
                           <HelpMark
-                              position={'start'}
+                            //   position={'start'}
                               content={
                                   <div style={{display: 'flex', flexDirection: 'column'}}>
                                       <Text variant="subheader-1">
