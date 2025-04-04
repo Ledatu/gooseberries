@@ -369,8 +369,16 @@ export const AutoSalesModal = ({
                         </motion.div>
                         <motion.div
                             animate={{
-                                height: fileRequiredButNotUploaded && currentStep ? 36 : 0,
-                                marginTop: fileRequiredButNotUploaded && currentStep ? 8 : 0,
+                                height:
+                                    availableAutoSales[autoSaleName[0]]?.type == 'auto' &&
+                                    currentStep
+                                        ? 36
+                                        : 0,
+                                marginTop:
+                                    availableAutoSales[autoSaleName[0]]?.type == 'auto' &&
+                                    currentStep
+                                        ? 8
+                                        : 0,
                             }}
                             style={{height: 0, overflow: 'hidden', width: '100%'}}
                             transition={{

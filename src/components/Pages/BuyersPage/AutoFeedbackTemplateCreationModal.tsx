@@ -1,17 +1,6 @@
 'use client';
 
-import {
-    Button,
-    Icon,
-    // Link,
-    List,
-    Modal,
-    Select,
-    Text,
-    TextArea,
-    TextInput,
-    Card,
-} from '@gravity-ui/uikit';
+import {Button, Icon, List, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
 import {ListCheck, TrashBin, CloudArrowUpIn, Star, StarFill} from '@gravity-ui/icons';
 import {
     Children,
@@ -27,6 +16,8 @@ import {motion} from 'framer-motion';
 // import {generateModalButtonWithActions} from 'src/pages/MassAdvertPage';
 import {useCampaign} from '@/contexts/CampaignContext';
 import ApiClient from '@/utilities/ApiClient';
+import {ModalWindow} from '@/shared/ui/Modal';
+import {CheckTemplateModal} from './CheckTemplateModal';
 
 interface AutoFeedbackTemplateCreationModalInterface {
     children: ReactElement | ReactElement[];
@@ -51,7 +42,7 @@ export const AutoFeedbackTemplateCreationModal = ({
     const [templateName, setTemplateName] = useState('');
     const [ratingFrom, setRatingFrom] = useState('1');
     const [ratingTo, setRatingTo] = useState('5');
-    const [templateText, setTemplateText] = useState('');
+    const [templateText, setTemplateText] = useState<string>(templateValues?.text ?? '');
 
     // const [selectedButton, setSelectedButton] = useState('');
 
@@ -150,7 +141,7 @@ export const AutoFeedbackTemplateCreationModal = ({
             if (word[0] == '{')
                 nodes[i] = (
                     <Text
-                        color="primary"
+                        color="brand"
                         className="g-link g-link_view_primary"
                         onClick={() => {
                             setTemplateText((val) => (val.trim() + ' ' + word).trim());
@@ -159,14 +150,6 @@ export const AutoFeedbackTemplateCreationModal = ({
                     >
                         {word}
                     </Text>
-                    // <Link
-                    //     onClick={() => {
-                    //         setTemplateText((val) => (val.trim() + ' ' + word).trim());
-                    //         textAreaRef?.current?.focus();
-                    //     }}
-                    // >
-                    //     {word}
-                    // </Link>
                 );
         }
         const temp = [] as any[];
@@ -176,13 +159,26 @@ export const AutoFeedbackTemplateCreationModal = ({
         }
         return temp;
     }, []);
+    useEffect(() => {
+        setTimeout(() => {
+            setTemplateText(templateValues?.text ?? '');
+        }, 200);
+    }, [templateValues, open]);
 
     const handleOpen = () => {
+        console.log(templateValues);
+
         setOpen(true);
         setTemplateName(templateValues?.name ?? '');
         if (templateValues?.name != '') setCurrentStep(1);
         setRatingFrom(templateValues?.ratingFrom ?? '1');
         setRatingTo(templateValues?.ratingTo ?? '5');
+        setUserRatings(templateValues?.ratings ?? []);
+        const stars = [false, false, false, false, false];
+        for (const rating of templateValues?.ratings ?? []) {
+            stars[rating - 1] = true;
+        }
+        setStarsButtonsState(stars);
         setBinding(templateValues?.binding ? [templateValues?.binding] : ['none']);
         setUseWordsFilter(templateValues?.contains?.length || templateValues?.doNotContain?.length);
         setBindingKeys(templateValues?.bindingKeys ?? []);
@@ -245,56 +241,26 @@ export const AutoFeedbackTemplateCreationModal = ({
         ApiClient.post('buyers/save-auto-feedbacks-template', params).finally(handleClose);
     };
 
+    useEffect(() => {
+        console.log(availableBindingKeys);
+    }, [binding]);
+
     return (
         <div>
             {triggerButton}
-            <Modal
-                open={open}
-                onClose={handleClose}
-                style={{display: 'flex', flexDirection: 'column'}}
-            >
-                <Card
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)', // Corrected 'translate' to 'transform'
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center', // Vertically center within the Card
-                        justifyContent: 'center', // Horizontally center within the Card
-                        backgroundColor: 'none',
-                    }}
-                >
-                    <motion.div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            position: 'relative',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            alignSelf: 'center',
-                        }}
-                    >
+            <ModalWindow isOpen={open} handleClose={handleClose}>
+                <div style={{display: 'flex', flexDirection: 'row', gap: 16}}>
+                    {!useWordsFilter ? (
+                        <></>
+                    ) : (
                         <motion.div
-                            animate={{
-                                width: useWordsFilter ? 250 : 0,
-                                left: useWordsFilter ? -258 : 0,
-                                top: '10%',
-                                opacity: useWordsFilter ? 1 : 0,
-                            }}
+                            exit={{opacity: 0}}
+                            animate={{opacity: 1}}
                             style={{
-                                position: 'absolute',
-                                background: '#221d220f',
-                                backdropFilter: 'blur(48px)',
-                                boxShadow: '#0002 0px 2px 8px 0px',
-                                borderRadius: 8,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                width: 0,
                                 height: 550,
-                                overflow: 'hidden',
-                                border: '1px solid #eee2',
+                                minWidth: 250,
                             }}
                         >
                             <div style={{display: 'flex', flexDirection: 'column', height: '50%'}}>
@@ -306,7 +272,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                             : '*После ввода нажмите Enter'
                                     }
                                     size="l"
-                                    value={containsTextInput}
+                                    value={containsTextInput ?? ''}
                                     onUpdate={(val) => {
                                         setContainsTextInput(val);
                                     }}
@@ -325,7 +291,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                 />
                                 <List
                                     filterable={false}
-                                    items={containsWords}
+                                    items={containsWords ?? []}
                                     onItemClick={(item) => {
                                         setContainsWords((cur) => {
                                             return cur.filter((it) => item != it);
@@ -345,7 +311,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                             : '*После ввода нажмите Enter'
                                     }
                                     size="l"
-                                    value={doNotContainTextInput}
+                                    value={doNotContainTextInput ?? ''}
                                     onUpdate={(val) => {
                                         setDoNotContainTextInput(val);
                                     }}
@@ -364,7 +330,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                 />
                                 <List
                                     filterable={false}
-                                    items={doNotContainWords}
+                                    items={doNotContainWords ?? []}
                                     onItemClick={(item) => {
                                         setDoNotContainWords((cur) => {
                                             return cur.filter((it) => item != it);
@@ -376,283 +342,270 @@ export const AutoFeedbackTemplateCreationModal = ({
                                 />
                             </div>
                         </motion.div>
+                    )}
+                    <div style={{display: 'flex', flexDirection: 'column', width: 550}}>
                         <motion.div
                             style={{
+                                height: 0,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                position: 'relative',
-                                minWidth: 400,
-                                maxWidth: 400,
-                                background: '#221d220f',
-                                backdropFilter: 'blur(48px)',
-                                boxShadow: '#0002 0px 2px 8px 0px',
-                                border: '1px solid #eee2',
+                                overflow: 'hidden',
+                            }}
+                            animate={{
+                                height: open ? 36 : 0,
+                                marginBottom: open && currentStep ? 8 : 0,
                             }}
                         >
-                            <motion.div
-                                style={{
-                                    height: 0,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    overflow: 'hidden',
-                                }}
-                                animate={{
-                                    height: open ? 36 : 0,
-                                    marginBottom: open && currentStep ? 8 : 0,
-                                }}
-                            >
-                                <TextInput
-                                    autoFocus
-                                    placeholder="Введите название шаблона"
-                                    size="l"
-                                    value={templateName}
-                                    onUpdate={(val) => {
-                                        setTemplateName(val);
-                                        if (val != '' && currentStep == 0) setCurrentStep(1);
-                                    }}
-                                />
-                            </motion.div>
-                            {/* <motion.div
-                                style={{
-                                    height: 0,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    overflow: 'hidden',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                                animate={{
-                                    height: open && currentStep ? 36 : 0,
-                                    marginBottom: open && currentStep ? 8 : 0,
-                                }}
-                            >
-                                <Text
-                                    style={{margin: '0 8px', whiteSpace: 'nowrap'}}
-                                    variant="subheader-2"
-                                >
-                                    Оценки от:
-                                </Text>
-                                {generateRates(5, setRatingFrom, ratingFrom)}
-                            </motion.div> */}
-                            <motion.div
-                                style={{
-                                    height: 0,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    overflow: 'hidden',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                                animate={{
-                                    height: open && currentStep ? 36 : 0,
-                                    marginBottom: open && currentStep ? 8 : 0,
-                                }}
-                            >
-                                <Text
-                                    style={{margin: '0 8px', whiteSpace: 'nowrap'}}
-                                    variant="subheader-2"
-                                >
-                                    Оценки:
-                                </Text>
-                                {genarateRatesButtons(5, starsButtonsState, setStarsButtonsState)}
-                            </motion.div>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    marginBottom: '8px',
-                                    alignSelf: 'center',
-                                    // alignContent: 'center',
-                                }}
-                            >
-                                <Button
-                                    selected={reportReview}
-                                    onClick={() => {
-                                        setReportReview(!reportReview);
-                                        setCurrentFeedbackValuations(0);
-                                        setCurrentProductValuations(0);
-                                    }}
-                                >
-                                    Отправлять жалобу
-                                </Button>
-                            </div>
-                            <motion.div
-                                style={{
-                                    maxHeight: 0,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    overflow: 'hidden',
-                                    alignItems: 'center',
-                                }}
-                                animate={{
-                                    maxHeight: open && currentStep && reportReview ? 600 : 0,
-                                    marginBottom: open && currentStep && reportReview ? 8 : 0,
-                                }}
-                            >
-                                <div style={{margin: '4px'}}>
-                                    <Select
-                                        options={feedbackValuations}
-                                        placeholder="Причина жалобы на отзыв"
-                                        onUpdate={(value) => {
-                                            setCurrentFeedbackValuations(Number(value));
-                                            console.log(currentFeedbackValuations);
-                                        }}
-                                    />
-                                </div>
-                                {/* <div style={{margin: '4px'}}>
-                                    <Select
-                                        options={productValuations}
-                                        placeholder="Описание проблемы товара"
-                                        width={'max'}
-                                        onUpdate={(value) => {
-                                            setCurrentProductValuations(Number(value));
-                                        }}
-                                    />
-                                </div> */}
-                            </motion.div>
-                            <motion.div
-                                style={{
-                                    maxHeight: 0,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    overflow: 'hidden',
-                                    alignItems: 'center',
-                                }}
-                                animate={{
-                                    maxHeight: open && currentStep ? 600 : 0,
-                                    marginBottom: open && currentStep ? 8 : 0,
-                                }}
-                            >
-                                <TextArea
-                                    controlRef={textAreaRef}
-                                    value={templateText}
-                                    onUpdate={(val) => {
-                                        setTemplateText(val);
-                                    }}
-                                    minRows={20}
-                                    maxRows={30}
-                                    note={`${templateText.length} / 1000`}
-                                    validationState={
-                                        templateText.length <= 1000 ? undefined : 'invalid'
-                                    }
-                                />
-                                <Text
-                                    variant="code-inline-1"
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        flexWrap: 'wrap',
-                                        padding: 8,
-                                    }}
-                                >
-                                    {infoText}
-                                </Text>
-                            </motion.div>
-                            <motion.div
-                                style={{
-                                    maxHeight: 0,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    overflow: 'hidden',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    padding: '0 8px',
-                                    width: '100%',
-                                    flexWrap: 'wrap',
-                                }}
-                                animate={{
-                                    maxHeight: open && currentStep ? 600 : 0,
-                                    marginBottom: open && currentStep ? 8 : 0,
-                                }}
-                            >
-                                <Button
-                                    pin="circle-circle"
-                                    selected={useWordsFilter}
-                                    view="outlined-utility"
-                                    onClick={() => setUseWordsFilter(!useWordsFilter)}
-                                >
-                                    Добавить фильтр слова
-                                </Button>
-                                <div style={{minWidth: 8}} />
-                                <Select
-                                    value={selectValue}
-                                    placeholder="Values"
-                                    options={bindingOptions}
-                                    renderControl={({triggerProps: {onClick, onKeyDown}}) => {
-                                        const map: any = {
-                                            none: 'Задать параметры',
-                                            brand: 'Бренд',
-                                            object: 'Тип предмета',
-                                            title: 'Наименование',
-                                            imtId: 'ID КТ',
-                                            art: 'Артикул продавца',
-                                            nmId: 'Артикул WB',
-                                            tags: 'Теги',
-                                        };
-                                        return (
-                                            <Button
-                                                selected={
-                                                    binding[0] != 'none' && bindingKeys.length > 0
-                                                }
-                                                // ref={ref as Ref<HTMLButtonElement>}
-                                                view={'outlined-info'}
-                                                pin={'circle-circle'}
-                                                // ref={ref}
-                                                onClick={onClick}
-                                                onKeyDown={onKeyDown}
-                                                // extraProps={{
-                                                //     onKeyDown,
-                                                // }}
-                                            >
-                                                {map[binding[0]]}
-                                            </Button>
-                                        );
-                                    }}
-                                    onUpdate={(nextValue) => {
-                                        setBindingKeys([]);
-                                        setBinding(nextValue);
-                                    }}
-                                />
-                            </motion.div>
-                            <Button
-                                disabled={
-                                    templateName == '' ||
-                                    (templateText == '' &&
-                                        currentFeedbackValuations == 0 &&
-                                        currentProductValuations == 0) ||
-                                    !starsButtonsState.includes(true)
-                                }
-                                view="outlined-success"
+                            <TextInput
+                                autoFocus
+                                placeholder="Введите название шаблона"
                                 size="l"
-                                style={{margin: '4px'}}
-                                onClick={handleSaveButton}
-                            >
-                                <Icon data={CloudArrowUpIn} />
-                                Сохранить
-                            </Button>
+                                value={templateName}
+                                onUpdate={(val) => {
+                                    setTemplateName(val);
+                                    if (val != '' && currentStep == 0) setCurrentStep(1);
+                                }}
+                            />
                         </motion.div>
                         <motion.div
-                            animate={{
-                                width: binding[0] != 'none' ? 250 : 0,
-                                left: binding[0] != 'none' ? 408 : 350,
-                                opacity: binding[0] != 'none' ? 1 : 0,
-                                top: '10%',
-                            }}
                             style={{
-                                background: '#221d220f',
-                                backdropFilter: 'blur(48px)',
-                                boxShadow: '#0002 0px 2px 8px 0px',
-                                border: '1px solid #eee2',
+                                height: 0,
                                 display: 'flex',
-                                position: 'absolute',
-                                height: 550,
-                                left: 408,
-                                flexDirection: 'column',
-                                width: 0,
+                                flexDirection: 'row',
                                 overflow: 'hidden',
-                                // background: 'var(--g-color-base-background)',
-                                borderRadius: 8,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                            animate={{
+                                height: open && currentStep ? 36 : 0,
+                                marginBottom: open && currentStep ? 8 : 0,
+                            }}
+                        >
+                            <Text
+                                style={{margin: '0 8px', whiteSpace: 'nowrap'}}
+                                variant="subheader-2"
+                            >
+                                Оценки:
+                            </Text>
+                            {genarateRatesButtons(5, starsButtonsState, setStarsButtonsState)}
+                        </motion.div>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginBottom: '8px',
+                                alignSelf: 'center',
+                                // alignContent: 'center',
+                            }}
+                        >
+                            <Button
+                                selected={reportReview}
+                                onClick={() => {
+                                    setReportReview(!reportReview);
+                                    setCurrentFeedbackValuations(0);
+                                    setCurrentProductValuations(0);
+                                }}
+                            >
+                                Отправлять жалобу
+                            </Button>
+                        </div>
+                        <motion.div
+                            style={{
+                                maxHeight: 0,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'hidden',
+                                alignItems: 'center',
+                            }}
+                            animate={{
+                                maxHeight: open && currentStep && reportReview ? 600 : 0,
+                                marginBottom: open && currentStep && reportReview ? 8 : 0,
+                            }}
+                        >
+                            <div style={{margin: '4px'}}>
+                                <Select
+                                    options={feedbackValuations}
+                                    placeholder="Причина жалобы на отзыв"
+                                    onUpdate={(value) => {
+                                        setCurrentFeedbackValuations(Number(value));
+                                        console.log(currentFeedbackValuations);
+                                    }}
+                                />
+                            </div>
+                        </motion.div>
+                        <motion.div
+                            style={{
+                                maxHeight: 0,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'hidden',
+                                alignItems: 'center',
+                            }}
+                            animate={{
+                                maxHeight: open && currentStep ? 600 : 0,
+                                minHeight: open && currentStep ? 420 : 0,
+                                marginBottom: open && currentStep ? 8 : 0,
+                            }}
+                        >
+                            <TextArea
+                                controlRef={textAreaRef}
+                                value={templateText ?? undefined}
+                                onUpdate={(val) => {
+                                    setTemplateText(val);
+                                }}
+                                // minRows={20}
+                                rows={20}
+                                // maxRows={30}
+                                note={`${templateText.length} / 1000`}
+                                validationState={
+                                    templateText.length <= 1000 ? undefined : 'invalid'
+                                }
+                            />
+                            <Text
+                                variant="code-inline-1"
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    flexWrap: 'wrap',
+                                    padding: 8,
+                                }}
+                            >
+                                {infoText}
+                            </Text>
+                        </motion.div>
+                        <motion.div
+                            style={{
+                                maxHeight: 0,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                overflow: 'hidden',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '0 8px',
+                                width: '100%',
+                                flexWrap: 'wrap',
+                                gap: 8,
+                            }}
+                            animate={{
+                                maxHeight: open && currentStep ? 600 : 0,
+                                marginBottom: open && currentStep ? 8 : 0,
+                            }}
+                        >
+                            <Button
+                                pin="circle-circle"
+                                selected={useWordsFilter}
+                                view="outlined-utility"
+                                onClick={() => setUseWordsFilter(!useWordsFilter)}
+                            >
+                                Добавить фильтр слова
+                            </Button>
+                            <Select
+                                value={selectValue}
+                                placeholder="Values"
+                                options={bindingOptions}
+                                renderControl={({triggerProps: {onClick, onKeyDown}}) => {
+                                    const map: any = {
+                                        none: 'Задать параметры',
+                                        brand: 'Бренд',
+                                        object: 'Тип предмета',
+                                        title: 'Наименование',
+                                        imtId: 'ID КТ',
+                                        art: 'Артикул продавца',
+                                        nmId: 'Артикул WB',
+                                        tags: 'Теги',
+                                    };
+                                    return (
+                                        <Button
+                                            selected={
+                                                binding[0] != 'none' && bindingKeys.length > 0
+                                            }
+                                            // ref={ref as Ref<HTMLButtonElement>}
+                                            view={'outlined-info'}
+                                            pin={'circle-circle'}
+                                            // ref={ref}
+                                            onClick={onClick}
+                                            onKeyDown={onKeyDown}
+                                            // extraProps={{
+                                            //     onKeyDown,
+                                            // }}
+                                        >
+                                            {map[binding[0]]}
+                                        </Button>
+                                    );
+                                }}
+                                onUpdate={(nextValue) => {
+                                    setBindingKeys([]);
+                                    setBinding(nextValue);
+                                }}
+                            />
+                            <CheckTemplateModal
+                                template={{
+                                    templateName,
+                                    templateText,
+                                    useWordsFilter,
+                                    containsWords,
+                                    doNotContainWords,
+                                    binding: binding[0],
+                                    isReport: currentFeedbackValuations || currentProductValuations,
+                                    supplierFeedbackValuation: currentFeedbackValuations
+                                        ? currentFeedbackValuations
+                                        : undefined,
+                                    supplierProductValuation: currentProductValuations
+                                        ? currentProductValuations
+                                        : undefined,
+                                    bindingKeys,
+                                    ratingFrom,
+                                    ratingTo,
+                                    ratings: userRatings,
+                                }}
+                            >
+                                <Button
+                                    disabled={
+                                        templateName == '' ||
+                                        (templateText == '' &&
+                                            currentFeedbackValuations == 0 &&
+                                            currentProductValuations == 0) ||
+                                        !starsButtonsState.includes(true)
+                                    }
+                                    pin="circle-circle"
+                                    selected
+                                    view="action"
+                                >
+                                    Проверить шаблон на отзыве
+                                </Button>
+                            </CheckTemplateModal>
+                        </motion.div>
+                        <Button
+                            disabled={
+                                templateName == '' ||
+                                (templateText == '' &&
+                                    currentFeedbackValuations == 0 &&
+                                    currentProductValuations == 0) ||
+                                !starsButtonsState.includes(true)
+                            }
+                            view="outlined-success"
+                            size="l"
+                            style={{margin: '4px'}}
+                            onClick={handleSaveButton}
+                        >
+                            <Icon data={CloudArrowUpIn} />
+                            Сохранить
+                        </Button>
+                    </div>
+                    {binding[0] == 'none' ||
+                    !availableBindingKeys ||
+                    !availableBindingKeys?.length ? (
+                        <></>
+                    ) : (
+                        <motion.div
+                            exit={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: 550,
+                                minWidth: 250,
                             }}
                         >
                             <List
@@ -660,7 +613,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                 loading={availableTagsPending}
                                 filterPlaceholder={`Поиск`}
                                 emptyPlaceholder="Нет результатов"
-                                items={availableBindingKeys}
+                                items={availableBindingKeys.filter((i) => i !== undefined)}
                                 onFilterEnd={({items}) => {
                                     setAvailableBindingKeysFiltered(items);
                                 }}
@@ -732,9 +685,9 @@ export const AutoFeedbackTemplateCreationModal = ({
                                 </div>
                             </Button>
                         </motion.div>
-                    </motion.div>
-                </Card>
-            </Modal>
+                    )}
+                </div>
+            </ModalWindow>
         </div>
     );
 };
