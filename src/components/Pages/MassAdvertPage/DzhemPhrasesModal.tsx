@@ -31,17 +31,18 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
         const today = new Date();
         today.setDate(today.getDate() - (today.getHours() > 3 ? 1 : 2));
         today.setHours(23, 59, 59, 0);
-        const oldDate = new Date(today);
+        const oldDate = new Date();
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - selectedPeriod);
         setSelectedDateRange([oldDate, today]);
     }, []);
 
     const setOldDate = (value: any) => {
-        const today = new Date(rangeAvailable[1]);
+        const today = new Date();
         today.setHours(23, 59, 59, 0);
+        today.setDate(today.getDate() - 1);
         console.log('TODAY', today);
-        const oldDate = new Date(rangeAvailable[1]);
+        const oldDate = new Date();
         oldDate.setHours(0, 0, 0, 0);
         oldDate.setDate(oldDate.getDate() - Number(value));
         console.log(today, 'today', oldDate, 'oldDate');
