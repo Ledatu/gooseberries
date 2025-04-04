@@ -2,10 +2,8 @@
 
 import {
     Button,
-    Card,
     Checkbox,
     Icon,
-    Modal,
     Select,
     TextInput,
     Text,
@@ -29,6 +27,7 @@ import {dateTimeParse} from '@gravity-ui/date-utils';
 import {getLocaleDateString} from '@/utilities/getRoundValue';
 import {useError} from '@/contexts/ErrorContext';
 import {HelpMark} from '@/components/Popups/HelpMark';
+import {ModalWindow} from '@/shared/ui/Modal';
 
 export const AdvertsBidsModal = ({
     disabled,
@@ -627,301 +626,246 @@ export const AdvertsBidsModal = ({
     return (
         <div>
             {triggerButton}
-            <Modal open={open && !disabled} onClose={handleClose}>
-                <Card
-                    view="clear"
-                    style={{
-                        width: '400px',
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        translate: '-50% -50%',
-                        flexWrap: 'nowrap',
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: 'none',
-                    }}
-                >
-                    <motion.div
+            <ModalWindow isOpen={open} handleClose={handleClose}>
+                <SegmentedRadioGroup
+                    size="l"
+                    value={modalOption}
+                    options={modalOptions}
+                    onUpdate={(opt) => setModalOption(opt)}
+                />
+                {modalOption == 'Установить' ? (
+                    <div style={{width: '100%'}}>
+                        <motion.div
+                            transition={transition}
+                            style={{height: 0}}
+                            animate={{height: open ? 8 : 0}}
+                        />
+                        <TextTitleWrapper title={textInputs.cpm.title} padding={16}>
+                            {textInputs.cpm.input}
+                        </TextTitleWrapper>
+                    </div>
+                ) : (
+                    <div
                         style={{
-                            overflow: 'hidden',
-                            flexWrap: 'nowrap',
+                            width: '100%',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            justifyContent: 'space-between',
-                            backdropFilter: 'blur(48px)',
-                            boxShadow: '#0002 0px 2px 8px 0px',
-                            padding: 30,
-                            borderRadius: 30,
-                            border: '1px solid #eee2',
                         }}
                     >
-                        <SegmentedRadioGroup
-                            size="l"
-                            value={modalOption}
-                            options={modalOptions}
-                            onUpdate={(opt) => setModalOption(opt)}
+                        <motion.div
+                            transition={transition}
+                            style={{height: 0, width: '100%'}}
+                            animate={{height: open ? 8 : 0}}
                         />
-                        {modalOption == 'Установить' ? (
-                            <div style={{width: '100%'}}>
-                                <motion.div
-                                    transition={transition}
-                                    style={{height: 0}}
-                                    animate={{height: open ? 8 : 0}}
-                                />
-                                <TextTitleWrapper title={textInputs.cpm.title} padding={16}>
-                                    {textInputs.cpm.input}
+                        <TextTitleWrapper title="Выберите метод автоставок" padding={16}>
+                            <Select
+                                size="l"
+                                width={'max'}
+                                value={autoBidderOption}
+                                options={autoBidderOptions}
+                                onUpdate={(opt) => setAutoBidderOption(opt)}
+                            />
+                        </TextTitleWrapper>
+                        <motion.div
+                            style={{
+                                height: 0,
+                                overflow: 'hidden',
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 8,
+                            }}
+                            animate={{
+                                marginTop:
+                                    autoBidderOption[0] != 'delete' &&
+                                    (['drr', 'cpo'].includes(autoBidderOption[0])
+                                        ? true
+                                        : useAutoMaxCpm)
+                                        ? 8
+                                        : 0,
+                                height:
+                                    autoBidderOption[0] != 'delete' &&
+                                    (['drr', 'cpo'].includes(autoBidderOption[0])
+                                        ? true
+                                        : useAutoMaxCpm)
+                                        ? 'fit-content'
+                                        : 0,
+                            }}
+                        >
+                            <TextTitleWrapper
+                                title={
+                                    textInputs[autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr'].title
+                                }
+                                padding={16}
+                            >
+                                {textInputs[autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr'].input}
+                            </TextTitleWrapper>
+                            {textInputs['drr'].select}
+                        </motion.div>
+                        <motion.div
+                            style={{
+                                maxHeight: 0,
+                                overflow: 'hidden',
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                            animate={{
+                                maxHeight: autoBidderOption[0] != 'delete' ? 90 : 0,
+                            }}
+                        >
+                            <Checkbox
+                                style={{marginTop: 8}}
+                                checked={!useAutoMaxCpm}
+                                onUpdate={(val) => setUseAutoMaxCpm(!val)}
+                            >
+                                Задать макс. ставку
+                            </Checkbox>
+                            <motion.div
+                                style={{height: 0, overflow: 'hidden', width: '100%'}}
+                                animate={{
+                                    marginTop: !useAutoMaxCpm ? 8 : 0,
+                                    height: !useAutoMaxCpm ? 'fit-content' : 0,
+                                }}
+                            >
+                                <TextTitleWrapper title={textInputs.maxCpm.title} padding={16}>
+                                    {textInputs.maxCpm.input}
+                                </TextTitleWrapper>
+                            </motion.div>
+                        </motion.div>
+
+                        <motion.div
+                            style={{
+                                maxHeight: 0,
+                                overflow: 'hidden',
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                            animate={{
+                                maxHeight: ![
+                                    'placements',
+                                    'auction',
+                                    'bestPlacement',
+                                    'delete',
+                                ].includes(autoBidderOption[0])
+                                    ? 88
+                                    : 0,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    columnGap: 8,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginTop: 8,
+                                }}
+                            >
+                                <Checkbox
+                                    checked={usePlacementsTrigger}
+                                    onUpdate={(val) => setUsePlacementsTrigger(val)}
+                                    style={{whiteSpace: 'none'}}
+                                >
+                                    Учитывать место в выдаче
+                                </Checkbox>
+                                <HelpMark content="При достижении данной позиции алгоритм будет учитывать место в выдаче при изменении ставки." />
+                            </div>
+                            <motion.div
+                                style={{maxHeight: 0, overflow: 'hidden', width: '100%'}}
+                                animate={{
+                                    marginTop: usePlacementsTrigger ? 8 : 0,
+                                    maxHeight: usePlacementsTrigger ? 70 : 0,
+                                }}
+                            >
+                                <TextTitleWrapper
+                                    title={textInputs.placementsTrigger.title}
+                                    padding={16}
+                                >
+                                    {textInputs.placementsTrigger.input}
+                                </TextTitleWrapper>
+                            </motion.div>
+                        </motion.div>
+
+                        {!['drr', 'cpo'].includes(autoBidderOption[0]) &&
+                        textInputs[autoBidderOption[0]] ? (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    width: '100%',
+                                }}
+                            >
+                                <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
+                                <TextTitleWrapper
+                                    title={textInputs[autoBidderOption[0]].title}
+                                    padding={16}
+                                >
+                                    {textInputs[autoBidderOption[0]].input}
                                 </TextTitleWrapper>
                             </div>
                         ) : (
-                            <div
-                                style={{
-                                    width: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <motion.div
-                                    transition={transition}
-                                    style={{height: 0, width: '100%'}}
-                                    animate={{height: open ? 8 : 0}}
-                                />
-                                <TextTitleWrapper title="Выберите метод автоставок" padding={16}>
-                                    <Select
-                                        size="l"
-                                        width={'max'}
-                                        value={autoBidderOption}
-                                        options={autoBidderOptions}
-                                        onUpdate={(opt) => setAutoBidderOption(opt)}
-                                    />
-                                </TextTitleWrapper>
-                                <motion.div
-                                    style={{
-                                        height: 0,
-                                        overflow: 'hidden',
-                                        width: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: 8,
-                                    }}
-                                    animate={{
-                                        marginTop:
-                                            autoBidderOption[0] != 'delete' &&
-                                            (['drr', 'cpo'].includes(autoBidderOption[0])
-                                                ? true
-                                                : useAutoMaxCpm)
-                                                ? 8
-                                                : 0,
-                                        height:
-                                            autoBidderOption[0] != 'delete' &&
-                                            (['drr', 'cpo'].includes(autoBidderOption[0])
-                                                ? true
-                                                : useAutoMaxCpm)
-                                                ? 'fit-content'
-                                                : 0,
-                                    }}
-                                >
-                                    <TextTitleWrapper
-                                        title={
-                                            textInputs[autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr']
-                                                .title
-                                        }
-                                        padding={16}
-                                    >
-                                        {
-                                            textInputs[autoBidderOption[0] == 'cpo' ? 'cpo' : 'drr']
-                                                .input
-                                        }
-                                    </TextTitleWrapper>
-                                    {textInputs['drr'].select}
-                                </motion.div>
-                                <motion.div
-                                    style={{
-                                        maxHeight: 0,
-                                        overflow: 'hidden',
-                                        width: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}
-                                    animate={{
-                                        maxHeight: autoBidderOption[0] != 'delete' ? 90 : 0,
-                                    }}
-                                >
-                                    <Checkbox
-                                        style={{marginTop: 8}}
-                                        checked={!useAutoMaxCpm}
-                                        onUpdate={(val) => setUseAutoMaxCpm(!val)}
-                                    >
-                                        Задать макс. ставку
-                                    </Checkbox>
-                                    <motion.div
-                                        style={{height: 0, overflow: 'hidden', width: '100%'}}
-                                        animate={{
-                                            marginTop: !useAutoMaxCpm ? 8 : 0,
-                                            height: !useAutoMaxCpm ? 'fit-content' : 0,
-                                        }}
-                                    >
-                                        <TextTitleWrapper
-                                            title={textInputs.maxCpm.title}
-                                            padding={16}
-                                        >
-                                            {textInputs.maxCpm.input}
-                                        </TextTitleWrapper>
-                                    </motion.div>
-                                </motion.div>
-
-                                <motion.div
-                                    style={{
-                                        maxHeight: 0,
-                                        overflow: 'hidden',
-                                        width: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}
-                                    animate={{
-                                        maxHeight: ![
-                                            'placements',
-                                            'auction',
-                                            'bestPlacement',
-                                            'delete',
-                                        ].includes(autoBidderOption[0])
-                                            ? 88
-                                            : 0,
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            columnGap: 8,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            marginTop: 8,
-                                        }}
-                                    >
-                                        <Checkbox
-                                            checked={usePlacementsTrigger}
-                                            onUpdate={(val) => setUsePlacementsTrigger(val)}
-                                            style={{whiteSpace: 'none'}}
-                                        >
-                                            Учитывать место в выдаче
-                                        </Checkbox>
-                                        <HelpMark content="При достижении данной позиции алгоритм будет учитывать место в выдаче при изменении ставки." />
-                                    </div>
-                                    <motion.div
-                                        style={{maxHeight: 0, overflow: 'hidden', width: '100%'}}
-                                        animate={{
-                                            marginTop: usePlacementsTrigger ? 8 : 0,
-                                            maxHeight: usePlacementsTrigger ? 70 : 0,
-                                        }}
-                                    >
-                                        <TextTitleWrapper
-                                            title={textInputs.placementsTrigger.title}
-                                            padding={16}
-                                        >
-                                            {textInputs.placementsTrigger.input}
-                                        </TextTitleWrapper>
-                                    </motion.div>
-                                </motion.div>
-
-                                {!['drr', 'cpo'].includes(autoBidderOption[0]) &&
-                                textInputs[autoBidderOption[0]] ? (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            width: '100%',
-                                        }}
-                                    >
-                                        <motion.div
-                                            style={{height: 0}}
-                                            animate={{height: open ? 8 : 0}}
-                                        />
-                                        <TextTitleWrapper
-                                            title={textInputs[autoBidderOption[0]].title}
-                                            padding={16}
-                                        >
-                                            {textInputs[autoBidderOption[0]].input}
-                                        </TextTitleWrapper>
-                                    </div>
-                                ) : (
-                                    <></>
-                                )}
-                                <motion.div
-                                    style={{
-                                        height: 0,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        overflow: 'hidden',
-                                        alignItems: 'center',
-                                        width: '100%',
-                                    }}
-                                    animate={{
-                                        height:
-                                            0 +
-                                            ([
-                                                'sellByDate',
-                                                'orders',
-                                                'sum_orders',
-                                                'obor',
-                                            ].includes(autoBidderOption[0]) && useAutoMaxCpm
-                                                ? 23
-                                                : 0) +
-                                            (useAutoBudget ? 23 : 0) +
-                                            (useMaxBudget ? 62 : 0),
-                                    }}
-                                >
-                                    <Checkbox
-                                        style={{marginTop: 8}}
-                                        checked={useAutoBudget}
-                                        onUpdate={(val) => setUseAutoBudget(val)}
-                                    >
-                                        Использовать автобюджет
-                                    </Checkbox>
-                                    <Checkbox
-                                        style={{marginTop: 8, marginBottom: 8}}
-                                        checked={useMaxBudget}
-                                        onUpdate={(val) => setUseMaxBudget(val)}
-                                    >
-                                        Задать макс. бюджет
-                                    </Checkbox>
-                                    <TextTitleWrapper
-                                        title={textInputs.maxBudget.title}
-                                        padding={16}
-                                    >
-                                        {textInputs.maxBudget.input}
-                                    </TextTitleWrapper>
-                                </motion.div>
-                            </div>
+                            <></>
                         )}
-                        <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
-                        <Button
-                            disabled={isSetDeleteButtonDisabled}
-                            size="l"
-                            style={{margin: '4px'}}
-                            view={
-                                autoBidderOption[0] != 'delete'
-                                    ? 'outlined-success'
-                                    : 'outlined-danger'
-                            }
-                            onClick={handleSetDeleteButton}
+                        <motion.div
+                            style={{
+                                height: 0,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'hidden',
+                                alignItems: 'center',
+                                width: '100%',
+                            }}
+                            animate={{
+                                height:
+                                    0 +
+                                    (['sellByDate', 'orders', 'sum_orders', 'obor'].includes(
+                                        autoBidderOption[0],
+                                    ) && useAutoMaxCpm
+                                        ? 23
+                                        : 0) +
+                                    (useAutoBudget ? 23 : 0) +
+                                    (useMaxBudget ? 62 : 0),
+                            }}
                         >
-                            <Icon
-                                data={autoBidderOption[0] != 'delete' ? CloudArrowUpIn : TrashBin}
-                            />
-                            {autoBidderOption[0] != 'delete' ? 'Установить' : 'Удалить'}
-                        </Button>
-                    </motion.div>
-                </Card>
-            </Modal>
+                            <Checkbox
+                                style={{marginTop: 8}}
+                                checked={useAutoBudget}
+                                onUpdate={(val) => setUseAutoBudget(val)}
+                            >
+                                Использовать автобюджет
+                            </Checkbox>
+                            <Checkbox
+                                style={{marginTop: 8, marginBottom: 8}}
+                                checked={useMaxBudget}
+                                onUpdate={(val) => setUseMaxBudget(val)}
+                            >
+                                Задать макс. бюджет
+                            </Checkbox>
+                            <TextTitleWrapper title={textInputs.maxBudget.title} padding={16}>
+                                {textInputs.maxBudget.input}
+                            </TextTitleWrapper>
+                        </motion.div>
+                    </div>
+                )}
+                <motion.div style={{height: 0}} animate={{height: open ? 8 : 0}} />
+                <Button
+                    disabled={isSetDeleteButtonDisabled}
+                    size="l"
+                    style={{margin: '4px'}}
+                    view={autoBidderOption[0] != 'delete' ? 'outlined-success' : 'outlined-danger'}
+                    onClick={handleSetDeleteButton}
+                >
+                    <Icon data={autoBidderOption[0] != 'delete' ? CloudArrowUpIn : TrashBin} />
+                    {autoBidderOption[0] != 'delete' ? 'Установить' : 'Удалить'}
+                </Button>
+            </ModalWindow>
         </div>
     );
 };
