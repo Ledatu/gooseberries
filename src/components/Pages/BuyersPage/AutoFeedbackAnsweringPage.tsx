@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react';
 import TheTable, {compare} from '@/components/TheTable';
 import callApi, {getUid} from '@/utilities/callApi';
 
-import {Button, Text, Icon} from '@gravity-ui/uikit';
+import {Button, Text, Icon, ActionTooltip} from '@gravity-ui/uikit';
 import {Pencil, Xmark, Plus, StarFill} from '@gravity-ui/icons';
 import {AutoFeedbackTemplateCreationModal} from './AutoFeedbackTemplateCreationModal';
 import ApiClient from '@/utilities/ApiClient';
@@ -136,7 +136,11 @@ export const AutoFeedbackAnsweringPage = ({
                             justifyContent: 'space-between',
                         }}
                     >
-                        {value}
+                        <ActionTooltip title={value}>
+                            <Text style={{maxWidth: 300}} ellipsis>
+                                {value}
+                            </Text>
+                        </ActionTooltip>
                         <div
                             style={{
                                 marginLeft: 16,
@@ -185,16 +189,141 @@ export const AutoFeedbackAnsweringPage = ({
                 );
             },
         },
-        // {name: 'priority', placeholder: 'Приоритет'},
+        {
+            valueType: 'text',
+            name: 'bindingKeys',
+            placeholder: 'Привязка',
+            render: ({value}: any) => {
+                if (!value) return undefined;
+                return (
+                    <ActionTooltip title={value}>
+                        <Text
+                            style={{
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                WebkitLineClamp: 3, // Adjust based on maxHeight and line-height
+                                maxHeight: 150,
+                                whiteSpace: 'normal', // ensures wrapping
+                            }}
+                        >
+                            {value.join(', ')}
+                        </Text>
+                    </ActionTooltip>
+                );
+            },
+        },
+        {
+            name: 'productValuation',
+            placeholder: 'Оценка',
+            render: ({row}: any) => {
+                const {ratings} = row;
+                if (ratings.length == 0 || ratings.length[0] == 0) return undefined;
+                else {
+                    const stars = ratings.map((rating: number) => {
+                        const color =
+                            rating > 3
+                                ? 'outlined-success'
+                                : rating == 3
+                                  ? 'outlined-warning'
+                                  : 'outlined-danger';
+                        return (
+                            <Button size="s" view={color} selected pin="circle-circle">
+                                {rating}
+                                <Icon data={StarFill} size={12} />
+                            </Button>
+                        );
+                    });
+                    return (
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 4,
+                            }}
+                        >
+                            {stars}
+                        </div>
+                    );
+                }
+            },
+        },
         {
             valueType: 'text',
             name: 'text',
             placeholder: 'Шаблон ответа',
             render: ({value}: any) => {
                 return (
-                    <div style={{textWrap: 'wrap'}}>
-                        <Text>{value}</Text>
-                    </div>
+                    <ActionTooltip title={value}>
+                        <Text
+                            style={{
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                WebkitLineClamp: 3, // Adjust based on maxHeight and line-height
+                                maxHeight: 150,
+                                whiteSpace: 'normal', // ensures wrapping
+                                wordBreak: 'break-word', // optional: breaks long words if needed
+                            }}
+                        >
+                            {value}
+                        </Text>
+                    </ActionTooltip>
+                );
+            },
+        },
+        {
+            valueType: 'text',
+            name: 'contains',
+            placeholder: 'Ключевые слова',
+            render: ({value}: any) => {
+                if (!value) return undefined;
+                return (
+                    <ActionTooltip title={value}>
+                        <Text
+                            style={{
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                WebkitLineClamp: 3, // Adjust based on maxHeight and line-height
+                                maxHeight: 150,
+                                whiteSpace: 'normal', // ensures wrapping
+                                wordBreak: 'break-word', // optional: breaks long words if needed
+                            }}
+                        >
+                            {value.join(', ')}
+                        </Text>
+                    </ActionTooltip>
+                );
+            },
+        },
+        {
+            valueType: 'text',
+            name: 'doNotContain',
+            placeholder: 'Минус слова',
+            render: ({value}: any) => {
+                if (!value) return undefined;
+                return (
+                    <ActionTooltip title={value}>
+                        <Text
+                            style={{
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                WebkitLineClamp: 3, // Adjust based on maxHeight and line-height
+                                maxHeight: 150,
+                                whiteSpace: 'normal', // ensures wrapping
+                                wordBreak: 'break-word', // optional: breaks long words if needed
+                            }}
+                        >
+                            {value.join(', ')}
+                        </Text>
+                    </ActionTooltip>
                 );
             },
         },
@@ -210,7 +339,7 @@ export const AutoFeedbackAnsweringPage = ({
                     feedbackValuations[supplierFeedbackValuation + 1]
                 ) {
                     vals.push(
-                        <Button size="xs" selected pin="circle-circle" view="outlined-danger">
+                        <Button size="s" selected pin="circle-circle" view="outlined-danger">
                             {`${feedbackValuations[supplierFeedbackValuation + 1]?.['content']}`}
                         </Button>,
                     );
@@ -218,7 +347,7 @@ export const AutoFeedbackAnsweringPage = ({
                 if (supplierProductValuation && productValuations[supplierProductValuation + 1]) {
                     vals.push(
                         <Button
-                            size="xs"
+                            size="s"
                             selected
                             pin="circle-circle"
                             style={{marginLeft: 4}}
@@ -235,96 +364,6 @@ export const AutoFeedbackAnsweringPage = ({
                 return <div style={{display: 'block', wordWrap: 'break-word'}}>{vals}</div>;
             },
         },
-        // {name: 'feedbackAge', placeholder: 'Возраст отзыва'},
-        // {name: 'feedbackLength', placeholder: 'Длина отзыва'},
-        {
-            name: 'productValuation',
-            placeholder: 'Оценка',
-            render: ({row}: any) => {
-                const {ratings} = row;
-                if (ratings.length == 0 || ratings.length[0] == 0) return undefined;
-                else {
-                    const stars = ratings.map((rating: number) => {
-                        const color =
-                            rating > 3
-                                ? 'outlined-success'
-                                : rating == 3
-                                  ? 'outlined-warning'
-                                  : 'outlined-danger';
-                        return (
-                            <Button
-                                view={color}
-                                selected
-                                pin="circle-circle"
-                                style={{margin: '4px'}}
-                            >
-                                {rating}
-                                <Icon data={StarFill} size={13} />
-                            </Button>
-                        );
-                    });
-                    return (
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'flex-start',
-                            }}
-                        >
-                            {stars}
-                        </div>
-                    );
-                }
-                // if (!ratingFrom || !ratingTo) return undefined;
-                // return (
-                //     <Button size="xs" selected pin="circle-circle">
-                //         {`${ratingFrom} - ${ratingTo}`}
-                //     </Button>
-                // );
-            },
-        },
-        // {name: 'containsMedia', placeholder: 'Фото или видео'},
-        {
-            valueType: 'text',
-            name: 'doNotContain',
-            placeholder: 'Минус слова',
-            render: ({value}: any) => {
-                if (!value) return undefined;
-                return (
-                    <div style={{textWrap: 'wrap'}}>
-                        <Text>{value.join(', ')}</Text>
-                    </div>
-                );
-            },
-        },
-        {
-            valueType: 'text',
-            name: 'contains',
-            placeholder: 'Ключевые слова',
-            render: ({value}: any) => {
-                if (!value) return undefined;
-                return (
-                    <div style={{textWrap: 'wrap'}}>
-                        <Text>{value.join(', ')}</Text>
-                    </div>
-                );
-            },
-        },
-        {
-            valueType: 'text',
-            name: 'bindingKeys',
-            placeholder: 'Привязка',
-            render: ({value}: any) => {
-                if (!value) return undefined;
-                return (
-                    <div style={{textWrap: 'wrap'}}>
-                        <Text>{value.join(', ')}</Text>
-                    </div>
-                );
-            },
-        },
-        // {name: 'arts', placeholder: 'Артикулы'},
-        // {name: 'brands', placeholder: 'Бренды'},
     ];
 
     return data ? (
