@@ -454,13 +454,7 @@ export const AutoFeedbackTemplateCreationModal = ({
                                 onUpdate={(val) => {
                                     setTemplateText(val);
                                 }}
-                                // minRows={20}
                                 rows={20}
-                                // maxRows={30}
-                                note={`${templateText.length} / 1000`}
-                                validationState={
-                                    templateText.length <= 1000 ? undefined : 'invalid'
-                                }
                             />
                             <Text
                                 variant="code-inline-1"

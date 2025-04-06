@@ -141,6 +141,8 @@ export const CheckTemplateModal = ({children, template}: {children: any; templat
                             <TextArea
                                 readOnly
                                 size="l"
+                                errorMessage="Более 1000 символов в ответе."
+                                validationState={checkResult.length <= 1000 ? undefined : 'invalid'}
                                 value={
                                     checkResult != 'none' ? checkResult : 'Сначала проверьте шаблон'
                                 }
