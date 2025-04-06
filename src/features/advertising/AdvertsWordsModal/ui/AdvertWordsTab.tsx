@@ -3,11 +3,13 @@
 import {Tab, TabProvider, Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
 
-import {AdvertWordsTabModules} from './types';
+import {AdvertWordsTabModules} from '../types';
 import {motion} from 'framer-motion';
+import { tabs } from '../config/tabs';
+// import {tabsNames} from '../config';
 
 interface CustomTabProps {
-    value: AdvertWordsTabModules;
+    value: string;
     name: string;
     isSelected: boolean;
 }
@@ -46,21 +48,17 @@ export interface AdvertWordsTabProps {
 export const AdvertWordsTab = ({currentValue, setCurrentValue}: AdvertWordsTabProps) => {
     const Tabs = () => {
         const currentTabs: ReactNode[] = [];
-        const currentNamesTabs: {value: AdvertWordsTabModules; name: string}[] = [
-            {value: 'ActiveClusters', name: 'Активные кластеры'},
-            {value: 'InActiveClusters', name: 'Активные кластеры'},
-            {value: 'AutoPhrases', name: 'Авто фразы'},
-            {value: 'Settings', name: 'Настройки'},
-        ];
-        for (const name of currentNamesTabs) {
+        console.log(tabs);
+        for (const tab of tabs) {
             currentTabs.push(
                 <CustomTab
-                    name={name.name}
-                    value={name.value}
-                    isSelected={currentValue === name.value}
+                    name={tab.title}
+                    value={tab.id}
+                    isSelected={currentValue === tab.id}
                 />,
             );
         }
+        console.log(currentTabs);
         return currentTabs;
     };
     return (

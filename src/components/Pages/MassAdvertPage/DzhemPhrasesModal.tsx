@@ -79,7 +79,7 @@ const DzhemModal: React.FC<DzhemModalProps> = ({open, onClose, sellerId, nmId}) 
             console.log(data.rangeToChoose, rangeAvailable);
             // dzhemDataFilter({frequencyCurrent: {val: '', mode: 'include'}}, dzhem);
 
-            console.log('responseDzhem', nmId, response.data.dzhemPhrases);
+            console.log('responseDzhem', nmId, response.data.dzhemData);
             setTimeout(() => {
                 console.log('trying to resize');
                 dzhemDataFilter(dzhemDataFilters, response.data.dzhemData);
