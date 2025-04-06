@@ -1,10 +1,4 @@
-import {
-    Button,
-    Divider,
-    Icon,
-    Select,
-    Text,
-} from '@gravity-ui/uikit';
+import {Button, Divider, Icon, Select, Text} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {rules} from '../../config/rules';
 import {useState} from 'react';
@@ -72,7 +66,7 @@ export const RulesTab = () => {
                                     key: selectValue,
                                     val: 0,
                                     viewsThreshold: 0,
-                                    biggerOrEqual: true,
+                                    biggerOrEqual: false,
                                 });
                                 setCurrentRules(rules);
                             }}
@@ -93,9 +87,7 @@ export const RulesTab = () => {
                 </div>
             </div>
             <Divider orientation="vertical" />
-            {/* <div style={{width: 'max'}}> */}
             <FixedPhrasesTab />
-            {/* </div> */}
         </div>
     );
 };

@@ -1,13 +1,12 @@
 'use client';
 
-import {cx} from '@/lib/utils';
-import {Card, Modal} from '@gravity-ui/uikit';
 import {ReactNode, useState} from 'react';
 import {AdvertWordsProvider} from '../hooks/AdvertsWordsModalContext';
 import {AdvertsWordsHeader} from './AdvertsWordsHeader';
 import {AdvertsWordsPage} from '../AdvertsWordsPages';
 import {SaveTemplateModal} from './SaveTemplateModal';
 import {AdditionalInfoTab} from './AdditionalInfo';
+import {ModalWindow} from '@/shared/ui/Modal';
 // import Classes from '@/styles/cardStyle.module.scss';
 
 interface AdvertsWordsModal2Props {
@@ -18,12 +17,16 @@ interface AdvertsWordsModal2Props {
 export const AdvertsWordsModal = ({advertId, children}: AdvertsWordsModal2Props) => {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     return (
-        <div>
+        <>
             <div onClick={() => setModalOpen(!modalOpen)}>{children}</div>
-            <Modal open={modalOpen} onOpenChange={(open) => setModalOpen(open)}>
-                <Card
-                    style={{width: '90%', height: '80%', display: 'flex', flexDirection: 'column'}}
-                    className={cx(['centred-absolute-element', 'blurred-card'])}
+            <ModalWindow padding={false} isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
+                <div
+                    style={{
+                        width: '90vw',
+                        height: '80vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
                 >
                     <AdvertWordsProvider advertId={advertId}>
                         <SaveTemplateModal />
@@ -31,8 +34,8 @@ export const AdvertsWordsModal = ({advertId, children}: AdvertsWordsModal2Props)
                         <AdditionalInfoTab />
                         <AdvertsWordsPage />
                     </AdvertWordsProvider>
-                </Card>
-            </Modal>
-        </div>
+                </div>
+            </ModalWindow>
+        </>
     );
 };

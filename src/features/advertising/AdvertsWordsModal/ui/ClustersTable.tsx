@@ -2,7 +2,7 @@
 
 import TheTable from '@/components/TheTable';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
-import {Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import {CSSProperties, useState} from 'react';
 import {ArrowShapeUp, Magnifier, Minus, Plus} from '@gravity-ui/icons';
@@ -11,8 +11,7 @@ import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
 import {defaultRender, renderAsPercent} from '@/utilities/getRoundValue';
 import {RangePicker} from '@/components/RangePicker';
-import {DescriptionClusterPopup} from './DescriptionClusterPopup';
-// import {HelpMark} from '@/components/Popups/HelpMark';
+// import {DescriptionClusterPopup} from './DescriptionClusterPopup';
 
 export interface ColumnData {
     placeholder: string;
@@ -33,7 +32,7 @@ export const ClustersTable = () => {
         dates,
         selectedPhrase,
         updateSelectedPhrase,
-        excluded,
+        // excluded,
     } = useAdvertsWordsModal();
 
     const columnData: ColumnData[] = [
@@ -45,15 +44,10 @@ export const ClustersTable = () => {
             render: ({value}: any) => {
                 return (
                     <div>
-                        <Button
-                            size="xs"
-                            view={'flat'}
-                            onClick={
-                                () => {}
-                                // filterByButtonClusters(value, true, 'preset', 'include')
-                            }
-                        >
-                            <Text color="primary">{value}</Text>
+                        <Button size="xs" view={'flat'} onClick={() => {}}>
+                            <Text ellipsis style={{maxWidth: 150}} color="primary">
+                                {value}
+                            </Text>
                         </Button>
                     </div>
                 );
@@ -63,7 +57,7 @@ export const ClustersTable = () => {
             placeholder: 'Кластер',
             name: 'cluster',
             valueType: 'text',
-            render: ({value, footer, row}: any) => {
+            render: ({value, footer}: any) => {
                 const [isSelectedByPlus, setIsSelectedByPlus] = useState<boolean>(
                     template.phrasesSelectedByPlus.includes(value),
                 );
@@ -99,16 +93,11 @@ export const ClustersTable = () => {
                             justifyContent: 'space-between',
                         }}
                     >
-                        <Button
-                            size="xs"
-                            view={'flat'}
-                            onClick={
-                                () => {}
-                                // filterByButtonClusters(value, true, 'preset', 'include')
-                            }
-                        >
-                            <Text color="primary">{value}</Text>
-                        </Button>
+                        <ActionTooltip title={value}>
+                            <Text ellipsis style={{maxWidth: 250}}>
+                                {value}
+                            </Text>
+                        </ActionTooltip>
                         {!footer ? (
                             <div style={{gap: 8, display: 'flex', flexDirection: 'row'}}>
                                 <Button
@@ -148,9 +137,9 @@ export const ClustersTable = () => {
                                 >
                                     <Icon data={Minus} />
                                 </Button>
-                                <DescriptionClusterPopup
+                                {/* <DescriptionClusterPopup
                                     info={getInfoForDescription(value, row, excluded)}
-                                />
+                                /> */}
                             </div>
                         ) : undefined}
                     </div>
@@ -382,7 +371,7 @@ export const ClustersTable = () => {
         filterTableData,
         setFilters,
         filters,
-        getInfoForDescription,
+        // getInfoForDescription,
     } = useClustersTableContext();
 
     const rangeToChoose = [startAdvert, endAdvert];

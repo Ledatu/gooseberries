@@ -93,8 +93,8 @@ import {HelpMark} from '@/components/Popups/HelpMark';
 import {CopyButton} from '@/components/Buttons/CopyButton';
 import {Note} from './NotesForArt/types';
 import {NotesForArt} from './NotesForArt';
-import { getNamesForAdverts } from '@/entities';
-import { ShortAdvertTemplateInfo } from '@/entities/types/ShortAdvertTemplateInfo';
+import {getNamesForAdverts} from '@/entities';
+import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -436,7 +436,9 @@ export const MassAdvertPage = () => {
 
     const [pagesCurrent, setPagesCurrent] = useState(1);
 
-    const [shortAdvertInfo, setShortAdvertInfo] = useState<{[key: string] : ShortAdvertTemplateInfo}>({});
+    const [shortAdvertInfo, setShortAdvertInfo] = useState<{
+        [key: string]: ShortAdvertTemplateInfo;
+    }>({});
 
     const getNames = async () => {
         try {
@@ -452,8 +454,7 @@ export const MassAdvertPage = () => {
     }, [sellerId]);
     useEffect(() => {
         console.log(shortAdvertInfo);
-
-    }, [shortAdvertInfo])
+    }, [shortAdvertInfo]);
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -1136,7 +1137,7 @@ export const MassAdvertPage = () => {
                           }}
                       >
                           <HelpMark
-                            //   position={'start'}
+                              //   position={'start'}
                               content={
                                   <div style={{display: 'flex', flexDirection: 'column'}}>
                                       <Text variant="subheader-1">
@@ -1268,7 +1269,12 @@ export const MassAdvertPage = () => {
                                           getUniqueAdvertIdsFromThePage={
                                               getUniqueAdvertIdsFromThePage
                                           }
-                                          template={shortAdvertInfo[parseInt(advertId)] ?? {advertId: parseInt(advertId), templateName: 'Фразы'}}
+                                          template={
+                                              shortAdvertInfo[parseInt(advertId)] ?? {
+                                                  advertId: parseInt(advertId),
+                                                  templateName: 'Фразы',
+                                              }
+                                          }
                                       />,
                                   );
                               } else if (
@@ -1309,7 +1315,12 @@ export const MassAdvertPage = () => {
                                           getUniqueAdvertIdsFromThePage={
                                               getUniqueAdvertIdsFromThePage
                                           }
-                                          template={shortAdvertInfo[parseInt(advertId)] ?? {advertId: parseInt(advertId), templateName: 'Фразы'}}
+                                          template={
+                                              shortAdvertInfo[parseInt(advertId)] ?? {
+                                                  advertId: parseInt(advertId),
+                                                  templateName: 'Фразы',
+                                              }
+                                          }
                                       />,
                                   );
                               } else {
@@ -1345,6 +1356,12 @@ export const MassAdvertPage = () => {
                                       recalc={recalc}
                                       filterByButton={filterByButton}
                                       getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                      template={
+                                          shortAdvertInfo[parseInt(advertId)] ?? {
+                                              advertId: parseInt(advertId),
+                                              templateName: 'Фразы',
+                                          }
+                                      }
                                   />,
                               );
                           }
@@ -4090,7 +4107,12 @@ export const MassAdvertPage = () => {
                                                     getUniqueAdvertIdsFromThePage={
                                                         getUniqueAdvertIdsFromThePage
                                                     }
-                                                    template={shortAdvertInfo[advertId] ?? {advertId: parseInt(advertId), templateName: 'Фразы'}}
+                                                    template={
+                                                        shortAdvertInfo[advertId] ?? {
+                                                            advertId: parseInt(advertId),
+                                                            templateName: 'Фразы',
+                                                        }
+                                                    }
                                                 />
                                                 <div style={{minWidth: 8}} />
                                                 <Button

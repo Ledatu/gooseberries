@@ -94,7 +94,6 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
 
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(undefined as any);
     const [apiKeyExpDate, setApiKeyExpDate] = useState(undefined as any);
-    const {setModule} = useModules();
 
     // Replace the modules memo with useEffect
     useEffect(() => {

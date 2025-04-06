@@ -12,66 +12,54 @@ interface templateItem {
 export const RuleItem = ({rule, changeRule, deleteRule}: templateItem) => {
     return (
         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8}}>
-            <div>
-                <div style={{display: 'flex', flexDirection: 'row', gap: 12}}>
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            gap: 12,
-                            alignItems: 'center',
-                            // justifyContent: 'space-between',
-                        }}
-                    >
-                        <Text variant="subheader-2">Если просмотров ≥</Text>
-                        <NumberInput
-                            style={{width: '25%'}}
-                            value={rule.viewsThreshold}
-                            onUpdate={(value) => {
-                                const newRule = {...rule};
-                                newRule.viewsThreshold = value ?? 0;
-                                changeRule(newRule);
-                                // setNewRule(rule);
-                            }}
-                        />
-                        <Text
-                            variant="subheader-2"
-                            style={{width: 135}}
-                        >{`и ${getNameOfRule(rule.key)}`}</Text>
-                        <Button
-                            style={{width: 28}}
-                            selected={rule.biggerOrEqual}
-                            view={'outlined'}
-                            onClick={() => {
-                                const newRule = {...rule};
-                                newRule.biggerOrEqual = !newRule.biggerOrEqual;
-                                console.log(newRule.biggerOrEqual);
-                                changeRule(newRule);
-                            }}
-                        >
-                            <Text>{rule.biggerOrEqual ? '≥' : '<'}</Text>
-                        </Button>
-                        <NumberInput
-                            style={{width: '25%'}}
-                            value={rule.val}
-                            onUpdate={(value) => {
-                                const newRule = {...rule};
-                                newRule.val = value ?? 0;
-                                changeRule(newRule);
-                            }}
-                        />
-                    </div>
-                </div>
-
-                {/* <Checkbox
-                    checked={rule.biggerOrEqual}
-                    onUpdate={(checked) => {
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 12,
+                    alignItems: 'center',
+                    // justifyContent: 'space-between',
+                }}
+            >
+                <Text variant="subheader-2">Если просмотров больше или равно</Text>
+                <NumberInput
+                    style={{width: 100}}
+                    value={rule.viewsThreshold}
+                    onUpdate={(value) => {
                         const newRule = {...rule};
-                        newRule.biggerOrEqual = checked ?? 0;
-                        changeRule(rule, newRule);
+                        newRule.viewsThreshold = value ?? 0;
+                        changeRule(newRule);
+                        // setNewRule(rule);
                     }}
-                    content="Больше или равно"
-                /> */}
+                />
+                <Text
+                    variant="subheader-2"
+                    style={{width: 135}}
+                >{`и ${getNameOfRule(rule.key)}`}</Text>
+                <Button
+                    selected={rule.biggerOrEqual}
+                    view={'outlined'}
+                    onClick={() => {
+                        const newRule = {...rule};
+                        newRule.biggerOrEqual = !newRule.biggerOrEqual;
+                        console.log(newRule.biggerOrEqual);
+                        changeRule(newRule);
+                    }}
+                >
+                    <Text>{rule.biggerOrEqual ? 'больше' : 'меньше'}</Text>
+                </Button>
+                <NumberInput
+                    step={0.1}
+                    allowDecimal
+                    style={{width: 100}}
+                    value={rule.val}
+                    onUpdate={(value) => {
+                        const newRule = {...rule};
+                        newRule.val = value ?? 0;
+                        changeRule(newRule);
+                    }}
+                />
+                <Text variant="subheader-2">{getNameOfRule(rule.key).split(', ')[1] ?? ''}</Text>
             </div>
             <Button
                 onClick={() => {

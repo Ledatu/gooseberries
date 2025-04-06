@@ -24,7 +24,7 @@ export const AdvertsWordsHeader = () => {
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
-                    marginInlineEnd: 8,
+                    margin: '0 15px',
                 }}
             >
                 <CustomTabs
@@ -32,7 +32,6 @@ export const AdvertsWordsHeader = () => {
                     setModule={setCurrentModule}
                     currentModule={currentModule}
                 />
-                {/* <AdvertWordsTab currentValue={currentModule} setCurrentValue={setCurrentModule} /> */}
                 <Button
                     size="xl"
                     view="flat"
