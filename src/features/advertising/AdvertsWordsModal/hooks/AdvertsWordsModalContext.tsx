@@ -10,7 +10,9 @@ import {changeTemplateNameOfAdvert} from '../api/changeTemplateNameOfAdvert';
 import {changeTemplateOfAdvert} from '../api/changeTemplateOfAdvert';
 import {changeSelectedPhrase} from '../api/changeSelectedPhrase';
 import {fetchSelectedPhrase} from '../api/fetchSelectedPhrase';
-changeTemplateNameOfAdvert;
+import {PhrasesStats} from '../api/PhraseStats';
+import {useError} from '@/contexts/ErrorContext';
+import {getWordsStatsForAdvert} from '../api/getWordsStatsForAdvert';
 
 interface AutoWordsContextType {
     advertId: number;
@@ -34,6 +36,7 @@ interface AutoWordsContextType {
     setSaveOpen: (arg: boolean) => void;
     updateSelectedPhrase: (phrase: string) => void;
     selectedPhrase: string;
+    wordsStats: PhrasesStats[];
 }
 
 class AdvertWordsTemplateHandler {
@@ -162,6 +165,19 @@ export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderPr
     const [newTemplateName, setNewTemplateName] = useState<string>('');
     const [saveOpen, setSaveOpen] = useState<boolean>(false);
     const [selectedPhrase, setSelectedPhrase] = useState<string>('');
+    const [wordsStats, setWordsStats] = useState<PhrasesStats[]>([]);
+    const {showError} = useError();
+
+    const getWordsStats = async () => {
+        try {
+            const res = await getWordsStatsForAdvert(sellerId, advertId);
+            setWordsStats(res);
+        } catch (error) {
+            console.log(error);
+            showError('Неудалось получить статистику по словам');
+        }
+    };
+
     useEffect(() => {
         console.log('selectedPhrase', selectedPhrase);
     }, [selectedPhrase]);
@@ -172,6 +188,13 @@ export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderPr
             setNewTemplateName('');
         }
     }, [newTemplateName]);
+
+    useEffect(() => {
+        if (currentModule === 'AutoPhrases') {
+            getWordsStats();
+            console.log('aaa');
+        }
+    }, [currentModule]);
 
     const [template, setTemplate] = useState<AutoPhrasesTemplate>({
         name: '',
@@ -316,6 +339,7 @@ export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderPr
                 setSaveOpen,
                 updateSelectedPhrase,
                 selectedPhrase,
+                wordsStats,
             }}
         >
             {children}

@@ -2,7 +2,7 @@
 
 import TheTable from '@/components/TheTable';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
-import {ActionTooltip, Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
+import {Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import {CSSProperties, useState} from 'react';
 import {ArrowShapeUp, Magnifier, Minus, Plus} from '@gravity-ui/icons';
@@ -11,6 +11,7 @@ import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
 import {defaultRender, renderAsPercent} from '@/utilities/getRoundValue';
 import {RangePicker} from '@/components/RangePicker';
+import {RequestPhrasesModal} from './RequestPhrasesModal/RequestPhrasesModal';
 // import {DescriptionClusterPopup} from './DescriptionClusterPopup';
 
 export interface ColumnData {
@@ -93,13 +94,9 @@ export const ClustersTable = () => {
                             justifyContent: 'space-between',
                         }}
                     >
-                        <ActionTooltip title={value}>
-                            <Text ellipsis style={{maxWidth: 250}}>
-                                {value}
-                            </Text>
-                        </ActionTooltip>
                         {!footer ? (
                             <div style={{gap: 8, display: 'flex', flexDirection: 'row'}}>
+                                <RequestPhrasesModal cluster={value} />
                                 <Button
                                     size="xs"
                                     view="outlined"

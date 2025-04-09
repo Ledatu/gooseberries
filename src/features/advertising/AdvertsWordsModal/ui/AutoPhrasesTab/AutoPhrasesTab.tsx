@@ -2,6 +2,7 @@ import {Button, Icon, List, Text, TextInput} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {useState} from 'react';
 import {Pencil} from '@gravity-ui/icons';
+import {OffersWordsModal} from '../OfferWordsModal/OfferWordsModal';
 
 export const AutoPhrasesTab = () => {
     const {template, advertWordsTemplateHandler} = useAdvertsWordsModal();
@@ -17,7 +18,10 @@ export const AutoPhrasesTab = () => {
             }}
         >
             <div style={{display: 'flex', flexDirection: 'column', gap: 8, width: '48%'}}>
-                <Text variant="header-2">Фразы должны содержать</Text>
+                <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
+                    <Text variant="header-2">Фразы должны содержать</Text>
+                    <OffersWordsModal isActive={true} />
+                </div>
                 <TextInput
                     placeholder="Введите фразу сюда"
                     size="m"
@@ -68,7 +72,10 @@ export const AutoPhrasesTab = () => {
                 />
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: 8, width: '48%'}}>
-                <Text variant="header-2">Фразы не должны содержать</Text>
+                <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
+                    <Text variant="header-2">Фразы не должны содержать</Text>
+                    <OffersWordsModal isActive={false} />
+                </div>
                 <TextInput
                     placeholder="Введите фразу сюда"
                     size="m"

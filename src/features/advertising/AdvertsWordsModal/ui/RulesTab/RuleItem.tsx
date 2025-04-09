@@ -59,7 +59,9 @@ export const RuleItem = ({rule, changeRule, deleteRule}: templateItem) => {
                         changeRule(newRule);
                     }}
                 />
-                <Text variant="subheader-2">{getNameOfRule(rule.key).split(', ')[1] ?? ''}</Text>
+                <Text style={{width: 20}} variant="subheader-2">
+                    {getNameOfRule(rule.key).split(', ')[1] ?? ''}
+                </Text>
             </div>
             <Button
                 onClick={() => {

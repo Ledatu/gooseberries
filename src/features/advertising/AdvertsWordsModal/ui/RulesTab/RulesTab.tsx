@@ -38,7 +38,7 @@ export const RulesTab = () => {
                 gap: 16,
             }}
         >
-            <div style={{gap: 16, width: '60%'}}>
+            <div style={{gap: 16, width: '50%'}}>
                 <div
                     style={{
                         display: 'flex',
