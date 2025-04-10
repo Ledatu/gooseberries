@@ -7,4 +7,4 @@ export const tabs: TabProps[] = [{ id: 'ActiveClusters', title: 'Активны�
 { id: 'AutoPhrases', title: 'Авто фразы' },
 // { id: 'FixedPhrases', title: "Фиксированные фразы" },
 { id: 'Settings', title: 'Настройки' },
-{ id: 'ChangeTemplate', title: 'Сменить шаблон' }]
+{ id: 'ChangeTemplate', title: 'Сменить правило' }]

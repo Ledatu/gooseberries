@@ -145,6 +145,7 @@ class AdvertWordsTemplateHandler {
 interface AdvertsWordsProviderProps {
     children: React.ReactNode;
     advertId: number;
+    getNames: Function;
 }
 export const AutoWordsContext = createContext<AutoWordsContextType | undefined>(undefined);
 
@@ -153,7 +154,7 @@ export const useAdvertsWordsModal = () => {
     return useContext(AutoWordsContext) as AutoWordsContextType;
 };
 
-export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderProps) => {
+export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWordsProviderProps) => {
     const [stats, setStats] = useState<ClusterData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [excluded, setExcluded] = useState<boolean>(false);
@@ -187,6 +188,7 @@ export const AdvertWordsProvider = ({children, advertId}: AdvertsWordsProviderPr
             changeTemplate(newTemplateName);
             setNewTemplateName('');
         }
+        getNames();
     }, [newTemplateName]);
 
     useEffect(() => {

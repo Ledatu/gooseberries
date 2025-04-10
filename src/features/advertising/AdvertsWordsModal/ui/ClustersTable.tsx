@@ -36,6 +36,17 @@ export const ClustersTable = () => {
         // excluded,
     } = useAdvertsWordsModal();
 
+    const {
+        data,
+        footerData,
+        filteredData,
+        filterTableData,
+        setFilters,
+        filters,
+        filterByButton,
+        // getInfoForDescription,
+    } = useClustersTableContext();
+
     const columnData: ColumnData[] = [
         {
             placeholder: 'Пресет',
@@ -44,13 +55,17 @@ export const ClustersTable = () => {
             constWidth: 100,
             render: ({value}: any) => {
                 return (
-                    <div>
-                        <Button size="xs" view={'flat'} onClick={() => {}}>
-                            <Text ellipsis style={{maxWidth: 150}} color="primary">
-                                {value}
-                            </Text>
-                        </Button>
-                    </div>
+                    <Button
+                        size="xs"
+                        view={'flat'}
+                        onClick={() => {
+                            filterByButton(value, 'preset', 'include');
+                        }}
+                    >
+                        <Text ellipsis style={{maxWidth: 150}} color="primary">
+                            {value}
+                        </Text>
+                    </Button>
                 );
             },
         },
@@ -85,7 +100,7 @@ export const ClustersTable = () => {
                         setIsExcludedByMinus(true);
                     }
                 };
-                return (
+                return !footer ? (
                     <div
                         style={{
                             gap: 8,
@@ -94,52 +109,52 @@ export const ClustersTable = () => {
                             justifyContent: 'space-between',
                         }}
                     >
-                        {!footer ? (
-                            <div style={{gap: 8, display: 'flex', flexDirection: 'row'}}>
-                                <RequestPhrasesModal cluster={value} />
-                                <Button
-                                    size="xs"
-                                    view="outlined"
-                                    href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${value}`}
-                                    target="_blank"
-                                >
-                                    <Icon data={Magnifier} />
-                                </Button>
-                                <Button
-                                    size="xs"
-                                    view={isSelectedPhrase ? 'outlined-success' : 'outlined'}
-                                    onClick={() => {
-                                        updateSelectedPhrase(value);
-                                    }}
-                                >
-                                    <Icon data={ArrowShapeUp} />
-                                </Button>
-                                <Button
-                                    size="xs"
-                                    view={isSelectedByPlus ? 'outlined' : 'normal'}
-                                    selected={isSelectedByPlus}
-                                    onClick={() => {
-                                        handlePlusButton(value);
-                                    }}
-                                >
-                                    <Icon data={Plus} />
-                                </Button>
-                                <Button
-                                    size="xs"
-                                    view={isExcludedByMinus ? 'outlined-danger' : 'normal'}
-                                    selected={isExcludedByMinus}
-                                    onClick={() => {
-                                        handleMinusButton(value);
-                                    }}
-                                >
-                                    <Icon data={Minus} />
-                                </Button>
-                                {/* <DescriptionClusterPopup
+                        <RequestPhrasesModal cluster={value} />
+                        <div style={{gap: 8, display: 'flex', flexDirection: 'row'}}>
+                            <Button
+                                size="xs"
+                                view="outlined"
+                                href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${value}`}
+                                target="_blank"
+                            >
+                                <Icon data={Magnifier} />
+                            </Button>
+                            <Button
+                                size="xs"
+                                view={isSelectedPhrase ? 'outlined-success' : 'outlined'}
+                                onClick={() => {
+                                    updateSelectedPhrase(value);
+                                }}
+                            >
+                                <Icon data={ArrowShapeUp} />
+                            </Button>
+                            <Button
+                                size="xs"
+                                view={isSelectedByPlus ? 'outlined' : 'normal'}
+                                selected={isSelectedByPlus}
+                                onClick={() => {
+                                    handlePlusButton(value);
+                                }}
+                            >
+                                <Icon data={Plus} />
+                            </Button>
+                            <Button
+                                size="xs"
+                                view={isExcludedByMinus ? 'outlined-danger' : 'normal'}
+                                selected={isExcludedByMinus}
+                                onClick={() => {
+                                    handleMinusButton(value);
+                                }}
+                            >
+                                <Icon data={Minus} />
+                            </Button>
+                            {/* <DescriptionClusterPopup
                                     info={getInfoForDescription(value, row, excluded)}
                                 /> */}
-                            </div>
-                        ) : undefined}
+                        </div>
                     </div>
+                ) : (
+                    value
                 );
             },
         },
@@ -361,15 +376,6 @@ export const ClustersTable = () => {
             },
         },
     ];
-    const {
-        data,
-        footerData,
-        filteredData,
-        filterTableData,
-        setFilters,
-        filters,
-        // getInfoForDescription,
-    } = useClustersTableContext();
 
     const rangeToChoose = [startAdvert, endAdvert];
     const theme = useTheme();

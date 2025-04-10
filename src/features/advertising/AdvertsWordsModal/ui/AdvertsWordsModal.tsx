@@ -11,10 +11,11 @@ import {ModalWindow} from '@/shared/ui/Modal';
 
 interface AdvertsWordsModal2Props {
     advertId: number;
+    getNames: Function;
     children: ReactNode;
 }
 
-export const AdvertsWordsModal = ({advertId, children}: AdvertsWordsModal2Props) => {
+export const AdvertsWordsModal = ({advertId, children, getNames}: AdvertsWordsModal2Props) => {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     return (
         <>
@@ -28,7 +29,7 @@ export const AdvertsWordsModal = ({advertId, children}: AdvertsWordsModal2Props)
                         flexDirection: 'column',
                     }}
                 >
-                    <AdvertWordsProvider advertId={advertId}>
+                    <AdvertWordsProvider getNames={getNames} advertId={advertId}>
                         <SaveTemplateModal />
                         <AdvertsWordsHeader />
                         <AdditionalInfoTab />

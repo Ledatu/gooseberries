@@ -53,7 +53,7 @@ export const ChangeTemplateTab = () => {
                                         left: isClicked ? undefined : -50,
                                     }}
                                 >
-                                    <Text style={{margin: 8}}>Вы хотите сменить шаблон?</Text>
+                                    <Text style={{margin: 8}}>Вы хотите сменить правило?</Text>
                                     <Button
                                         view="flat-success"
                                         onClick={() => changeTemplate(item)}

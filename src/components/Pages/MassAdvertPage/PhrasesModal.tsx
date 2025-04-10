@@ -1,69 +1,89 @@
 'use client';
 
-import {Button, Card, Icon, List, Modal, Text, TextInput} from '@gravity-ui/uikit';
-import {Magnifier, TrashBin, Check, Plus, Xmark} from '@gravity-ui/icons';
+import {Button, Icon, List, Text, TextInput} from '@gravity-ui/uikit';
+import {Magnifier, TrashBin, Check, Xmark} from '@gravity-ui/icons';
 import {useEffect, useState} from 'react';
-import callApi, {getUid} from '@/utilities/callApi';
-import {motion} from 'framer-motion';
-import {NewPhrasesTemplate} from './NewPhrasesTemplate';
+// import {NewPhrasesTemplate} from './NewPhrasesTemplate';
 import {useCampaign} from '@/contexts/CampaignContext';
+import {useError} from '@/contexts/ErrorContext';
+import {ModalWindow} from '@/shared/ui/Modal';
+import {getTemplateNames} from '@/features/advertising/AdvertsWordsModal/api/getTemplatesNames';
+import {deleteAutoPhrasesTemplateOfAdvert} from '@/features/advertising/AdvertsWordsModal/api/deleteAutoPhrasesTemplateOfAdvert';
+import {changeTemplateNameOfAdvert} from '@/features/advertising/AdvertsWordsModal/api/changeTemplateNameOfAdvert';
 
 interface PhrasesModalProps {
     disabled: boolean;
-    doc: any;
-    setChangedDoc: (args?: any) => any;
+    getTemplates: Function;
     getUniqueAdvertIdsFromThePage: (args?: any) => any;
 }
 
 export const PhrasesModal = ({
     disabled,
-    doc,
-    setChangedDoc,
+    getTemplates,
     getUniqueAdvertIdsFromThePage,
 }: PhrasesModalProps) => {
-    const {selectValue} = useCampaign();
+    const {sellerId} = useCampaign();
+    const {showError} = useError();
     const [open, setOpen] = useState(false);
     const [filterText, setFilterText] = useState('');
     const [plusPhrasesTemplatesLabels, setPlusPhrasesTemplatesLabels] = useState([] as any[]);
 
-    useEffect(() => {
-        if (!open || !doc || !doc?.plusPhrasesTemplates) return;
-        const plusPhrasesTemplatesTemp: any[] = [];
-        for (const [name, _] of Object.entries(doc.plusPhrasesTemplates[selectValue[0]])) {
-            plusPhrasesTemplatesTemp.push(name);
-        }
-
+    const getNames = async () => {
+        const plusPhrasesTemplatesTemp: any[] = await getTemplateNames(sellerId);
         plusPhrasesTemplatesTemp.sort((a, b) =>
             a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase()),
         );
-
         setPlusPhrasesTemplatesLabels(plusPhrasesTemplatesTemp);
-    }, [open, doc]);
+    };
 
-    const handleDeleteRuleOfRKButton = () => {
-        const params: any = {
-            uid: getUid(),
-            campaignName: selectValue[0],
-            data: {advertsIds: {}},
-        };
-        const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-        for (const [id, advertData] of Object.entries(uniqueAdverts)) {
-            if (!id || !advertData) continue;
-            const {advertId} = advertData as any;
-            params.data.advertsIds[advertId] = {
-                advertId: advertId,
-                mode: 'Удалить',
-            };
+    useEffect(() => {
+        if (!open) return;
+        getNames();
+    }, [open]);
 
-            doc.advertsPlusPhrasesTemplates[selectValue[0]][advertId] = undefined;
-        }
-        console.log(params);
-
-        /////////////////////////
-        callApi('setAdvertsPlusPhrasesTemplates', params);
-        setChangedDoc({...doc});
-        /////////////////////////
+    const changeTemplate = async (templateName: string) => {
         setOpen(false);
+        try {
+            const uniqueAdverts = Object.entries(getUniqueAdvertIdsFromThePage()).map(
+                ([id, _]: any) => parseInt(id),
+            );
+            try {
+                await changeTemplateNameOfAdvert({
+                    templateName: templateName,
+                    advertIds: uniqueAdverts,
+                    seller_id: sellerId,
+                });
+            } catch (error) {
+                console.error(new Date(), 'error change template', error);
+                showError('Не удалось сменить правило фраз');
+            }
+            getTemplates();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const removeTemplate = async () => {
+        setOpen(false);
+        try {
+            const uniqueAdverts = Object.entries(getUniqueAdvertIdsFromThePage()).map(
+                ([id, _]: any) => parseInt(id),
+            );
+            try {
+                const dd = Date.now();
+                await deleteAutoPhrasesTemplateOfAdvert({
+                    advertIds: uniqueAdverts,
+                    seller_id: sellerId,
+                });
+                console.log('deleted in', (Date.now() - dd) / 1000);
+            } catch (error) {
+                console.error(new Date(), 'error change template', error);
+                showError('Не удалось удалить правило фраз');
+            }
+            getTemplates();
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -79,254 +99,117 @@ export const PhrasesModal = ({
                 <Icon data={Magnifier} />
                 <Text variant="subheader-1">Фразы</Text>
             </Button>
-            <Modal open={open} onClose={() => setOpen(false)}>
-                <Card
-                    view="clear"
+            <ModalWindow isOpen={open} handleClose={() => setOpen(false)}>
+                <div
                     style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        translate: '-50% -50%',
-                        flexWrap: 'nowrap',
+                        width: '70em',
                         display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: 'none',
+                        flexDirection: 'column',
+                        gap: 8,
                     }}
                 >
-                    <motion.div
+                    <Text
                         style={{
-                            width: '70em',
-                            height: '70vh',
-                            overflow: 'hidden',
-                            flexWrap: 'nowrap',
+                            margin: '8px 0',
+                        }}
+                        variant="display-2"
+                    >
+                        Правила управления фразами РК
+                    </Text>
+                    <TextInput
+                        placeholder={`Поиск в ${plusPhrasesTemplatesLabels.length} правилах`}
+                        value={filterText}
+                        size="l"
+                        onUpdate={(val) => setFilterText(val)}
+                        hasClear
+                    />
+                    <div
+                        style={{
                             display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            background: '#221d220f',
-                            backdropFilter: 'blur(48px)',
-                            boxShadow: '#0002 0px 2px 8px 0px',
-                            padding: 30,
-                            borderRadius: 30,
-                            border: '1px solid #eee2',
+                            width: '100%',
+                            height: '70vh',
                         }}
                     >
-                        <Text
-                            style={{
-                                margin: '8px 0',
-                            }}
-                            variant="display-2"
-                        >
-                            Правила управления фразами РК
-                        </Text>
-                        <TextInput
-                            placeholder={`Поиск в ${plusPhrasesTemplatesLabels.length} правилах`}
-                            value={filterText}
+                        <List
                             size="l"
-                            onUpdate={(val) => setFilterText(val)}
-                            hasClear
-                            style={{marginBottom: 8}}
-                        />
-                        <div
-                            style={{
-                                display: 'flex',
-                                width: '100%',
-                                height: '100%',
-                                marginBottom: 8,
-                            }}
-                        >
-                            <List
-                                size="l"
-                                filterable={false}
-                                renderItem={(item) => {
-                                    return (
+                            filterable={false}
+                            renderItem={(item) => {
+                                return (
+                                    <div
+                                        style={{
+                                            padding: 8,
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            width: '100%',
+                                        }}
+                                    >
+                                        <Text>{item}</Text>
                                         <div
                                             style={{
-                                                padding: 8,
                                                 display: 'flex',
                                                 flexDirection: 'row',
-                                                justifyContent: 'space-between',
                                                 alignItems: 'center',
-                                                width: '100%',
                                             }}
                                         >
-                                            <Text>{item}</Text>
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
+                                            <Button
+                                                pin="circle-circle"
+                                                onClick={() => changeTemplate(item)}
+                                            >
+                                                <Icon data={Check} />
+                                                Установить правило на РК
+                                            </Button>
+                                            <div style={{minWidth: 8}} />
+
+                                            <Button
+                                                pin="circle-circle"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
                                                 }}
                                             >
-                                                <Button
-                                                    pin="circle-circle"
-                                                    onClick={() => {
-                                                        const params: any = {
-                                                            uid: getUid(),
-                                                            campaignName: selectValue[0],
-                                                            data: {advertsIds: {}},
-                                                        };
-                                                        const uniqueAdverts =
-                                                            getUniqueAdvertIdsFromThePage();
-                                                        for (const [
-                                                            id,
-                                                            advertData,
-                                                        ] of Object.entries(uniqueAdverts)) {
-                                                            if (!id || !advertData) continue;
-                                                            const {advertId} = advertData as any;
-                                                            params.data.advertsIds[advertId] = {
-                                                                advertId: advertId,
-                                                                mode: 'Установить',
-                                                                templateName: item,
-                                                            };
-
-                                                            if (
-                                                                !doc.advertsPlusPhrasesTemplates[
-                                                                    selectValue[0]
-                                                                ][advertId]
-                                                            )
-                                                                doc.advertsPlusPhrasesTemplates[
-                                                                    selectValue[0]
-                                                                ][advertId] = {};
-                                                            doc.advertsPlusPhrasesTemplates[
-                                                                selectValue[0]
-                                                            ][advertId].templateName = item;
-                                                        }
-
-                                                        console.log(params);
-
-                                                        /////////////////////////
-                                                        callApi(
-                                                            'setAdvertsPlusPhrasesTemplates',
-                                                            params,
-                                                        );
-                                                        setChangedDoc({...doc});
-                                                        /////////////////////////
-                                                        setOpen(false);
-                                                    }}
-                                                >
-                                                    <Icon data={Check} />
-                                                    Установить правило на РК
-                                                </Button>
-                                                <div style={{minWidth: 8}} />
-
-                                                <Button
-                                                    pin="circle-circle"
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        const params = {
-                                                            uid: getUid(),
-                                                            campaignName: selectValue[0],
-                                                            data: {
-                                                                mode: 'Удалить',
-                                                                name: item,
-                                                            },
-                                                        };
-                                                        const paramsAddToArt: any = {
-                                                            uid: getUid(),
-                                                            campaignName: selectValue[0],
-                                                            data: {advertsIds: {}},
-                                                        };
-
-                                                        delete doc.plusPhrasesTemplates[
-                                                            selectValue[0]
-                                                        ][item];
-                                                        setPlusPhrasesTemplatesLabels((val) => {
-                                                            return val.filter((name) => {
-                                                                return name != item;
-                                                            });
-                                                        });
-
-                                                        if (
-                                                            doc.advertsPlusPhrasesTemplates[
-                                                                selectValue[0]
-                                                            ]
-                                                        )
-                                                            for (const [
-                                                                advertId,
-                                                                data,
-                                                            ] of Object.entries(
-                                                                doc.advertsPlusPhrasesTemplates[
-                                                                    selectValue[0]
-                                                                ],
-                                                            )) {
-                                                                const advertData: any = data;
-                                                                if (!advertId || !advertData)
-                                                                    continue;
-                                                                if (
-                                                                    advertData['templateName'] ==
-                                                                    item
-                                                                ) {
-                                                                    doc.advertsPlusPhrasesTemplates[
-                                                                        selectValue[0]
-                                                                    ][advertId] = undefined;
-                                                                    paramsAddToArt.data.advertsIds[
-                                                                        advertId
-                                                                    ] = {
-                                                                        mode: 'Удалить',
-                                                                        templateName: item,
-                                                                    };
-                                                                }
-                                                            }
-                                                        console.log(paramsAddToArt);
-                                                        console.log(params);
-
-                                                        callApi(
-                                                            'setAdvertsPlusPhrasesTemplates',
-                                                            paramsAddToArt,
-                                                        );
-
-                                                        /////////////////////////
-                                                        callApi('setPlusPhraseTemplate', params);
-                                                        setChangedDoc({...doc});
-                                                        /////////////////////////
-                                                    }}
-                                                >
-                                                    <Icon data={TrashBin} />
-                                                    Удалить правило
-                                                </Button>
-                                            </div>
+                                                <Icon data={TrashBin} />
+                                                Удалить правило
+                                            </Button>
                                         </div>
-                                    );
-                                }}
-                                items={plusPhrasesTemplatesLabels.filter((item) => {
-                                    return item
-                                        .toLocaleLowerCase()
-                                        .includes(filterText.toLocaleLowerCase());
-                                })}
-                                itemHeight={44}
-                            />
-                        </div>
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                width: '100%',
+                                    </div>
+                                );
                             }}
-                        >
-                            <NewPhrasesTemplate doc={doc} setChangedDoc={setChangedDoc}>
-                                <Button disabled={disabled} pin="circle-circle" size="l">
-                                    <Icon data={Plus} />
-                                    Создать правило
-                                </Button>
-                            </NewPhrasesTemplate>
-                            <Button
-                                view="flat-danger"
-                                size="l"
-                                style={{margin: '4px'}}
-                                onClick={handleDeleteRuleOfRKButton}
-                            >
-                                <Icon data={Xmark} />
-                                Убрать правило управления фразами с РК
+                            items={plusPhrasesTemplatesLabels.filter((item) => {
+                                return item
+                                    .toLocaleLowerCase()
+                                    .includes(filterText.toLocaleLowerCase());
+                            })}
+                            itemHeight={44}
+                        />
+                    </div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                        }}
+                    >
+                        {/* <NewPhrasesTemplate doc={doc} setChangedDoc={setChangedDoc}>
+                            <Button disabled={disabled} pin="circle-circle" size="l">
+                                <Icon data={Plus} />
+                                Создать правило
                             </Button>
-                        </div>
-                    </motion.div>
-                </Card>
-            </Modal>
+                        </NewPhrasesTemplate> */}
+                        <Button
+                            view="flat-danger"
+                            size="l"
+                            style={{margin: '4px'}}
+                            onClick={() => removeTemplate()}
+                        >
+                            <Icon data={Xmark} />
+                            Убрать правило управления фразами с РК
+                        </Button>
+                    </div>
+                </div>
+            </ModalWindow>
         </div>
     );
 };

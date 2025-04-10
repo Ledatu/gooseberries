@@ -10,6 +10,7 @@ interface AdvertsWordsButtonProps {
     doc: any;
     selectValue: string[];
     advertId: number;
+    getNames: Function;
     art: any;
     setChangedDoc: (args: any) => any;
     setFetchedPlacements: (args: any) => any;
@@ -18,19 +19,21 @@ interface AdvertsWordsButtonProps {
     template: ShortAdvertTemplateInfo;
 }
 
-export const AdvertsWordsButton = ({template}: AdvertsWordsButtonProps) => {
+export const AdvertsWordsButton = ({template, getNames}: AdvertsWordsButtonProps) => {
     const {isFixed, includesNum, notIncludesNum, advertId} = template;
 
-    const themeToUse = isFixed !== undefined
-        ? isFixed === true
-            ? 'flat-warning'
-            : (includesNum && includesNum > 0) || (notIncludesNum && notIncludesNum > 0)
-              ? 'flat-success'
-              : 'flat-info'
-        : 'normal';
+    const themeToUse =
+        isFixed !== undefined
+            ? isFixed === true
+                ? 'flat-warning'
+                : (includesNum && includesNum > 0) || (notIncludesNum && notIncludesNum > 0)
+                  ? 'flat-success'
+                  : 'flat-info'
+            : 'normal';
 
     return (
         <AdvertsWordsModal
+            getNames={getNames}
             // nmId={art}
             // disabled={disabled}
             // doc={doc}

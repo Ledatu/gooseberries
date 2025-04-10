@@ -20,6 +20,7 @@ interface ClustersTableContext {
     setShowDzhem: (arg: boolean) => void;
     filteredData: ClusterData[];
     filterTableData: Function;
+    filterByButton: (val: any, key: any, compMode: string) => void;
     setFilters: (filters: any) => void;
     filters: any;
     getInfoForDescription: (cluster: string, row: any, excluded: boolean) => InfoForDescription;
@@ -95,6 +96,13 @@ export const useClustersTableContext = (): ClustersTableContext => {
     //         : setColumnsData(columns.filter((column) => notDzhem.includes(column.name)));
     // }, [showDzhem, columns]);
     const [filters, setFilters] = useState({undef: true});
+
+    const filterByButton = (val: any, key: any, compMode = 'include') => {
+        (filters as any)[key] = {val: String(val), compMode: compMode} as any;
+        setFilters({...filters});
+        filterTableData(filters);
+    };
+
     const [filteredData, setFilteredData] = useState(stats);
     const filterTableData = (withfFilters: any = {}, tableData: any = []) => {
         const temp = [] as any;
@@ -182,6 +190,7 @@ export const useClustersTableContext = (): ClustersTableContext => {
     return {
         filteredData,
         filterTableData,
+        filterByButton,
         setFilters,
         filters,
         footerData: footer,

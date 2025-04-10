@@ -5,7 +5,7 @@ import {useCampaign} from '@/contexts/CampaignContext';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {useError} from '@/contexts/ErrorContext';
 import {ModalWindow} from '@/shared/ui/Modal';
-import {ActionTooltip, Button, List, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, List, Text} from '@gravity-ui/uikit';
 import {ListItem} from './ListItem';
 
 interface RequestPhrasesModalProps {
@@ -38,16 +38,13 @@ export const RequestPhrasesModal = ({cluster}: RequestPhrasesModalProps) => {
     return (
         <div>
             <ActionTooltip title={cluster}>
-                <Button
-                    size="m"
+                <Text
                     onClick={() => setOpen(true)}
-                    view="flat"
-                    style={{alignContent: 'center'}}
+                    ellipsis
+                    style={{maxWidth: 250, alignContent: 'center', cursor: 'pointer'}}
                 >
-                    <Text ellipsis style={{maxWidth: 250, alignContent: 'center'}}>
-                        {cluster}
-                    </Text>
-                </Button>
+                    {cluster}
+                </Text>
             </ActionTooltip>
             <ModalWindow isOpen={open} handleClose={() => setOpen(false)}>
                 <div style={{padding: 8, width: 500}}>
