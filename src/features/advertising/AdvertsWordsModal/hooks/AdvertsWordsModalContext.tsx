@@ -281,6 +281,7 @@ export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWords
                 advertId: advertId,
                 seller_id: sellerId,
             });
+            if (!newTemplate) throw new Error('No template');
             setTemplate(newTemplate);
         } catch (error) {
             console.error(error);
