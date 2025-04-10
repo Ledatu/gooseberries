@@ -29,13 +29,15 @@ import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {AdvertsBidsModal} from './AdvertsBidsModal';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
 import {ChartModal} from './ChartModal';
-import {AdvertsWordsButton} from './AdvertsWordsButton';
+import {AdvertsWordsButton} from '@/features/advertising/AdvertsWordsModal';
 import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
 import ApiClient from '@/utilities/ApiClient';
 import {IconWithText} from '@/components/IconWithText';
 import {useError} from '@/contexts/ErrorContext';
+import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
 
 interface AdvertCardProps {
+    getNames: Function;
     pausedAdverts: any;
     setUpdatePaused: Function;
     permission: string;
@@ -63,6 +65,7 @@ interface AdvertCardProps {
     recalc: (args?: any) => any;
     filterByButton: any;
     getUniqueAdvertIdsFromThePage: (args?: any) => any;
+    template: ShortAdvertTemplateInfo;
 }
 
 const BidRuleInfo = ({rule}: any) => {
@@ -170,6 +173,7 @@ const BidRuleInfo = ({rule}: any) => {
 };
 
 export const AdvertCard = ({
+    getNames,
     pausedAdverts,
     setUpdatePaused,
     permission,
@@ -197,6 +201,7 @@ export const AdvertCard = ({
     recalc,
     filterByButton,
     getUniqueAdvertIdsFromThePage,
+    template,
 }: AdvertCardProps) => {
     const advertData = doc.adverts[selectValue[0]][id];
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
@@ -925,6 +930,7 @@ export const AdvertCard = ({
                     </div>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         <AdvertsWordsButton
+                            getNames={getNames}
                             disabled={permission != 'Управление'}
                             doc={doc}
                             selectValue={selectValue}
@@ -934,6 +940,7 @@ export const AdvertCard = ({
                             setFetchedPlacements={setFetchedPlacements}
                             currentParsingProgress={currentParsingProgress}
                             setCurrentParsingProgress={setCurrentParsingProgress}
+                            template={template}
                         />
                     </div>
                     <div

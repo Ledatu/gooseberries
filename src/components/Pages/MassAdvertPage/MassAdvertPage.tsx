@@ -93,6 +93,8 @@ import {HelpMark} from '@/components/Popups/HelpMark';
 import {CopyButton} from '@/components/Buttons/CopyButton';
 import {Note} from './NotesForArt/types';
 import {NotesForArt} from './NotesForArt';
+import {getNamesForAdverts} from '@/entities';
+import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -433,6 +435,26 @@ export const MassAdvertPage = () => {
     const [rkListMode, setRkListMode] = useState('add');
 
     const [pagesCurrent, setPagesCurrent] = useState(1);
+
+    const [shortAdvertInfo, setShortAdvertInfo] = useState<{
+        [key: string]: ShortAdvertTemplateInfo;
+    }>({});
+
+    const getNames = async () => {
+        try {
+            const templates = await getNamesForAdverts(sellerId);
+            setShortAdvertInfo(templates);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        getNames();
+    }, [sellerId]);
+    useEffect(() => {
+        console.log(shortAdvertInfo);
+    }, [shortAdvertInfo]);
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -1115,7 +1137,7 @@ export const MassAdvertPage = () => {
                           }}
                       >
                           <HelpMark
-                              position={'start'}
+                              //   position={'start'}
                               content={
                                   <div style={{display: 'flex', flexDirection: 'column'}}>
                                       <Text variant="subheader-1">
@@ -1216,6 +1238,7 @@ export const MassAdvertPage = () => {
                               ) {
                                   switches.push(
                                       <AdvertCard
+                                          getNames={getNames}
                                           pausedAdverts={pausedAdverts}
                                           setUpdatePaused={setUpdatePaused}
                                           sellerId={sellerId}
@@ -1246,6 +1269,12 @@ export const MassAdvertPage = () => {
                                           filterByButton={filterByButton}
                                           getUniqueAdvertIdsFromThePage={
                                               getUniqueAdvertIdsFromThePage
+                                          }
+                                          template={
+                                              shortAdvertInfo[parseInt(advertId)] ?? {
+                                                  advertId: parseInt(advertId),
+                                                  templateName: 'Фразы',
+                                              }
                                           }
                                       />,
                                   );
@@ -1257,6 +1286,7 @@ export const MassAdvertPage = () => {
                                   switches.push(
                                       <AdvertCard
                                           pausedAdverts={pausedAdverts}
+                                          getNames={getNames}
                                           setUpdatePaused={setUpdatePaused}
                                           sellerId={sellerId}
                                           advertBudgetRules={advertBudgetRules}
@@ -1287,6 +1317,12 @@ export const MassAdvertPage = () => {
                                           getUniqueAdvertIdsFromThePage={
                                               getUniqueAdvertIdsFromThePage
                                           }
+                                          template={
+                                              shortAdvertInfo[parseInt(advertId)] ?? {
+                                                  advertId: parseInt(advertId),
+                                                  templateName: 'Фразы',
+                                              }
+                                          }
                                       />,
                                   );
                               } else {
@@ -1296,6 +1332,7 @@ export const MassAdvertPage = () => {
                               switches.push(
                                   <AdvertCard
                                       pausedAdverts={pausedAdverts}
+                                      getNames={getNames}
                                       setUpdatePaused={setUpdatePaused}
                                       sellerId={sellerId}
                                       advertBudgetRules={advertBudgetRules}
@@ -1322,6 +1359,12 @@ export const MassAdvertPage = () => {
                                       recalc={recalc}
                                       filterByButton={filterByButton}
                                       getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
+                                      template={
+                                          shortAdvertInfo[parseInt(advertId)] ?? {
+                                              advertId: parseInt(advertId),
+                                              templateName: 'Фразы',
+                                          }
+                                      }
                                   />,
                               );
                           }
@@ -2376,22 +2419,17 @@ export const MassAdvertPage = () => {
 
     const doc = getUserDoc(changedDoc, changedDocUpdateType, selectValue[0]);
 
-    const getCampaignName = () => {
-        return selectValue[0];
-    };
     const updateTheData = useCallback(async () => {
         if (!selectValue || !Object.entries(arts).length) return;
         console.log('YOOO UPDATE INCOMING');
         setFetchingDataFromServerFlag(true);
         setSwitchingCampaignsFlag(false);
         const params = {
-            uid: getUid(),
-            dateRange: {from: '2023', to: '2024'},
-            campaignName: getCampaignName(),
+            seller_id: sellerId,
         };
         console.log(params);
 
-        await callApi('getMassAdvertsNew', params, true)
+        await ApiClient.post('massAdvert/new/get-mass-advert', params)
             .then(async (response) => {
                 setFetchingDataFromServerFlag(false);
                 // console.log(response);
@@ -3908,8 +3946,7 @@ export const MassAdvertPage = () => {
                             <div style={{minWidth: 8}} />
                             <PhrasesModal
                                 disabled={permission != 'Управление'}
-                                doc={doc}
-                                setChangedDoc={setChangedDoc}
+                                getTemplates={getNames}
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                             />
                             <div style={{minWidth: 8}} />
@@ -4030,6 +4067,7 @@ export const MassAdvertPage = () => {
                                                 }}
                                             >
                                                 <AdvertCard
+                                                    getNames={getNames}
                                                     pausedAdverts={pausedAdverts}
                                                     setUpdatePaused={setUpdatePaused}
                                                     sellerId={sellerId}
@@ -4066,6 +4104,12 @@ export const MassAdvertPage = () => {
                                                     filterByButton={filterByButton}
                                                     getUniqueAdvertIdsFromThePage={
                                                         getUniqueAdvertIdsFromThePage
+                                                    }
+                                                    template={
+                                                        shortAdvertInfo[advertId] ?? {
+                                                            advertId: parseInt(advertId),
+                                                            templateName: 'Фразы',
+                                                        }
                                                     }
                                                 />
                                                 <div style={{minWidth: 8}} />

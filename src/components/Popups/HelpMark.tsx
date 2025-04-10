@@ -1,10 +1,15 @@
 import {CircleQuestion} from '@gravity-ui/icons';
-import {ActionTooltip, Icon} from '@gravity-ui/uikit';
+import {Icon, Popover, PopupPlacement} from '@gravity-ui/uikit';
 
-export const HelpMark = ({content, placement}: any) => {
+interface HelpMarkProps {
+    content: React.ReactNode;
+    placement?: PopupPlacement;
+}
+
+export const HelpMark = ({content, placement}: HelpMarkProps) => {
     return (
-        <ActionTooltip style={{padding: '8px'}} title={content} placement={placement}>
+        <Popover content={content} placement={placement} offset={-4} enableSafePolygon={true}>
             <Icon data={CircleQuestion} />
-        </ActionTooltip>
+        </Popover>
     );
 };

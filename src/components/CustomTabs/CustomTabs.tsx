@@ -5,13 +5,12 @@ import {
     SelectOption,
     Tab,
     TabProvider,
-    // TabPanel,
     Text,
-    useTheme,
+    // useTheme,
 } from '@gravity-ui/uikit';
 import {ChevronDown} from '@gravity-ui/icons';
 import {CSSProperties, ReactElement, Ref, useEffect, useMemo, useRef, useState} from 'react';
-import {useModules} from '@/contexts/ModuleProvider';
+// import {useModules} from '@/contexts/ModuleProvider';
 import {motion} from 'framer-motion';
 import {TabsItemProps, CustomTabsProps} from './types';
 
@@ -24,13 +23,13 @@ import {TabsItemProps, CustomTabsProps} from './types';
 //     id?: string;
 // }
 
-export const CustomTabs = ({items}: CustomTabsProps) => {
-    const theme = useTheme();
+export const CustomTabs = ({items, setModule, currentModule}: CustomTabsProps) => {
+    // const theme = useTheme();
     const tabsRef = useRef<HTMLDivElement | null>(null);
     const [visibleTabs, setVisibleTabs] = useState<ReactElement[]>([]);
     const [hiddenTabs, setHiddenTabs] = useState<TabsItemProps[]>([]);
     const [selectObjectFromTab, _setSelectObjectFromTab] = useState({} as any);
-    const {setModule, currentModule} = useModules();
+    // const {setModule, currentModule} = useModules();
     const [valueOfTab, setValueOfTab] = useState<string | null>(null);
     useEffect(() => {
         if (currentModule) {
@@ -141,7 +140,7 @@ export const CustomTabs = ({items}: CustomTabsProps) => {
                 flexDirection: 'row',
                 alignItems: 'center', // Align items in a single row
                 width: '100%', // Ensure it stretches across the container
-                boxShadow: `inset 0px -9px 0px -8px ${theme === 'dark' ? '#2d2c33' : '#fff'}`,
+                // boxShadow: `inset 0px -9px 0px -8px ${theme === 'dark' ? '#2d2c33' : '#fff'}`,
             }}
         >
             {/* Tabs Container */}
@@ -153,6 +152,7 @@ export const CustomTabs = ({items}: CustomTabsProps) => {
                         flexGrow: 1, // Allow tabs to take up available space
                         overflow: 'hidden',
                         gap: '16px', // Prevent tabs from overflowing
+                        marginInline: 8,
                     } as CSSProperties
                 }
             >
