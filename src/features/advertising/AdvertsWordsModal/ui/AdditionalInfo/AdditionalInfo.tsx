@@ -5,7 +5,7 @@ import {getNameOfRule} from '../../config/rules';
 import {Eye} from '@gravity-ui/icons';
 
 export const AdditionalInfoTab = () => {
-    const {template, advertId} = useAdvertsWordsModal();
+    const {template, advertId, setCurrentModule} = useAdvertsWordsModal();
     const [alert, setAlert] = useState<boolean>(false);
     const [rules, setRules] = useState<ReactNode>([]);
     useEffect(() => {
@@ -16,7 +16,13 @@ export const AdditionalInfoTab = () => {
         }
         const tempRules = (template?.rules ?? []).map((rule) => (
             <ActionTooltip title="Нажмите, чтобы редактировать.">
-                <Button size="l" pin="circle-circle">
+                <Button
+                    size="l"
+                    pin="circle-circle"
+                    onClick={() => {
+                        setCurrentModule('Settings');
+                    }}
+                >
                     <div
                         style={{
                             display: 'flex',

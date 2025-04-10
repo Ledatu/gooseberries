@@ -19,7 +19,7 @@ export const RulesTab = () => {
 
             setCurrentRules(newRules);
 
-            setTemplate({...template, rules: currentRules});
+            setTemplate({...template, rules: newRules});
         }
     };
 
@@ -29,7 +29,7 @@ export const RulesTab = () => {
         );
         setCurrentRules(newRules);
 
-        setTemplate({...template, rules: currentRules});
+        setTemplate({...template, rules: newRules});
     };
 
     return (
