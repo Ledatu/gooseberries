@@ -15,12 +15,14 @@ export const changeTemplateNameOfAdvert = async (props: changeTemplateOfAdvertPr
             props,
         );
         console.log(res);
-        if (!res || !res.data || !res.data.template) {
+        if ((!res || !res.data || !res.data.template) && props?.advertId) {
             throw new Error(`No data for ${props.advertId}`);
         }
-        const template: AutoPhrasesTemplateDto = res.data.template;
-        return AutoPhrasesTemplateMapper(template);
+        const template: AutoPhrasesTemplateDto = res?.data?.template;
+        if (template) return AutoPhrasesTemplateMapper(template);
+        return;
     } catch (error: any) {
+        console.error(error);
         throw new Error('error in changeTemplateOfAdvert', error.message);
     }
 };
