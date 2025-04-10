@@ -1,7 +1,6 @@
 'use client';
 
 import {Dispatch, SetStateAction} from 'react';
-// import {AdvertWordsTab} from './AdvertWordsTab';
 import {AdvertWordsTabModules} from '../types';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Button, Divider, Icon, Text} from '@gravity-ui/uikit';
@@ -16,7 +15,6 @@ export interface AdvertWordsHeaderProps {
 
 export const AdvertsWordsHeader = () => {
     const {currentModule, setCurrentModule, setSaveOpen} = useAdvertsWordsModal();
-
     return (
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <div
