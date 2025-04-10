@@ -7,7 +7,7 @@ import {RuleItem} from './RuleItem';
 import {FixedPhrasesTab} from '../FixedPhrasesTab';
 
 export const RulesTab = () => {
-    const {template} = useAdvertsWordsModal();
+    const {template, setTemplate} = useAdvertsWordsModal();
     const [currentRules, setCurrentRules] = useState<Rules[]>(template.rules);
     const [selectValue, setSelectValue] = useState('ctr');
 
@@ -18,6 +18,8 @@ export const RulesTab = () => {
             newRules[index] = currentRule;
 
             setCurrentRules(newRules);
+
+            setTemplate({...template, rules: currentRules});
         }
     };
 
