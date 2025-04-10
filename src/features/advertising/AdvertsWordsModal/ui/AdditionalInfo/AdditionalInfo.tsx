@@ -1,16 +1,37 @@
-import {Button, Text, Card, Divider} from '@gravity-ui/uikit';
+import {Button, Text, Card, Divider, Icon, ActionTooltip} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
-import {useEffect, useState} from 'react';
+import {ReactNode, useEffect, useState} from 'react';
+import {getNameOfRule} from '../../config/rules';
+import {Eye} from '@gravity-ui/icons';
 
 export const AdditionalInfoTab = () => {
     const {template, advertId} = useAdvertsWordsModal();
     const [alert, setAlert] = useState<boolean>(false);
+    const [rules, setRules] = useState<ReactNode>([]);
     useEffect(() => {
         if (template.excludedNum >= 1000) {
             setAlert(true);
         } else {
             setAlert(false);
         }
+        const tempRules = (template?.rules ?? []).map((rule) => (
+            <ActionTooltip title="Нажмите, чтобы редактировать.">
+                <Button size="l" pin="circle-circle">
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 4,
+                        }}
+                    >
+                        <Icon data={Eye} />
+                        {`${rule.viewsThreshold} и ${getNameOfRule(rule.key)} ${rule.biggerOrEqual ? '≥' : '<'} ${rule.val}`}
+                    </div>
+                </Button>
+            </ActionTooltip>
+        ));
+        setRules(tempRules);
     }, [template, advertId]);
     return (
         <div
@@ -50,6 +71,7 @@ export const AdditionalInfoTab = () => {
                         <Text>{template.name}</Text>
                     </Button>
                 ) : undefined}
+                {rules}
             </div>
             {alert ? (
                 <Card

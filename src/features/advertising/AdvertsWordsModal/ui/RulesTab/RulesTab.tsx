@@ -28,6 +28,8 @@ export const RulesTab = () => {
             (rule) => !(JSON.stringify(rule) === JSON.stringify(ruleToDelete)),
         );
         setCurrentRules(newRules);
+
+        setTemplate({...template, rules: currentRules});
     };
 
     return (
