@@ -449,13 +449,6 @@ export const MassAdvertPage = () => {
         }
     };
 
-    useEffect(() => {
-        getNames();
-    }, [sellerId]);
-    useEffect(() => {
-        console.log(shortAdvertInfo);
-    }, [shortAdvertInfo]);
-
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
@@ -3375,6 +3368,11 @@ export const MassAdvertPage = () => {
 
     const [fetchingDataFromServerFlag, setFetchingDataFromServerFlag] = useState(false);
     const [firstRecalc, setFirstRecalc] = useState(false);
+
+    useEffect(() => {
+        if (fetchingDataFromServerFlag) return;
+        getNames();
+    }, [sellerId, fetchingDataFromServerFlag]);
 
     const fetchArts = async () => {
         try {
