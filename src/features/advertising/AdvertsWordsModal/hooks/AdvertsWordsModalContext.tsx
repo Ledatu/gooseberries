@@ -37,6 +37,7 @@ interface AutoWordsContextType {
     updateSelectedPhrase: (phrase: string) => void;
     selectedPhrase: string;
     wordsStats: PhrasesStats[];
+    getNames: Function;
 }
 
 class AdvertWordsTemplateHandler {
@@ -343,6 +344,7 @@ export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWords
                 updateSelectedPhrase,
                 selectedPhrase,
                 wordsStats,
+                getNames,
             }}
         >
             {children}
