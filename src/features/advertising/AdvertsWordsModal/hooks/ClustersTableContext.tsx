@@ -75,19 +75,17 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
     for (const key of avgKeys) summaryData[key] = (summaryData[key] as number) / clusterData.length;
     const median = getMedian(clusterData, summaryData);
     for (const key of medianKeys) summaryData[key] = median[key];
+    summaryData.cluster = `Всего кластеров: ${clusterData.length}`;
     return summaryData;
 };
 
 export const useClustersTableContext = (): ClustersTableContext => {
     const {stats, template} = useAdvertsWordsModal();
     const [data, setData] = useState(stats);
-    const [footer, setFooter] = useState(calcFooter(data));
     useEffect(() => {
         setData(stats);
     }, [stats]);
-    useEffect(() => {
-        setFooter(calcFooter(data));
-    }, [data]);
+
     const [showDzhem, setShowDzhem] = useState(true);
 
     // useEffect(() => {
@@ -104,6 +102,10 @@ export const useClustersTableContext = (): ClustersTableContext => {
     };
 
     const [filteredData, setFilteredData] = useState(stats);
+    const [footer, setFooter] = useState(calcFooter(filteredData));
+    useEffect(() => {
+        setFooter(calcFooter(filteredData));
+    }, [filteredData]);
     const filterTableData = (withfFilters: any = {}, tableData: any = []) => {
         const temp = [] as any;
         for (const tempTypeRow of tableData.length ? tableData : data) {
@@ -137,7 +139,6 @@ export const useClustersTableContext = (): ClustersTableContext => {
         //     if (!a.art || !b.art) return false;
         //     return a.art.localeCompare(b.art, 'ru-RU');
         // });
-
         setFilteredData(temp);
     };
 
