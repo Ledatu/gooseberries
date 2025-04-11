@@ -4,6 +4,8 @@ export const rules = [
     {content: 'CR в корзину, %', value: 'openToCartCurrent'},
     {content: 'CR в заказ, %', value: 'cartToOrderCurrent'},
     {content: 'CR, %', value: 'openToOrderPercent'},
+    {content: 'ДРР, %', value: 'drr'},
+    {content: 'CPO, ₽', value: 'cpo'},
 ];
 
 export const getNameOfRule = (value: string) => {

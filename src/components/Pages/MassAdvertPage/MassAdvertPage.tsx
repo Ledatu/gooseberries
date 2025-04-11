@@ -1208,11 +1208,14 @@ export const MassAdvertPage = () => {
                       const {art} = row;
                       const switches: any[] = [];
 
-                      const advertIds = Object.keys(value).sort(
-                          (a, b) =>
-                              doc.adverts[selectValue[0]]?.[a]?.type -
-                              doc.adverts[selectValue[0]]?.[b]?.type,
-                      );
+                      const advertIds = Object.keys(value)
+                          .filter((a) => doc.adverts[selectValue[0]]?.[a]?.type)
+                          .sort((a, b) => {
+                              return (
+                                  doc.adverts[selectValue[0]]?.[a]?.type -
+                                  doc.adverts[selectValue[0]]?.[b]?.type
+                              );
+                          });
 
                       for (const advertId of advertIds) {
                           const advertData = doc?.adverts?.[selectValue[0]]?.[advertId];
