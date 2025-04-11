@@ -1,4 +1,4 @@
-import {createContext, useContext, useEffect, useState} from 'react';
+import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import {AdvertWordsTabModules} from '../types';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {fetchClusterStats} from '../api/fetchClusterStats';
@@ -38,6 +38,7 @@ interface AutoWordsContextType {
     selectedPhrase: string;
     wordsStats: PhrasesStats[];
     getNames: Function;
+    templateChanged: boolean;
 }
 
 class AdvertWordsTemplateHandler {
@@ -218,15 +219,23 @@ export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWords
     const [dates, setDates] = useState<Date[]>([new Date(), new Date()]);
     const [firstTime, setFirstTime] = useState(true);
 
+    const [savedTemplateJSON, setSavedTemplateJSON] = useState('');
+
     useEffect(() => {
         console.log('template', template);
     }, [template]);
+
+    const templateChanged = useMemo(
+        () => JSON.stringify(template) != savedTemplateJSON,
+        [template, savedTemplateJSON],
+    );
 
     const advertWordsTemplateHandler = new AdvertWordsTemplateHandler(setTemplate, template);
     const getTemplate = async () => {
         const template = await fetchAutoPhrasesTemplate(advertId, sellerId);
         console.log(template);
         setTemplate(template);
+        setSavedTemplateJSON(JSON.stringify(template));
     };
     const getSelectedPhrase = async () => {
         const selected = await fetchSelectedPhrase(sellerId, advertId);
@@ -317,6 +326,7 @@ export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWords
             advertId: advertId,
         });
         await fetchTemplatesName();
+        setSavedTemplateJSON(JSON.stringify(template));
     };
 
     return (
@@ -345,6 +355,7 @@ export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWords
                 selectedPhrase,
                 wordsStats,
                 getNames,
+                templateChanged,
             }}
         >
             {children}

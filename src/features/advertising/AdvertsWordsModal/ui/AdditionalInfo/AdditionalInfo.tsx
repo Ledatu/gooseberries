@@ -77,19 +77,36 @@ export const AdditionalInfoTab = () => {
                         <Text>{template.name}</Text>
                     </Button>
                 ) : undefined}
-                <Button
-                    size="l"
-                    pin="circle-circle"
-                    selected
-                    view={'outlined-warning'}
-                    style={{paddingInline: 16}}
-                >
-                    <div style={{display : 'flex', flexDirection: 'row', alignItems: 'center', height: '100%', gap: 4}}>
-                    <Text>Автофразы при </Text>
-                    <Icon data={Eye} /> 
-                    <Text> ≥ {template.viewsThreshold}</Text>
-                    </div>
-                </Button>
+                {template.includes.length || template.notIncludes.length ? (
+                    <ActionTooltip title="Нажмите, чтобы редактировать.">
+                        <Button
+                            size="l"
+                            pin="circle-circle"
+                            selected
+                            view={'outlined-warning'}
+                            style={{paddingInline: 16}}
+                            onClick={() => {
+                                setCurrentModule('AutoPhrases');
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    height: '100%',
+                                    gap: 4,
+                                }}
+                            >
+                                <Text>Автофразы при </Text>
+                                <Icon data={Eye} />
+                                <Text>{template.viewsThreshold}</Text>
+                            </div>
+                        </Button>
+                    </ActionTooltip>
+                ) : (
+                    <></>
+                )}
                 {rules}
             </div>
             {alert ? (

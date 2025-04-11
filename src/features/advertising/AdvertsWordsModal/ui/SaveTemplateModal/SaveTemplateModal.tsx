@@ -1,9 +1,8 @@
-import {Button, Card, Icon, Modal, Text, TextInput} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon, Text, TextInput} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {useEffect, useState} from 'react';
-import {cx} from '@/lib/utils';
-import {HelpMark} from '@/components/Popups/HelpMark';
 import {Check, Xmark} from '@gravity-ui/icons';
+import {ModalWindow} from '@/shared/ui/Modal';
 
 export const SaveTemplateModal = () => {
     const {saveOpen, template, setSaveOpen, advertWordsTemplateHandler, saveTemplate, getNames} =
@@ -29,80 +28,75 @@ export const SaveTemplateModal = () => {
         setSaveOpen(false);
     };
     return (
-        <div>
-            <Modal open={saveOpen} onOpenChange={(open) => setSaveOpen(open)}>
-                <Card
-                    className={cx(['centred-absolute-element', 'blurred-card'])}
+        <ModalWindow isOpen={saveOpen} handleClose={() => setSaveOpen(false)}>
+            {isNew ? (
+                <div
                     style={{
-                        height: 200,
-                        width: 600,
+                        justifyContent: 'center',
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
                         gap: 8,
+                        alignItems: 'center',
                     }}
                 >
-                    <Text variant="subheader-2">Выберите способ сохранения шаблона</Text>
-                    {isNew ? (
-                        <div
-                            style={{
-                                justifyContent: 'center',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 4,
-                                alignItems: 'center',
+                    <TextInput
+                        validationState={!newTemplateName ? 'invalid' : undefined}
+                        hasClear
+                        placeholder="Имя шаблона"
+                        size="l"
+                        value={newTemplateName}
+                        onUpdate={(value) => setNewTemplateName(value)}
+                    />
+                    <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
+                        <Button
+                            disabled={!newTemplateName}
+                            size="l"
+                            selected
+                            pin="circle-circle"
+                            view="flat-success"
+                            onClick={() => {
+                                handleSaveNewTemplateButton();
                             }}
                         >
-                            <TextInput
-                                style={{width: 300}}
-                                value={newTemplateName}
-                                onUpdate={(value) => setNewTemplateName(value)}
-                            />
-                            <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
-                                <Button
-                                    view="flat-success"
-                                    onClick={() => {
-                                        handleSaveNewTemplateButton();
-                                    }}
-                                >
-                                    <Text>Сохранить</Text>
-                                    <Icon data={Check} />
-                                </Button>
-                                <Button
-                                    view="flat-danger"
-                                    onClick={() => {
-                                        setIsNew(false);
-                                    }}
-                                >
-                                    <Text>Отменить</Text>
-                                    <Icon data={Xmark} />
-                                </Button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
-                            <Button onClick={() => setIsNew(!isNew)}>
-                                <Text>Сохранить как новый шаблон</Text>
-                            </Button>
-                            <div
-                                style={{
-                                    justifyContent: 'center',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    gap: 4,
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Button onClick={() => handleSaveButton()}>
-                                    <Text>Внести изменения в текущий</Text>
-                                </Button>
-                                <HelpMark content="Все автофразы у РК с таким же названием шаблона изменятся" />
-                            </div>
-                        </div>
-                    )}
-                </Card>
-            </Modal>
-        </div>
+                            <Icon data={Check} />
+                            <Text>Сохранить</Text>
+                        </Button>
+                        <Button
+                            pin="circle-circle"
+                            size="l"
+                            onClick={() => {
+                                setIsNew(false);
+                            }}
+                        >
+                            <Icon data={Xmark} />
+                            <Text>Отменить</Text>
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+                    <ActionTooltip title="Изменения скажутся на всех РК с таким же шаблоном.">
+                        <Button
+                            pin="circle-circle"
+                            size="l"
+                            view="outlined-action"
+                            onClick={() => handleSaveButton()}
+                        >
+                            <Text>Обновить настройки шаблона</Text>
+                        </Button>
+                    </ActionTooltip>
+                    <ActionTooltip title="Шаблон изменится только на этой РК.">
+                        <Button
+                            pin="circle-circle"
+                            size="l"
+                            view="flat"
+                            onClick={() => setIsNew(!isNew)}
+                        >
+                            <Text>Сохранить как новый</Text>
+                        </Button>
+                    </ActionTooltip>
+                </div>
+            )}
+        </ModalWindow>
     );
 };
