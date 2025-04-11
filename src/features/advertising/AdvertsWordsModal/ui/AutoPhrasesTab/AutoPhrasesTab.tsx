@@ -12,7 +12,7 @@ export const AutoPhrasesTab = () => {
         <div style={{display: 'flex', flexDirection: 'column', padding: 32, gap: 16}}>
             <div style={{display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center'}}>
                 <Text variant="header-1">
-                    Использовать автофразы, если показов больше или равно
+                    Использовать автофразы если показов больше или равно
                 </Text>
                 <NumberInput
                     min={0}
