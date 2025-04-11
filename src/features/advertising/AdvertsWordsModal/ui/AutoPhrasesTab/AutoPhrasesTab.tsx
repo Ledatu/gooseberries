@@ -15,10 +15,11 @@ export const AutoPhrasesTab = () => {
                     Использовать автофразы, если показов больше или равно
                 </Text>
                 <NumberInput
+                    min={0}
                     size="l"
-                    style={{width: '10%'}}
+                    style={{width: 80}}
                     value={template.viewsThreshold}
-                    onUpdate={(value) => setTemplate({...template, viewsThreshold: value || 1})}
+                    onUpdate={(value) => setTemplate({...template, viewsThreshold: value || 0})}
                 />
             </div>
             <div
