@@ -148,6 +148,7 @@ interface AdvertsWordsProviderProps {
     children: React.ReactNode;
     advertId: number;
     getNames: Function;
+    closeAdvertsWordsModal: Function;
 }
 export const AutoWordsContext = createContext<AutoWordsContextType | undefined>(undefined);
 
@@ -156,7 +157,12 @@ export const useAdvertsWordsModal = () => {
     return useContext(AutoWordsContext) as AutoWordsContextType;
 };
 
-export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWordsProviderProps) => {
+export const AdvertWordsProvider = ({
+    children,
+    advertId,
+    getNames,
+    closeAdvertsWordsModal,
+}: AdvertsWordsProviderProps) => {
     const [stats, setStats] = useState<ClusterData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [excluded, setExcluded] = useState<boolean>(false);
@@ -315,6 +321,7 @@ export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWords
     }, [advertId, excluded, dates]); // Fetch only when advertId changes
 
     const saveTemplate = async (name?: string) => {
+        closeAdvertsWordsModal();
         console.log(template);
         const templeteToSend = {...template};
         if (name) {

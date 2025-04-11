@@ -17,10 +17,11 @@ interface AdvertsWordsModal2Props {
 
 export const AdvertsWordsModal = ({advertId, children, getNames}: AdvertsWordsModal2Props) => {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const handleClose = () => setModalOpen(false);
     return (
         <>
             <div onClick={() => setModalOpen(!modalOpen)}>{children}</div>
-            <ModalWindow padding={false} isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
+            <ModalWindow padding={false} isOpen={modalOpen} handleClose={handleClose}>
                 <div
                     style={{
                         width: '90vw',
@@ -29,7 +30,11 @@ export const AdvertsWordsModal = ({advertId, children, getNames}: AdvertsWordsMo
                         flexDirection: 'column',
                     }}
                 >
-                    <AdvertWordsProvider getNames={getNames} advertId={advertId}>
+                    <AdvertWordsProvider
+                        getNames={getNames}
+                        advertId={advertId}
+                        closeAdvertsWordsModal={handleClose}
+                    >
                         <SaveTemplateModal />
                         <AdvertsWordsHeader />
                         <AdditionalInfoTab />
