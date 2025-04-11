@@ -208,7 +208,7 @@ export const AdvertWordsProvider = ({children, advertId, getNames}: AdvertsWords
         rules: [],
         phrasesSelectedByPlus: [],
         phrasesExcludedByMinus: [],
-        viewsThreshold: 0,
+        viewsThreshold: 1,
         selectedByAutoPhrases: [],
         fixedClusters: [],
         clustersNum: 0,
