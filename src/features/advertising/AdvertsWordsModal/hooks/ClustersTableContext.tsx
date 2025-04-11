@@ -72,9 +72,9 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
             }
         }
     }
-    for (const key of avgKeys) summaryData[key] = (summaryData[key] as number) / clusterData.length;
+    for (const key of avgKeys) summaryData[key] = Math.floor(((summaryData[key] as number) / clusterData.length)*100)/100;
     const median = getMedian(clusterData, summaryData);
-    for (const key of medianKeys) summaryData[key] = median[key];
+    for (const key of medianKeys) summaryData[key] = Math.round(median[key]*100)/100;
     summaryData.cluster = `Всего кластеров: ${clusterData.length}`;
     return summaryData;
 };
