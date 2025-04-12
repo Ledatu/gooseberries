@@ -5,7 +5,7 @@ import {Check, Xmark} from '@gravity-ui/icons';
 import {ModalWindow} from '@/shared/ui/Modal';
 
 export const SaveTemplateModal = () => {
-    const {saveOpen, template, setSaveOpen, advertWordsTemplateHandler, saveTemplate, getNames} =
+    const {saveOpen, template, setSaveOpen, advertWordsTemplateHandler, saveTemplate} =
         useAdvertsWordsModal();
     const [newTemplateName, setNewTemplateName] = useState<string>(``);
     const [isNew, setIsNew] = useState<boolean>(false);
@@ -17,14 +17,12 @@ export const SaveTemplateModal = () => {
         advertWordsTemplateHandler.changeName(newTemplateName);
         setIsNew(false);
         saveTemplate(newTemplateName);
-        getNames();
         setSaveOpen(false);
     };
 
     const handleSaveButton = () => {
         setIsNew(false);
         saveTemplate();
-        getNames();
         setSaveOpen(false);
     };
     return (

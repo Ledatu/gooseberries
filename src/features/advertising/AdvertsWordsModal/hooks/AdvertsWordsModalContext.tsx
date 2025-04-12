@@ -333,6 +333,7 @@ export const AdvertWordsProvider = ({
             advertId: advertId,
         });
         await fetchTemplatesName();
+        getNames();
         setSavedTemplateJSON(JSON.stringify(template));
     };
 

@@ -10,6 +10,7 @@ import {ModalWindow} from '@/shared/ui/Modal';
 import {getTemplateNames} from '@/features/advertising/AdvertsWordsModal/api/getTemplatesNames';
 import {deleteAutoPhrasesTemplateOfAdvert} from '@/features/advertising/AdvertsWordsModal/api/deleteAutoPhrasesTemplateOfAdvert';
 import {changeTemplateNameOfAdvert} from '@/features/advertising/AdvertsWordsModal/api/changeTemplateNameOfAdvert';
+import {deleteAutoPhrasesTemplate} from '@/features/advertising/AdvertsWordsModal/api/deleteAutoPhrasesTemplate';
 
 interface PhrasesModalProps {
     disabled: boolean;
@@ -57,6 +58,16 @@ export const PhrasesModal = ({
                 console.error(new Date(), 'error change template', error);
                 showError('Не удалось сменить правило фраз');
             }
+            getTemplates();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const deleteTemplate = async (templateName: string) => {
+        try {
+            await deleteAutoPhrasesTemplate({seller_id: sellerId, templateName});
+            getNames();
             getTemplates();
         } catch (error) {
             console.error(error);
@@ -166,6 +177,7 @@ export const PhrasesModal = ({
                                                 pin="circle-circle"
                                                 onClick={(event) => {
                                                     event.stopPropagation();
+                                                    deleteTemplate(item);
                                                 }}
                                             >
                                                 <Icon data={TrashBin} />
