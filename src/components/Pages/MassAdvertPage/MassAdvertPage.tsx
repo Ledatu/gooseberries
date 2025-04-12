@@ -95,6 +95,7 @@ import {Note} from './NotesForArt/types';
 import {NotesForArt} from './NotesForArt';
 import {getNamesForAdverts} from '@/entities';
 import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
+import {changeSelectedPhrase} from '@/features/advertising/AdvertsWordsModal/api/changeSelectedPhrase';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -442,6 +443,7 @@ export const MassAdvertPage = () => {
 
     const getNames = async () => {
         try {
+            getSelectedPhrases();
             const templates = await getNamesForAdverts(sellerId);
             setShortAdvertInfo(templates);
         } catch (error) {
@@ -618,6 +620,23 @@ export const MassAdvertPage = () => {
         }
 
         return temp;
+    };
+
+    const [advertsSelectedPhrases, setAdvertsSelectedPhrases] = useState({} as any);
+    const getSelectedPhrases = async () => {
+        try {
+            const response = await ApiClient.post('massAdvert/new/get-selected-phrases', {
+                seller_id: sellerId,
+            });
+
+            if (!response) throw new Error('Не удалось получить мастер фразы');
+            setAdvertsSelectedPhrases(
+                (response?.data?.selectedPhrases as any[])?.reduce((obj, entry) => {
+                    obj[entry?.advertId] = entry?.selectedPhrase;
+                    return obj;
+                }, {}),
+            );
+        } catch (error) {}
     };
 
     const columnData: any = [
@@ -2052,15 +2071,7 @@ export const MassAdvertPage = () => {
                 const moreThatHour =
                     new Date().getTime() / 1000 / 3600 - updateTimeObj.getTime() / 1000 / 3600 > 1;
                 const {advertId} = fistActiveAdvert ?? {};
-                // console.log(
-                //     advertId,
-                //     doc.advertsSelectedPhrases[selectValue[0]][advertId]
-                //         ? doc.advertsSelectedPhrases[selectValue[0]][advertId].phrase == phrase
-                //         : false,
-                //     phrase,
-                // );
-                const isSelectedPhrase =
-                    doc?.advertsSelectedPhrases?.[selectValue[0]]?.[advertId]?.phrase == phrase;
+                const isSelectedPhrase = advertsSelectedPhrases?.[advertId] == phrase;
                 return (
                     <div style={{display: 'flex', flexDirection: 'column'}}>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
@@ -2151,36 +2162,13 @@ export const MassAdvertPage = () => {
                                     view={isSelectedPhrase ? 'outlined-success' : 'outlined'}
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        if (
-                                            !doc['advertsSelectedPhrases'][selectValue[0]][advertId]
-                                        )
-                                            doc['advertsSelectedPhrases'][selectValue[0]][
-                                                advertId
-                                            ] = {
-                                                phrase: '',
-                                            };
-                                        if (isSelectedPhrase) {
-                                            doc['advertsSelectedPhrases'][selectValue[0]][
-                                                advertId
-                                            ] = undefined;
-                                        } else {
-                                            doc['advertsSelectedPhrases'][selectValue[0]][
-                                                advertId
-                                            ].phrase = phrase;
-                                        }
-                                        setChangedDoc({...doc});
-                                        const params: any = {
-                                            uid: getUid(),
-                                            campaignName: selectValue[0],
-                                            data: {
-                                                mode: isSelectedPhrase ? 'Удалить' : 'Установить',
-                                                advertsIds: {},
-                                            },
-                                        };
-                                        params.data.advertsIds[advertId] = {};
-                                        params.data.advertsIds[advertId].phrase = phrase;
-                                        console.log(params);
-                                        callApi('updateAdvertsSelectedPhrases', params);
+                                        changeSelectedPhrase({
+                                            seller_id: sellerId,
+                                            advertId,
+                                            selectedPhrase: phrase,
+                                        }).then(() => {
+                                            getSelectedPhrases();
+                                        });
                                     }}
                                 >
                                     <Icon data={ArrowShapeUp} />

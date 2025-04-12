@@ -4,7 +4,7 @@ import {Dispatch, SetStateAction} from 'react';
 import {AdvertWordsTabModules} from '../types';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {ActionTooltip, Button, Divider, Icon} from '@gravity-ui/uikit';
-import {Check, TriangleExclamation} from '@gravity-ui/icons';
+import {CloudCheck, TriangleExclamation} from '@gravity-ui/icons';
 import {CustomTabs} from '@/components/CustomTabs';
 import {tabs} from '../config/tabs';
 export interface AdvertWordsHeaderProps {
@@ -21,7 +21,8 @@ export const AdvertsWordsHeader = () => {
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
-                    margin: '0 15px',
+                    marginLeft: 15,
+                    marginRight: 20,
                 }}
             >
                 <CustomTabs
@@ -48,7 +49,7 @@ export const AdvertsWordsHeader = () => {
                             pin="circle-circle"
                             size="s"
                         >
-                            <Icon data={templateChanged ? TriangleExclamation : Check} />
+                            <Icon data={templateChanged ? TriangleExclamation : CloudCheck} />
                         </Button>
                     </ActionTooltip>
                 </div>

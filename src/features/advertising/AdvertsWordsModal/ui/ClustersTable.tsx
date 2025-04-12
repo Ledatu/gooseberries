@@ -111,6 +111,7 @@ export const ClustersTable = () => {
                             </Button>
                             <Button
                                 size="xs"
+                                selected={isSelectedPhrase}
                                 view={isSelectedPhrase ? 'outlined-success' : 'outlined'}
                                 onClick={() => {
                                     updateSelectedPhrase(value);
