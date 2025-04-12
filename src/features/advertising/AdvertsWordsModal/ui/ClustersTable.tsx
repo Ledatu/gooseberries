@@ -3,17 +3,13 @@
 import TheTable from '@/components/TheTable';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
-import {motion} from 'framer-motion';
-import {CSSProperties, useState} from 'react';
+import {CSSProperties} from 'react';
 import {ArrowShapeUp, Magnifier, Minus, Plus} from '@gravity-ui/icons';
-import {AnimatedLogo} from '@/components/AnimatedLogo';
 import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
 import {defaultRender, renderAsPercent} from '@/utilities/getRoundValue';
 import {RangePicker} from '@/components/RangePicker';
 import {RequestPhrasesModal} from './RequestPhrasesModal/RequestPhrasesModal';
-// import {DescriptionClusterPopup} from './DescriptionClusterPopup';
-
 export interface ColumnData {
     placeholder: string;
     name: string;
@@ -74,30 +70,24 @@ export const ClustersTable = () => {
             name: 'cluster',
             valueType: 'text',
             render: ({value, footer}: any) => {
-                const [isSelectedByPlus, setIsSelectedByPlus] = useState<boolean>(
-                    template.phrasesSelectedByPlus.includes(value),
-                );
-                const [isExcludedByMinus, setIsExcludedByMinus] = useState<boolean>(
-                    template.phrasesExcludedByMinus.includes(value),
-                );
+                const isSelectedByPlus = template.phrasesSelectedByPlus.includes(value);
+                const isExcludedByMinus = template.phrasesExcludedByMinus.includes(value);
                 const isSelectedPhrase = selectedPhrase == value;
                 const handlePlusButton = (value: string) => {
                     if (isSelectedByPlus) {
                         advertWordsTemplateHandler.deletePhrasesSelectedByPlus(value);
-                        setIsSelectedByPlus(false);
                     } else {
                         advertWordsTemplateHandler.addPhrasesSelectedByPlus(value);
-                        setIsSelectedByPlus(true);
+                        advertWordsTemplateHandler.deletePhrasesExcludedByMinus(value);
                     }
                 };
 
                 const handleMinusButton = (value: string) => {
                     if (isExcludedByMinus) {
                         advertWordsTemplateHandler.deletePhrasesExcludedByMinus(value);
-                        setIsExcludedByMinus(false);
                     } else {
                         advertWordsTemplateHandler.addPhrasesExcludedByMinus(value);
-                        setIsExcludedByMinus(true);
+                        advertWordsTemplateHandler.deletePhrasesSelectedByPlus(value);
                     }
                 };
                 return !footer ? (
@@ -130,8 +120,7 @@ export const ClustersTable = () => {
                             </Button>
                             <Button
                                 size="xs"
-                                view={isSelectedByPlus ? 'outlined' : 'normal'}
-                                selected={isSelectedByPlus}
+                                selected={isSelectedByPlus && !isExcludedByMinus}
                                 onClick={() => {
                                     handlePlusButton(value);
                                 }}
@@ -383,7 +372,6 @@ export const ClustersTable = () => {
         <div
             style={
                 {
-                    // boxShadow: open ? '#0002 0px 2px 8px 0px' : undefined,
                     background: theme == 'light' ? '#fff9' : undefined,
                     WebkitBackdropFilter: 'blur(12px)',
                     backdropFilter: 'blur(12px)',
@@ -392,10 +380,7 @@ export const ClustersTable = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     '--g-color-base-background': theme === 'dark' ? 'rgba(14, 14, 14, 1)' : '#eeee',
-                    // alignItems: 'center',
-                    gap: 8,
-                    // padding: 8,
-                    // justifyContent: 'center',
+                    gap: 16,
                     height: '100%',
                 } as CSSProperties
             }
@@ -411,9 +396,7 @@ export const ClustersTable = () => {
                 />
             </div>
             {loading ? (
-                <motion.div animate={{opacity: loading ? 1 : 0}}>
-                    <AnimatedLogo />
-                </motion.div>
+                <></>
             ) : (
                 <TheTable
                     data={filteredData}
