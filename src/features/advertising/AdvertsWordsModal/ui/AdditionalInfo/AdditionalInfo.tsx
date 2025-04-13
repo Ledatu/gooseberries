@@ -39,6 +39,9 @@ export const AdditionalInfoTab = () => {
         ));
         setRules(tempRules);
     }, [template, advertId]);
+
+    const isFixed = template.isFixed && template.fixedClusters.length;
+
     return (
         <div
             style={{
@@ -78,12 +81,14 @@ export const AdditionalInfoTab = () => {
                     </Button>
                 ) : undefined}
                 {template.includes.length || template.notIncludes.length ? (
-                    <ActionTooltip title="Нажмите, чтобы редактировать.">
+                    <ActionTooltip
+                        title={`${isFixed ? 'Автофразы не будут работать так как включены фикс. фразы, выключите их, чтобы Автофразы заработали. ' : ''}Нажмите, чтобы редактировать.`}
+                    >
                         <Button
                             size="l"
                             pin="circle-circle"
                             selected
-                            view={'outlined-warning'}
+                            view={isFixed ? 'outlined-danger' : 'outlined-warning'}
                             style={{paddingInline: 16}}
                             onClick={() => {
                                 setCurrentModule('AutoPhrases');
@@ -98,9 +103,39 @@ export const AdditionalInfoTab = () => {
                                     gap: 4,
                                 }}
                             >
-                                <Text>Автофразы при </Text>
+                                <Text>{`Автофразы ${isFixed ? 'выкл.' : 'при'}`}</Text>
                                 <Icon data={Eye} />
                                 <Text>{template.viewsThreshold}</Text>
+                            </div>
+                        </Button>
+                    </ActionTooltip>
+                ) : (
+                    <></>
+                )}
+                {template.fixedClusters.length ? (
+                    <ActionTooltip
+                        title={`${!template.isFixed ? 'Фикс. фразы не будут работать так как они выключены, включите их в настройках чтобы они заработали. ' : ''}Нажмите, чтобы редактировать.`}
+                    >
+                        <Button
+                            size="l"
+                            pin="circle-circle"
+                            selected={template.isFixed}
+                            style={{paddingInline: 16}}
+                            onClick={() => {
+                                setCurrentModule('Settings');
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    height: '100%',
+                                    gap: 4,
+                                }}
+                            >
+                                <Text>Фикс. фразы</Text>
+                                <Text>{`${template.fixedClusters.length} шт.${!template.isFixed ? ' (Не активны)' : ''}`}</Text>
                             </div>
                         </Button>
                     </ActionTooltip>
