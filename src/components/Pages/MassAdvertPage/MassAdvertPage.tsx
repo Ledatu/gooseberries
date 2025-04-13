@@ -1882,41 +1882,31 @@ export const MassAdvertPage = () => {
                                 ? 'outlined-success'
                                 : 'outlined'
                         }
-                        onClick={(event) => {
+                        onClick={async (event) => {
                             event.stopPropagation();
-                            const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                            const params: any = {
-                                uid: getUid(),
-                                campaignName: selectValue[0],
-                                data: {
-                                    mode:
-                                        selectedSearchPhrase == placementsDisplayPhrase
-                                            ? 'Удалить'
-                                            : 'Установить',
-                                    advertsIds: {},
-                                },
-                            };
-                            for (const [id, advertData] of Object.entries(uniqueAdverts)) {
-                                if (!id || !advertData) continue;
-                                const {advertId} = advertData as any;
-                                params.data.advertsIds[advertId] = {};
-                                params.data.advertsIds[advertId].phrase = placementsDisplayPhrase;
-                                setSelectedSearchPhrase(
-                                    selectedSearchPhrase == placementsDisplayPhrase
-                                        ? ''
-                                        : placementsDisplayPhrase,
-                                );
-                                if (selectedSearchPhrase == placementsDisplayPhrase) {
-                                    delete doc.advertsSelectedPhrases[selectValue[0]][advertId];
-                                } else {
-                                    doc.advertsSelectedPhrases[selectValue[0]][advertId] = {
-                                        phrase: placementsDisplayPhrase,
-                                    };
+                            setSelectedSearchPhrase(
+                                selectedSearchPhrase == placementsDisplayPhrase
+                                    ? ''
+                                    : placementsDisplayPhrase,
+                            );
+                            const uniqueAdverts = Object.values(
+                                getUniqueAdvertIdsFromThePage(),
+                            )?.map((advert: any) => advert?.advertId);
+                            for (const advertId of uniqueAdverts) {
+                                if (!advertId) continue;
+                                try {
+                                    await changeSelectedPhrase({
+                                        seller_id: sellerId,
+                                        advertId,
+                                        selectedPhrase: placementsDisplayPhrase,
+                                    });
+                                } catch (error) {
+                                    showError(
+                                        `Не удалось установить мастер фразу в РК ${advertId}.`,
+                                    );
                                 }
                             }
-                            console.log(params);
-                            setChangedDoc({...doc});
-                            callApi('updateAdvertsSelectedPhrases', params);
+                            await getSelectedPhrases();
                         }}
                     >
                         <Icon size={12} data={ArrowShapeUp} />
