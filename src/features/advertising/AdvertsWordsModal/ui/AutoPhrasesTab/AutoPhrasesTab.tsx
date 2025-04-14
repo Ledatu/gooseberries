@@ -1,19 +1,31 @@
 import {Button, Icon, List, NumberInput, Text, TextInput} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Pencil} from '@gravity-ui/icons';
 import {OffersWordsModal} from '../OfferWordsModal/OfferWordsModal';
+import {PhrasesStats} from '../../api/PhraseStats';
 
 export const AutoPhrasesTab = () => {
-    const {template, advertWordsTemplateHandler, setTemplate} = useAdvertsWordsModal();
+    const {template, advertWordsTemplateHandler, setTemplate, wordsStats} = useAdvertsWordsModal();
     const [valOfPlus, setValOfPlus] = useState<string>('');
     const [valOfMinus, setValOfMinus] = useState<string>('');
+
+    const [activeWords, setActiveWords] = useState<PhrasesStats[]>(
+        wordsStats.filter((stat) => !template.includes.includes(stat.keyword)),
+    );
+    const [inactiveWords, setInactiveWords] = useState<PhrasesStats[]>(
+        wordsStats.filter((stat) => !template.notIncludes.includes(stat.keyword)),
+    );
+
+    useEffect(() => {
+        setActiveWords(wordsStats.filter((stat) => !template.includes.includes(stat.keyword)));
+        setInactiveWords(wordsStats.filter((stat) => !template.notIncludes.includes(stat.keyword)));
+    }, [wordsStats, template]);
+
     return (
         <div style={{display: 'flex', flexDirection: 'column', padding: 32, gap: 16}}>
             <div style={{display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center'}}>
-                <Text variant="header-1">
-                    Использовать автофразы если показов больше или равно
-                </Text>
+                <Text variant="header-1">Использовать автофразы если показов больше или равно</Text>
                 <NumberInput
                     min={0}
                     size="l"
@@ -32,7 +44,14 @@ export const AutoPhrasesTab = () => {
                 <div style={{display: 'flex', flexDirection: 'column', gap: 8, width: '48%'}}>
                     <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
                         <Text variant="header-2">Фразы должны содержать</Text>
-                        <OffersWordsModal isActive={true} />
+                        <OffersWordsModal
+                            items={activeWords}
+                            onClick={(item) => {
+                                advertWordsTemplateHandler.addIncludes(item.keyword);
+                            }}
+                            arrayToAdd={template.includes.concat(template.notIncludes)}
+                            title="Показать слова"
+                        />
                     </div>
                     <TextInput
                         placeholder="Введите фразу сюда"
@@ -86,7 +105,14 @@ export const AutoPhrasesTab = () => {
                 <div style={{display: 'flex', flexDirection: 'column', gap: 8, width: '48%'}}>
                     <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
                         <Text variant="header-2">Фразы не должны содержать</Text>
-                        <OffersWordsModal isActive={false} />
+                        <OffersWordsModal
+                            items={inactiveWords}
+                            onClick={(item) => {
+                                advertWordsTemplateHandler.addNotIncludes(item.keyword);
+                            }}
+                            arrayToAdd={template.includes.concat(template.notIncludes)}
+                            title="Показать слова"
+                        />
                     </div>
                     <TextInput
                         placeholder="Введите фразу сюда"

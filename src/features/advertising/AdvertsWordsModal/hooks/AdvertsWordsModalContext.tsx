@@ -13,6 +13,7 @@ import {fetchSelectedPhrase} from '../api/fetchSelectedPhrase';
 import {PhrasesStats} from '../api/PhraseStats';
 import {useError} from '@/contexts/ErrorContext';
 import {getWordsStatsForAdvert} from '../api/getWordsStatsForAdvert';
+import {getAdvertDates} from '../api/getAdvertDates';
 
 interface AutoWordsContextType {
     advertId: number;
@@ -25,7 +26,7 @@ interface AutoWordsContextType {
     template: AutoPhrasesTemplate;
     setTemplate: (arg: AutoPhrasesTemplate) => void;
     advertWordsTemplateHandler: AdvertWordsTemplateHandler;
-    dates: Date[];
+    dates: Date[] | undefined[];
     setDates: (arg: Date[]) => void;
     startAdvert: Date;
     endAdvert: Date;
@@ -39,6 +40,7 @@ interface AutoWordsContextType {
     wordsStats: PhrasesStats[];
     getNames: Function;
     templateChanged: boolean;
+    excludedStats: ClusterData[];
 }
 
 class AdvertWordsTemplateHandler {
@@ -164,6 +166,7 @@ export const AdvertWordsProvider = ({
     closeAdvertsWordsModal,
 }: AdvertsWordsProviderProps) => {
     const [stats, setStats] = useState<ClusterData[]>([]);
+    const [excludedStats, setExcludedStats] = useState<ClusterData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [excluded, setExcluded] = useState<boolean>(false);
     const [currentModule, setCurrentModule] = useState<AdvertWordsTabModules>('ActiveClusters');
@@ -176,6 +179,10 @@ export const AdvertWordsProvider = ({
     const [selectedPhrase, setSelectedPhrase] = useState<string>('');
     const [wordsStats, setWordsStats] = useState<PhrasesStats[]>([]);
     const {showError} = useError();
+
+    useEffect(() => {
+        console.log('is excluded', excluded);
+    }, [excluded, module]);
 
     const getWordsStats = async () => {
         try {
@@ -222,8 +229,7 @@ export const AdvertWordsProvider = ({
         excludedNum: 0,
     });
 
-    const [dates, setDates] = useState<Date[]>([new Date(), new Date()]);
-    const [firstTime, setFirstTime] = useState(true);
+    const [dates, setDates] = useState<Date[] | undefined[]>([undefined, undefined]);
 
     const [savedTemplateJSON, setSavedTemplateJSON] = useState('');
 
@@ -263,29 +269,17 @@ export const AdvertWordsProvider = ({
     const fetchStats = async () => {
         try {
             setLoading(true);
-            const start = new Date(dates[0]);
+            const start = new Date(dates[0]!);
             start.setHours(3, 0, 0, 0);
-            const end = new Date(dates[1]);
+            const end = new Date(dates[1]!);
             end.setHours(3, 0, 0, 0);
             console.log(start, end);
-            const {clusterData, endTime, startTime} = await fetchClusterStats(
-                advertId,
-                sellerId,
-                excluded,
-                start,
-                end,
-            );
-            console.log(clusterData, startTime, endTime);
-            setStartAdvert(startTime);
-            setEndAdvert(endTime);
-            if (firstTime) {
-                setDates([startTime, endTime]);
-                setFirstTime(false);
-            }
-
+            const {clusterData} = await fetchClusterStats(advertId, sellerId, false, start, end);
+            const excludedStatsRes = await fetchClusterStats(advertId, sellerId, true, start, end);
             setStats(clusterData);
             setLoading(false);
-            console.log(dates);
+            setExcludedStats(excludedStatsRes.clusterData);
+            console.log('clusterData', clusterData, excludedStatsRes.clusterData);
         } catch (error) {
             console.error('Error while fetching cluster stats', error);
         }
@@ -313,12 +307,30 @@ export const AdvertWordsProvider = ({
         }
     };
 
+    const fetchDatesOfAdvert = async () => {
+        try {
+            const dates = await getAdvertDates(advertId, sellerId);
+            console.log(dates, 'dates infetchDateOfAdvert');
+            setDates([dates.start, dates.end]);
+            setStartAdvert(dates.start);
+            setEndAdvert(dates.end);
+        } catch (error) {
+            console.error(error);
+            showError('Неудалось получить информацию о РК');
+        }
+    };
+
+    useEffect(() => {
+        setLoading(true);
+        fetchDatesOfAdvert();
+    }, [advertId]);
+
     // Fetch data when advertId changes
     useEffect(() => {
-        if (advertId !== null) {
+        if (advertId !== null && dates[0] && dates[1]) {
             fetchStats();
         }
-    }, [advertId, excluded, dates]); // Fetch only when advertId changes
+    }, [advertId, dates]); // Fetch only when advertId changes
 
     const saveTemplate = async (name?: string) => {
         closeAdvertsWordsModal();
@@ -364,6 +376,7 @@ export const AdvertWordsProvider = ({
                 wordsStats,
                 getNames,
                 templateChanged,
+                excludedStats,
             }}
         >
             {children}

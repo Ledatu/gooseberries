@@ -18,7 +18,6 @@ export const RangePicker = ({args}: any) => {
     const [anchorElement, setAnchorElement] = useState<HTMLButtonElement | null>(null);
 
     // const anchorRef = useRef<HTMLDivElement>(null);
-
     return (
         <div>
             <Button

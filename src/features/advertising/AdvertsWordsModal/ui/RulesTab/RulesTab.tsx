@@ -52,7 +52,7 @@ export const RulesTab = () => {
                         // padding: 16,
                     }}
                 >
-                    <Text variant="header-1">Добавить фильтр</Text>
+                    <Text variant="header-2">Добавить фильтр</Text>
                     <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
                         <Select
                             width={'max'}

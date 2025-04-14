@@ -1,16 +1,58 @@
 import {Button, Icon, List, Switch, Text, TextInput} from '@gravity-ui/uikit';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {Pencil} from '@gravity-ui/icons';
+import {PhrasesStats} from '../../api/PhraseStats';
+import {ClusterData} from '../../api';
+import {OffersWordsModal} from '../OfferWordsModal/OfferWordsModal';
+
+const clusterDataPhrasesStatMap = (cluster: ClusterData): PhrasesStats => {
+    return {
+        views: cluster.views,
+        keyword: cluster.cluster,
+        frequency: cluster.totalFrequency,
+    };
+};
 
 export const FixedPhrasesTab = () => {
-    const {advertWordsTemplateHandler, template} = useAdvertsWordsModal();
+    const {advertWordsTemplateHandler, template, stats, excludedStats} = useAdvertsWordsModal();
+    const [allClusters, setAllClusters] = useState(stats.concat(excludedStats));
+    useEffect(() => {
+        setAllClusters(stats.concat(excludedStats));
+    }, [stats, excludedStats]);
+
+    const [offerClusters, setOfferClusters] = useState<PhrasesStats[]>(
+        allClusters
+            .map(clusterDataPhrasesStatMap)
+            .filter((phrase) => !template.fixedClusters.includes(phrase.keyword)),
+    );
+    useEffect(() => {
+        setOfferClusters(allClusters.map(clusterDataPhrasesStatMap));
+    }, [allClusters]);
     const [fixedPhrase, setFixedPhrase] = useState<string>('');
     return (
-        <div style={{width : 500}}>
-            <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
-                <div style={{display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent : 'space-between'}}>
-                    <Text variant="header-2">Фикс фразы</Text>
+        <div style={{width: 500}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: 8, paddingRight: 8}}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: 8,
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
+                        <Text variant="header-2">Фиксировать кластеры</Text>
+                        <OffersWordsModal
+                            items={offerClusters}
+                            arrayToAdd={template.fixedClusters}
+                            onClick={(item) =>
+                                advertWordsTemplateHandler.addFixedPhrases(item.keyword)
+                            }
+                            title='Показать кластеры'
+                        />
+                    </div>
                     <Switch
                         checked={template.isFixed}
                         onUpdate={(checked) => {

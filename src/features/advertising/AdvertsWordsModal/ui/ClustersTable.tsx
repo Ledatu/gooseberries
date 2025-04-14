@@ -3,7 +3,7 @@
 import TheTable from '@/components/TheTable';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
-import {CSSProperties} from 'react';
+import {CSSProperties, useEffect} from 'react';
 import {ArrowShapeUp, Magnifier, Minus, Plus} from '@gravity-ui/icons';
 import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
@@ -18,7 +18,11 @@ export interface ColumnData {
     render?: (data: any) => React.ReactNode;
 }
 
-export const ClustersTable = () => {
+export interface ClustersTableProps {
+    isExcluded: boolean;
+}
+
+export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
     const {
         loading,
         advertWordsTemplateHandler,
@@ -29,7 +33,6 @@ export const ClustersTable = () => {
         dates,
         selectedPhrase,
         updateSelectedPhrase,
-        // excluded,
     } = useAdvertsWordsModal();
 
     const {
@@ -41,7 +44,7 @@ export const ClustersTable = () => {
         filters,
         filterByButton,
         // getInfoForDescription,
-    } = useClustersTableContext();
+    } = useClustersTableContext(isExcluded);
 
     const columnData: ColumnData[] = [
         {
@@ -272,6 +275,9 @@ export const ClustersTable = () => {
     ];
 
     const rangeToChoose = [startAdvert, endAdvert];
+    useEffect(() => {
+        console.log('dates', dates);
+    }, [dates]);
     const theme = useTheme();
     return (
         <div
@@ -294,7 +300,7 @@ export const ClustersTable = () => {
                 <RangePicker
                     args={{
                         recalc: () => {},
-                        dateRange: dates,
+                        dateRange: dates[0] && dates[1] ? dates : [new Date(), new Date()],
                         setDateRange: setDates,
                         rangeToChoose,
                     }}
