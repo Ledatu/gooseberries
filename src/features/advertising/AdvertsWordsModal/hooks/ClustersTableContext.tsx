@@ -68,7 +68,7 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
     for (const data of clusterData) {
         for (const [key, value] of Object.entries(data)) {
             if (typeof summaryData[key] === 'number' && typeof value === 'number') {
-                (summaryData[key] as number) += value;
+                (summaryData[key] as number) += value ?? 0;
             }
         }
     }
@@ -78,6 +78,7 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
     const median = getMedian(clusterData, summaryData);
     for (const key of medianKeys) summaryData[key] = Math.round(median[key] * 100) / 100;
     summaryData.cluster = `Всего кластеров: ${clusterData.length}`;
+
     return summaryData;
 };
 
