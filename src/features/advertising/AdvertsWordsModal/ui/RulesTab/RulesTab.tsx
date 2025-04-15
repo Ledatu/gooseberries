@@ -45,11 +45,10 @@ export const RulesTab = () => {
                 marginRight: 16,
             }}
         >
-            <div style={{gap: 16}}>
+            <div style={{gap: 16, minWidth: '40%'}}>
                 <div
                     style={{
                         display: 'flex',
-                        // width: '%',
                         flexDirection: 'column',
                         gap: 16,
                         // padding: 16,
