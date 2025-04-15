@@ -40,9 +40,12 @@ export const RulesTab = () => {
                 flexDirection: 'row',
                 justifyContent: 'center',
                 gap: 16,
+                width: '100%',
+                marginLeft: 16,
+                marginRight: 16,
             }}
         >
-            <div style={{gap: 16, width: '50%'}}>
+            <div style={{gap: 16}}>
                 <div
                     style={{
                         display: 'flex',
@@ -71,6 +74,7 @@ export const RulesTab = () => {
                                     val: 0,
                                     viewsThreshold: 0,
                                     biggerOrEqual: false,
+                                    thresholdKey: 'views',
                                 });
                                 setCurrentRules(rules);
                             }}

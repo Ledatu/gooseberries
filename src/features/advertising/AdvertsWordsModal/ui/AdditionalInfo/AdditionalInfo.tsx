@@ -1,7 +1,7 @@
 import {Button, Text, Card, Divider, Icon, ActionTooltip} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {ReactNode, useEffect, useState} from 'react';
-import {getNameOfRule} from '../../config/rules';
+import {getIconOfThresholdKey, getNameOfRule} from '../../config/rules';
 import {Eye} from '@gravity-ui/icons';
 
 export const AdditionalInfoTab = () => {
@@ -31,7 +31,7 @@ export const AdditionalInfoTab = () => {
                             gap: 4,
                         }}
                     >
-                        <Icon data={Eye} />
+                        <Icon data={getIconOfThresholdKey(rule.thresholdKey ?? 'views')} />
                         {`${rule.viewsThreshold} и ${getNameOfRule(rule.key)} ${rule.biggerOrEqual ? '≥' : '<'} ${rule.val}`}
                     </div>
                 </Button>

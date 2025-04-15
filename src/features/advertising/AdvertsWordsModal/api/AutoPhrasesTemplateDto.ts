@@ -1,8 +1,9 @@
 interface Rules {
-	key: string;
-	biggerOrEqual: boolean;
-	val: number;
-	viewsThreshold: number;
+    key: string;
+    biggerOrEqual: boolean;
+    val: number;
+    viewsThreshold: number;
+    thresholdKey: string;
 }
 
 // id: serial().primaryKey(),
@@ -24,19 +25,19 @@ interface Rules {
 //     rules: jsonb().$type<AdvertRules>().array().default([])
 
 interface AutoPhrasesTemplateDto {
-	// id: number,
+    // id: number,
 
-	name: string,
-	isFixed: boolean,
-	seller_id: string,
-	phrasesSelectedByPlus: string[],
-	phrasesExcludedByMinus: string[],
-	fixedClusters: string[],
-	viewsThreshold: number,
-	selectedByAutoPhrases: string[],
-	includes: string[],
-	notIncludes: string[],
-	rules: Rules[],
-	excludedNum: number,
-	clustersNum: number,
+    name: string;
+    isFixed: boolean;
+    seller_id: string;
+    phrasesSelectedByPlus: string[];
+    phrasesExcludedByMinus: string[];
+    fixedClusters: string[];
+    viewsThreshold: number;
+    selectedByAutoPhrases: string[];
+    includes: string[];
+    notIncludes: string[];
+    rules: Rules[];
+    excludedNum: number;
+    clustersNum: number;
 }

@@ -1,5 +1,5 @@
-import {Button, Icon, NumberInput, Text} from '@gravity-ui/uikit';
-import {getNameOfRule} from '../../config/rules';
+import {Button, Icon, NumberInput, Select, Text} from '@gravity-ui/uikit';
+import {getNameOfRule, thresholdKeyOptions} from '../../config/rules';
 import {TrashBin} from '@gravity-ui/icons';
 
 interface templateItem {
@@ -21,7 +21,21 @@ export const RuleItem = ({rule, changeRule, deleteRule}: templateItem) => {
                     // justifyContent: 'space-between',
                 }}
             >
-                <Text variant="subheader-2">Если просмотров больше или равно</Text>
+                <Text variant="subheader-2">Если</Text>
+                <div style={{width: 110}}>
+                    <Select
+                        width={'max'}
+                        placeholder={'Выберите фильтр'}
+                        options={thresholdKeyOptions}
+                        value={[rule?.thresholdKey ?? 'views']}
+                        onUpdate={(key) => {
+                            const newRule = {...rule};
+                            newRule.thresholdKey = key[0] ?? 'views';
+                            changeRule(newRule);
+                        }}
+                    />
+                </div>
+                <Text variant="subheader-2">больше или равно</Text>
                 <NumberInput
                     style={{width: 100}}
                     value={rule.viewsThreshold}
@@ -37,6 +51,7 @@ export const RuleItem = ({rule, changeRule, deleteRule}: templateItem) => {
                     style={{width: 135}}
                 >{`и ${getNameOfRule(rule.key)}`}</Text>
                 <Button
+                    style={{width: 75}}
                     selected={rule.biggerOrEqual}
                     view={'outlined'}
                     onClick={() => {
