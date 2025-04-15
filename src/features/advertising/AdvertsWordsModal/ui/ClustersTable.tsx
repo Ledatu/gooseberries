@@ -3,7 +3,7 @@
 import TheTable from '@/components/TheTable';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
-import {CSSProperties, useEffect, ReactNode} from 'react';
+import {CSSProperties, ReactNode, useMemo} from 'react';
 import {ArrowShapeUp, Magnifier, Minus, Plus} from '@gravity-ui/icons';
 import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
@@ -283,9 +283,19 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
     ];
 
     const rangeToChoose = [startAdvert, endAdvert];
-    useEffect(() => {
-        console.log('dates', dates);
-    }, [dates]);
+    const daysInWork = useMemo(() => {
+        if (!startAdvert || !endAdvert) return;
+        const d1 = new Date(
+            startAdvert.getFullYear(),
+            startAdvert.getMonth(),
+            startAdvert.getDate(),
+        );
+        const d2 = new Date(endAdvert.getFullYear(), endAdvert.getMonth(), endAdvert.getDate());
+
+        const msPerDay = 1000 * 60 * 60 * 24;
+        const diffTime = Math.abs(d2.getTime() - d1.getTime());
+        return diffTime / msPerDay + 1;
+    }, [startAdvert, endAdvert]);
     const theme = useTheme();
     return (
         <div
@@ -304,7 +314,20 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                 } as CSSProperties
             }
         >
-            <div style={{display: 'flex', justifyContent: 'end'}}>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'end',
+                    alignItems: 'center',
+                    gap: 16,
+                }}
+            >
+                {daysInWork ? (
+                    <Text variant="subheader-2">{`Дней в работе: ${daysInWork}`}</Text>
+                ) : (
+                    <></>
+                )}
                 <RangePicker
                     args={{
                         recalc: () => {},
