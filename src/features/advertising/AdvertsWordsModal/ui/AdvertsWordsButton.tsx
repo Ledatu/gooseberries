@@ -6,20 +6,19 @@ import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo'
 // import {AdvertsWordsModal} from './AdvertsWordsModal';
 
 interface AdvertsWordsButtonProps {
-    disabled: boolean;
-    doc: any;
-    selectValue: string[];
     advertId: number;
     getNames: Function;
-    art: any;
-    setChangedDoc: (args: any) => any;
-    setFetchedPlacements: (args: any) => any;
-    currentParsingProgress: any;
-    setCurrentParsingProgress: (args: any) => any;
+    nmId: number;
     template: ShortAdvertTemplateInfo;
+    disabled?: boolean;
 }
 
-export const AdvertsWordsButton = ({template, getNames}: AdvertsWordsButtonProps) => {
+export const AdvertsWordsButton = ({
+    template,
+    getNames,
+    nmId,
+    disabled,
+}: AdvertsWordsButtonProps) => {
     const {isFixed, includesNum, notIncludesNum, advertId} = template;
 
     const themeToUse =
@@ -32,19 +31,14 @@ export const AdvertsWordsButton = ({template, getNames}: AdvertsWordsButtonProps
             : 'normal';
 
     return (
-        <AdvertsWordsModal
-            getNames={getNames}
-            // nmId={art}
-            // disabled={disabled}
-            // doc={doc}
-            advertId={advertId}
-            // art={art}
-            // setChangedDoc={setChangedDoc}
-            // setFetchedPlacements={setFetchedPlacements}
-            // currentParsingProgress={currentParsingProgress}
-            // setCurrentParsingProgress={setCurrentParsingProgress}
-        >
-            <Button size="xs" pin="brick-round" selected={themeToUse != 'normal'} view={themeToUse}>
+        <AdvertsWordsModal getNames={getNames} nmId={nmId} advertId={advertId}>
+            <Button
+                size="xs"
+                pin="brick-round"
+                selected={themeToUse != 'normal'}
+                view={themeToUse}
+                disabled={disabled}
+            >
                 <Text variant="caption-2">{template.templateName}</Text>
             </Button>
         </AdvertsWordsModal>

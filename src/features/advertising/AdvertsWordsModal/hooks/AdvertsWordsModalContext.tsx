@@ -13,6 +13,7 @@ import {fetchSelectedPhrase} from '../api/fetchSelectedPhrase';
 import {PhrasesStats} from '../api/PhraseStats';
 import {useError} from '@/contexts/ErrorContext';
 import {getWordsStatsForAdvert} from '../api/getWordsStatsForAdvert';
+import {findNmIdPosition} from '../api/findNmIdPosition';
 
 interface AutoWordsContextType {
     advertId: number;
@@ -39,6 +40,8 @@ interface AutoWordsContextType {
     wordsStats: PhrasesStats[];
     getNames: Function;
     templateChanged: boolean;
+    parsePosition: (phrases: string[]) => void;
+    parsedPositions: any;
 }
 
 class AdvertWordsTemplateHandler {
@@ -147,6 +150,7 @@ class AdvertWordsTemplateHandler {
 interface AdvertsWordsProviderProps {
     children: React.ReactNode;
     advertId: number;
+    nmId: number;
     getNames: Function;
     closeAdvertsWordsModal: Function;
 }
@@ -160,6 +164,7 @@ export const useAdvertsWordsModal = () => {
 export const AdvertWordsProvider = ({
     children,
     advertId,
+    nmId,
     getNames,
     closeAdvertsWordsModal,
 }: AdvertsWordsProviderProps) => {
@@ -177,13 +182,35 @@ export const AdvertWordsProvider = ({
     const [wordsStats, setWordsStats] = useState<PhrasesStats[]>([]);
     const {showError} = useError();
 
+    const [parsedPositions, setParsedPositions] = useState({} as any);
+
+    const parsePosition = async (phrases: string[]) => {
+        for (const phrase of phrases) parsedPositions[phrase] = 'fetching';
+        setParsedPositions({...parsedPositions});
+
+        try {
+            const res = await findNmIdPosition({seller_id: sellerId, nmId, phrases});
+            for (const entry of res?.data) {
+                parsedPositions[entry?.phrase] = entry;
+            }
+            for (const phrase of phrases)
+                if (parsedPositions[phrase] == 'fetching') delete parsedPositions[phrase];
+            setParsedPositions({...parsedPositions});
+        } catch (error) {
+            console.log(error);
+            for (const phrase of phrases) delete parsedPositions[phrase];
+            setParsedPositions({...parsedPositions});
+            showError('Не удалось пропарсить позиции.');
+        }
+    };
+
     const getWordsStats = async () => {
         try {
             const res = await getWordsStatsForAdvert(sellerId, advertId);
             setWordsStats(res);
         } catch (error) {
             console.log(error);
-            showError('Неудалось получить статистику по словам');
+            showError('Не удалось получить статистику по словам');
         }
     };
 
@@ -364,6 +391,8 @@ export const AdvertWordsProvider = ({
                 wordsStats,
                 getNames,
                 templateChanged,
+                parsePosition,
+                parsedPositions,
             }}
         >
             {children}

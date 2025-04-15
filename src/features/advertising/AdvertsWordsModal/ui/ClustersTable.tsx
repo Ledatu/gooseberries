@@ -3,16 +3,19 @@
 import TheTable from '@/components/TheTable';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
-import {CSSProperties} from 'react';
+import {CSSProperties, ReactNode} from 'react';
 import {ArrowShapeUp, Magnifier, Minus, Plus} from '@gravity-ui/icons';
 import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
 import {defaultRender, renderAsPercent} from '@/utilities/getRoundValue';
 import {RangePicker} from '@/components/RangePicker';
 import {RequestPhrasesModal} from './RequestPhrasesModal/RequestPhrasesModal';
+import {ParsePositionButton} from './ParsePositionButton/ParsePositionButton';
+import {ParsePositionMassButton} from './ParsePositionButton/ParsePositionMassButton';
 export interface ColumnData {
     placeholder: string;
     name: string;
+    additionalNodes?: ReactNode[];
     valueType?: string;
     constWidth?: number;
     render?: (data: any) => React.ReactNode;
@@ -29,7 +32,6 @@ export const ClustersTable = () => {
         dates,
         selectedPhrase,
         updateSelectedPhrase,
-        // excluded,
     } = useAdvertsWordsModal();
 
     const {
@@ -48,6 +50,7 @@ export const ClustersTable = () => {
             placeholder: 'Кластер',
             name: 'cluster',
             valueType: 'text',
+            additionalNodes: [<div style={{minWidth: 8}} />, <ParsePositionMassButton />],
             render: ({value, footer}: any) => {
                 const isSelectedByPlus = template.phrasesSelectedByPlus.includes(value);
                 const isExcludedByMinus = template.phrasesExcludedByMinus.includes(value);
@@ -80,6 +83,7 @@ export const ClustersTable = () => {
                     >
                         <RequestPhrasesModal cluster={value} />
                         <div style={{gap: 8, display: 'flex', flexDirection: 'row'}}>
+                            <ParsePositionButton phrase={value} />
                             <Button
                                 size="xs"
                                 view="outlined"

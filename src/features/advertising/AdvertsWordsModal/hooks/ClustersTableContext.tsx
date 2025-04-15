@@ -91,11 +91,6 @@ export const useClustersTableContext = (): ClustersTableContext => {
 
     const [showDzhem, setShowDzhem] = useState(true);
 
-    // useEffect(() => {
-    //     showDzhem
-    //         ? setColumnsData(columns)
-    //         : setColumnsData(columns.filter((column) => notDzhem.includes(column.name)));
-    // }, [showDzhem, columns]);
     const [filters, setFilters] = useState({undef: true});
 
     const filterByButton = (val: any, key: any, compMode = 'include') => {
@@ -106,9 +101,11 @@ export const useClustersTableContext = (): ClustersTableContext => {
 
     const [filteredData, setFilteredData] = useState(stats);
     const [footer, setFooter] = useState(calcFooter(filteredData));
+
     useEffect(() => {
         setFooter(calcFooter(filteredData));
     }, [filteredData]);
+
     const filterTableData = (withfFilters: any = {}, tableData: any = []) => {
         const temp = [] as any;
         for (const tempTypeRow of tableData.length ? tableData : data) {

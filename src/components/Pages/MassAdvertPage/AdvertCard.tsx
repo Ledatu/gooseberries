@@ -46,7 +46,7 @@ interface AdvertCardProps {
     sellerId: string;
     advertBudgetRules: any;
     setAdvertBudgetRules: (args?: any) => any;
-    art: any;
+    nmId: number;
     doc: any;
     selectValue: string[];
     copiedAdvertsSettings: any;
@@ -56,9 +56,6 @@ interface AdvertCardProps {
     updateColumnWidth: (args?: any) => any;
     filteredData: any;
     setCopiedAdvertsSettings: (args?: any) => any;
-    setFetchedPlacements: (args?: any) => any;
-    currentParsingProgress: any;
-    setCurrentParsingProgress: (args?: any) => any;
     setDateRange: (args?: any) => any;
     setShowArtStatsModalOpen: (args?: any) => any;
     dateRange: any;
@@ -182,7 +179,7 @@ export const AdvertCard = ({
     sellerId,
     advertBudgetRules,
     setAdvertBudgetRules,
-    art,
+    nmId,
     doc,
     selectValue,
     copiedAdvertsSettings,
@@ -192,9 +189,6 @@ export const AdvertCard = ({
     updateColumnWidth,
     filteredData,
     setCopiedAdvertsSettings,
-    setFetchedPlacements,
-    currentParsingProgress,
-    setCurrentParsingProgress,
     setDateRange,
     setShowArtStatsModalOpen,
     dateRange,
@@ -932,15 +926,9 @@ export const AdvertCard = ({
                         <AdvertsWordsButton
                             getNames={getNames}
                             disabled={permission != 'Управление'}
-                            doc={doc}
-                            selectValue={selectValue}
                             advertId={advertId}
-                            art={art}
-                            setChangedDoc={setChangedDoc}
-                            setFetchedPlacements={setFetchedPlacements}
-                            currentParsingProgress={currentParsingProgress}
-                            setCurrentParsingProgress={setCurrentParsingProgress}
                             template={template}
+                            nmId={nmId}
                         />
                     </div>
                     <div

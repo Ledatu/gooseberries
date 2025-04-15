@@ -1224,7 +1224,6 @@ export const MassAdvertPage = () => {
                           return <Text>{`Уникальных РК ID: ${value}`}</Text>;
                       }
                       if (!value) return <></>;
-                      const {art} = row;
                       const switches: any[] = [];
 
                       const advertIds = Object.keys(value)
@@ -1262,7 +1261,7 @@ export const MassAdvertPage = () => {
                                           permission={permission}
                                           id={advertId}
                                           index={index}
-                                          art={art}
+                                          nmId={row?.nmId}
                                           doc={doc}
                                           selectValue={selectValue}
                                           copiedAdvertsSettings={copiedAdvertsSettings}
@@ -1274,9 +1273,6 @@ export const MassAdvertPage = () => {
                                           updateColumnWidth={updateColumnWidth}
                                           filteredData={filteredData}
                                           setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                          setFetchedPlacements={setFetchedPlacements}
-                                          currentParsingProgress={currentParsingProgress}
-                                          setCurrentParsingProgress={setCurrentParsingProgress}
                                           setDateRange={setDateRange}
                                           setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                           dateRange={dateRange}
@@ -1300,8 +1296,8 @@ export const MassAdvertPage = () => {
                               ) {
                                   switches.push(
                                       <AdvertCard
-                                          pausedAdverts={pausedAdverts}
                                           getNames={getNames}
+                                          pausedAdverts={pausedAdverts}
                                           setUpdatePaused={setUpdatePaused}
                                           sellerId={sellerId}
                                           advertBudgetRules={advertBudgetRules}
@@ -1309,7 +1305,7 @@ export const MassAdvertPage = () => {
                                           permission={permission}
                                           id={advertId}
                                           index={index}
-                                          art={art}
+                                          nmId={row?.nmId}
                                           doc={doc}
                                           selectValue={selectValue}
                                           copiedAdvertsSettings={copiedAdvertsSettings}
@@ -1321,9 +1317,6 @@ export const MassAdvertPage = () => {
                                           updateColumnWidth={updateColumnWidth}
                                           filteredData={filteredData}
                                           setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                          setFetchedPlacements={setFetchedPlacements}
-                                          currentParsingProgress={currentParsingProgress}
-                                          setCurrentParsingProgress={setCurrentParsingProgress}
                                           setDateRange={setDateRange}
                                           setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                           dateRange={dateRange}
@@ -1346,8 +1339,8 @@ export const MassAdvertPage = () => {
                           } else {
                               switches.push(
                                   <AdvertCard
-                                      pausedAdverts={pausedAdverts}
                                       getNames={getNames}
+                                      pausedAdverts={pausedAdverts}
                                       setUpdatePaused={setUpdatePaused}
                                       sellerId={sellerId}
                                       advertBudgetRules={advertBudgetRules}
@@ -1355,7 +1348,7 @@ export const MassAdvertPage = () => {
                                       permission={permission}
                                       id={advertId}
                                       index={index}
-                                      art={art}
+                                      nmId={row?.nmId}
                                       doc={doc}
                                       selectValue={selectValue}
                                       copiedAdvertsSettings={copiedAdvertsSettings}
@@ -1365,9 +1358,6 @@ export const MassAdvertPage = () => {
                                       updateColumnWidth={updateColumnWidth}
                                       filteredData={filteredData}
                                       setCopiedAdvertsSettings={setCopiedAdvertsSettings}
-                                      setFetchedPlacements={setFetchedPlacements}
-                                      currentParsingProgress={currentParsingProgress}
-                                      setCurrentParsingProgress={setCurrentParsingProgress}
                                       setDateRange={setDateRange}
                                       setShowArtStatsModalOpen={setShowArtStatsModalOpen}
                                       dateRange={dateRange}
@@ -4055,7 +4045,7 @@ export const MassAdvertPage = () => {
                                                     permission={permission}
                                                     id={advertId}
                                                     index={-1}
-                                                    art={''}
+                                                    nmId={0}
                                                     doc={doc}
                                                     selectValue={selectValue}
                                                     copiedAdvertsSettings={copiedAdvertsSettings}
@@ -4068,11 +4058,6 @@ export const MassAdvertPage = () => {
                                                     filteredData={filteredData}
                                                     setCopiedAdvertsSettings={
                                                         setCopiedAdvertsSettings
-                                                    }
-                                                    setFetchedPlacements={setFetchedPlacements}
-                                                    currentParsingProgress={currentParsingProgress}
-                                                    setCurrentParsingProgress={
-                                                        setCurrentParsingProgress
                                                     }
                                                     setDateRange={setDateRange}
                                                     setShowArtStatsModalOpen={
