@@ -33,70 +33,26 @@ import {getUserDoc} from './hooks';
 import {useCampaign} from '@/contexts/CampaignContext';
 import ApiClient from '@/utilities/ApiClient';
 import {useModules} from '@/contexts/ModuleProvider';
-import {AutoPlanModal} from '@/pages/AnalyticsPage/ui/AutoPlanModal';
+import {AutoPlanModal} from './ui/AutoPlanModal';
+import {autoPlanModalStore} from '@/pages/AnalyticsPage/stores/';
 
 export const AnalyticsPage = () => {
+    const {setPlanModalOpen, setGraphModalTitle, setPlanModalPlanValueValid} = autoPlanModalStore;
     const {selectValue, setSwitchingCampaignsFlag, sellerId} = useCampaign();
     const {availablemodulesMap} = useModules();
     const permission: string = useMemo(() => {
         return availablemodulesMap['analytics'];
     }, [availablemodulesMap]);
 
-    const [planModalOpen, setPlanModalOpen] = useState(false);
     const [planModalOpenFromEntity, setPlanModalOpenFromEntity] = useState('');
     const [planModalKey, setPlanModalKey] = useState('');
     const [planModalPlanValue, setPlanModalPlanValue] = useState('');
-    const [planModalPlanValueValid, setPlanModalPlanValueValid] = useState(false);
 
     const [graphModalOpen, setGraphModalOpen] = useState(false);
     const [currenrGraphMetrics, setCurrenrGraphMetrics] = useState([] as any[]);
     const [graphModalData, setGraphModalData] = useState<any>({});
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
-    const [graphModalTitle, setGraphModalTitle] = useState('');
 
-    // const defaulColumnsShow = [
-    //     {key: 'entity', visibility: true},
-    //     {key: 'date', visibility: true},
-    //     {key: 'sum', visibility: true},
-    //     {key: 'sum_orders', visibility: true},
-    //     {key: 'orders', visibility: true},
-    //     {key: 'avgCost', visibility: true},
-    //     {key: 'sum_sales', visibility: true},
-    //     {key: 'sales', visibility: true},
-    //     {key: 'profit', visibility: true},
-    //     {key: 'rentabelnost', visibility: true},
-    //     {key: 'rentSales', visibility: true},
-    //     {key: 'rentPrimeCost', visibility: true},
-    //     {key: 'salesPrimeCost', visibility: true},
-    //     {key: 'tax', visibility: true},
-    //     {key: 'expences', visibility: true},
-    //     {key: 'logistics', visibility: true},
-    //     {key: 'logisticsPercent', visibility: true},
-    //     {key: 'drr_orders', visibility: true},
-    //     {key: 'drr_sales', visibility: true},
-    //     {key: 'romi', visibility: true},
-    //     {key: 'stocks', visibility: true},
-    //     {key: 'skuInStock', visibility: true},
-    //     {key: 'primeCost', visibility: true},
-    //     {key: 'obor', visibility: true},
-    //     {key: 'oborSales', visibility: true},
-    //     {key: 'orderPrice', visibility: true},
-    //     {key: 'buyoutsPercent', visibility: true},
-    //     {key: 'cr', visibility: true},
-    //     {key: 'addToCartPercent', visibility: true},
-    //     {key: 'cartToOrderPercent', visibility: true},
-    //     {key: 'storageCost', visibility: true},
-    //     {key: 'views', visibility: true},
-    //     {key: 'clicks', visibility: true},
-    //     {key: 'ctr', visibility: true},
-    //     {key: 'cpc', visibility: true},
-    //     {key: 'cpm', visibility: true},
-    //     {key: 'openCardCount', visibility: true},
-    //     {key: 'sppPrice', visibility: true},
-    //     {key: 'addToCartCount', visibility: true},
-    //     {key: 'cpl', visibility: true},
-    // ];
-    // const [columnsToShowData, setColumnsToShowData] = useState(defaulColumnsShow);
     const columnDataObj: any = {
         entity: {
             valueType: 'text',
@@ -868,6 +824,10 @@ export const AnalyticsPage = () => {
     }, [selectValue]);
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
+
+    useEffect(() => {
+        console.log('DOC', doc);
+    }, [doc]);
 
     const recalc = (selected = '', withfFilters = {}) => {
         const campaignData = doc
@@ -1936,15 +1896,9 @@ export const AnalyticsPage = () => {
             <AutoPlanModal
                 planModalKey={planModalKey}
                 getPlanDay={getPlanDay}
-                graphModalTitle={graphModalTitle}
-                setGraphModalTitle={setGraphModalTitle}
                 handleDeletePlansButton={handleDeletePlansButton}
-                planModalOpen={planModalOpen}
-                setPlanModalOpen={setPlanModalOpen}
-                planModalPlanValueValid={planModalPlanValueValid}
                 planModalOpenFromEntity={planModalOpenFromEntity}
                 planModalPlanValue={planModalPlanValue}
-                setPlanModalPlanValueValid={setPlanModalPlanValueValid}
                 setPlanModalPlanValue={setPlanModalPlanValue}
                 handleSetPlanButton={handleSetPlanButton}
             />
