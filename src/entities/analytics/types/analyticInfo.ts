@@ -11,8 +11,8 @@ export type AnalyticInfo = {
     skuInStock: number;
     expectedSalesForBuyoutsPercent: number;
     openCardCount: number;
-    addToCardCount: number;
-    addToCardPercent: number;
+    addToCartCount: number;
+    addToCartPercent: number;
     cartToOrderPercent: number;
     buyoutsPercent: number;
     expectedSales: number;
@@ -27,4 +27,26 @@ export type AnalyticInfo = {
     sppPriceTemp: number;
     primeCost: number;
     sppPrice: number;
+};
+
+export type AnalyticTableView = AnalyticInfo & {
+    avgCost: number;
+    cpc: number;
+    cpl: number;
+    cpm: number;
+    cr: number;
+    ctr: number;
+    date: string;
+    drr_orders: number;
+    drr_sales: number;
+    entity: string;
+    isSummary: boolean;
+    logisticsPercent: number;
+    notes: undefined;
+    obor: number;
+    oborSales: number;
+    orderPrice: number;
+    rentPrimeCost: number;
+    rentSales: number;
+    romi: number;
 };

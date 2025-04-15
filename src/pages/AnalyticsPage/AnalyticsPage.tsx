@@ -1,17 +1,10 @@
 'use client';
 
 import {useEffect, useMemo, useState} from 'react';
-import {Spin, Icon, Button, Text, List, Popover, Card, Modal, TextInput} from '@gravity-ui/uikit';
+import {Spin, Icon, Button, Text, List, Popover, Card, Modal} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
-import {
-    ChartAreaStacked,
-    Copy,
-    TrashBin,
-    FileText,
-    CloudArrowUpIn,
-    FileArrowDown,
-} from '@gravity-ui/icons';
+import {ChartAreaStacked, Copy, TrashBin, FileText, FileArrowDown} from '@gravity-ui/icons';
 
 import callApi, {getUid} from '@/utilities/callApi';
 import TheTable, {compare} from '@/components/TheTable';
@@ -40,6 +33,7 @@ import {getUserDoc} from './hooks';
 import {useCampaign} from '@/contexts/CampaignContext';
 import ApiClient from '@/utilities/ApiClient';
 import {useModules} from '@/contexts/ModuleProvider';
+import {AutoPlanModal} from '@/pages/AnalyticsPage/ui/AutoPlanModal';
 
 export const AnalyticsPage = () => {
     const {selectValue, setSwitchingCampaignsFlag, sellerId} = useCampaign();
@@ -822,6 +816,10 @@ export const AnalyticsPage = () => {
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
+
+    useEffect(() => {
+        console.log('FILTERED DATA', filteredData);
+    }, [filteredData]);
 
     const columnData = (() => {
         const temp = [] as any[];
@@ -1727,7 +1725,6 @@ export const AnalyticsPage = () => {
                 tooltip: {
                     precision: 0,
                 },
-                // scales: {y: {min: 0, stacking: false}, r: {min: 0}},
                 title: {
                     text: 'График по дням',
                 },
@@ -1936,87 +1933,21 @@ export const AnalyticsPage = () => {
                     </div>
                 </Card>
             </Modal>
-            <Modal
-                open={planModalOpen}
-                onClose={() => {
-                    setPlanModalOpen(false);
-                    setGraphModalTitle('');
-                }}
-            >
-                <Card
-                    view="outlined"
-                    // theme="warning"
-                    style={{
-                        padding: 20,
-                        width: '40em',
-                        overflow: 'auto',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Text
-                        style={{
-                            margin: '0px 32px',
-                        }}
-                        variant="display-1"
-                    >
-                        {`Установить план ${graphModalTitle} для ${planModalOpenFromEntity}`}
-                    </Text>
-                    <div style={{minHeight: 8}} />
-                    <TextInput
-                        hasClear
-                        size="l"
-                        value={planModalPlanValue}
-                        validationState={planModalPlanValueValid ? undefined : 'invalid'}
-                        onUpdate={(val) => {
-                            const temp = Number(val != '' ? val : 'ahui');
-                            setPlanModalPlanValueValid(!isNaN(temp) && isFinite(temp));
-                            setPlanModalPlanValue(val);
-                        }}
-                        note={
-                            planModalPlanValueValid && planModalPlanValue != '' ? (
-                                <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    <Text variant="subheader-1">
-                                        {`Ежедневный план для ${graphModalTitle} -> `}
-                                    </Text>
-                                    <div style={{minWidth: 4}} />
-                                    <Text variant="subheader-1" color="brand">
-                                        {new Intl.NumberFormat('ru-RU').format(
-                                            getPlanDay(planModalKey),
-                                        )}
-                                    </Text>
-                                </div>
-                            ) : (
-                                ''
-                            )
-                        }
-                        style={{width: 'calc(100% - 32px)'}}
-                        placeholder={`Введите план "${graphModalTitle}" на текущий месяц`}
-                    />
-                    <div style={{minHeight: 8}} />
-                    <Button
-                        disabled={!planModalPlanValueValid}
-                        view="outlined-success"
-                        size="l"
-                        style={{margin: '4px'}}
-                        onClick={handleSetPlanButton}
-                    >
-                        <Icon data={CloudArrowUpIn} />
-                        Установить план
-                    </Button>
-                    <Button
-                        disabled={!planModalPlanValueValid}
-                        view="outlined-danger"
-                        size="l"
-                        style={{margin: '4px'}}
-                        onClick={handleDeletePlansButton}
-                    >
-                        <Icon data={TrashBin} />
-                        Удалить план
-                    </Button>
-                </Card>
-            </Modal>
+            <AutoPlanModal
+                planModalKey={planModalKey}
+                getPlanDay={getPlanDay}
+                graphModalTitle={graphModalTitle}
+                setGraphModalTitle={setGraphModalTitle}
+                handleDeletePlansButton={handleDeletePlansButton}
+                planModalOpen={planModalOpen}
+                setPlanModalOpen={setPlanModalOpen}
+                planModalPlanValueValid={planModalPlanValueValid}
+                planModalOpenFromEntity={planModalOpenFromEntity}
+                planModalPlanValue={planModalPlanValue}
+                setPlanModalPlanValueValid={setPlanModalPlanValueValid}
+                setPlanModalPlanValue={setPlanModalPlanValue}
+                handleSetPlanButton={handleSetPlanButton}
+            />
             <div
                 style={{
                     display: 'flex',
