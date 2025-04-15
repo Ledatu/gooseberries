@@ -1,6 +1,6 @@
 import {CSSProperties, useEffect, useState} from 'react';
 import {PhrasesStats} from '../../api/PhraseStats';
-import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
+// import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {ActionTooltip, Button, Card, Icon, List, Popover, Text} from '@gravity-ui/uikit';
 import {ListItem} from '../RequestPhrasesModal/ListItem';
 import {
@@ -11,13 +11,17 @@ import {
 } from '@gravity-ui/icons';
 
 interface OffersWordsModalProps {
-    isActive: boolean;
+    // isActive: boolean;
+    items: PhrasesStats[];
+    onClick: (arg: PhrasesStats) => void;
+    arrayToAdd: string[];
+    title: string
 }
 
-export const OffersWordsModal = ({isActive}: OffersWordsModalProps) => {
-    const {wordsStats, advertWordsTemplateHandler, template} = useAdvertsWordsModal();
+export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWordsModalProps) => {
+    // const {wordsStats, advertWordsTemplateHandler, template} = useAdvertsWordsModal();
 
-    const [currentWordsStats, setWordsStats] = useState<PhrasesStats[]>(wordsStats);
+    const [currentWordsStats, setWordsStats] = useState<PhrasesStats[]>(items);
 
     const [sortButtonStates, setSortButtonStates] = useState<{
         alphabet: 'desc' | 'asc' | undefined;
@@ -26,15 +30,10 @@ export const OffersWordsModal = ({isActive}: OffersWordsModalProps) => {
     }>({alphabet: 'asc', frequency: undefined, views: undefined});
 
     useEffect(() => {
-        const newArray = wordsStats.filter(
-            (stat) =>
-                !template.includes.includes(stat.keyword) &&
-                stat.keyword &&
-                !template.notIncludes.includes(stat.keyword),
-        );
+        const newArray = items.filter((stat) => !arrayToAdd.includes(stat.keyword) && stat.keyword);
         console.log('newArray', newArray);
         setWordsStats(newArray);
-    }, [wordsStats, template]);
+    }, [items, arrayToAdd]);
 
     const [filteredWordsStats, setFilteredWordsStats] = useState<PhrasesStats[]>(currentWordsStats);
 
@@ -94,7 +93,6 @@ export const OffersWordsModal = ({isActive}: OffersWordsModalProps) => {
     };
 
     const handleSortButton = (buttonName: 'alphabet' | 'frequency' | 'views') => {
-        console.log(currentWordsStats, filteredWordsStats, template, wordsStats);
         const newState =
             sortButtonStates[buttonName] === 'desc' || sortButtonStates[buttonName] === undefined
                 ? 'asc'
@@ -128,6 +126,7 @@ export const OffersWordsModal = ({isActive}: OffersWordsModalProps) => {
                             border: '1px solid #eee2',
                             position: 'absolute',
                             // left : ''
+                            borderRadius: 16,
                             gap: 4,
                             width: 400,
                             padding: 8,
@@ -240,20 +239,24 @@ export const OffersWordsModal = ({isActive}: OffersWordsModalProps) => {
                         <List
                             items={filteredWordsStats}
                             renderItem={(item) => <ListItem item={item} />}
-                            filterable={false}
+                            filterable={true}
+                            filterItem={(filter) => {
+                                const filterFunction = (item: PhrasesStats) => {
+                                    return item.keyword.includes(filter);
+                                };
+                                return filterFunction;
+                            }}
                             itemHeight={36}
                             itemsHeight={420}
                             onItemClick={(item) => {
-                                isActive
-                                    ? advertWordsTemplateHandler.addIncludes(item.keyword)
-                                    : advertWordsTemplateHandler.addNotIncludes(item.keyword);
+                                onClick(item);
                             }}
                         />
                     </Card>
                 }
             >
                 <Button>
-                    <Text>Показать слова</Text>
+                    <Text>{title}</Text>
                 </Button>
             </Popover>
         </div>

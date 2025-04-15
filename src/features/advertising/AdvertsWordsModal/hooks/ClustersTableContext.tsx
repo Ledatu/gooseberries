@@ -82,12 +82,15 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
     return summaryData;
 };
 
-export const useClustersTableContext = (): ClustersTableContext => {
-    const {stats, template} = useAdvertsWordsModal();
+export const useClustersTableContext = (isExcluded: boolean): ClustersTableContext => {
+    const {stats, template, excludedStats} = useAdvertsWordsModal();
     const [data, setData] = useState(stats);
     useEffect(() => {
-        setData(stats);
-    }, [stats]);
+        const dataToAdd = isExcluded ? excludedStats : stats;
+
+        setData(dataToAdd);
+        console.log(isExcluded, data);
+    }, [stats, isExcluded, excludedStats]);
 
     const [showDzhem, setShowDzhem] = useState(true);
 
@@ -99,7 +102,11 @@ export const useClustersTableContext = (): ClustersTableContext => {
         filterTableData(filters);
     };
 
-    const [filteredData, setFilteredData] = useState(stats);
+    const [filteredData, setFilteredData] = useState(data);
+    useEffect(() => {
+        console.log('setfilteredData', data);
+        setFilteredData(data)
+    }, [data])
     const [footer, setFooter] = useState(calcFooter(filteredData));
 
     useEffect(() => {

@@ -7,5 +7,5 @@ export const ActiveClustersTab = () => {
     useEffect(() => {
         setExcluded(false);
     }, []);
-    return <ClustersTable />;
+    return <ClustersTable isExcluded={false} />;
 };

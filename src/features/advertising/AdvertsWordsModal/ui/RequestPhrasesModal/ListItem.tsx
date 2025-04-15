@@ -1,4 +1,4 @@
-import {Button, Icon, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon, Text} from '@gravity-ui/uikit';
 import {PhrasesStats} from '../../api/PhraseStats';
 import {Eye, Magnifier} from '@gravity-ui/icons';
 
@@ -18,7 +18,11 @@ export const ListItem = ({item}: ListItemProps) => {
                 justifyContent: 'space-between',
             }}
         >
-            <Text style={{alignContent: 'center'}}>{item.keyword}</Text>
+            <ActionTooltip title={item.keyword}>
+                <Text ellipsis={true} style={{alignContent: 'center'}}>
+                    {item.keyword}
+                </Text>
+            </ActionTooltip>
             <div style={{display: 'flex', flexDirection: 'row', gap: 8, padding: 8}}>
                 <Button view="flat-warning">
                     <Icon data={Eye} />
