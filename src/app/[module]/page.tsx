@@ -43,12 +43,9 @@ const modulesMap: any = {
     api: dynamic(() => import('@/components/Pages/ApiPage').then((mod) => mod.ApiPage), {
         ssr: false,
     }),
-    analytics: dynamic(
-        () => import('@/components/Pages/AnalyticsPage').then((mod) => mod.AnalyticsPage),
-        {
-            ssr: false,
-        },
-    ),
+    analytics: dynamic(() => import('../../pages/AnalyticsPage').then((mod) => mod.AnalyticsPage), {
+        ssr: false,
+    }),
     massAdvert: dynamic(
         () => import('@/components/Pages/MassAdvertPage').then((mod) => mod.MassAdvertPage),
         {

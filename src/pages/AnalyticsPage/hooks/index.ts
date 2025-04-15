@@ -1,0 +1,1 @@
+export {getUserDoc} from './getUserDoc';

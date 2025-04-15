@@ -36,41 +36,10 @@ import {AnalyticsCalcModal} from './AnalyticsCalcModal';
 import {PlansUpload} from './PlansUpload';
 // import {ColumnsEdit} from '@/components/ColumnsEdit';
 import {ManageDeletionOfOldPlansModal} from './ManageDeletionOfOldPlansModal';
-import {useUser} from '@/components/RequireAuth';
+import {getUserDoc} from './hooks';
 import {useCampaign} from '@/contexts/CampaignContext';
 import ApiClient from '@/utilities/ApiClient';
 import {useModules} from '@/contexts/ModuleProvider';
-
-const getUserDoc = (dateRange: any, docum = undefined, mode = false, selectValue = '') => {
-    const {userInfo} = useUser();
-    const {campaigns} = userInfo ?? {};
-    const [doc, setDocument] = useState<any>();
-
-    if (docum) {
-        console.log(docum, mode, selectValue);
-
-        if (mode) {
-            doc['analyticsData'][selectValue] = docum['analyticsData'][selectValue];
-            doc['plansData'][selectValue] = docum['plansData'][selectValue];
-        }
-        setDocument(docum);
-    }
-
-    useEffect(() => {
-        callApi(
-            'getAnalytics',
-            {
-                uid: getUid(),
-                dateRange: getNormalDateRange(dateRange),
-                campaignName: selectValue != '' ? selectValue : campaigns[0]?.name,
-            },
-            true,
-        )
-            .then((response) => setDocument(response ? response['data'] : undefined))
-            .catch((error) => console.error(error));
-    }, []);
-    return doc;
-};
 
 export const AnalyticsPage = () => {
     const {selectValue, setSwitchingCampaignsFlag, sellerId} = useCampaign();
