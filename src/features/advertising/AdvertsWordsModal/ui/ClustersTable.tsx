@@ -54,7 +54,10 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
             placeholder: 'Кластер',
             name: 'cluster',
             valueType: 'text',
-            additionalNodes: [<div style={{minWidth: 8}} />, <ParsePositionMassButton />],
+            additionalNodes: [
+                <div style={{minWidth: 8}} />,
+                <ParsePositionMassButton filteredData={filteredData} />,
+            ],
             render: ({value, footer}: any) => {
                 const isSelectedByPlus = template.phrasesSelectedByPlus.includes(value);
                 const isExcludedByMinus = template.phrasesExcludedByMinus.includes(value);

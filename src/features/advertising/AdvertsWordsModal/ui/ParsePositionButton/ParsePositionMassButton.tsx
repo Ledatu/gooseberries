@@ -1,12 +1,10 @@
 import {ActionTooltip, Button, Icon} from '@gravity-ui/uikit';
 import {EyesLookRight} from '@gravity-ui/icons';
-import {useClustersTableContext} from '../../hooks/ClustersTableContext';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {useMemo} from 'react';
 
-export const ParsePositionMassButton = () => {
+export const ParsePositionMassButton = ({filteredData}: {filteredData: any[]}) => {
     const {parsePosition} = useAdvertsWordsModal();
-    const {filteredData} = useClustersTableContext();
 
     const phrases = useMemo(
         () => filteredData?.slice(0, 50).map((row) => row?.cluster),
