@@ -34,6 +34,46 @@ import {autoPlanModalStore} from '@/pages/AnalyticsPage/stores/';
 import {colors} from '@/pages/AnalyticsPage/config/colors';
 import {AnalyticChartModal} from '@/pages/AnalyticsPage/ui/ChartModal';
 import {chartModalStore} from '@/pages/AnalyticsPage/stores/modals/chartModal';
+import {
+    addToCartCountColumn,
+    addToCartPercentColumn,
+    avgCostColumn,
+    buyoutsPercentColumn,
+    cartToOrderPercentColumn,
+    clicksColumn,
+    cpcColumn,
+    cplColumn,
+    cpmColumn,
+    crColumn,
+    ctrColumn,
+    drrOrdersColum,
+    drrSalesColumn,
+    expensesColumn,
+    logisticsColum,
+    logisticsPercentColumn,
+    oborColumn,
+    oborSalesColumn,
+    openCardCountColumn,
+    orderPriceColumn,
+    ordersColumn,
+    primeCostColumn,
+    profitColumn,
+    rentabelnostColumn,
+    rentPrimeCostColumn,
+    rentSalesColumn,
+    romiColumn,
+    salesColumn,
+    salesPrimeCostColum,
+    skuInStockColumn,
+    sppPriceColumn,
+    stocksColumn,
+    storageCostColumn,
+    sumColumn,
+    sumOrdersColumn,
+    sumSalesColumn,
+    taxColumn,
+    viewsColumn,
+} from '@/pages/AnalyticsPage/config/tableColumns';
 
 export const AnalyticsPage = () => {
     const {setPlanModalOpen, setGraphModalTitle, setPlanModalPlanValueValid} = autoPlanModalStore;
@@ -48,441 +88,6 @@ export const AnalyticsPage = () => {
     const [planModalOpenFromEntity, setPlanModalOpenFromEntity] = useState('');
     const [planModalKey, setPlanModalKey] = useState('');
     const [planModalPlanValue, setPlanModalPlanValue] = useState('');
-
-    const columnDataObj: any = {
-        entity: {
-            valueType: 'text',
-            placeholder: 'Объект',
-            minWidth: 400,
-            render: ({value, row, footer}: any) => {
-                if (value === undefined || row.isBlank) return undefined;
-
-                let titleWrapped = value;
-                if (value.length > 30) {
-                    let wrapped = false;
-                    titleWrapped = '';
-                    const titleArr = value.split(' ');
-                    for (const word of titleArr) {
-                        titleWrapped += word;
-                        if (titleWrapped.length > 25 && !wrapped) {
-                            titleWrapped += '\n';
-                            wrapped = true;
-                        } else {
-                            titleWrapped += ' ';
-                        }
-                    }
-                }
-
-                return !footer ? renderFilterByClickButton({value}, 'entity') : value;
-            },
-        },
-        date: {
-            valueType: 'text',
-            placeholder: 'Дата',
-            render: (args: {value: any; row: any}) => {
-                const {value, row} = args;
-                if (row.isBlank) return undefined;
-                if (value === undefined) return 'Итого';
-                const {notes, entity} = row;
-
-                const {all} = notes ? (notes.all ? notes : {all: []}) : {all: []};
-
-                const notesList = [] as any[];
-                for (let i = 0; i < all.length; i++) {
-                    const {note, tags} = all[i];
-
-                    if (tags.includes(entity) || tags.length == 0) {
-                        notesList.push(
-                            <Card
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    minHeight: 64,
-                                    padding: 8,
-                                    marginBottom: 8,
-                                }}
-                            >
-                                {note}
-                            </Card>,
-                        );
-                    }
-                }
-
-                return notesList.length ? (
-                    <Popover
-                        content={
-                            <div
-                                style={{
-                                    height: 'calc(30em - 60px)',
-                                    width: '30em',
-                                    overflow: 'auto',
-                                    paddingBottom: 8,
-                                    display: 'flex',
-                                }}
-                            >
-                                <Card
-                                    view="outlined"
-                                    theme="warning"
-                                    style={{
-                                        position: 'absolute',
-                                        height: '30em',
-                                        width: '30em',
-                                        padding: 20,
-                                        overflow: 'auto',
-                                        top: -10,
-                                        left: -10,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        background: 'var(--g-color-base-background)',
-                                    }}
-                                >
-                                    {notesList}
-                                </Card>
-                            </div>
-                        }
-                    >
-                        <Text color="brand">{value}</Text>
-                    </Popover>
-                ) : (
-                    value
-                );
-            },
-        },
-        sum: {
-            placeholder: 'Расход, ₽',
-            render: (args: any) => renderWithGraph(args, 'sum', 'Расход, ₽'),
-            isReverseGrad: true,
-            // graphColor: 'var(--g-color-private-red-250)',
-        },
-        sum_orders: {
-            placeholder: 'Заказы, ₽',
-            render: (args: any) => renderWithGraph(args, 'sum_orders', 'Заказов, ₽'),
-            // graphColor: 'var(--g-color-private-green-250)',
-        },
-        orders: {
-            placeholder: 'Заказы, шт.',
-            render: (args: any) => renderWithGraph(args, 'orders', 'Заказов, шт.'),
-        },
-        avgCost: {
-            placeholder: 'Средний чек, ₽',
-            planType: 'avg',
-            render: (args: any) => renderWithGraph(args, 'avgCost', 'Средний чек, ₽'),
-        },
-        sum_sales: {
-            placeholder: 'Продаж, ₽',
-            render: (args: any) => renderWithGraph(args, 'sum_sales', 'Продаж, ₽'),
-        },
-        sales: {
-            placeholder: 'Продаж, шт.',
-            render: (args: any) => renderWithGraph(args, 'sales', 'Продаж, шт.'),
-        },
-        profit: {
-            placeholder: 'Профит, ₽.',
-            render: (args: any) =>
-                renderWithGraph(args, 'profit', 'Профит, ₽.', undefined, (args: any) => {
-                    const {value} = args;
-                    return (
-                        <Text color={value > 0 ? 'positive' : 'danger'}>{defaultRender(args)}</Text>
-                    );
-                }),
-        },
-        rentabelnost: {
-            placeholder: '%Приб.Заказы',
-            planType: 'avg',
-            render: (args: any) =>
-                renderWithGraph(
-                    args,
-                    'rentabelnost',
-                    '%Приб.Заказы',
-                    ['rentabelnost'],
-                    (args: any) => {
-                        const {value} = args;
-                        return (
-                            <Text color={value > 0 ? 'positive' : 'danger'}>
-                                {renderAsPercent(args)}
-                            </Text>
-                        );
-                    },
-                ),
-        },
-        rentSales: {
-            placeholder: '%Приб.Продажи',
-            planType: 'avg',
-            render: (args: any) =>
-                renderWithGraph(args, 'rentSales', '%Приб.Продажи', ['rentSales'], (args: any) => {
-                    const {value} = args;
-                    return (
-                        <Text color={value > 0 ? 'positive' : 'danger'}>
-                            {renderAsPercent(args)}
-                        </Text>
-                    );
-                }),
-        },
-        rentPrimeCost: {
-            placeholder: '%Приб.Себес',
-            planType: 'avg',
-            render: (args: any) =>
-                renderWithGraph(
-                    args,
-                    'rentPrimeCost',
-                    '%Приб.Себес',
-                    ['rentPrimeCost'],
-                    (args: any) => {
-                        const {value} = args;
-                        return (
-                            <Text color={value > 0 ? 'positive' : 'danger'}>
-                                {renderAsPercent(args)}
-                            </Text>
-                        );
-                    },
-                ),
-        },
-        salesPrimeCost: {
-            placeholder: 'Себес. продаж, ₽',
-            isReverseGrad: true,
-            render: (args: any) => renderWithGraph(args, 'salesPrimeCost', 'Себес. продаж, ₽'),
-        },
-        // comission: {
-        //     placeholder: 'Комиссия, ₽',
-        //     isReverseGrad: true,
-        //     render: (args: any) => renderWithGraph(args, 'comission', 'Комиссия, ₽'),
-        // },
-        tax: {
-            placeholder: 'Налог, ₽',
-            isReverseGrad: true,
-            render: (args: any) => renderWithGraph(args, 'tax', 'Налог, ₽'),
-        },
-        expences: {
-            placeholder: 'Доп. расходы, ₽',
-            isReverseGrad: true,
-            render: (args: any) => renderWithGraph(args, 'expences', 'Доп. расходы, ₽'),
-        },
-        logistics: {
-            placeholder: 'Логистика, ₽',
-            isReverseGrad: true,
-            render: (args: any) => renderWithGraph(args, 'logistics', 'Логистика, ₽'),
-        },
-        logisticsPercent: {
-            placeholder: '% Логист. к продажам',
-            isReverseGrad: true,
-            render: (args: any) =>
-                renderWithGraph(
-                    args,
-                    'logisticsPercent',
-                    '% Логист. к продажам',
-                    ['logisticsPercent'],
-                    renderAsPercent,
-                ),
-            planType: 'avg',
-        },
-
-        drr_orders: {
-            placeholder: 'ДРР к заказам, %',
-            render: (args: any) =>
-                renderWithGraph(
-                    args,
-                    'drr_orders',
-                    'ДРР к заказам, %',
-                    ['drr_orders'],
-                    renderAsPercent,
-                ),
-            planType: 'avg',
-            isReverseGrad: true,
-        },
-        drr_sales: {
-            placeholder: 'ДРР к продажам, %',
-            render: (args: any) =>
-                renderWithGraph(
-                    args,
-                    'drr_sales',
-                    'ДРР к продажам, %',
-                    ['drr_sales'],
-                    renderAsPercent,
-                ),
-            planType: 'avg',
-            isReverseGrad: true,
-        },
-        romi: {
-            planType: 'avg',
-            placeholder: 'ROMI, %',
-            render: (args: any) =>
-                renderWithGraph(args, 'romi', 'ROMI, %', ['romi'], renderAsPercent),
-        },
-        stocks: {
-            placeholder: 'Остаток, шт.',
-            render: (args: any) => renderWithGraph(args, 'stocks', 'Остаток, шт.'),
-        },
-        skuInStock: {
-            planType: 'avg',
-            placeholder: 'Товары, шт.',
-            render: (args: any) => renderWithGraph(args, 'skuInStock', 'Товары, шт.'),
-        },
-        primeCost: {
-            planType: 'avg',
-            placeholder: 'Себестоимость, ₽',
-            render: (args: any) => renderWithGraph(args, 'primeCost', 'Себестоимость, ₽'),
-        },
-        obor: {
-            placeholder: 'Обор. к заказам, д.',
-            planType: 'avg',
-            render: (args: any) => renderWithGraph(args, 'obor', 'Обор. к заказам, д.'),
-        },
-        oborSales: {
-            placeholder: 'Обор. к продажам, д.',
-            planType: 'avg',
-            render: (args: any) => renderWithGraph(args, 'oborSales', 'Обор. к продажам, д.'),
-        },
-        orderPrice: {
-            placeholder: 'Цена заказа, ₽',
-            render: (args: any) => renderWithGraph(args, 'orderPrice', 'Цена заказа, ₽'),
-        },
-        buyoutsPercent: {
-            placeholder: 'Выкуп, %',
-            planType: 'avg',
-            render: (args: any) => {
-                args.value = Math.round(args?.value ?? 0);
-                return renderWithGraph(
-                    args,
-                    'buyoutsPercent',
-                    'Выкуп, %',
-                    ['buyoutsPercent'],
-                    renderAsPercent,
-                );
-            },
-        },
-        cr: {
-            placeholder: 'CR, %',
-            planType: 'avg',
-            render: (args: any) => renderWithGraph(args, 'cr', 'CR, %', ['cr'], renderAsPercent),
-        },
-        addToCartPercent: {
-            placeholder: 'CR в корзину, %',
-            planType: 'avg',
-            render: (args: any) =>
-                renderWithGraph(
-                    args,
-                    'addToCartPercent',
-                    'CR в корзину, %',
-                    ['addToCartPercent'],
-                    renderAsPercent,
-                ),
-        },
-        cartToOrderPercent: {
-            placeholder: 'CR в заказ, %',
-            planType: 'avg',
-            render: (args: any) =>
-                renderWithGraph(
-                    args,
-                    'cartToOrderPercent',
-                    'CR в заказ, %',
-                    ['cartToOrderPercent'],
-                    renderAsPercent,
-                ),
-        },
-        storageCost: {
-            placeholder: 'Хранение, ₽',
-            isReverseGrad: true,
-            render: (args: any) => renderWithGraph(args, 'storageCost', 'Хранение, ₽'),
-        },
-        views: {
-            placeholder: 'Показы, шт.',
-            render: (args: any) => renderWithGraph(args, 'views', 'Показы, шт.'),
-        },
-        clicks: {
-            placeholder: 'Клики, шт.',
-            render: (args: any) => renderWithGraph(args, 'clicks', 'Клики, шт.'),
-        },
-        ctr: {
-            placeholder: 'CTR, %',
-            planType: 'avg',
-            render: (args: any) => renderWithGraph(args, 'ctr', 'CTR, %', ['ctr'], renderAsPercent),
-        },
-        cpc: {
-            placeholder: 'CPC, ₽',
-            isReverseGrad: true,
-            render: (args: any) => renderWithGraph(args, 'cpc', 'CPC, ₽'),
-        },
-        cpm: {
-            placeholder: 'CPM, ₽',
-            isReverseGrad: true,
-            render: (args: any) => renderWithGraph(args, 'ctr', 'CPM, ₽'),
-        },
-        openCardCount: {
-            placeholder: 'Переходы, шт.',
-            render: (args: any) => renderWithGraph(args, 'openCardCount', 'Переходы, шт.'),
-        },
-        sppPrice: {
-            planType: 'avg',
-            placeholder: 'Цена с СПП, ₽',
-            render: (args: any) => renderWithGraph(args, 'sppPrice', 'Цена с СПП, ₽'),
-        },
-        addToCartCount: {
-            placeholder: 'Корзины, шт.',
-            render: (args: any) => renderWithGraph(args, 'addToCartCount', 'Корзины, шт.'),
-        },
-        cpl: {
-            placeholder: 'CPL, ₽',
-            isReverseGrad: true,
-            planType: 'avg',
-            render: (args: any) => renderWithGraph(args, 'cpl', 'CPL, ₽'),
-        },
-    };
-    const [columnsDataToShow, setColumnsDataToShow] = useState([] as any);
-
-    const getColumnsData = async () => {
-        try {
-            const params = {seller_id: sellerId};
-            const response = await ApiClient.post('analytics/get-columns-analytics', params);
-            if (!response?.data) {
-                throw new Error('No columns Data');
-            }
-            const data = response.data;
-            if (!data.columns) {
-                throw new Error('No columns Data');
-            }
-            console.log(data.columns);
-            const columns = Object.keys(columnDataObj);
-            const columnsData = data.columns;
-            const columnsKeyData = columnsData.map((column: any) => column.key);
-            const columnsNotExists = columns.filter((x) => !columnsKeyData.includes(x));
-            for (const column of columnsNotExists) {
-                columnsData.push({key: column, visibility: true});
-            }
-            if (
-                [
-                    'ИП Иосифова Р. И.',
-                    'ИП Иосифов А. М.',
-                    'ИП Иосифов М.С.',
-                    'ИП Галилова',
-                    'ИП Мартыненко',
-                    'ТОРГМАКСИМУМ',
-                ].includes(selectValue[0])
-            )
-                for (let i = 0; i < columnsData.length; i++) {
-                    columnsData[i]['visibility'] = true;
-                }
-            console.log('columnsData', columnsData);
-            setColumnsDataToShow(columnsData);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    useEffect(() => {
-        getColumnsData();
-    }, [sellerId]);
-    const [columnsArray, setColumnsArray] = useState([] as any);
-    useEffect(() => {
-        setColumnsArray(columnsDataToShow);
-    }, [columnsDataToShow]);
-
-    const columnDataReversed = (() => {
-        const temp: any = {};
-        for (const metric of Object.keys(columnDataObj).slice(2)) {
-            const {placeholder} = columnDataObj[metric];
-            temp[placeholder] = metric;
-        }
-        return temp;
-    })();
 
     const renderWithGraph = (
         {value, row}: any,
@@ -669,6 +274,200 @@ export const AnalyticsPage = () => {
         );
     };
 
+    const columnDataObj: any = {
+        entity: {
+            valueType: 'text',
+            placeholder: 'Объект',
+            minWidth: 400,
+            render: ({value, row, footer}: any) => {
+                if (value === undefined || row.isBlank) return undefined;
+
+                let titleWrapped = value;
+                if (value.length > 30) {
+                    let wrapped = false;
+                    titleWrapped = '';
+                    const titleArr = value.split(' ');
+                    for (const word of titleArr) {
+                        titleWrapped += word;
+                        if (titleWrapped.length > 25 && !wrapped) {
+                            titleWrapped += '\n';
+                            wrapped = true;
+                        } else {
+                            titleWrapped += ' ';
+                        }
+                    }
+                }
+
+                return !footer ? renderFilterByClickButton({value}, 'entity') : value;
+            },
+        },
+        date: {
+            valueType: 'text',
+            placeholder: 'Дата',
+            render: (args: {value: any; row: any}) => {
+                const {value, row} = args;
+                if (row.isBlank) return undefined;
+                if (value === undefined) return 'Итого';
+                const {notes, entity} = row;
+
+                const {all} = notes ? (notes.all ? notes : {all: []}) : {all: []};
+
+                const notesList = [] as any[];
+                for (let i = 0; i < all.length; i++) {
+                    const {note, tags} = all[i];
+
+                    if (tags.includes(entity) || tags.length == 0) {
+                        notesList.push(
+                            <Card
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    minHeight: 64,
+                                    padding: 8,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                {note}
+                            </Card>,
+                        );
+                    }
+                }
+
+                return notesList.length ? (
+                    <Popover
+                        content={
+                            <div
+                                style={{
+                                    height: 'calc(30em - 60px)',
+                                    width: '30em',
+                                    overflow: 'auto',
+                                    paddingBottom: 8,
+                                    display: 'flex',
+                                }}
+                            >
+                                <Card
+                                    view="outlined"
+                                    theme="warning"
+                                    style={{
+                                        position: 'absolute',
+                                        height: '30em',
+                                        width: '30em',
+                                        padding: 20,
+                                        overflow: 'auto',
+                                        top: -10,
+                                        left: -10,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        background: 'var(--g-color-base-background)',
+                                    }}
+                                >
+                                    {notesList}
+                                </Card>
+                            </div>
+                        }
+                    >
+                        <Text color="brand">{value}</Text>
+                    </Popover>
+                ) : (
+                    value
+                );
+            },
+        },
+        ...sumColumn(renderWithGraph),
+        ...sumOrdersColumn(renderWithGraph),
+        ...ordersColumn(renderWithGraph),
+        ...avgCostColumn(renderWithGraph),
+        ...sumSalesColumn(renderWithGraph),
+        ...salesColumn(renderWithGraph),
+        ...profitColumn(renderWithGraph),
+        ...rentabelnostColumn(renderWithGraph),
+        ...rentSalesColumn(renderWithGraph),
+        ...rentPrimeCostColumn(renderWithGraph),
+        ...salesPrimeCostColum(renderWithGraph),
+        ...taxColumn(renderWithGraph),
+        ...expensesColumn(renderWithGraph),
+        ...logisticsColum(renderWithGraph),
+        ...logisticsPercentColumn(renderWithGraph),
+        ...drrOrdersColum(renderWithGraph),
+        ...drrSalesColumn(renderWithGraph),
+        ...romiColumn(renderWithGraph),
+        ...stocksColumn(renderWithGraph),
+        ...skuInStockColumn(renderWithGraph),
+        ...primeCostColumn(renderWithGraph),
+        ...oborColumn(renderWithGraph),
+        ...oborSalesColumn(renderWithGraph),
+        ...orderPriceColumn(renderWithGraph),
+        ...buyoutsPercentColumn(renderWithGraph),
+        ...crColumn(renderWithGraph),
+        ...addToCartPercentColumn(renderWithGraph),
+        ...cartToOrderPercentColumn(renderWithGraph),
+        ...storageCostColumn(renderWithGraph),
+        ...viewsColumn(renderWithGraph),
+        ...clicksColumn(renderWithGraph),
+        ...ctrColumn(renderWithGraph),
+        ...cpcColumn(renderWithGraph),
+        ...cpmColumn(renderWithGraph),
+        ...openCardCountColumn(renderWithGraph),
+        ...sppPriceColumn(renderWithGraph),
+        ...addToCartCountColumn(renderWithGraph),
+        ...cplColumn(renderWithGraph),
+    };
+    const [columnsDataToShow, setColumnsDataToShow] = useState([] as any);
+
+    const getColumnsData = async () => {
+        try {
+            const params = {seller_id: sellerId};
+            const response = await ApiClient.post('analytics/get-columns-analytics', params);
+            if (!response?.data) {
+                throw new Error('No columns Data');
+            }
+            const data = response.data;
+            if (!data.columns) {
+                throw new Error('No columns Data');
+            }
+            console.log(data.columns);
+            const columns = Object.keys(columnDataObj);
+            const columnsData = data.columns;
+            const columnsKeyData = columnsData.map((column: any) => column.key);
+            const columnsNotExists = columns.filter((x) => !columnsKeyData.includes(x));
+            for (const column of columnsNotExists) {
+                columnsData.push({key: column, visibility: true});
+            }
+            if (
+                [
+                    'ИП Иосифова Р. И.',
+                    'ИП Иосифов А. М.',
+                    'ИП Иосифов М.С.',
+                    'ИП Галилова',
+                    'ИП Мартыненко',
+                    'ТОРГМАКСИМУМ',
+                ].includes(selectValue[0])
+            )
+                for (let i = 0; i < columnsData.length; i++) {
+                    columnsData[i]['visibility'] = true;
+                }
+            console.log('columnsData', columnsData);
+            setColumnsDataToShow(columnsData);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    useEffect(() => {
+        getColumnsData();
+    }, [sellerId]);
+    const [columnsArray, setColumnsArray] = useState([] as any);
+    useEffect(() => {
+        setColumnsArray(columnsDataToShow);
+    }, [columnsDataToShow]);
+
+    const columnDataReversed = (() => {
+        const temp: any = {};
+        for (const metric of Object.keys(columnDataObj).slice(2)) {
+            const {placeholder} = columnDataObj[metric];
+            temp[placeholder] = metric;
+        }
+        return temp;
+    })();
     // : columnTempState;
 
     const [entityKeysLastCalc, setEntityKeysLastCalc] = useState([] as any[]);
