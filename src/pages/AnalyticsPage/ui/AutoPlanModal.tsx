@@ -7,6 +7,7 @@ import {autoPlanModalStore} from '@/pages/AnalyticsPage/stores';
 interface AutoPlanModalProps {
     planModalOpenFromEntity: string;
     planModalPlanValue: any;
+    getPlanDay: any;
     planModalKey: any;
     setPlanModalPlanValue: any;
     handleSetPlanButton: any;
@@ -17,6 +18,7 @@ export const AutoPlanModal: FC<AutoPlanModalProps> = observer(
     ({
         planModalOpenFromEntity,
         planModalPlanValue,
+        getPlanDay,
         planModalKey,
         setPlanModalPlanValue,
         handleDeletePlansButton,

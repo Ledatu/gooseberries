@@ -1,10 +1,10 @@
 'use client';
 
 import {useEffect, useMemo, useState} from 'react';
-import {Spin, Icon, Button, Text, List, Popover, Card, Modal} from '@gravity-ui/uikit';
+import {Spin, Icon, Button, Text, Popover, Card} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
-import {ChartAreaStacked, Copy, TrashBin, FileText, FileArrowDown} from '@gravity-ui/icons';
+import {ChartAreaStacked, Copy, FileText, FileArrowDown} from '@gravity-ui/icons';
 
 import callApi, {getUid} from '@/utilities/callApi';
 import TheTable, {compare} from '@/components/TheTable';
@@ -20,14 +20,11 @@ import {
     getRoundValue,
     renderAsPercent,
 } from '@/utilities/getRoundValue';
-import ChartKit from '@gravity-ui/chartkit';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
-// import {generateModalButtonWithActions} from './MassAdvertPage';
 import {TagsFilterModal} from '@/components/TagsFilterModal';
 import {CalcAutoPlansModal} from './CalcAutoPlansModal';
 import {AnalyticsCalcModal} from './AnalyticsCalcModal';
 import {PlansUpload} from './PlansUpload';
-// import {ColumnsEdit} from '@/components/ColumnsEdit';
 import {ManageDeletionOfOldPlansModal} from './ManageDeletionOfOldPlansModal';
 import {getUserDoc} from './hooks';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -35,6 +32,8 @@ import ApiClient from '@/utilities/ApiClient';
 import {useModules} from '@/contexts/ModuleProvider';
 import {AutoPlanModal} from './ui/AutoPlanModal';
 import {autoPlanModalStore} from '@/pages/AnalyticsPage/stores/';
+import {colors} from '@/pages/AnalyticsPage/config/colors';
+import {AnalyticChartModal} from '@/pages/AnalyticsPage/ui/ChartModal';
 
 export const AnalyticsPage = () => {
     const {setPlanModalOpen, setGraphModalTitle, setPlanModalPlanValueValid} = autoPlanModalStore;
@@ -1589,15 +1588,6 @@ export const AnalyticsPage = () => {
         setSwitchingCampaignsFlag(false);
     }
 
-    const colors: any = [
-        'var(--g-color-private-purple-550-solid)',
-        'var(--g-color-private-yellow-550-solid)',
-        'var(--g-color-private-green-550-solid)',
-        'var(--g-color-private-orange-550-solid)',
-        'var(--g-color-private-cool-grey-550-solid)',
-        'var(--g-color-private-red-550-solid)',
-    ];
-
     const genYagrData = () => {
         function linearRegression(x: any, y: any) {
             const n = x.length;
@@ -1621,17 +1611,10 @@ export const AnalyticsPage = () => {
         for (const metric of currenrGraphMetrics) {
             const metricData = graphModalData[metric];
 
-            // console.log(metric, metricData);
             const {trendLine} = linearRegression(graphModalTimeline, metricData);
             const properTitle = columnDataObj[metric] ? columnDataObj[metric].placeholder : metric;
             const graphColor = colors[currenrGraphMetrics.indexOf(metric) % colors.length];
-            // columnDataObj[metric] && columnDataObj[metric].graphColor
-            //     ? columnDataObj[metric].graphColor
-            //     : 'var(--g-color-private-purple-250)';
             const graphTrendColor = graphColor.slice(0, graphColor.length - 10) + '650-solid)';
-            // console.log(graphTrendColor);
-
-            // const valueType = properTitle.split(', ')[1];
 
             graphModalDataTemp.push({
                 name: 'Тренд ' + properTitle,
@@ -1769,130 +1752,18 @@ export const AnalyticsPage = () => {
 
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
-            <Modal
-                open={graphModalOpen}
-                onClose={() => {
-                    setGraphModalOpen(false);
-                    setCurrenrGraphMetrics([]);
-                    setGraphModalData({});
-                    setGraphModalTimeline([]);
-                    setGraphModalTitle('');
-                }}
-            >
-                <Card
-                    view="outlined"
-                    theme="warning"
-                    style={{
-                        height: '50em',
-                        width: '90em',
-                        overflow: 'auto',
-                        display: 'flex',
-                        flexDirection: 'row',
-                    }}
-                >
-                    <ChartKit type="yagr" data={genYagrData() as YagrWidgetData} />
-                    <div
-                        style={{
-                            padding: 8,
-                            height: 'calc(100% - 16px)',
-                            width: 200,
-                            overflow: 'auto',
-                            boxShadow: 'var(--g-color-base-background) 0px 2px 8px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                        }}
-                    >
-                        <List
-                            filterPlaceholder="Введите название метрики"
-                            emptyPlaceholder="Такая метрика отсутствует"
-                            items={Object.keys(columnDataReversed)}
-                            renderItem={(item) => {
-                                const selected = currenrGraphMetrics.includes(
-                                    columnDataReversed[item],
-                                );
-                                const graphColor =
-                                    colors[
-                                        currenrGraphMetrics.indexOf(columnDataReversed[item]) %
-                                            colors.length
-                                    ];
-                                const backColor = graphColor
-                                    ? graphColor.slice(0, graphColor.length - 10) + '150)'
-                                    : undefined;
-                                const graphTrendColor = graphColor
-                                    ? graphColor.slice(0, graphColor.length - 10) + '650-solid)'
-                                    : undefined;
-
-                                return (
-                                    <Button
-                                        size="xs"
-                                        pin="circle-circle"
-                                        // selected={selected}
-                                        style={{position: 'relative', overflow: 'hidden'}}
-                                        view={selected ? 'flat' : 'outlined'}
-                                    >
-                                        <div
-                                            style={{
-                                                borderRadius: 10,
-                                                left: 0,
-                                                position: 'absolute',
-                                                width: '100%',
-                                                height: '100%',
-                                                background: selected ? backColor : '#0000',
-                                            }}
-                                        />
-                                        <Text
-                                            style={{
-                                                color: selected ? graphTrendColor : undefined,
-                                            }}
-                                        >
-                                            {item}
-                                        </Text>
-                                    </Button>
-                                );
-                            }}
-                            onItemClick={(item) => {
-                                const metricVal = columnDataReversed[item];
-                                let tempArr = Array.from(currenrGraphMetrics);
-                                if (tempArr.includes(metricVal)) {
-                                    tempArr = tempArr.filter((value) => value != metricVal);
-                                } else {
-                                    tempArr.push(metricVal);
-                                }
-
-                                tempArr = tempArr.sort((a, b) => {
-                                    const metricDataA = graphModalData[a];
-                                    const metricDataB = graphModalData[b];
-                                    return metricDataA[0] - metricDataB[0];
-                                });
-
-                                setCurrenrGraphMetrics(tempArr);
-                            }}
-                        />
-                        <Button
-                            width="max"
-                            view={currenrGraphMetrics.length ? 'flat-danger' : 'normal'}
-                            selected={currenrGraphMetrics.length != 0}
-                            onClick={() => {
-                                setCurrenrGraphMetrics([]);
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <Icon data={TrashBin} />
-                                <div style={{minWidth: 3}} />
-                                Очистить
-                            </div>
-                        </Button>
-                    </div>
-                </Card>
-            </Modal>
+            <AnalyticChartModal
+                graphModalOpen={graphModalOpen}
+                setGraphModalOpen={setGraphModalOpen}
+                setCurrenrGraphMetrics={setCurrenrGraphMetrics}
+                setGraphModalData={setGraphModalData}
+                setGraphModalTimeline={setGraphModalTimeline}
+                setGraphModalTitle={setGraphModalTitle}
+                genYagrData={genYagrData}
+                graphModalData={graphModalData}
+                columnDataReversed={columnDataReversed}
+                currenrGraphMetrics={currenrGraphMetrics}
+            />
             <AutoPlanModal
                 planModalKey={planModalKey}
                 getPlanDay={getPlanDay}
@@ -1962,12 +1833,6 @@ export const AnalyticsPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    {/* <ColumnsEdit
-                        columns={columnsDataToShow}
-                        setColumns={setColumnsDataToShow}
-                        columnDataObj={columnDataObj}
-                        saveColumnsData={saveColumnsData}
-                    /> */}
                     <div style={{minWidth: 8}} />
                     <Button
                         disabled={permission != 'Управление'}

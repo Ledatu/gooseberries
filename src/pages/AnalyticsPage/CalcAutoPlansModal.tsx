@@ -13,7 +13,7 @@ interface CalcAutoPlansModalProps {
     disabled: boolean;
     selectValue: string[];
     entityKeysLastCalc: any;
-    colors: {[key: string]: string};
+    colors: string[];
     doc: any;
     setChangedDoc: ({}: any) => any;
     columnDataReversed: any;
