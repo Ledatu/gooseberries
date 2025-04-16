@@ -1,4 +1,4 @@
-import {Text} from '@gravity-ui/uikit';
+import {Card, Popover, Text} from '@gravity-ui/uikit';
 import {defaultRender, renderAsPercent} from '@/utilities/getRoundValue';
 
 export const taxColumn = (renderWithGraph: any) => {
@@ -443,6 +443,114 @@ export const rentabelnostColumn = (renderWithGraph: any) => {
                         );
                     },
                 ),
+        },
+    };
+};
+
+export const entityColumn = (renderFilterByClickButton: any) => {
+    return {
+        entity: {
+            valueType: 'text',
+            placeholder: 'Объект',
+            minWidth: 400,
+            render: ({value, row, footer}: any) => {
+                if (value === undefined || row.isBlank) return undefined;
+
+                let titleWrapped = value;
+                if (value.length > 30) {
+                    let wrapped = false;
+                    titleWrapped = '';
+                    const titleArr = value.split(' ');
+                    for (const word of titleArr) {
+                        titleWrapped += word;
+                        if (titleWrapped.length > 25 && !wrapped) {
+                            titleWrapped += '\n';
+                            wrapped = true;
+                        } else {
+                            titleWrapped += ' ';
+                        }
+                    }
+                }
+
+                return !footer ? renderFilterByClickButton({value}, 'entity') : value;
+            },
+        },
+    };
+};
+
+export const dateColumn = () => {
+    return {
+        date: {
+            valueType: 'text',
+            placeholder: 'Дата',
+            render: (args: {value: any; row: any}) => {
+                const {value, row} = args;
+                if (row.isBlank) return undefined;
+                if (value === undefined) return 'Итого';
+                const {notes, entity} = row;
+
+                const {all} = notes ? (notes.all ? notes : {all: []}) : {all: []};
+
+                const notesList = [] as any[];
+                for (let i = 0; i < all.length; i++) {
+                    const {note, tags} = all[i];
+
+                    if (tags.includes(entity) || tags.length == 0) {
+                        notesList.push(
+                            <Card
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    minHeight: 64,
+                                    padding: 8,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                {note}
+                            </Card>,
+                        );
+                    }
+                }
+
+                return notesList.length ? (
+                    <Popover
+                        content={
+                            <div
+                                style={{
+                                    height: 'calc(30em - 60px)',
+                                    width: '30em',
+                                    overflow: 'auto',
+                                    paddingBottom: 8,
+                                    display: 'flex',
+                                }}
+                            >
+                                <Card
+                                    view="outlined"
+                                    theme="warning"
+                                    style={{
+                                        position: 'absolute',
+                                        height: '30em',
+                                        width: '30em',
+                                        padding: 20,
+                                        overflow: 'auto',
+                                        top: -10,
+                                        left: -10,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        background: 'var(--g-color-base-background)',
+                                    }}
+                                >
+                                    {notesList}
+                                </Card>
+                            </div>
+                        }
+                    >
+                        <Text color="brand">{value}</Text>
+                    </Popover>
+                ) : (
+                    value
+                );
+            },
         },
     };
 };

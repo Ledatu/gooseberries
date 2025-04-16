@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useMemo, useState} from 'react';
-import {Spin, Icon, Button, Text, Popover, Card} from '@gravity-ui/uikit';
+import {Spin, Icon, Button, Text} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
 import {ChartAreaStacked, Copy, FileText, FileArrowDown} from '@gravity-ui/icons';
@@ -46,8 +46,10 @@ import {
     cpmColumn,
     crColumn,
     ctrColumn,
+    dateColumn,
     drrOrdersColum,
     drrSalesColumn,
+    entityColumn,
     expensesColumn,
     logisticsColum,
     logisticsPercentColumn,
@@ -274,105 +276,47 @@ export const AnalyticsPage = () => {
         );
     };
 
+    const renderFilterByClickButton = ({value}: {value: any}, key: string) => {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                }}
+            >
+                <Button
+                    style={{height: 'fit-content'}}
+                    size="xs"
+                    width="max"
+                    pin="round-round"
+                    view="outlined"
+                    onClick={() => {
+                        filterByClick(value, key);
+                    }}
+                >
+                    <Text style={{whiteSpace: 'pre-wrap', height: 'fit-content'}}>{value}</Text>
+                </Button>
+                <div style={{minWidth: 5}} />
+                <Button
+                    size="xs"
+                    view="outlined"
+                    pin="round-round"
+                    onClick={() => {
+                        navigator.clipboard.writeText(value);
+                    }}
+                >
+                    <Icon data={Copy} size={13} />
+                </Button>
+            </div>
+        );
+    };
+
     const columnDataObj: any = {
-        entity: {
-            valueType: 'text',
-            placeholder: 'Объект',
-            minWidth: 400,
-            render: ({value, row, footer}: any) => {
-                if (value === undefined || row.isBlank) return undefined;
-
-                let titleWrapped = value;
-                if (value.length > 30) {
-                    let wrapped = false;
-                    titleWrapped = '';
-                    const titleArr = value.split(' ');
-                    for (const word of titleArr) {
-                        titleWrapped += word;
-                        if (titleWrapped.length > 25 && !wrapped) {
-                            titleWrapped += '\n';
-                            wrapped = true;
-                        } else {
-                            titleWrapped += ' ';
-                        }
-                    }
-                }
-
-                return !footer ? renderFilterByClickButton({value}, 'entity') : value;
-            },
-        },
-        date: {
-            valueType: 'text',
-            placeholder: 'Дата',
-            render: (args: {value: any; row: any}) => {
-                const {value, row} = args;
-                if (row.isBlank) return undefined;
-                if (value === undefined) return 'Итого';
-                const {notes, entity} = row;
-
-                const {all} = notes ? (notes.all ? notes : {all: []}) : {all: []};
-
-                const notesList = [] as any[];
-                for (let i = 0; i < all.length; i++) {
-                    const {note, tags} = all[i];
-
-                    if (tags.includes(entity) || tags.length == 0) {
-                        notesList.push(
-                            <Card
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    minHeight: 64,
-                                    padding: 8,
-                                    marginBottom: 8,
-                                }}
-                            >
-                                {note}
-                            </Card>,
-                        );
-                    }
-                }
-
-                return notesList.length ? (
-                    <Popover
-                        content={
-                            <div
-                                style={{
-                                    height: 'calc(30em - 60px)',
-                                    width: '30em',
-                                    overflow: 'auto',
-                                    paddingBottom: 8,
-                                    display: 'flex',
-                                }}
-                            >
-                                <Card
-                                    view="outlined"
-                                    theme="warning"
-                                    style={{
-                                        position: 'absolute',
-                                        height: '30em',
-                                        width: '30em',
-                                        padding: 20,
-                                        overflow: 'auto',
-                                        top: -10,
-                                        left: -10,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        background: 'var(--g-color-base-background)',
-                                    }}
-                                >
-                                    {notesList}
-                                </Card>
-                            </div>
-                        }
-                    >
-                        <Text color="brand">{value}</Text>
-                    </Popover>
-                ) : (
-                    value
-                );
-            },
-        },
+        ...entityColumn(renderFilterByClickButton),
+        ...dateColumn(),
         ...sumColumn(renderWithGraph),
         ...sumOrdersColumn(renderWithGraph),
         ...ordersColumn(renderWithGraph),
@@ -479,44 +423,6 @@ export const AnalyticsPage = () => {
         filters[key] = {val: String(val), compMode: compMode};
         setFilters({...filters});
         filterTableData(filters);
-    };
-
-    const renderFilterByClickButton = ({value}: {value: any}, key: string) => {
-        return (
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                }}
-            >
-                <Button
-                    style={{height: 'fit-content'}}
-                    size="xs"
-                    width="max"
-                    pin="round-round"
-                    view="outlined"
-                    onClick={() => {
-                        filterByClick(value, key);
-                    }}
-                >
-                    <Text style={{whiteSpace: 'pre-wrap', height: 'fit-content'}}>{value}</Text>
-                </Button>
-                <div style={{minWidth: 5}} />
-                <Button
-                    size="xs"
-                    view="outlined"
-                    pin="round-round"
-                    onClick={() => {
-                        navigator.clipboard.writeText(value);
-                    }}
-                >
-                    <Icon data={Copy} size={13} />
-                </Button>
-            </div>
-        );
     };
 
     const today = new Date(
