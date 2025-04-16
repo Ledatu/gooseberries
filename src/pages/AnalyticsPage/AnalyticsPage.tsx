@@ -20,7 +20,6 @@ import {
     getRoundValue,
     renderAsPercent,
 } from '@/utilities/getRoundValue';
-import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {TagsFilterModal} from '@/components/TagsFilterModal';
 import {CalcAutoPlansModal} from './CalcAutoPlansModal';
 import {AnalyticsCalcModal} from './AnalyticsCalcModal';
@@ -34,9 +33,12 @@ import {AutoPlanModal} from './ui/AutoPlanModal';
 import {autoPlanModalStore} from '@/pages/AnalyticsPage/stores/';
 import {colors} from '@/pages/AnalyticsPage/config/colors';
 import {AnalyticChartModal} from '@/pages/AnalyticsPage/ui/ChartModal';
+import {chartModalStore} from '@/pages/AnalyticsPage/stores/modals/chartModal';
 
 export const AnalyticsPage = () => {
     const {setPlanModalOpen, setGraphModalTitle, setPlanModalPlanValueValid} = autoPlanModalStore;
+    const {setGraphModalOpen, setCurrentGraphMetrics, setGraphModalData, setGraphModalTimeline} =
+        chartModalStore;
     const {selectValue, setSwitchingCampaignsFlag, sellerId} = useCampaign();
     const {availablemodulesMap} = useModules();
     const permission: string = useMemo(() => {
@@ -46,11 +48,6 @@ export const AnalyticsPage = () => {
     const [planModalOpenFromEntity, setPlanModalOpenFromEntity] = useState('');
     const [planModalKey, setPlanModalKey] = useState('');
     const [planModalPlanValue, setPlanModalPlanValue] = useState('');
-
-    const [graphModalOpen, setGraphModalOpen] = useState(false);
-    const [currenrGraphMetrics, setCurrenrGraphMetrics] = useState([] as any[]);
-    const [graphModalData, setGraphModalData] = useState<any>({});
-    const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
 
     const columnDataObj: any = {
         entity: {
@@ -470,23 +467,11 @@ export const AnalyticsPage = () => {
             console.error(error);
         }
     };
-    // const saveColumnsData = async () => {
-    //     try {
-    //         const params = {seller_id: sellerId, columns: columnsDataToShow};
-    //         const response = await ApiClient.post('analytics/set-columns-analytics', params);
-    //         if (!response?.data) {
-    //             throw new Error('No columns Data');
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
     useEffect(() => {
         getColumnsData();
     }, [sellerId]);
     const [columnsArray, setColumnsArray] = useState([] as any);
     useEffect(() => {
-        // const arr = columnsDataToShow.filter((column: any) => column.visibility);
         setColumnsArray(columnsDataToShow);
     }, [columnsDataToShow]);
 
@@ -521,13 +506,9 @@ export const AnalyticsPage = () => {
 
             const _entity = argEntity != '' ? argEntity : entity;
 
-            // if (_entity == 'ИП Галилова' && key == 'sum_orders')
-            // console.log(_entity, key, inputDate);
-
             if (type == 'day') {
                 date = getDateFromLocaleString(date);
             } else if (type == 'week') {
-                // date = getDateFromLocaleString(date.slice(0, 10));
                 date = new Date(date);
             } else if (type == 'month') {
                 const month = date.split(' ');
@@ -550,26 +531,6 @@ export const AnalyticsPage = () => {
             if (type == 'month') dayPlan *= daysInMonth(date);
 
             if (type == 'period') dayPlan *= daysInPeriod(inputDate);
-
-            // if (
-            //     _entity == '#F.F.+ФУТБОЛКИ-ПОЛО+ЛЕТО+188950637' &&]
-            //     key == 'orders' &&
-            //     doc.plansData[selectValue[0]][_entity]
-            // )
-            //     console.log(
-            //         inputDate,
-            //         date,
-            //         dayPlan,
-            //         _entity,
-            //         key,
-            //         monthName,
-            //         doc.plansData[selectValue[0]][_entity][key][monthName],
-            //         doc.plansData[selectValue[0]][_entity]
-            //             ? doc.plansData[selectValue[0]][_entity][key]
-            //                 ? doc.plansData[selectValue[0]][_entity][key][monthName]
-            //                 : -1
-            //             : -1,
-            //     );
 
             return dayPlan;
         };
@@ -682,7 +643,7 @@ export const AnalyticsPage = () => {
                             setGraphModalTimeline(graphData['timeline']);
                             setGraphModalTitle(title);
                             setGraphModalOpen(true);
-                            setCurrenrGraphMetrics(metrics);
+                            setCurrentGraphMetrics(metrics);
                         }}
                     >
                         <Icon data={ChartAreaStacked} size={13} />
@@ -765,8 +726,7 @@ export const AnalyticsPage = () => {
             .replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
             .slice(0, 10),
     );
-    // const monthAgo = new Date(today);
-    // monthAgo.setDate(monthAgo.getDate() - 30);
+
     const [dateRange] = useState([today, today]);
 
     const [data, setTableData] = useState({});
@@ -1588,93 +1548,6 @@ export const AnalyticsPage = () => {
         setSwitchingCampaignsFlag(false);
     }
 
-    const genYagrData = () => {
-        function linearRegression(x: any, y: any) {
-            const n = x.length;
-            const sumX = x.reduce((a: any, b: any) => a + b, 0);
-            const sumY = y.reduce((a: any, b: any) => a + b, 0);
-            const sumXY = x
-                .map((xi: any, i: any) => xi * y[i])
-                .reduce((a: any, b: any) => a + b, 0);
-            const sumXX = x.map((xi: any) => xi * xi).reduce((a: any, b: any) => a + b, 0);
-
-            const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-            const intercept = (sumY - slope * sumX) / n;
-
-            const trendLine = x.map((xi: any) => slope * xi + intercept);
-            return {slope, intercept, trendLine};
-        }
-
-        const graphModalDataTemp = [] as any[];
-        const axesConfig: any = {};
-
-        for (const metric of currenrGraphMetrics) {
-            const metricData = graphModalData[metric];
-
-            const {trendLine} = linearRegression(graphModalTimeline, metricData);
-            const properTitle = columnDataObj[metric] ? columnDataObj[metric].placeholder : metric;
-            const graphColor = colors[currenrGraphMetrics.indexOf(metric) % colors.length];
-            const graphTrendColor = graphColor.slice(0, graphColor.length - 10) + '650-solid)';
-
-            graphModalDataTemp.push({
-                name: 'Тренд ' + properTitle,
-                data: trendLine,
-                color: graphTrendColor,
-                precision: 0,
-                id: '2',
-                scale: 'r',
-            });
-            graphModalDataTemp.push({
-                name: properTitle,
-                data: metricData,
-                type: 'column',
-                // lineWidth: 2,
-                id: '1',
-                color: graphColor,
-                scale: 'y',
-            });
-            axesConfig['y'] = {
-                label: 'Значение',
-                precision: 'auto',
-                show: true,
-            };
-            axesConfig['r'] = {
-                label: 'Тренд',
-                precision: 'auto',
-                side: 'right',
-                show: true,
-            };
-        }
-
-        return {
-            data: {
-                timeline: graphModalTimeline,
-                graphs: [...graphModalDataTemp],
-            },
-
-            libraryConfig: {
-                chart: {
-                    series: {
-                        type: 'line',
-                        interpolation: 'smooth',
-                    },
-                },
-                axes: {
-                    ...axesConfig,
-                    x: {
-                        show: true,
-                    },
-                },
-                tooltip: {
-                    precision: 0,
-                },
-                title: {
-                    text: 'График по дням',
-                },
-            },
-        } as YagrWidgetData;
-    };
-
     const getPlanDay = (key = '') => {
         const isAvg = key != '' ? columnDataObj[key].planType == 'avg' : false;
         const date = new Date();
@@ -1753,16 +1626,9 @@ export const AnalyticsPage = () => {
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
             <AnalyticChartModal
-                graphModalOpen={graphModalOpen}
-                setGraphModalOpen={setGraphModalOpen}
-                setCurrenrGraphMetrics={setCurrenrGraphMetrics}
-                setGraphModalData={setGraphModalData}
-                setGraphModalTimeline={setGraphModalTimeline}
                 setGraphModalTitle={setGraphModalTitle}
-                genYagrData={genYagrData}
-                graphModalData={graphModalData}
+                columnDataObj={columnDataObj}
                 columnDataReversed={columnDataReversed}
-                currenrGraphMetrics={currenrGraphMetrics}
             />
             <AutoPlanModal
                 planModalKey={planModalKey}
