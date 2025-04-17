@@ -78,6 +78,7 @@ import {
 } from '@/pages/AnalyticsPage/config/tableColumns';
 
 export const AnalyticsPage = () => {
+    console.log('FULL RERENDERING');
     const {setPlanModalOpen, setGraphModalTitle, setPlanModalPlanValueValid} = autoPlanModalStore;
     const {setGraphModalOpen, setCurrentGraphMetrics, setGraphModalData, setGraphModalTimeline} =
         chartModalStore;
@@ -419,6 +420,10 @@ export const AnalyticsPage = () => {
 
     const [filters, setFilters] = useState<any>({undef: false});
 
+    useEffect(() => {
+        console.log('Filters', filters);
+    }, [filters]);
+
     const filterByClick = (val: any, key: string, compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
         setFilters({...filters});
@@ -489,11 +494,8 @@ export const AnalyticsPage = () => {
 
     const doc = getUserDoc(dateRange, changedDoc, changedDocUpdateType, selectValue[0]);
 
-    useEffect(() => {
-        console.log('DOC', doc);
-    }, [doc]);
-
     const recalc = (selected = '', withfFilters = {}) => {
+        console.log('RECALC WORKING');
         const campaignData = doc
             ? doc.analyticsData[selected === '' ? selectValue[0] : selected]
             : {};
@@ -506,6 +508,7 @@ export const AnalyticsPage = () => {
     const [filteredSummary, setFilteredSummary] = useState({});
 
     const filterTableData = (withFilters: any = {}, tableData = {}) => {
+        console.log('FILTER TABLE DATA, WORKING');
         const temp = [] as any;
 
         for (const [entity, entityInfo] of Object.entries(
