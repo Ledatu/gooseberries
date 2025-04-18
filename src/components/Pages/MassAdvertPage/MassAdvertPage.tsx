@@ -3377,7 +3377,7 @@ export const MassAdvertPage = () => {
             placeholder: 'Дата',
             render: ({value}: any) => {
                 if (!value) return;
-                if (typeof value === 'number') return `Всего SKU: ${value}`;
+                if (typeof value === 'number') return `Всего: ${value}`;
                 return <Text>{(value as Date).toLocaleDateString('ru-RU').slice(0, 10)}</Text>;
             },
         },

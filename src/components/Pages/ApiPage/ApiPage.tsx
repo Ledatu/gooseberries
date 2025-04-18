@@ -497,7 +497,7 @@ export const ApiPage = () => {
                     name: 'apiKeyExpDate',
                     placeholder: 'API до',
                     valueType: 'text',
-                    render: ({value, footer}: IRender) => {
+                    render: ({value, footer, row}: IRender) => {
                         if (footer) return undefined;
                         const date = new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
                         const expired =
@@ -512,7 +512,7 @@ export const ApiPage = () => {
                                 }}
                             >
                                 <Text variant="subheader-2">{date}</Text>
-                                <ChangeApiModal sellerId={sellerId}>
+                                <ChangeApiModal sellerId={row?.seller_id}>
                                     <Button
                                         selected={expired}
                                         view={expired ? 'outlined-danger' : 'outlined'}
