@@ -268,44 +268,6 @@ export const ManageDeletionOfOldPlansModal = ({
                             <Icon data={TrashBin} />
                             Удалить планы
                         </Button>
-                        {/* {generateModalButtonWithActions(
-                            {
-                                onClick: () => {
-                                    const params = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        monthNames:
-                                            selectedMonth[0] == monthNames[0]
-                                                ? monthNames
-                                                : selectedMonth,
-                                        metrics: currenrPlanModalMetrics,
-                                        entities: [] as any[],
-                                    };
-                                    for (const row of filteredData) {
-                                        const {entity} = row;
-                                        if (!params.entities.includes(entity))
-                                            params.entities.push(entity);
-                                    }
-                                    console.log(params);
-
-                                    callApi('deletePlansForMonth', params)
-                                        .then((res) => {
-                                            if (!res || !res['data']) return;
-                                            doc['plansData'][selectValue[0]] = res['data'];
-                                            setChangedDoc({...doc});
-                                        })
-                                        .finally(() => {
-                                            setOpen(false);
-                                        });
-                                },
-                                view: 'outlined-danger',
-                                disabled: !currenrPlanModalMetrics.length,
-                                placeholder: 'Удалить планы',
-                                icon: TrashBin,
-                            },
-                            selectedButton,
-                            setSelectedButton,
-                        )} */}
                     </motion.div>
                 </motion.div>
             </Modal>

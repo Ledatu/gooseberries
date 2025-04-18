@@ -7,7 +7,7 @@ import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 import {ChartAreaStacked, Copy, FileText, FileArrowDown} from '@gravity-ui/icons';
 
 import callApi, {getUid} from '@/utilities/callApi';
-import TheTable, {compare} from '@/components/TheTable';
+import {compare} from '@/components/TheTable';
 import {
     daysInMonth,
     daysInPeriod,
@@ -76,6 +76,8 @@ import {
     taxColumn,
     viewsColumn,
 } from '@/pages/AnalyticsPage/config/tableColumns';
+import {AnalyticsTable} from '@/pages/AnalyticsPage/ui/Table';
+import {analyticsDataStore} from '@/pages/AnalyticsPage/stores/data/analyticsDataStore';
 
 export const AnalyticsPage = () => {
     console.log('FULL RERENDERING');
@@ -420,10 +422,6 @@ export const AnalyticsPage = () => {
 
     const [filters, setFilters] = useState<any>({undef: false});
 
-    useEffect(() => {
-        console.log('Filters', filters);
-    }, [filters]);
-
     const filterByClick = (val: any, key: string, compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
         setFilters({...filters});
@@ -441,10 +439,6 @@ export const AnalyticsPage = () => {
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
-
-    useEffect(() => {
-        console.log('FILTERED DATA', filteredData);
-    }, [filteredData]);
 
     const columnData = (() => {
         const temp = [] as any[];
@@ -1238,6 +1232,7 @@ export const AnalyticsPage = () => {
         if (enteredKeysDateTypeLastCalc != 'period') temp.pop();
 
         setFilteredData(temp);
+        analyticsDataStore.setAllData(temp);
     };
 
     const [firstRecalc, setFirstRecalc] = useState(false);
@@ -1476,9 +1471,8 @@ export const AnalyticsPage = () => {
                     alignItems: 'center',
                 }}
             >
-                <TheTable
+                <AnalyticsTable
                     columnData={columnData}
-                    data={filteredData}
                     filters={filters}
                     setFilters={setFilters}
                     filterData={filterTableData}
