@@ -30,16 +30,18 @@ export const DEFAULT_CHART_OPTIONS = {
 export const GET_DEFAULT_X_AXIS_CONFIG = (isDark: boolean) => {
     return {
         display: true,
+        height: 100,
         title: {
             display: false,
             text: 'Дата и время',
         },
         ticks: {
-            maxTicksLimit: 10,
+            maxTicksLimit: 8,
             autoSkip: true,
             maxRotation: 0,
             minRotation: 0,
             color: isDark ? '#ffffff' : '#000000',
+            ticks: {},
         },
         grid: {
             color: isDark ? '#434343' : 'rgba(47,5,5,0.1)',
@@ -73,11 +75,12 @@ export const DEFAULT_TOOLTIP_CONFIG = {
         },
     },
     titleColor: '#ffffff',
+    width: 200,
     bodyColor: '#ffffff',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     xAlign: 'right',
     yAlign: 'center',
-    position: 'nearest',
+    caretSize: 0,
 };
 
 export const ZOOM_CONFIG = {

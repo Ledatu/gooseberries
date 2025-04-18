@@ -2,7 +2,7 @@ import {FC, useRef} from 'react';
 import {Line} from 'react-chartjs-2';
 import {cn} from '@/lib/cn';
 import zoomPlugin from 'chartjs-plugin-zoom';
-import {Chart as ChartJS} from 'chart.js';
+import {Chart as ChartJS, Tooltip} from 'chart.js';
 import {
     CHART_JS_REGISTER_COMPONENTS,
     DEFAULT_CHART_OPTIONS,
@@ -13,6 +13,16 @@ import {
 import {formatChartData, createScalesConfig} from './utils';
 import {useTheme} from '@gravity-ui/uikit';
 import {hideLineOnClickPlugin, verticalLinePlugin} from '@/shared/ui/Graphic/plugins';
+
+// @ts-ignore
+Tooltip.positioners.nextTo = function (elements, eventPosition) {
+    return {
+        x: eventPosition.x - 120,
+        y: eventPosition.y,
+        xAlign: 'left',
+        yAlign: 'center',
+    };
+};
 
 ChartJS.register(...CHART_JS_REGISTER_COMPONENTS, zoomPlugin);
 
@@ -27,26 +37,6 @@ interface GraphicProps {
     minMaxValues?: MinMaxValue;
 }
 
-/**
- * Компонент для отображения линейного графика с возможностью масштабирования и настройки.
- *
- * param {Object} props - Свойства компонента.
- *
- * props.data: Record<string, number | string>[] - Данные для отображения на графике.
- *        Каждый элемент массива представляет собой объект с данными для конкретного момента времени.
- *        Ключи объекта - названия сущностей, значения - соответствующие значения.
- *
- * props.className: string - Дополнительные CSS-классы для контейнера графика.
- *
- * props.yAxes: string[] - Массив названий сущностей, для которых нужно создать
- *        отдельные оси Y. Если не указано, все сущности будут отображаться на одной оси.
- *
- * props.colors: Record<string, string> - Объект с цветами для линий разных сущностей.
- *        Ключи - названия сущностей, значения - цвет в формате CSS (hex, rgb, или название).
- *
- * props.removedEntities: string[] - Массив названий сущностей, которые нужно
- *        исключить из отображения на графике.
- */
 export const Graphic: FC<GraphicProps> = ({
     data,
     className,
@@ -55,7 +45,6 @@ export const Graphic: FC<GraphicProps> = ({
     removedEntities = [],
     minMaxValues,
 }) => {
-    console.log('data', data);
     const theme = useTheme();
     const chartRef = useRef<any>(null);
 
@@ -123,7 +112,10 @@ export const Graphic: FC<GraphicProps> = ({
                     chart.update();
                 },
             },
-            tooltip: DEFAULT_TOOLTIP_CONFIG,
+            tooltip: {
+                ...DEFAULT_TOOLTIP_CONFIG,
+                position: 'nextTo',
+            },
             zoom: ZOOM_CONFIG,
         },
     };

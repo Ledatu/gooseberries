@@ -1,19 +1,26 @@
 import {GET_DEFAULT_X_AXIS_CONFIG} from '@/shared/ui/Graphic/config';
 
-export const timeToHHMM = (date: Date): string => {
+export const formatDateTime = (date: Date): string => {
+    const day = date.getDate();
+    const month = date.getMonth();
+    const year = date.getFullYear();
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
+
+    return `${day}.${month}.${year}\n${hours}:${minutes}`;
 };
+
+const DEFAULT_LINE_TENSION: number = 0.45;
 
 export const formatChartData = (
     data: Record<string, number | string>[],
     yAxes: string[] = [],
     colors: Record<string, string> = {},
+    lineTension: number = DEFAULT_LINE_TENSION,
 ) => {
     const formattedData = data.map((item) => ({
         ...item,
-        'Дата и время': timeToHHMM(new Date(item['Дата и время'])),
+        'Дата и время': formatDateTime(new Date(item['Дата и время'])),
     }));
 
     const categories = Object.keys(formattedData[0] || {}).filter(
@@ -37,7 +44,7 @@ export const formatChartData = (
                 backgroundColor:
                     colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
                 yAxisID: yAxes.includes(category) ? `y${yAxes.indexOf(category) + 1}` : 'y',
-                tension: 0,
+                tension: lineTension,
                 pointRadius: 0,
                 borderWidth: 2,
                 spanGaps: true,
