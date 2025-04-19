@@ -1,0 +1,1 @@
+export type Color = "positive" | "warning" | "danger" | "utility" | 'info' | 'normal';
