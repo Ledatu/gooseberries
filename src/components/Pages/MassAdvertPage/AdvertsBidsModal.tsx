@@ -8,6 +8,7 @@ import {
     TextInput,
     Text,
     SegmentedRadioGroup,
+    NumberInput,
 } from '@gravity-ui/uikit';
 import {CloudArrowUpIn, TrashBin, Calendar as CalendarIcon} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
@@ -152,11 +153,8 @@ export const AdvertsBidsModal = ({
     const [useAutoMaxCpm, setUseAutoMaxCpm] = useState(true);
     const [usePlacementsTrigger, setUsePlacementsTrigger] = useState(false);
 
-    const [cpmInputValue, setCpmInputValue] = useState('');
-    const cpmInputValueValid = useMemo(() => {
-        const temp = parseInt(cpmInputValue);
-        return temp !== undefined && temp >= 0 && !isNaN(temp) && isFinite(temp);
-    }, [cpmInputValue]);
+    const [cpmInputValue, setCpmInputValue] = useState<number | null>(null);
+    const cpmInputValueValid = useMemo(() => cpmInputValue !== null, [cpmInputValue]);
 
     const [drrInputValue, setDrrInputValue] = useState('');
     const drrInputValueValid = useMemo(() => {
@@ -249,7 +247,7 @@ export const AdvertsBidsModal = ({
     useEffect(() => {
         setModalOption(modalOptions[0].value);
         setAutoBidderOption([autoBidderOptions[0].value]);
-        setCpmInputValue('125');
+        setCpmInputValue(125);
         setDrrInputValue('10');
         setCpoInputValue('50');
         setOrdersInputValue('10');
@@ -269,15 +267,13 @@ export const AdvertsBidsModal = ({
     const textInputs: any = {
         cpm: {
             input: (
-                <TextInput
+                <NumberInput
                     hasClear
-                    type="number"
+                    min={0}
                     size="l"
                     value={cpmInputValue}
                     validationState={cpmInputValueValid ? undefined : 'invalid'}
-                    onUpdate={(val) => {
-                        setCpmInputValue(val == '' ? '0' : val);
-                    }}
+                    onUpdate={(val) => setCpmInputValue(val)}
                 />
             ),
             title: 'Введите ставку',
@@ -541,7 +537,7 @@ export const AdvertsBidsModal = ({
                     : undefined,
                 desiredSumOrders: parseInt(sumOrdersInputValue),
                 drrOption,
-                bid: parseInt(cpmInputValue),
+                bid: cpmInputValue,
                 maxBid: parseInt(maxCpmInputValue),
                 useManualMaxCpm: !useAutoMaxCpm,
                 useAutoBudget,
@@ -562,7 +558,7 @@ export const AdvertsBidsModal = ({
             doc.advertsAutoBidsRules[selectValue[0]][id] =
                 modalOption == 'Установить'
                     ? old
-                        ? {...old, bid: parseInt(cpmInputValue)}
+                        ? {...old, bid: cpmInputValue}
                         : undefined
                     : autoBidderOption[0] == 'delete'
                       ? undefined
@@ -603,7 +599,7 @@ export const AdvertsBidsModal = ({
                                 autoBidderOption[0] == 'sellByDate'
                                     ? getLocaleDateString(sellByDate, 10)
                                     : undefined,
-                            bid: parseInt(cpmInputValue),
+                            bid: cpmInputValue,
                         };
         }
 
