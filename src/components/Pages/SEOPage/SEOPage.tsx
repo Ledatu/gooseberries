@@ -40,6 +40,8 @@ export const SEOPage = () => {
             name: 'word',
             placeholder: 'Слово',
             valueType: 'text',
+            sortFunction: (a: {word: string}, b: {word: string}, order: number) =>
+                a.word.localeCompare(b.word) * order,
             render: (args: any) => {
                 const {footer, value} = args;
                 if (footer) return defaultRender(args);
