@@ -47,8 +47,18 @@ export const RequestPhrasesModal = ({cluster}: RequestPhrasesModalProps) => {
                 </Text>
             </ActionTooltip>
             <ModalWindow isOpen={open} handleClose={() => setOpen(false)}>
-                <div style={{padding: 8, width: 500}}>
+                <div
+                    style={{
+                        padding: 8,
+                        width: 500,
+                        gap: 16,
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                >
+                    <Text variant="subheader-2">{cluster}</Text>
                     <List
+                        size="l"
                         items={stats}
                         itemHeight={50}
                         itemsHeight={520}

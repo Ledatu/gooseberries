@@ -23,7 +23,8 @@ import {CustomTabs} from '../CustomTabs';
 import {MobileTabs} from '@/components/CustomTabs';
 // import {NotesCreationModal} from '@/components/Notes';
 // import {AdvertsWordsModal} from '../Pages/MassAdvertPage/AdvertsWordsModal';
-import {NotesCreationModal} from '../Notes';
+// import {NotesCreationModal} from '../Notes';
+import {NotesModal} from '@/entities/NoteCard/ui/NoteModal';
 
 const b = block('app');
 
@@ -44,7 +45,7 @@ export interface DashboardProps {
 export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
     const searchParams = useSearchParams();
     // const {refetchUser} = useUser();
-    const {selectValue, currentCampaign, campaignInfo, campaigns, sellerId} = useCampaign();
+    const {selectValue, currentCampaign, campaignInfo, campaigns} = useCampaign();
     const {currentModule, availableModules = [], setModule} = useModules();
 
     const moduleTitles: Record<string, string> = {
@@ -424,7 +425,8 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                                 <></>
                                             )}
                                         </div>
-                                        <NotesCreationModal sellerId={sellerId} />
+                                        <NotesModal />
+                                        {/* <NotesCreationModal sellerId={sellerId} /> */}
                                         <UserPopup toggleTheme={toggleTheme} theme={theme} />
                                         <div
                                             style={{
