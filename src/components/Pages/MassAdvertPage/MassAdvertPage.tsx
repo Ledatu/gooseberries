@@ -6,7 +6,6 @@ import {
     Button,
     Text,
     Card,
-    Select,
     Link,
     Icon,
     Popover,
@@ -18,10 +17,9 @@ import {
     ButtonSize,
     ButtonView,
     IconData,
+    useTheme,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
-import block from 'bem-cn-lite';
-const b = block('app');
 
 import {
     Rocket,
@@ -34,7 +32,6 @@ import {
     CircleRuble,
     TShirt,
     SlidersVertical,
-    ChevronDown,
     ArrowShapeUp,
     Minus,
     Plus,
@@ -96,6 +93,7 @@ import {NotesForArt} from './NotesForArt';
 import {getNamesForAdverts} from '@/entities';
 import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
 import {changeSelectedPhrase} from '@/features/advertising/AdvertsWordsModal/api/changeSelectedPhrase';
+import {ModalWindow} from '@/shared/ui/Modal';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -131,6 +129,7 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
 };
 
 export const MassAdvertPage = () => {
+    const theme = useTheme();
     const [selectedNmId, setSelectedNmId] = useState(0);
     const {showError} = useError();
     const {availablemodulesMap} = useModules();
@@ -251,13 +250,6 @@ export const MassAdvertPage = () => {
 
     const [copiedAdvertsSettings, setCopiedAdvertsSettings] = useState({advertId: 0});
 
-    const artsStatsByDayModeSwitchValues: any[] = [
-        {value: 'Статистика по дням', content: 'Статистика по дням'},
-        {value: 'Статистика по дням недели', content: 'Статистика по дням недели', disabled: true},
-    ];
-    const [artsStatsByDayModeSwitchValue, setArtsStatsByDayModeSwitchValue] = useState<any[]>([
-        'Статистика по дням',
-    ]);
     const getNotes = async () => {
         try {
             const params = {seller_id: sellerId};
@@ -285,6 +277,13 @@ export const MassAdvertPage = () => {
     const [showDzhemModalOpen, setShowDzhemModalOpen] = useState(false);
 
     const [showArtStatsModalOpen, setShowArtStatsModalOpen] = useState(false);
+    useEffect(() => {
+        if (!showArtStatsModalOpen) return;
+        setTimeout(
+            () => artsStatsByDayDataFilter({sum: {val: '', mode: 'include'}}, artsStatsByDayData),
+            300,
+        );
+    }, [showArtStatsModalOpen]);
     const [artsStatsByDayData, setArtsStatsByDayData] = useState<any[]>([]);
     const [artsStatsByDayFilteredData, setArtsStatsByDayFilteredData] = useState<any[]>([]);
     const [artsStatsByDayFilters, setArtsStatsByDayFilters] = useState<any>({undef: false});
@@ -4181,102 +4180,44 @@ export const MassAdvertPage = () => {
                                 nmId={selectedNmId}
                             />
                         )}
-                        <Modal
-                            open={showArtStatsModalOpen}
-                            onClose={() => setShowArtStatsModalOpen(false)}
-                        >
-                            <motion.div
-                                onAnimationStart={async () => {
-                                    await new Promise((resolve) => setTimeout(resolve, 300));
-                                    artsStatsByDayDataFilter(
-                                        {sum: {val: '', mode: 'include'}},
-                                        artsStatsByDayData,
-                                    );
-                                }}
-                                animate={{maxHeight: showArtStatsModalOpen ? '60em' : 0}}
-                                style={{
-                                    margin: 20,
-                                    maxWidth: '90vw',
-                                    // maxHeight: '60em',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                }}
+                        {showArtStatsModalOpen && (
+                            <ModalWindow
+                                padding={false}
+                                isOpen={showArtStatsModalOpen}
+                                handleClose={() => setShowArtStatsModalOpen(false)}
                             >
                                 <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        margin: '8px 0',
-                                        alignItems: 'center',
-                                    }}
+                                    style={
+                                        {
+                                            background: theme == 'light' ? '#fff9' : undefined,
+                                            width: '90vw',
+                                            height: '70vh',
+                                            margin: 16,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            '--g-color-base-background':
+                                                theme === 'dark' ? 'rgba(14, 14, 14, 1)' : '#eeee',
+                                            gap: 16,
+                                        } as CSSProperties
+                                    }
                                 >
-                                    {/* <Text variant="display-2">Статистика по</Text> */}
-                                    <Select
-                                        className={b('selectCampaign')}
-                                        value={artsStatsByDayModeSwitchValue}
-                                        placeholder="Values"
-                                        options={artsStatsByDayModeSwitchValues}
-                                        renderControl={({triggerProps: {onClick, onKeyDown}}) => {
-                                            return (
-                                                <Button
-                                                    style={{
-                                                        marginTop: 12,
-                                                    }}
-                                                    // ref={ref as Ref<HTMLButtonElement>}
-                                                    size="xl"
-                                                    view="outlined"
-                                                    onClick={onClick}
-                                                    onKeyDown={onKeyDown}
-                                                    // extraProps={{
-                                                    //     onKeyDown,
-                                                    // }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            variant="display-2"
-                                                            style={{marginBottom: 8}}
-                                                        >
-                                                            {artsStatsByDayModeSwitchValue[0]}
-                                                        </Text>
-                                                        <div style={{width: 4}} />
-                                                        <Icon size={26} data={ChevronDown} />
-                                                    </div>
-                                                </Button>
-                                            );
-                                        }}
-                                        onUpdate={(nextValue) => {
-                                            setArtsStatsByDayModeSwitchValue(nextValue);
-                                        }}
-                                    />
-                                </div>
-                                <div style={{minHeight: 8}} />
-                                <Card
-                                    style={{
-                                        overflow: 'auto',
-                                        width: '100%',
-                                        height: '100%',
-                                    }}
-                                >
+                                    <Text variant="header-2">Статистика по дням</Text>
                                     <TheTable
+                                        height={'calc(70vh - 96px)'}
                                         columnData={columnDataArtByDayStats}
                                         data={artsStatsByDayFilteredData}
                                         filters={artsStatsByDayFilters}
                                         setFilters={setArtsStatsByDayFilters}
                                         filterData={artsStatsByDayDataFilter}
                                         footerData={[artsStatsByDayFilteredSummary]}
-                                        tableId={''}
-                                        usePagination={false}
+                                        tableId={'byDateStatsTable'}
+                                        defaultPaginationSize={50}
+                                        usePagination={true}
                                     />
-                                </Card>
-                            </motion.div>
-                        </Modal>
+                                </div>
+                            </ModalWindow>
+                        )}
                     </div>
                     <div
                         style={{
