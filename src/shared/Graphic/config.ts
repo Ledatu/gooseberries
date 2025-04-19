@@ -25,6 +25,17 @@ export const DEFAULT_CHART_OPTIONS = {
         mode: 'index' as const,
         intersect: false,
     },
+    animation: {
+        duration: 200,
+        easing: 'easeOutQuad',
+      },
+      transitions: {
+        zoom: {
+          animation: {
+            duration: 300, 
+          },
+        },
+      },
 };
 
 export const GET_DEFAULT_X_AXIS_CONFIG = (isDark: boolean) => {
@@ -63,6 +74,13 @@ export const GET_DEFAULT_LEGEND_CONFIG = (isDark: boolean) => {
                 weight: 'normal',
             },
         },
+        onClick: (_e: never, legendItem: any, legend: any) => {
+            const index = legendItem.datasetIndex;
+            const chart = legend.chart;
+            const meta = chart.getDatasetMeta(index);
+            meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+            chart.update();
+          },
     };
 };
 

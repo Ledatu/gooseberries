@@ -66,7 +66,7 @@ export const Graphic: FC<GraphicProps> = ({
 }) => {
   const theme = useTheme();
   const chartRef = useRef<ChartJS<'line'>>(null);
-  const [showResetZoom, setShowResetZoom] = useState(false);
+  const [showResetZoom, setShowResetZoom] = useState(true);
 
   const filterDataByMinMax = useCallback(
     (data: Record<string, string | number>[], minMaxes: MinMaxValue) => {
@@ -96,7 +96,6 @@ export const Graphic: FC<GraphicProps> = ({
     setShowResetZoom(false);
   }, []);
 
-  // Фильтрация данных
   const filteredData = useCallback(() => {
     let result = data.map(item => {
       const filteredItem: Record<string, number | string> = {};
@@ -134,23 +133,10 @@ export const Graphic: FC<GraphicProps> = ({
     plugins: {
       legend: {
         ...GET_DEFAULT_LEGEND_CONFIG(theme === 'dark'),
-        onClick: (_e: never, legendItem: any, legend: any) => {
-          const index = legendItem.datasetIndex;
-          const chart = legend.chart;
-          const meta = chart.getDatasetMeta(index);
-          meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
-          chart.update();
-        },
       },
       tooltip: getTooltipConfig(),
       zoom: {
         ...ZOOM_CONFIG,
-        zoom: {
-          ...ZOOM_CONFIG.zoom,
-          onZoomComplete: ({chart}: {chart: ChartJS}) => {
-            setShowResetZoom(true);
-          },
-        },
       },
     },
   };
