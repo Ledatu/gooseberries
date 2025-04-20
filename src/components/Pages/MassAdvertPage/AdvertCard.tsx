@@ -735,6 +735,23 @@ export const AdvertCard = ({
                                     return {} as YagrWidgetData;
                                 }
                             }}
+                            colors={{
+                                Ставка: '#5fb8a5',
+                                Выдача: '#4aa1f2',
+                                'Позиция в аукционе': '#9a63d1',
+                                'Органическая позиция': '#708da6',
+                                Заказы: '#E91E63',
+                                Расход: '#FF7043',
+                                ДРР: '#B2FF59',
+                            }}
+                            extraYAxes={{
+                                ДРР: 'drr',
+                                Расход: 'sum',
+                                Заказы: 'orders',
+                                Выдача: 'pos',
+                                'Позиция в аукционе': 'pos',
+                                'Органическая позиция': 'r2',
+                            }}
                         >
                             <Button pin="round-brick" size="xs" view="flat">
                                 <Icon data={ChartAreaStacked} size={11} />
@@ -787,6 +804,7 @@ export const AdvertCard = ({
                             </Button>
                         </AdvertsBudgetsModal>
                         <ChartModal
+                            minMaxValues={{Расход: {min: 0}}}
                             fetchingFunction={async () => {
                                 const params = {
                                     seller_id: sellerId,
@@ -916,6 +934,8 @@ export const AdvertCard = ({
                                 }
                                 return yagrBudgetData;
                             }}
+                            colors={{Баланс: '#ffbe5c'}}
+                            extraYAxes={{Расход: 'y1'}}
                         >
                             <Button pin="round-brick" size="xs" view="flat">
                                 <Icon data={ChartAreaStacked} size={11} />

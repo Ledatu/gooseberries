@@ -1,19 +1,31 @@
 'use client';
 
-import ChartKit from '@gravity-ui/chartkit';
+import {Graphic, MinMaxValue} from '@/shared/Graphic';
+import {ModalWindow} from '@/shared/ui/Modal';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
-import {Card, Loader, Modal} from '@gravity-ui/uikit';
+import {Loader} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
-import {Children, isValidElement, ReactElement, useState, cloneElement} from 'react';
+import {Children, isValidElement, ReactElement, useState, cloneElement, FC} from 'react';
 
 interface ChartModalInterface {
     children: ReactElement | ReactElement[];
     data?: YagrWidgetData;
     fetchingFunction?: () => Promise<YagrWidgetData>;
     addTime?: boolean;
+    colors?: Record<string, string>;
+    extraYAxes?: {[key: string]: string};
+    minMaxValues?: MinMaxValue;
 }
 
-export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartModalInterface) => {
+export const ChartModal: FC<ChartModalInterface> = ({
+    children,
+    data,
+    fetchingFunction,
+    addTime,
+    extraYAxes,
+    colors,
+    minMaxValues,
+}) => {
     const [open, setOpen] = useState(false);
     const [dataFetching, setDataFetching] = useState(false);
     const [yagrData, setYagrData] = useState<YagrWidgetData | null>(data ?? null);
@@ -27,7 +39,6 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
                 tempData = await fetchingFunction();
             } catch (error) {
                 console.error('Error fetching data:', error);
-                // Optionally, handle the error state here
             } finally {
                 setDataFetching(false);
             }
@@ -49,15 +60,33 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
         setYagrData(tempData);
     };
 
+    const calculateGraphicData = (): Record<string, number>[] => {
+        const graphicData: Record<string, number>[] = [];
+        if (!yagrData) {
+            return [];
+        }
+
+        for (let i = 0; i < yagrData.data.timeline.length; i++) {
+            const dataPoint: Record<string, number | string> = {};
+
+            for (let j = 0; j < yagrData.data.graphs.length; j++) {
+                const graph: any = yagrData.data.graphs[j];
+                dataPoint[graph.name] = graph.data[i];
+            }
+
+            graphicData.push(dataPoint as any);
+        }
+
+        return graphicData;
+    };
+
     const handleClose = () => {
         setOpen(false);
         setYagrData(null);
     };
 
-    // Ensure children is an array, even if only one child is passed
     const childArray = Children.toArray(children);
 
-    // Find the first valid React element to use as the trigger
     const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
         any,
         any
@@ -75,13 +104,11 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
     return (
         <>
             {triggerButton}
-            <Modal open={open} onClose={handleClose}>
-                <Card
-                    view="outlined"
-                    theme="warning"
+            <ModalWindow padding={false} isOpen={open} handleClose={handleClose}>
+                <div
                     style={{
-                        height: '48em',
-                        width: '72em',
+                        width: '60vw',
+                        height: '55vh',
                         overflow: 'auto',
                         display: 'flex',
                         position: 'relative',
@@ -109,16 +136,24 @@ export const ChartModal = ({children, data, fetchingFunction, addTime}: ChartMod
                             cursor: 'default',
                             width: '100%',
                             height: '100%',
+                            backdropFilter: 'blur(48px)',
                         }}
                     >
                         {yagrData ? (
-                            <ChartKit type="yagr" data={yagrData} />
+                            <Graphic
+                                className={'p-5'}
+                                data={calculateGraphicData()}
+                                yAxes={extraYAxes}
+                                colors={colors}
+                                removedEntities={['CR']}
+                                minMaxValues={minMaxValues}
+                            />
                         ) : (
                             <p>No data available.</p>
                         )}
                     </motion.div>
-                </Card>
-            </Modal>
+                </div>
+            </ModalWindow>
         </>
     );
 };
