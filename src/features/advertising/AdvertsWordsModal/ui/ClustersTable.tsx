@@ -302,8 +302,6 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
             style={
                 {
                     background: theme == 'light' ? '#fff9' : undefined,
-                    WebkitBackdropFilter: 'blur(12px)',
-                    backdropFilter: 'blur(12px)',
                     overflow: 'hidden',
                     margin: 8,
                     display: 'flex',

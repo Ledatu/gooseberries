@@ -11,13 +11,14 @@ import {
     ZOOM_CONFIG,
 } from './config';
 import {formatChartData, createScalesConfig} from './utils';
-import {useTheme} from '@gravity-ui/uikit';
+import {Button, useTheme} from '@gravity-ui/uikit';
 import {hideLineOnClickPlugin, verticalLinePlugin} from './plugins';
 
 // @ts-ignore
 Tooltip.positioners.nextTo = function (elements, eventPosition) {
+    const width = (this as any).width ?? 100;
     return {
-        x: eventPosition.x - 120,
+        x: eventPosition.x - width - 10,
         y: eventPosition.y,
         xAlign: 'left',
         yAlign: 'center',
@@ -31,7 +32,7 @@ export type MinMaxValue = Record<string, {min?: number; max?: number}>;
 interface GraphicProps {
     data: Record<string, number | string>[];
     className?: string;
-    yAxes?: string[];
+    yAxes?: Record<string, string>;
     colors?: Record<string, string>;
     removedEntities?: string[];
     minMaxValues?: MinMaxValue;
@@ -40,7 +41,7 @@ interface GraphicProps {
 export const Graphic: FC<GraphicProps> = ({
     data,
     className,
-    yAxes = [],
+    yAxes = {},
     colors,
     removedEntities = [],
     minMaxValues,
@@ -114,7 +115,18 @@ export const Graphic: FC<GraphicProps> = ({
             },
             tooltip: {
                 ...DEFAULT_TOOLTIP_CONFIG,
+                backgroundColor: theme === 'dark' ? 'rgba(14, 14, 14, 1)' : '#eeee',
+                bodyColor: theme === 'dark' ? '#ffffffd9' : '#000000d9',
+                titleColor: theme === 'dark' ? '#ffffffd9' : '#000000d9',
                 position: 'nextTo',
+                titleFont: {
+                    size: 15,
+                    weight: 700,
+                },
+                bodyFont: {
+                    size: 13,
+                    weight: 700,
+                },
             },
             zoom: ZOOM_CONFIG,
         },
@@ -128,21 +140,19 @@ export const Graphic: FC<GraphicProps> = ({
 
     return (
         <div
-            className={cn('w-full h-full relative', className)}
+            className={cn('w-full h-full', className)}
             style={{
-                height: '45em',
-                backdropFilter: 'blur(48px)',
+                gap: 8,
                 display: 'flex',
                 flexDirection: 'column',
             }}
         >
-            <button
-                onClick={handleResetZoom}
-                className="absolute top-2 opacity-70 right-2 bg-gray-800 text-white px-3 py-1 rounded text-sm z-10 hover:bg-gray-700 transition-colors"
-            >
-                Сбросить масштаб
-            </button>
-            <div style={{flex: 1, position: 'relative'}}>
+            <div>
+                <Button size="l" pin="circle-circle" onClick={handleResetZoom} selected>
+                    Сбросить масштаб
+                </Button>
+            </div>
+            <div style={{width: '100%', height: 'calc(100% - 96px)'}}>
                 <Line
                     ref={chartRef}
                     data={chartData}

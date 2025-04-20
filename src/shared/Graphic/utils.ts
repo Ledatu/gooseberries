@@ -10,11 +10,11 @@ export const formatDateTime = (date: Date): string => {
     return `${day}.${month}.${year}\n${hours}:${minutes}`;
 };
 
-const DEFAULT_LINE_TENSION: number = 0.45;
+const DEFAULT_LINE_TENSION: number = 0.2;
 
 export const formatChartData = (
     data: Record<string, number | string>[],
-    yAxes: string[] = [],
+    yAxes: Record<string, string> = {},
     colors: Record<string, string> = {},
     lineTension: number = DEFAULT_LINE_TENSION,
 ) => {
@@ -43,7 +43,7 @@ export const formatChartData = (
                     colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
                 backgroundColor:
                     colors[category] || `hsl(${(index * 360) / categories.length}, 70%, 50%)`,
-                yAxisID: yAxes.includes(category) ? `y${yAxes.indexOf(category) + 1}` : 'y',
+                yAxisID: yAxes[category] ?? 'y',
                 tension: lineTension,
                 pointRadius: 0,
                 borderWidth: 2,
@@ -54,42 +54,47 @@ export const formatChartData = (
     };
 };
 
-export const createScalesConfig = (categories: string[], yAxes: string[], isDark: boolean) => {
+export const createScalesConfig = (
+    categories: string[],
+    yAxes: Record<string, string>,
+    isDark: boolean,
+) => {
     const scales: Record<string, any> = {
         x: GET_DEFAULT_X_AXIS_CONFIG(isDark),
     };
 
-    const hasNonAxisCategories = categories.some((category) => !yAxes.includes(category));
+    const hasNonAxisCategories = categories.some((category) => !yAxes[category]);
     if (hasNonAxisCategories) {
         scales.y = {
             type: 'linear' as const,
             display: true,
             position: 'left',
             ticks: {
-                color: isDark ? '#ffffff' : '#000',
+                color: isDark ? '#ffffffd9' : '#000000d9',
             },
             grid: {
-                color: 'rgba(47,5,5,0.1)',
+                color: 'rgba(47, 5, 5, 0.1)',
             },
             min: 0,
             beginAtZero: true,
         };
     }
 
-    yAxes.forEach((category, index) => {
-        const axisKey = `y${index + 1}`;
+    Object.keys(yAxes).forEach((category, index) => {
+        const axisKey = yAxes[category];
+        console.log('creating axis', category);
 
         scales[axisKey] = {
             type: 'linear' as const,
-            display: true,
+            display: category.includes('_scale'),
             position: index % 2 === 0 ? 'left' : 'right',
             title: {
                 display: true,
                 text: category,
-                color: isDark ? '#ffffff' : '#000',
+                color: isDark ? '#ffffffd9' : '#000000d9',
             },
             ticks: {
-                color: isDark ? '#ffffff' : '#000',
+                color: isDark ? '#ffffffd9' : '#000000d9',
             },
             grid: {
                 drawOnChartArea: index === 0,

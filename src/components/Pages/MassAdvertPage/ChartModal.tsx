@@ -1,8 +1,9 @@
 'use client';
 
-import { Graphic, MinMaxValue } from '@/shared/Graphic';
+import {Graphic, MinMaxValue} from '@/shared/Graphic';
+import {ModalWindow} from '@/shared/ui/Modal';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
-import {Card, Loader, Modal} from '@gravity-ui/uikit';
+import {Loader} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, useState, cloneElement, FC} from 'react';
 
@@ -12,7 +13,7 @@ interface ChartModalInterface {
     fetchingFunction?: () => Promise<YagrWidgetData>;
     addTime?: boolean;
     colors?: Record<string, string>;
-    extraYAxes?: string[];
+    extraYAxes?: {[key: string]: string};
     minMaxValues?: MinMaxValue;
 }
 
@@ -103,17 +104,14 @@ export const ChartModal: FC<ChartModalInterface> = ({
     return (
         <>
             {triggerButton}
-            <Modal open={open} onClose={handleClose}>
-                <Card
-                    view="outlined"
-                    theme="warning"
+            <ModalWindow padding={false} isOpen={open} handleClose={handleClose}>
+                <div
                     style={{
-                        height: '48em',
-                        width: '72em',
+                        width: '60vw',
+                        height: '55vh',
                         overflow: 'auto',
                         display: 'flex',
                         position: 'relative',
-                        backdropFilter: 'blur(48px)',
                     }}
                 >
                     <motion.div
@@ -154,8 +152,8 @@ export const ChartModal: FC<ChartModalInterface> = ({
                             <p>No data available.</p>
                         )}
                     </motion.div>
-                </Card>
-            </Modal>
+                </div>
+            </ModalWindow>
         </>
     );
 };

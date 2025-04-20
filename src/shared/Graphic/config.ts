@@ -26,11 +26,11 @@ export const DEFAULT_CHART_OPTIONS = {
         intersect: false,
     },
     animation: {
-        duration: 300, 
+        duration: 300,
         easing: 'easeOutQuart',
         x: {
             type: 'number',
-            duration: 0, 
+            duration: 0,
         },
         y: {
             type: 'number',
@@ -52,7 +52,7 @@ export const GET_DEFAULT_X_AXIS_CONFIG = (isDark: boolean) => {
             autoSkip: true,
             maxRotation: 0,
             minRotation: 0,
-            color: isDark ? '#ffffff' : '#000000',
+            color: isDark ? '#ffffffd9' : '#000000d9',
             ticks: {},
         },
         grid: {
@@ -68,7 +68,7 @@ export const GET_DEFAULT_LEGEND_CONFIG = (isDark: boolean) => {
             padding: 20,
             usePointStyle: true,
             pointStyle: 'circle',
-            color: isDark ? '#ffffff' : '#000',
+            color: isDark ? '#ffffffd9' : '#000000d9',
             font: {
                 family: 'sans-serif',
                 size: 12,
