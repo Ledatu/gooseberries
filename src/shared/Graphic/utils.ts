@@ -1,15 +1,5 @@
 import {GET_DEFAULT_X_AXIS_CONFIG} from './config';
 
-export const formatDateTime = (date: Date): string => {
-    const day = date.getDate();
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-
-    return `${day}.${month}.${year}\n${hours}:${minutes}`;
-};
-
 const DEFAULT_LINE_TENSION: number = 0.2;
 
 export const formatChartData = (
@@ -20,7 +10,7 @@ export const formatChartData = (
 ) => {
     const formattedData = data.map((item) => ({
         ...item,
-        'Дата и время': formatDateTime(new Date(item['Дата и время'])),
+        'Дата и время': new Date(item['Дата и время']).toLocaleString('ru-RU'),
     }));
 
     const categories = Object.keys(formattedData[0] || {}).filter(

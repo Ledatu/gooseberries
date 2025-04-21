@@ -2169,58 +2169,7 @@ export const MassAdvertPage = () => {
             },
             group: true,
         },
-        {
-            name: 'stocks',
-            placeholder: 'Остаток',
-            group: true,
-            render: ({value}: any) => {
-                // const {advertsStocksThreshold} = row;
-                // if (!advertsStocksThreshold) return value;
-                // const {stocksThreshold} = advertsStocksThreshold ?? {};
-                // if (!stocksThreshold) return value;
-                return (
-                    <div>
-                        <Text>{`${value}`}</Text>
-                    </div>
-                );
-            },
-        },
-        {
-            name: 'dsi',
-            placeholder: (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        columnGap: 8,
-                    }}
-                >
-                    <Text variant="subheader-1">Обор.</Text>
-                    <HelpMark content="Показывает через сколько дней закончится текущий остаток с учетом средней скорости заказов в день за выбранные период в календаре" />
-                </div>
-            ),
-        },
         {name: 'sum', placeholder: 'Расход, ₽'},
-        {name: 'orders', placeholder: 'Заказы, шт.'},
-        {name: 'sum_orders', placeholder: 'Заказы, ₽'},
-        {
-            name: 'avg_price',
-            placeholder: 'Ср. Чек, ₽',
-            render: ({row}: any) => {
-                return defaultRender({value: getRoundValue(row?.sum_orders, row?.orders)});
-            },
-            sortFunction: (a: any, b: any, order: any) => {
-                const dataA = getRoundValue(a?.sum_orders, a?.orders);
-                const dataB = getRoundValue(b?.sum_orders, b?.orders);
-                // console.log(dataA, dataB);
-                const isNaNa = isNaN(dataA);
-                const isNaNb = isNaN(dataB);
-                if (isNaNa && isNaNb) return 1;
-                else if (isNaNa) return 1;
-                else if (isNaNb) return -1;
-                return (dataA - dataB) * order;
-            },
-        },
         {
             name: 'drr',
             placeholder: 'ДРР, %',
@@ -2257,6 +2206,57 @@ export const MassAdvertPage = () => {
                         {value}%
                     </Text>
                 );
+            },
+        },
+        {name: 'sum_orders', placeholder: 'Заказы, ₽'},
+        {
+            name: 'stocks',
+            placeholder: 'Остаток',
+            group: true,
+            render: ({value}: any) => {
+                // const {advertsStocksThreshold} = row;
+                // if (!advertsStocksThreshold) return value;
+                // const {stocksThreshold} = advertsStocksThreshold ?? {};
+                // if (!stocksThreshold) return value;
+                return (
+                    <div>
+                        <Text>{`${value}`}</Text>
+                    </div>
+                );
+            },
+        },
+        {
+            name: 'dsi',
+            placeholder: (
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        columnGap: 8,
+                    }}
+                >
+                    <Text variant="subheader-1">Обор.</Text>
+                    <HelpMark content="Показывает через сколько дней закончится текущий остаток с учетом средней скорости заказов в день за выбранные период в календаре" />
+                </div>
+            ),
+        },
+        {name: 'orders', placeholder: 'Заказы, шт.'},
+        {
+            name: 'avg_price',
+            placeholder: 'Ср. Чек, ₽',
+            render: ({row}: any) => {
+                return defaultRender({value: getRoundValue(row?.sum_orders, row?.orders)});
+            },
+            sortFunction: (a: any, b: any, order: any) => {
+                const dataA = getRoundValue(a?.sum_orders, a?.orders);
+                const dataB = getRoundValue(b?.sum_orders, b?.orders);
+                // console.log(dataA, dataB);
+                const isNaNa = isNaN(dataA);
+                const isNaNb = isNaN(dataB);
+                if (isNaNa && isNaNb) return 1;
+                else if (isNaNa) return 1;
+                else if (isNaNb) return -1;
+                return (dataA - dataB) * order;
             },
         },
         {name: 'romi', placeholder: 'ROMI, %', render: renderAsPercent},

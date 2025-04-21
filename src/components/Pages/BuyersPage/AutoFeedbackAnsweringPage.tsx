@@ -196,7 +196,7 @@ export const AutoFeedbackAnsweringPage = ({
             render: ({value}: any) => {
                 if (!value) return undefined;
                 return (
-                    <ActionTooltip title={value}>
+                    <ActionTooltip title={value.join(', ')}>
                         <Text
                             style={{
                                 display: '-webkit-box',
