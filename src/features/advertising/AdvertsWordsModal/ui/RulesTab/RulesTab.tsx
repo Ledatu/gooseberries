@@ -38,14 +38,14 @@ export const RulesTab = () => {
                 marginTop: 24,
                 display: 'flex',
                 flexDirection: 'row',
-                justifyContent: 'center',
                 gap: 16,
                 width: '100%',
+                height: '100%',
                 marginLeft: 16,
                 marginRight: 16,
             }}
         >
-            <div style={{gap: 16, minWidth: '40%'}}>
+            <div style={{gap: 16, minWidth: '60%'}}>
                 <div
                     style={{
                         display: 'flex',
@@ -83,7 +83,16 @@ export const RulesTab = () => {
                     </div>
                     <Text variant="header-1">Исключать кластер</Text>
                 </div>
-                <div style={{display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16}}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 8,
+                        marginTop: 16,
+                        height: 'calc(100% - 270px)',
+                        overflow: 'auto',
+                    }}
+                >
                     {currentRules.map((rule, index) => (
                         <RuleItem
                             rule={rule}
@@ -94,7 +103,9 @@ export const RulesTab = () => {
                 </div>
             </div>
             <Divider orientation="vertical" />
-            <FixedPhrasesTab />
+            <div style={{width: 'calc(40% - 64px)'}}>
+                <FixedPhrasesTab />
+            </div>
         </div>
     );
 };
