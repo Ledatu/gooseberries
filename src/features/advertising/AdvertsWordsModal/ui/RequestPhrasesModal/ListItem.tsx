@@ -1,5 +1,5 @@
 import {ActionTooltip, Button, Icon, Text} from '@gravity-ui/uikit';
-import {PhrasesStats} from '../../api/PhraseStats';
+import {PhrasesStats} from '../../types/PhraseStats';
 import {Magnifier} from '@gravity-ui/icons';
 
 interface ListItemProps {

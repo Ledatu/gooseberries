@@ -1,7 +1,7 @@
 import {CSSProperties, useEffect, useState} from 'react';
-import {PhrasesStats} from '../../api/PhraseStats';
+import {PhrasesStats} from '../../types/PhraseStats';
 // import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
-import {ActionTooltip, Button, Card, Icon, List, Popover, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Card, Icon, List, Popover, Text, TextInput} from '@gravity-ui/uikit';
 import {ListItem} from '../RequestPhrasesModal/ListItem';
 import {
     BarsAscendingAlignLeftArrowUp,
@@ -15,12 +15,16 @@ interface OffersWordsModalProps {
     items: PhrasesStats[];
     onClick: (arg: PhrasesStats) => void;
     arrayToAdd: string[];
-    title: string
+    title: string;
 }
 
 export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWordsModalProps) => {
-    // const {wordsStats, advertWordsTemplateHandler, template} = useAdvertsWordsModal();
-
+    
+    const [textInputValue, setTextInputValue] = useState<string>('');
+    useEffect(() => {
+        const newArray = sortedWordsStats.filter((a) => a.keyword.includes(textInputValue));
+        setFilteredWordsStats(newArray);
+    });
     const [currentWordsStats, setWordsStats] = useState<PhrasesStats[]>(items);
 
     const [sortButtonStates, setSortButtonStates] = useState<{
@@ -31,32 +35,31 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
 
     useEffect(() => {
         const newArray = items.filter((stat) => !arrayToAdd.includes(stat.keyword) && stat.keyword);
-        console.log('newArray', newArray);
         setWordsStats(newArray);
-    }, [items, arrayToAdd]);
+    }, [arrayToAdd]);
 
-    const [filteredWordsStats, setFilteredWordsStats] = useState<PhrasesStats[]>(currentWordsStats);
+    const [sortedWordsStats, setSortedWordsStats] = useState<PhrasesStats[]>(currentWordsStats);
+    const [filteredWordsStats, setFilteredWordsStats] = useState<PhrasesStats[]>(sortedWordsStats);
 
     useEffect(() => {
-        setFilteredWordsStats(currentWordsStats);
-        if (sortButtonStates.views !== undefined) {
+        if (sortButtonStates.views != undefined) {
             filterByViews(sortButtonStates.views);
-        }
-        if (sortButtonStates.alphabet !== undefined) {
+        } else if (sortButtonStates.alphabet != undefined) {
             filterByAlphabet(sortButtonStates.alphabet);
-        }
-        if (sortButtonStates.frequency !== undefined) {
-            filterByAlphabet(sortButtonStates.frequency);
+        } else if (sortButtonStates.frequency != undefined) {
+            filterByFrequency(sortButtonStates.frequency);
+        } else {
+            setSortedWordsStats(currentWordsStats);
         }
     }, [currentWordsStats]);
 
     const filterByAlphabet = (order: 'desc' | 'asc') => {
         if (order === 'desc') {
-            setFilteredWordsStats(
+            setSortedWordsStats(
                 currentWordsStats.sort((a, b) => b.keyword.localeCompare(a.keyword)),
             );
         } else {
-            setFilteredWordsStats(
+            setSortedWordsStats(
                 currentWordsStats.sort((a, b) => a.keyword.localeCompare(b.keyword)),
             );
         }
@@ -64,17 +67,17 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
 
     const filterByFrequency = (order: 'desc' | 'asc') => {
         if (order === 'desc') {
-            setFilteredWordsStats(currentWordsStats.sort((a, b) => b.frequency - a.frequency));
+            setSortedWordsStats(currentWordsStats.sort((a, b) => b.frequency - a.frequency));
         } else {
-            setFilteredWordsStats(currentWordsStats.sort((a, b) => a.frequency - b.frequency));
+            setSortedWordsStats(currentWordsStats.sort((a, b) => a.frequency - b.frequency));
         }
     };
 
     const filterByViews = (order: 'desc' | 'asc') => {
         if (order === 'desc') {
-            setFilteredWordsStats(currentWordsStats.sort((a, b) => b.views - a.views));
+            setSortedWordsStats(currentWordsStats.sort((a, b) => b.views - a.views));
         } else {
-            setFilteredWordsStats(currentWordsStats.sort((a, b) => a.views - b.views));
+            setSortedWordsStats(currentWordsStats.sort((a, b) => a.views - b.views));
         }
     };
 
@@ -88,7 +91,6 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
             views: 'desc' | 'asc' | undefined;
         } = {alphabet: undefined, frequency: undefined, views: undefined};
         states[buttonName] = buttonState;
-
         setSortButtonStates({...states});
     };
 
@@ -97,15 +99,12 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
             sortButtonStates[buttonName] === 'desc' || sortButtonStates[buttonName] === undefined
                 ? 'asc'
                 : 'desc';
-
         handleSortButtonStates(buttonName, newState);
         if (buttonName === 'alphabet') {
             filterByAlphabet(newState);
-        }
-        if (buttonName === 'frequency') {
+        } else if (buttonName === 'frequency') {
             filterByFrequency(newState);
-        }
-        if (buttonName === 'views') {
+        } else {
             filterByViews(newState);
         }
     };
@@ -151,6 +150,7 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
                                     }
                                     onClick={() => {
                                         handleSortButton('alphabet');
+                                        console.log('alpha');
                                     }}
                                 >
                                     Aa
@@ -179,6 +179,7 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
                                     }
                                     onClick={() => {
                                         handleSortButton('views');
+                                        console.log('views');
                                     }}
                                 >
                                     <div
@@ -212,6 +213,7 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
                                     }
                                     onClick={() => {
                                         handleSortButton('frequency');
+                                        console.log('freq');
                                     }}
                                 >
                                     <div
@@ -235,17 +237,14 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
                                 </Button>
                             </ActionTooltip>
                         </div>
-
+                        <TextInput
+                            value={textInputValue}
+                            onUpdate={(value) => setTextInputValue(value)}
+                        ></TextInput>
                         <List
                             items={filteredWordsStats}
                             renderItem={(item) => <ListItem item={item} />}
-                            filterable={true}
-                            filterItem={(filter) => {
-                                const filterFunction = (item: PhrasesStats) => {
-                                    return item.keyword.includes(filter);
-                                };
-                                return filterFunction;
-                            }}
+                            filterable={false}
                             itemHeight={36}
                             itemsHeight={420}
                             onItemClick={(item) => {

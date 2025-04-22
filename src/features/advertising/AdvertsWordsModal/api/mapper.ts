@@ -1,7 +1,6 @@
 import { ClusterDataDto } from './ClusterDataDto'
 
 export interface ClusterData {
-	[key: string]: string | number;
 	addToCartCurrent: number
 	addToCartPercentile: number
 	avgPositionCurrent: number
@@ -28,7 +27,8 @@ export interface ClusterData {
 	drr: number,
 	cpo: number,
 	profitSum: number
-
+	[key: string]: string | number
+	
 }
 
 export function clusterDataMap(dto: ClusterDataDto): ClusterData {

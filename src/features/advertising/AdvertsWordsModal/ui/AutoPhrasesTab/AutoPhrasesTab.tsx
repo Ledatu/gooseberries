@@ -3,7 +3,7 @@ import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {useEffect, useState} from 'react';
 import {Pencil} from '@gravity-ui/icons';
 import {OffersWordsModal} from '../OfferWordsModal/OfferWordsModal';
-import {PhrasesStats} from '../../api/PhraseStats';
+import {PhrasesStats} from '../../types/PhraseStats';
 
 export const AutoPhrasesTab = () => {
     const {template, advertWordsTemplateHandler, setTemplate, wordsStats} = useAdvertsWordsModal();

@@ -1,5 +1,5 @@
 import {createContext, useContext, useEffect, useMemo, useState} from 'react';
-import {AdvertWordsTabModules} from '../types';
+import {AdvertWordsTabModules} from '../types/AdvertWordsTabModules';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {fetchClusterStats} from '../api/fetchClusterStats';
 import {ClusterData} from '../api/mapper';
@@ -10,11 +10,12 @@ import {changeTemplateNameOfAdvert} from '../api/changeTemplateNameOfAdvert';
 import {changeTemplateOfAdvert} from '../api/changeTemplateOfAdvert';
 import {changeSelectedPhrase} from '../api/changeSelectedPhrase';
 import {fetchSelectedPhrase} from '../api/fetchSelectedPhrase';
-import {PhrasesStats} from '../api/PhraseStats';
+import {PhrasesStats} from '../types/PhraseStats';
 import {useError} from '@/contexts/ErrorContext';
-import {getWordsStatsForAdvert} from '../api/getWordsStatsForAdvert';
+// import {getWordsStatsForAdvert} from '../api/getWordsStatsForAdvert';
 import {getAdvertDates} from '../api/getAdvertDates';
 import {findNmIdPosition} from '../api/findNmIdPosition';
+import {calcWordsStats} from './calcWordsStats';
 
 interface AutoWordsContextType {
     advertId: number;
@@ -211,19 +212,16 @@ export const AdvertWordsProvider = ({
         }
     };
 
-    const getWordsStats = async () => {
-        try {
-            const res = await getWordsStatsForAdvert(sellerId, advertId);
-            setWordsStats(res);
-        } catch (error) {
-            console.log(error);
-            showError('Не удалось получить статистику по словам');
-        }
-    };
+    // const getWordsStats = async () => {
+    //     try {
+    //         const res = await getWordsStatsForAdvert(sellerId, advertId);
+    //         setWordsStats(res);
+    //     } catch (error) {
+    //         console.log(error);
+    //         showError('Не удалось получить статистику по словам');
+    //     }
+    // };
 
-    useEffect(() => {
-        console.log('selectedPhrase', selectedPhrase);
-    }, [selectedPhrase]);
 
     useEffect(() => {
         if (newTemplateName != '') {
@@ -232,13 +230,21 @@ export const AdvertWordsProvider = ({
         }
         getNames();
     }, [newTemplateName]);
+    const [isFirstLoading, setIsFirstLoading] = useState(true);
 
     useEffect(() => {
-        if (currentModule === 'AutoPhrases') {
-            getWordsStats();
-            console.log('aaa');
+        if (isFirstLoading == false) {
+            const res =  calcWordsStats(stats, excludedStats);
+            setWordsStats(res);
         }
-    }, [currentModule]);
+    }, [isFirstLoading]);
+
+    // useEffect(() => {
+    //     if (currentModule === 'AutoPhrases') {
+    //         getWordsStats();
+    //         console.log('aaa');
+    //     }
+    // }, [currentModule]);
 
     const [template, setTemplate] = useState<AutoPhrasesTemplate>({
         name: '',
@@ -259,10 +265,6 @@ export const AdvertWordsProvider = ({
     const [dates, setDates] = useState<Date[] | undefined[]>([undefined, undefined]);
 
     const [savedTemplateJSON, setSavedTemplateJSON] = useState('');
-
-    useEffect(() => {
-        console.log('template', template);
-    }, [template]);
 
     const templateChanged = useMemo(
         () => JSON.stringify(template) != savedTemplateJSON,
@@ -306,6 +308,7 @@ export const AdvertWordsProvider = ({
             setStats(clusterData);
             setLoading(false);
             setExcludedStats(excludedStatsRes.clusterData);
+            setIsFirstLoading(false);
             console.log('clusterData', clusterData, excludedStatsRes.clusterData);
         } catch (error) {
             console.error('Error while fetching cluster stats', error);

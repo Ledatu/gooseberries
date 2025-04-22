@@ -2,7 +2,7 @@ import {Button, Icon, List, Switch, Text, TextInput} from '@gravity-ui/uikit';
 import {useEffect, useState} from 'react';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {Pencil} from '@gravity-ui/icons';
-import {PhrasesStats} from '../../api/PhraseStats';
+import {PhrasesStats} from '../../types/PhraseStats';
 import {ClusterData} from '../../api';
 import {OffersWordsModal} from '../OfferWordsModal/OfferWordsModal';
 
