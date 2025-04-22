@@ -1,5 +1,5 @@
 import ApiClient from "@/utilities/ApiClient"
-import { PhrasesStats } from "./PhraseStats";
+import { PhrasesStats } from "../types/PhraseStats";
 
 
 export const getWordsStatsForAdvert = async (sellerId: string, advertId: number): Promise<PhrasesStats[]> => {

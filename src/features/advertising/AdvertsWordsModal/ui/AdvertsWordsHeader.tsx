@@ -1,7 +1,7 @@
 'use client';
 
 import {Dispatch, SetStateAction} from 'react';
-import {AdvertWordsTabModules} from '../types';
+import {AdvertWordsTabModules} from '../types/AdvertWordsTabModules';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {ActionTooltip, Button, Divider, Icon} from '@gravity-ui/uikit';
 import {CloudCheck, TriangleExclamation} from '@gravity-ui/icons';

@@ -3,7 +3,7 @@
 import {Tab, TabProvider, Text} from '@gravity-ui/uikit';
 import {ReactNode} from 'react';
 
-import {AdvertWordsTabModules} from '../types';
+import {AdvertWordsTabModules} from '../types/AdvertWordsTabModules';
 import {motion} from 'framer-motion';
 import { tabs } from '../config/tabs';
 // import {tabsNames} from '../config';

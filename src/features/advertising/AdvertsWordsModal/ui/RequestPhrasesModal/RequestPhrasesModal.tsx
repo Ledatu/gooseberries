@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {PhrasesStats} from '../../api/PhraseStats';
+import {PhrasesStats} from '../../types/PhraseStats';
 import {getPhrasesStats} from '../../api/getPhrasesStats';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
