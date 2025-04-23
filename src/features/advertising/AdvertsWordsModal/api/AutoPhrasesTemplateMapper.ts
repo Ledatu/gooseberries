@@ -25,7 +25,7 @@ export function AutoPhrasesTemplateMapper(
         includes: templateDto.includes,
         notIncludes: templateDto.notIncludes,
         rules: templateDto.rules,
-        rulesAI: templateDto.rulesAI || '',
+        rulesAI: templateDto.rulesAI ?? '',
         selectedByAutoPhrases: templateDto.selectedByAutoPhrases,
         viewsThreshold: templateDto.viewsThreshold,
         phrasesExcludedByMinus: templateDto.phrasesExcludedByMinus,

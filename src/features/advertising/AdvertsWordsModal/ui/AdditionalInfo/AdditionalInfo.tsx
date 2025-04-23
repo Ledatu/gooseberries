@@ -1,11 +1,12 @@
-import {Button, Text, Card, Divider, Icon, ActionTooltip} from '@gravity-ui/uikit';
+import {Button, Text, Card, Divider, Icon, ActionTooltip, Switch} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
-import {ReactNode, useEffect, useState} from 'react';
+import {ReactNode, useEffect, useMemo, useState} from 'react';
 import {getIconOfThresholdKey, getNameOfRule} from '../../config/rules';
 import {Eye} from '@gravity-ui/icons';
+import {useUser} from '@/components/RequireAuth';
 
 export const AdditionalInfoTab = () => {
-    const {template, advertId, setCurrentModule} = useAdvertsWordsModal();
+    const {template, advertId, setCurrentModule, setTemplate} = useAdvertsWordsModal();
     const [alert, setAlert] = useState<boolean>(false);
     const [rules, setRules] = useState<ReactNode>([]);
     useEffect(() => {
@@ -42,6 +43,32 @@ export const AdditionalInfoTab = () => {
 
     const isFixed = template.isFixed && template.fixedClusters.length;
     const {rulesAI} = template;
+    const {userInfo} = useUser();
+    const {user} = userInfo ?? {};
+    const admin = useMemo(
+        () => [1122958293, 933839157, 566810027, 78342325].includes(user?._id),
+        [user],
+    );
+
+    const toogleAI = (version: string) => {
+        setTemplate({...template, rulesAI: rulesAI !== '' ? '' : version});
+    };
+    {
+        admin ? (
+            <Button
+                size="l"
+                pin="circle-circle"
+                selected={rulesAI !== ''}
+                onClick={() => toogleAI('AURUMSKYNET AI фильтр')}
+            >
+                Включить автоматическую фильтрацию AURUMSKYNET AI
+            </Button>
+        ) : (
+            <></>
+        );
+    }
+
+    console.log(advertId, rulesAI);
 
     return (
         <div
@@ -57,103 +84,121 @@ export const AdditionalInfoTab = () => {
                 style={{
                     display: 'flex',
                     flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                     gap: 8,
                     marginInline: 8,
                 }}
             >
-                <Button
-                    size="l"
-                    pin="circle-circle"
-                    selected
-                    view={'outlined-success'}
-                    style={{paddingInline: 16}}
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8,
+                    }}
                 >
-                    <Text>{advertId}</Text>
-                </Button>
-                {template.name ? (
                     <Button
                         size="l"
                         pin="circle-circle"
                         selected
-                        view={'outlined-info'}
+                        view={'outlined-success'}
                         style={{paddingInline: 16}}
                     >
-                        <Text>{template.name}</Text>
+                        <Text>{advertId}</Text>
                     </Button>
-                ) : undefined}
-                {template.includes.length || template.notIncludes.length ? (
-                    <ActionTooltip
-                        title={`${isFixed ? 'Автофразы не будут работать так как включены фикс. фразы, выключите их, чтобы Автофразы заработали. ' : ''}Нажмите, чтобы редактировать.`}
-                    >
+                    {template.name ? (
                         <Button
                             size="l"
                             pin="circle-circle"
                             selected
-                            view={isFixed ? 'outlined-danger' : 'outlined-warning'}
+                            view={'outlined-info'}
                             style={{paddingInline: 16}}
-                            onClick={() => {
-                                setCurrentModule('AutoPhrases');
-                            }}
                         >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    height: '100%',
-                                    gap: 4,
+                            <Text>{template.name}</Text>
+                        </Button>
+                    ) : undefined}
+                    {template.includes.length || template.notIncludes.length ? (
+                        <ActionTooltip
+                            title={`${isFixed ? 'Автофразы не будут работать так как включены фикс. фразы, выключите их, чтобы Автофразы заработали. ' : ''}Нажмите, чтобы редактировать.`}
+                        >
+                            <Button
+                                size="l"
+                                pin="circle-circle"
+                                selected
+                                view={isFixed ? 'outlined-danger' : 'outlined-warning'}
+                                style={{paddingInline: 16}}
+                                onClick={() => {
+                                    setCurrentModule('AutoPhrases');
                                 }}
                             >
-                                <Text>{`Автофразы ${isFixed ? 'выкл.' : 'при'}`}</Text>
-                                <Icon data={Eye} />
-                                <Text>{template.viewsThreshold}</Text>
-                            </div>
-                        </Button>
-                    </ActionTooltip>
-                ) : (
-                    <></>
-                )}
-                {template.fixedClusters.length && !rulesAI ? (
-                    <ActionTooltip
-                        title={`${!template.isFixed ? 'Фикс. фразы не будут работать так как они выключены, включите их в настройках чтобы они заработали. ' : ''}Нажмите, чтобы редактировать.`}
-                    >
-                        <Button
-                            size="l"
-                            pin="circle-circle"
-                            selected={template.isFixed}
-                            style={{paddingInline: 16}}
-                            onClick={() => {
-                                setCurrentModule('Settings');
-                            }}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        height: '100%',
+                                        gap: 4,
+                                    }}
+                                >
+                                    <Text>{`Автофразы ${isFixed ? 'выкл.' : 'при'}`}</Text>
+                                    <Icon data={Eye} />
+                                    <Text>{template.viewsThreshold}</Text>
+                                </div>
+                            </Button>
+                        </ActionTooltip>
+                    ) : (
+                        <></>
+                    )}
+                    {template.fixedClusters.length && !rulesAI ? (
+                        <ActionTooltip
+                            title={`${!template.isFixed ? 'Фикс. фразы не будут работать так как они выключены, включите их в настройках чтобы они заработали. ' : ''}Нажмите, чтобы редактировать.`}
                         >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    height: '100%',
-                                    gap: 4,
+                            <Button
+                                size="l"
+                                pin="circle-circle"
+                                selected={template.isFixed}
+                                style={{paddingInline: 16}}
+                                onClick={() => {
+                                    setCurrentModule('Settings');
                                 }}
                             >
-                                <Text>Фикс. фразы</Text>
-                                <Text>{`${template.fixedClusters.length} шт.${!template.isFixed ? ' (Не активны)' : ''}`}</Text>
-                            </div>
-                        </Button>
-                    </ActionTooltip>
-                ) : (
-                    <></>
-                )}
-                {rulesAI ? (
-                    <Button
-                        size="l"
-                        pin="circle-circle"
-                        onClick={() => setCurrentModule('Settings')}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        height: '100%',
+                                        gap: 4,
+                                    }}
+                                >
+                                    <Text>Фикс. фразы</Text>
+                                    <Text>{`${template.fixedClusters.length} шт.${!template.isFixed ? ' (Не активны)' : ''}`}</Text>
+                                </div>
+                            </Button>
+                        </ActionTooltip>
+                    ) : (
+                        <></>
+                    )}
+                    {rulesAI ? <></> : rules}
+                </div>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8,
+                    }}
+                >
+                    <Text
+                        color={rulesAI !== '' ? 'brand' : 'primary'}
+                        variant="subheader-2"
+                        onClick={() => toogleAI('AI')}
                     >
-                        AURUMSKYNET AI фильтр
-                    </Button>
-                ) : (
-                    rules
-                )}
+                        Авто фильтрация кластеров AURUMSKYNET AI
+                    </Text>
+                    <Switch checked={rulesAI !== ''} size="l" onUpdate={() => toogleAI('AI')} />
+                </div>
             </div>
             {alert ? (
                 <Card

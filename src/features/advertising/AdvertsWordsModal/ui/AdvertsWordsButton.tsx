@@ -22,7 +22,7 @@ export const AdvertsWordsButton = ({
     const {isFixed, includesNum, notIncludesNum, advertId, rulesAI} = template;
 
     const themeToUse =
-        rulesAI !== ''
+        rulesAI && rulesAI !== ''
             ? 'flat-warning'
             : isFixed !== undefined
               ? isFixed === true

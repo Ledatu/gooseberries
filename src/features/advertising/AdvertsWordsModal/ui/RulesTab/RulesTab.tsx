@@ -1,16 +1,12 @@
 import {Button, Divider, Icon, Select, Text} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {rules} from '../../config/rules';
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 import {Plus} from '@gravity-ui/icons';
 import {RuleItem} from './RuleItem';
 import {FixedPhrasesTab} from '../FixedPhrasesTab';
-import {useUser} from '@/components/RequireAuth';
 
 export const RulesTab = () => {
-    const {userInfo} = useUser();
-    const {user} = userInfo ?? {};
-
     const {template, setTemplate} = useAdvertsWordsModal();
     const [currentRules, setCurrentRules] = useState<Rules[]>(template.rules);
     const [selectValue, setSelectValue] = useState('ctr');
@@ -34,16 +30,6 @@ export const RulesTab = () => {
         setCurrentRules(newRules);
 
         setTemplate({...template, rules: newRules});
-    };
-
-    const admin = useMemo(
-        () => [1122958293, 933839157, 566810027, 78342325].includes(user?._id),
-        [user],
-    );
-
-    const {rulesAI} = template;
-    const toogleAI = (version: string) => {
-        setTemplate({...template, rulesAI: rulesAI == version ? '' : version});
     };
 
     return (
@@ -76,18 +62,6 @@ export const RulesTab = () => {
                         }}
                     >
                         <Text variant="header-2">Добавить фильтр</Text>
-                        {admin ? (
-                            <Button
-                                size="l"
-                                pin="circle-circle"
-                                selected={rulesAI !== ''}
-                                onClick={() => toogleAI('AURUMSKYNET AI фильтр')}
-                            >
-                                Включить автоматическую фильтрацию AURUMSKYNET AI
-                            </Button>
-                        ) : (
-                            <></>
-                        )}
                     </div>
                     <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
                         <Select
