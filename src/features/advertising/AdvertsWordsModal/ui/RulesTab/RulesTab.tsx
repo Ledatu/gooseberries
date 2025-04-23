@@ -1,12 +1,16 @@
 import {Button, Divider, Icon, Select, Text} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
 import {rules} from '../../config/rules';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {Plus} from '@gravity-ui/icons';
 import {RuleItem} from './RuleItem';
 import {FixedPhrasesTab} from '../FixedPhrasesTab';
+import {useUser} from '@/components/RequireAuth';
 
 export const RulesTab = () => {
+    const {userInfo} = useUser();
+    const {user} = userInfo ?? {};
+
     const {template, setTemplate} = useAdvertsWordsModal();
     const [currentRules, setCurrentRules] = useState<Rules[]>(template.rules);
     const [selectValue, setSelectValue] = useState('ctr');
@@ -32,6 +36,13 @@ export const RulesTab = () => {
         setTemplate({...template, rules: newRules});
     };
 
+    const admin = useMemo(() => [1122958293, 933839157, 566810027].includes(user?._id), [user]);
+
+    const {rulesAI} = template;
+    const toogleAI = (version: string) => {
+        setTemplate({...template, rulesAI: rulesAI == version ? '' : version});
+    };
+
     return (
         <div
             style={{
@@ -51,10 +62,30 @@ export const RulesTab = () => {
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 16,
-                        // padding: 16,
                     }}
                 >
-                    <Text variant="header-2">Добавить фильтр</Text>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            gap: 8,
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Text variant="header-2">Добавить фильтр</Text>
+                        {admin ? (
+                            <Button
+                                size="l"
+                                pin="circle-circle"
+                                selected={rulesAI !== ''}
+                                onClick={() => toogleAI('AI v1.0')}
+                            >
+                                AI фильтр AURUMSKYNET v1.0
+                            </Button>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
                     <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
                         <Select
                             width={'max'}

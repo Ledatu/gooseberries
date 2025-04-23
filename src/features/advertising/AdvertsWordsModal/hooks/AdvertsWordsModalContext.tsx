@@ -222,7 +222,6 @@ export const AdvertWordsProvider = ({
     //     }
     // };
 
-
     useEffect(() => {
         if (newTemplateName != '') {
             changeTemplate(newTemplateName);
@@ -234,7 +233,7 @@ export const AdvertWordsProvider = ({
 
     useEffect(() => {
         if (isFirstLoading == false) {
-            const res =  calcWordsStats(stats, excludedStats);
+            const res = calcWordsStats(stats, excludedStats);
             setWordsStats(res);
         }
     }, [isFirstLoading]);
@@ -260,6 +259,7 @@ export const AdvertWordsProvider = ({
         fixedClusters: [],
         clustersNum: 0,
         excludedNum: 0,
+        rulesAI: '',
     });
 
     const [dates, setDates] = useState<Date[] | undefined[]>([undefined, undefined]);

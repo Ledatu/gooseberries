@@ -10,6 +10,7 @@ export interface AutoPhrasesTemplate {
     includes: string[];
     notIncludes: string[];
     rules: Rules[];
+    rulesAI: string;
     clustersNum: number;
     excludedNum: number;
 }
@@ -24,6 +25,7 @@ export function AutoPhrasesTemplateMapper(
         includes: templateDto.includes,
         notIncludes: templateDto.notIncludes,
         rules: templateDto.rules,
+        rulesAI: templateDto.rulesAI || '',
         selectedByAutoPhrases: templateDto.selectedByAutoPhrases,
         viewsThreshold: templateDto.viewsThreshold,
         phrasesExcludedByMinus: templateDto.phrasesExcludedByMinus,

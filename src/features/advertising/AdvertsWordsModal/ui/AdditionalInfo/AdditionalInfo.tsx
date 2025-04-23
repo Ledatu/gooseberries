@@ -41,6 +41,7 @@ export const AdditionalInfoTab = () => {
     }, [template, advertId]);
 
     const isFixed = template.isFixed && template.fixedClusters.length;
+    const {rulesAI} = template;
 
     return (
         <div
@@ -112,7 +113,7 @@ export const AdditionalInfoTab = () => {
                 ) : (
                     <></>
                 )}
-                {template.fixedClusters.length ? (
+                {template.fixedClusters.length && !rulesAI ? (
                     <ActionTooltip
                         title={`${!template.isFixed ? 'Фикс. фразы не будут работать так как они выключены, включите их в настройках чтобы они заработали. ' : ''}Нажмите, чтобы редактировать.`}
                     >
@@ -142,7 +143,17 @@ export const AdditionalInfoTab = () => {
                 ) : (
                     <></>
                 )}
-                {rules}
+                {rulesAI ? (
+                    <Button
+                        size="l"
+                        pin="circle-circle"
+                        onClick={() => setCurrentModule('Settings')}
+                    >
+                        {rulesAI}
+                    </Button>
+                ) : (
+                    rules
+                )}
             </div>
             {alert ? (
                 <Card

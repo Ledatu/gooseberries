@@ -19,16 +19,17 @@ export const AdvertsWordsButton = ({
     nmId,
     disabled,
 }: AdvertsWordsButtonProps) => {
-    const {isFixed, includesNum, notIncludesNum, advertId} = template;
+    const {isFixed, includesNum, notIncludesNum, advertId, rulesAI} = template;
 
-    const themeToUse =
-        isFixed !== undefined
-            ? isFixed === true
-                ? 'flat-warning'
-                : (includesNum && includesNum > 0) || (notIncludesNum && notIncludesNum > 0)
-                  ? 'flat-success'
-                  : 'flat-info'
-            : 'normal';
+    const themeToUse = rulesAI
+        ? 'flat-warning'
+        : isFixed !== undefined
+          ? isFixed === true
+              ? 'flat-warning'
+              : (includesNum && includesNum > 0) || (notIncludesNum && notIncludesNum > 0)
+                ? 'flat-success'
+                : 'flat-info'
+          : 'normal';
 
     return (
         <AdvertsWordsModal getNames={getNames} nmId={nmId} advertId={advertId}>
