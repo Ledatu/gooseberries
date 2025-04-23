@@ -36,7 +36,10 @@ export const RulesTab = () => {
         setTemplate({...template, rules: newRules});
     };
 
-    const admin = useMemo(() => [1122958293, 933839157, 566810027].includes(user?._id), [user]);
+    const admin = useMemo(
+        () => [1122958293, 933839157, 566810027, 78342325].includes(user?._id),
+        [user],
+    );
 
     const {rulesAI} = template;
     const toogleAI = (version: string) => {
