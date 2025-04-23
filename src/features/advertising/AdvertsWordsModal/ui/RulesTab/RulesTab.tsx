@@ -81,9 +81,9 @@ export const RulesTab = () => {
                                 size="l"
                                 pin="circle-circle"
                                 selected={rulesAI !== ''}
-                                onClick={() => toogleAI('AI v1.0')}
+                                onClick={() => toogleAI('AURUMSKYNET AI фильтр')}
                             >
-                                AI фильтр AURUMSKYNET v1.0
+                                Включить автоматическую фильтрацию AURUMSKYNET AI
                             </Button>
                         ) : (
                             <></>

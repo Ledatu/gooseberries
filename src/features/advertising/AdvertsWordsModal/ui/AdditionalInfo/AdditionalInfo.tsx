@@ -149,7 +149,7 @@ export const AdditionalInfoTab = () => {
                         pin="circle-circle"
                         onClick={() => setCurrentModule('Settings')}
                     >
-                        {rulesAI}
+                        AURUMSKYNET AI фильтр
                     </Button>
                 ) : (
                     rules

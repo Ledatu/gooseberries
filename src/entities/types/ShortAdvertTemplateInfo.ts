@@ -4,7 +4,7 @@ export type  ShortAdvertTemplateInfo = {
 	clustersNum?: number,
 	isFixed?: boolean,
 	sellerId?: string,
-	rulesAI?: boolean,
+	rulesAI?: string,
 	includesNum?: number,
 	notIncludesNum?: number,
 	templateName: string
