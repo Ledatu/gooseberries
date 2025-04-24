@@ -63,7 +63,7 @@ export const RequestPhrasesModal = ({cluster}: RequestPhrasesModalProps) => {
                         itemHeight={50}
                         itemsHeight={520}
                         renderItem={(item) => {
-                            return <ListItem item={item} />;
+                            return <ListItem showViews={false} item={item} />;
                         }}
                         filterItem={(filter) => {
                             const filterFunction = (item: PhrasesStats) => {
