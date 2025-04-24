@@ -195,7 +195,7 @@ export const AdditionalInfoTab = () => {
                         variant="subheader-2"
                         onClick={() => toogleAI('AI')}
                     >
-                        Авто фильтрация кластеров AURUMSKYNET AI
+                        Автофильтрация кластеров AURUMSKYNET AI
                     </Text>
                     <Switch checked={rulesAI !== ''} size="l" onUpdate={() => toogleAI('AI')} />
                 </div>
