@@ -36,6 +36,8 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         dates,
         selectedPhrase,
         updateSelectedPhrase,
+        stats,
+        excludedStats,
     } = useAdvertsWordsModal();
 
     const {
@@ -48,6 +50,14 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         filterByButton,
         // getInfoForDescription,
     } = useClustersTableContext(isExcluded);
+    const presetsInOtherTable = useMemo(
+        () =>
+            (isExcluded ? stats : excludedStats).reduce((obj, entry): any => {
+                if (!obj[entry?.preset]) obj[entry?.preset] = true;
+                return obj;
+            }, {} as any),
+        [data],
+    );
 
     const columnData: ColumnData[] = [
         {
@@ -152,7 +162,13 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                             filterByButton(value, 'preset', 'include');
                         }}
                     >
-                        <Text ellipsis style={{maxWidth: 150}} color="primary">
+                        <Text
+                            ellipsis
+                            style={{maxWidth: 150}}
+                            color={
+                                presetsInOtherTable[value?.split('&')?.[0]] ? 'danger' : 'primary'
+                            }
+                        >
                             {value}
                         </Text>
                     </Button>
