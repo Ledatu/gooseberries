@@ -208,32 +208,35 @@ export const AdvertCard = ({
     const {showError} = useError();
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
 
-    const setCopiedParams = (advertId: any) => {
+    const setCopiedParams = async (advertId: number) => {
         console.log(advertId, 'params will be set from', copiedAdvertsSettings.advertId);
         const params: any = {
-            uid: getUid(),
-            campaignName: selectValue[0],
-            data: {advertId},
+            seller_id: sellerId,
+            advertIdFrom: copiedAdvertsSettings.advertId,
+            advertIdTo: advertId,
         };
-        for (const param of [
-            'advertsAutoBidsRules',
-            'advertsBudgetsToKeep',
-            'advertsPlusPhrasesTemplates',
-            'advertsSelectedPhrases',
-            'advertsSchedules',
-        ]) {
-            params.data[param] = doc[param][selectValue[0]][copiedAdvertsSettings.advertId];
-            doc[param][selectValue[0]][advertId] = params.data[param];
-        }
 
         console.log(params);
-        callApi('copyAdvertsSettings', params)
-            .then(() => {
-                setChangedDoc({...doc});
-            })
-            .catch((error) => {
-                console.log('error copiyng:', error);
-            });
+        try {
+            const response = await ApiClient.post('massAdvert/new/copy-advert-rules', params);
+
+            if (!response || !response.data) throw new Error('No response');
+            for (const [key, value] of Object.entries(response.data)) {
+                if (key == 'advertsBudgets') {
+                    advertBudgetRules[advertId] = value;
+                    setAdvertBudgetRules({...advertBudgetRules});
+                } else if (key == 'autoPhrasesTemplate') {
+                } else {
+                    doc[key][selectValue[0]][advertId] = value;
+                }
+            }
+            getNames();
+            setChangedDoc({...doc});
+
+        } catch (error) {
+            console.error(new Date(), 'error copy-advert-rules', error);
+            showError('Не удалось скопировать настройки РК');
+        }
     };
 
     const curCpm = cpm;
