@@ -2174,8 +2174,8 @@ export const MassAdvertPage = () => {
             name: 'drr',
             placeholder: 'ДРР, %',
             render: ({value, row}: any) => {
-                const findMinDrr = (adverts: any) => {
-                    let minDrr = 0;
+                const findMaxDrr = (adverts: any) => {
+                    let maxDrr = 0;
                     for (const [id, _] of Object.entries(adverts ?? {})) {
                         const advert = doc?.adverts?.[selectValue[0]]?.[id];
                         if (!advert) continue;
@@ -2183,21 +2183,21 @@ export const MassAdvertPage = () => {
                         const drrAI = doc?.advertsAutoBidsRules[selectValue[0]]?.[advert?.advertId];
                         const {desiredDRR, useManualMaxCpm, autoBidsMode} = drrAI ?? {};
                         if (useManualMaxCpm || ['cpo'].includes(autoBidsMode)) continue;
-                        if (desiredDRR > minDrr) minDrr = desiredDRR;
+                        if (desiredDRR > maxDrr) maxDrr = desiredDRR;
                     }
-                    return minDrr;
+                    return maxDrr;
                 };
                 const {adverts} = row;
-                const minDrr = findMinDrr(adverts);
+                const maxDrr = findMaxDrr(adverts);
                 return (
                     <Text
                         color={
-                            minDrr
-                                ? value <= minDrr
+                            maxDrr
+                                ? value <= maxDrr
                                     ? value == 0
                                         ? 'primary'
                                         : 'positive'
-                                    : value / minDrr - 1 < 0.5
+                                    : value / maxDrr - 1 < 0.5
                                       ? 'warning'
                                       : 'danger'
                                 : 'primary'
