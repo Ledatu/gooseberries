@@ -232,7 +232,6 @@ export const AdvertCard = ({
             }
             getNames();
             setChangedDoc({...doc});
-
         } catch (error) {
             console.error(new Date(), 'error copy-advert-rules', error);
             showError('Не удалось скопировать настройки РК');
@@ -873,7 +872,7 @@ export const AdvertCard = ({
                                             const spent =
                                                 graphsDataBudgetsDivHours[prevHour] -
                                                 graphsDataBudgetsDivHours[hour];
-                                            graphsDataBudgetsDiv.push(spent);
+                                            graphsDataBudgetsDiv.push(spent >= 0 ? spent : null);
 
                                             prevHour = hour;
                                         }
@@ -937,8 +936,8 @@ export const AdvertCard = ({
                                 }
                                 return yagrBudgetData;
                             }}
-                            colors={{Баланс: '#ffbe5c'}}
-                            extraYAxes={{Расход: 'y1'}}
+                            colors={{Баланс: '#ffbe5c', Расход: '#7CA8D5FF'}}
+                            extraYAxes={{Баланс: 'y_scale', Расход: 'y1_scale_noLine'}}
                         >
                             <Button pin="round-brick" size="xs" view="flat">
                                 <Icon data={ChartAreaStacked} size={11} />

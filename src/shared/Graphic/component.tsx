@@ -96,11 +96,11 @@ export const Graphic: FC<GraphicProps> = ({
     filteredData = filterDataByMinMax(filteredData, minMaxValues || {});
 
     const chartData = formatChartData(filteredData, yAxes, colors);
-    const categories: string[] = chartData.datasets.map((dataset) => dataset.label);
+    // const categories: string[] = chartData.datasets.map((dataset) => dataset.label);
 
     const options = {
         ...DEFAULT_CHART_OPTIONS,
-        scales: createScalesConfig(categories, yAxes, theme === 'dark'),
+        scales: createScalesConfig(colors, yAxes, theme === 'dark'),
         plugins: {
             legend: {
                 ...GET_DEFAULT_LEGEND_CONFIG(theme === 'dark'),

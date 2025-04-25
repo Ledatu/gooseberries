@@ -36,7 +36,7 @@ export const formatChartData = (
                 yAxisID: yAxes[category] ?? 'y',
                 tension: lineTension,
                 pointRadius: 0,
-                borderWidth: 2,
+                borderWidth: yAxes?.[category]?.includes('_noLine') ? 0 : 2,
                 spanGaps: true,
                 hidden: false,
             };
@@ -45,7 +45,8 @@ export const formatChartData = (
 };
 
 export const createScalesConfig = (
-    categories: string[],
+    colors: Record<string, string> | undefined,
+    // categories: string[],
     yAxes: Record<string, string>,
     isDark: boolean,
 ) => {
@@ -53,22 +54,22 @@ export const createScalesConfig = (
         x: GET_DEFAULT_X_AXIS_CONFIG(isDark),
     };
 
-    const hasNonAxisCategories = categories.some((category) => !yAxes[category]);
-    if (hasNonAxisCategories) {
-        scales.y = {
-            type: 'linear' as const,
-            display: true,
-            position: 'left',
-            ticks: {
-                color: isDark ? '#ffffffd9' : '#000000d9',
-            },
-            grid: {
-                color: 'rgba(47, 5, 5, 0.1)',
-            },
-            min: 0,
-            beginAtZero: true,
-        };
-    }
+    // const hasNonAxisCategories = categories.some((category) => !yAxes[category]);
+    // if (hasNonAxisCategories) {
+    //     scales.y = {
+    //         type: 'linear' as const,
+    //         display: true,
+    //         position: 'left',
+    //         ticks: {
+    //             color: isDark ? '#ffffffd9' : '#000000d9',
+    //         },
+    //         grid: {
+    //             color: 'rgba(47, 5, 5, 0.1)',
+    //         },
+    //         min: 0,
+    //         beginAtZero: true,
+    //     };
+    // }
 
     Object.keys(yAxes).forEach((category, index) => {
         const axisKey = yAxes[category];
@@ -76,12 +77,12 @@ export const createScalesConfig = (
 
         scales[axisKey] = {
             type: 'linear' as const,
-            display: category.includes('_scale'),
+            display: axisKey.includes('_scale'),
             position: index % 2 === 0 ? 'left' : 'right',
             title: {
                 display: true,
                 text: category,
-                color: isDark ? '#ffffffd9' : '#000000d9',
+                color: colors?.[category] ?? (isDark ? '#ffffffd9' : '#000000d9'),
             },
             ticks: {
                 color: isDark ? '#ffffffd9' : '#000000d9',

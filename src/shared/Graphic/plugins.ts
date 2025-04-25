@@ -40,6 +40,8 @@ export const verticalLinePlugin = {
                 const yAxisID = (dataset as any).yAxisID || 'y';
                 const yAxis = chart.scales[yAxisID];
 
+                const color = (dataset.borderColor as string).slice(0, 7) + '69' || '#0000000f';
+
                 data.forEach((value, index) => {
                     if (value !== null && !isNaN(value)) {
                         const prevValue = index > 0 ? data[index - 1] : null;
@@ -58,10 +60,9 @@ export const verticalLinePlugin = {
 
                             ctx.save();
                             ctx.beginPath();
-                            ctx.strokeStyle = (dataset.borderColor as string) || '#000';
-                            ctx.lineWidth = 2;
-                            ctx.setLineDash([25, 25]);
+                            ctx.strokeStyle = color;
 
+                            ctx.lineWidth = 15;
                             ctx.moveTo(x, yStart);
                             ctx.lineTo(x, clampedY);
 
