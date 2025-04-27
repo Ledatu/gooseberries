@@ -62,8 +62,8 @@ export const StatisticsPanel = ({summary}: {summary: any}) => {
             />
             <StatisticsCard
                 cardStyle={cardStyle}
-                entity1={{value: summary.orders, placeholder: 'ЗАКАЗЫ шт'}}
-                entity2={{value: summary.sales, placeholder: 'ПРОДАЖИ шт'}}
+                entity1={{value: summary.orders, placeholder: 'ЗАКАЗЫ'}}
+                entity2={{value: summary.sales, placeholder: 'ПРОДАЖИ'}}
             />
         </div>
     );
