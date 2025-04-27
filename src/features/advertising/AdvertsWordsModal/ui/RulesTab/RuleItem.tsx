@@ -1,17 +1,25 @@
 import {Button, Icon, NumberInput, Select, Text} from '@gravity-ui/uikit';
 import {getNameOfRule, thresholdKeyOptions} from '../../config/rules';
 import {TrashBin} from '@gravity-ui/icons';
+import {motion} from 'framer-motion';
 
 interface templateItem {
     rule: Rules;
     changeRule: (rule: Rules) => void;
     deleteRule: (rule: Rules) => void;
+    key: string;
     // buttonAdd? : boolean
 }
 
-export const RuleItem = ({rule, changeRule, deleteRule}: templateItem) => {
+export const RuleItem = ({rule, changeRule, deleteRule, key}: templateItem) => {
     return (
-        <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8}}>
+        <motion.div
+            style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8}}
+            initial={{opacity: 0, y: 15}}
+            animate={{opacity: 1, y: 0}}
+            exit={{opacity: 0, y: 15}}
+            key={key}
+        >
             <div
                 style={{
                     display: 'flex',
@@ -85,6 +93,6 @@ export const RuleItem = ({rule, changeRule, deleteRule}: templateItem) => {
             >
                 <Icon data={TrashBin} />
             </Button>
-        </div>
+        </motion.div>
     );
 };

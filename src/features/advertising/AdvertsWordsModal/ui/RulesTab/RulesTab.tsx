@@ -5,6 +5,7 @@ import {useState} from 'react';
 import {Plus} from '@gravity-ui/icons';
 import {RuleItem} from './RuleItem';
 import {FixedPhrasesTab} from '../FixedPhrasesTab';
+import {AnimatePresence} from 'framer-motion';
 
 export const RulesTab = () => {
     const {template, setTemplate} = useAdvertsWordsModal();
@@ -18,9 +19,21 @@ export const RulesTab = () => {
             newRules[index] = currentRule;
 
             setCurrentRules(newRules);
-
             setTemplate({...template, rules: newRules});
         }
+    };
+
+    const addRule = () => {
+        const rules = [...currentRules];
+        rules.push({
+            key: selectValue,
+            val: 0,
+            viewsThreshold: 0,
+            biggerOrEqual: false,
+            thresholdKey: 'views',
+        });
+        setCurrentRules(rules);
+        setTemplate({...template, rules: rules});
     };
 
     const deleteRule = (ruleToDelete: Rules) => {
@@ -75,15 +88,7 @@ export const RulesTab = () => {
                         />
                         <Button
                             onClick={() => {
-                                const rules = [...currentRules];
-                                rules.push({
-                                    key: selectValue,
-                                    val: 0,
-                                    viewsThreshold: 0,
-                                    biggerOrEqual: false,
-                                    thresholdKey: 'views',
-                                });
-                                setCurrentRules(rules);
+                                addRule();
                             }}
                         >
                             <Icon data={Plus} />
@@ -101,13 +106,16 @@ export const RulesTab = () => {
                         overflow: 'auto',
                     }}
                 >
-                    {currentRules.map((rule, index) => (
-                        <RuleItem
-                            rule={rule}
-                            changeRule={(rule) => changeRule(rule, index)}
-                            deleteRule={deleteRule}
-                        />
-                    ))}
+                    <AnimatePresence>
+                        {currentRules.map((rule, index) => (
+                            <RuleItem
+                                rule={rule}
+                                changeRule={(rule) => changeRule(rule, index)}
+                                deleteRule={deleteRule}
+                                key={`rules_item_${index}`}
+                            />
+                        ))}
+                    </AnimatePresence>
                 </div>
             </div>
             <Divider orientation="vertical" />

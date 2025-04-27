@@ -1,12 +1,13 @@
 'use client';
 
 import {Button, Card, Icon, Modal, Text, Tooltip} from '@gravity-ui/uikit';
-import {TrashBin, CloudArrowUpIn} from '@gravity-ui/icons';
+import {TrashBin, CloudArrowUpIn, ChartBar} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, ReactNode, useState, cloneElement} from 'react';
 import {useCampaign} from '@/contexts/CampaignContext';
 import callApi, {getUid} from '@/utilities/callApi';
 import {useError} from '@/contexts/ErrorContext';
+import ApiClient from '@/utilities/ApiClient';
 
 interface AdvertsSchedulesModalProps {
     setUpdatePaused?: Function;
@@ -28,11 +29,54 @@ export const AdvertsSchedulesModal = ({
     advertId,
     getUniqueAdvertIdsFromThePage,
 }: AdvertsSchedulesModalProps) => {
+    const {sellerId} = useCampaign();
     const {showError} = useError();
     const {selectValue} = useCampaign();
     const [open, setOpen] = useState(false);
+    const [heatMap, setHeatMap] = useState<number[][]>([]);
+
+    const getHeatMap = async () => {
+        try {
+            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
+                advertId,
+                seller_id: sellerId,
+            });
+            if (!res || !res.data || !res.data.heatMap) {
+                throw Error('No data in res');
+            }
+            setHeatMap(res.data.heatMap);
+            console.log(heatMap);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const generateScheduleInput = (args: any) => {
+        const interpolateColor = (value: number) => {
+            const clamp = (val: number, min: number, max: number) =>
+                Math.min(Math.max(val, min), max);
+
+            // Цвета: красный -> жёлтый -> зелёный
+            const red = [229, 50, 93];
+            const yellow = [255, 190, 92];
+            const green = [77, 176, 155];
+
+            if (value < 0.5) {
+                // от красного до жёлтого
+                const t = clamp(value / 0.5, 0, 1);
+                const r = Math.round(red[0] + t * (yellow[0] - red[0]));
+                const g = Math.round(red[1] + t * (yellow[1] - red[1]));
+                const b = Math.round(red[2] + t * (yellow[2] - red[2]));
+                return `rgb(${r}, ${g}, ${b})`;
+            } else {
+                // от жёлтого до зелёного
+                const t = clamp((value - 0.5) / 0.5, 0, 1);
+                const r = Math.round(yellow[0] + t * (green[0] - yellow[0]));
+                const g = Math.round(yellow[1] + t * (green[1] - yellow[1]));
+                const b = Math.round(yellow[2] + t * (green[2] - yellow[2]));
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+        };
         const {scheduleInput, setScheduleInput} = args;
         const weekDayNamesTemp = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
         const weekInputDayNames = [] as any[];
@@ -50,10 +94,9 @@ export const AdvertsSchedulesModal = ({
             })();
             tempHours.push(
                 <Tooltip content={`Каждый день ${j}:00 - ${j}:59`}>
-                    <div
+                    <motion.div
+                        animate={{width: heatMap.length ? 52 : 25, margin: heatMap.length ? 4 : 2}}
                         style={{
-                            width: 25,
-                            margin: 2,
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -63,8 +106,8 @@ export const AdvertsSchedulesModal = ({
                         <Text variant="subheader-1">{j}</Text>
                         <Button
                             style={{
-                                width: 16,
-                                height: 16,
+                                width: heatMap.length ? 52 : 25,
+                                height: heatMap.length ? 18 : 16,
                             }}
                             selected={paused && isCheckboxChecked}
                             view={
@@ -85,7 +128,7 @@ export const AdvertsSchedulesModal = ({
                         >
                             {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
                         </Button>
-                    </div>
+                    </motion.div>
                 </Tooltip>,
             );
         }
@@ -103,10 +146,14 @@ export const AdvertsSchedulesModal = ({
                 })();
             weekInputDayNames.push(
                 <Tooltip content={`${weekDayNamesTemp[i]} 00:00 - 23:59`}>
-                    <div
+                    <motion.div
+                        animate={{
+                            height: heatMap.length ? 52 : 25,
+                            marginTop: heatMap.length ? 8 : 4,
+                        }}
                         style={{
-                            height: 25,
-                            margin: 2,
+                            // height: 52,
+                            // margin: 4,
                             display: 'flex',
                             flexDirection: 'row',
                             justifyContent: 'center',
@@ -116,10 +163,12 @@ export const AdvertsSchedulesModal = ({
                         <Text variant="subheader-1">{weekDayNamesTemp[i]}</Text>
                         <div style={{minWidth: 4}} />
                         <Button
+                            size="s"
                             selected={paused && isCheckboxChecked}
                             style={{
-                                width: 16,
-                                height: 16,
+                                width: heatMap.length ? 18 : 16,
+                                height: heatMap.length ? 52 : 25,
+                                marginRight: heatMap.length ? 4 : 2,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -141,32 +190,85 @@ export const AdvertsSchedulesModal = ({
                         >
                             {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
                         </Button>
-                    </div>
+                    </motion.div>
                 </Tooltip>,
             );
             const temp = [] as any[];
+            const flatHeatMap = heatMap.flat();
+            const maxHeat = Math.max(...flatHeatMap);
+            const minHeat = Math.min(...flatHeatMap);
+            let sumForDay = 0;
+            if (heatMap.length) {
+                for (const a of heatMap[i]) {
+                    sumForDay += a;
+                }
+            }
+            const heatRange = maxHeat - minHeat || 1; // чтобы не было деления на 0
             for (let j = 0; j < 24; j++) {
+                const isCheckboxChecked = scheduleInput?.[i]?.[j]?.selected;
                 temp.push(
                     <Tooltip content={`${weekDayNamesTemp[i]} ${j}:00 - ${j}:59`}>
-                        <Button
-                            selected={paused && scheduleInput?.[i]?.[j]?.selected}
-                            style={{width: 25, height: 25, margin: 2}}
-                            view={
-                                scheduleInput?.[i]?.[j]?.selected
-                                    ? paused
-                                        ? 'flat-danger'
-                                        : 'action'
-                                    : 'outlined'
-                            }
-                            onClick={() => {
-                                const val = Object.assign({}, scheduleInput);
-                                if (!val[i]) val[i] = {};
-                                if (!val[i][j]) val[i][j] = {selected: false};
-                                val[i][j].selected = !val[i][j].selected;
-                                console.log(val[i][j]);
-                                setScheduleInput(val);
+                        <motion.div
+                            animate={{
+                                width: heatMap.length ? 52 : 25,
+                                height: heatMap.length ? 52 : 25,
+                                margin: heatMap.length ? 4 : 2,
                             }}
-                        />
+                        >
+                            <Button
+                                selected={paused && scheduleInput?.[i]?.[j]?.selected}
+                                style={{
+                                    width: heatMap.length ? 52 : 25,
+                                    height: heatMap.length ? 52 : 25,
+                                    margin: heatMap.length ? 4 : 2,
+                                    ...(heatMap.length
+                                        ? {
+                                              backgroundColor: interpolateColor(
+                                                  (heatMap[i][j] - minHeat) / heatRange,
+                                              ),
+                                          }
+                                        : {}),
+                                    opacity: isCheckboxChecked ? 1 : 0.5,
+                                    alignContent: 'center',
+                                    justifyContent: 'center',
+                                }}
+                                view={
+                                    heatMap.length
+                                        ? undefined
+                                        : scheduleInput?.[i]?.[j]?.selected
+                                          ? paused
+                                              ? 'flat-danger'
+                                              : 'action'
+                                          : 'outlined'
+                                }
+                                onClick={() => {
+                                    const val = Object.assign({}, scheduleInput);
+                                    if (!val[i]) val[i] = {};
+                                    if (!val[i][j]) val[i][j] = {selected: false};
+                                    val[i][j].selected = !val[i][j].selected;
+                                    setScheduleInput(val);
+                                }}
+                            >
+                                {heatMap.length ? (
+                                    <div
+                                        style={{
+                                            height: '100%',
+                                            alignSelf: 'center',
+                                            justifySelf: 'center',
+                                            alignContent: 'center',
+                                        }}
+                                    >
+                                        <Text
+                                            // style={{alignSelf: 'center', justifySelf: 'center'}}
+                                            color="inverted-primary"
+                                            variant="subheader-2"
+                                        >
+                                            {Math.floor((heatMap[i][j] * 10000) / sumForDay) / 100}%
+                                        </Text>
+                                    </div>
+                                ) : undefined}
+                            </Button>
+                        </motion.div>
                     </Tooltip>,
                 );
             }
@@ -259,15 +361,30 @@ export const AdvertsSchedulesModal = ({
                         >
                             График работы
                         </Text>
-                        <Text
+                        <div
                             style={{
-                                margin: '8px 0',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                gap: 4,
+                                alignItems: 'center',
+                                justifyContent: 'center',
                             }}
-                            variant="header-2"
-                            color="secondary"
                         >
-                            Часовой пояс Москвы — UTC +3 (MSK)
-                        </Text>
+                            <Text
+                                style={{
+                                    margin: '8px 0',
+                                }}
+                                variant="header-2"
+                                color="secondary"
+                            >
+                                Часовой пояс Москвы — UTC +3 (MSK)
+                            </Text>
+                            {advertId ? (
+                                <Button onClick={() => getHeatMap()}>
+                                    <Icon data={ChartBar} />
+                                </Button>
+                            ) : undefined}
+                        </div>
                         <div style={{minHeight: 8}} />
                         {generateScheduleInput({scheduleInput, setScheduleInput})}
                         <div style={{minHeight: 16}} />

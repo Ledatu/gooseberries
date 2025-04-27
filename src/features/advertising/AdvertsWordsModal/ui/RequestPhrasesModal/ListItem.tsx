@@ -1,6 +1,7 @@
 import {ActionTooltip, Button, Icon, Text} from '@gravity-ui/uikit';
 import {PhrasesStats} from '../../types/PhraseStats';
 import {Eye, Magnifier} from '@gravity-ui/icons';
+import {motion} from 'framer-motion';
 
 interface ListItemProps {
     item: PhrasesStats;
@@ -10,7 +11,7 @@ interface ListItemProps {
 
 export const ListItem = ({item, showViews = true, showFrequncy = true}: ListItemProps) => {
     return (
-        <div
+        <motion.div
             style={{
                 display: 'flex',
                 flexDirection: 'row',
@@ -19,6 +20,9 @@ export const ListItem = ({item, showViews = true, showFrequncy = true}: ListItem
                 width: '100%',
                 justifyContent: 'space-between',
             }}
+            // initial={{opacity: 0, y: 15}}
+            // animate={{opacity: 1, y: 0}}
+            // exit={{opacity: 0, y: 15}}
         >
             <ActionTooltip title={item.keyword}>
                 <Text ellipsis={true} style={{alignContent: 'center'}}>
@@ -39,6 +43,6 @@ export const ListItem = ({item, showViews = true, showFrequncy = true}: ListItem
                     </Button>
                 ) : undefined}
             </div>
-        </div>
+        </motion.div>
     );
 };

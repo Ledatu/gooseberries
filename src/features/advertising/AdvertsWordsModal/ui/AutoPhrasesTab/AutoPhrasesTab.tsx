@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react';
 import {Pencil} from '@gravity-ui/icons';
 import {OffersWordsModal} from '../OfferWordsModal/OfferWordsModal';
 import {PhrasesStats} from '../../types/PhraseStats';
+import {motion} from 'framer-motion';
 
 export const AutoPhrasesTab = () => {
     const {template, advertWordsTemplateHandler, setTemplate, wordsStats} = useAdvertsWordsModal();
@@ -75,7 +76,10 @@ export const AutoPhrasesTab = () => {
                         filterPlaceholder={`Поиск в ${template.includes.length} фразах`}
                         renderItem={(item) => {
                             return (
-                                <div
+                                <motion.div
+                                    initial={{opacity: 0, y: 15}}
+                                    animate={{opacity: 1, y: 0}}
+                                    exit={{opacity: 0, y: 15}}
                                     style={{
                                         padding: 8,
                                         display: 'flex',
@@ -97,7 +101,7 @@ export const AutoPhrasesTab = () => {
                                     >
                                         <Icon data={Pencil} />
                                     </Button>
-                                </div>
+                                </motion.div>
                             );
                         }}
                     />
@@ -135,7 +139,7 @@ export const AutoPhrasesTab = () => {
                         filterPlaceholder={`Поиск в ${template.notIncludes.length} фразах`}
                         renderItem={(item) => {
                             return (
-                                <div
+                                <motion.div
                                     style={{
                                         padding: 8,
                                         display: 'flex',
@@ -144,6 +148,9 @@ export const AutoPhrasesTab = () => {
                                         width: '100%',
                                         alignItems: 'center',
                                     }}
+                                    initial={{opacity: 0, y: 15}}
+                                    animate={{opacity: 1, y: 0}}
+                                    exit={{opacity: 0, y: 15}}
                                     onClick={() =>
                                         advertWordsTemplateHandler.deleteNotIncludes(item)
                                     }
@@ -159,7 +166,7 @@ export const AutoPhrasesTab = () => {
                                     >
                                         <Icon data={Pencil} />
                                     </Button>
-                                </div>
+                                </motion.div>
                             );
                             // return <Text>{item}</Text>;
                         }}
