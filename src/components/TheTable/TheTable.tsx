@@ -584,10 +584,10 @@ export const compare = (a: any, filterData: any) => {
         return String(a).toLocaleLowerCase() != String(val).toLocaleLowerCase();
     }
     if (compMode == 'bigger') {
-        return Number(a) > Number(val);
+        return Number(a) > Number(val.replace(/[,]/g, '.'));
     }
     if (compMode == 'not bigger') {
-        return Number(a) < Number(val);
+        return Number(a) < Number(val.replace(/[,]/g, '.'));
     }
     return false;
 };
