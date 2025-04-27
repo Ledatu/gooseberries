@@ -10,8 +10,9 @@ import {ListItem} from './ListItem';
 
 interface RequestPhrasesModalProps {
     cluster: string;
+    color: any;
 }
-export const RequestPhrasesModal = ({cluster}: RequestPhrasesModalProps) => {
+export const RequestPhrasesModal = ({cluster, color}: RequestPhrasesModalProps) => {
     const [open, setOpen] = useState(false);
     const {sellerId} = useCampaign();
     const {advertId} = useAdvertsWordsModal();
@@ -39,6 +40,7 @@ export const RequestPhrasesModal = ({cluster}: RequestPhrasesModalProps) => {
         <div>
             <ActionTooltip title={cluster}>
                 <Text
+                    color={color}
                     onClick={() => setOpen(true)}
                     ellipsis
                     style={{maxWidth: 250, alignContent: 'center', cursor: 'pointer'}}

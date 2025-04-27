@@ -98,7 +98,12 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                             justifyContent: 'space-between',
                         }}
                     >
-                        <RequestPhrasesModal cluster={value} />
+                        <RequestPhrasesModal
+                            cluster={value}
+                            color={
+                                presetsInOtherTable[value?.split('&')?.[0]] ? 'danger' : 'primary'
+                            }
+                        />
                         <div style={{gap: 8, display: 'flex', flexDirection: 'row'}}>
                             <ParsePositionButton phrase={value} />
                             <Button
@@ -149,10 +154,144 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
             },
         },
         {
+            constWidth: 69,
+            placeholder: 'Показы, шт',
+            name: 'views',
+            render: ({value, footer}) =>
+                renderGradNumber({value, footer}, footerData['views'] / data.length, defaultRender),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'Клики, шт',
+            name: 'clicks',
+            render: ({value, footer}) =>
+                renderGradNumber(
+                    {value, footer},
+                    footerData['clicks'] / data.length,
+                    defaultRender,
+                ),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'CTR, %',
+            name: 'ctr',
+            render: ({value, footer}) =>
+                renderGradNumber({value, footer}, footerData['ctr'], renderAsPercent),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'CPC, ₽',
+            name: 'cpc',
+            render: ({value, footer}) =>
+                renderGradNumber({value, footer}, footerData['cpc'], defaultRender, 'desc'),
+        },
+        {
+            placeholder: 'Расход, ₽',
+            name: 'totalSum',
+        },
+        {
+            constWidth: 69,
+            placeholder: 'ДРР, %',
+            name: 'drr',
+            render: ({value, footer}) =>
+                renderGradNumber({value, footer}, footerData['drr'], renderAsPercent, 'desc'),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'CPO, ₽',
+            name: 'cpo',
+            render: ({value, footer}) =>
+                renderGradNumber({value, footer}, footerData['cpo'], defaultRender, 'desc'),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'CR, %',
+            name: 'openToOrderPercent',
+            render: ({value, footer}) =>
+                renderGradNumber(
+                    {value, footer},
+                    footerData['openToOrderPercent'],
+                    renderAsPercent,
+                ),
+        },
+        {
+            constWidth: 100,
+            placeholder: 'Переходы, шт',
+            name: 'openCardCurrent',
+            render: ({value, footer}) =>
+                renderGradNumber(
+                    {value, footer},
+                    footerData['openCardCurrent'] / data.length,
+                    defaultRender,
+                ),
+        },
+        {
+            constWidth: 100,
+            placeholder: 'Заказов, шт',
+            name: 'ordersCurrent',
+            render: ({value, footer}) =>
+                renderGradNumber(
+                    {value, footer},
+                    footerData['addToCartCurrent'] / data.length,
+                    defaultRender,
+                ),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'Ср. Позиция',
+            name: 'avgPositionCurrent',
+            render: ({value, footer}) =>
+                renderGradNumber(
+                    {value, footer},
+                    footerData['avgPositionCurrent'],
+                    defaultRender,
+                    'desc',
+                ),
+        },
+        {
+            placeholder: 'Частота, шт',
+            name: 'totalFrequency',
+            render: ({value, footer}) =>
+                renderGradNumber(
+                    {value, footer},
+                    footerData['totalFrequency'] / data.length,
+                    defaultRender,
+                ),
+        },
+        {
+            constWidth: 100,
+            placeholder: 'В корзину, шт',
+            name: 'addToCartCurrent',
+            render: ({value, footer}) =>
+                renderGradNumber(
+                    {value, footer},
+                    footerData['addToCartCurrent'] / data.length,
+                    defaultRender,
+                ),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'CR в корзину, %',
+            name: 'openToCartCurrent',
+            render: ({value, footer}) =>
+                renderGradNumber({value, footer}, footerData['openToCartCurrent'], renderAsPercent),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'CR в заказ, %',
+            name: 'cartToOrderCurrent',
+            render: ({value, footer}) =>
+                renderGradNumber(
+                    {value, footer},
+                    footerData['cartToOrderCurrent'],
+                    renderAsPercent,
+                ),
+        },
+        {
             placeholder: 'Пресет',
             name: 'preset',
             valueType: 'text',
-            constWidth: 100,
+            constWidth: 69,
             render: ({value}: any) => {
                 return (
                     <Button
@@ -174,127 +313,6 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                     </Button>
                 );
             },
-        },
-        {
-            placeholder: 'Показы, шт',
-            name: 'views',
-            render: ({value, footer}) =>
-                renderGradNumber({value, footer}, footerData['views'] / data.length, defaultRender),
-        },
-        {
-            placeholder: 'Клики, шт',
-            name: 'clicks',
-            render: ({value, footer}) =>
-                renderGradNumber(
-                    {value, footer},
-                    footerData['clicks'] / data.length,
-                    defaultRender,
-                ),
-        },
-        {
-            placeholder: 'CTR, %',
-            name: 'ctr',
-            render: ({value, footer}) =>
-                renderGradNumber({value, footer}, footerData['ctr'], renderAsPercent),
-        },
-        {
-            placeholder: 'CPC, ₽',
-            name: 'cpc',
-            render: ({value, footer}) =>
-                renderGradNumber({value, footer}, footerData['cpc'], defaultRender, 'desc'),
-        },
-        {
-            placeholder: 'Расход, ₽',
-            name: 'totalSum',
-        },
-        {
-            placeholder: 'ДРР, %',
-            name: 'drr',
-            render: ({value, footer}) =>
-                renderGradNumber({value, footer}, footerData['drr'], renderAsPercent, 'desc'),
-        },
-        {
-            placeholder: 'CPO, ₽',
-            name: 'cpo',
-            render: ({value, footer}) =>
-                renderGradNumber({value, footer}, footerData['cpo'], defaultRender, 'desc'),
-        },
-        {
-            placeholder: 'CR, %',
-            name: 'openToOrderPercent',
-            render: ({value, footer}) =>
-                renderGradNumber(
-                    {value, footer},
-                    footerData['openToOrderPercent'],
-                    renderAsPercent,
-                ),
-        },
-        {
-            placeholder: 'CR в корзину, %',
-            name: 'openToCartCurrent',
-            render: ({value, footer}) =>
-                renderGradNumber({value, footer}, footerData['openToCartCurrent'], renderAsPercent),
-        },
-        {
-            placeholder: 'CR в заказ, %',
-            name: 'cartToOrderCurrent',
-            render: ({value, footer}) =>
-                renderGradNumber(
-                    {value, footer},
-                    footerData['cartToOrderCurrent'],
-                    renderAsPercent,
-                ),
-        },
-        {
-            placeholder: 'Переходы, шт',
-            name: 'openCardCurrent',
-            render: ({value, footer}) =>
-                renderGradNumber(
-                    {value, footer},
-                    footerData['openCardCurrent'] / data.length,
-                    defaultRender,
-                ),
-        },
-        {
-            placeholder: 'В корзину, шт',
-            name: 'addToCartCurrent',
-            render: ({value, footer}) =>
-                renderGradNumber(
-                    {value, footer},
-                    footerData['addToCartCurrent'] / data.length,
-                    defaultRender,
-                ),
-        },
-        {
-            placeholder: 'Заказов, шт',
-            name: 'ordersCurrent',
-            render: ({value, footer}) =>
-                renderGradNumber(
-                    {value, footer},
-                    footerData['addToCartCurrent'] / data.length,
-                    defaultRender,
-                ),
-        },
-        {
-            placeholder: 'Частота, шт',
-            name: 'totalFrequency',
-            render: ({value, footer}) =>
-                renderGradNumber(
-                    {value, footer},
-                    footerData['totalFrequency'] / data.length,
-                    defaultRender,
-                ),
-        },
-        {
-            placeholder: 'Ср. Позиция',
-            name: 'avgPositionCurrent',
-            render: ({value, footer}) =>
-                renderGradNumber(
-                    {value, footer},
-                    footerData['avgPositionCurrent'],
-                    defaultRender,
-                    'desc',
-                ),
         },
     ];
 
