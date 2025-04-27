@@ -48,7 +48,7 @@ import {
 
 // import JarIcon from '../assets/jar-of-jam.svg';
 
-import {motion} from 'framer-motion';
+import {m, motion} from 'framer-motion';
 
 import ChartKit, {settings} from '@gravity-ui/chartkit';
 import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
@@ -94,6 +94,7 @@ import {getNamesForAdverts} from '@/entities';
 import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
 import {changeSelectedPhrase} from '@/features/advertising/AdvertsWordsModal/api/changeSelectedPhrase';
 import {ModalWindow} from '@/shared/ui/Modal';
+import {StatisticsPanel} from '@/widgets/ui';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -2512,6 +2513,8 @@ export const MassAdvertPage = () => {
         sum_orders: 0,
         sum_sales: 0,
         addToCartCount: 0,
+        ctr: 0,
+        openCardCount: 0,
         profit: '',
         rent: '',
         profitTemp: 0,
@@ -2560,6 +2563,8 @@ export const MassAdvertPage = () => {
             addToCartCount: 0,
             profit: '',
             rent: '',
+            ctr: 0,
+            openCardCount: 0,
             profitTemp: 0,
         };
 
@@ -2780,8 +2785,9 @@ export const MassAdvertPage = () => {
                 summaryTemp.clicks += artInfo.clicks;
                 summaryTemp.addToCartCount += artInfo.addToCartCount;
                 summaryTemp.orders += artInfo.orders;
+                summaryTemp.openCardCount += artInfo.openCardCount;
 
-                summaryTemp.profitTemp += Math.round(artInfo.profit);
+                summaryTemp.profitTemp += Math.round(artInfo.profit ?? 0);
             }
 
             temp[art] = artInfo;
@@ -2791,9 +2797,12 @@ export const MassAdvertPage = () => {
         summaryTemp.orders = Math.round(summaryTemp.orders);
         summaryTemp.sales = Math.round(summaryTemp.sales);
         summaryTemp.sum_orders = Math.round(summaryTemp.sum_orders);
+        summaryTemp.openCardCount = Math.round(summaryTemp.openCardCount);
         summaryTemp.sum_sales = Math.round(summaryTemp.sum_sales);
         summaryTemp.drr_orders = getRoundValue(summaryTemp.sum, summaryTemp.sum_orders, true, 1);
         summaryTemp.drr_sales = getRoundValue(summaryTemp.sum, summaryTemp.sum_sales, true, 1);
+
+        summaryTemp.ctr = getRoundValue(summaryTemp.clicks, summaryTemp.views, true, 1);
 
         summaryTemp.profit = `${new Intl.NumberFormat('ru-RU').format(summaryTemp.profitTemp)} ₽`;
         summaryTemp.rent = `${new Intl.NumberFormat('ru-RU').format(
@@ -3741,81 +3750,7 @@ export const MassAdvertPage = () => {
             ) : (
                 <></>
             )}
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    width: '100%',
-                    justifyContent: 'space-around',
-                    margin: '8px 0',
-                    flexWrap: 'wrap',
-                }}
-            >
-                {generateCard({
-                    summary,
-                    key: 'sum_orders',
-                    placeholder: 'ЗАКАЗЫ',
-                    cardStyle,
-                    rub: true,
-                })}
-                {generateCard({
-                    summary,
-                    key: 'sum_sales',
-                    placeholder: 'ПРОДАЖИ',
-                    cardStyle,
-                    rub: true,
-                })}
-                {generateCard({
-                    summary,
-                    key: 'sum',
-                    placeholder: 'РАСХОД',
-                    cardStyle,
-                    rub: true,
-                })}
-                {generateCard({
-                    summary,
-                    key: 'drr',
-                    placeholder: 'ДРР к ЗАКАЗАМ / к ПРОДАЖАМ',
-                    cardStyle,
-                    valueType: 'text',
-                })}
-                {generateCard({
-                    summary,
-                    key: 'profit',
-                    placeholder: 'ПРИБЫЛЬ',
-                    cardStyle,
-                    valueType: 'text',
-                })}
-                {generateCard({
-                    summary,
-                    key: 'rent',
-                    placeholder: 'РЕНТ к ЗАКАЗАМ / к ПРОДАЖАМ',
-                    cardStyle,
-                    valueType: 'text',
-                })}
-                {generateCard({summary, key: 'views', placeholder: 'ПОКАЗЫ', cardStyle})}
-                {generateCard({summary, key: 'clicks', placeholder: 'КЛИКИ', cardStyle})}
-                {generateCard({
-                    summary,
-                    key: 'addToCartCount',
-                    cardStyle,
-                    placeholder: 'КОРЗИНЫ',
-                })}
-                {generateCard({
-                    summary,
-                    key: 'orders',
-                    placeholder: 'ЗАКАЗЫ',
-                    cardStyle,
-                    count: true,
-                })}
-                {generateCard({
-                    summary,
-                    key: 'sales',
-                    placeholder: 'ПРОДАЖИ',
-                    count: true,
-                    cardStyle,
-                })}
-            </div>
+            <StatisticsPanel summary={summary} />
             {!isMobile ? (
                 <div
                     style={{
