@@ -48,7 +48,7 @@ import {
 
 // import JarIcon from '../assets/jar-of-jam.svg';
 
-import {m, motion} from 'framer-motion';
+import {motion} from 'framer-motion';
 
 import ChartKit, {settings} from '@gravity-ui/chartkit';
 import {YagrPlugin} from '@gravity-ui/chartkit/yagr';
@@ -4266,30 +4266,5 @@ export const generateModalButtonWithActions = (
                 {placeholder}
             </Button>
         </motion.div>
-    );
-};
-
-const generateCard = (args: any) => {
-    const {summary, key, placeholder, cardStyle, valueType, percent, rub} = args;
-    return (
-        <Card style={cardStyle} view="outlined">
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                <Text style={{whiteSpace: 'pre-wrap'}}>{`${placeholder}`}</Text>
-                <Text
-                    style={{
-                        fontWeight: 'bold',
-                        fontSize: '18pt',
-                        marginBottom: 10,
-                        marginTop: 4,
-                    }}
-                >
-                    {valueType == 'text'
-                        ? summary[key]
-                        : new Intl.NumberFormat('ru-RU').format(summary[key])}
-                    {percent ? '%' : ''}
-                    {rub ? ' ₽' : ''}
-                </Text>
-            </div>
-        </Card>
     );
 };
