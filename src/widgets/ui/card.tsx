@@ -40,7 +40,7 @@ export const StatisticsCard: FC<StatisticsCardProps> = ({cardStyle, entity1, ent
                     </Text>
                 </div>
                 <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                    <Text style={{whiteSpace: 'pre-wrap', textAlign: 'center'}}>
+                    <Text style={{whiteSpace: 'pre-wrap', textAlign: 'center', fontSize: '15px'}}>
                         {entity2.placeholder}
                     </Text>
                     <Text
