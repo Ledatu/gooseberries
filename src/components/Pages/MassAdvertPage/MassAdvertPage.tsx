@@ -1241,9 +1241,7 @@ export const MassAdvertPage = () => {
                           // console.log('popa', advertData, filters['adverts'].val);
                           if (
                               filters['adverts'] &&
-                              ['авто', 'поиск'].includes(
-                                  String(filters['adverts'].val).toLowerCase().trim(),
-                              )
+                              String(filters['adverts'].val).toLowerCase().trim().length
                           ) {
                               // console.log('popa2', advertData, filters['adverts'].val);
                               if (
@@ -1293,6 +1291,49 @@ export const MassAdvertPage = () => {
                                   filters['adverts'] &&
                                   String(filters['adverts'].val).toLowerCase().includes('авто') &&
                                   advertData.type == 8
+                              ) {
+                                  switches.push(
+                                      <AdvertCard
+                                          getNames={getNames}
+                                          pausedAdverts={pausedAdverts}
+                                          setUpdatePaused={setUpdatePaused}
+                                          sellerId={sellerId}
+                                          advertBudgetRules={advertBudgetRules}
+                                          setAdvertBudgetRules={setAdvertBudgetRules}
+                                          permission={permission}
+                                          id={advertId}
+                                          index={index}
+                                          nmId={row?.nmId}
+                                          doc={doc}
+                                          selectValue={selectValue}
+                                          copiedAdvertsSettings={copiedAdvertsSettings}
+                                          setChangedDoc={setChangedDoc}
+                                          manageAdvertsActivityCallFunc={
+                                              manageAdvertsActivityCallFunc
+                                          }
+                                          setArtsStatsByDayData={setArtsStatsByDayData}
+                                          updateColumnWidth={updateColumnWidth}
+                                          filteredData={filteredData}
+                                          setCopiedAdvertsSettings={setCopiedAdvertsSettings}
+                                          setDateRange={setDateRange}
+                                          setShowArtStatsModalOpen={setShowArtStatsModalOpen}
+                                          dateRange={dateRange}
+                                          recalc={recalc}
+                                          filterByButton={filterByButton}
+                                          getUniqueAdvertIdsFromThePage={
+                                              getUniqueAdvertIdsFromThePage
+                                          }
+                                          template={
+                                              shortAdvertInfo[parseInt(advertId)] ?? {
+                                                  advertId: parseInt(advertId),
+                                                  templateName: 'Фразы',
+                                              }
+                                          }
+                                      />,
+                                  );
+                              } else if (
+                                  filters['adverts'] &&
+                                  advertId.includes(filters['adverts'].val.trim())
                               ) {
                                   switches.push(
                                       <AdvertCard
@@ -3718,6 +3759,7 @@ export const MassAdvertPage = () => {
 
                 if (lwr == 'авто' && type != 8) continue;
                 else if (lwr == 'поиск' && ![6, 9].includes(type)) continue;
+                else if (!id.includes(lwr)) continue;
 
                 uniqueAdverts[advertId] = {advertId: advertId};
             }
