@@ -38,7 +38,7 @@ export const AdditionalInfoTab = () => {
                 </Button>
             </ActionTooltip>
         ));
-        setRules(tempRules);
+        setRules(tempRules.slice(0, 4));
     }, [template, advertId]);
 
     const isFixed = template.isFixed && template.fixedClusters.length;
