@@ -1,10 +1,11 @@
 'use client';
 
 import {createContext, useContext, useState, useEffect} from 'react';
-import {useRouter} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
 // import {LogoLoader} from '@/components/LogoLoader/LogoLoader';
 import ApiClient from '@/utilities/ApiClient';
-import { LogoLoad } from '../logoLoad';
+import {LogoLoad} from '../logoLoad';
+import { setReferral } from '@/shared/Referral/api';
 
 // Create a Context for the user info
 const UserContext = createContext(null as any);
@@ -19,11 +20,19 @@ export function RequireAuth({children}: {children: React.ReactNode}) {
     // useEffect(() => {
     //     console.log("huihuijui")
     // })
+    const searchParams = useSearchParams();
+    const referal = searchParams.get('referral');
+    useEffect(() => {
+        if (referal && isAuthenticated) {
+            console.log(referal);
+            setReferral(userInfo.user._id, referal);
+        }
+    }, [referal, isAuthenticated])
 
     const checkTokenValidity = async () => {
         const authToken = localStorage.getItem('authToken');
         console.log('userInfo', JSON.stringify(userInfo));
-        console.log('authtoken',!authToken);
+        console.log('authtoken', !authToken);
         if (!authToken) {
             setIsAuthenticated(false);
             console.log('isAuthentcated', isAuthenticated);
@@ -73,7 +82,7 @@ export function RequireAuth({children}: {children: React.ReactNode}) {
     useEffect(() => {
         if (isAuthenticated === false) {
             console.log(isAuthenticated, 'akdjaslkdjkaj');
-            
+
             // window.history.replaceState(null, '', '/login');
             router.push('/login');
         }
