@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useMemo, useState} from 'react';
-import {Spin, Icon, Button, Text, List, Popover, Card, Modal, TextInput} from '@gravity-ui/uikit';
+import {Spin, Icon, Button, Text, List, Card, Modal, TextInput} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
 import {
@@ -11,6 +11,7 @@ import {
     FileText,
     CloudArrowUpIn,
     FileArrowDown,
+    PencilToSquare,
 } from '@gravity-ui/icons';
 
 import callApi, {getUid} from '@/utilities/callApi';
@@ -40,6 +41,10 @@ import {useUser} from '@/components/RequireAuth';
 import {useCampaign} from '@/contexts/CampaignContext';
 import ApiClient from '@/utilities/ApiClient';
 import {useModules} from '@/contexts/ModuleProvider';
+import {getNotesByDateRange} from '@/entities/NoteCard/api';
+import {Note} from '@/entities/NoteCard/types';
+// import {error} from 'console';
+import {NotesModal} from '@/entities/NoteCard/ui/NoteModal';
 
 const getUserDoc = (dateRange: any, docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -90,7 +95,16 @@ export const AnalyticsPage = () => {
     const [graphModalData, setGraphModalData] = useState<any>({});
     const [graphModalTimeline, setGraphModalTimeline] = useState([] as any[]);
     const [graphModalTitle, setGraphModalTitle] = useState('');
+    const [notes, setNotes] = useState<{[key: string]: Note[]}>({});
 
+    const getNotes = () => {
+        getNotesByDateRange(sellerId)
+            .then((res) => setNotes(res))
+            .catch((error) => console.error(error));
+    };
+    useEffect(() => {
+        getNotes();
+    }, [selectValue]);
     // const defaulColumnsShow = [
     //     {key: 'entity', visibility: true},
     //     {key: 'date', visibility: true},
@@ -166,70 +180,47 @@ export const AnalyticsPage = () => {
             placeholder: 'Дата',
             render: (args: {value: any; row: any}) => {
                 const {value, row} = args;
+                // const date =
                 if (row.isBlank) return undefined;
                 if (value === undefined) return 'Итого';
-                const {notes, entity} = row;
+                const [day, month, year] = value.split('.').map(Number);
+                const date = new Date(year, month - 1, day);
+                const notesForDate = notes[getLocaleDateString(date)];
+                console.log(notesForDate);
+                const [open, setOpen] = useState(false);
 
-                const {all} = notes ? (notes.all ? notes : {all: []}) : {all: []};
-
-                const notesList = [] as any[];
-                for (let i = 0; i < all.length; i++) {
-                    const {note, tags} = all[i];
-
-                    if (tags.includes(entity) || tags.length == 0) {
-                        notesList.push(
-                            <Card
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    minHeight: 64,
-                                    padding: 8,
-                                    marginBottom: 8,
-                                }}
-                            >
-                                {note}
-                            </Card>,
-                        );
-                    }
-                }
-
-                return notesList.length ? (
-                    <Popover
-                        content={
-                            <div
-                                style={{
-                                    height: 'calc(30em - 60px)',
-                                    width: '30em',
-                                    overflow: 'auto',
-                                    paddingBottom: 8,
-                                    display: 'flex',
-                                }}
-                            >
-                                <Card
-                                    view="outlined"
-                                    theme="warning"
-                                    style={{
-                                        position: 'absolute',
-                                        height: '30em',
-                                        width: '30em',
-                                        padding: 20,
-                                        overflow: 'auto',
-                                        top: -10,
-                                        left: -10,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        background: 'var(--g-color-base-background)',
-                                    }}
-                                >
-                                    {notesList}
-                                </Card>
-                            </div>
-                        }
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            gap: 8,
+                            alignItems: 'center',
+                        }}
                     >
-                        <Text color="brand">{value}</Text>
-                    </Popover>
-                ) : (
-                    value
+                        <Text>{value}</Text>
+
+                        {notesForDate && notesForDate.length ? (
+                            <NotesModal
+                                open={open}
+                                setOpen={setOpen}
+                                notes={notesForDate}
+                                refetchNotes={getNotes}
+                                button={
+                                    <Button
+                                        size="xs"
+                                        view="outlined"
+                                        onClick={() => {
+                                            getNotes();
+                                            setOpen(true);
+                                        }}
+                                    >
+                                        <Icon data={PencilToSquare} size={13} />
+                                    </Button>
+                                }
+                            />
+                        ) : undefined}
+                    </div>
                 );
             },
         },

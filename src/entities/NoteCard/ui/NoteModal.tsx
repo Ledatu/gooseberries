@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {Note} from '../types';
 import {defaultNote} from '../config/defaultNote';
 import {NoteEditCard} from './NoteEditCard';
@@ -7,31 +7,22 @@ import {PencilToSquare} from '@gravity-ui/icons';
 import {deleteNote} from '../api/deleteNote';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {insertNote} from '../api/insertNote';
-import {getNotes} from '../api/getNotes';
 import {useError} from '@/contexts/ErrorContext';
 import {NotesList} from './NotesList';
 import {ModalWindow} from '@/shared/ui/Modal';
 
-export const NotesModal = () => {
+interface NotesModalProps {
+    open: boolean;
+    setOpen: (arg: boolean) => void;
+    notes: Note[];
+    refetchNotes?: () => void;
+    button?: ReactNode;
+}
+
+export const NotesModal = ({open, setOpen, notes, refetchNotes, button}: NotesModalProps) => {
     const {sellerId} = useCampaign();
     const {showError} = useError();
-    const [open, setOpen] = useState(false);
     const [selectedNote, setSelectedNote] = useState<Note>(defaultNote(sellerId));
-    const [notes, setNotes] = useState<Note[]>([]);
-    const getNotesFunction = async () => {
-        try {
-            const res = await getNotes(sellerId);
-            setNotes(res);
-        } catch (error) {
-            console.error(error);
-            showError('Ошибка при получении заметок');
-        }
-    };
-    useEffect(() => {
-        if (open) {
-            getNotesFunction();
-        }
-    }, [open]);
 
     const handleDeleteButton = async (item: Note) => {
         try {
@@ -40,7 +31,9 @@ export const NotesModal = () => {
             }
             const note = defaultNote(sellerId);
             setSelectedNote(note);
-            await getNotesFunction();
+            if (refetchNotes) {
+                await refetchNotes();
+            }
             // setOpen(false);
         } catch (error) {
             console.error(error);
@@ -53,22 +46,29 @@ export const NotesModal = () => {
             await insertNote(sellerId, item);
             const note = defaultNote(sellerId);
             setSelectedNote(note);
-            await getNotesFunction();
+            if (refetchNotes) {
+                await refetchNotes();
+            }
         } catch (error) {
             console.error(error);
         }
     };
     return (
         <div>
-            <Button
-                view="flat"
-                size="l"
-                onClick={() => {
-                    setOpen(true);
-                }}
-            >
-                <Icon data={PencilToSquare} />
-            </Button>
+            {button ? (
+                button
+            ) : (
+                <Button
+                    view="flat"
+                    size="l"
+                    onClick={() => {
+                        refetchNotes ? refetchNotes() : undefined;
+                        setOpen(true);
+                    }}
+                >
+                    <Icon data={PencilToSquare} />
+                </Button>
+            )}
             <ModalWindow isOpen={open} handleClose={() => setOpen(false)}>
                 <div
                     style={{

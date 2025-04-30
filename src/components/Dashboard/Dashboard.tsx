@@ -24,8 +24,8 @@ import {MobileTabs} from '@/components/CustomTabs';
 // import {NotesCreationModal} from '@/components/Notes';
 // import {AdvertsWordsModal} from '../Pages/MassAdvertPage/AdvertsWordsModal';
 // import {NotesCreationModal} from '../Notes';
-import {NotesModal} from '@/entities/NoteCard/ui/NoteModal';
 import {useUser} from '../RequireAuth';
+import {HeaderNotesModal} from '@/entities/NoteCard/ui/HeaderNotesModal';
 
 const b = block('app');
 
@@ -430,7 +430,7 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                                 <></>
                                             )}
                                         </div>
-                                        <NotesModal />
+                                        <HeaderNotesModal />
                                         {/* <NotesCreationModal sellerId={sellerId} /> */}
                                         <UserPopup toggleTheme={toggleTheme} theme={theme} />
                                         <div
