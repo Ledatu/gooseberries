@@ -747,11 +747,12 @@ export const AdvertCard = ({
                                 ДРР: '#B2FF59',
                             }}
                             extraYAxes={{
-                                ДРР: 'drr',
-                                Расход: 'sum',
-                                Заказы: 'orders',
-                                Выдача: 'pos',
-                                'Позиция в аукционе': 'pos',
+                                Ставка: 'y_scale',
+                                ДРР: 'drr_scale',
+                                Расход: 'sum_scale',
+                                Заказы: 'orders_scale',
+                                'Позиция в аукционе': 'pos_scale',
+                                Выдача: 'pos_scale',
                                 'Органическая позиция': 'r2',
                             }}
                         >
@@ -807,6 +808,7 @@ export const AdvertCard = ({
                         </AdvertsBudgetsModal>
                         <ChartModal
                             minMaxValues={{Расход: {min: 0}}}
+                            useVerticalLines={true}
                             fetchingFunction={async () => {
                                 const params = {
                                     seller_id: sellerId,

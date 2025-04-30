@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useState, useEffect, Suspense} from 'react';
 import {App} from '@/components/App/App';
 
 import {RequireAuth} from '@/components/RequireAuth/RequireAuth';
@@ -45,17 +45,19 @@ export function RootLayoutClient({children}: {children: React.ReactNode}) {
     return (
         <ThemeProvider theme={theme}>
             <ErrorProvider>
-                <RequireAuth>
-                    <App>
-                        {isAuthPage ? (
-                            children
-                        ) : (
-                            <Dashboard theme={theme} toggleTheme={toggleTheme}>
-                                {children}
-                            </Dashboard>
-                        )}
-                    </App>
-                </RequireAuth>
+                <Suspense>
+                    <RequireAuth>
+                        <App>
+                            {isAuthPage ? (
+                                children
+                            ) : (
+                                <Dashboard theme={theme} toggleTheme={toggleTheme}>
+                                    {children}
+                                </Dashboard>
+                            )}
+                        </App>
+                    </RequireAuth>
+                </Suspense>
             </ErrorProvider>
         </ThemeProvider>
     );

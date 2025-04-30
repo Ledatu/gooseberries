@@ -12,6 +12,7 @@ interface ChartModalInterface {
     data?: YagrWidgetData;
     fetchingFunction?: () => Promise<YagrWidgetData>;
     addTime?: boolean;
+    useVerticalLines?: boolean;
     colors?: Record<string, string>;
     extraYAxes?: {[key: string]: string};
     minMaxValues?: MinMaxValue;
@@ -25,6 +26,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
     extraYAxes,
     colors,
     minMaxValues,
+    useVerticalLines,
 }) => {
     const [open, setOpen] = useState(false);
     const [dataFetching, setDataFetching] = useState(false);
@@ -140,6 +142,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
                     >
                         {yagrData ? (
                             <Graphic
+                                useVerticalLines={useVerticalLines}
                                 className={'p-5'}
                                 data={calculateGraphicData()}
                                 yAxes={extraYAxes}

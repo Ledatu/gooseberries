@@ -11,6 +11,8 @@ import dynamic from 'next/dynamic';
 import {useUser} from '@/components/RequireAuth';
 import {NoSubscriptionPage} from '@/components/Pages/NoSubscriptionPage';
 import {LogoLoad} from '@/components/logoLoad';
+import {useSearchParams} from 'next/navigation';
+import {setReferral} from '@/shared/Referral/api';
 // import {LogoLoader} from '@/components/LogoLoader';
 
 const modulesMap: any = {
@@ -72,21 +74,20 @@ export default function ModulePage() {
     console.log('sellerId', sellerId);
     const currentTime = new Date();
 
-    // // Handle initial currentModule validation
-    // useEffect(() => {
-    //     console.log(currentModule);
-    //     if (modulesLoaded && currentModule && isAuthenticated) {
-    //         if (!availableModules.includes(cur)) {
-    //             router.replace(`/api${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //         } else {
-    //             router.replace(`/${module}${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //         }
-    //     }
-    //     if (modulesLoaded && module && !availableModules.includes(module) && isAuthenticated) {
-    //         console.log(':LADK:LAKD:LDKJ;l');
-    //         router.replace(`/api${campaigns.length ? `?seller_id=${sellerId}` : ''}`);
-    //     }
-    // }, [modulesLoaded, module, availableModules, sellerId, isAuthenticated]);
+    const searchParams = useSearchParams();
+    const referal = searchParams.get('ref');
+
+    if (referal && isAuthenticated) {
+        if (
+            userInfo?.user?.hrefToReferal != referal ||
+            new Date(Date.now() - 60 * 60 * 1000) > new Date(userInfo?.user?.timeOfHref)
+        ) {
+            console.log(new Date(), 'setting referal', referal, userInfo?.user);
+            setReferral(referal);
+        }
+    }
+
+    
     if (!campaigns.length && isAuthenticated) {
         const ApiPage = modulesMap['api'];
 

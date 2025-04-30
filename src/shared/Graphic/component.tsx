@@ -36,6 +36,7 @@ interface GraphicProps {
     colors?: Record<string, string>;
     removedEntities?: string[];
     minMaxValues?: MinMaxValue;
+    useVerticalLines?: boolean;
 }
 
 export const Graphic: FC<GraphicProps> = ({
@@ -45,6 +46,7 @@ export const Graphic: FC<GraphicProps> = ({
     colors,
     removedEntities = [],
     minMaxValues,
+    useVerticalLines,
 }) => {
     const theme = useTheme();
     const chartRef = useRef<any>(null);
@@ -157,7 +159,9 @@ export const Graphic: FC<GraphicProps> = ({
                     ref={chartRef}
                     data={chartData}
                     options={options as any}
-                    plugins={[hideLineOnClickPlugin, verticalLinePlugin]}
+                    plugins={[hideLineOnClickPlugin as any].concat(
+                        useVerticalLines ? [verticalLinePlugin] : [],
+                    )}
                     style={{width: '100%', height: '100%'}}
                 />
             </div>

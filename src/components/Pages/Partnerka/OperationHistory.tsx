@@ -1,5 +1,5 @@
 import {ModalWindow} from '@/shared/ui/Modal';
-import {Button, Divider, Text} from '@gravity-ui/uikit';
+import {Button, Text} from '@gravity-ui/uikit';
 import {Children, cloneElement, isValidElement, ReactElement, useMemo, useState} from 'react';
 import {Operation} from './PartnerkaPage';
 

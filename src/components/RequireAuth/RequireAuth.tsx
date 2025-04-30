@@ -5,7 +5,7 @@ import {useRouter, useSearchParams} from 'next/navigation';
 // import {LogoLoader} from '@/components/LogoLoader/LogoLoader';
 import ApiClient from '@/utilities/ApiClient';
 import {LogoLoad} from '../logoLoad';
-import { setReferral } from '@/shared/Referral/api';
+import {setReferral} from '@/shared/Referral/api';
 
 // Create a Context for the user info
 const UserContext = createContext(null as any);
@@ -21,13 +21,14 @@ export function RequireAuth({children}: {children: React.ReactNode}) {
     //     console.log("huihuijui")
     // })
     const searchParams = useSearchParams();
-    const referal = searchParams.get('referral');
+    const referal = searchParams.get('ref');
+
     useEffect(() => {
         if (referal && isAuthenticated) {
-            console.log(referal);
-            setReferral(userInfo.user._id, referal);
+            console.log(new Date(), 'set-referal RequireAuth', referal);
+            setReferral(referal);
         }
-    }, [referal, isAuthenticated])
+    }, [referal, isAuthenticated]);
 
     const checkTokenValidity = async () => {
         const authToken = localStorage.getItem('authToken');

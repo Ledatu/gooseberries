@@ -25,6 +25,7 @@ import {MobileTabs} from '@/components/CustomTabs';
 // import {AdvertsWordsModal} from '../Pages/MassAdvertPage/AdvertsWordsModal';
 // import {NotesCreationModal} from '../Notes';
 import {NotesModal} from '@/entities/NoteCard/ui/NoteModal';
+import {useUser} from '../RequireAuth';
 
 const b = block('app');
 
@@ -44,7 +45,8 @@ export interface DashboardProps {
 
 export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
     const searchParams = useSearchParams();
-    // const {refetchUser} = useUser();
+    const {userInfo} = useUser();
+    const {user} = userInfo ?? {};
     const {selectValue, currentCampaign, campaignInfo, campaigns} = useCampaign();
     const {currentModule, availableModules = [], setModule} = useModules();
 
@@ -149,6 +151,8 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
     //     );
     // };
     const isMobile = useMediaQuery('(max-width: 768px)');
+
+    const admin = useMemo(() => [1122958293, 933839157].includes(user?._id), [user]);
 
     return (
         <div className={b()}>
@@ -297,9 +301,9 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                         <CustomTabs
                                             items={optionsPages.filter(
                                                 (item) =>
-                                                    !['Поддержка', 'База знаний'].includes(
-                                                        item.title,
-                                                    ),
+                                                    !['Поддержка', 'База знаний']
+                                                        .concat(admin ? [] : ['Партнерка'])
+                                                        .includes(item.title),
                                             )}
                                             currentModule={currentModule}
                                             setModule={setModule}
