@@ -50,6 +50,7 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
         reports: 'Отчеты',
         seo: 'SEO',
         api: 'Магазины',
+        partnerka: 'Партнерка',
     };
 
     useEffect(() => {
@@ -74,8 +75,8 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
         // if (![1122958293, 566810027, 933839157].includes(user?.['_id'])) {
         //     baseModules = baseModules.filter((item) => item != 'reports');
         // }
-        console.log([...baseModules, 'api']);
-        setAvailableModules([...baseModules, 'api']);
+        console.log([...baseModules, 'api', 'partnerka']);
+        setAvailableModules([...baseModules, 'api', 'partnerka']);
         const baseModulesMap = safeModules.includes('all')
             ? {
                   massAdvert: 'Управление',
@@ -89,6 +90,7 @@ export const ModuleProvider = ({children}: {children: React.ReactNode}) => {
               }
             : modulesMap;
         baseModulesMap['api'] = 'Управление';
+        baseModulesMap['partnerka'] = 'Управление';
         setAvailableModulesMap(baseModulesMap);
         setModulesLoaded(true);
     }, [modules, campaigns, isAuthenticated]);

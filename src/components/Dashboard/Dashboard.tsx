@@ -58,6 +58,7 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
         reports: 'Отчеты',
         seo: 'SEO',
         api: 'Магазины',
+        partnerka: 'Партнерка',
     };
     const optionsPages = useMemo(() => {
         if (!availableModules) return [];

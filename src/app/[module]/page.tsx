@@ -55,6 +55,12 @@ const modulesMap: any = {
             ssr: false,
         },
     ),
+    partnerka: dynamic(
+        () => import('@/components/Pages/Partnerka').then((mod) => mod.PartnerkaPage),
+        {
+            ssr: false,
+        },
+    ),
     // analytics: dynamic(() => import('@/components/AnalyticsPage')),
     // ... other modules
 };
