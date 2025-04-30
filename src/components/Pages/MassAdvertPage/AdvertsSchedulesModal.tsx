@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Card, Icon, Modal, Text, Tooltip} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Card, Icon, Modal, Text, Tooltip} from '@gravity-ui/uikit';
 import {TrashBin, CloudArrowUpIn, ChartBar} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, ReactNode, useState, cloneElement} from 'react';
@@ -8,6 +8,7 @@ import {useCampaign} from '@/contexts/CampaignContext';
 import callApi, {getUid} from '@/utilities/callApi';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
+import {getRoundValue} from '@/utilities/getRoundValue';
 
 interface AdvertsSchedulesModalProps {
     setUpdatePaused?: Function;
@@ -33,9 +34,11 @@ export const AdvertsSchedulesModal = ({
     const {showError} = useError();
     const {selectValue} = useCampaign();
     const [open, setOpen] = useState(false);
+    const [fetchingHeatMap, setFetchingHeatMap] = useState(false);
     const [heatMap, setHeatMap] = useState<number[][]>([]);
 
     const getHeatMap = async () => {
+        setFetchingHeatMap(true);
         try {
             const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
                 advertId,
@@ -48,6 +51,8 @@ export const AdvertsSchedulesModal = ({
             console.log(heatMap);
         } catch (error) {
             console.error(error);
+        } finally {
+            setFetchingHeatMap(false);
         }
     };
 
@@ -263,7 +268,7 @@ export const AdvertsSchedulesModal = ({
                                             color="inverted-primary"
                                             variant="subheader-2"
                                         >
-                                            {Math.floor((heatMap[i][j] * 10000) / sumForDay) / 100}%
+                                            {getRoundValue(heatMap[i][j], sumForDay, true, 0)}%
                                         </Text>
                                     </div>
                                 ) : undefined}
@@ -379,11 +384,6 @@ export const AdvertsSchedulesModal = ({
                             >
                                 Часовой пояс Москвы — UTC +3 (MSK)
                             </Text>
-                            {advertId ? (
-                                <Button onClick={() => getHeatMap()}>
-                                    <Icon data={ChartBar} />
-                                </Button>
-                            ) : undefined}
                         </div>
                         <div style={{minHeight: 8}} />
                         {generateScheduleInput({scheduleInput, setScheduleInput})}
@@ -392,13 +392,13 @@ export const AdvertsSchedulesModal = ({
                             style={{
                                 display: 'flex',
                                 flexDirection: 'row',
-                                gap: 8,
+                                alignItems: 'center',
+                                gap: 16,
                             }}
                         >
                             <Button
                                 size="l"
                                 pin="circle-circle"
-                                style={{margin: '8px 0'}}
                                 selected
                                 view={'outlined-success'}
                                 onClick={() => {
@@ -448,7 +448,6 @@ export const AdvertsSchedulesModal = ({
                                 size="l"
                                 pin="circle-circle"
                                 selected
-                                style={{margin: '8px 0'}}
                                 view={'outlined-danger'}
                                 onClick={() => {
                                     const params: any = {
@@ -490,6 +489,23 @@ export const AdvertsSchedulesModal = ({
                                 <Icon data={TrashBin} />
                                 Удалить
                             </Button>
+                            {advertId ? (
+                                <ActionTooltip title="Показать тепловую карту заказов за послежние 4 недели.">
+                                    <Button
+                                        size="l"
+                                        selected
+                                        view="flat-info"
+                                        pin="circle-circle"
+                                        onClick={() => getHeatMap()}
+                                        loading={fetchingHeatMap}
+                                    >
+                                        <Icon data={ChartBar} />
+                                        Показать тепловую карту заказов
+                                    </Button>
+                                </ActionTooltip>
+                            ) : (
+                                <></>
+                            )}
                         </div>
                     </motion.div>
                 </Card>
