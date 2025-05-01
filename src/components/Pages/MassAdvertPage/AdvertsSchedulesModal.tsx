@@ -199,7 +199,7 @@ export const AdvertsSchedulesModal = ({
                 </Tooltip>,
             );
             const temp = [] as any[];
-            const flatHeatMap = heatMap.flat();
+            const flatHeatMap = heatMap.length > i ? heatMap[i] : [];
             const maxHeat = Math.max(...flatHeatMap);
             const minHeat = Math.min(...flatHeatMap);
             let sumForDay = 0;
