@@ -201,7 +201,7 @@ export const AdvertCard = ({
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
     const budgetToKeep = advertBudgetRules?.[id];
     if (!advertData) return <></>;
-    const {advertId, status, budget, daysInWork, type, pregenerated, cpm, isQueuedToCreate} =
+    const {advertId, status, budget, daysInWork, type, pregenerated, cpm, nmCPMs, isQueuedToCreate} =
         advertData;
     if (![4, 9, 11].includes(status)) return <></>;
 
@@ -238,7 +238,9 @@ export const AdvertCard = ({
         }
     };
 
-    const curCpm = cpm;
+
+
+    const curCpm = nmCPMs[nmId] ?? cpm;
 
     const curBudget = budget;
 
