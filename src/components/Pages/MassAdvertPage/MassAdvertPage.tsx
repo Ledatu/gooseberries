@@ -3764,7 +3764,6 @@ export const MassAdvertPage = () => {
                 uniqueAdverts[advertId] = {advertId: advertId};
             }
         }
-        console.log('uniqueAdverts', uniqueAdverts);
         return uniqueAdverts;
     };
 
