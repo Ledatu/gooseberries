@@ -240,7 +240,7 @@ export const AdvertCard = ({
 
 
 
-    const curCpm = nmCPMs[nmId] ?? cpm;
+    const curCpm = nmCPMs?.[nmId] ?? cpm;
 
     const curBudget = budget;
 
