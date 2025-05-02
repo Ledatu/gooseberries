@@ -113,6 +113,7 @@ export const AdvertsSchedulesModal = ({
                             style={{
                                 width: heatMap.length ? 52 : 25,
                                 height: heatMap.length ? 18 : 16,
+                                margin: heatMap.length ? 4 : 2,
                             }}
                             selected={paused && isCheckboxChecked}
                             view={
@@ -137,7 +138,7 @@ export const AdvertsSchedulesModal = ({
                 </Tooltip>,
             );
         }
-        weekInput.push(<div style={{display: 'flex', flexDirection: 'row'}}>{tempHours}</div>);
+        weekInput.push(<div style={{display: 'flex', flexDirection: 'row', marginLeft: heatMap.length ? 4 : 2}}>{tempHours}</div>);
 
         for (let i = 0; i < 7; i++) {
             const isCheckboxChecked =
@@ -268,7 +269,7 @@ export const AdvertsSchedulesModal = ({
                                             color="inverted-primary"
                                             variant="subheader-2"
                                         >
-                                            {getRoundValue(heatMap[i][j], sumForDay, true, 0)}%
+                                            {Math.floor(getRoundValue(heatMap[i][j], sumForDay, true, 0)*10)/10}%
                                         </Text>
                                     </div>
                                 ) : undefined}
