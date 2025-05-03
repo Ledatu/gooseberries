@@ -268,7 +268,7 @@ export const AdvertsSchedulesModal = ({
                                             color="inverted-primary"
                                             variant="subheader-2"
                                         >
-                                            {getRoundValue(heatMap[i][j], sumForDay, true, 0)}%
+                                            {getRoundValue(heatMap[i][j] * 100, sumForDay)}%
                                         </Text>
                                     </div>
                                 ) : undefined}
@@ -303,6 +303,7 @@ export const AdvertsSchedulesModal = ({
         const schedule = doc.advertsSchedules?.[selectValue[0]]?.[advertId]?.schedule;
         setScheduleInput(advertId ? (schedule ?? genTempSchedule()) : genTempSchedule());
         setOpen(true);
+        setHeatMap([]);
     };
     const handleClose = () => setOpen(false);
 
