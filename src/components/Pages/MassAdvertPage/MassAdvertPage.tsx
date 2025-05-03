@@ -3744,8 +3744,9 @@ export const MassAdvertPage = () => {
         const lwr = filters['adverts']
             ? String(filters['adverts']['val']).toLocaleLowerCase().trim()
             : '';
-
+        const lwrAsNumber: number = parseInt(lwr);
         const uniqueAdverts: any = {};
+
         for (let i = 0; i < filteredData.length; i++) {
             const {adverts} = filteredData[i];
             if (!adverts) continue;
@@ -3756,10 +3757,9 @@ export const MassAdvertPage = () => {
                 if (!advertData) continue;
                 const {advertId, type} = advertData;
                 if (!advertId) continue;
-
                 if (lwr == 'авто' && type != 8) continue;
                 else if (lwr == 'поиск' && ![6, 9].includes(type)) continue;
-                else if (!id.includes(lwr)) continue;
+                else if (!Number.isNaN(lwrAsNumber) && !id.includes(lwr)) continue;
 
                 uniqueAdverts[advertId] = {advertId: advertId};
             }
