@@ -17,16 +17,22 @@ export function RequireAuth({children}: {children: React.ReactNode}) {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [userInfo, setUserInfo] = useState<any>(null);
-    // useEffect(() => {
-    //     console.log("huihuijui")
-    // })
     const searchParams = useSearchParams();
     const referal = searchParams.get('ref');
 
     useEffect(() => {
-        if (referal && isAuthenticated) {
-            console.log(new Date(), 'set-referal RequireAuth', referal);
-            setReferral(referal);
+        if (!isAuthenticated && referal) {
+            localStorage.setItem('referal', referal);
+        }
+        const refToUse = referal ?? localStorage.getItem('referal');
+        if (refToUse && isAuthenticated) {
+            if (
+                (userInfo?.user && userInfo?.user?.hrefToReferal != refToUse) ||
+                new Date(Date.now() - 60 * 60 * 1000) > new Date(userInfo?.user?.timeOfHref)
+            ) {
+                console.log(new Date(), 'set-referal RequireAuth', refToUse);
+                setReferral(refToUse, refetchUser);
+            }
         }
     }, [referal, isAuthenticated]);
 
