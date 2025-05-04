@@ -191,20 +191,6 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         },
         {
             constWidth: 69,
-            placeholder: 'ДРР, %',
-            name: 'drr',
-            render: ({value, footer}) =>
-                renderGradNumber({value, footer}, footerData['drr'], renderAsPercent, 'desc'),
-        },
-        {
-            constWidth: 69,
-            placeholder: 'CPO, ₽',
-            name: 'cpo',
-            render: ({value, footer}) =>
-                renderGradNumber({value, footer}, footerData['cpo'], defaultRender, 'desc'),
-        },
-        {
-            constWidth: 69,
             placeholder: 'CR, %',
             name: 'openToOrderPercent',
             render: ({value, footer}) =>
@@ -286,6 +272,20 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                     footerData['cartToOrderCurrent'],
                     renderAsPercent,
                 ),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'ДРР, %',
+            name: 'drr',
+            render: ({value, footer}) =>
+                renderGradNumber({value, footer}, footerData['drr'], renderAsPercent, 'desc'),
+        },
+        {
+            constWidth: 69,
+            placeholder: 'CPO, ₽',
+            name: 'cpo',
+            render: ({value, footer}) =>
+                renderGradNumber({value, footer}, footerData['cpo'], defaultRender, 'desc'),
         },
         {
             placeholder: 'Пресет',
