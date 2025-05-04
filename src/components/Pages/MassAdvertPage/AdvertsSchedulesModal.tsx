@@ -100,7 +100,11 @@ export const AdvertsSchedulesModal = ({
             tempHours.push(
                 <Tooltip content={`Каждый день ${j}:00 - ${j}:59`}>
                     <motion.div
-                        animate={{width: heatMap.length ? 52 : 25, margin: heatMap.length ? 4 : 2}}
+                        animate={{
+                            width: heatMap.length ? 52 : 25,
+                            margin: heatMap.length ? 4 : 2,
+                            marginBottom: 0,
+                        }}
                         style={{
                             display: 'flex',
                             flexDirection: 'column',
@@ -114,6 +118,7 @@ export const AdvertsSchedulesModal = ({
                                 width: heatMap.length ? 52 : 25,
                                 height: heatMap.length ? 18 : 16,
                                 margin: heatMap.length ? 4 : 2,
+                                marginBottom: 0,
                             }}
                             selected={paused && isCheckboxChecked}
                             view={
@@ -138,7 +143,13 @@ export const AdvertsSchedulesModal = ({
                 </Tooltip>,
             );
         }
-        weekInput.push(<div style={{display: 'flex', flexDirection: 'row', marginLeft: heatMap.length ? 4 : 2}}>{tempHours}</div>);
+        weekInput.push(
+            <div
+                style={{display: 'flex', flexDirection: 'row', marginLeft: heatMap.length ? 4 : 2}}
+            >
+                {tempHours}
+            </div>,
+        );
 
         for (let i = 0; i < 7; i++) {
             const isCheckboxChecked =
