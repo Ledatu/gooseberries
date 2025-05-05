@@ -503,7 +503,7 @@ export const AdvertsSchedulesModal = ({
                                 Удалить
                             </Button>
                             {advertId ? (
-                                <ActionTooltip title="Показать тепловую карту заказов за послежние 4 недели.">
+                                <ActionTooltip title="Показать тепловую карту заказов за последние 4 недели.">
                                     <Button
                                         size="l"
                                         selected
