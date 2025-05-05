@@ -5,6 +5,8 @@ import {Star, Comment} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import ApiClient from '@/utilities/ApiClient';
+import {PieChart} from '@/shared/ui/PieChart/component';
+import {convertYagrToChartPie} from '@/features/Top100ComparsionInfo/lib/converters/convertYagrToChartPie';
 interface PageInfoGraphsProps {
     sellerId: string;
     phrase: any;
@@ -185,9 +187,14 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
     }, [auction]);
 
     useEffect(() => {
-        console.log("GRAPHS INFO:")
-        console.log(_graphs)
-    }, [_graphs])
+        console.log('GRAPHS INFO:');
+        console.log(_graphs);
+    }, [_graphs]);
+
+    let pieChartData = null;
+    if (_graphs && _graphs?.rating?.data?.graphs) {
+        pieChartData = convertYagrToChartPie(_graphs?.rating?.data?.graphs);
+    }
 
     return price ? (
         <div style={{display: 'flex', flexDirection: 'column'}}>
@@ -250,8 +257,19 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                                         height: '40%',
                                     }}
                                 >
-                                    <div style={{width: '30%'}}>
-                                        <ChartKit type="yagr" data={_graphs?.rating as any} />
+                                    {/*<div style={{width: '30%'}}>*/}
+                                    {/*    <ChartKit type="yagr" data={_graphs?.rating as any} />*/}
+                                    {/*</div>*/}
+                                    <div className={'w-[30%]'}>
+                                        {pieChartData && (
+                                            <PieChart
+                                                title={'Топ 100 чето там'}
+                                                plainData={pieChartData.plainData}
+                                                labels={pieChartData.labels}
+                                                backgroundColor={pieChartData.backgroundColor}
+                                                borderColor={pieChartData.borderColor}
+                                            />
+                                        )}
                                     </div>
                                     <div style={{width: '70%'}}>
                                         <ChartKit type="yagr" data={_graphs?.feedbacks as any} />

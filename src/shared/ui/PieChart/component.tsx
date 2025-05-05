@@ -31,5 +31,13 @@ export const PieChart: FC<PieChartProps> = ({
         ],
     };
 
-    return <Pie data={data} />;
+    const options = {
+        plugins: {
+            legend: {
+                display: false,
+            },
+        },
+    };
+
+    return <Pie data={data} options={options} />;
 };

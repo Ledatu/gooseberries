@@ -1,27 +1,16 @@
-// [{
-//     "color": "#ffbe5c",
-//     "type": "column",
-//     "data": [
-//         null,
-//         4.8
-//     ],
-//     "id": "1",
-//     "name": "Этот артикул",
-//     "scale": "y"
-// },
-//     {
-//         "id": "0",
-//         "name": "Рейтинг",
-//         "data": [
-//             4.7,
-//             4.8,
-//             4.9,
-//             5
-//         ],
-//         "color": "#9a63d1",
-//         "scale": "y"
-//     }
-// ]
+const SELECTED_ELEMENT_COLOR: string = '#ffbe5c';
+const OTHER_COLORS: string[] = [
+    '#9a63d1', // оригинальный фиолетовый
+    '#5c8dff', // мягкий синий
+    '#63d19a', // мятно-зеленый
+    '#ff5c8d', // розовый
+    '#5cd1d1', // бирюзовый
+    '#d19a63', // коричнево-бежевый
+    '#8d5cff', // насыщенный фиолетовый
+    '#5cff8d', // ярко-зеленый
+    '#ff8d5c', // коралловый
+    '#d15cff', // пурпурный
+];
 
 type YagrFormat = {
     color: string;
@@ -44,24 +33,22 @@ export const convertYagrToChartPie = (data: YagrFormat): ChartPieFormat => {
         throw new Error('Incorrect data format for to convert Yagr Format to ChartJS Pie Format ');
     }
 
-    const currentElementValue: number = currentElement.data.filter((data) => data !== null)[0];
-    const otherElementsValue: number[] = (() => {
-        const tempData: number[] = [];
-
-        otherElements.forEach((element) =>
-            tempData.concat(element.data.filter((element) => element !== null)),
-        );
-
-        return tempData;
-    })();
+    const currentElementValue: number = currentElement.data.find((data) => data !== null) as number;
+    const otherElementsValue: number[] = otherElements.flatMap((element) =>
+        element.data.filter((el): el is number => el !== null),
+    );
 
     const otherElementsLength: number = otherElementsValue.length;
-    const allElementsLength: number = otherElementsLength + 1;
+    // const allElementsLength: number = otherElementsLength + 1;
 
     return {
         plainData: [currentElementValue, ...otherElementsValue],
-        borderColor: new Array(allElementsLength).fill('#000000'),
+        borderColor: [
+            SELECTED_ELEMENT_COLOR,
+            ...new Array(otherElementsLength).fill(OTHER_COLORS[0]),
+        ],
         labels: ['Этот артикул', ...new Array(otherElementsLength).fill('Рейтинг')],
-        backgroundColor: ['#ffbe5c', ...new Array(otherElementsLength).fill('#9a63d1')],
+        // backgroundColor: ['#ffbe5c', ...OTHER_COLORS.slice(0, otherElementsLength)],
+        backgroundColor: ['#ffbe5c', ...new Array(otherElementsLength).fill(OTHER_COLORS[0])],
     };
 };
