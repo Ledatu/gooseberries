@@ -183,6 +183,12 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
         );
         return gr;
     }, [auction]);
+
+    useEffect(() => {
+        console.log("GRAPHS INFO:")
+        console.log(_graphs)
+    }, [_graphs])
+
     return price ? (
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <Popover

@@ -1,5 +1,5 @@
 'use client';
-import {PageInfoGraphs} from './PageInfoGraphs';
+import {PageInfoGraphs} from '@/features/Top100ComparsionInfo/ui';
 import {CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
     Spin,
