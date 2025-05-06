@@ -9,6 +9,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
+import {useTheme} from '@gravity-ui/uikit';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -17,7 +18,7 @@ interface BarChartProps {
         labels: string[];
         datasets: {
             label: string;
-            data: number[];
+            data: (number | null)[];
             backgroundColor: string;
             borderColor?: string;
             borderWidth?: number;
@@ -32,11 +33,10 @@ export const BarChartComponent: React.FC<BarChartProps> = ({data, title, yAxisLa
         responsive: true,
         plugins: {
             legend: {
-                position: 'top' as const,
+                display: false,
             },
             title: {
-                display: true,
-                text: title,
+                display: false,
             },
             tooltip: {
                 mode: 'index' as const,
@@ -44,6 +44,8 @@ export const BarChartComponent: React.FC<BarChartProps> = ({data, title, yAxisLa
                 position: 'nearest' as const,
                 callbacks: {
                     label: function (context: any) {
+                        if (context.parsed.y === null) return null;
+
                         let label = context.dataset.label || '';
                         if (label) {
                             label += ': ';
@@ -54,11 +56,17 @@ export const BarChartComponent: React.FC<BarChartProps> = ({data, title, yAxisLa
                         return label;
                     },
                 },
+                filter: function (tooltipItem: any) {
+                    return tooltipItem.parsed.y !== null;
+                },
             },
         },
         scales: {
             y: {
                 beginAtZero: true,
+                ticks: {
+                    callback: (value: number) => (value >= 1000 ? `${value / 1000}k` : value),
+                },
                 title: {
                     display: true,
                     text: yAxisLabel,
@@ -66,6 +74,7 @@ export const BarChartComponent: React.FC<BarChartProps> = ({data, title, yAxisLa
             },
             x: {
                 display: false,
+                stacked: true,
                 grid: {
                     display: false,
                 },
@@ -86,5 +95,17 @@ export const BarChartComponent: React.FC<BarChartProps> = ({data, title, yAxisLa
         },
     };
 
-    return <Bar options={options} data={data} />;
+    const theme = useTheme();
+
+    return (
+        <div>
+            <div
+                style={{color: theme === 'dark' ? '#ffffff59' : '#333'}}
+                className={'line-clamp-1 text-[14px] font-bold ml-3 mb-4 text-center'}
+            >
+                {title}
+            </div>
+            <Bar options={options as any} data={data} className={'mt-2'} />
+        </div>
+    );
 };

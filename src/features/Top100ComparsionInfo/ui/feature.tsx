@@ -22,14 +22,6 @@ interface GraphData {
             backgroundColor: string;
         }[];
     };
-    rating: {
-        labels: string[];
-        datasets: {
-            label: string;
-            data: (number | null)[];
-            backgroundColor: string;
-        }[];
-    };
     feedbacks: {
         labels: string[];
         datasets: {
@@ -75,49 +67,41 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
     const graphData = useMemo<GraphData | null>(() => {
         if (!auction.length) return null;
 
-        const pricesData: number[] = [];
-        const pricesDataCur: (number | null)[] = [];
-        const reviewRatingsData: number[] = [];
-        const reviewRatingsDataCur: (number | null)[] = [];
-        const feedbacksData: number[] = [];
-        const feedbacksDataCur: (number | null)[] = [];
+        const currentPrice = price;
+        const currentFeedbacks = feedbacks;
+
+        const pricesSet = new Set<number>();
+        const feedbacksSet = new Set<number>();
 
         auction.forEach((card) => {
-            const {reviewRating: cardRating, sizes: cardSizes, feedbacks: cardFeedbacks} = card;
-            const priceRub = Math.round((cardSizes?.[0]?.['price']?.['total'] ?? 0) / 100);
-
-            if (!pricesData.includes(priceRub)) pricesData.push(priceRub);
-            if (!reviewRatingsData.includes(cardRating)) reviewRatingsData.push(cardRating);
-            if (!feedbacksData.includes(cardFeedbacks)) feedbacksData.push(cardFeedbacks);
+            const priceRub = Math.round((card.sizes?.[0]?.price?.total ?? 0) / 100);
+            pricesSet.add(priceRub);
+            feedbacksSet.add(card.feedbacks);
         });
 
-        if (!pricesData.includes(price)) pricesData.push(price);
-        if (!reviewRatingsData.includes(reviewRating)) reviewRatingsData.push(reviewRating);
-        if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
+        pricesSet.add(currentPrice);
+        feedbacksSet.add(currentFeedbacks);
 
-        pricesData.sort((a, b) => a - b);
-        reviewRatingsData.sort((a, b) => a - b);
-        feedbacksData.sort((a, b) => a - b);
+        const pricesData = Array.from(pricesSet).sort((a, b) => a - b);
+        const feedbacksData = Array.from(feedbacksSet).sort((a, b) => a - b);
 
-        pricesData.forEach((val) => {
-            pricesDataCur.push(val === price ? price : null);
-        });
+        const pricesDataCur = pricesData.map((val) => (val === currentPrice ? currentPrice : null));
+        const feedbacksDataCur = feedbacksData.map((val) =>
+            val === currentFeedbacks ? currentFeedbacks : null,
+        );
 
-        reviewRatingsData.forEach((val) => {
-            reviewRatingsDataCur.push(val === reviewRating ? reviewRating : null);
-        });
-
-        feedbacksData.forEach((val) => {
-            feedbacksDataCur.push(val === feedbacks ? feedbacks : null);
-        });
+        const pricesDataTop = pricesData.map((val) => (val === currentPrice ? null : val));
+        const feedbacksDataTop = feedbacksData.map((val) =>
+            val === currentFeedbacks ? null : val,
+        );
 
         return {
             prices: {
-                labels: pricesData.map((val) => val.toString()),
+                labels: pricesData.map(String),
                 datasets: [
                     {
                         label: 'Топ 100 артикулов',
-                        data: pricesData,
+                        data: pricesDataTop,
                         backgroundColor: '#5fb8a5',
                     },
                     {
@@ -127,27 +111,12 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                     },
                 ],
             },
-            rating: {
-                labels: reviewRatingsData.map((val) => val.toString()),
-                datasets: [
-                    {
-                        label: 'Топ 100 артикулов',
-                        data: reviewRatingsData,
-                        backgroundColor: '#9a63d1',
-                    },
-                    {
-                        label: 'Этот артикул',
-                        data: reviewRatingsDataCur,
-                        backgroundColor: '#ffbe5c',
-                    },
-                ],
-            },
             feedbacks: {
-                labels: feedbacksData.map((val) => val.toString()),
+                labels: feedbacksData.map(String),
                 datasets: [
                     {
                         label: 'Топ 100 артикулов',
-                        data: feedbacksData,
+                        data: feedbacksDataTop,
                         backgroundColor: '#4aa1f2',
                     },
                     {
@@ -158,7 +127,7 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                 ],
             },
         };
-    }, [auction, price, reviewRating, feedbacks]);
+    }, [auction, price, feedbacks]);
 
     let pieChartData = null;
     if (auction.length && reviewRating) {
@@ -187,9 +156,12 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                             border: '1px solid #eee2',
                             width: 700,
                             left: -5,
-                            height: 450 * 1.3,
+                            height: 500 * 1.3,
                             overflow: 'auto',
                             position: 'absolute',
+                            boxSizing: 'border-box',
+                            padding: 24,
+                            overflowY: 'hidden',
                         }}
                     >
                         {!auction.length ? (
@@ -213,7 +185,6 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                                     flexDirection: 'column',
                                     width: '100%',
                                     height: '100%',
-                                    padding: '16px',
                                 }}
                             >
                                 <div style={{height: '60%', marginBottom: '16px'}}>

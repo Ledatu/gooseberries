@@ -48,7 +48,7 @@ export const PieChart: FC<PieChartProps> = ({
         <div>
             <h5
                 style={{color: theme === 'dark' ? '#ffffff59' : '#333'}}
-                className={'line-clamp-1 text-[14px] font-bold ml-3 my-1'}
+                className={'line-clamp-1 text-[14px] font-bold ml-3 mb-4'}
             >
                 {title}
             </h5>
