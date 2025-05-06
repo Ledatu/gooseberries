@@ -192,8 +192,17 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
     }, [_graphs]);
 
     let pieChartData = null;
-    if (_graphs && _graphs?.rating?.data?.graphs) {
-        pieChartData = convertYagrToChartPie(_graphs?.rating?.data?.graphs);
+    if (auction.length > 0) {
+        // Добавляем текущий товар в начало массива для анализа
+        const dataWithCurrent = [
+            {
+                reviewRating: reviewRating,
+                // другие необходимые поля...
+            },
+            ...auction,
+        ];
+
+        pieChartData = convertYagrToChartPie(dataWithCurrent);
     }
 
     return price ? (
