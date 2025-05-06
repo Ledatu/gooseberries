@@ -2,7 +2,7 @@ import {FC, useRef} from 'react';
 import {Line} from 'react-chartjs-2';
 import {cn} from '@/lib/cn';
 import zoomPlugin from 'chartjs-plugin-zoom';
-import {Chart as ChartJS, Tooltip} from 'chart.js';
+import {Chart as ChartJS} from 'chart.js';
 import {
     CHART_JS_REGISTER_COMPONENTS,
     DEFAULT_CHART_OPTIONS,
@@ -13,17 +13,9 @@ import {
 import {formatChartData, createScalesConfig} from './utils';
 import {Button, useTheme} from '@gravity-ui/uikit';
 import {hideLineOnClickPlugin, verticalLinePlugin} from './plugins';
+import {registerNextToPositioner} from '@/shared/chartPlugins/tooltipPosition';
 
-// @ts-ignore
-Tooltip.positioners.nextTo = function (elements, eventPosition) {
-    const width = (this as any).width ?? 100;
-    return {
-        x: eventPosition.x - width - 10,
-        y: eventPosition.y,
-        xAlign: 'left',
-        yAlign: 'center',
-    };
-};
+registerNextToPositioner();
 
 ChartJS.register(...CHART_JS_REGISTER_COMPONENTS, zoomPlugin);
 

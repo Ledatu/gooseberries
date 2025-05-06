@@ -10,6 +10,9 @@ import {
     Legend,
 } from 'chart.js';
 import {useTheme} from '@gravity-ui/uikit';
+import {registerNextToPositioner} from '@/shared/chartPlugins/tooltipPosition';
+
+registerNextToPositioner();
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -41,7 +44,7 @@ export const BarChartComponent: React.FC<BarChartProps> = ({data, title, yAxisLa
             tooltip: {
                 mode: 'index' as const,
                 intersect: false,
-                position: 'nearest' as const,
+                position: 'nextTo',
                 callbacks: {
                     label: function (context: any) {
                         if (context.parsed.y === null) return null;
