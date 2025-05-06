@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
-    "dev": "bun --bun next dev",
+    "dev": "bun --bun next dev --turbo",
     "build": "bun --bun next build",
     "start": "bun --bun next start",
     "lint:js": "bunx eslint --ext .js,.jsx,.ts,.tsx .",

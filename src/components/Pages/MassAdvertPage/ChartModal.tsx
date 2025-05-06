@@ -1,6 +1,6 @@
 'use client';
 
-import {Graphic, MinMaxValue} from '@/shared/Graphic';
+import {Graphic, MinMaxValue} from '@/shared/ui/Graphic';
 import {ModalWindow} from '@/shared/ui/Modal';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {Loader} from '@gravity-ui/uikit';

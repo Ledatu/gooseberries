@@ -1,31 +1,53 @@
-import ChartKit from '@gravity-ui/chartkit';
-import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Button, Icon, Loader, Popover, Text} from '@gravity-ui/uikit';
 import {Star, Comment} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import ApiClient from '@/utilities/ApiClient';
+import {PieChart} from '@/shared/ui/PieChart/component';
+import {BarChartComponent} from '@/shared/ui/BarChart';
+import {convertToChartPie} from '../lib/converters/convertToChartPie';
+
 interface PageInfoGraphsProps {
     sellerId: string;
     phrase: any;
     placementsValue: any;
 }
+
+interface GraphData {
+    prices: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: (number | null)[];
+            backgroundColor: string;
+        }[];
+    };
+    feedbacks: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: (number | null)[];
+            backgroundColor: string;
+        }[];
+    };
+}
+
 export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGraphsProps) => {
-    const auctionOptions: any[] = [
-        {value: 'firstPage', content: 'Выдача'},
-        {value: 'auto', content: 'Аукцион Авто'},
-        {value: 'search', content: 'Аукцион Поиска'},
-    ];
     const [auctionSelectedOption, setAuctionSelectedOption] = useState('firstPage');
-    const [auction, setAuction] = useState([]);
+    const [auction, setAuction] = useState<any[]>([]);
     const [open, setOpen] = useState(false);
+
+    const {reviewRating, sizes, feedbacks} = placementsValue ?? {};
+    const price = Math.round((sizes?.[0]?.price?.total ?? 0) / 100);
+
     useEffect(() => {
         if (!open) setAuction([]);
         else {
             getAuction();
-            setAuctionSelectedOption(String('firstPage'));
+            setAuctionSelectedOption('firstPage');
         }
     }, [open]);
+
     const getAuction = useCallback(async () => {
         if (!open) return;
         try {
@@ -40,155 +62,84 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
         } catch (error) {
             console.error('error auction', error);
         }
-    }, [sellerId, phrase, auctionOptions]);
-    const {reviewRating, sizes, feedbacks} = placementsValue ?? {};
-    const price = Math.round((sizes?.[0]?.price?.total ?? 0) / 100);
-    const _graphs = useMemo(() => {
-        if (!auction.length) return undefined;
-        const gr = {
-            prices: {},
-            rating: {},
-            feedbacks: {},
+    }, [sellerId, phrase, auctionSelectedOption, open]);
+
+    const graphData = useMemo<GraphData | null>(() => {
+        if (!auction.length) return null;
+
+        const currentPrice = price;
+        const currentFeedbacks = feedbacks;
+
+        const pricesSet = new Set<number>();
+        const feedbacksSet = new Set<number>();
+
+        auction.forEach((card) => {
+            const priceRub = Math.round((card.sizes?.[0]?.price?.total ?? 0) / 100);
+            pricesSet.add(priceRub);
+            feedbacksSet.add(card.feedbacks);
+        });
+
+        pricesSet.add(currentPrice);
+        feedbacksSet.add(currentFeedbacks);
+
+        const pricesData = Array.from(pricesSet).sort((a, b) => a - b);
+        const feedbacksData = Array.from(feedbacksSet).sort((a, b) => a - b);
+
+        const pricesDataCur = pricesData.map((val) => (val === currentPrice ? currentPrice : null));
+        const feedbacksDataCur = feedbacksData.map((val) =>
+            val === currentFeedbacks ? currentFeedbacks : null,
+        );
+
+        const pricesDataTop = pricesData.map((val) => (val === currentPrice ? null : val));
+        const feedbacksDataTop = feedbacksData.map((val) =>
+            val === currentFeedbacks ? null : val,
+        );
+
+        return {
+            prices: {
+                labels: pricesData.map(String),
+                datasets: [
+                    {
+                        label: 'Топ 100 артикулов',
+                        data: pricesDataTop,
+                        backgroundColor: '#5fb8a5',
+                    },
+                    {
+                        label: 'Этот артикул',
+                        data: pricesDataCur,
+                        backgroundColor: '#ffbe5c',
+                    },
+                ],
+            },
+            feedbacks: {
+                labels: feedbacksData.map(String),
+                datasets: [
+                    {
+                        label: 'Топ 100 артикулов',
+                        data: feedbacksDataTop,
+                        backgroundColor: '#4aa1f2',
+                    },
+                    {
+                        label: 'Этот артикул',
+                        data: feedbacksDataCur,
+                        backgroundColor: '#ffbe5c',
+                    },
+                ],
+            },
         };
-        const pricesData: any[] = [];
-        const pricesDataCur: any[] = [];
-        const reviewRatingsData: any[] = [];
-        const reviewRatingsDataCur: any[] = [];
-        const feedbacksData: any[] = [];
-        const feedbacksDataCur: any[] = [];
-        for (let i = 0; i < auction.length; i++) {
-            const card = auction[i];
-            // console.log(card);
-            const {reviewRating, sizes, feedbacks} = card;
-            const priceRub = Math.round((sizes?.[0]?.['price']?.['total'] ?? 0) / 100);
-            if (!pricesData.includes(priceRub)) pricesData.push(priceRub);
-            if (!reviewRatingsData.includes(reviewRating)) reviewRatingsData.push(reviewRating);
-            if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
-        }
+    }, [auction, price, feedbacks]);
 
-        if (!pricesData.includes(price)) pricesData.push(price);
-        pricesData.sort((a, b) => a - b);
-        for (let i = 0; i < pricesData.length; i++) {
-            if (pricesData[i] == price) {
-                pricesDataCur.push(price);
-                break;
-            } else {
-                pricesDataCur.push(null);
-            }
-        }
+    let pieChartData = null;
+    if (auction.length && reviewRating) {
+        pieChartData = convertToChartPie(auction, reviewRating);
+    }
 
-        if (!reviewRatingsData.includes(reviewRating)) reviewRatingsData.push(reviewRating);
-        reviewRatingsData.sort((a, b) => a - b);
-        for (let i = 0; i < reviewRatingsData.length; i++) {
-            if (reviewRatingsData[i] == reviewRating) {
-                reviewRatingsDataCur.push(reviewRating);
-                break;
-            } else {
-                reviewRatingsDataCur.push(null);
-            }
-        }
+    if (!price) return null;
 
-        if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
-        feedbacksData.sort((a, b) => a - b);
-        for (let i = 0; i < feedbacksData.length; i++) {
-            if (feedbacksData[i] == feedbacks) {
-                feedbacksDataCur.push(feedbacks);
-                break;
-            } else {
-                feedbacksDataCur.push(null);
-            }
-        }
-        const genYagrData = (
-            all: any,
-            cur: any,
-            colorAll: any,
-            title: any,
-            axisName: any,
-            cursorName: any,
-            min = -1,
-            colorCur = '#ffbe5c',
-        ) =>
-            ({
-                data: {
-                    timeline: [...Array(all.length).keys()],
-                    graphs: [
-                        {
-                            color: colorCur,
-                            type: 'column',
-                            data: cur,
-                            id: '1',
-                            name: 'Этот артикул',
-                            scale: 'y',
-                        },
-                        {
-                            id: '0',
-                            name: cursorName,
-                            data: all,
-                            color: colorAll,
-                            scale: 'y',
-                        },
-                    ],
-                },
-                libraryConfig: {
-                    chart: {
-                        series: {
-                            type: 'column',
-                        },
-                    },
-                    axes: {
-                        y: {
-                            label: axisName,
-                            precision: 'auto',
-                            show: true,
-                        },
-                        x: {
-                            show: true,
-                        },
-                    },
-                    series: [],
-                    scales: {
-                        y: {
-                            min: min == -1 ? Math.floor(all[0]) : min,
-                        },
-                    },
-                    title: {
-                        text: title,
-                    },
-                },
-            }) as YagrWidgetData;
-        gr.prices = genYagrData(
-            pricesData,
-            pricesDataCur,
-            '#5fb8a5',
-            'Цены топ 100 артикулов по запросу',
-            'Цены',
-            'Цена',
-        );
-        gr.rating = genYagrData(
-            reviewRatingsData,
-            reviewRatingsDataCur,
-            '#9a63d1',
-            'Рейтинг топ 100 артикулов по запросу',
-            'Рейтинг',
-            'Рейтинг',
-        );
-        gr.feedbacks = genYagrData(
-            feedbacksData,
-            feedbacksDataCur,
-            '#4aa1f2',
-            'Количество отзывов топ 100 артикулов по запросу',
-            'Отзывы',
-            'Отзывов',
-            0,
-        );
-        return gr;
-    }, [auction]);
-    return price ? (
+    return (
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <Popover
-                onOpenChange={(val) => {
-                    setOpen(val);
-                }}
+                onOpenChange={setOpen}
                 enableSafePolygon={true}
                 placement={'right'}
                 content={
@@ -205,9 +156,12 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                             border: '1px solid #eee2',
                             width: 700,
                             left: -5,
-                            height: 450 * 1.3,
+                            height: 500 * 1.3,
                             overflow: 'auto',
                             position: 'absolute',
+                            boxSizing: 'border-box',
+                            padding: 24,
+                            overflowY: 'hidden',
                         }}
                     >
                         {!auction.length ? (
@@ -233,8 +187,14 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                                     height: '100%',
                                 }}
                             >
-                                <div style={{height: '60%'}}>
-                                    <ChartKit type="yagr" data={_graphs?.prices as any} />
+                                <div style={{height: '60%', marginBottom: '16px'}}>
+                                    {graphData?.prices && (
+                                        <BarChartComponent
+                                            data={graphData.prices as any}
+                                            title="Цены топ 100 артикулов по запросу"
+                                            yAxisLabel="Цены"
+                                        />
+                                    )}
                                 </div>
                                 <div
                                     style={{
@@ -242,13 +202,29 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                                         flexDirection: 'row',
                                         width: '100%',
                                         height: '40%',
+                                        gap: '16px',
                                     }}
                                 >
                                     <div style={{width: '30%'}}>
-                                        <ChartKit type="yagr" data={_graphs?.rating as any} />
+                                        {pieChartData && (
+                                            <PieChart
+                                                initialLabel={''}
+                                                title="Рейтинг топ 100 артикулов по запросу"
+                                                plainData={pieChartData.plainData}
+                                                labels={pieChartData.labels}
+                                                backgroundColor={pieChartData.backgroundColor}
+                                                borderColor={pieChartData.borderColor}
+                                            />
+                                        )}
                                     </div>
                                     <div style={{width: '70%'}}>
-                                        <ChartKit type="yagr" data={_graphs?.feedbacks as any} />
+                                        {graphData?.feedbacks && (
+                                            <BarChartComponent
+                                                data={graphData.feedbacks as any}
+                                                title="Количество отзывов топ 100 артикулов по запросу"
+                                                yAxisLabel="Отзывы"
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </motion.div>
@@ -313,7 +289,5 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                 </div>
             </Popover>
         </div>
-    ) : (
-        <></>
     );
 };
