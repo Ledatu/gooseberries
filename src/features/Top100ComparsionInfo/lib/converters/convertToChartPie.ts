@@ -1,4 +1,6 @@
 const SELECTED_ELEMENT_COLOR: string = '#ffbe5c';
+const OTHER_ELEMENTS_COLOR: string = '#9a63d1';
+const BORDER_COLOR: string = '#545454';
 
 type ChartPieFormat = {
     plainData: number[];
@@ -7,7 +9,7 @@ type ChartPieFormat = {
     borderColor: string[];
 };
 
-export const convertYagrToChartPie = (auctionData: any[]): ChartPieFormat => {
+export const convertToChartPie = (auctionData: any[], currentRating: number): ChartPieFormat => {
     const ratingCounts: Record<number, number> = {};
 
     auctionData.forEach((item) => {
@@ -15,7 +17,6 @@ export const convertYagrToChartPie = (auctionData: any[]): ChartPieFormat => {
         ratingCounts[rating] = (ratingCounts[rating] || 0) + 1;
     });
 
-    const currentRating = auctionData[0]?.reviewRating;
     const currentCount = 1;
 
     const allRatings = Object.keys(ratingCounts).map(Number).sort();
@@ -35,10 +36,10 @@ export const convertYagrToChartPie = (auctionData: any[]): ChartPieFormat => {
 
         if (rating === currentRating) {
             backgroundColor.push(SELECTED_ELEMENT_COLOR);
-            borderColor.push('#000');
+            borderColor.push(BORDER_COLOR);
         } else {
-            backgroundColor.push('#9a63d1');
-            borderColor.push('#000');
+            backgroundColor.push(OTHER_ELEMENTS_COLOR);
+            borderColor.push(BORDER_COLOR);
         }
     });
 

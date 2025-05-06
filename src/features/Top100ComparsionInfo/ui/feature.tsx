@@ -1,33 +1,61 @@
-import ChartKit from '@gravity-ui/chartkit';
-import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Button, Icon, Loader, Popover, Text} from '@gravity-ui/uikit';
 import {Star, Comment} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import ApiClient from '@/utilities/ApiClient';
 import {PieChart} from '@/shared/ui/PieChart/component';
-import {convertYagrToChartPie} from '@/features/Top100ComparsionInfo/lib/converters/convertYagrToChartPie';
+import {BarChartComponent} from '@/shared/ui/BarChart';
+import {convertToChartPie} from '../lib/converters/convertToChartPie';
+
 interface PageInfoGraphsProps {
     sellerId: string;
     phrase: any;
     placementsValue: any;
 }
+
+interface GraphData {
+    prices: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: (number | null)[];
+            backgroundColor: string;
+        }[];
+    };
+    rating: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: (number | null)[];
+            backgroundColor: string;
+        }[];
+    };
+    feedbacks: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: (number | null)[];
+            backgroundColor: string;
+        }[];
+    };
+}
+
 export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGraphsProps) => {
-    const auctionOptions: any[] = [
-        {value: 'firstPage', content: 'Выдача'},
-        {value: 'auto', content: 'Аукцион Авто'},
-        {value: 'search', content: 'Аукцион Поиска'},
-    ];
     const [auctionSelectedOption, setAuctionSelectedOption] = useState('firstPage');
-    const [auction, setAuction] = useState([]);
+    const [auction, setAuction] = useState<any[]>([]);
     const [open, setOpen] = useState(false);
+
+    const {reviewRating, sizes, feedbacks} = placementsValue ?? {};
+    const price = Math.round((sizes?.[0]?.price?.total ?? 0) / 100);
+
     useEffect(() => {
         if (!open) setAuction([]);
         else {
             getAuction();
-            setAuctionSelectedOption(String('firstPage'));
+            setAuctionSelectedOption('firstPage');
         }
     }, [open]);
+
     const getAuction = useCallback(async () => {
         if (!open) return;
         try {
@@ -42,175 +70,107 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
         } catch (error) {
             console.error('error auction', error);
         }
-    }, [sellerId, phrase, auctionOptions]);
-    const {reviewRating, sizes, feedbacks} = placementsValue ?? {};
-    const price = Math.round((sizes?.[0]?.price?.total ?? 0) / 100);
-    const _graphs = useMemo(() => {
-        if (!auction.length) return undefined;
-        const gr = {
-            prices: {},
-            rating: {},
-            feedbacks: {},
-        };
-        const pricesData: any[] = [];
-        const pricesDataCur: any[] = [];
-        const reviewRatingsData: any[] = [];
-        const reviewRatingsDataCur: any[] = [];
-        const feedbacksData: any[] = [];
-        const feedbacksDataCur: any[] = [];
-        for (let i = 0; i < auction.length; i++) {
-            const card = auction[i];
-            // console.log(card);
-            const {reviewRating, sizes, feedbacks} = card;
-            const priceRub = Math.round((sizes?.[0]?.['price']?.['total'] ?? 0) / 100);
+    }, [sellerId, phrase, auctionSelectedOption, open]);
+
+    const graphData = useMemo<GraphData | null>(() => {
+        if (!auction.length) return null;
+
+        const pricesData: number[] = [];
+        const pricesDataCur: (number | null)[] = [];
+        const reviewRatingsData: number[] = [];
+        const reviewRatingsDataCur: (number | null)[] = [];
+        const feedbacksData: number[] = [];
+        const feedbacksDataCur: (number | null)[] = [];
+
+        auction.forEach((card) => {
+            const {reviewRating: cardRating, sizes: cardSizes, feedbacks: cardFeedbacks} = card;
+            const priceRub = Math.round((cardSizes?.[0]?.['price']?.['total'] ?? 0) / 100);
+
             if (!pricesData.includes(priceRub)) pricesData.push(priceRub);
-            if (!reviewRatingsData.includes(reviewRating)) reviewRatingsData.push(reviewRating);
-            if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
-        }
+            if (!reviewRatingsData.includes(cardRating)) reviewRatingsData.push(cardRating);
+            if (!feedbacksData.includes(cardFeedbacks)) feedbacksData.push(cardFeedbacks);
+        });
 
         if (!pricesData.includes(price)) pricesData.push(price);
-        pricesData.sort((a, b) => a - b);
-        for (let i = 0; i < pricesData.length; i++) {
-            if (pricesData[i] == price) {
-                pricesDataCur.push(price);
-                break;
-            } else {
-                pricesDataCur.push(null);
-            }
-        }
-
         if (!reviewRatingsData.includes(reviewRating)) reviewRatingsData.push(reviewRating);
-        reviewRatingsData.sort((a, b) => a - b);
-        for (let i = 0; i < reviewRatingsData.length; i++) {
-            if (reviewRatingsData[i] == reviewRating) {
-                reviewRatingsDataCur.push(reviewRating);
-                break;
-            } else {
-                reviewRatingsDataCur.push(null);
-            }
-        }
-
         if (!feedbacksData.includes(feedbacks)) feedbacksData.push(feedbacks);
-        feedbacksData.sort((a, b) => a - b);
-        for (let i = 0; i < feedbacksData.length; i++) {
-            if (feedbacksData[i] == feedbacks) {
-                feedbacksDataCur.push(feedbacks);
-                break;
-            } else {
-                feedbacksDataCur.push(null);
-            }
-        }
-        const genYagrData = (
-            all: any,
-            cur: any,
-            colorAll: any,
-            title: any,
-            axisName: any,
-            cursorName: any,
-            min = -1,
-            colorCur = '#ffbe5c',
-        ) =>
-            ({
-                data: {
-                    timeline: [...Array(all.length).keys()],
-                    graphs: [
-                        {
-                            color: colorCur,
-                            type: 'column',
-                            data: cur,
-                            id: '1',
-                            name: 'Этот артикул',
-                            scale: 'y',
-                        },
-                        {
-                            id: '0',
-                            name: cursorName,
-                            data: all,
-                            color: colorAll,
-                            scale: 'y',
-                        },
-                    ],
-                },
-                libraryConfig: {
-                    chart: {
-                        series: {
-                            type: 'column',
-                        },
-                    },
-                    axes: {
-                        y: {
-                            label: axisName,
-                            precision: 'auto',
-                            show: true,
-                        },
-                        x: {
-                            show: true,
-                        },
-                    },
-                    series: [],
-                    scales: {
-                        y: {
-                            min: min == -1 ? Math.floor(all[0]) : min,
-                        },
-                    },
-                    title: {
-                        text: title,
-                    },
-                },
-            }) as YagrWidgetData;
-        gr.prices = genYagrData(
-            pricesData,
-            pricesDataCur,
-            '#5fb8a5',
-            'Цены топ 100 артикулов по запросу',
-            'Цены',
-            'Цена',
-        );
-        gr.rating = genYagrData(
-            reviewRatingsData,
-            reviewRatingsDataCur,
-            '#9a63d1',
-            'Рейтинг топ 100 артикулов по запросу',
-            'Рейтинг',
-            'Рейтинг',
-        );
-        gr.feedbacks = genYagrData(
-            feedbacksData,
-            feedbacksDataCur,
-            '#4aa1f2',
-            'Количество отзывов топ 100 артикулов по запросу',
-            'Отзывы',
-            'Отзывов',
-            0,
-        );
-        return gr;
-    }, [auction]);
 
-    useEffect(() => {
-        console.log('GRAPHS INFO:');
-        console.log(_graphs);
-    }, [_graphs]);
+        pricesData.sort((a, b) => a - b);
+        reviewRatingsData.sort((a, b) => a - b);
+        feedbacksData.sort((a, b) => a - b);
+
+        pricesData.forEach((val) => {
+            pricesDataCur.push(val === price ? price : null);
+        });
+
+        reviewRatingsData.forEach((val) => {
+            reviewRatingsDataCur.push(val === reviewRating ? reviewRating : null);
+        });
+
+        feedbacksData.forEach((val) => {
+            feedbacksDataCur.push(val === feedbacks ? feedbacks : null);
+        });
+
+        return {
+            prices: {
+                labels: pricesData.map((val) => val.toString()),
+                datasets: [
+                    {
+                        label: 'Топ 100 артикулов',
+                        data: pricesData,
+                        backgroundColor: '#5fb8a5',
+                    },
+                    {
+                        label: 'Этот артикул',
+                        data: pricesDataCur,
+                        backgroundColor: '#ffbe5c',
+                    },
+                ],
+            },
+            rating: {
+                labels: reviewRatingsData.map((val) => val.toString()),
+                datasets: [
+                    {
+                        label: 'Топ 100 артикулов',
+                        data: reviewRatingsData,
+                        backgroundColor: '#9a63d1',
+                    },
+                    {
+                        label: 'Этот артикул',
+                        data: reviewRatingsDataCur,
+                        backgroundColor: '#ffbe5c',
+                    },
+                ],
+            },
+            feedbacks: {
+                labels: feedbacksData.map((val) => val.toString()),
+                datasets: [
+                    {
+                        label: 'Топ 100 артикулов',
+                        data: feedbacksData,
+                        backgroundColor: '#4aa1f2',
+                    },
+                    {
+                        label: 'Этот артикул',
+                        data: feedbacksDataCur,
+                        backgroundColor: '#ffbe5c',
+                    },
+                ],
+            },
+        };
+    }, [auction, price, reviewRating, feedbacks]);
 
     let pieChartData = null;
-    if (auction.length > 0) {
-        // Добавляем текущий товар в начало массива для анализа
-        const dataWithCurrent = [
-            {
-                reviewRating: reviewRating,
-                // другие необходимые поля...
-            },
-            ...auction,
-        ];
-
-        pieChartData = convertYagrToChartPie(dataWithCurrent);
+    if (auction.length && reviewRating) {
+        pieChartData = convertToChartPie(auction, reviewRating);
     }
 
-    return price ? (
+    if (!price) return null;
+
+    return (
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <Popover
-                onOpenChange={(val) => {
-                    setOpen(val);
-                }}
+                onOpenChange={setOpen}
                 enableSafePolygon={true}
                 placement={'right'}
                 content={
@@ -253,10 +213,17 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                                     flexDirection: 'column',
                                     width: '100%',
                                     height: '100%',
+                                    padding: '16px',
                                 }}
                             >
-                                <div style={{height: '60%'}}>
-                                    <ChartKit type="yagr" data={_graphs?.prices as any} />
+                                <div style={{height: '60%', marginBottom: '16px'}}>
+                                    {graphData?.prices && (
+                                        <BarChartComponent
+                                            data={graphData.prices as any}
+                                            title="Цены топ 100 артикулов по запросу"
+                                            yAxisLabel="Цены"
+                                        />
+                                    )}
                                 </div>
                                 <div
                                     style={{
@@ -264,15 +231,14 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                                         flexDirection: 'row',
                                         width: '100%',
                                         height: '40%',
+                                        gap: '16px',
                                     }}
                                 >
-                                    {/*<div style={{width: '30%'}}>*/}
-                                    {/*    <ChartKit type="yagr" data={_graphs?.rating as any} />*/}
-                                    {/*</div>*/}
-                                    <div className={'w-[30%]'}>
+                                    <div style={{width: '30%'}}>
                                         {pieChartData && (
                                             <PieChart
-                                                title={'Топ 100 чето там'}
+                                                initialLabel={''}
+                                                title="Рейтинг топ 100 артикулов по запросу"
                                                 plainData={pieChartData.plainData}
                                                 labels={pieChartData.labels}
                                                 backgroundColor={pieChartData.backgroundColor}
@@ -281,7 +247,13 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                                         )}
                                     </div>
                                     <div style={{width: '70%'}}>
-                                        <ChartKit type="yagr" data={_graphs?.feedbacks as any} />
+                                        {graphData?.feedbacks && (
+                                            <BarChartComponent
+                                                data={graphData.feedbacks as any}
+                                                title="Количество отзывов топ 100 артикулов по запросу"
+                                                yAxisLabel="Отзывы"
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </motion.div>
@@ -346,7 +318,5 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
                 </div>
             </Popover>
         </div>
-    ) : (
-        <></>
     );
 };

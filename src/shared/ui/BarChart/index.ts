@@ -1,0 +1,1 @@
+export {BarChartComponent} from './component';
