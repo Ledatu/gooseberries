@@ -2,17 +2,9 @@
 import './Dashboard.scss';
 import {useEffect, useMemo, useState, ReactNode} from 'react';
 import block from 'bem-cn-lite';
-// import {Tabs} from '@gravity-ui/uikit/legacy';
 import {Icon, Button, Text} from '@gravity-ui/uikit';
-// import Link from 'next/link';
-// import '@/styles/App.scss'
-// import textLogo from '../../assets/brlogo.svg';
-
 import TextLogo from '@/assets/brlogo.svg';
 import {CircleQuestion, LogoTelegram, GraduationCap} from '@gravity-ui/icons';
-
-// import {useUser} from '@/components/RequireAuth/RequireAuth';
-// import {ApiPage} from './ApiPage';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
 import {UserPopup} from '@/components/UserPopup';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -21,10 +13,6 @@ import {useSearchParams} from 'next/navigation';
 import {useModules} from '@/contexts/ModuleProvider';
 import {CustomTabs} from '../CustomTabs';
 import {MobileTabs} from '@/components/CustomTabs';
-// import {NotesCreationModal} from '@/components/Notes';
-// import {AdvertsWordsModal} from '../Pages/MassAdvertPage/AdvertsWordsModal';
-// import {NotesCreationModal} from '../Notes';
-import {useUser} from '../RequireAuth';
 import {HeaderNotesModal} from '@/entities/NoteCard/ui/HeaderNotesModal';
 
 const b = block('app');
@@ -45,8 +33,6 @@ export interface DashboardProps {
 
 export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
     const searchParams = useSearchParams();
-    const {userInfo} = useUser();
-    const {user} = userInfo ?? {};
     const {selectValue, currentCampaign, campaignInfo, campaigns} = useCampaign();
     const {currentModule, availableModules = [], setModule} = useModules();
 
@@ -114,45 +100,7 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
         }
     }, [campaigns, selectValue]); // Only update when these values change
 
-    //     if (item === undefined || node === undefined || index === undefined) return <></>;
-    //     const isCurrent =
-    //         (currentModule == 'noModules' && item.id == 'api') || item.id == currentModule;
-    //     return (
-    //         <Link
-    //             href={item?.href}
-    //             target={item?.target}
-    //             className="tablink"
-    //             style={{color: 'var(--g-color-text-primary)', textDecoration: 'none'}}
-    //             onClick={() => {
-    //                 if (item.disabled || !item.id) return;
-    //                 refetchUser();
-    //                 console.log(item.id);
-    //                 handleModuleChange(item.id);
-    //                 // setPage(item.id);
-    //             }}
-    //         >
-    //             <Text
-    //                 variant="caption-2"
-    //                 color={isCurrent ? 'brand' : 'primary'}
-    //                 style={{
-    //                     height: 70,
-    //                     paddingBottom: 10,
-    //                     width: 70,
-    //                     display: 'flex',
-    //                     flexDirection: 'column',
-    //                     alignItems: 'center',
-    //                     justifyContent: 'center',
-    //                 }}
-    //             >
-    //                 <Icon data={item?.icon} size={24} />
-    //                 {item.title}
-    //             </Text>
-    //         </Link>
-    //     );
-    // };
     const isMobile = useMediaQuery('(max-width: 768px)');
-
-    const admin = useMemo(() => [1122958293, 933839157].includes(user?._id), [user]);
 
     return (
         <div className={b()}>
@@ -301,9 +249,9 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
                                         <CustomTabs
                                             items={optionsPages.filter(
                                                 (item) =>
-                                                    !['Поддержка', 'База знаний']
-                                                        .concat(admin ? [] : ['Партнерка'])
-                                                        .includes(item.title),
+                                                    !['Поддержка', 'База знаний'].includes(
+                                                        item.title,
+                                                    ),
                                             )}
                                             currentModule={currentModule}
                                             setModule={setModule}

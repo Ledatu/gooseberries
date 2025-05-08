@@ -371,7 +371,7 @@ export const PartnerkaPage = () => {
                 if (footer) return value;
                 return (
                     <Text color="primary" variant="subheader-2">
-                        {value} ₽
+                        {defaultRender({value: Math.round(value)})} ₽
                     </Text>
                 );
             },
@@ -381,9 +381,29 @@ export const PartnerkaPage = () => {
             placeholder: 'Реферальная ссылка',
             render: ({value}: IRender) => {
                 return (
-                    <Text color="primary" variant="subheader-2">
-                        {value}
-                    </Text>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 4,
+                        }}
+                    >
+                        <Text color="primary" variant="subheader-2">
+                            {value}
+                        </Text>
+                        {refComments[value] ? (
+                            <Text
+                                variant="subheader-2"
+                                color="secondary"
+                                ellipsis
+                                style={{maxWidth: 360, textWrap: 'wrap'}}
+                            >
+                                {refComments[value]}
+                            </Text>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
                 );
             },
         },
@@ -491,16 +511,27 @@ export const PartnerkaPage = () => {
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
+                            justifyContent: 'space-between',
                             gap: 8,
+                            width: 440,
                         }}
                     >
                         <Text variant="subheader-2">{refka?.href}</Text>
-                        <CopyButton copyText={refka?.href ?? ''} pin="circle-circle" />
-                        <EditComment referal={refka?.href ?? ''} setUpdateFlag={setUpdateFlag}>
-                            <Button pin="circle-circle">
-                                <Icon data={Comment} />
-                            </Button>
-                        </EditComment>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 8,
+                            }}
+                        >
+                            <CopyButton copyText={refka?.href ?? ''} pin="circle-circle" />
+                            <EditComment referal={refka?.href ?? ''} setUpdateFlag={setUpdateFlag}>
+                                <Button pin="circle-circle">
+                                    <Icon data={Comment} />
+                                </Button>
+                            </EditComment>
+                        </div>
                     </div>
                     {refka?.comment ? (
                         <Text
@@ -516,6 +547,15 @@ export const PartnerkaPage = () => {
                     )}
                 </div>
             )),
+        [referrals],
+    );
+
+    const refComments = useMemo(
+        () =>
+            referrals.reduce((obj, refka) => {
+                if (refka?.href) obj[refka.href] = refka?.comment;
+                return obj;
+            }, {} as any),
         [referrals],
     );
 
@@ -587,15 +627,31 @@ export const PartnerkaPage = () => {
                                     </OperationHistory>
                                 </ActionTooltip>
                             </div>
-                            <GetPayout setUpdateFlag={setUpdateFlag} balance={balance}>
-                                <Text
+                            <ActionTooltip
+                                title={
+                                    balance < 5000
+                                        ? 'Запросить выплату можно при балансе от 5 000 ₽'
+                                        : 'Здесь вы можете запросить выплату'
+                                }
+                            >
+                                <GetPayout setUpdateFlag={setUpdateFlag} balance={balance}>
+                                    {/* <Text
                                     style={{cursor: 'pointer'}}
                                     variant="caption-2"
                                     color="secondary"
                                 >
                                     Запросить выплату
-                                </Text>
-                            </GetPayout>
+                                </Text> */}
+                                    <Button
+                                        pin="circle-circle"
+                                        view="flat"
+                                        size="xs"
+                                        disabled={balance < 5000}
+                                    >
+                                        Запросить выплату
+                                    </Button>
+                                </GetPayout>
+                            </ActionTooltip>
                         </Card>
                         <ReferralProgram />
                     </div>
