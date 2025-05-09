@@ -2224,7 +2224,11 @@ export const MassAdvertPage = () => {
                         if (![9, 11].includes(advert?.status)) continue;
                         const drrAI = doc?.advertsAutoBidsRules[selectValue[0]]?.[advert?.advertId];
                         const {desiredDRR, useManualMaxCpm, autoBidsMode} = drrAI ?? {};
-                        if (useManualMaxCpm || ['cpo'].includes(autoBidsMode)) continue;
+                        if (
+                            (useManualMaxCpm && autoBidsMode != 'drr') ||
+                            ['cpo'].includes(autoBidsMode)
+                        )
+                            continue;
                         if (desiredDRR > maxDrr) maxDrr = desiredDRR;
                     }
                     return maxDrr;
