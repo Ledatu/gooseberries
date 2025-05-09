@@ -1930,6 +1930,7 @@ export const MassAdvertPage = () => {
                                         seller_id: sellerId,
                                         advertId,
                                         selectedPhrase: placementsDisplayPhrase,
+                                        asSet: true,
                                     });
                                 } catch (error) {
                                     showError(
