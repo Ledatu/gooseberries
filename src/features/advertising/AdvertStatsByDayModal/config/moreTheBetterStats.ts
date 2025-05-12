@@ -1,4 +1,4 @@
-export const moreTheBetterStats = ['orders', 'sum_orders', 'views', 'clicks', 'ctr', 'openCardCount', 'addToCartCount', 'addToCartPercent', 'cartToOrderPercent', 'cr']
+export const moreTheBetterStats = ['orders', 'sumOrders', 'views', 'clicks', 'ctr', 'openCardCount', 'addToCartCount', 'addToCartPercent', 'cartToOrderPercent', 'cr', 'crFromView', 'profit', 'rent']
 // orders: number, луч
 //  sum_orders: number, луч
 //  sum: number, бели не надо коасить

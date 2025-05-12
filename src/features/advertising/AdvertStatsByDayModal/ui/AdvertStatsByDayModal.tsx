@@ -36,54 +36,65 @@ export const AdvertStatsByDayModal = ({
         getDefaultAdvertDateData(),
     );
 
-    const getArrowButton = (
+    const getStatWithArrowButton = (
+        value: string | number,
+        isFooter: boolean,
         key: string,
         date: Date,
         comparison: {[key: string]: AdvertDateData},
+        render?: Function,
     ) => {
         if (!key || !date || !comparison) return;
-        const dateString = getLocaleDateString(date as Date);
-        if (!comparison[dateString]) return;
-        if (comparison[dateString][key] > 0) {
-            if (lessTheBetterStats.includes(key)) {
-                return (
-                    <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
-                        {/* <Button view="flat-danger"> */}
-                        <Text color="danger">
-                            <Icon data={CaretUp} />
-                        </Text>
-                        {/* </Button> */}
-                    </ActionTooltip>
-                );
-            } else if (moreTheBetterStats.includes(key)) {
-                return (
-                    <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
-                        <Text color="positive">
-                            <Icon data={CaretUp} />
-                        </Text>
-                    </ActionTooltip>
-                );
-            }
-        } else if (comparison[dateString][key] < 0) {
-            if (lessTheBetterStats.includes(key)) {
-                return (
-                    <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
-                        <Text color="positive">
-                            <Icon data={CaretDown} />
-                        </Text>
-                    </ActionTooltip>
-                );
-            } else if (moreTheBetterStats.includes(key)) {
-                return (
-                    <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
-                        <Text color="danger">
-                            <Icon data={CaretDown} />
-                        </Text>
-                    </ActionTooltip>
-                );
+        let button;
+        if (!isFooter) {
+            const dateString = getLocaleDateString(date as Date);
+            if (!comparison[dateString]) return;
+            if (comparison[dateString][key] > 0) {
+                if (lessTheBetterStats.includes(key)) {
+                    button = (
+                        <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
+                            {/* <Button view="flat-danger"> */}
+                            <Text color="danger">
+                                <Icon data={CaretUp} />
+                            </Text>
+                            {/* </Button> */}
+                        </ActionTooltip>
+                    );
+                } else if (moreTheBetterStats.includes(key)) {
+                    button = (
+                        <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
+                            <Text color="positive">
+                                <Icon data={CaretUp} />
+                            </Text>
+                        </ActionTooltip>
+                    );
+                }
+            } else if (comparison[dateString][key] < 0) {
+                if (lessTheBetterStats.includes(key)) {
+                    button = (
+                        <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
+                            <Text color="positive">
+                                <Icon data={CaretDown} />
+                            </Text>
+                        </ActionTooltip>
+                    );
+                } else if (moreTheBetterStats.includes(key)) {
+                    button = (
+                        <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
+                            <Text color="danger">
+                                <Icon data={CaretDown} />
+                            </Text>
+                        </ActionTooltip>
+                    );
+                }
             }
         }
-        return undefined;
+        return (
+            <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
+                {render ? render(value) : <Text>{value}</Text>}
+                {button}
+            </div>
+        );
     };
 
     useEffect(() => {
@@ -115,131 +126,201 @@ export const AdvertStatsByDayModal = ({
         {
             name: 'sum',
             placeholder: 'Расход, ₽',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'sum', row['date'], comparison);
             },
         },
         {
             name: 'orders',
             placeholder: 'Заказы, шт.',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'orders', row['date'], comparison);
             },
         },
         {
             name: 'sumOrders',
             placeholder: 'Заказы, ₽',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'sumOrders', row['date'], comparison);
             },
         },
         {
             name: 'profit',
             placeholder: 'Профит, ₽',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'profit', row['date'], comparison);
             },
         },
         {
             name: 'rent',
             placeholder: 'Рентабельность, %',
-            render: renderAsPercent
+            render: (args: any) => {
+                const {value, footer, row} = args;
+                return getStatWithArrowButton(value, footer, 'rent', row['date'], comparison, () =>
+                    renderAsPercent(args),
+                );
+            },
         },
         {
             name: 'avgPrice',
             placeholder: 'Ср. Чек, ₽',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'avgPrice', row['date'], comparison);
             },
         },
         {
             name: 'drr',
             placeholder: 'ДРР, %',
-            render: renderAsPercent,
+            render: (args: any) => {
+                const {value, footer, row} = args;
+                return getStatWithArrowButton(value, footer, 'drr', row['date'], comparison, () =>
+                    renderAsPercent(args),
+                );
+            },
         },
         {
             name: 'cpo',
             placeholder: 'CPO, ₽',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'cpo', row['date'], comparison);
             },
         },
         {
             name: 'views',
             placeholder: 'Показы, шт.',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'views', row['date'], comparison);
             },
         },
         {
             name: 'clicks',
             placeholder: 'Клики, шт.',
-            render: (args: any) => renderSlashPercent(args, 'openCardCount'),
+            render: (args: any) => {
+                const {value, footer, row} = args;
+                return getStatWithArrowButton(
+                    value,
+                    footer,
+                    'clicks',
+                    row['date'],
+                    comparison,
+                    (value: any) => {
+                        value;
+                        return renderSlashPercent(args, 'openCardCount');
+                    },
+                );
+            },
         },
         {
             name: 'ctr',
             placeholder: 'CTR, %',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: (args: any) => {
+                const {value, footer, row} = args;
+                return getStatWithArrowButton(value, footer, 'ctr', row['date'], comparison, () =>
+                    renderAsPercent(args),
+                );
             },
         },
         {
             name: 'cpc',
             placeholder: 'CPC, ₽',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'cpc', row['date'], comparison);
             },
         },
         {
             name: 'cpm',
             placeholder: 'CPM, ₽',
-            render: ({value}: any) => {
-                return <Text>{value}</Text>;
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'cpm', row['date'], comparison);
             },
         },
         {
             name: 'cr',
             placeholder: 'CR из перехода, %',
-            render: renderAsPercent,
+            render: (args: any) => {
+                const {value, footer, row} = args;
+                return getStatWithArrowButton(value, footer, 'cr', row['date'], comparison, () =>
+                    renderAsPercent(args),
+                );
+            },
         },
         {
             name: 'crFromView',
             placeholder: 'CR из показа, %',
-            render: renderAsPercent,
+            render: (args: any) => {
+                const {value, footer, row} = args;
+                return getStatWithArrowButton(
+                    value,
+                    footer,
+                    'crFromView',
+                    row['date'],
+                    comparison,
+                    () => renderAsPercent(args),
+                );
+            },
         },
         {
             name: 'openCardCount',
             placeholder: 'Всего переходов, шт.',
-            render: ({value, row, footer}: any) => {
-                return (
-                    <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
-                        <Text>{value}</Text>
-                        {footer
-                            ? undefined
-                            : getArrowButton('openCardCount', row['date'], comparison)}
-                    </div>
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(
+                    value,
+                    footer,
+                    'openCardCount',
+                    row['date'],
+                    comparison,
                 );
             },
         },
         {
             name: 'addToCartPercent',
             placeholder: 'CR в корзину, %',
-            render: renderAsPercent,
+            render: (args: any) => {
+                const {value, footer, row} = args;
+                return getStatWithArrowButton(
+                    value,
+                    footer,
+                    'addToCartPercent',
+                    row['date'],
+                    comparison,
+                    () => renderAsPercent(args),
+                );
+            },
         },
         {
             name: 'cartToOrderPercent',
             placeholder: 'CR в заказ, %',
-            render: renderAsPercent,
+            render: (args: any) => {
+                const {value, footer, row} = args;
+                return getStatWithArrowButton(
+                    value,
+                    footer,
+                    'cartToOrderPercent',
+                    row['date'],
+                    comparison,
+                    () => renderAsPercent(args),
+                );
+            },
         },
         {
             name: 'addToCartCount',
             placeholder: 'Корзины, шт.',
-            render: renderAsPercent,
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(
+                    value,
+                    footer,
+                    'addToCartCount',
+                    row['date'],
+                    comparison,
+                );
+            },
         },
         {
             name: 'cpl',
             placeholder: 'CPL, ₽',
-            render: renderAsPercent,
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'cpl', row['date'], comparison);
+            },
         },
     ];
 
