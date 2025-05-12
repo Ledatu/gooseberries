@@ -134,6 +134,18 @@ export const AdvertStatsByDayModal = ({
             },
         },
         {
+            name: 'profit',
+            placeholder: 'Профит, ₽',
+            render: ({value}: any) => {
+                return <Text>{value}</Text>;
+            },
+        },
+        {
+            name: 'rent',
+            placeholder: 'Рентабельность, %',
+            render: renderAsPercent
+        },
+        {
             name: 'avgPrice',
             placeholder: 'Ср. Чек, ₽',
             render: ({value}: any) => {
@@ -187,14 +199,18 @@ export const AdvertStatsByDayModal = ({
         },
         {
             name: 'cr',
-            placeholder: 'CR, %',
+            placeholder: 'CR из перехода, %',
+            render: renderAsPercent,
+        },
+        {
+            name: 'crFromView',
+            placeholder: 'CR из показа, %',
             render: renderAsPercent,
         },
         {
             name: 'openCardCount',
             placeholder: 'Всего переходов, шт.',
             render: ({value, row, footer}: any) => {
-                console.log(row, row['date']);
                 return (
                     <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
                         <Text>{value}</Text>

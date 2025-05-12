@@ -18,6 +18,9 @@ export const getDefaultAdvertDateData = (): AdvertDateData => {
 		addToCartPercent: 0,
 		cartToOrderPercent: 0,
 		cr: 0,
+		rent: 0,
+		profit: 0,
+		crFromView: 0,
 		cpl: 0,
 		avgPrice: 0
 	}

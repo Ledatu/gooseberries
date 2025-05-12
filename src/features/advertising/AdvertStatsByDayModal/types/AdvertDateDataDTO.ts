@@ -7,4 +7,5 @@ export type AdvertDateDataDTO = {
 	views: number,
 	clicks: number,
 	drr: number
+	profit: number
 }

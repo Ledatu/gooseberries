@@ -69,12 +69,20 @@ export const advertDateDataFromDTO = (dto: AdvertDateDataDTO[], docCampaign: any
 			data['openCardCount'],
 			true,
 		);
+		data['crFromView'] = getRoundValue(
+			data['orders'],
+			data['views'],
+			true,
+		)
 		data['cpl'] = getRoundValue(
 			data['sum'],
 			data['addToCartCount'],
 		);
 
 		data['avgPrice'] = getRoundValue(data['sumOrders'], data['orders']);
+		data['rent'] = getRoundValue(
+			data.profit, data.sumOrders, true
+		)
 		return data;
 	})
 	return res.sort((a, b) => b.date.getTime() - a.date.getTime())

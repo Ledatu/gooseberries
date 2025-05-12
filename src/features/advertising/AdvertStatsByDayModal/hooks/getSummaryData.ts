@@ -16,6 +16,8 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 		cpm: 0,
 		cr: 0,
 		cpo: 0,
+		profit: 0,
+		rent: 0,
 		openCardCount: 0,
 		addToCartCount: 0,
 		addToCartPercent: 0,
@@ -37,6 +39,7 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 					'addToCartCount',
 					'addToCartPercent',
 					'cartToOrderPercent',
+					'profit',
 				].includes(key)
 			)
 				summary[key] +=
@@ -52,6 +55,7 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 	summary.orders = Math.round(
 		summary.orders,
 	);
+	summary.profit = Math.round(summary.profit);
 	summary.avgPrice = getRoundValue(
 		summary.sumOrders,
 		summary.orders,
@@ -76,6 +80,11 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 		summary.addToCartCount,
 		true,
 	);
+	summary.rent = getRoundValue(
+		summary.profit,
+		summary.sumOrders,
+		true
+	)
 	const { orders, sum, views, clicks, openCardCount, addToCartCount } =
 		summary;
 
@@ -89,6 +98,8 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 	summary.cpc = getRoundValue(sum / 100, clicks, true, sum / 100);
 	summary.cpm = getRoundValue(sum * 1000, views);
 	summary.cr = getRoundValue(orders, openCardCount, true);
+	summary.crFromView = getRoundValue(orders, views, true);
+
 	summary.cpo = getRoundValue(sum, orders, false, sum);
 	summary.cpl = getRoundValue(sum, addToCartCount, false, sum);
 	return summary;

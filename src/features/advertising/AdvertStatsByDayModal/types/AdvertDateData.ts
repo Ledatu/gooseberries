@@ -16,7 +16,10 @@ export type AdvertDateData = {
 	addToCartCount: number,
 	addToCartPercent: number,
 	cartToOrderPercent: number,
-	cr: number
+	cr: number,
+	crFromView: number,
+	profit: number,
+	rent: number,
 	cpl: number
 	avgPrice: number
 }
