@@ -1110,7 +1110,7 @@ export const AdvertCard = ({
                                 alignItems: 'center',
                             }}
                         >
-                            <Text variant="caption-2">{drrToday}%</Text>
+                            <Text variant="caption-2">{drrToday ?? 0}%</Text>
                             <AdvertStatsByDayModalForAdvertId
                                 arts={arts}
                                 advertId={advertId}
