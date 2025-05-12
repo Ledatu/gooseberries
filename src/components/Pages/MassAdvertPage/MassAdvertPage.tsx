@@ -95,7 +95,6 @@ const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
 
     if (docum) {
-
         if (mode && doc) {
             doc['campaigns'][selectValue] = docum['campaigns'][selectValue];
             doc['balances'][selectValue] = docum['balances'][selectValue];
@@ -145,6 +144,22 @@ export const MassAdvertPage = () => {
             }
             const temp = response?.data;
             setAdvertBudgetRules(temp);
+        } catch (error: any) {
+            console.error(error);
+            showError(error);
+        }
+    };
+
+    const [advertsTodayDrr, setAdvertsTodayDrr] = useState<{[key: string]: number}>({});
+    const fetchAdvertsTodayDrr = async () => {
+        try {
+            const response = await ApiClient.post('massAdvert/new/get-advert-today-drr', {
+                seller_id: sellerId,
+            });
+            if (!response?.data) {
+                throw new Error('error while getting massAdvert/new/get-advert-today-drr');
+            }
+            setAdvertsTodayDrr(response?.data);
         } catch (error: any) {
             console.error(error);
             showError(error);
@@ -930,13 +945,13 @@ export const MassAdvertPage = () => {
                               filters['adverts'] &&
                               String(filters['adverts'].val).toLowerCase().trim().length
                           ) {
-
                               if (
                                   String(filters['adverts'].val).toLowerCase().includes('поиск') &&
                                   (advertData.type == 9 || advertData.type == 6)
                               ) {
                                   switches.push(
                                       <AdvertCard
+                                          drrToday={advertsTodayDrr?.[advertId]}
                                           getNames={getNames}
                                           pausedAdverts={pausedAdverts}
                                           setUpdatePaused={setUpdatePaused}
@@ -979,6 +994,7 @@ export const MassAdvertPage = () => {
                               ) {
                                   switches.push(
                                       <AdvertCard
+                                          drrToday={advertsTodayDrr?.[advertId]}
                                           getNames={getNames}
                                           pausedAdverts={pausedAdverts}
                                           setUpdatePaused={setUpdatePaused}
@@ -1020,6 +1036,7 @@ export const MassAdvertPage = () => {
                               ) {
                                   switches.push(
                                       <AdvertCard
+                                          drrToday={advertsTodayDrr?.[advertId]}
                                           getNames={getNames}
                                           pausedAdverts={pausedAdverts}
                                           setUpdatePaused={setUpdatePaused}
@@ -1061,6 +1078,7 @@ export const MassAdvertPage = () => {
                           } else {
                               switches.push(
                                   <AdvertCard
+                                      drrToday={advertsTodayDrr?.[advertId]}
                                       getNames={getNames}
                                       pausedAdverts={pausedAdverts}
                                       setUpdatePaused={setUpdatePaused}
@@ -2091,6 +2109,7 @@ export const MassAdvertPage = () => {
         await ApiClient.post('massAdvert/new/get-mass-advert', params)
             .then(async (response) => {
                 setFetchingDataFromServerFlag(false);
+                fetchAdvertsTodayDrr();
                 if (!response) return;
                 const resData = response['data'];
 
@@ -2341,7 +2360,6 @@ export const MassAdvertPage = () => {
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
             artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
 
-
             if (artInfo.adverts) {
                 for (const [advertType, advertsOfType] of Object.entries(artInfo.adverts)) {
                     if (!advertType || advertType == 'none' || !advertsOfType) continue;
@@ -2429,7 +2447,9 @@ export const MassAdvertPage = () => {
 
                 artInfo.dsi = getRoundValue(artInfo.stocks, artInfo.orders / (daysBetween + 1));
 
-                artInfo.drr = getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1);
+                artInfo.drr = artInfo.sum
+                    ? getRoundValue(artInfo.sum, artInfo.sum_orders, true, 1)
+                    : 0;
                 artInfo.ctr = getRoundValue(artInfo.clicks, artInfo.views, true);
                 artInfo.cpc = getRoundValue(
                     artInfo.sum / 100,
@@ -2873,7 +2893,7 @@ export const MassAdvertPage = () => {
             filteredSummaryTemp.sum += row['sum'];
             filteredSummaryTemp.views += row['views'];
             filteredSummaryTemp.clicks += row['clicks'];
-        
+
             filteredSummaryTemp.profit += Math.round(row['profit'] ?? 0);
 
             filteredSummaryTemp.budget += row['budget'] ?? 0;
@@ -3257,7 +3277,6 @@ export const MassAdvertPage = () => {
         }
         setFilters({...filters});
 
-
         setFirstRecalc(true);
     }
 
@@ -3531,6 +3550,7 @@ export const MassAdvertPage = () => {
                                                 }}
                                             >
                                                 <AdvertCard
+                                                    drrToday={advertsTodayDrr?.[advertId]}
                                                     getNames={getNames}
                                                     pausedAdverts={pausedAdverts}
                                                     setUpdatePaused={setUpdatePaused}

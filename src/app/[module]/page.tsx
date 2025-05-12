@@ -13,6 +13,7 @@ import {NoSubscriptionPage} from '@/components/Pages/NoSubscriptionPage';
 import {LogoLoad} from '@/components/logoLoad';
 import {useSearchParams} from 'next/navigation';
 import {setReferral} from '@/shared/Referral/api';
+import {ApiExpiredPage} from '@/components/Pages/ApiExpiredPage';
 // import {LogoLoader} from '@/components/LogoLoader';
 
 const modulesMap: any = {
@@ -87,7 +88,6 @@ export default function ModulePage() {
         }
     }
 
-    
     if (!campaigns.length && isAuthenticated) {
         const ApiPage = modulesMap['api'];
 
@@ -100,6 +100,10 @@ export default function ModulePage() {
 
     const subscriptionUntil = useMemo(() => {
         return campaign?.subscriptionUntil;
+    }, [campaign]);
+
+    const apiKeyExpDate = useMemo(() => {
+        return campaign?.apiKeyExpDate;
     }, [campaign]);
 
     if (!modulesLoaded || !currentModule) {
@@ -116,9 +120,15 @@ export default function ModulePage() {
     if (
         currentTime >= new Date(subscriptionUntil) &&
         ![1122958293, 933839157].includes(userInfo?.user?._id) &&
-        !['noModules', 'api'].includes(currentModule)
+        !['noModules', 'api', 'partnerka'].includes(currentModule)
     ) {
         return <NoSubscriptionPage />;
+    }
+    if (
+        currentTime >= new Date(apiKeyExpDate) &&
+        !['noModules', 'api', 'partnerka'].includes(currentModule)
+    ) {
+        return <ApiExpiredPage />;
     }
     if (modulesMap[currentModule]) {
         console.log(modulesMap, module);

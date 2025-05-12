@@ -46,6 +46,7 @@ interface AdvertCardProps {
     advertBudgetRules: any;
     setAdvertBudgetRules: (args?: any) => any;
     nmId: number;
+    drrToday: number;
     doc: any;
     selectValue: string[];
     copiedAdvertsSettings: any;
@@ -164,6 +165,7 @@ const BidRuleInfo = ({rule}: any) => {
 };
 
 export const AdvertCard = ({
+    drrToday,
     getNames,
     pausedAdverts,
     setUpdatePaused,
@@ -971,13 +973,14 @@ export const AdvertCard = ({
                     <div
                         style={{
                             minHeight: 0.5,
-                            marginTop: 5,
+                            marginTop: 7,
                             width: '100%',
                             background: 'var(--g-color-base-generic-hover)',
                         }}
                     />
                     <div
                         style={{
+                            height: 20,
                             display: 'flex',
                             flexDirection: 'row',
                             width: '100%',
@@ -1098,11 +1101,22 @@ export const AdvertCard = ({
                                 </Button>
                             </motion.div>
                         </div>
-                        <AdvertStatsByDayModalForAdvertId
-                            arts={arts}
-                            advertId={advertId}
-                            docCampaign={doc.campaigns[selectValue[0]]}
-                        />
+                        <div
+                            style={{
+                                height: 20,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                gap: 4,
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text variant="caption-2">{drrToday}%</Text>
+                            <AdvertStatsByDayModalForAdvertId
+                                arts={arts}
+                                advertId={advertId}
+                                docCampaign={doc.campaigns[selectValue[0]]}
+                            />
+                        </div>
                         <AdvertsSchedulesModal
                             paused={pausedAdverts[advertId]}
                             setUpdatePaused={setUpdatePaused}
