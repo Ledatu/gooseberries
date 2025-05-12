@@ -89,6 +89,9 @@ export const AdvertStatsByDayModal = ({
     useEffect(() => {
         if (open && data.length) {
             setComparison(getComparison(data));
+            setTimeout(() => {
+                filter({}, data);
+            }, 500);
         }
     }, [open, data]);
 
@@ -98,9 +101,6 @@ export const AdvertStatsByDayModal = ({
         const summary = getSummaryData(tempFilteredData);
         setFilteredSummary(summary);
     };
-    useEffect(() => {
-        filter({}, data);
-    }, [data]);
 
     const columnDataArtByDayStats = [
         {
@@ -238,8 +238,6 @@ export const AdvertStatsByDayModal = ({
                         overflow: 'hidden',
                     }}
                     size="xs"
-                    // selected
-                    // view={index % 2 == 0 ? 'flat' : 'flat-action'}
                     view="flat"
                     onClick={() => setOpen(true)}
                 >
