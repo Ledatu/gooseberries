@@ -1,6 +1,6 @@
 import { getLocaleDateString, getRoundValue } from "@/utilities/getRoundValue";
 
-export const calcByDayStats = (art: number, dateRange: [Date, Date], docCampaign: any) => {
+export const calcByDayStats = (art: string, dateRange: [Date, Date], docCampaign: any, profit?: { [key: string]: number }) => {
 	const tempJson: any = {};
 	const daysBetween =
 		dateRange[1].getTime() / 86400 / 1000 - dateRange[0].getTime() / 86400 / 1000;
@@ -26,13 +26,16 @@ export const calcByDayStats = (art: number, dateRange: [Date, Date], docCampaign
 				cpc: 0,
 				cpm: 0,
 				cr: 0,
+				crFromViews: 0,
 				cpo: 0,
+				profit: 0,
+				rent: 0,
 				openCardCount: 0,
 				addToCartCount: 0,
 				addToCartPercent: 0,
 				cartToOrderPercent: 0,
 				cpl: 0,
-				avgPrice: 0
+				avgPrice: 0,
 			};
 
 		const { advertsStats, nmFullDetailReport } = docCampaign[art];
@@ -45,6 +48,7 @@ export const calcByDayStats = (art: number, dateRange: [Date, Date], docCampaign
 		tempJson[strDate].sum += dateData['sum'];
 		tempJson[strDate].views += dateData['views'];
 		tempJson[strDate].clicks += dateData['clicks'];
+		tempJson[strDate].profit += profit ? profit[strDate] : 0
 
 		const { openCardCount, addToCartCount } = nmFullDetailReport.statistics[strDate] ?? {
 			openCardCount: 0,
@@ -68,6 +72,9 @@ export const calcByDayStats = (art: number, dateRange: [Date, Date], docCampaign
 			tempJson[strDate].sum,
 			tempJson[strDate].addToCartCount,
 		);
+		tempJson[strDate].rent = getRoundValue(
+			tempJson[strDate].profit, tempJson[strDate].sumOrders, true
+		)
 	}
 
 	const temp = [] as any[];
@@ -81,6 +88,7 @@ export const calcByDayStats = (art: number, dateRange: [Date, Date], docCampaign
 		dateData['sum'] = Math.round(dateData['sum']);
 		dateData['views'] = Math.round(dateData['views']);
 		dateData['clicks'] = Math.round(dateData['clicks']);
+		dateData['profit'] = Math.round(dateData['profit']);
 
 		const { orders, sum, clicks, views } = dateData as any;
 
@@ -89,9 +97,10 @@ export const calcByDayStats = (art: number, dateRange: [Date, Date], docCampaign
 		dateData['cpc'] = getRoundValue(sum / 100, clicks, true, sum / 100);
 		dateData['cpm'] = getRoundValue(sum * 1000, views);
 		dateData['cr'] = getRoundValue(orders, dateData['openCardCount'], true);
+		dateData['crFromView'] = getRoundValue(orders, dateData['views'], true);
 		dateData['cpo'] = getRoundValue(sum, orders, false, sum);
 		dateData['avgPrice'] = getRoundValue(dateData['sumOrders'], dateData['orders']);
-
+		dateData['rent'] = getRoundValue(dateData['profit'], dateData['sumOrders'], true);
 		temp.push(dateData);
 	}
 

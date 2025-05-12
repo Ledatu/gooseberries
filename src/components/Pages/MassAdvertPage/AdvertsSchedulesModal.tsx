@@ -40,6 +40,7 @@ export const AdvertsSchedulesModal = ({
     const getHeatMap = async () => {
         setFetchingHeatMap(true);
         try {
+            console.log(advertId, sellerId)
             const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
                 advertId,
                 seller_id: sellerId,
@@ -47,6 +48,7 @@ export const AdvertsSchedulesModal = ({
             if (!res || !res.data || !res.data.heatMap) {
                 throw Error('No data in res');
             }
+            console.log(res, res.data);
             setHeatMap(res.data.heatMap);
             console.log(heatMap);
         } catch (error) {

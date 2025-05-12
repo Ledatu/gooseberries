@@ -1,21 +1,21 @@
-import callApi, { getUid } from "@/utilities/callApi";
-import { AdvertDateDataDTO } from "../types/AdvertDateDataDTO";
 
-export const getStatsByDateForAdvertId = async (campaignName: string, advertId: number): Promise<AdvertDateDataDTO[]> => {
+import { AdvertDateDataDTO } from "../types/AdvertDateDataDTO";
+import ApiClient from "@/utilities/ApiClient";
+
+export const getStatsByDateForAdvertId = async (sellerId: string, advertId: number): Promise<AdvertDateDataDTO[]> => {
 	try {
 		const params = {
-			uid: getUid(),
-			campaignName: campaignName,
-			data: { advertId: advertId },
+			seller_id: sellerId,
+			advertId,
 		};
 		console.log(params);
-		const res = await callApi('getStatsByDateForAdvertId', params);
-		if (!res || !res.data || res.data.days == undefined) {
-			throw Error(`No data in getStatsByDateForAdvertId for ${campaignName} advertID = ${advertId}`);
+		const res = await ApiClient.post('massAdvert/new/advert/getAdvertStatsByDay', params)
+		if (!res || !res.data || res.data.stats == undefined) {
+			throw Error(`No data in getStatsByDateForAdvertId for ${sellerId} advertID = ${advertId}`);
 		}
 		const result: AdvertDateDataDTO[] = [];
-		for (const key of Object.keys(res.data.days)) {
-			result.push({ ...res.data.days[key], date: new Date(key) })
+		for (const key of Object.keys(res.data.stats)) {
+			result.push({ ...res.data.stats[key], date: new Date(key) })
 		}
 		console.log(result)
 		return result;
