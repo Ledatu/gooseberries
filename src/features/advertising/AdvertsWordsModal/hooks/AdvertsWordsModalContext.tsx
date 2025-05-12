@@ -45,6 +45,8 @@ interface AutoWordsContextType {
     excludedStats: ClusterData[];
     parsePosition: (phrases: string[]) => void;
     parsedPositions: any;
+    setFilters: (filters: any) => void;
+    filters: any;
 }
 
 class AdvertWordsTemplateHandler {
@@ -183,6 +185,7 @@ export const AdvertWordsProvider = ({
     const [newTemplateName, setNewTemplateName] = useState<string>('');
     const [saveOpen, setSaveOpen] = useState<boolean>(false);
     const [selectedPhrase, setSelectedPhrase] = useState<string>('');
+    const [filters, setFilters] = useState<any>({undef: false});
     const [wordsStats, setWordsStats] = useState<PhrasesStats[]>([]);
     const {showError} = useError();
 
@@ -409,6 +412,8 @@ export const AdvertWordsProvider = ({
                 excludedStats,
                 parsePosition,
                 parsedPositions,
+                setFilters,
+                filters,
             }}
         >
             {children}

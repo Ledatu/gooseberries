@@ -21,8 +21,6 @@ interface ClustersTableContext {
     filteredData: ClusterData[];
     filterTableData: Function;
     filterByButton: (val: any, key: any, compMode: string) => void;
-    setFilters: (filters: any) => void;
-    filters: any;
     getInfoForDescription: (cluster: string, row: any, excluded: boolean) => InfoForDescription;
 }
 
@@ -83,7 +81,7 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
 };
 
 export const useClustersTableContext = (isExcluded: boolean): ClustersTableContext => {
-    const {stats, template, excludedStats} = useAdvertsWordsModal();
+    const {stats, template, excludedStats, filters, setFilters} = useAdvertsWordsModal();
     const [data, setData] = useState(stats);
     useEffect(() => {
         const dataToAdd = isExcluded ? excludedStats : stats;
@@ -94,8 +92,6 @@ export const useClustersTableContext = (isExcluded: boolean): ClustersTableConte
 
     const [showDzhem, setShowDzhem] = useState(true);
 
-    const [filters, setFilters] = useState({undef: true});
-
     const filterByButton = (val: any, key: any, compMode = 'include') => {
         (filters as any)[key] = {val: String(val), compMode: compMode} as any;
         setFilters({...filters});
@@ -105,8 +101,8 @@ export const useClustersTableContext = (isExcluded: boolean): ClustersTableConte
     const [filteredData, setFilteredData] = useState(data);
     useEffect(() => {
         console.log('setfilteredData', data);
-        setFilteredData(data)
-    }, [data])
+        filterTableData(filters, data);
+    }, [data]);
     const [footer, setFooter] = useState(calcFooter(filteredData));
 
     useEffect(() => {
@@ -199,8 +195,6 @@ export const useClustersTableContext = (isExcluded: boolean): ClustersTableConte
         filteredData,
         filterTableData,
         filterByButton,
-        setFilters,
-        filters,
         footerData: footer,
         data: data,
         showDzhem: showDzhem,
