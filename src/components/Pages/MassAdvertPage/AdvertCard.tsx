@@ -192,19 +192,6 @@ export const AdvertCard = ({
     template,
 }: AdvertCardProps) => {
     const [arts, setArts] = useState<number[]>([]);
-    useEffect(() => {
-        const arts = [] as number[];
-        for (let i = 0; i < filteredData.length; i++) {
-            const {art, adverts} = filteredData[i];
-            if (!adverts) continue;
-            for (const [id, _] of Object.entries(adverts)) {
-                if (id == String(advertId)) {
-                    if (!arts.includes(art)) arts.push(art);
-                }
-            }
-        }
-        setArts(arts);
-    }, [filteredData]);
     const advertData = doc.adverts[selectValue[0]][id];
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
     const budgetToKeep = advertBudgetRules?.[id];
@@ -221,6 +208,19 @@ export const AdvertCard = ({
         isQueuedToCreate,
     } = advertData;
     if (![4, 9, 11].includes(status)) return <></>;
+    useEffect(() => {
+        const arts = [] as number[];
+        for (let i = 0; i < filteredData.length; i++) {
+            const {art, adverts} = filteredData[i];
+            if (!adverts) continue;
+            for (const [id, _] of Object.entries(adverts)) {
+                if (id == String(advertId)) {
+                    if (!arts.includes(art)) arts.push(art);
+                }
+            }
+        }
+        setArts(arts);
+    }, [filteredData, advertId]);
 
     const {showError} = useError();
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);

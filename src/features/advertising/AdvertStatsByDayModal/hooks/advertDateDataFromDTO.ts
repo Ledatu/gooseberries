@@ -7,6 +7,7 @@ export const advertDateDataFromDTO = (dto: AdvertDateDataDTO[], docCampaign: any
 	const res = dto.map((dataDto) => {
 		const data: AdvertDateData = getDefaultAdvertDateData();
 		const dateString = getLocaleDateString(new Date(dataDto.date));
+		
 		for (const key of Object.keys(dataDto)) {
 			if (key == 'date') {
 				data.date = new Date(dataDto[key]);

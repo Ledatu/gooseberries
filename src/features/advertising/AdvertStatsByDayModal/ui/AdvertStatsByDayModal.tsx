@@ -1,5 +1,10 @@
 import {ModalWindow} from '@/shared/ui/Modal';
-import {getLocaleDateString, renderAsPercent, renderSlashPercent} from '@/utilities/getRoundValue';
+import {
+    getLocaleDateString,
+    renderAsPercent,
+    renderSlashPercent,
+    defaultRender,
+} from '@/utilities/getRoundValue';
 import {CaretDown, CaretUp, LayoutList} from '@gravity-ui/icons';
 import {ActionTooltip, Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
 import {useState, CSSProperties, useEffect} from 'react';
@@ -52,7 +57,9 @@ export const AdvertStatsByDayModal = ({
             if (comparison[dateString][key] > 0) {
                 if (lessTheBetterStats.includes(key)) {
                     button = (
-                        <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
+                        <ActionTooltip
+                            title={`${Math.round(Math.abs(comparison[dateString][key]) * 100) / 100}`}
+                        >
                             {/* <Button view="flat-danger"> */}
                             <Text color="danger">
                                 <Icon data={CaretUp} />
@@ -62,7 +69,9 @@ export const AdvertStatsByDayModal = ({
                     );
                 } else if (moreTheBetterStats.includes(key)) {
                     button = (
-                        <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
+                        <ActionTooltip
+                            title={`${Math.round(Math.abs(comparison[dateString][key]) * 100) / 100}`}
+                        >
                             <Text color="positive">
                                 <Icon data={CaretUp} />
                             </Text>
@@ -72,7 +81,9 @@ export const AdvertStatsByDayModal = ({
             } else if (comparison[dateString][key] < 0) {
                 if (lessTheBetterStats.includes(key)) {
                     button = (
-                        <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
+                        <ActionTooltip
+                            title={`${Math.round(Math.abs(comparison[dateString][key]) * 100) / 100}`}
+                        >
                             <Text color="positive">
                                 <Icon data={CaretDown} />
                             </Text>
@@ -80,7 +91,9 @@ export const AdvertStatsByDayModal = ({
                     );
                 } else if (moreTheBetterStats.includes(key)) {
                     button = (
-                        <ActionTooltip title={`${Math.abs(comparison[dateString][key])}`}>
+                        <ActionTooltip
+                            title={`${Math.round(Math.abs(comparison[dateString][key]) * 100) / 100}`}
+                        >
                             <Text color="danger">
                                 <Icon data={CaretDown} />
                             </Text>
@@ -91,7 +104,7 @@ export const AdvertStatsByDayModal = ({
         }
         return (
             <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
-                {render ? render(value) : <Text>{value}</Text>}
+                {render ? render(value) : defaultRender({value})}
                 {button}
             </div>
         );
