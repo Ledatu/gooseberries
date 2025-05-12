@@ -156,10 +156,9 @@ export const MassAdvertPage = () => {
             const response = await ApiClient.post('massAdvert/new/get-advert-today-drr', {
                 seller_id: sellerId,
             });
-            if (!response?.data) {
-                throw new Error('error while getting massAdvert/new/get-advert-today-drr');
+            if (response?.data) {
+                setAdvertsTodayDrr(response?.data);
             }
-            setAdvertsTodayDrr(response?.data);
         } catch (error: any) {
             console.error(error);
             showError(error);
