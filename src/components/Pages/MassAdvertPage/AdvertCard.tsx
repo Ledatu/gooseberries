@@ -194,8 +194,8 @@ export const AdvertCard = ({
     const [arts, setArts] = useState<number[]>([]);
     const advertData = doc.adverts[selectValue[0]][id];
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
+    const {showError} = useError();
     const budgetToKeep = advertBudgetRules?.[id];
-    if (!advertData) return <></>;
     const {
         advertId,
         status,
@@ -207,7 +207,7 @@ export const AdvertCard = ({
         nmCPMs,
         isQueuedToCreate,
     } = advertData;
-    if (![4, 9, 11].includes(status)) return <></>;
+
     useEffect(() => {
         const arts = [] as number[];
         for (let i = 0; i < filteredData.length; i++) {
@@ -222,7 +222,6 @@ export const AdvertCard = ({
         setArts(arts);
     }, [filteredData, advertId]);
 
-    const {showError} = useError();
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
 
     const setCopiedParams = async (advertId: number) => {
@@ -321,26 +320,16 @@ export const AdvertCard = ({
     };
 
     const standardDelete = async () => {
-        const res = await manageAdvertsActivityCallFunc(status == 4 ? 'delete' : 'stop', advertId);
-        console.log(res);
-        if (!res || res['data'] === undefined) {
-            return;
-        }
-
-        if (res['data']['status'] == 'ok') {
-            doc.adverts[selectValue[0]][advertId] = undefined;
-        }
-
         setWarningBeforeDeleteConfirmation(false);
+        if (doc.adverts[selectValue[0]][advertId]) doc.adverts[selectValue[0]][advertId].status = 7;
         try {
-            await ApiClient.post('massAdvert/new/delete-advert-from-create-queue', {
+            await ApiClient.post('massAdvert/new/queue-advert-to-delete', {
                 seller_id: sellerId,
-                advertId,
+                advertIds: [advertId],
             });
         } catch (error: any) {
             showError(error?.response?.data?.error || 'An unknown error occurred');
         }
-
         setChangedDoc({...doc});
     };
 
@@ -353,6 +342,10 @@ export const AdvertCard = ({
                 ? 'flat-danger'
                 : 'flat-warning'
           : 'flat';
+
+    if (!advertData || ![4, 9, 11].includes(advertData?.status)) {
+        return <></>;
+    }
 
     return (
         <Card
