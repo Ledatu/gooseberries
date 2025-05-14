@@ -97,17 +97,16 @@ export const AdvertsStatusManagingModal = ({
             seller_id: sellerId,
             advertIds,
         };
-        try {
-            console.log(new Date(), 'massAdvert/new/queue-advert-to-delete', params);
-
-            await ApiClient.post('massAdvert/new/queue-advert-to-delete', params);
-        } catch (error) {
-            console.error(error);
-        }
         for (const id of Object.keys(uniqueAdverts)) {
             doc.adverts[selectValue[0]][id] = undefined;
         }
         setChangedDoc({...doc});
+        try {
+            console.log(new Date(), 'massAdvert/new/queue-advert-to-delete', params);
+            await ApiClient.post('massAdvert/new/queue-advert-to-delete', params);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleOpen = () => setOpen(true);
