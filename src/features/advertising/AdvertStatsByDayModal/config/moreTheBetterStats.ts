@@ -1,4 +1,20 @@
-export const moreTheBetterStats = ['orders', 'sumOrders', 'views', 'clicks', 'ctr', 'openCardCount', 'addToCartCount', 'addToCartPercent', 'cartToOrderPercent', 'cr', 'crFromView', 'profit', 'rent','avgPrice']
+export const moreTheBetterStats = [
+    'orders',
+    'sumOrders',
+    'views',
+    'clicks',
+    'ctr',
+    'openCardCount',
+    'addToCartCount',
+    'addToCartPercent',
+    'cartToOrderPercent',
+    'cr',
+    'crFromView',
+    'profit',
+    'rent',
+    'avgPrice',
+    'sum',
+];
 // orders: number, луч
 //  sum_orders: number, луч
 //  sum: number, бели не надо коасить
