@@ -1,0 +1,140 @@
+import {Graphic} from '@/shared/Graphic';
+import {getStatsForChart} from '../hooks/getStatsForChart';
+import {AdvertDateData} from '../types';
+import {ReactElement, useEffect, useState, Children, isValidElement, cloneElement} from 'react';
+import {ModalWindow} from '@/shared/ui/Modal';
+import {motion} from 'framer-motion';
+import {Loader} from '@gravity-ui/uikit';
+import {nameOfColumns} from '../config/nameOfColumns';
+
+interface ChartStatsModal {
+    children: ReactElement | ReactElement[];
+    defaultStat: string;
+    stats: AdvertDateData[];
+    useVerticalLines?: boolean;
+}
+
+export const ChartStatsModal = ({
+    defaultStat,
+    stats,
+    children,
+    useVerticalLines,
+}: ChartStatsModal) => {
+    const [open, setOpen] = useState(false);
+    const [hiddenByDefault, setHiddenByDefault] = useState({});
+    useEffect(() => {
+        let obj: Record<string, boolean> = {};
+        for (const key of Object.keys(nameOfColumns)) {
+            if (key === defaultStat) {
+                obj[nameOfColumns[key]] = false;
+            } else {
+                obj[nameOfColumns[key]] = true;
+            }
+        }
+        setHiddenByDefault(obj);
+        console.log(obj);
+    }, [defaultStat]);
+    const [data, setData] = useState<Record<string, string | number>[]>([]);
+    useEffect(() => {
+        if (open) {
+            setData(getStatsForChart(stats));
+        }
+    }, [open]);
+
+    const handleClose = () => {
+        setOpen(false);
+        setData([]);
+    };
+    const axisY = {
+        'Дата и время': 'x_scale',
+        Заказы: 'orders_scale',
+        'Заказы:, ₽': 'sumOrders_scale',
+        'Расход:, ₽': 'sum_scale',
+        'Профит:, ₽': 'profit_scale',
+        'Клики, шт.': 'clicks_scale',
+        'ДРР, %': 'drr_scale',
+        'CTR, %': 'ctr_scale',
+        'CPC, ₽': 'cpc_scale',
+        'CPM, ₽': 'cpm_scale',
+        'CPO, ₽': 'cpo_scale',
+        'Всего переходов, шт.': 'openCardCount_scale',
+        'Корзины, шт.': 'addToCartCount_scale',
+        'CR в корзину, %': 'cartToOrderPercent_scale',
+        'CR в заказ, %': 'cartToOrderPercent_scale',
+        'CR из перехода, %': 'cr_scale',
+        'CR из показа, %': 'crFromView_scale',
+        'Профит, ₽': 'profit_scale',
+        'Рентабельность, %': 'rent_scale',
+        'CPL, ₽': 'cpl_scale',
+        'Ср. Чек, ₽': 'avgPrice_scale',
+    };
+    const childArray = Children.toArray(children);
+
+    const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
+        any,
+        any
+    >;
+
+    if (!triggerElement) {
+        console.error('ChartModal: No valid React element found in children.');
+        return null;
+    }
+
+    const triggerButton = cloneElement(triggerElement, {
+        onClick: () => setOpen(true),
+    });
+    return (
+        <>
+            {triggerButton}
+            <ModalWindow padding={false} isOpen={open} handleClose={handleClose}>
+                <div
+                    style={{
+                        width: '60vw',
+                        height: '55vh',
+                        overflow: 'auto',
+                        display: 'flex',
+                        position: 'relative',
+                    }}
+                >
+                    <motion.div
+                        animate={{display: !open ? 'flex' : 'none'}}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: !open ? '100%' : 0,
+                            height: !open ? '100%' : 0,
+                            background: 'var(--g-color-base-background)',
+                        }}
+                    >
+                        {!open && <Loader size="l" />}
+                    </motion.div>
+                    <motion.div
+                        animate={{opacity: !open ? 0 : 1}}
+                        transition={{duration: 0.2, ease: 'easeIn'}}
+                        style={{
+                            display: !open ? 'none' : 'flex',
+                            pointerEvents: !open ? 'none' : undefined,
+                            cursor: 'default',
+                            width: '100%',
+                            height: '100%',
+                        }}
+                    >
+                        {data ? (
+                            <Graphic
+                                useVerticalLines={useVerticalLines}
+                                className={'p-5'}
+                                data={data}
+                                yAxes={axisY}
+                                // colors={colors}
+                                hiddenByDefault={hiddenByDefault}
+                            />
+                        ) : (
+                            <p>No data available.</p>
+                        )}
+                    </motion.div>
+                </div>
+            </ModalWindow>
+        </>
+    );
+};

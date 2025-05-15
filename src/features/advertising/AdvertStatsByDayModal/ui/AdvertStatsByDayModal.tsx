@@ -17,6 +17,7 @@ import {getSummaryData} from '../hooks/getSummaryData';
 import {getComparison} from '../hooks/getComparison';
 import {lessTheBetterStats} from '../config/lessTheBetterStats';
 import {moreTheBetterStats} from '../config/moreTheBetterStats';
+// import {ChartStatsModal} from './ChartStatsModal';
 
 interface AdvertStatsByDayModal {
     data: AdvertDateData[];
@@ -142,6 +143,13 @@ export const AdvertStatsByDayModal = ({
             render: ({value, footer, row}: any) => {
                 return getStatWithArrowButton(value, footer, 'sum', row['date'], comparison);
             },
+            // additionalNodes: [
+            //     <ChartStatsModal defaultStat='sum' stats={data}>
+            //         <Button pin="round-brick" size="xs" view="flat">
+            //             <Icon data={ChartAreaStacked} size={16} />
+            //         </Button>
+            //     </ChartStatsModal>,
+            // ],
         },
         {
             name: 'orders',

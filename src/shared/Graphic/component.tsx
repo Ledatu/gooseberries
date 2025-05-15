@@ -37,6 +37,7 @@ interface GraphicProps {
     removedEntities?: string[];
     minMaxValues?: MinMaxValue;
     useVerticalLines?: boolean;
+    hiddenByDefault?: Record<string, boolean>;
 }
 
 export const Graphic: FC<GraphicProps> = ({
@@ -47,6 +48,7 @@ export const Graphic: FC<GraphicProps> = ({
     removedEntities = [],
     minMaxValues,
     useVerticalLines,
+    hiddenByDefault = {}
 }) => {
     const theme = useTheme();
     const chartRef = useRef<any>(null);
@@ -97,7 +99,7 @@ export const Graphic: FC<GraphicProps> = ({
 
     filteredData = filterDataByMinMax(filteredData, minMaxValues || {});
 
-    const chartData = formatChartData(filteredData, yAxes, colors);
+    const chartData = formatChartData(filteredData, yAxes, colors, hiddenByDefault);
     // const categories: string[] = chartData.datasets.map((dataset) => dataset.label);
 
     const options = {

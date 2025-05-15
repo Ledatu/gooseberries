@@ -6,6 +6,7 @@ export const formatChartData = (
     data: Record<string, number | string>[],
     yAxes: Record<string, string> = {},
     colors: Record<string, string> = {},
+    hiddenByDefault: Record<string, boolean> = {},
     lineTension: number = DEFAULT_LINE_TENSION,
 ) => {
     const formattedData = data.map((item) => ({
@@ -38,7 +39,7 @@ export const formatChartData = (
                 pointRadius: 0,
                 borderWidth: yAxes?.[category]?.includes('_noLine') ? 0 : 2,
                 spanGaps: true,
-                hidden: false,
+                hidden: hiddenByDefault[category],
             };
         }),
     };
