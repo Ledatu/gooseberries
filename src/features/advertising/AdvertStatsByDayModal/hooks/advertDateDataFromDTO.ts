@@ -3,7 +3,7 @@ import { getDefaultAdvertDateData } from "../config/getDefaultAdvertDateData";
 import { AdvertDateData } from "../types/AdvertDateData";
 import { AdvertDateDataDTO } from "../types/AdvertDateDataDTO";
 
-export const advertDateDataFromDTO = (dto: AdvertDateDataDTO[], docCampaign: any, arts: number[]): AdvertDateData[] => {
+export const advertDateDataFromDTO = (dto: AdvertDateDataDTO[], docCampaign: any, arts: string[]): AdvertDateData[] => {
 	const res = dto.map((dataDto) => {
 		const data: AdvertDateData = getDefaultAdvertDateData();
 		const dateString = getLocaleDateString(new Date(dataDto.date));

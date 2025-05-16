@@ -191,7 +191,7 @@ export const AdvertCard = ({
     getUniqueAdvertIdsFromThePage,
     template,
 }: AdvertCardProps) => {
-    const [arts, setArts] = useState<number[]>([]);
+    const [arts, setArts] = useState<string[]>([]);
     const advertData = doc.adverts[selectValue[0]][id];
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
     const {showError} = useError();
@@ -209,7 +209,7 @@ export const AdvertCard = ({
     } = advertData;
 
     useEffect(() => {
-        const arts = [] as number[];
+        const arts = [] as string[];
         for (let i = 0; i < filteredData.length; i++) {
             const {art, adverts} = filteredData[i];
             if (!adverts) continue;

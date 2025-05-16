@@ -305,6 +305,11 @@ export const MassAdvertPage = () => {
 
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
+    const [nmIds, setNmIds] = useState<number[]>([]);
+    useEffect(() => {
+        const nmIds = filteredData.map((data) => data.nmId);
+        setNmIds(nmIds);
+    }, [filteredData]);
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
 
     const [unvalidatedArts, setUnvalidatedArts] = useState<any[]>([]);
@@ -3435,6 +3440,7 @@ export const MassAdvertPage = () => {
                             />
                             <div style={{minWidth: 8}} />
                             <AdvertsSchedulesModal
+                                nmIds={nmIds}
                                 setUpdatePaused={setUpdatePaused}
                                 disabled={permission != 'Управление'}
                                 doc={doc}
