@@ -5,10 +5,9 @@ import {
     renderSlashPercent,
     defaultRender,
 } from '@/utilities/getRoundValue';
-import {CaretDown, CaretUp, LayoutList} from '@gravity-ui/icons';
+import {CaretDown, CaretUp, ChartAreaStacked, LayoutList} from '@gravity-ui/icons';
 import {ActionTooltip, Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
 import {useState, CSSProperties, useEffect} from 'react';
-// import {AdvertDateDataComparison} from '../types/AdvertDateDataComparison';
 import {AdvertDateData} from '../types/AdvertDateData';
 import {getDefaultAdvertDateData} from '../config/getDefaultAdvertDateData';
 import TheTable from '@/components/TheTable';
@@ -17,7 +16,7 @@ import {getSummaryData} from '../hooks/getSummaryData';
 import {getComparison} from '../hooks/getComparison';
 import {lessTheBetterStats} from '../config/lessTheBetterStats';
 import {moreTheBetterStats} from '../config/moreTheBetterStats';
-// import {ChartStatsModal} from './ChartStatsModal';
+import {ChartStatsModal} from './ChartStatsModal';
 
 interface AdvertStatsByDayModal {
     data: AdvertDateData[];
@@ -343,7 +342,18 @@ export const AdvertStatsByDayModal = ({
                 return getStatWithArrowButton(value, footer, 'cpl', row['date'], comparison);
             },
         },
-    ];
+    ].map((column) => {
+        return {
+            ...column,
+            additionalNodes: [
+                <ChartStatsModal defaultStat="sum" stats={data}>
+                    <Button pin='brick-brick' size="m" view="flat">
+                        <Icon data={ChartAreaStacked} size={16} />
+                    </Button>
+                </ChartStatsModal>,
+            ],
+        };
+    });
 
     return (
         <div>

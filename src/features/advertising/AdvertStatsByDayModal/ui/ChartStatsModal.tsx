@@ -45,29 +45,9 @@ export const ChartStatsModal = ({
         setOpen(false);
         setData([]);
     };
-    const axisY = {
-        'Дата и время': 'x_scale',
-        Заказы: 'orders_scale',
-        'Заказы:, ₽': 'sumOrders_scale',
-        'Расход:, ₽': 'sum_scale',
-        'Профит:, ₽': 'profit_scale',
-        'Клики, шт.': 'clicks_scale',
-        'ДРР, %': 'drr_scale',
-        'CTR, %': 'ctr_scale',
-        'CPC, ₽': 'cpc_scale',
-        'CPM, ₽': 'cpm_scale',
-        'CPO, ₽': 'cpo_scale',
-        'Всего переходов, шт.': 'openCardCount_scale',
-        'Корзины, шт.': 'addToCartCount_scale',
-        'CR в корзину, %': 'cartToOrderPercent_scale',
-        'CR в заказ, %': 'cartToOrderPercent_scale',
-        'CR из перехода, %': 'cr_scale',
-        'CR из показа, %': 'crFromView_scale',
-        'Профит, ₽': 'profit_scale',
-        'Рентабельность, %': 'rent_scale',
-        'CPL, ₽': 'cpl_scale',
-        'Ср. Чек, ₽': 'avgPrice_scale',
+    let axisY: Record<string, string> = {
     };
+    axisY[`${nameOfColumns[defaultStat]}`] = `${defaultStat}_scale`
     const childArray = Children.toArray(children);
 
     const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<
