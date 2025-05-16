@@ -7,7 +7,7 @@ import {AdvertStatsByDayModal} from './AdvertStatsByDayModal';
 
 interface AdvertStatsByDayModalForAdvertIdProps {
     advertId: number;
-    arts: number[];
+    arts: string[];
     docCampaign: any;
 }
 
