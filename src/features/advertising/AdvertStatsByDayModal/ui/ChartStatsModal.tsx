@@ -45,9 +45,8 @@ export const ChartStatsModal = ({
         setOpen(false);
         setData([]);
     };
-    let axisY: Record<string, string> = {
-    };
-    axisY[`${nameOfColumns[defaultStat]}`] = `${defaultStat}_scale`
+    const axisY = Object.fromEntries(Object.entries(nameOfColumns).map(([key, name]) => [name, key]));
+    axisY[`${nameOfColumns[defaultStat]}`] = `${defaultStat}_scale`;
     const childArray = Children.toArray(children);
 
     const triggerElement = childArray.find((child) => isValidElement(child)) as ReactElement<

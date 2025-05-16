@@ -346,8 +346,8 @@ export const AdvertStatsByDayModal = ({
         return {
             ...column,
             additionalNodes: [
-                <ChartStatsModal defaultStat="sum" stats={data}>
-                    <Button pin='brick-brick' size="m" view="flat">
+                <ChartStatsModal defaultStat={column?.name} stats={data}>
+                    <Button pin="brick-brick" size="m" view="flat">
                         <Icon data={ChartAreaStacked} size={16} />
                     </Button>
                 </ChartStatsModal>,
