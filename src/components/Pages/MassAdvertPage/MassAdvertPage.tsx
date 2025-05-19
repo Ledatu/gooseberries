@@ -3697,44 +3697,6 @@ export const MassAdvertPage = () => {
                                 nmId={selectedNmId}
                             />
                         )}
-                        {/* {showArtStatsModalOpen && (
-                            <ModalWindow
-                                padding={false}
-                                isOpen={showArtStatsModalOpen}
-                                handleClose={() => setShowArtStatsModalOpen(false)}
-                            >
-                                <div
-                                    style={
-                                        {
-                                            background: theme == 'light' ? '#fff9' : undefined,
-                                            width: '90vw',
-                                            height: '70vh',
-                                            margin: 16,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            '--g-color-base-background':
-                                                theme === 'dark' ? 'rgba(14, 14, 14, 1)' : '#eeee',
-                                            gap: 16,
-                                        } as CSSProperties
-                                    }
-                                >
-                                    <Text variant="header-2">Статистика по дням</Text>
-                                    <TheTable
-                                        height={'calc(70vh - 96px)'}
-                                        columnData={columnDataArtByDayStats}
-                                        data={artsStatsByDayFilteredData}
-                                        filters={artsStatsByDayFilters}
-                                        setFilters={setArtsStatsByDayFilters}
-                                        filterData={artsStatsByDayDataFilter}
-                                        footerData={[artsStatsByDayFilteredSummary]}
-                                        tableId={'byDateStatsTable'}
-                                        defaultPaginationSize={50}
-                                        usePagination={true}
-                                    />
-                                </div>
-                            </ModalWindow>
-                        )} */}
                     </div>
                     <div
                         style={{
@@ -3776,6 +3738,8 @@ export const MassAdvertPage = () => {
                 <></>
             ) : (
                 <TheTable
+                    useCheckboxes={true}
+                    checkboxKey="nmId"
                     columnData={columnData}
                     data={filteredData}
                     filters={filters}

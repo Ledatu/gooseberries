@@ -1,6 +1,6 @@
 // @import "tailwindcss";
 div {
-    box-sizing: unset
+    box-sizing: unset;
 }
 
 // #root {
@@ -10,7 +10,6 @@ div {
 //         rgba(34, 33, 39, 1) 100%
 //     ) !important;
 // }
-
 
 .tablink:hover {
     color: var(--g-color-text-complementary) !important;
@@ -148,6 +147,10 @@ div {
         // backdrop-filter: blur(48px);
     }
 
+    .td_left_37 {
+        left: 37px;
+    }
+
     .the-table__td_fixed::after {
         pointer-events: none;
         position: absolute;
@@ -249,11 +252,11 @@ div {
     }
 }
 
-
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+        'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -273,7 +276,7 @@ code {
 }
 
 // .g-card {
-//     border: 1px solid #eee2 !important; 
+//     border: 1px solid #eee2 !important;
 //     border-radius: 30px;
 //     backdrop-filter: blur(48px) !important;
 //     box-shadow: var(--g-color-base-background) 0px 2px 8px !important;
@@ -290,10 +293,10 @@ code {
 }
 
 .blurred-card {
-    border: 1px solid #eee2 !important; 
+    border: 1px solid #eee2 !important;
     border-radius: 8px;
     backdrop-filter: blur(48px) !important;
-    -webkit-backdrop-filter:  blur(48px) !important;
+    -webkit-backdrop-filter: blur(48px) !important;
     // box-shadow: var(--g-color-base-background) 0px 2px 8px !important;
 }
 .select-color {

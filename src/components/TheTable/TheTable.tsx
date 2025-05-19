@@ -7,13 +7,23 @@ import block from 'bem-cn-lite';
 import useWindowDimensions from '@/hooks/useWindowDimensions';
 
 import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
-import {Button, Card, CardTheme, DropdownMenu, Icon, Pagination, Text} from '@gravity-ui/uikit';
+import {
+    Button,
+    Card,
+    CardTheme,
+    Checkbox,
+    DropdownMenu,
+    Icon,
+    Pagination,
+    Text,
+} from '@gravity-ui/uikit';
 import {DelayedTextInput} from '@gravity-ui/components';
 import {defaultRender} from '@/utilities/getRoundValue';
 import {useUser} from '@/components/RequireAuth/RequireAuth';
 import callApi from '@/utilities/callApi';
 import {PaginationSizeInput} from './PaginationSizeInput';
 import {ClearFiltersButton} from './ClearFiltersButton';
+import {useCheckboxes} from './hooks';
 
 const b = block('the-table');
 
@@ -24,6 +34,8 @@ interface TheTableProps {
     defaultPaginationSize?: number;
     onPaginationUpdate?: Function;
     columnData: any;
+    useCheckboxes?: boolean;
+    checkboxKey?: string;
     data: any[];
     filters: any;
     setFilters: (filters: any) => void;
@@ -52,9 +64,12 @@ export default function TheTable({
     height,
     width,
     onRowClick,
-    // rowKey = (row, index) => index,
+    useCheckboxes: useChecks,
+    checkboxKey,
 }: TheTableProps) {
     const viewportSize = useWindowDimensions();
+    const {checkboxStates, updateCheckbox, checkboxHeaderState, updateHeaderCheckbox} =
+        useCheckboxes(data, filters, checkboxKey ?? 'nmId');
 
     const {userInfo} = useUser();
     const {user} = userInfo ?? {};
@@ -136,6 +151,36 @@ export default function TheTable({
         const columns: Column<any>[] = [];
         if (!columnData || !columnData.length) return columns;
 
+        if (useChecks) {
+            columns.push({
+                sortable: false,
+                name: 'checkbox',
+                className: b(`td_fixed td_fixed_checkbox`),
+                header: (
+                    <Checkbox
+                        checked={checkboxHeaderState}
+                        onChange={() => updateHeaderCheckbox()}
+                        style={{marginTop: 22}}
+                        size="l"
+                    />
+                ),
+                render: ({row, footer}) => {
+                    if (footer) return undefined;
+                    const checkboxIndex = row?.nmId;
+                    return (
+                        <Checkbox
+                            checked={checkboxStates[checkboxIndex] ? true : false}
+                            onChange={() => updateCheckbox(checkboxIndex)}
+                            size="l"
+                            onUpdate={() => {
+                                console.log('checked', checkboxIndex, row);
+                            }}
+                        />
+                    );
+                },
+            });
+        }
+
         for (let i = 0; i < columnData.length; i++) {
             const column = columnData[i];
             if (!column) continue;
@@ -163,7 +208,12 @@ export default function TheTable({
                 sortable,
                 sub,
                 name: name,
-                className: b(className ?? (i < 1 ? `td_fixed td_fixed_${name}` : 'td_body')),
+                className: b(
+                    className ??
+                        (i < 1
+                            ? `td_fixed td_fixed_${name}${useChecks ? ' td_left_37' : ''}`
+                            : 'td_body'),
+                ),
                 header: isDivider ? (
                     <></>
                 ) : sub ? (
@@ -198,7 +248,7 @@ export default function TheTable({
 
         setSortFuncs({...sortFuncs});
         return columns;
-    }, [columnData, filters]);
+    }, [columnData, filters, checkboxStates, page]);
 
     const tableCardStyle = {
         boxShadow: 'var(--g-color-base-background) 0px 2px 8px',

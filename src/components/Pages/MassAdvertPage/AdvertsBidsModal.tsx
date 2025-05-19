@@ -229,6 +229,11 @@ export const AdvertsBidsModal = ({
         return temp && temp >= 1000 && !isNaN(temp) && isFinite(temp);
     }, [maxBudgetInputValue]);
 
+    const [useRentOptimizer, setUseRentOptimizer] = useState(false);
+    const [rentOptimizerValue, setRentOptimizerValue] = useState(null as unknown as number);
+    const [useOborStop, setUseOborStop] = useState(false);
+    const [oborStopValue, setOborStopValue] = useState(null as unknown as number);
+
     useEffect(() => {
         if (
             ['sellByDate', 'orders', 'sum_orders', 'obor'].includes(autoBidderOption[0]) &&
@@ -262,6 +267,10 @@ export const AdvertsBidsModal = ({
         setUseAutoBudget(false);
         setUseMaxBudget(false);
         setUseAutoMaxCpm(true);
+        setUseRentOptimizer(false);
+        setRentOptimizerValue(null as unknown as number);
+        setUseOborStop(false);
+        setOborStopValue(null as unknown as number);
     }, [open]);
 
     const textInputs: any = {
@@ -809,6 +818,59 @@ export const AdvertsBidsModal = ({
                         ) : (
                             <></>
                         )}
+                        <motion.div
+                            animate={{
+                                height:
+                                    0 +
+                                    (autoBidderOption[0] == 'sum' ? 22 : 0) +
+                                    (useRentOptimizer ? 86 : 0) +
+                                    (useRentOptimizer && useOborStop ? 56 : 0),
+                                marginTop: autoBidderOption[0] == 'sum' ? 8 : 0,
+                            }}
+                            style={{
+                                height: 0,
+                                display: 'flex',
+                                gap: 8,
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                width: '100%',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <Checkbox
+                                checked={useRentOptimizer}
+                                onUpdate={(val) => setUseRentOptimizer(val)}
+                            >
+                                Оптимизировать расход
+                            </Checkbox>
+                            <TextTitleWrapper padding={8} title="Введите рентабельность">
+                                <NumberInput
+                                    validationState={
+                                        rentOptimizerValue !== null ? undefined : 'invalid'
+                                    }
+                                    size="l"
+                                    value={rentOptimizerValue}
+                                    onUpdate={(val) => setRentOptimizerValue(val ?? 0)}
+                                    allowDecimal
+                                    step={0.1}
+                                    min={-100}
+                                    max={100}
+                                />
+                            </TextTitleWrapper>
+                            <Checkbox checked={useOborStop} onUpdate={(val) => setUseOborStop(val)}>
+                                Учитывать оборачиваемость
+                            </Checkbox>
+                            <TextTitleWrapper padding={8} title="Введите оборачиваемость">
+                                <NumberInput
+                                    validationState={oborStopValue !== null ? undefined : 'invalid'}
+                                    size="l"
+                                    value={oborStopValue}
+                                    onUpdate={(val) => setOborStopValue(val ?? 0)}
+                                    min={0}
+                                    max={100}
+                                />
+                            </TextTitleWrapper>
+                        </motion.div>
                         <motion.div
                             style={{
                                 height: 0,
