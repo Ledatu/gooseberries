@@ -158,7 +158,7 @@ export const AdvertsBidsModal = ({
 
     const [drrInputValue, setDrrInputValue] = useState('');
     const drrInputValueValid = useMemo(() => {
-        const temp = parseInt(drrInputValue);
+        const temp = parseFloat(drrInputValue.replace(/,/g, '.'));
         return temp && temp > 0 && !isNaN(temp) && isFinite(temp);
     }, [drrInputValue]);
 
@@ -539,7 +539,7 @@ export const AdvertsBidsModal = ({
                     autoBidderOption[0] == 'sellByDate'
                         ? null
                         : parseInt(ordersInputValue),
-                desiredDRR: parseInt(drrInputValue),
+                desiredDRR: parseFloat(drrInputValue.replace(/,/g, '.')),
                 desiredCpo: parseInt(cpoInputValue),
                 desiredSum: parseInt(sumInputValue),
                 desiredObor: parseInt(oborInputValue),
@@ -598,7 +598,7 @@ export const AdvertsBidsModal = ({
                             drrOption,
                             desiredObor: parseInt(oborInputValue),
                             desiredSumOrders: parseInt(sumOrdersInputValue),
-                            desiredDRR: parseInt(drrInputValue),
+                            desiredDRR: parseFloat(drrInputValue.replace(/,/g, '.')),
                             maxBid: !useAutoMaxCpm ? parseInt(maxCpmInputValue) : undefined,
                             useManualMaxCpm: !useAutoMaxCpm,
                             desiredCpo: parseInt(cpoInputValue),
