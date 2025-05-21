@@ -38,6 +38,10 @@ export const NomenclaturesPage = () => {
     const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
+    const [checkedData, setCheckedData] = useState<any[]>([]);
+    useEffect(() => {
+        console.log('checkedData', checkedData);
+    }, [checkedData]);
 
     const filterByClick = (val: any, key = 'art', compMode = 'include') => {
         filters[key] = {val: String(val), compMode: compMode};
@@ -65,7 +69,7 @@ export const NomenclaturesPage = () => {
                 },
             };
 
-            for (const row of filteredData) {
+            for (const row of checkedData) {
                 const {nmId} = row ?? {};
                 if (nmId === undefined) continue;
                 if (!params.data.nmIds.includes(nmId)) params.data.nmIds.push(nmId);
@@ -103,7 +107,7 @@ export const NomenclaturesPage = () => {
                 },
             };
 
-            for (const row of filteredData) {
+            for (const row of checkedData) {
                 const {nmId} = row ?? {};
                 if (nmId === undefined) continue;
                 if (!params.data.nmIds.includes(nmId)) params.data.nmIds.push(nmId);
@@ -186,7 +190,7 @@ export const NomenclaturesPage = () => {
             <NomenclaturesPageEditParameter
                 setUpdate={setUpdate}
                 sellerId={sellerId}
-                filteredData={filteredData}
+                filteredData={checkedData}
                 enteredValueKey={key}
             >
                 {triggerButton}
@@ -307,7 +311,7 @@ export const NomenclaturesPage = () => {
                 additionalNodes: [
                     <SetArtStatusModal
                         sellerId={sellerId}
-                        filteredData={filteredData}
+                        filteredData={checkedData}
                         setUpdate={setUpdate}
                     >
                         <Button
@@ -436,7 +440,7 @@ export const NomenclaturesPage = () => {
                 additionalNodes: [generateEditButton('primeCost3')],
             },
         ],
-        [filteredData, data],
+        [filteredData, data, checkedData],
     );
 
     const filterByButton = (val: any, key = 'tags', compMode = 'include') => {
@@ -693,6 +697,17 @@ export const NomenclaturesPage = () => {
                 </div>
             ) : (
                 <TheTable
+                    useCheckboxes={true}
+                    checkboxKey="nmId"
+                    onCheckboxStateUpdate={(checkboxHeaderState: boolean, checkboxStates: any) => {
+                        if (checkboxHeaderState) setCheckedData([...filteredData]);
+                        else {
+                            const temp = filteredData.filter(
+                                (value) => checkboxStates?.[value?.['nmId']],
+                            );
+                            setCheckedData(temp);
+                        }
+                    }}
                     key={'nomenclaturesTable'}
                     columnData={columnData}
                     data={filteredData}

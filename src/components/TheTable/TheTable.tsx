@@ -33,6 +33,7 @@ interface TheTableProps {
     usePagination: boolean;
     defaultPaginationSize?: number;
     onPaginationUpdate?: Function;
+    onCheckboxStateUpdate?: Function;
     columnData: any;
     useCheckboxes?: boolean;
     checkboxKey?: string;
@@ -65,11 +66,16 @@ export default function TheTable({
     width,
     onRowClick,
     useCheckboxes: useChecks,
+    onCheckboxStateUpdate,
     checkboxKey,
 }: TheTableProps) {
     const viewportSize = useWindowDimensions();
     const {checkboxStates, updateCheckbox, checkboxHeaderState, updateHeaderCheckbox} =
         useCheckboxes(data, filters, checkboxKey ?? 'nmId');
+
+    useEffect(() => {
+        if (onCheckboxStateUpdate) onCheckboxStateUpdate(checkboxHeaderState, checkboxStates);
+    }, [checkboxHeaderState, checkboxStates]);
 
     const {userInfo} = useUser();
     const {user} = userInfo ?? {};

@@ -150,6 +150,11 @@ export const MassAdvertPage = () => {
         }
     };
 
+    const [checkedData, setCheckedData] = useState([] as any);
+    useEffect(() => {
+        console.log('checkeddata', checkedData);
+    }, [checkedData]);
+
     const [advertsTodayDrr, setAdvertsTodayDrr] = useState<{[key: string]: number}>({});
     const fetchAdvertsTodayDrr = async () => {
         try {
@@ -307,7 +312,7 @@ export const MassAdvertPage = () => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [nmIds, setNmIds] = useState<number[]>([]);
     useEffect(() => {
-        const nmIds = filteredData.map((data) => data.nmId);
+        const nmIds = checkedData.map((data: any) => data.nmId);
         setNmIds(nmIds);
     }, [filteredData]);
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
@@ -398,7 +403,7 @@ export const MassAdvertPage = () => {
                     view="outlined"
                     copyText={() => {
                         const arts: number[] = [];
-                        for (const row of filteredData) {
+                        for (const row of checkedData) {
                             const {nmId} = row;
                             if (!arts.includes(nmId)) arts.push(nmId);
                         }
@@ -974,7 +979,7 @@ export const MassAdvertPage = () => {
                                               manageAdvertsActivityCallFunc
                                           }
                                           updateColumnWidth={updateColumnWidth}
-                                          filteredData={filteredData}
+                                          filteredData={checkedData}
                                           setCopiedAdvertsSettings={setCopiedAdvertsSettings}
                                           setDateRange={setDateRange}
                                           dateRange={dateRange}
@@ -1017,7 +1022,7 @@ export const MassAdvertPage = () => {
                                               manageAdvertsActivityCallFunc
                                           }
                                           updateColumnWidth={updateColumnWidth}
-                                          filteredData={filteredData}
+                                          filteredData={checkedData}
                                           setCopiedAdvertsSettings={setCopiedAdvertsSettings}
                                           setDateRange={setDateRange}
                                           dateRange={dateRange}
@@ -1059,7 +1064,7 @@ export const MassAdvertPage = () => {
                                               manageAdvertsActivityCallFunc
                                           }
                                           updateColumnWidth={updateColumnWidth}
-                                          filteredData={filteredData}
+                                          filteredData={checkedData}
                                           setCopiedAdvertsSettings={setCopiedAdvertsSettings}
                                           setDateRange={setDateRange}
                                           dateRange={dateRange}
@@ -1099,7 +1104,7 @@ export const MassAdvertPage = () => {
                                       setChangedDoc={setChangedDoc}
                                       manageAdvertsActivityCallFunc={manageAdvertsActivityCallFunc}
                                       updateColumnWidth={updateColumnWidth}
-                                      filteredData={filteredData}
+                                      filteredData={checkedData}
                                       setCopiedAdvertsSettings={setCopiedAdvertsSettings}
                                       setDateRange={setDateRange}
                                       dateRange={dateRange}
@@ -1157,7 +1162,7 @@ export const MassAdvertPage = () => {
                               };
                               const newDocAutoSales = {...doc.autoSales};
                               const tempAutoSales = {...autoSalesProfits};
-                              for (const row of filteredData) {
+                              for (const row of checkedData) {
                                   const {nmId, art} = row;
                                   const profits = autoSalesProfits[art];
                                   if (!profits) continue;
@@ -1204,7 +1209,7 @@ export const MassAdvertPage = () => {
                           view="outlined"
                           onClick={() => {
                               const tempAutoSales = {...autoSalesProfits};
-                              for (const row of filteredData) {
+                              for (const row of checkedData) {
                                   const {art} = row;
                                   delete tempAutoSales[art];
                               }
@@ -3291,8 +3296,8 @@ export const MassAdvertPage = () => {
         const lwrAsNumber: number = parseInt(lwr);
         const uniqueAdverts: any = {};
 
-        for (let i = 0; i < filteredData.length; i++) {
-            const {adverts} = filteredData[i];
+        for (let i = 0; i < checkedData.length; i++) {
+            const {adverts} = checkedData[i];
             if (!adverts) continue;
 
             for (const [id, _] of Object.entries(adverts)) {
@@ -3365,7 +3370,7 @@ export const MassAdvertPage = () => {
                         >
                             <AdvertCreateModal
                                 doc={doc}
-                                filteredData={filteredData}
+                                filteredData={checkedData}
                                 setChangedDoc={setChangedDoc}
                             >
                                 <Button
@@ -3463,7 +3468,7 @@ export const MassAdvertPage = () => {
                             <AutoSalesModal
                                 disabled={permission != 'Управление'}
                                 selectValue={selectValue}
-                                filteredData={filteredData}
+                                filteredData={checkedData}
                                 setAutoSalesProfits={setAutoSalesProfits}
                                 sellerId={sellerId}
                                 openFromParent={autoSalesModalOpenFromParent}
@@ -3574,7 +3579,7 @@ export const MassAdvertPage = () => {
                                                         manageAdvertsActivityCallFunc
                                                     }
                                                     updateColumnWidth={updateColumnWidth}
-                                                    filteredData={filteredData}
+                                                    filteredData={checkedData}
                                                     setCopiedAdvertsSettings={
                                                         setCopiedAdvertsSettings
                                                     }
@@ -3756,6 +3761,15 @@ export const MassAdvertPage = () => {
 
                             return temp;
                         });
+                    }}
+                    onCheckboxStateUpdate={(checkboxHeaderState: boolean, checkboxStates: any) => {
+                        if (checkboxHeaderState) setCheckedData([...filteredData]);
+                        else {
+                            const temp = filteredData.filter(
+                                (value) => checkboxStates?.[value?.['nmId']],
+                            );
+                            setCheckedData(temp);
+                        }
                     }}
                     defaultPaginationSize={300}
                     width="100%"
