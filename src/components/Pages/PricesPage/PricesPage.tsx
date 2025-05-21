@@ -59,10 +59,16 @@ export const PricesPage = () => {
     const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
+    const [checkboxHeaderState, setCheckboxHeaderState] = useState(false);
+    const [checkboxStates, setCheckboxStates] = useState({} as any);
     const [checkedData, setCheckedData] = useState<any[]>([]);
     useEffect(() => {
-        console.log('checkedData', checkedData);
-    }, [checkedData]);
+        let checkedDataTemp = [];
+        if (checkboxHeaderState) checkedDataTemp = [...filteredData];
+        else checkedDataTemp = filteredData.filter((value) => checkboxStates?.[value?.['nmId']]);
+        setCheckedData(checkedDataTemp);
+        console.log('checkedData', checkedDataTemp);
+    }, [filteredData, checkboxHeaderState, checkboxStates]);
 
     const [groupingFetching, setGroupingFetching] = useState(false);
     const [wbWalletFetching, setWbWalletFetching] = useState(false);
@@ -1264,13 +1270,8 @@ export const PricesPage = () => {
                 useCheckboxes={true}
                 checkboxKey="nmId"
                 onCheckboxStateUpdate={(checkboxHeaderState: boolean, checkboxStates: any) => {
-                    if (checkboxHeaderState) setCheckedData([...filteredData]);
-                    else {
-                        const temp = filteredData.filter(
-                            (value) => checkboxStates?.[value?.['nmId']],
-                        );
-                        setCheckedData(temp);
-                    }
+                    setCheckboxHeaderState(checkboxHeaderState);
+                    setCheckboxStates(checkboxStates);
                 }}
                 theme={currentPricesCalculatedBasedOn != '' ? 'warning' : undefined}
                 columnData={columnData}
