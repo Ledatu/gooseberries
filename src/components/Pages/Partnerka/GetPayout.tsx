@@ -26,8 +26,8 @@ export const GetPayout = ({children, balance, setUpdateFlag}: GetPayoutI) => {
         }
     };
 
-    const [sum, setSum] = useState<number | null>(balance ? balance : 900);
-    const sumValid = useMemo(() => sum !== null && sum >= 900 && sum <= balance, [sum, balance]);
+    const [sum, setSum] = useState<number | null>(balance ? balance : 5000);
+    const sumValid = useMemo(() => sum !== null && sum >= 5000 && sum <= balance, [sum, balance]);
 
     // Ensure children is an array, even if only one child is passed
     const childArray = Children.toArray(children);
@@ -55,8 +55,8 @@ export const GetPayout = ({children, balance, setUpdateFlag}: GetPayoutI) => {
                     <TextTitleWrapper padding={8} title="Укажите сумму">
                         <NumberInput
                             placeholder={
-                                900 <= balance
-                                    ? `От 900 до ${balance}`
+                                5000 <= balance
+                                    ? `От 5000 до ${balance}`
                                     : 'Недостаточно средств на балансе.'
                             }
                             validationState={sumValid ? undefined : 'invalid'}
@@ -68,7 +68,7 @@ export const GetPayout = ({children, balance, setUpdateFlag}: GetPayoutI) => {
                                 console.log(val);
                             }}
                             max={balance}
-                            min={900}
+                            min={5000}
                         />
                     </TextTitleWrapper>
                     <Button

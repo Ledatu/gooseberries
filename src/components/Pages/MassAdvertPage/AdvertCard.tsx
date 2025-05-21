@@ -18,13 +18,11 @@ import {
     Rocket,
     BarsAscendingAlignLeftArrowUp,
     ClockArrowRotateLeft,
-    LayoutList,
     CircleInfo,
 } from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
-import {useMemo, useState} from 'react';
-import callApi, {getUid} from '@/utilities/callApi';
-import {getLocaleDateString, getRoundValue} from '@/utilities/getRoundValue';
+import {useEffect, useMemo, useState} from 'react';
+import {getLocaleDateString} from '@/utilities/getRoundValue';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
 import {AdvertsBidsModal} from './AdvertsBidsModal';
 import {AdvertsBudgetsModal} from './AdvertsBudgetsModal';
@@ -35,6 +33,7 @@ import ApiClient from '@/utilities/ApiClient';
 import {IconWithText} from '@/components/IconWithText';
 import {useError} from '@/contexts/ErrorContext';
 import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
+import {AdvertStatsByDayModalForAdvertId} from '@/features/advertising/AdvertStatsByDayModal/ui/AdvertStatsByDayModalForAdvertId';
 
 interface AdvertCardProps {
     getNames: Function;
@@ -47,17 +46,18 @@ interface AdvertCardProps {
     advertBudgetRules: any;
     setAdvertBudgetRules: (args?: any) => any;
     nmId: number;
+    drrToday: number;
     doc: any;
     selectValue: string[];
     copiedAdvertsSettings: any;
     setChangedDoc: (args?: any) => any;
     manageAdvertsActivityCallFunc: (args?: any, args2?: any) => any;
-    setArtsStatsByDayData: (args?: any) => any;
+    // setArtsStatsByDayData: (args?: any) => any;
     updateColumnWidth: (args?: any) => any;
     filteredData: any;
     setCopiedAdvertsSettings: (args?: any) => any;
     setDateRange: (args?: any) => any;
-    setShowArtStatsModalOpen: (args?: any) => any;
+    // setShowArtStatsModalOpen: (args?: any) => any;
     dateRange: any;
     recalc: (args?: any) => any;
     filterByButton: any;
@@ -68,17 +68,12 @@ interface AdvertCardProps {
 const BidRuleInfo = ({rule}: any) => {
     if (!rule) return <></>;
     const {
-        // placementsTrigger,
         placementsRange,
         autoBidsMode,
         desiredOrders,
         desiredSum,
         desiredSumOrders,
         desiredObor,
-        // useManualMaxCpm,
-        // useAutoBudget,
-        // useMaxBudget,
-        // maxBudget,
         sellByDate,
     } = rule;
 
@@ -170,6 +165,7 @@ const BidRuleInfo = ({rule}: any) => {
 };
 
 export const AdvertCard = ({
+    drrToday,
     getNames,
     pausedAdverts,
     setUpdatePaused,
@@ -185,27 +181,47 @@ export const AdvertCard = ({
     copiedAdvertsSettings,
     setChangedDoc,
     manageAdvertsActivityCallFunc,
-    setArtsStatsByDayData,
     updateColumnWidth,
     filteredData,
     setCopiedAdvertsSettings,
     setDateRange,
-    setShowArtStatsModalOpen,
     dateRange,
     recalc,
     filterByButton,
     getUniqueAdvertIdsFromThePage,
     template,
 }: AdvertCardProps) => {
+    const [arts, setArts] = useState<string[]>([]);
     const advertData = doc.adverts[selectValue[0]][id];
     const drrAI = doc.advertsAutoBidsRules[selectValue[0]][id];
-    const budgetToKeep = advertBudgetRules?.[id];
-    if (!advertData) return <></>;
-    const {advertId, status, budget, daysInWork, type, pregenerated, cpm, nmCPMs, isQueuedToCreate} =
-        advertData;
-    if (![4, 9, 11].includes(status)) return <></>;
-
     const {showError} = useError();
+    const budgetToKeep = advertBudgetRules?.[id];
+    const {
+        advertId,
+        status,
+        budget,
+        daysInWork,
+        type,
+        pregenerated,
+        cpm,
+        nmCPMs,
+        isQueuedToCreate,
+    } = advertData;
+
+    useEffect(() => {
+        const arts = [] as string[];
+        for (let i = 0; i < filteredData.length; i++) {
+            const {art, adverts} = filteredData[i];
+            if (!adverts) continue;
+            for (const [id, _] of Object.entries(adverts)) {
+                if (id == String(advertId)) {
+                    if (!arts.includes(art)) arts.push(art);
+                }
+            }
+        }
+        setArts(arts);
+    }, [filteredData, advertId]);
+
     const [warningBeforeDeleteConfirmation, setWarningBeforeDeleteConfirmation] = useState(false);
 
     const setCopiedParams = async (advertId: number) => {
@@ -238,8 +254,6 @@ export const AdvertCard = ({
         }
     };
 
-
-
     const curCpm = nmCPMs?.[nmId] ?? cpm;
 
     const curBudget = budget;
@@ -256,7 +270,6 @@ export const AdvertCard = ({
                 : new Intl.NumberFormat('ru-RU').format(Number(budgetToKeep?.maxBudget)) + ' ₽',
         [infBudget, budgetToKeep?.maxBudget],
     );
-    // console.log(advertId, status, words, budget, bid, bidLog, daysInWork, type);
 
     const scheduleInfo = doc.advertsSchedules[selectValue[0]][advertId];
     const scheduleStatus = (() => {
@@ -307,26 +320,16 @@ export const AdvertCard = ({
     };
 
     const standardDelete = async () => {
-        const res = await manageAdvertsActivityCallFunc(status == 4 ? 'delete' : 'stop', advertId);
-        console.log(res);
-        if (!res || res['data'] === undefined) {
-            return;
-        }
-
-        if (res['data']['status'] == 'ok') {
-            doc.adverts[selectValue[0]][advertId] = undefined;
-        }
-
         setWarningBeforeDeleteConfirmation(false);
+        if (doc.adverts[selectValue[0]][advertId]) doc.adverts[selectValue[0]][advertId].status = 7;
         try {
-            await ApiClient.post('massAdvert/new/delete-advert-from-create-queue', {
+            await ApiClient.post('massAdvert/new/queue-advert-to-delete', {
                 seller_id: sellerId,
-                advertId,
+                advertIds: [advertId],
             });
         } catch (error: any) {
             showError(error?.response?.data?.error || 'An unknown error occurred');
         }
-
         setChangedDoc({...doc});
     };
 
@@ -340,6 +343,10 @@ export const AdvertCard = ({
                 : 'flat-warning'
           : 'flat';
 
+    if (!advertData || ![4, 9, 11].includes(advertData?.status)) {
+        return <></>;
+    }
+
     return (
         <Card
             theme={pregenerated || isQueuedToCreate ? 'warning' : 'normal'}
@@ -347,7 +354,6 @@ export const AdvertCard = ({
                 height: 110.5,
                 width: 'fit-content',
             }}
-            // view="raised"
         >
             <div
                 style={{
@@ -960,13 +966,14 @@ export const AdvertCard = ({
                     <div
                         style={{
                             minHeight: 0.5,
-                            marginTop: 5,
+                            marginTop: 7,
                             width: '100%',
                             background: 'var(--g-color-base-generic-hover)',
                         }}
                     />
                     <div
                         style={{
+                            height: 20,
                             display: 'flex',
                             flexDirection: 'row',
                             width: '100%',
@@ -1087,128 +1094,22 @@ export const AdvertCard = ({
                                 </Button>
                             </motion.div>
                         </div>
-                        <Button
-                            pin="clear-clear"
+                        <div
                             style={{
-                                overflow: 'hidden',
-                            }}
-                            size="xs"
-                            // selected
-                            // view={index % 2 == 0 ? 'flat' : 'flat-action'}
-                            view="flat"
-                            onClick={async () => {
-                                const params = {
-                                    uid: getUid(),
-                                    campaignName: selectValue[0],
-                                    data: {advertId: advertId},
-                                };
-                                console.log(params);
-
-                                const res = await callApi('getStatsByDateForAdvertId', params);
-                                console.log(res);
-
-                                if (!res) return;
-
-                                const arts = [] as any[];
-                                for (let i = 0; i < filteredData.length; i++) {
-                                    const {art, adverts} = filteredData[i];
-                                    if (!adverts) continue;
-                                    for (const [id, _] of Object.entries(adverts)) {
-                                        if (id == String(advertId)) {
-                                            if (!arts.includes(art)) arts.push(art);
-                                        }
-                                    }
-                                }
-
-                                const {days} = res['data'];
-
-                                const stat = [] as any[];
-                                if (days)
-                                    for (const [date, data] of Object.entries(days)) {
-                                        const dateData: any = data;
-                                        if (!date || !dateData) continue;
-                                        dateData['date'] = new Date(date);
-                                        dateData['orders'] = Math.round(dateData['orders']);
-                                        dateData['sum_orders'] = Math.round(dateData['sum_orders']);
-                                        dateData['sum'] = Math.round(dateData['sum']);
-                                        dateData['views'] = Math.round(dateData['views']);
-                                        dateData['clicks'] = Math.round(dateData['clicks']);
-
-                                        const {orders, sum, clicks, views} = dateData as any;
-
-                                        dateData['drr'] = getRoundValue(
-                                            dateData['sum'],
-                                            dateData['sum_orders'],
-                                            true,
-                                            1,
-                                        );
-                                        dateData['ctr'] = getRoundValue(clicks, views, true);
-                                        dateData['cpc'] = getRoundValue(
-                                            sum / 100,
-                                            clicks,
-                                            true,
-                                            sum / 100,
-                                        );
-                                        dateData['cpm'] = getRoundValue(sum * 1000, views);
-                                        dateData['cpo'] = getRoundValue(sum, orders, false, sum);
-
-                                        for (const _art of arts) {
-                                            const {advertsStats, nmFullDetailReport} =
-                                                doc.campaigns[selectValue[0]][_art];
-                                            if (!advertsStats) continue;
-
-                                            if (!nmFullDetailReport) continue;
-                                            if (!nmFullDetailReport.statistics) continue;
-                                            if (!nmFullDetailReport.statistics[date]) continue;
-
-                                            const {openCardCount, addToCartCount} =
-                                                nmFullDetailReport.statistics[date] ?? {
-                                                    openCardCount: 0,
-                                                    addToCartCount: 0,
-                                                };
-
-                                            if (!dateData['openCardCount'])
-                                                dateData['openCardCount'] = 0;
-                                            if (!dateData['addToCartCount'])
-                                                dateData['addToCartCount'] = 0;
-
-                                            dateData['openCardCount'] += openCardCount ?? 0;
-                                            dateData['addToCartCount'] += addToCartCount ?? 0;
-                                        }
-                                        dateData['openCardCount'] = Math.round(
-                                            dateData['openCardCount'],
-                                        );
-                                        dateData['addToCartPercent'] = getRoundValue(
-                                            dateData['addToCartCount'],
-                                            dateData['openCardCount'],
-                                            true,
-                                        );
-                                        dateData['cartToOrderPercent'] = getRoundValue(
-                                            dateData['orders'],
-                                            dateData['addToCartCount'],
-                                            true,
-                                        );
-                                        dateData['cr'] = getRoundValue(
-                                            dateData['orders'],
-                                            dateData['openCardCount'],
-                                            true,
-                                        );
-                                        dateData['cpl'] = getRoundValue(
-                                            dateData['sum'],
-                                            dateData['addToCartCount'],
-                                        );
-
-                                        stat.push(dateData);
-                                    }
-
-                                console.log(stat);
-
-                                setArtsStatsByDayData(stat);
-                                setShowArtStatsModalOpen(true);
+                                height: 20,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                gap: 4,
+                                alignItems: 'center',
                             }}
                         >
-                            <Icon size={11} data={LayoutList}></Icon>
-                        </Button>
+                            <Text variant="caption-2">{drrToday ?? 0}%</Text>
+                            <AdvertStatsByDayModalForAdvertId
+                                arts={arts}
+                                advertId={advertId}
+                                docCampaign={doc.campaigns[selectValue[0]]}
+                            />
+                        </div>
                         <AdvertsSchedulesModal
                             paused={pausedAdverts[advertId]}
                             setUpdatePaused={setUpdatePaused}

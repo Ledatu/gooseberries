@@ -59,6 +59,10 @@ export const PricesPage = () => {
     const [pagesCurrent, setPagesCurrent] = useState(1);
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
+    const [checkedData, setCheckedData] = useState<any[]>([]);
+    useEffect(() => {
+        console.log('checkedData', checkedData);
+    }, [checkedData]);
 
     const [groupingFetching, setGroupingFetching] = useState(false);
     const [wbWalletFetching, setWbWalletFetching] = useState(false);
@@ -99,6 +103,7 @@ export const PricesPage = () => {
     }, [sellerId]);
 
     const handleSendButton = () => {
+        if (!checkedData.length) return;
         const params = {
             uid: getUid(),
             campaignName: selectValue[0],
@@ -116,8 +121,8 @@ export const PricesPage = () => {
         const tempOldData = {...lastCalcOldData};
 
         const byNmId: any = {};
-        for (let i = 0; i < filteredData.length; i++) {
-            const {nmId, wbPrice, rozPrice, primeCost, discount, art, fixPrices} = filteredData[i];
+        for (let i = 0; i < checkedData.length; i++) {
+            const {nmId, wbPrice, rozPrice, primeCost, discount, art, fixPrices} = checkedData[i];
             if (nmId && wbPrice && rozPrice >= primeCost) {
                 byNmId[nmId] = {
                     nmID: nmId,
@@ -1048,7 +1053,7 @@ export const PricesPage = () => {
                             setPagesCurrent={setPagesCurrent}
                             doc={doc}
                             setChangedDoc={setDoc}
-                            filteredData={filteredData}
+                            filteredData={checkedData}
                             lastCalcOldData={lastCalcOldData}
                             setLastCalcOldData={setLastCalcOldData}
                             setCurrentPricesCalculatedBasedOn={setCurrentPricesCalculatedBasedOn}
@@ -1256,6 +1261,17 @@ export const PricesPage = () => {
             </div>
 
             <TheTable
+                useCheckboxes={true}
+                checkboxKey="nmId"
+                onCheckboxStateUpdate={(checkboxHeaderState: boolean, checkboxStates: any) => {
+                    if (checkboxHeaderState) setCheckedData([...filteredData]);
+                    else {
+                        const temp = filteredData.filter(
+                            (value) => checkboxStates?.[value?.['nmId']],
+                        );
+                        setCheckedData(temp);
+                    }
+                }}
                 theme={currentPricesCalculatedBasedOn != '' ? 'warning' : undefined}
                 columnData={columnData}
                 data={filteredData}

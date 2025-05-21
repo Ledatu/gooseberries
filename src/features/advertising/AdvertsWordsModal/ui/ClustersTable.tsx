@@ -4,7 +4,7 @@ import TheTable from '@/components/TheTable';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
 import {CSSProperties, ReactNode, useMemo} from 'react';
-import {ArrowShapeUp, Magnifier, Minus, Plus} from '@gravity-ui/icons';
+import {ArrowShapeUp, Magnifier, Minus, Plus, TriangleExclamation} from '@gravity-ui/icons';
 import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
 import {defaultRender, renderAsPercent} from '@/utilities/getRoundValue';
@@ -37,7 +37,10 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         selectedPhrase,
         updateSelectedPhrase,
         stats,
+        filters,
+        setFilters,
         excludedStats,
+        setCurrentModule,
     } = useAdvertsWordsModal();
 
     const {
@@ -45,8 +48,6 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         footerData,
         filteredData,
         filterTableData,
-        setFilters,
-        filters,
         filterByButton,
         // getInfoForDescription,
     } = useClustersTableContext(isExcluded);
@@ -68,7 +69,7 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                 <div style={{minWidth: 8}} />,
                 <ParsePositionMassButton filteredData={filteredData} />,
             ],
-            render: ({value, footer}: any) => {
+            render: ({value, row, footer}: any) => {
                 const isSelectedByPlus = template.phrasesSelectedByPlus.includes(value);
                 const isExcludedByMinus = template.phrasesExcludedByMinus.includes(value);
                 const isSelectedPhrase = selectedPhrase == value;
@@ -89,6 +90,9 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                         advertWordsTemplateHandler.deletePhrasesSelectedByPlus(value);
                     }
                 };
+
+                const errorExclude = presetsInOtherTable[row?.preset?.split('&')?.[0]];
+
                 return !footer ? (
                     <div
                         style={{
@@ -96,15 +100,38 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                             display: 'flex',
                             flexDirection: 'row',
                             justifyContent: 'space-between',
+                            alignItems: 'center',
                         }}
                     >
                         <RequestPhrasesModal
                             cluster={value}
-                            color={
-                                presetsInOtherTable[value?.split('&')?.[0]] ? 'danger' : 'primary'
-                            }
+                            color={errorExclude ? 'danger' : 'primary'}
                         />
-                        <div style={{gap: 8, display: 'flex', flexDirection: 'row'}}>
+                        <div
+                            style={{
+                                gap: 8,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
+                            {errorExclude ? (
+                                <Button
+                                    size="xs"
+                                    view="flat-danger"
+                                    selected
+                                    onClick={() => {
+                                        filterByButton(row?.preset, 'preset', 'include');
+                                        setCurrentModule(
+                                            isExcluded ? 'ActiveClusters' : 'InActiveClusters',
+                                        );
+                                    }}
+                                >
+                                    <Icon data={TriangleExclamation} />
+                                </Button>
+                            ) : (
+                                <></>
+                            )}
                             <ParsePositionButton phrase={value} />
                             <Button
                                 size="xs"
@@ -299,6 +326,7 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                         view={'flat'}
                         onClick={() => {
                             filterByButton(value, 'preset', 'include');
+                            setCurrentModule(isExcluded ? 'ActiveClusters' : 'InActiveClusters');
                         }}
                     >
                         <Text

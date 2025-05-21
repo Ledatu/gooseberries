@@ -89,6 +89,26 @@ export const AdvertsStatusManagingModal = ({
         setInProgress(false);
     };
 
+    const deleteAdverts = async () => {
+        handleClose();
+        const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+        const advertIds = Object.values(uniqueAdverts).map((entry: any) => entry?.['advertId']);
+        const params = {
+            seller_id: sellerId,
+            advertIds,
+        };
+        for (const id of Object.keys(uniqueAdverts)) {
+            doc.adverts[selectValue[0]][id] = undefined;
+        }
+        setChangedDoc({...doc});
+        try {
+            console.log(new Date(), 'massAdvert/new/queue-advert-to-delete', params);
+            await ApiClient.post('massAdvert/new/queue-advert-to-delete', params);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
@@ -192,9 +212,7 @@ export const AdvertsStatusManagingModal = ({
                             size="l"
                             pin="circle-circle"
                             view="outlined-danger"
-                            onClick={() => {
-                                manageAdvertsActivityOnClick('stop', undefined);
-                            }}
+                            onClick={deleteAdverts}
                         >
                             <Icon data={TrashBin} />
                             Завершить РК на WB

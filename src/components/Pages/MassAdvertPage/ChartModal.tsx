@@ -16,6 +16,7 @@ interface ChartModalInterface {
     colors?: Record<string, string>;
     extraYAxes?: {[key: string]: string};
     minMaxValues?: MinMaxValue;
+    hiddenByDefault?: Record<string, boolean>;
 }
 
 export const ChartModal: FC<ChartModalInterface> = ({
@@ -27,6 +28,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
     colors,
     minMaxValues,
     useVerticalLines,
+    hiddenByDefault = {},
 }) => {
     const [open, setOpen] = useState(false);
     const [dataFetching, setDataFetching] = useState(false);
@@ -78,7 +80,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
 
             graphicData.push(dataPoint as any);
         }
-
+        console.log(graphicData);
         return graphicData;
     };
 
@@ -149,6 +151,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
                                 colors={colors}
                                 removedEntities={['CR']}
                                 minMaxValues={minMaxValues}
+                                hiddenByDefault={hiddenByDefault}
                             />
                         ) : (
                             <p>No data available.</p>

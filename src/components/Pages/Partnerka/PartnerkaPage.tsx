@@ -1,11 +1,13 @@
 import TheTable, {compare} from '@/components/TheTable';
-import {ClockArrowRotateLeft, Plus} from '@gravity-ui/icons';
-import {ActionTooltip, Button, Card, Divider, Icon, Spin, Text} from '@gravity-ui/uikit';
+import {ClockArrowRotateLeft, Comment, Plus} from '@gravity-ui/icons';
+import {ActionTooltip, Button, Card, Divider, Icon, Spin, Text, Tooltip} from '@gravity-ui/uikit';
 import {useEffect, useMemo, useState} from 'react';
 import {GetPayout} from './GetPayout';
 import ApiClient from '@/utilities/ApiClient';
 import {CopyButton} from '@/components/Buttons/CopyButton';
 import {OperationHistory} from './OperationHistory';
+import {defaultRender, getRoundValue} from '@/utilities/getRoundValue';
+import {EditComment} from './EditComment';
 
 interface IRender {
     value?: any;
@@ -18,6 +20,7 @@ interface Referral {
     clicks?: number;
     campaignsAdded?: number;
     user_id?: number;
+    comment?: string;
     href?: string;
 }
 
@@ -33,19 +36,30 @@ const ReferralProgram = () => {
         <section className="max-w-2xl text-white text-sm leading-snug">
             <h2 className="text-xl font-semibold mb-2">Партнёрская программа AURUMSKYNET™</h2>
             <p className="mb-2">
-                Приглашайте друзей и знакомых, делясь вашими уникальными{' '}
-                <strong>реферальными ссылками</strong>, которые можно сгенерировать на этой
-                странице.
+                Зарабатывайте вместе с AURUMSKYNET™ — приглашайте друзей, коллег и партнёров,
+                используя вашу уникальную реферальную ссылку. Ссылку можно сгенерировать прямо на
+                этой странице.
             </p>
             <p className="mb-2">
-                После добавлении магазина по вашей ссылке, в течение <strong>года</strong> с каждой
-                оплаты приглашённого вы будете получать <strong>10%</strong>.
+                <p className="font-semibold"> Увеличенный пробный период для приглашённых</p>
+                Пользователи, зарегистрировавшиеся по вашей ссылке, получают расширенный пробный
+                период — 21 день вместо стандартных 7.
             </p>
             <p className="mb-2">
-                Начисления накапливаются на вашем счёте. Вы можете{' '}
-                <strong>запросить выплату</strong> в любой момент, когда средства станут доступны.
+                <p className="font-semibold">15% от всех оплат приглашённого магазина</p>Если
+                пользователь добавит по вашей ссылке магазин в течение 30 дней, вы будете получать
+                15% от всех его оплат в течение 12 месяцев.
             </p>
-            <p>Следите за статистикой в вашем личном кабинете.</p>
+            <p className="mb-2">
+                <p className="font-semibold">Выплата при балансе от 5 000 ₽</p>Вознаграждение
+                автоматически накапливается на вашем счёте. Как только сумма достигнет 5 000 ₽, вы
+                можете запросить выплату в любой момент.
+            </p>
+            <p className="mb-2">
+                <p className="font-semibold">Прозрачная статистика</p>В личном кабинете доступна
+                информация о приглашённых магазинах, их подписках и размере вашего вознаграждения.
+            </p>
+            <p>Присоединяйтесь к партнёрской программе и начните зарабатывать уже сегодня!</p>
         </section>
     );
 };
@@ -68,7 +82,9 @@ export const PartnerkaPage = () => {
     const [updateFlag, setUpdateFlag] = useState(true);
     const fetchData = async () => {
         try {
-            setData([]);
+            const response = await ApiClient.post('/auth/get-referal-campaigns', {});
+            if (!response || !response.data) throw new Error('No data');
+            setData(response?.data);
         } catch (error) {
             console.error(new Date(), error);
         }
@@ -85,7 +101,7 @@ export const PartnerkaPage = () => {
     };
 
     const createReferral = async () => {
-        if (referrals.length >= 4) return;
+        // if (referrals.length >= 4) return;
         try {
             const response = await ApiClient.post('auth/create-referral', {});
             if (!response || !response.data) throw new Error('No data');
@@ -168,22 +184,228 @@ export const PartnerkaPage = () => {
         {
             name: 'subscriptionUntil',
             placeholder: 'Подписка оплачена до',
+            render: ({value, footer}: IRender) => {
+                if (footer) return undefined;
+                const date = new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
+                const expired = new Date(value).getTime() - new Date().getTime() < 86400 * 7 * 1000;
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text variant="subheader-2" color={expired ? 'danger' : undefined}>
+                            {date == '01.01.2100' ? 'Бессрочная подписка' : date}
+                        </Text>
+                    </div>
+                );
+            },
         },
         {
             name: 'createdAt',
             placeholder: 'Дата добавления',
+            render: ({value, footer}: IRender) => {
+                if (footer) return undefined;
+                const date = new Date(value ?? '2024-01-01')
+                    .toLocaleDateString('ru-RU')
+                    .slice(0, 10);
+                const expired =
+                    new Date().getTime() - new Date(value).getTime() < 86400 * 365 * 1000;
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text variant="subheader-2" color={expired ? 'danger' : undefined}>
+                            {date}
+                        </Text>
+                    </div>
+                );
+            },
         },
         {
             name: 'refEndDate',
             placeholder: 'Дата окончания начислений',
+            render: ({row, footer}: IRender) => {
+                if (footer) return undefined;
+                const value = new Date(row?.createdAt ?? '2024-01-01');
+                value.setDate(value.getDate() + 365);
+                const date = value.toLocaleDateString('ru-RU').slice(0, 10);
+                const expired = new Date(value).getTime() - new Date().getTime() < 86400 * 7 * 1000;
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text variant="subheader-2" color={expired ? 'danger' : undefined}>
+                            {date}
+                        </Text>
+                    </div>
+                );
+            },
         },
         {
             name: 'price',
             placeholder: 'Тариф',
+            render: ({value, row, footer}: IRender) => {
+                if (footer)
+                    return `${defaultRender({value: Math.round(value)})} ₽ / ${defaultRender({value: getRoundValue(value, filteredData.length)})} ₽`;
+                if (isNaN(value)) return 'Тариф будет рассчитан в ближайшее время';
+                const {fixedTarif, saleRubles, salePercent} = row ?? {};
+                if (fixedTarif)
+                    return (
+                        <Tooltip content="Фикс тариф. Нажмите, чтобы скопировать">
+                            <Text
+                                color="primary"
+                                variant="subheader-2"
+                                className="g-link g-link_view_primary"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(value);
+                                }}
+                            >
+                                Фикс. тариф: {defaultRender({value})} ₽
+                            </Text>
+                        </Tooltip>
+                    );
+
+                const base = 5990;
+                const art = 59;
+                const artCount =
+                    ((value + (saleRubles ?? 0)) / (1 - (salePercent ?? 0) / 100) - base) / art;
+                const summary = Math.round(base + art * artCount);
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Tooltip content="База">
+                                <Text
+                                    color="primary"
+                                    variant="subheader-2"
+                                    className="g-link g-link_view_primary"
+                                >
+                                    {defaultRender({value: base})}
+                                </Text>
+                            </Tooltip>
+                            <div style={{margin: '0px 8px'}}>+</div>
+                            <Tooltip content="Стоимость 1 артикула">
+                                <Text
+                                    color="primary"
+                                    variant="subheader-2"
+                                    className="g-link g-link_view_primary"
+                                >
+                                    {defaultRender({value: art})}
+                                </Text>
+                            </Tooltip>
+                            <div style={{margin: '0px 8px'}}>*</div>
+                            <Tooltip content="Количество артикулов с 1 и более заказами за последние 30 дней">
+                                <Text
+                                    color="primary"
+                                    variant="subheader-2"
+                                    className="g-link g-link_view_primary"
+                                >
+                                    {defaultRender({value: artCount})}
+                                </Text>
+                            </Tooltip>
+                            <div style={{margin: '0px 8px'}}>=</div>
+                            <Tooltip content="Итог. Нажмите, чтобы скопировать">
+                                <Text
+                                    color="primary"
+                                    variant="subheader-2"
+                                    className="g-link g-link_view_primary"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(value);
+                                    }}
+                                >
+                                    {defaultRender({value: summary})}
+                                </Text>
+                            </Tooltip>
+                            <div style={{margin: '0px 8px'}}>₽</div>
+                        </div>
+                        {salePercent ? (
+                            <Text color="primary" variant="subheader-2">
+                                Скидка % {salePercent}
+                            </Text>
+                        ) : (
+                            <></>
+                        )}
+                        {saleRubles ? (
+                            <Text color="primary" variant="subheader-2">
+                                Скидка ₽ {saleRubles}
+                            </Text>
+                        ) : (
+                            <></>
+                        )}
+                        {salePercent || saleRubles ? (
+                            <Text color="primary" variant="subheader-2">
+                                Итог со скидкой: {defaultRender({value: Math.round(value)})} ₽
+                            </Text>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+                );
+            },
         },
         {
             name: 'refPercent',
-            placeholder: 'Ваш процент',
+            placeholder: 'Ваше вознаграждение (при оплате)',
+            render: ({value, footer}: IRender) => {
+                if (footer) return value;
+                return (
+                    <Text color="primary" variant="subheader-2">
+                        {defaultRender({value: Math.round(value)})} ₽
+                    </Text>
+                );
+            },
+        },
+        {
+            name: 'referal',
+            placeholder: 'Реферальная ссылка',
+            render: ({value}: IRender) => {
+                return (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 4,
+                        }}
+                    >
+                        <Text color="primary" variant="subheader-2">
+                            {value}
+                        </Text>
+                        {refComments[value] ? (
+                            <Text
+                                variant="subheader-2"
+                                color="secondary"
+                                ellipsis
+                                style={{maxWidth: 360, textWrap: 'wrap'}}
+                            >
+                                {refComments[value]}
+                            </Text>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+                );
+            },
         },
     ];
 
@@ -244,7 +466,9 @@ export const PartnerkaPage = () => {
                 const price =
                     fixedTarif ?? (curPrice - (saleRubles ?? 0)) * (1 - (salePercent ?? 0) / 100);
 
-                temp.push({...tempTypeRow, price});
+                const refPercent = (price ?? 0) * 0.15;
+
+                temp.push({...tempTypeRow, price, refPercent});
             }
         }
 
@@ -278,15 +502,60 @@ export const PartnerkaPage = () => {
                 <div
                     style={{
                         display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 8,
+                        flexDirection: 'column',
+                        gap: 4,
                     }}
                 >
-                    <Text variant="subheader-2">{refka?.href}</Text>
-                    <CopyButton copyText={refka?.href ?? ''} pin="circle-circle" />
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 8,
+                            width: 440,
+                        }}
+                    >
+                        <Text variant="subheader-2">{refka?.href}</Text>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 8,
+                            }}
+                        >
+                            <CopyButton copyText={refka?.href ?? ''} pin="circle-circle" />
+                            <EditComment referal={refka?.href ?? ''} setUpdateFlag={setUpdateFlag}>
+                                <Button pin="circle-circle">
+                                    <Icon data={Comment} />
+                                </Button>
+                            </EditComment>
+                        </div>
+                    </div>
+                    {refka?.comment ? (
+                        <Text
+                            variant="subheader-2"
+                            color="secondary"
+                            ellipsis
+                            style={{maxWidth: 360, textWrap: 'wrap'}}
+                        >
+                            {refka?.comment}
+                        </Text>
+                    ) : (
+                        <></>
+                    )}
                 </div>
             )),
+        [referrals],
+    );
+
+    const refComments = useMemo(
+        () =>
+            referrals.reduce((obj, refka) => {
+                if (refka?.href) obj[refka.href] = refka?.comment;
+                return obj;
+            }, {} as any),
         [referrals],
     );
 
@@ -358,15 +627,31 @@ export const PartnerkaPage = () => {
                                     </OperationHistory>
                                 </ActionTooltip>
                             </div>
-                            <GetPayout setUpdateFlag={setUpdateFlag} balance={balance}>
-                                <Text
+                            <ActionTooltip
+                                title={
+                                    balance < 5000
+                                        ? 'Запросить выплату можно при балансе от 5 000 ₽'
+                                        : 'Здесь вы можете запросить выплату'
+                                }
+                            >
+                                <GetPayout setUpdateFlag={setUpdateFlag} balance={balance}>
+                                    {/* <Text
                                     style={{cursor: 'pointer'}}
                                     variant="caption-2"
                                     color="secondary"
                                 >
                                     Запросить выплату
-                                </Text>
-                            </GetPayout>
+                                </Text> */}
+                                    <Button
+                                        pin="circle-circle"
+                                        view="flat"
+                                        size="xs"
+                                        disabled={balance < 5000}
+                                    >
+                                        Запросить выплату
+                                    </Button>
+                                </GetPayout>
+                            </ActionTooltip>
                         </Card>
                         <ReferralProgram />
                     </div>

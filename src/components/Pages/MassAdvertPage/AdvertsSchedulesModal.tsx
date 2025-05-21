@@ -18,6 +18,7 @@ interface AdvertsSchedulesModalProps {
     doc: any;
     setChangedDoc: (args?: any) => any;
     advertId: number;
+    nmIds?: number[];
     getUniqueAdvertIdsFromThePage: (args?: any) => any;
 }
 
@@ -28,6 +29,7 @@ export const AdvertsSchedulesModal = ({
     doc,
     setChangedDoc,
     advertId,
+    nmIds,
     getUniqueAdvertIdsFromThePage,
 }: AdvertsSchedulesModalProps) => {
     const {sellerId} = useCampaign();
@@ -40,6 +42,7 @@ export const AdvertsSchedulesModal = ({
     const getHeatMap = async () => {
         setFetchingHeatMap(true);
         try {
+            console.log(advertId, sellerId);
             const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
                 advertId,
                 seller_id: sellerId,
@@ -47,6 +50,28 @@ export const AdvertsSchedulesModal = ({
             if (!res || !res.data || !res.data.heatMap) {
                 throw Error('No data in res');
             }
+            console.log(res, res.data);
+            setHeatMap(res.data.heatMap);
+            console.log(heatMap);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setFetchingHeatMap(false);
+        }
+    };
+
+    const getHeatMapByNmIds = async () => {
+        setFetchingHeatMap(true);
+        try {
+            console.log(nmIds, sellerId);
+            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMapByNmIds', {
+                nmIds,
+                seller_id: sellerId,
+            });
+            if (!res || !res.data || !res.data.heatMap) {
+                throw Error('No data in res');
+            }
+            console.log(res, res.data);
             setHeatMap(res.data.heatMap);
             console.log(heatMap);
         } catch (error) {
@@ -502,23 +527,25 @@ export const AdvertsSchedulesModal = ({
                                 <Icon data={TrashBin} />
                                 Удалить
                             </Button>
-                            {advertId ? (
-                                <ActionTooltip title="Показать тепловую карту заказов за послежние 4 недели.">
-                                    <Button
-                                        size="l"
-                                        selected
-                                        view="flat-info"
-                                        pin="circle-circle"
-                                        onClick={() => getHeatMap()}
-                                        loading={fetchingHeatMap}
-                                    >
-                                        <Icon data={ChartBar} />
-                                        Показать тепловую карту заказов
-                                    </Button>
-                                </ActionTooltip>
-                            ) : (
-                                <></>
-                            )}
+                            <ActionTooltip title="Показать тепловую карту заказов за последние 4 недели.">
+                                <Button
+                                    size="l"
+                                    selected
+                                    view="flat-info"
+                                    pin="circle-circle"
+                                    onClick={() => {
+                                        if (nmIds && nmIds.length) {
+                                            getHeatMapByNmIds();
+                                        } else if (advertId) {
+                                            getHeatMap();
+                                        }
+                                    }}
+                                    loading={fetchingHeatMap}
+                                >
+                                    <Icon data={ChartBar} />
+                                    Показать тепловую карту заказов
+                                </Button>
+                            </ActionTooltip>
                         </div>
                     </motion.div>
                 </Card>
