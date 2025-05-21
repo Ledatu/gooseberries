@@ -505,6 +505,8 @@ export const AdvertsBidsModal = ({
         !placementsInputValueValid ||
         !auctionInputValueValid ||
         !oborInputValueValid ||
+        (useOborStop && useRentOptimizer && oborStopValue === null) ||
+        (useRentOptimizer && rentOptimizerValue === null) ||
         (!maxCpmInputValueValid && !useAutoMaxCpm) ||
         !cpmInputValueValid ||
         (autoBidderOption[0] == 'sellByDate' && !sellByDateValid) ||
@@ -557,6 +559,8 @@ export const AdvertsBidsModal = ({
                         ? getLocaleDateString(sellByDate, 10)
                         : undefined,
                 advertIds,
+                oborStopValue: useOborStop && useRentOptimizer ? oborStopValue : undefined,
+                rentOptimizerValue: useRentOptimizer ? rentOptimizerValue : undefined,
             },
         };
 
@@ -609,6 +613,9 @@ export const AdvertsBidsModal = ({
                                     ? getLocaleDateString(sellByDate, 10)
                                     : undefined,
                             bid: cpmInputValue,
+                            oborStopValue:
+                                useOborStop && useRentOptimizer ? oborStopValue : undefined,
+                            rentOptimizerValue: useRentOptimizer ? rentOptimizerValue : undefined,
                         };
         }
 

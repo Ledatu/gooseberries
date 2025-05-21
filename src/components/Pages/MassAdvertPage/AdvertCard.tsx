@@ -19,6 +19,7 @@ import {
     BarsAscendingAlignLeftArrowUp,
     ClockArrowRotateLeft,
     CircleInfo,
+    Percent,
 } from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {useEffect, useMemo, useState} from 'react';
@@ -554,6 +555,28 @@ export const AdvertCard = ({
                                             variant="caption-2"
                                             size={12}
                                             tooltipText={'Ограничение по выдаче'}
+                                        />
+                                    ) : (
+                                        <></>
+                                    )}
+                                    {drrAI?.rentOptimizerValue ? (
+                                        <IconWithText
+                                            icon={Percent}
+                                            text={drrAI?.rentOptimizerValue}
+                                            variant="caption-2"
+                                            size={12}
+                                            tooltipText={'Оптимизация по рентабельности'}
+                                        />
+                                    ) : (
+                                        <></>
+                                    )}
+                                    {drrAI?.oborStopValue ? (
+                                        <IconWithText
+                                            icon={ArrowsRotateLeft}
+                                            text={drrAI?.oborStopValue}
+                                            variant="caption-2"
+                                            size={12}
+                                            tooltipText={'Ограничение по оборачиваемости'}
                                         />
                                     ) : (
                                         <></>
