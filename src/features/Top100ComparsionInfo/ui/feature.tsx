@@ -37,8 +37,7 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
     const [auction, setAuction] = useState<any[]>([]);
     const [open, setOpen] = useState(false);
 
-    const {reviewRating, sizes, feedbacks} = placementsValue ?? {};
-    const price = Math.round((sizes?.[0]?.price?.total ?? 0) / 100);
+    const {reviewRating, sppPrice: price, feedbacks} = placementsValue ?? {};
 
     useEffect(() => {
         if (!open) setAuction([]);
