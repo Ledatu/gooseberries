@@ -1,17 +1,7 @@
 'use client';
 
 import {ReactNode, useEffect, useId, useMemo, useRef, useState} from 'react';
-import {
-    Spin,
-    Select,
-    Icon,
-    Button,
-    Text,
-    Link,
-    Card,
-    TextInput,
-    Tooltip,
-} from '@gravity-ui/uikit';
+import {Spin, Select, Icon, Button, Text, Link, Card, TextInput, Tooltip} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
 import {
@@ -391,7 +381,7 @@ export const DeliveryPage = () => {
                     if (!warehouse || !warehouseData) continue;
 
                     let warehouseName = warehouse;
-                    if (warehouse == 'all') warehouseName = 'Все склады';
+                    if (warehouse == 'all') warehouseName = 'Ср. расчет по всем складам WB';
 
                     artInfo[`${warehouseName}_orders`] = warehouseData['orders'];
                     artInfo[`${warehouseName}_orderRate`] = warehouseData['orderRate'];
@@ -754,7 +744,7 @@ export const DeliveryPage = () => {
                     : undefined;
 
                 let warehouseName = warehouse;
-                if (warehouseName == 'all') warehouseName = 'Все склады';
+                if (warehouseName == 'all') warehouseName = 'Ср. расчет по всем складам WB';
 
                 const genSub = () => {
                     const subTemp = [] as any[];
@@ -831,7 +821,9 @@ export const DeliveryPage = () => {
                                         },
                                     };
                                     const warehouse =
-                                        warehouseName == 'Все склады' ? 'all' : warehouseName;
+                                        warehouseName == 'Ср. расчет по всем складам WB'
+                                            ? 'all'
+                                            : warehouseName;
 
                                     for (let i = 0; i < filteredData.length; i++) {
                                         const row = filteredData[i];
