@@ -19,7 +19,7 @@ import {
     BarsAscendingAlignLeftArrowUp,
     ClockArrowRotateLeft,
     CircleInfo,
-    Percent,
+    ChevronsUpWide,
 } from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {useEffect, useMemo, useState} from 'react';
@@ -559,18 +559,7 @@ export const AdvertCard = ({
                                     ) : (
                                         <></>
                                     )}
-                                    {drrAI?.rentOptimizerValue ? (
-                                        <IconWithText
-                                            icon={Percent}
-                                            text={drrAI?.rentOptimizerValue}
-                                            variant="caption-2"
-                                            size={12}
-                                            tooltipText={'Оптимизация по рентабельности'}
-                                        />
-                                    ) : (
-                                        <></>
-                                    )}
-                                    {drrAI?.oborStopValue ? (
+                                    {drrAI?.oborStopValue !== undefined ? (
                                         <IconWithText
                                             icon={ArrowsRotateLeft}
                                             text={drrAI?.oborStopValue}
@@ -811,30 +800,51 @@ export const AdvertCard = ({
                             advertId={advertId}
                         >
                             <Button pin="brick-round" size="xs" view="flat">
-                                <Text variant="caption-2">
-                                    {`Баланс: ${
-                                        curBudget !== undefined ? curBudget : 'Нет инф.'
-                                    } /${
-                                        budgetToKeep !== undefined
-                                            ? budgetToKeep?.mode === 'setAutoPurchase'
-                                                ? `${
-                                                      budgetToKeep?.desiredDrr
-                                                          ? ' ДРР: ' + budgetToKeep?.desiredDrr
-                                                          : ''
-                                                  } ${maxBudget}`
-                                                : budgetToKeep?.budget
-                                            : 'Бюджет не задан.'
-                                    }` +
-                                        (drrAI
-                                            ? drrAI.useAutoBudget
-                                                ? ` (Авто${
-                                                      drrAI.maxBudget
-                                                          ? `, макс. ${drrAI.maxBudget}`
-                                                          : ''
-                                                  })`
-                                                : ''
-                                            : '')}
-                                </Text>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        flexWrap: 'nowrap',
+                                        columnGap: 4,
+                                    }}
+                                >
+                                    <Text variant="caption-2">
+                                        {`Баланс: ${
+                                            curBudget !== undefined ? curBudget : 'Нет инф.'
+                                        } /${
+                                            budgetToKeep !== undefined
+                                                ? budgetToKeep?.mode === 'setAutoPurchase'
+                                                    ? `${
+                                                          budgetToKeep?.desiredDrr
+                                                              ? ' ДРР: ' + budgetToKeep?.desiredDrr
+                                                              : ''
+                                                      } ${maxBudget}`
+                                                    : budgetToKeep?.budget
+                                                : 'Бюджет не задан.'
+                                        }` +
+                                            (drrAI
+                                                ? drrAI.useAutoBudget
+                                                    ? ` (Авто${
+                                                          drrAI.maxBudget
+                                                              ? `, макс. ${drrAI.maxBudget}`
+                                                              : ''
+                                                      })`
+                                                    : ''
+                                                : '')}
+                                    </Text>
+                                    {drrAI?.rentOptimizerValue !== undefined ? (
+                                        <IconWithText
+                                            icon={ChevronsUpWide}
+                                            text={`${drrAI?.rentOptimizerValue}%`}
+                                            variant="caption-2"
+                                            size={12}
+                                            tooltipText={'Оптимизация расхода по рентабельности'}
+                                        />
+                                    ) : (
+                                        <></>
+                                    )}
+                                </div>
                             </Button>
                         </AdvertsBudgetsModal>
                         <ChartModal
