@@ -979,7 +979,7 @@ export const MassAdvertPage = () => {
                                               manageAdvertsActivityCallFunc
                                           }
                                           updateColumnWidth={updateColumnWidth}
-                                          filteredData={checkedData}
+                                          filteredData={filteredData}
                                           setCopiedAdvertsSettings={setCopiedAdvertsSettings}
                                           setDateRange={setDateRange}
                                           dateRange={dateRange}
@@ -1022,7 +1022,7 @@ export const MassAdvertPage = () => {
                                               manageAdvertsActivityCallFunc
                                           }
                                           updateColumnWidth={updateColumnWidth}
-                                          filteredData={checkedData}
+                                          filteredData={filteredData}
                                           setCopiedAdvertsSettings={setCopiedAdvertsSettings}
                                           setDateRange={setDateRange}
                                           dateRange={dateRange}
@@ -1064,7 +1064,7 @@ export const MassAdvertPage = () => {
                                               manageAdvertsActivityCallFunc
                                           }
                                           updateColumnWidth={updateColumnWidth}
-                                          filteredData={checkedData}
+                                          filteredData={filteredData}
                                           setCopiedAdvertsSettings={setCopiedAdvertsSettings}
                                           setDateRange={setDateRange}
                                           dateRange={dateRange}
@@ -1104,7 +1104,7 @@ export const MassAdvertPage = () => {
                                       setChangedDoc={setChangedDoc}
                                       manageAdvertsActivityCallFunc={manageAdvertsActivityCallFunc}
                                       updateColumnWidth={updateColumnWidth}
-                                      filteredData={checkedData}
+                                      filteredData={filteredData}
                                       setCopiedAdvertsSettings={setCopiedAdvertsSettings}
                                       setDateRange={setDateRange}
                                       dateRange={dateRange}
@@ -3579,7 +3579,7 @@ export const MassAdvertPage = () => {
                                                         manageAdvertsActivityCallFunc
                                                     }
                                                     updateColumnWidth={updateColumnWidth}
-                                                    filteredData={checkedData}
+                                                    filteredData={filteredData}
                                                     setCopiedAdvertsSettings={
                                                         setCopiedAdvertsSettings
                                                     }

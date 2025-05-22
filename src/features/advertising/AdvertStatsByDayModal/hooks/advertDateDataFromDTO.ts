@@ -35,7 +35,9 @@ export const advertDateDataFromDTO = (dto: AdvertDateDataDTO[], docCampaign: any
 		);
 		data.cpm = getRoundValue(data.sum * 1000, data.views);
 		data['cpo'] = getRoundValue(data.sum, data.orders, false, data.sum);
+		console.log('arts', arts)
 		for (const art of arts) {
+			console.log('docCampaign', docCampaign[art]);
 			const { advertsStats, nmFullDetailReport } =
 				docCampaign[art];
 			if (!advertsStats) continue;

@@ -13,6 +13,7 @@ export const getStatsByDateForAdvertId = async (sellerId: string, advertId: numb
 		if (!res || !res.data || res.data.stats == undefined) {
 			throw Error(`No data in getStatsByDateForAdvertId for ${sellerId} advertID = ${advertId}`);
 		}
+		console.log('getStatsByDateForAdvertId', res)
 		const result: AdvertDateDataDTO[] = [];
 		for (const key of Object.keys(res.data.stats)) {
 			result.push({ ...res.data.stats[key], date: new Date(key) })
