@@ -14,6 +14,7 @@ export const getProfitForArtByDate = async (sellerId: string, art: string, dateF
 		if (!res || !res.data || res.data.profit == undefined) {
 			throw Error(`No data in getStatsByDateForAdvertId for ${sellerId} art = ${art}`);
 		}
+		console.log(res.data)
 		return res.data.profit;
 
 	} catch (error: any) {

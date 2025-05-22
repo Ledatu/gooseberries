@@ -211,10 +211,12 @@ export const AdvertCard = ({
 
     useEffect(() => {
         const arts = [] as string[];
+        console.log('filteredData in advertCard', filteredData);
         for (let i = 0; i < filteredData.length; i++) {
             const {art, adverts} = filteredData[i];
             if (!adverts) continue;
             for (const [id, _] of Object.entries(adverts)) {
+                console.log('id', id, 'advertId', advertId);
                 if (id == String(advertId)) {
                     if (!arts.includes(art)) arts.push(art);
                 }

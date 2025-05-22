@@ -14,13 +14,13 @@ export const getStatsForChart = (stats: AdvertDateData[]): Record<string, number
 				obj[nameOfColumns[key]] = stat[key];
 			}
 			else {
-				console.log(key)
+				// console.log(key)
 			}
 
 		}
 		statsForChart.push(obj);
 	}
-	console.log(statsForChart)
+	// console.log(statsForChart)
 	return statsForChart;
 
 }
