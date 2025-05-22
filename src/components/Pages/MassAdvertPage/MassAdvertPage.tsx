@@ -314,7 +314,7 @@ export const MassAdvertPage = () => {
     useEffect(() => {
         const nmIds = checkedData.map((data: any) => data.nmId);
         setNmIds(nmIds);
-    }, [filteredData]);
+    }, [checkedData]);
     const [dateChangeRecalc, setDateChangeRecalc] = useState(false);
 
     const [unvalidatedArts, setUnvalidatedArts] = useState<any[]>([]);
