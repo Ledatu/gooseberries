@@ -50,7 +50,7 @@ export const calcByDayStats = (art: string, dateRange: [Date, Date], docCampaign
 		tempJson[strDate].clicks += dateData['clicks'];
 		tempJson[strDate].profit += profit ? profit[strDate] : 0
 
-		const { openCardCount, addToCartCount } = nmFullDetailReport.statistics[strDate] ?? {
+		const { openCardCount, addToCartCount } = nmFullDetailReport?.statistics?.[strDate] ?? {
 			openCardCount: 0,
 			addToCartCount: 0,
 		};
