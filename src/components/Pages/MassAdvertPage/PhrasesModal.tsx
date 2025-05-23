@@ -11,6 +11,7 @@ import {getTemplateNames} from '@/features/advertising/AdvertsWordsModal/api/get
 import {deleteAutoPhrasesTemplateOfAdvert} from '@/features/advertising/AdvertsWordsModal/api/deleteAutoPhrasesTemplateOfAdvert';
 import {changeTemplateNameOfAdvert} from '@/features/advertising/AdvertsWordsModal/api/changeTemplateNameOfAdvert';
 import {deleteAutoPhrasesTemplate} from '@/features/advertising/AdvertsWordsModal/api/deleteAutoPhrasesTemplate';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 interface PhrasesModalProps {
     disabled: boolean;
@@ -97,16 +98,18 @@ export const PhrasesModal = ({
         }
     };
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
+    const triggerFunc = () => {
+        const adverts = getUniqueAdvertIdsFromThePage();
+        if (Object.keys(adverts).length) setOpen(true);
+        else openNoCheckedRowsPopup();
+    };
+
     return (
         <div>
-            <Button
-                disabled={disabled}
-                view="action"
-                size="l"
-                onClick={() => {
-                    setOpen(true);
-                }}
-            >
+            {NoCheckedRowsPopup}
+            <Button disabled={disabled} view="action" size="l" onClick={triggerFunc}>
                 <Icon data={Magnifier} />
                 <Text variant="subheader-1">Фразы</Text>
             </Button>

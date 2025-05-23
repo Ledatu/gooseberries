@@ -14,6 +14,7 @@ import {useError} from '@/contexts/ErrorContext';
 import {CategoryBar} from '@/lib/CategoryBar/CategoryBar';
 import ApiClient from '@/utilities/ApiClient';
 import {ModalWindow} from '@/shared/ui/Modal';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 // import {getColorClassName} from '@/hooks/chartUtils';
 
 interface ButtonListProps {
@@ -266,14 +267,22 @@ export const AutoSalesModal = ({
 
     const handleClose = () => setAutoSalesModalOpen(false);
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
+    const triggerFunc = () => {
+        if (filteredData?.length) setAutoSalesModalOpen(true);
+        else openNoCheckedRowsPopup();
+    };
+
     return (
         <>
+            {NoCheckedRowsPopup}
             <Button
                 disabled={disabled}
                 view="action"
                 loading={availableAutoSalesPending}
                 size="l"
-                onClick={() => setAutoSalesModalOpen(true)}
+                onClick={triggerFunc}
             >
                 <Icon data={TagRuble} />
                 <Text variant="subheader-1">Акции</Text>

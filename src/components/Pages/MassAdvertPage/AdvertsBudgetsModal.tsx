@@ -15,6 +15,7 @@ import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
 import callApi, {getUid} from '@/utilities/callApi';
 import {HelpMark} from '@/components/Popups/HelpMark';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 export const AdvertsBudgetsModal = ({
     sellerId,
@@ -50,7 +51,7 @@ export const AdvertsBudgetsModal = ({
             if (!temp.includes(id)) temp.push(id);
         }
         return temp;
-    }, [open]);
+    }, [advertId, getUniqueAdvertIdsFromThePage]);
 
     const [useDesiredDrr, setUseDesiredDrr] = useState(false);
 
@@ -91,10 +92,6 @@ export const AdvertsBudgetsModal = ({
         console.error('AdvertsBudgetsModal: No valid React element found in children.');
         return null;
     }
-
-    const triggerButton = cloneElement(triggerElement, {
-        onClick: handleOpen,
-    });
 
     const [desiredDrrInputValue, setDesiredDrrInputValue] = useState('5');
     const desiredDrrInputValueValid = useMemo(() => {
@@ -155,8 +152,20 @@ export const AdvertsBudgetsModal = ({
         return maxBudgetInputValue?.includes('123456789');
     }, [maxBudgetInputValue]);
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
+    const triggerFunc = () => {
+        if (advertIds?.length) handleOpen();
+        else openNoCheckedRowsPopup();
+    };
+
+    const triggerButton = cloneElement(triggerElement, {
+        onClick: triggerFunc,
+    });
+
     return (
         <div>
+            {!advertId ? NoCheckedRowsPopup : undefined}
             {triggerButton}
             <Modal open={open && !disabled} onClose={handleClose}>
                 <Card

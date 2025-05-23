@@ -29,6 +29,7 @@ import {getLocaleDateString} from '@/utilities/getRoundValue';
 import {useError} from '@/contexts/ErrorContext';
 import {HelpMark} from '@/components/Popups/HelpMark';
 import {ModalWindow} from '@/shared/ui/Modal';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 export const AdvertsBidsModal = ({
     disabled,
@@ -133,10 +134,6 @@ export const AdvertsBidsModal = ({
         console.error('AdvertsBidsModal: No valid React element found in children.');
         return null;
     }
-
-    const triggerButton = cloneElement(triggerElement, {
-        onClick: handleOpen,
-    });
 
     const drrOptions = [
         {
@@ -635,8 +632,20 @@ export const AdvertsBidsModal = ({
         //////////////////////////////////
     };
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
+    const triggerFunc = () => {
+        if (advertIds?.length) handleOpen();
+        else openNoCheckedRowsPopup();
+    };
+
+    const triggerButton = cloneElement(triggerElement, {
+        onClick: triggerFunc,
+    });
+
     return (
         <div>
+            {!advertId ? NoCheckedRowsPopup : undefined}
             {triggerButton}
             <ModalWindow isOpen={open} handleClose={handleClose}>
                 <SegmentedRadioGroup

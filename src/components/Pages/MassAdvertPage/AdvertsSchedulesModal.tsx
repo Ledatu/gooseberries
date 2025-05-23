@@ -9,6 +9,7 @@ import callApi, {getUid} from '@/utilities/callApi';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
 import {getRoundValue} from '@/utilities/getRoundValue';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 interface AdvertsSchedulesModalProps {
     setUpdatePaused?: Function;
@@ -358,12 +359,25 @@ export const AdvertsSchedulesModal = ({
         return null;
     }
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
+    const triggerFunc = () => {
+        if (advertId) {
+            handleOpen();
+            return;
+        }
+        const adverts = getUniqueAdvertIdsFromThePage();
+        if (Object.keys(adverts).length) handleOpen();
+        else openNoCheckedRowsPopup();
+    };
+
     const triggerButton = cloneElement(triggerElement, {
-        onClick: handleOpen,
+        onClick: triggerFunc,
     });
 
     return (
         <>
+            {!advertId ? NoCheckedRowsPopup : undefined}
             {triggerButton}
             <Modal open={open && !disabled} onClose={handleClose}>
                 <Card
@@ -449,6 +463,16 @@ export const AdvertsSchedulesModal = ({
                                             advertsIds: {},
                                         },
                                     };
+                                    if (advertId) {
+                                        params.data.advertsIds[advertId] = {
+                                            advertId: advertId,
+                                        };
+
+                                        doc.advertsSchedules[selectValue[0]][advertId] = {};
+                                        doc.advertsSchedules[selectValue[0]][advertId] = {
+                                            schedule: scheduleInput,
+                                        };
+                                    }
                                     const uniqueAdverts = getUniqueAdvertIdsFromThePage();
                                     for (const [id, advertData] of Object.entries(uniqueAdverts)) {
                                         if (!id || !advertData) continue;
@@ -496,6 +520,13 @@ export const AdvertsSchedulesModal = ({
                                             advertsIds: {},
                                         },
                                     };
+                                    if (advertId) {
+                                        params.data.advertsIds[advertId] = {
+                                            advertId: advertId,
+                                        };
+
+                                        delete doc.advertsSchedules[selectValue[0]][advertId];
+                                    }
                                     const uniqueAdverts = getUniqueAdvertIdsFromThePage();
                                     for (const [id, advertData] of Object.entries(uniqueAdverts)) {
                                         if (!id || !advertData) continue;

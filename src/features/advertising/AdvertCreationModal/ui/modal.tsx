@@ -5,6 +5,7 @@ import {CloudArrowUpIn} from '@gravity-ui/icons';
 import {Children, isValidElement, ReactElement, cloneElement} from 'react';
 import {ModalWindow} from '@/shared/ui/Modal';
 import {useAdvertCreation} from '../hooks';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 interface AdvertCreateModalProps {
     children: ReactElement | ReactElement[];
@@ -45,14 +46,22 @@ export const AdvertCreateModal = ({
         return null;
     }
 
-    const triggerButton = cloneElement(triggerElement, {
-        onClick: handleOpen,
-    });
-
     const count = calculateSum();
+
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
+    const triggerFunc = () => {
+        if (filteredData?.length) handleOpen();
+        else openNoCheckedRowsPopup();
+    };
+
+    const triggerButton = cloneElement(triggerElement, {
+        onClick: triggerFunc,
+    });
 
     return (
         <>
+            {NoCheckedRowsPopup}
             {triggerButton}
             <ModalWindow isOpen={open} handleClose={handleClose}>
                 <Text variant="display-2">Создание РК</Text>

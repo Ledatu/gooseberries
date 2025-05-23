@@ -8,6 +8,7 @@ import {useCampaign} from '@/contexts/CampaignContext';
 import {useError} from '@/contexts/ErrorContext';
 import callApi, {getUid} from '@/utilities/callApi';
 import ApiClient from '@/utilities/ApiClient';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 interface AdvertsStatusManagingModalProps {
     setUpdatePaused: Function;
@@ -126,12 +127,21 @@ export const AdvertsStatusManagingModal = ({
         return null;
     }
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
+    const triggerFunc = () => {
+        const adverts = getUniqueAdvertIdsFromThePage();
+        if (Object.keys(adverts).length) handleOpen();
+        else openNoCheckedRowsPopup();
+    };
+
     const triggerButton = cloneElement(triggerElement, {
-        onClick: handleOpen,
+        onClick: triggerFunc,
     });
 
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
+            {NoCheckedRowsPopup}
             {triggerButton}
             <motion.div
                 animate={{width: inProgress ? 36 : 0, marginLeft: inProgress ? 8 : 0}}
