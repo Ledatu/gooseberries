@@ -64,6 +64,7 @@ interface AdvertCardProps {
     filterByButton: any;
     getUniqueAdvertIdsFromThePage: (args?: any) => any;
     template: ShortAdvertTemplateInfo;
+    nmIdBid?: number;
 }
 
 const BidRuleInfo = ({rule}: any) => {
@@ -191,6 +192,7 @@ export const AdvertCard = ({
     filterByButton,
     getUniqueAdvertIdsFromThePage,
     template,
+    nmIdBid,
 }: AdvertCardProps) => {
     const [arts, setArts] = useState<string[]>([]);
     const advertData = doc.adverts[selectValue[0]][id];
@@ -211,16 +213,14 @@ export const AdvertCard = ({
 
     useEffect(() => {
         const arts = [] as string[];
-        console.log('filteredData in advertCard', filteredData);
+        // console.log('filteredData in advertCard', filteredData);
         for (let i = 0; i < filteredData.length; i++) {
             const {art, adverts} = filteredData[i];
-            if (!adverts) continue;
-            for (const [id, _] of Object.entries(adverts)) {
-                console.log('id', id, 'advertId', advertId);
-                if (id == String(advertId)) {
-                    if (!arts.includes(art)) arts.push(art);
-                }
-            }
+            if (!art || !adverts) continue;
+            const advertIds = Object.values(adverts)?.map((advert: any) => advert?.['advertId']);
+            if (!advertIds.includes(advertId)) continue;
+            if (!arts.includes(art)) arts.push(art);
+            // console.log('advertId', advertId, art);
         }
         setArts(arts);
     }, [filteredData, advertId]);
@@ -524,7 +524,7 @@ export const AdvertCard = ({
                                         columnGap: 4,
                                     }}
                                 >
-                                    <Text variant="caption-2">{`CPM: ${curCpm ?? 'Нет инф.'} ${
+                                    <Text variant="caption-2">{`CPM: ${nmIdBid ?? curCpm ?? 'Нет инф.'} ${
                                         drrAI !== undefined
                                             ? `${drrAI?.useManualMaxCpm ? `/ ${drrAI.maxBid}` : ''}`
                                             : '/ Автоставки выкл.'
@@ -620,6 +620,7 @@ export const AdvertCard = ({
                                             sum,
                                             drr,
                                             cr,
+                                            nmIdBids,
                                         } = bidLog[i];
                                         if (!time || !val) continue;
 
@@ -630,7 +631,7 @@ export const AdvertCard = ({
                                         rbd.setHours(23, 59, 59);
                                         if (timeObj < dateRange[0] || timeObj > rbd) continue;
                                         timeline.push(timeObj.getTime());
-                                        graphsData.push(val);
+                                        graphsData.push(nmIdBids?.[nmId] ?? val);
                                         graphsDataOrders.push(orders);
                                         graphsDataSum.push(sum);
                                         graphsDataDrr.push(drr);

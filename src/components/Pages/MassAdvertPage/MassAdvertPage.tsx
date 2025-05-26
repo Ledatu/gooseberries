@@ -150,6 +150,23 @@ export const MassAdvertPage = () => {
         }
     };
 
+    const [latestNmIdBids, setLatestNmIdBids] = useState<any>({});
+    const fetchLatestNmIdBids = async () => {
+        try {
+            const response = await ApiClient.post('massAdvert/get-latest-nmId-bids', {
+                seller_id: sellerId,
+            });
+            if (!response?.data) {
+                throw new Error('error while getting latestNmIdBids');
+            }
+            const temp = response?.data;
+            setLatestNmIdBids(temp);
+        } catch (error: any) {
+            console.error(error);
+            showError(error);
+        }
+    };
+
     const [checkedData, setCheckedData] = useState([] as any);
     useEffect(() => {
         console.log('checkeddata', checkedData);
@@ -960,6 +977,7 @@ export const MassAdvertPage = () => {
                               ) {
                                   switches.push(
                                       <AdvertCard
+                                          nmIdBid={latestNmIdBids?.[advertId]?.[row?.nmId]}
                                           drrToday={advertsTodayDrr?.[advertId]}
                                           getNames={getNames}
                                           pausedAdverts={pausedAdverts}
@@ -1003,6 +1021,7 @@ export const MassAdvertPage = () => {
                               ) {
                                   switches.push(
                                       <AdvertCard
+                                          nmIdBid={latestNmIdBids?.[advertId]?.[row?.nmId]}
                                           drrToday={advertsTodayDrr?.[advertId]}
                                           getNames={getNames}
                                           pausedAdverts={pausedAdverts}
@@ -1045,6 +1064,7 @@ export const MassAdvertPage = () => {
                               ) {
                                   switches.push(
                                       <AdvertCard
+                                          nmIdBid={latestNmIdBids?.[advertId]?.[row?.nmId]}
                                           drrToday={advertsTodayDrr?.[advertId]}
                                           getNames={getNames}
                                           pausedAdverts={pausedAdverts}
@@ -1087,6 +1107,7 @@ export const MassAdvertPage = () => {
                           } else {
                               switches.push(
                                   <AdvertCard
+                                      nmIdBid={latestNmIdBids?.[advertId]?.[row?.nmId]}
                                       drrToday={advertsTodayDrr?.[advertId]}
                                       getNames={getNames}
                                       pausedAdverts={pausedAdverts}
@@ -2119,6 +2140,7 @@ export const MassAdvertPage = () => {
             .then(async (response) => {
                 setFetchingDataFromServerFlag(false);
                 fetchAdvertsTodayDrr();
+                fetchLatestNmIdBids();
                 if (!response) return;
                 const resData = response['data'];
 
