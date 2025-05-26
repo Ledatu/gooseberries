@@ -33,6 +33,7 @@ import ApiClient from '@/utilities/ApiClient';
 import {useError} from '@/contexts/ErrorContext';
 import callApi, {getUid} from '@/utilities/callApi';
 import {useModules} from '@/contexts/ModuleProvider';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 export const PricesPage = () => {
     const {availablemodulesMap} = useModules();
@@ -998,10 +999,13 @@ export const PricesPage = () => {
         setFilteredData(temp);
     };
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
     if (!doc) return <Spin />;
 
     return (
         <div style={{width: '100%', flexWrap: 'wrap'}}>
+            {NoCheckedRowsPopup}
             <div
                 style={{
                     display: 'flex',
@@ -1073,7 +1077,8 @@ export const PricesPage = () => {
                             size="l"
                             view="action"
                             onClick={() => {
-                                setUpdatePricesModalOpen(true);
+                                if (checkedData?.length) setUpdatePricesModalOpen(true);
+                                else openNoCheckedRowsPopup();
                             }}
                         >
                             <Icon data={CloudArrowUpIn} />

@@ -20,6 +20,7 @@ import {DownloadPricesCalcTemplate} from './DownloadPricesCalcTemplate';
 import {useError} from '@/contexts/ErrorContext';
 import {UploadPricesCalcTemplate} from './UploadPricesCalcTemplate';
 import ApiClient from '@/utilities/ApiClient';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 interface CalcPricesModalProps {
     sellerId: string;
@@ -226,22 +227,28 @@ export const CalcPricesModal = ({
         }
     };
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
+            {NoCheckedRowsPopup}
             <Button
                 disabled={disabled}
                 loading={calculatingFlag}
                 size="l"
                 view="action"
                 onClick={() => {
-                    setEnteredValuesModalOpen(true);
-                    setEnteredValue('');
-                    setEnteredDiscountValue('');
-                    clearOborRuleSet();
-                    setFixPrices(false);
-                    setEnteredValueValid(false);
-                    setChangeDiscount(false);
-                    setEnteredDiscountValueValid(false);
+                    if (filteredData?.length) {
+                        setEnteredValuesModalOpen(true);
+                        setEnteredValuesModalOpen(true);
+                        setEnteredValue('');
+                        setEnteredDiscountValue('');
+                        clearOborRuleSet();
+                        setFixPrices(false);
+                        setEnteredValueValid(false);
+                        setChangeDiscount(false);
+                        setEnteredDiscountValueValid(false);
+                    } else openNoCheckedRowsPopup();
                 }}
             >
                 <Icon data={Calculator} />
