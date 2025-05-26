@@ -115,14 +115,19 @@ export const AdvertsSchedulesModal = ({
 
         const tempHours = [] as any[];
         for (let j = 0; j < 24; j++) {
+            let sumHourHeatMap = 0;
+            for (let i = 0; i < 7; i++) {
+                const sumForDay = heatMap?.[i]?.reduce((sum, val) => sum + (val ?? 0), 0);
+                sumHourHeatMap += getRoundValue((heatMap?.[i]?.[j] ?? 0) * 100, sumForDay);
+            }
+
             const isCheckboxChecked = (() => {
                 for (let i = 0; i < 7; i++) {
-                    if (!scheduleInput[i]) return false;
-                    if (!scheduleInput[i][j]) return false;
-                    if (!scheduleInput[i][j].selected) return false;
+                    if (!scheduleInput?.[i]?.[j]?.selected) return false;
                 }
                 return true;
             })();
+
             tempHours.push(
                 <Tooltip content={`Каждый день ${j}:00 - ${j}:59`}>
                     <motion.div
@@ -163,7 +168,19 @@ export const AdvertsSchedulesModal = ({
                                 setScheduleInput(tempScheduleInput);
                             }}
                         >
-                            {/* {isCheckboxChecked ? <Icon size={1} data={Check} /> : <></>} */}
+                            {heatMap.length ? (
+                                <Text
+                                    variant="subheader-1"
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyItems: 'center',
+                                        width: '100%',
+                                        height: '100%',
+                                    }}
+                                >{`${getRoundValue(sumHourHeatMap * 10, 7) / 10}%`}</Text>
+                            ) : undefined}
                         </Button>
                     </motion.div>
                 </Tooltip>,
