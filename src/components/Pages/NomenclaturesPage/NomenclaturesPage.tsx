@@ -19,6 +19,7 @@ import {useError} from '@/contexts/ErrorContext';
 import {CopyButton} from '@/components/Buttons/CopyButton';
 import {SetArtStatusModal} from './SetArtStatusModal';
 import {useModules} from '@/contexts/ModuleProvider';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 export const NomenclaturesPage = () => {
     const {availablemodulesMap} = useModules();
@@ -371,7 +372,8 @@ export const NomenclaturesPage = () => {
                 },
                 additionalNodes: [
                     generateEditButton('tags', () => {
-                        setTagsModalFormOpen(true);
+                        if (checkedData?.length) setTagsModalFormOpen(true);
+                        else openNoCheckedRowsPopup();
                     }),
                 ],
             },
@@ -529,6 +531,8 @@ export const NomenclaturesPage = () => {
 
     if (!data) return <Spin />;
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
     return (
         <div
             style={{
@@ -539,6 +543,7 @@ export const NomenclaturesPage = () => {
                 alignItems: 'center',
             }}
         >
+            {NoCheckedRowsPopup}
             <div
                 style={{
                     display: 'flex',
@@ -698,12 +703,12 @@ export const NomenclaturesPage = () => {
             ) : (
                 <TheTable
                     useCheckboxes={true}
-                    checkboxKey="nmId"
+                    checkboxKey="art"
                     onCheckboxStateUpdate={(checkboxHeaderState: boolean, checkboxStates: any) => {
                         if (checkboxHeaderState) setCheckedData([...filteredData]);
                         else {
                             const temp = filteredData.filter(
-                                (value) => checkboxStates?.[value?.['nmId']],
+                                (value) => checkboxStates?.[value?.['art']],
                             );
                             setCheckedData(temp);
                         }

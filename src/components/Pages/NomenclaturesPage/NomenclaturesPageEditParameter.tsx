@@ -6,6 +6,7 @@ import {Children, isValidElement, ReactElement, useState, cloneElement} from 're
 import {motion} from 'framer-motion';
 import ApiClient from '@/utilities/ApiClient';
 import {useError} from '@/contexts/ErrorContext';
+import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 export const NomenclaturesPageEditParameter = ({
     children,
@@ -63,8 +64,15 @@ export const NomenclaturesPageEditParameter = ({
         return null;
     }
 
+    const {NoCheckedRowsPopup, openNoCheckedRowsPopup} = useNoCheckedRowsPopup();
+
+    const triggerFunc = () => {
+        if (filteredData?.length) handleOpen();
+        else openNoCheckedRowsPopup();
+    };
+
     const triggerButton = cloneElement(triggerElement, {
-        onClick: handleOpen,
+        onClick: triggerFunc,
     });
 
     const invalid =
@@ -73,6 +81,7 @@ export const NomenclaturesPageEditParameter = ({
 
     return (
         <>
+            {NoCheckedRowsPopup}
             {triggerButton}
             <Modal open={open} onClose={handleClose}>
                 <Card

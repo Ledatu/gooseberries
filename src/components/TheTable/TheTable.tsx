@@ -172,7 +172,7 @@ export default function TheTable({
                 ),
                 render: ({row, footer}) => {
                     if (footer) return undefined;
-                    const checkboxIndex = row?.nmId;
+                    const checkboxIndex = row?.[checkboxKey ?? 'nmId'];
                     return (
                         <Checkbox
                             checked={checkboxStates[checkboxIndex] ? true : false}
