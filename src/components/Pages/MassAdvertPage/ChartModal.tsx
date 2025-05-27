@@ -80,7 +80,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
 
             graphicData.push(dataPoint as any);
         }
-        console.log(graphicData);
+        // console.log(graphicData);
         return graphicData;
     };
 

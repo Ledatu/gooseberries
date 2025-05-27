@@ -878,6 +878,10 @@ export const AdvertCard = ({
                                     const graphsDataBudgetsDiv: any[] = [];
                                     const graphsDataBudgetsDivHours: any = {};
                                     if (budgetLog) {
+                                        const lbd = new Date(dateRange[0]);
+                                        lbd.setHours(0, 0, 0, 0);
+                                        const rbd = new Date(dateRange[1]);
+                                        rbd.setHours(23, 59, 59);
                                         for (let i = 0; i < budgetLog.length; i++) {
                                             const {budget, time} = budgetLog[i];
                                             if (!time || !budget) continue;
@@ -887,40 +891,51 @@ export const AdvertCard = ({
                                             timeObj.setMinutes(
                                                 Math.floor(timeObj.getMinutes() / 15) * 15,
                                             );
-
-                                            const lbd = new Date(dateRange[0]);
-                                            lbd.setHours(0, 0, 0, 0);
-                                            const rbd = new Date(dateRange[1]);
-                                            rbd.setHours(23, 59, 59);
+                                            timeObj.setSeconds(0);
+                                            timeObj.setMilliseconds(0);
                                             if (timeObj < lbd || timeObj > rbd) continue;
-                                            timelineBudget.push(timeObj.getTime());
-                                            graphsDataBudgets.push(budget);
 
-                                            const hour = time.slice(0, 13);
+                                            const hour = timeObj.toISOString().slice(0, 16);
+                                            if (graphsDataBudgetsDivHours[hour]) continue;
                                             if (!graphsDataBudgetsDivHours[hour])
                                                 graphsDataBudgetsDivHours[hour] = budget;
+
+                                            timelineBudget.push(timeObj.getTime());
+                                            graphsDataBudgets.push(budget);
                                         }
                                         let prevHour = '';
+                                        let spent = 0;
                                         for (let i = 0; i < timelineBudget.length; i++) {
                                             const dateObj = new Date(timelineBudget[i]);
                                             const time = dateObj.toISOString();
+                                            const hour = time.slice(0, 16);
+                                            const diff =
+                                                graphsDataBudgetsDivHours[prevHour] -
+                                                graphsDataBudgetsDivHours[hour];
+                                            spent += diff >= 0 ? diff : 0;
+                                            // console.log(
+                                            //     'spent',
+                                            //     spent,
+                                            //     prevHour,
+                                            //     hour,
+                                            //     graphsDataBudgetsDivHours[prevHour],
+                                            //     graphsDataBudgetsDivHours[hour],
+                                            // );
+
+                                            // if (prevHour == '') {
+                                            //     graphsDataBudgetsDiv.push(null);
+                                            //     prevHour = hour;
+                                            //     continue;
+                                            // }
+                                            prevHour = hour;
                                             if (dateObj.getMinutes() != 0) {
                                                 graphsDataBudgetsDiv.push(null);
                                                 continue;
                                             }
-                                            const hour = time.slice(0, 13);
-                                            if (prevHour == '') {
-                                                graphsDataBudgetsDiv.push(null);
-                                                prevHour = hour;
-                                                continue;
-                                            }
+                                            graphsDataBudgetsDiv.push(spent);
 
-                                            const spent =
-                                                graphsDataBudgetsDivHours[prevHour] -
-                                                graphsDataBudgetsDivHours[hour];
-                                            graphsDataBudgetsDiv.push(spent >= 0 ? spent : null);
-
-                                            prevHour = hour;
+                                            spent = 0;
+                                            // console.log('spent', 0);
                                         }
                                     }
 
