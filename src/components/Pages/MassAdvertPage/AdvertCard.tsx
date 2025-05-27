@@ -1159,6 +1159,7 @@ export const AdvertCard = ({
                                 arts={arts}
                                 advertId={advertId}
                                 docCampaign={doc.campaigns[selectValue[0]]}
+                                advertType={type == 8 ? 'auto' : 'search'}
                             />
                         </div>
                         <AdvertsSchedulesModal

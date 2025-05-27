@@ -231,10 +231,10 @@ export const AdvertStatsByDayModal = ({
             //     // layoutDependency={`${stat}_${getLocaleDateString(row['date'])}_to`}
             //     // layoutId={`${stat}_${getLocaleDateString(row['date'])}_from`}
             // >
-                <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 0.1}}>
-                    {getStatWithArrowButton(value, footer, stat, row['date'], render)}
-                    {/* </div> */}
-                </motion.div>
+            <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{delay: 0.1}}>
+                {getStatWithArrowButton(value, footer, stat, row['date'], render)}
+                {/* </div> */}
+            </motion.div>
             // </motion.div>
         );
     };
@@ -293,29 +293,28 @@ export const AdvertStatsByDayModal = ({
             name: 'orders',
             placeholder: 'Заказы, шт.',
             render: ({value, footer, row}: any) => {
-                return renderElementOfTable(footer, row, 'orders', value);
+                return getStatWithArrowButton(value, footer, 'orders', row['date']);
             },
         },
         {
             name: 'sumOrders',
             placeholder: 'Заказы, ₽',
-            render: ({value, footer, row}: any) => {
-                return renderElementOfTable(footer, row, 'sumOrders', value);
+            rrender: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'sumOrders', row['date']);
             },
         },
-        // {
-        //     name: 'profit',
-        //     placeholder: 'Профит, ₽',
-        //     render: ({value, footer, row}: any) => {
-        //         return renderElementOfTable(footer, row, 'profit', value);
-        //     },
-        // },
+        {
+            name: 'profit',
+            placeholder: 'Профит, ₽',
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'profit', row['date']);
+            },
+        },
         {
             name: 'rent',
             placeholder: 'Рентабельность, %',
-            render: (args: any) => {
-                const {value, footer, row} = args;
-                return renderElementOfTable(footer, row, 'rent', value, renderAsPercent);
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'rent', row['date']);
             },
         },
         {
@@ -328,16 +327,15 @@ export const AdvertStatsByDayModal = ({
         {
             name: 'drr',
             placeholder: 'ДРР, %',
-            render: (args: any) => {
-                const {value, footer, row} = args;
-                return renderElementOfTable(footer, row, 'drr', value, renderAsPercent);
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'drr', row['date'], renderAsPercent);
             },
         },
         {
             name: 'cpo',
             placeholder: 'CPO, ₽',
             render: ({value, footer, row}: any) => {
-                return renderElementOfTable(footer, row, 'cpo', value);
+                return getStatWithArrowButton(value, footer, 'cpo', row['date']);
             },
         },
         {
@@ -352,9 +350,8 @@ export const AdvertStatsByDayModal = ({
             placeholder: 'Клики, шт.',
             render: (args: any) => {
                 const {value, footer, row} = args;
-                return renderElementOfTable(footer, row, 'clicks', value, (value: any) => {
-                    value;
-                    return renderSlashPercent(args, 'openCardCount');
+                return renderElementOfTable(footer, row, 'clicks', value, ({value}: any) => {
+                    return renderSlashPercent({...args, value}, 'openCardCount');
                 });
             },
         },
@@ -377,42 +374,45 @@ export const AdvertStatsByDayModal = ({
             name: 'cpm',
             placeholder: 'CPM, ₽',
             render: ({value, footer, row}: any) => {
-                return renderElementOfTable(footer, row, 'cpm', value);
+                return getStatWithArrowButton(value, footer, 'cpm', row['date']);
             },
         },
         {
             name: 'cr',
             placeholder: 'CR из перехода, %',
-            render: (args: any) => {
-                const {value, footer, row} = args;
-                return renderElementOfTable(footer, row, 'cr', value, renderAsPercent);
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'cr', row['date'], renderAsPercent);
             },
         },
         {
             name: 'crFromView',
             placeholder: 'CR из показа, %',
-            render: (args: any) => {
-                const {value, footer, row} = args;
-                return renderElementOfTable(footer, row, 'crFromView', value, renderAsPercent);
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(
+                    value,
+                    footer,
+                    'crFromView',
+                    row['date'],
+                    renderAsPercent,
+                );
             },
         },
         {
             name: 'openCardCount',
             placeholder: 'Всего переходов, шт.',
             render: ({value, footer, row}: any) => {
-                return renderElementOfTable(footer, row, 'openCardCount', value);
+                return getStatWithArrowButton(value, footer, 'openCardCount', row['date']);
             },
         },
         {
             name: 'addToCartPercent',
             placeholder: 'CR в корзину, %',
-            render: (args: any) => {
-                const {value, footer, row} = args;
-                return renderElementOfTable(
-                    footer,
-                    row,
-                    'addToCartPercent',
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(
                     value,
+                    footer,
+                    'addToCartPercent',
+                    row['date'],
                     renderAsPercent,
                 );
             },
@@ -420,13 +420,12 @@ export const AdvertStatsByDayModal = ({
         {
             name: 'cartToOrderPercent',
             placeholder: 'CR в заказ, %',
-            render: (args: any) => {
-                const {value, footer, row} = args;
-                return renderElementOfTable(
-                    footer,
-                    row,
-                    'cartToOrderPercent',
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(
                     value,
+                    footer,
+                    'cartToOrderPercent',
+                    row['date'],
                     renderAsPercent,
                 );
             },
@@ -435,14 +434,14 @@ export const AdvertStatsByDayModal = ({
             name: 'addToCartCount',
             placeholder: 'Корзины, шт.',
             render: ({value, footer, row}: any) => {
-                return renderElementOfTable(footer, row, 'addToCartCount', value);
+                return getStatWithArrowButton(value, footer, 'addToCartCount', row['date']);
             },
         },
         {
             name: 'cpl',
             placeholder: 'CPL, ₽',
             render: ({value, footer, row}: any) => {
-                return renderElementOfTable(footer, row, 'cpl', value);
+                return getStatWithArrowButton(value, footer, 'cpl', row['date']);
             },
         },
     ].map((column) => {
