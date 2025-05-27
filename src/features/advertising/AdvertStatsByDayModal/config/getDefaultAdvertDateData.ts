@@ -10,7 +10,7 @@ export const getDefaultAdvertDateData = (): AdvertDateData => {
 		clicks: 0,
 		drr: 0,
 		ctr: 0,
-		cto: 0,
+		cpo: 0,
 		cpc: 0,
 		cpm: 0,
 		openCardCount: 0,

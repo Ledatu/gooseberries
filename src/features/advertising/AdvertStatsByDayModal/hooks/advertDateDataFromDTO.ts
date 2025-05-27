@@ -33,7 +33,7 @@ export const advertDateDataFromDTO = (dto: AdvertDateDataDTO[], docCampaign: any
 			true,
 			data.sum / 100,
 		);
-		data.cpm = getRoundValue(data.sum * 1000, data.views);
+		data.cpm = getRoundValue(data.sum*100, data.views)/100;
 		data['cpo'] = getRoundValue(data.sum, data.orders, false, data.sum);
 		console.log('arts', arts)
 		for (const art of arts) {
