@@ -17,6 +17,7 @@ import {
     ButtonSize,
     ButtonView,
     IconData,
+    ActionTooltip,
 } from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
@@ -42,6 +43,7 @@ import {
     Cherry,
     Xmark,
     TriangleExclamation,
+    XmarkShape,
 } from '@gravity-ui/icons';
 
 import {motion} from 'framer-motion';
@@ -1627,47 +1629,72 @@ export const MassAdvertPage = () => {
             },
             additionalNodes: [
                 <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                    <Button
-                        style={{
-                            marginLeft: 5,
-                            display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
-                        }}
-                        view={
-                            placementsDisplayPhrase != '' &&
-                            selectedSearchPhrase == placementsDisplayPhrase
-                                ? 'outlined-success'
-                                : 'outlined'
-                        }
-                        onClick={async (event) => {
-                            event.stopPropagation();
-                            setSelectedSearchPhrase(
+                    <ActionTooltip title="Установить мастер фразы">
+                        <Button
+                            style={{
+                                marginLeft: 5,
+                                display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
+                            }}
+                            view={
+                                placementsDisplayPhrase != '' &&
                                 selectedSearchPhrase == placementsDisplayPhrase
-                                    ? ''
-                                    : placementsDisplayPhrase,
-                            );
-                            const uniqueAdverts = Object.values(
-                                getUniqueAdvertIdsFromThePage(),
-                            )?.map((advert: any) => advert?.advertId);
-                            for (const advertId of uniqueAdverts) {
-                                if (!advertId) continue;
+                                    ? 'outlined-success'
+                                    : 'outlined'
+                            }
+                            onClick={async (event) => {
+                                event.stopPropagation();
+                                setSelectedSearchPhrase(
+                                    selectedSearchPhrase == placementsDisplayPhrase
+                                        ? ''
+                                        : placementsDisplayPhrase,
+                                );
+                                const uniqueAdverts = Object.values(
+                                    getUniqueAdvertIdsFromThePage(),
+                                )?.map((advert: any) => advert?.advertId) as number[];
                                 try {
                                     await changeSelectedPhrase({
                                         seller_id: sellerId,
-                                        advertId,
+                                        advertIds: uniqueAdverts,
                                         selectedPhrase: placementsDisplayPhrase,
                                         asSet: true,
                                     });
                                 } catch (error) {
-                                    showError(
-                                        `Не удалось установить мастер фразу в РК ${advertId}.`,
-                                    );
+                                    showError(`Не удалось установить мастер фразу в РК.`);
                                 }
-                            }
-                            await getSelectedPhrases();
-                        }}
-                    >
-                        <Icon size={12} data={ArrowShapeUp} />
-                    </Button>
+                                await getSelectedPhrases();
+                            }}
+                        >
+                            <Icon size={12} data={ArrowShapeUp} />
+                        </Button>
+                    </ActionTooltip>
+                    <ActionTooltip title="Удалить мастер фразы">
+                        <Button
+                            style={{
+                                marginLeft: 5,
+                                display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
+                            }}
+                            view="outlined-danger"
+                            onClick={async (event) => {
+                                event.stopPropagation();
+                                const uniqueAdverts = Object.values(
+                                    getUniqueAdvertIdsFromThePage(),
+                                )?.map((advert: any) => advert?.advertId) as number[];
+                                try {
+                                    await changeSelectedPhrase({
+                                        seller_id: sellerId,
+                                        advertIds: uniqueAdverts,
+                                        selectedPhrase: 'delete',
+                                        deleteSelectedPhrase: true,
+                                    });
+                                } catch (error) {
+                                    showError(`Не удалось удалить мастер фразу в РК.`);
+                                }
+                                await getSelectedPhrases();
+                            }}
+                        >
+                            <Icon size={12} data={XmarkShape} />
+                        </Button>
+                    </ActionTooltip>
                     <Button
                         disabled={
                             currentParsingProgress[placementsDisplayPhrase] &&

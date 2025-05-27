@@ -117,6 +117,7 @@ export const PricesPage = () => {
             updatePricesParams: {
                 data: [] as any[],
             },
+            dataClub: [] as any[],
         };
         const paramsFix = {
             seller_id: sellerId,
@@ -128,13 +129,20 @@ export const PricesPage = () => {
         const tempOldData = {...lastCalcOldData};
 
         const byNmId: any = {};
+        const byNmIdClub: any = {};
         for (let i = 0; i < checkedData.length; i++) {
-            const {nmId, wbPrice, rozPrice, primeCost, discount, art, fixPrices} = checkedData[i];
+            const {nmId, wbPrice, rozPrice, primeCost, discount, clubDiscount, art, fixPrices} =
+                checkedData[i];
             if (nmId && wbPrice && rozPrice >= primeCost) {
                 byNmId[nmId] = {
                     nmID: nmId,
                     price: wbPrice,
                     discount: discount,
+                };
+
+                byNmIdClub[nmId] = {
+                    nmID: nmId,
+                    clubDiscount: clubDiscount,
                 };
 
                 delete tempOldData[art]; // delete to prevent reset to default
@@ -153,6 +161,11 @@ export const PricesPage = () => {
         for (const [nmId, nmIdData] of Object.entries(byNmId)) {
             if (nmId === undefined || nmIdData === undefined) continue;
             params.updatePricesParams.data.push(nmIdData);
+        }
+
+        for (const [nmId, nmIdData] of Object.entries(byNmIdClub)) {
+            if (nmId === undefined || nmIdData === undefined) continue;
+            params.dataClub.push(nmIdData);
         }
 
         setDoc({...doc});
@@ -487,6 +500,46 @@ export const PricesPage = () => {
                 ),
         },
         {
+            name: 'clubDiscount',
+            placeholder: 'Скидка WB Клуба, %',
+            render: renderAsPercent,
+        },
+        {
+            name: 'clubDiscountedPrice',
+            placeholder: (
+                <Text
+                    className="g-link g-link_view_primary"
+                    variant="subheader-1"
+                    color={
+                        currentPricesCalculatedBasedOn == 'clubDiscountedPrice'
+                            ? undefined
+                            : 'primary'
+                    }
+                    onClick={() => {
+                        if (currentPricesCalculatedBasedOn == 'clubDiscountedPrice')
+                            setUpdatingFlag(true);
+                    }}
+                >
+                    Цена с WB Клубом, ₽
+                </Text>
+            ),
+            render: (args: any) =>
+                fixedPriceRender(
+                    args,
+                    ['clubDiscountedPrice'],
+                    ((args: any) => {
+                        const {value, row} = args as any;
+                        if (value === undefined) return undefined;
+                        const {primeCost} = row;
+                        return (
+                            <Text color={primeCost > value ? 'danger' : 'primary'}>
+                                {defaultRender(args as any)}
+                            </Text>
+                        );
+                    })(args),
+                ),
+        },
+        {
             name: 'spp',
             placeholder: 'СПП, %',
             render: renderAsPercent,
@@ -577,6 +630,25 @@ export const PricesPage = () => {
                         return (
                             <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
                                 {`${profit} / ${getRoundValue(profit * 100, rozPrice)}%`}
+                            </Text>
+                        );
+                    })(args),
+                ),
+        },
+        {
+            name: 'rentabelnostCLub',
+            placeholder: 'Профит WB Клуб, ₽',
+            render: (args: any) =>
+                fixedPriceRender(
+                    args,
+                    ['profitClub', 'rentabelnostCLub'],
+                    ((args) => {
+                        const {value, row} = args;
+                        const {rozPrice, profitClub} = row;
+                        if (value === undefined) return undefined;
+                        return (
+                            <Text color={value < 0 ? 'danger' : value > 0 ? 'positive' : 'primary'}>
+                                {`${profitClub} / ${getRoundValue(profitClub * 100, rozPrice)}%`}
                             </Text>
                         );
                     })(args),
@@ -835,6 +907,10 @@ export const PricesPage = () => {
                 cpoOrders: 0,
                 buyoutsPercent: 0,
                 allExpences: 0,
+                clubDiscountedPrice: 0,
+                clubDiscount: 0,
+                profitClub: 0,
+                rentabelnostCLub: 0,
             } as any;
             artInfo.art = artData['art'];
             artInfo.object = artData['object'];
@@ -875,6 +951,11 @@ export const PricesPage = () => {
             artInfo.cpoOrders = Math.round(artData['cpoOrders']);
             artInfo.buyoutsPercent = Math.round(artData['buyoutsPercent']);
             artInfo.allExpences = Math.round(artData['allExpences']);
+
+            artInfo.clubDiscountedPrice = Math.round(artData['clubDiscountedPrice']);
+            artInfo.clubDiscount = Math.round(artData['clubDiscount']);
+            artInfo.profitClub = Math.round(artData['profitClub']);
+            artInfo.rentabelnostCLub = Math.round(artData['rentabelnostCLub']);
 
             artInfo.avgOrders = getRoundValue(artData['avgOrders'] / 100, 1, true);
             artInfo.obor = Math.round(artData['obor']);
