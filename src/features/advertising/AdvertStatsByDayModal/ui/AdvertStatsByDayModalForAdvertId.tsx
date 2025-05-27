@@ -12,12 +12,14 @@ interface AdvertStatsByDayModalForAdvertIdProps {
     advertId: number;
     arts: string[];
     docCampaign: any;
+    advertType: 'search' | 'auto';
 }
 
 export const AdvertStatsByDayModalForAdvertId = ({
     advertId,
     arts,
     docCampaign,
+    advertType,
 }: AdvertStatsByDayModalForAdvertIdProps) => {
     const [data, setData] = useState<AdvertDateData[]>([]);
     const [open, setOpen] = useState(false);
@@ -29,7 +31,7 @@ export const AdvertStatsByDayModalForAdvertId = ({
             const dateString = getLocaleDateString(date);
             if (separetedData[dateString]) {
                 delete separetedData[dateString];
-                setSeparetedData({...separetedData})
+                setSeparetedData({...separetedData});
             } else {
                 const res = await getStatsForAdvertForDate(sellerId, date, advertId);
                 console.log(res);
@@ -65,7 +67,7 @@ export const AdvertStatsByDayModalForAdvertId = ({
         }
     }, [open]);
 
-    return (
+    return advertType == 'auto' ? (
         <AdvertStatsByDayModal
             open={open}
             setOpen={setOpen}
@@ -73,5 +75,7 @@ export const AdvertStatsByDayModalForAdvertId = ({
             additionalInfo={separetedData}
             handleClickDetailedInfoButton={handleButtonClick}
         />
+    ) : (
+        <AdvertStatsByDayModal open={open} setOpen={setOpen} data={data} />
     );
 };
