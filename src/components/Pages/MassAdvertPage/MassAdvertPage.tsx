@@ -1629,68 +1629,92 @@ export const MassAdvertPage = () => {
             },
             additionalNodes: [
                 <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                    <ActionTooltip title="Установить мастер фразы">
+                    <ActionTooltip
+                        title={
+                            checkedData?.length
+                                ? 'Установить мастер фразы'
+                                : 'Для установки мастер фраз выберите строки с помощью чекбоксов'
+                        }
+                    >
                         <Button
+                            selected={!checkedData?.length}
                             style={{
                                 marginLeft: 5,
                                 display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
                             }}
                             view={
-                                placementsDisplayPhrase != '' &&
-                                selectedSearchPhrase == placementsDisplayPhrase
-                                    ? 'outlined-success'
-                                    : 'outlined'
+                                checkedData?.length
+                                    ? placementsDisplayPhrase != '' &&
+                                      selectedSearchPhrase == placementsDisplayPhrase
+                                        ? 'outlined-success'
+                                        : 'outlined'
+                                    : 'outlined-danger'
                             }
-                            onClick={async (event) => {
-                                event.stopPropagation();
-                                setSelectedSearchPhrase(
-                                    selectedSearchPhrase == placementsDisplayPhrase
-                                        ? ''
-                                        : placementsDisplayPhrase,
-                                );
-                                const uniqueAdverts = Object.values(
-                                    getUniqueAdvertIdsFromThePage(),
-                                )?.map((advert: any) => advert?.advertId) as number[];
-                                try {
-                                    await changeSelectedPhrase({
-                                        seller_id: sellerId,
-                                        advertIds: uniqueAdverts,
-                                        selectedPhrase: placementsDisplayPhrase,
-                                        asSet: true,
-                                    });
-                                } catch (error) {
-                                    showError(`Не удалось установить мастер фразу в РК.`);
-                                }
-                                await getSelectedPhrases();
-                            }}
+                            onClick={
+                                checkedData?.length
+                                    ? async (event) => {
+                                          event.stopPropagation();
+                                          setSelectedSearchPhrase(
+                                              selectedSearchPhrase == placementsDisplayPhrase
+                                                  ? ''
+                                                  : placementsDisplayPhrase,
+                                          );
+                                          const uniqueAdverts = Object.values(
+                                              getUniqueAdvertIdsFromThePage(),
+                                          )?.map((advert: any) => advert?.advertId) as number[];
+                                          try {
+                                              await changeSelectedPhrase({
+                                                  seller_id: sellerId,
+                                                  advertIds: uniqueAdverts,
+                                                  selectedPhrase: placementsDisplayPhrase,
+                                                  asSet: true,
+                                              });
+                                          } catch (error) {
+                                              showError(`Не удалось установить мастер фразу в РК.`);
+                                          }
+                                          await getSelectedPhrases();
+                                      }
+                                    : undefined
+                            }
                         >
                             <Icon size={12} data={ArrowShapeUp} />
                         </Button>
                     </ActionTooltip>
-                    <ActionTooltip title="Удалить мастер фразы">
+                    <ActionTooltip
+                        title={
+                            checkedData?.length
+                                ? 'Удалить мастер фразы'
+                                : 'Для удаления мастер фраз выберите строки с помощью чекбоксов'
+                        }
+                    >
                         <Button
+                            selected={!checkedData?.length}
                             style={{
                                 marginLeft: 5,
                                 display: placementsDisplayPhrase != '' ? 'inherit' : 'none',
                             }}
                             view="outlined-danger"
-                            onClick={async (event) => {
-                                event.stopPropagation();
-                                const uniqueAdverts = Object.values(
-                                    getUniqueAdvertIdsFromThePage(),
-                                )?.map((advert: any) => advert?.advertId) as number[];
-                                try {
-                                    await changeSelectedPhrase({
-                                        seller_id: sellerId,
-                                        advertIds: uniqueAdverts,
-                                        selectedPhrase: 'delete',
-                                        deleteSelectedPhrase: true,
-                                    });
-                                } catch (error) {
-                                    showError(`Не удалось удалить мастер фразу в РК.`);
-                                }
-                                await getSelectedPhrases();
-                            }}
+                            onClick={
+                                checkedData?.length
+                                    ? async (event) => {
+                                          event.stopPropagation();
+                                          const uniqueAdverts = Object.values(
+                                              getUniqueAdvertIdsFromThePage(),
+                                          )?.map((advert: any) => advert?.advertId) as number[];
+                                          try {
+                                              await changeSelectedPhrase({
+                                                  seller_id: sellerId,
+                                                  advertIds: uniqueAdverts,
+                                                  selectedPhrase: 'delete',
+                                                  deleteSelectedPhrase: true,
+                                              });
+                                          } catch (error) {
+                                              showError(`Не удалось удалить мастер фразу в РК.`);
+                                          }
+                                          await getSelectedPhrases();
+                                      }
+                                    : undefined
+                            }
                         >
                             <Icon size={12} data={XmarkShape} />
                         </Button>
