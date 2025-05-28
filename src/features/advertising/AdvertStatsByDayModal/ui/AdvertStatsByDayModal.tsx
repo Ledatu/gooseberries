@@ -18,7 +18,7 @@ import {
     Magnifier,
 } from '@gravity-ui/icons';
 import {ActionTooltip, Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
-import {useState, CSSProperties, useEffect} from 'react';
+import {useState, CSSProperties, useEffect, useMemo} from 'react';
 import {AdvertDateData} from '../types/AdvertDateData';
 import {getDefaultAdvertDateData} from '../config/getDefaultAdvertDateData';
 import TheTable from '@/components/TheTable';
@@ -239,7 +239,7 @@ export const AdvertStatsByDayModal = ({
         );
     };
 
-    const columnDataArtByDayStats = [
+    const columnDataArtByDayStatsTemp = [
         {
             name: 'date',
             placeholder: 'Дата',
@@ -444,11 +444,26 @@ export const AdvertStatsByDayModal = ({
                 return getStatWithArrowButton(value, footer, 'cpl', row['date']);
             },
         },
-    ].map((column) => {
+    ];
+
+    const nameOfColumns = useMemo(
+        () =>
+            columnDataArtByDayStatsTemp.reduce((obj: any, value: any) => {
+                obj[value?.name] = value?.placeholder;
+                return obj;
+            }, {}),
+        [],
+    );
+
+    const columnDataArtByDayStats = columnDataArtByDayStatsTemp.map((column) => {
         return {
             ...column,
             additionalNodes: [
-                <ChartStatsModal defaultStat={column?.name} stats={data}>
+                <ChartStatsModal
+                    defaultStat={column?.name}
+                    stats={data}
+                    nameOfColumns={nameOfColumns}
+                >
                     <Button pin="brick-brick" size="m" view="flat">
                         <Icon data={ChartAreaStacked} size={16} />
                     </Button>

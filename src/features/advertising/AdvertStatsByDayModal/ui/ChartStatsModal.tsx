@@ -5,13 +5,13 @@ import {ReactElement, useEffect, useState, Children, isValidElement, cloneElemen
 import {ModalWindow} from '@/shared/ui/Modal';
 import {motion} from 'framer-motion';
 import {Loader} from '@gravity-ui/uikit';
-import {nameOfColumns} from '../config/nameOfColumns';
 
 interface ChartStatsModal {
     children: ReactElement | ReactElement[];
     defaultStat: string;
     stats: AdvertDateData[];
     useVerticalLines?: boolean;
+    nameOfColumns: {[key: string]: string};
 }
 
 export const ChartStatsModal = ({
@@ -19,6 +19,7 @@ export const ChartStatsModal = ({
     stats,
     children,
     useVerticalLines,
+    nameOfColumns,
 }: ChartStatsModal) => {
     const [open, setOpen] = useState(false);
     const [hiddenByDefault, setHiddenByDefault] = useState({});
@@ -32,12 +33,12 @@ export const ChartStatsModal = ({
             }
         }
         setHiddenByDefault(obj);
-        console.log(obj);
-    }, [defaultStat]);
+        console.log('setHiddenByDefault', obj);
+    }, [defaultStat, nameOfColumns]);
     const [data, setData] = useState<Record<string, string | number>[]>([]);
     useEffect(() => {
         if (open) {
-            setData(getStatsForChart(stats));
+            setData(getStatsForChart(stats, nameOfColumns));
         }
     }, [open]);
 
