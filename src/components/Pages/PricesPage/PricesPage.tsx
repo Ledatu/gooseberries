@@ -248,10 +248,14 @@ export const PricesPage = () => {
                 <Text
                     color={
                         curCellIsNew
-                            ? 'brand'
-                            : curCellIsOld && currentPricesCalculatedBasedOn == ''
-                              ? 'positive'
-                              : 'danger'
+                            ? checkboxStates[row?.nmId] == true
+                                ? 'brand'
+                                : 'secondary'
+                            : curCellIsOld &&
+                                currentPricesCalculatedBasedOn != '' &&
+                                checkboxStates[row?.nmId] == true
+                              ? 'danger'
+                              : 'positive'
                     }
                 >
                     <Icon data={curCellIsNew ? LockOpen : Lock} />

@@ -73,7 +73,7 @@ export const PageInfoGraphs = ({sellerId, phrase, placementsValue}: PageInfoGrap
         const feedbacksSet = new Set<number>();
 
         auction.forEach((card) => {
-            const priceRub = Math.round((card.sizes?.[0]?.price?.total ?? 0) / 100);
+            const priceRub = Math.round((card.sizes?.[0]?.price?.product ?? 0) / 100);
             pricesSet.add(priceRub);
             feedbacksSet.add(card.feedbacks);
         });
