@@ -103,6 +103,13 @@ export const Auction = ({children, sellerId, phrase, nmId}: AuctionProps) => {
         filterTableData(filters);
     };
 
+    const organicPosArt = useMemo(() => {
+        if (!open) return 10000;
+        return (
+            Object.values(auction).find((value: any) => value?.id == nmId)?.['position'] ?? 10000
+        );
+    }, [nmId, auction]);
+
     const columnDataAuction = [
         {
             placeholder: '#',
@@ -158,6 +165,8 @@ export const Auction = ({children, sellerId, phrase, nmId}: AuctionProps) => {
                 if (value === undefined) return;
                 const {position} = row;
                 const displayIndex = (value as number) + 0;
+                const color =
+                    row?.id == nmId ? 'brand' : organicPosArt <= position ? 'positive' : 'danger';
                 return (
                     <Button size="xs" view="flat">
                         <div
@@ -167,7 +176,7 @@ export const Auction = ({children, sellerId, phrase, nmId}: AuctionProps) => {
                                 alignItems: 'center',
                             }}
                         >
-                            <Text color="secondary">{`${position + 1}`}</Text>
+                            <Text color={color}>{`${position + 1}`}</Text>
                             <div style={{width: 3}} />
                             <Icon data={ArrowRight} size={13}></Icon>
                             <div style={{width: 3}} />

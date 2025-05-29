@@ -100,7 +100,7 @@ export const NoteForArt = ({note, reloadNotes}: NoteForArtProps) => {
                                             maxWidth: '50em',
                                             overflow: 'scroll',
                                             wordWrap: 'break-word',
-                                            border:'1px'
+                                            border: '1px',
                                         }}
                                     >
                                         {text}
@@ -110,15 +110,12 @@ export const NoteForArt = ({note, reloadNotes}: NoteForArtProps) => {
                         </Card>
                     }
                 >
-                    <div style={{width: 42}}>
-                        <Button
-                            onClick={() => {
-                                setOpenModal(true);
-                            }}
-                            style={{width: 32, maxHeight: 12, backgroundColor: colors[note.color]}}
-                        />
-                    </div>
-                    {/* <SetColorButton color={currentColor}></SetColorButton> */}
+                    <Button
+                        onClick={() => {
+                            setOpenModal(true);
+                        }}
+                        style={{width: 32, maxHeight: 12, backgroundColor: colors[note.color]}}
+                    />
                 </Popover>
             </div>
         </div>

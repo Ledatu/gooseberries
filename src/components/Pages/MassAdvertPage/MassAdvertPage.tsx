@@ -567,21 +567,20 @@ export const MassAdvertPage = () => {
                 ) : (
                     <div
                         style={{
-                            position: 'relative',
+                            zIndex: 40,
+                            justifyContent: 'space-between',
                             maxWidth: '20vw',
                             display: 'flex',
                             flexDirection: 'row',
-                            zIndex: 40,
-                            justifyContent: 'space-between',
+                            marginRight: 40,
+                            alignItems: 'center',
                         }}
                     >
                         <div
                             style={{
-                                justifyContent: 'space-between',
                                 display: 'flex',
                                 flexDirection: 'row',
-                                marginRight: 40,
-                                alignItems: 'center',
+                                gap: 4,
                             }}
                         >
                             <div
@@ -589,18 +588,42 @@ export const MassAdvertPage = () => {
                                     width: `${String(filteredData.length).length * 6}px`,
                                     margin: '0 16px',
                                     display: 'flex',
-                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    flexDirection: 'column',
                                 }}
                             >
                                 {Math.floor((pagesCurrent - 1) * 100 + index + 1)}
+                                <NotesForArt
+                                    notes={allNotes?.[nmId as string] || []}
+                                    nmId={nmId}
+                                    reloadNotes={setReloadNotes}
+                                />
                             </div>
                             <div
                                 style={{
                                     display: 'flex',
-                                    flexDirection: 'row',
+                                    flexDirection: 'column',
                                     alignItems: 'center',
                                 }}
                             >
+                                <Popover
+                                    openDelay={1000}
+                                    closeDelay={1000}
+                                    disabled={value === undefined}
+                                    content={
+                                        <div style={{width: 200}}>
+                                            <img
+                                                style={{width: '100%', height: 'auto'}}
+                                                src={imgUrl}
+                                            />
+                                            <></>
+                                        </div>
+                                    }
+                                >
+                                    <div style={{width: 40}}>
+                                        <img style={{width: '100%', height: 'auto'}} src={imgUrl} />
+                                    </div>
+                                </Popover>
                                 <div
                                     style={{
                                         display: 'flex',
@@ -608,242 +631,207 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Popover
-                                        openDelay={1000}
-                                        closeDelay={1000}
-                                        disabled={value === undefined}
-                                        content={
-                                            <div style={{width: 200}}>
-                                                <img
-                                                    style={{width: '100%', height: 'auto'}}
-                                                    src={imgUrl}
-                                                />
-                                                <></>
-                                            </div>
-                                        }
-                                    >
-                                        <div style={{width: 40}}>
-                                            <img
-                                                style={{width: '100%', height: 'auto'}}
-                                                src={imgUrl}
-                                            />
-                                        </div>
-                                    </Popover>
                                     <div
                                         style={{
                                             display: 'flex',
-                                            flexDirection: 'column',
+                                            flexDirection: 'row',
                                             alignItems: 'center',
                                         }}
                                     >
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
+                                        <Button
+                                            disabled={permission != 'Управление'}
+                                            size="xs"
+                                            pin="brick-brick"
+                                            view="outlined"
+                                            onClick={() => {
+                                                setAdvertsArtsListModalFromOpen(true);
+                                                const adverts = doc.adverts[selectValue[0]];
+                                                const temp = [] as any[];
+                                                if (adverts) {
+                                                    for (const [_, data] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        const advertData: any = data;
+                                                        if (!advertData) continue;
+                                                        temp.push(advertData['advertId']);
+                                                    }
+                                                }
+                                                setSemanticsModalOpenFromArt(art);
+                                                setRkList(temp ?? []);
+                                                setRkListMode('add');
                                             }}
                                         >
-                                            <Button
-                                                disabled={permission != 'Управление'}
-                                                size="xs"
-                                                pin="brick-brick"
-                                                view="outlined"
-                                                onClick={() => {
-                                                    setAdvertsArtsListModalFromOpen(true);
-                                                    const adverts = doc.adverts[selectValue[0]];
-                                                    const temp = [] as any[];
-                                                    if (adverts) {
-                                                        for (const [_, data] of Object.entries(
-                                                            adverts,
-                                                        )) {
-                                                            const advertData: any = data;
-                                                            if (!advertData) continue;
-                                                            temp.push(advertData['advertId']);
-                                                        }
+                                            <Icon data={Plus} />
+                                        </Button>
+                                        <div style={{minWidth: 2}} />
+                                        <Button
+                                            disabled={permission != 'Управление'}
+                                            size="xs"
+                                            pin="brick-brick"
+                                            view="outlined"
+                                            onClick={() => {
+                                                setAdvertsArtsListModalFromOpen(true);
+                                                const adverts = row.adverts;
+                                                const temp = [] as any[];
+                                                if (adverts) {
+                                                    for (const [_, data] of Object.entries(
+                                                        adverts,
+                                                    )) {
+                                                        const advertData: any = data;
+                                                        if (!advertData) continue;
+                                                        temp.push(advertData['advertId']);
                                                     }
-                                                    setSemanticsModalOpenFromArt(art);
-                                                    setRkList(temp ?? []);
-                                                    setRkListMode('add');
-                                                }}
-                                            >
-                                                <Icon data={Plus} />
-                                            </Button>
-                                            <div style={{minWidth: 2}} />
-                                            <Button
-                                                disabled={permission != 'Управление'}
-                                                size="xs"
-                                                pin="brick-brick"
-                                                view="outlined"
-                                                onClick={() => {
-                                                    setAdvertsArtsListModalFromOpen(true);
-                                                    const adverts = row.adverts;
-                                                    const temp = [] as any[];
-                                                    if (adverts) {
-                                                        for (const [_, data] of Object.entries(
-                                                            adverts,
-                                                        )) {
-                                                            const advertData: any = data;
-                                                            if (!advertData) continue;
-                                                            temp.push(advertData['advertId']);
-                                                        }
-                                                    }
-                                                    setSemanticsModalOpenFromArt(art);
-                                                    setRkList(temp ?? []);
-                                                    setRkListMode('delete');
-                                                }}
-                                            >
-                                                <Icon data={Xmark} />
-                                            </Button>
-                                        </div>
-                                        <div style={{minHeight: 2}} />
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
+                                                }
+                                                setSemanticsModalOpenFromArt(art);
+                                                setRkList(temp ?? []);
+                                                setRkListMode('delete');
                                             }}
                                         >
-                                            <AdvertStatsByDayModalForNmId
-                                                docCampaign={doc.campaigns[selectValue[0]]}
-                                                art={art}
-                                                dateRange={dateRange}
-                                            />
-                                            <div style={{minWidth: 2}} />
-                                            <Button
-                                                pin="brick-brick"
-                                                view="outlined"
-                                                size="xs"
-                                                onClick={() => {
-                                                    const dzhem = doc.dzhemData
-                                                        ? doc.dzhemData[selectValue[0]]
-                                                            ? doc.dzhemData[selectValue[0]][value]
-                                                                ? (doc.dzhemData[selectValue[0]][
-                                                                      value
-                                                                  ].phrasesStats ?? undefined)
-                                                                : undefined
+                                            <Icon data={Xmark} />
+                                        </Button>
+                                    </div>
+                                    <div style={{minHeight: 2}} />
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <AdvertStatsByDayModalForNmId
+                                            docCampaign={doc.campaigns[selectValue[0]]}
+                                            art={art}
+                                            dateRange={dateRange}
+                                        />
+                                        <div style={{minWidth: 2}} />
+                                        <Button
+                                            pin="brick-brick"
+                                            view="outlined"
+                                            size="xs"
+                                            onClick={() => {
+                                                const dzhem = doc.dzhemData
+                                                    ? doc.dzhemData[selectValue[0]]
+                                                        ? doc.dzhemData[selectValue[0]][value]
+                                                            ? (doc.dzhemData[selectValue[0]][value]
+                                                                  .phrasesStats ?? undefined)
                                                             : undefined
-                                                        : undefined;
-                                                    console.log(
-                                                        value,
-                                                        doc.dzhemData[selectValue[0]][value],
-                                                    );
-                                                    const temp = [] as any[];
-                                                    if (dzhem)
-                                                        for (const [
-                                                            phrase,
-                                                            stats,
-                                                        ] of Object.entries(dzhem)) {
-                                                            const phrasesStats: any = stats;
-                                                            if (!phrase || !phrasesStats) continue;
-                                                            phrasesStats['phrase'] = phrase;
-                                                            temp.push(phrasesStats);
-                                                        }
-                                                    temp.sort((a, b) => {
-                                                        return b?.openCardCount - a?.openCardCount;
-                                                    });
-                                                    setSelectedNmId(nmId);
-                                                    setShowDzhemModalOpen(true);
-                                                }}
-                                            >
-                                                <Icon data={Cherry}></Icon>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style={{width: 4}} />
-                                <div
-                                    style={{display: 'flex', flexDirection: 'column', width: '100'}}
-                                >
-                                    <div style={{marginLeft: 6}}>
-                                        <Link
-                                            view="primary"
-                                            style={{whiteSpace: 'pre-wrap'}}
-                                            href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
-                                            target="_blank"
+                                                        : undefined
+                                                    : undefined;
+                                                console.log(
+                                                    value,
+                                                    doc.dzhemData[selectValue[0]][value],
+                                                );
+                                                const temp = [] as any[];
+                                                if (dzhem)
+                                                    for (const [phrase, stats] of Object.entries(
+                                                        dzhem,
+                                                    )) {
+                                                        const phrasesStats: any = stats;
+                                                        if (!phrase || !phrasesStats) continue;
+                                                        phrasesStats['phrase'] = phrase;
+                                                        temp.push(phrasesStats);
+                                                    }
+                                                temp.sort((a, b) => {
+                                                    return b?.openCardCount - a?.openCardCount;
+                                                });
+                                                setSelectedNmId(nmId);
+                                                setShowDzhemModalOpen(true);
+                                            }}
                                         >
-                                            <Text variant="subheader-1">{titleWrapped}</Text>
-                                        </Link>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(object)}
-                                        >
-                                            <Text variant="caption-2">{`${object}`}</Text>
+                                            <Icon data={Cherry}></Icon>
                                         </Button>
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(brand)}
-                                        >
-                                            <Text variant="caption-2">{`${brand}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            width: '100',
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(nmId)}
-                                        >
-                                            <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
-                                        </Button>
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(imtId)}
-                                        >
-                                            <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <Button
-                                            size="xs"
-                                            view="flat"
-                                            onClick={() => filterByButton(value)}
-                                        >
-                                            <Text variant="caption-2">{`Артикул: ${value}`}</Text>
-                                        </Button>
-                                    </div>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            maxWidth: '100%',
-                                            paddingRight: '100%',
-                                            overflowX: 'scroll',
-                                        }}
-                                    >
-                                        {tagsNodes}
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div style={{position: 'absolute', top: 0, right: 0, zIndex: 1000}}>
-                            <NotesForArt
-                                notes={allNotes?.[nmId as string] || []}
-                                nmId={nmId}
-                                reloadNotes={setReloadNotes}
-                            />
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    width: '100%',
+                                }}
+                            >
+                                <div style={{marginLeft: 6}}>
+                                    <Link
+                                        view="primary"
+                                        style={{whiteSpace: 'pre-wrap', marginRight: 36}}
+                                        href={`https://www.wildberries.ru/catalog/${nmId}/detail.aspx?targetUrl=BP`}
+                                        target="_blank"
+                                    >
+                                        <Text variant="subheader-1">{titleWrapped}</Text>
+                                    </Link>
+                                </div>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Button
+                                        size="xs"
+                                        view="flat"
+                                        onClick={() => filterByButton(object)}
+                                    >
+                                        <Text variant="caption-2">{`${object}`}</Text>
+                                    </Button>
+                                    <Button
+                                        size="xs"
+                                        view="flat"
+                                        onClick={() => filterByButton(brand)}
+                                    >
+                                        <Text variant="caption-2">{`${brand}`}</Text>
+                                    </Button>
+                                </div>
+                                <div
+                                    style={{
+                                        width: '100',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Button
+                                        size="xs"
+                                        view="flat"
+                                        onClick={() => filterByButton(nmId)}
+                                    >
+                                        <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
+                                    </Button>
+                                    <Button
+                                        size="xs"
+                                        view="flat"
+                                        onClick={() => filterByButton(imtId)}
+                                    >
+                                        <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
+                                    </Button>
+                                </div>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Button
+                                        size="xs"
+                                        view="flat"
+                                        onClick={() => filterByButton(value)}
+                                    >
+                                        <Text variant="caption-2">{`Артикул: ${value}`}</Text>
+                                    </Button>
+                                </div>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        maxWidth: '100%',
+                                        paddingRight: '100%',
+                                        overflowX: 'scroll',
+                                    }}
+                                >
+                                    {tagsNodes}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
