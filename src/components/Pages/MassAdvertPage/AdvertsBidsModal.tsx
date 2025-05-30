@@ -502,7 +502,7 @@ export const AdvertsBidsModal = ({
         !placementsInputValueValid ||
         !auctionInputValueValid ||
         !oborInputValueValid ||
-        (useOborStop && useRentOptimizer && oborStopValue === null) ||
+        (useOborStop && oborStopValue === null) ||
         (useRentOptimizer && rentOptimizerValue === null) ||
         (!maxCpmInputValueValid && !useAutoMaxCpm) ||
         !cpmInputValueValid ||
@@ -556,7 +556,7 @@ export const AdvertsBidsModal = ({
                         ? getLocaleDateString(sellByDate, 10)
                         : undefined,
                 advertIds,
-                oborStopValue: useOborStop && useRentOptimizer ? oborStopValue : undefined,
+                oborStopValue: useOborStop ? oborStopValue : undefined,
                 rentOptimizerValue: useRentOptimizer ? rentOptimizerValue : undefined,
             },
         };
@@ -610,8 +610,7 @@ export const AdvertsBidsModal = ({
                                     ? getLocaleDateString(sellByDate, 10)
                                     : undefined,
                             bid: cpmInputValue,
-                            oborStopValue:
-                                useOborStop && useRentOptimizer ? oborStopValue : undefined,
+                            oborStopValue: useOborStop ? oborStopValue : undefined,
                             rentOptimizerValue: useRentOptimizer ? rentOptimizerValue : undefined,
                         };
         }
@@ -839,8 +838,7 @@ export const AdvertsBidsModal = ({
                                 height:
                                     0 +
                                     (autoBidderOption[0] == 'sum' ? 22 : 0) +
-                                    (useRentOptimizer ? 86 : 0) +
-                                    (useRentOptimizer && useOborStop ? 56 : 0),
+                                    (useRentOptimizer ? 86 : 0),
                                 marginTop: autoBidderOption[0] == 'sum' ? 8 : 0,
                             }}
                             style={{
@@ -873,9 +871,37 @@ export const AdvertsBidsModal = ({
                                     max={100}
                                 />
                             </TextTitleWrapper>
-                            <Checkbox checked={useOborStop} onUpdate={(val) => setUseOborStop(val)}>
-                                Учитывать оборачиваемость
-                            </Checkbox>
+                        </motion.div>
+                        <motion.div
+                            animate={{
+                                height:
+                                    0 +
+                                    (autoBidderOption[0] != 'obor' &&
+                                    autoBidderOption[0] != 'delete'
+                                        ? 22
+                                        : 0) +
+                                    (useOborStop ? 56 : 0),
+                                marginTop: 8,
+                            }}
+                            style={{
+                                height: 0,
+                                display: 'flex',
+                                gap: 8,
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                width: '100%',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
+                                <Checkbox
+                                    checked={useOborStop}
+                                    onUpdate={(val) => setUseOborStop(val)}
+                                >
+                                    Учитывать оборачиваемость
+                                </Checkbox>
+                                <HelpMark content="Будет происходить автоматическая остановка и запуск РК при достижении указанной оборачиваемости" />
+                            </div>
                             <TextTitleWrapper padding={8} title="Введите оборачиваемость">
                                 <NumberInput
                                     validationState={oborStopValue !== null ? undefined : 'invalid'}
