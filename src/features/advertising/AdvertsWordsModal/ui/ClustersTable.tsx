@@ -364,7 +364,7 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         if (!data.length) return;
         setTimeout(() => {
             filterTableData(filters ?? {}, data);
-        }, 500);
+        }, 1000);
     }, [data]);
 
     return (

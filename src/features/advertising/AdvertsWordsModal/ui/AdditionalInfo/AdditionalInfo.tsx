@@ -127,7 +127,11 @@ export const AdditionalInfoTab = () => {
                                 pin="circle-circle"
                                 selected
                                 view={isFixed ? 'outlined-danger' : 'outlined-warning'}
-                                style={{paddingInline: 16}}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
                                 onClick={() => {
                                     setCurrentModule('AutoPhrases');
                                 }}
