@@ -22,9 +22,10 @@ interface AuctionProps {
     phrase: any;
     children: any;
     nmId: number;
+    organicPosition?: number;
 }
 
-export const Auction = ({children, sellerId, phrase, nmId}: AuctionProps) => {
+export const Auction = ({children, sellerId, phrase, nmId, organicPosition}: AuctionProps) => {
     const initialTheme: string = useTheme();
 
     const auctionOptions: any[] = [
@@ -106,7 +107,9 @@ export const Auction = ({children, sellerId, phrase, nmId}: AuctionProps) => {
     const organicPosArt = useMemo(() => {
         if (!open) return 10000;
         return (
-            Object.values(auction).find((value: any) => value?.id == nmId)?.['position'] ?? 10000
+            Object.values(auction).find((value: any) => value?.id == nmId)?.['position'] ??
+            organicPosition ??
+            10000
         );
     }, [nmId, auction]);
 

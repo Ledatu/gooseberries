@@ -1927,7 +1927,12 @@ export const MassAdvertPage = () => {
                             }}
                         >
                             {phrase ? (
-                                <Auction sellerId={sellerId} phrase={phrase} nmId={row?.nmId}>
+                                <Auction
+                                    sellerId={sellerId}
+                                    phrase={phrase}
+                                    nmId={row?.nmId}
+                                    organicPosition={position}
+                                >
                                     <Text style={{cursor: 'pointer'}}>{phrase}</Text>
                                 </Auction>
                             ) : (
