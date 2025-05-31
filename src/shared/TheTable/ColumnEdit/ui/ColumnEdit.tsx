@@ -52,7 +52,7 @@ export const ColumnEdit = ({columnData, tableId, onUpdate}: ColumnEditProps) => 
         try {
             const data = await getColumnData(tableId);
             console.log('data from getColumnData', data);
-            if (!data.order.length) {
+            if (!data.order.length || data.order.length != columnData.length) {
                 data.order = columnData.map((column) => column.name);
             }
             setTableData(data);
