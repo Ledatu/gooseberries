@@ -39,12 +39,13 @@ import {PlansUpload} from './PlansUpload';
 import {ManageDeletionOfOldPlansModal} from './ManageDeletionOfOldPlansModal';
 import {useUser} from '@/components/RequireAuth';
 import {useCampaign} from '@/contexts/CampaignContext';
-import ApiClient from '@/utilities/ApiClient';
+// import ApiClient from '@/utilities/ApiClient';
 import {useModules} from '@/contexts/ModuleProvider';
 import {getNotesByDateRange} from '@/entities/NoteCard/api';
 import {Note} from '@/entities/NoteCard/types';
 // import {error} from 'console';
 import {NotesModal} from '@/entities/NoteCard/ui/NoteModal';
+import {ColumnEdit} from '@/shared/TheTable/ColumnEdit/ui/ColumnEdit';
 
 const getUserDoc = (dateRange: any, docum = undefined, mode = false, selectValue = '') => {
     const {userInfo} = useUser();
@@ -503,46 +504,50 @@ export const AnalyticsPage = () => {
             render: (args: any) => renderWithGraph(args, 'cpl', 'CPL, ₽'),
         },
     };
-    const [columnsDataToShow, setColumnsDataToShow] = useState([] as any);
 
-    const getColumnsData = async () => {
-        try {
-            const params = {seller_id: sellerId};
-            const response = await ApiClient.post('analytics/get-columns-analytics', params);
-            if (!response?.data) {
-                throw new Error('No columns Data');
-            }
-            const data = response.data;
-            if (!data.columns) {
-                throw new Error('No columns Data');
-            }
-            console.log(data.columns);
-            const columns = Object.keys(columnDataObj);
-            const columnsData = data.columns;
-            const columnsKeyData = columnsData.map((column: any) => column.key);
-            const columnsNotExists = columns.filter((x) => !columnsKeyData.includes(x));
-            for (const column of columnsNotExists) {
-                columnsData.push({key: column, visibility: true});
-            }
-            if (
-                [
-                    'ИП Иосифова Р. И.',
-                    'ИП Иосифов А. М.',
-                    'ИП Иосифов М.С.',
-                    'ИП Галилова',
-                    'ИП Мартыненко',
-                    'ТОРГМАКСИМУМ',
-                ].includes(selectValue[0])
-            )
-                for (let i = 0; i < columnsData.length; i++) {
-                    columnsData[i]['visibility'] = true;
-                }
-            console.log('columnsData', columnsData);
-            setColumnsDataToShow(columnsData);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    const columnsData = Object.keys(columnDataObj).map((key) => {
+        return {...columnDataObj[key], name: key};
+    });
+    // const [columnsDataToShow, setColumnsDataToShow] = useState([] as any);
+
+    // const getColumnsData = async () => {
+    //     try {
+    //         const params = {seller_id: sellerId};
+    //         const response = await ApiClient.post('analytics/get-columns-analytics', params);
+    //         if (!response?.data) {
+    //             throw new Error('No columns Data');
+    //         }
+    //         const data = response.data;
+    //         if (!data.columns) {
+    //             throw new Error('No columns Data');
+    //         }
+    //         console.log(data.columns);
+    //         const columns = Object.keys(columnDataObj);
+    //         const columnsData = data.columns;
+    //         const columnsKeyData = columnsData.map((column: any) => column.key);
+    //         const columnsNotExists = columns.filter((x) => !columnsKeyData.includes(x));
+    //         for (const column of columnsNotExists) {
+    //             columnsData.push({key: column, visibility: true});
+    //         }
+    //         if (
+    //             [
+    //                 'ИП Иосифова Р. И.',
+    //                 'ИП Иосифов А. М.',
+    //                 'ИП Иосифов М.С.',
+    //                 'ИП Галилова',
+    //                 'ИП Мартыненко',
+    //                 'ТОРГМАКСИМУМ',
+    //             ].includes(selectValue[0])
+    //         )
+    //             for (let i = 0; i < columnsData.length; i++) {
+    //                 columnsData[i]['visibility'] = true;
+    //             }
+    //         console.log('columnsData', columnsData);
+    //         setColumnsDataToShow(columnsData);
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // };
     // const saveColumnsData = async () => {
     //     try {
     //         const params = {seller_id: sellerId, columns: columnsDataToShow};
@@ -554,14 +559,15 @@ export const AnalyticsPage = () => {
     //         console.error(error);
     //     }
     // };
-    useEffect(() => {
-        getColumnsData();
-    }, [sellerId]);
-    const [columnsArray, setColumnsArray] = useState([] as any);
-    useEffect(() => {
-        // const arr = columnsDataToShow.filter((column: any) => column.visibility);
-        setColumnsArray(columnsDataToShow);
-    }, [columnsDataToShow]);
+    // useEffect(() => {
+    //     getColumnsData();
+    // }, [sellerId]);
+    const [columnsToShow, setColumnsToShow] = useState<{name: string; placeholder: string}[]>([]);
+    // const [columnsArray, setColumnsArray] = useState([] as any);
+    // useEffect(() => {
+    //     // const arr = columnsDataToShow.filter((column: any) => column.visibility);
+    //     setColumnsArray(columnsDataToShow);
+    // }, [columnsDataToShow]);
 
     const columnDataReversed = (() => {
         const temp: any = {};
@@ -845,16 +851,16 @@ export const AnalyticsPage = () => {
     const [data, setTableData] = useState({});
     const [filteredData, setFilteredData] = useState<any[]>([]);
 
-    const columnData = (() => {
-        const temp = [] as any[];
-        for (const key of columnsArray) {
-            const name = key.key;
-            const tempColumn = columnDataObj[name] ?? {};
-            tempColumn['name'] = name;
-            temp.push(tempColumn);
-        }
-        return temp;
-    })();
+    // const columnData = (() => {
+    //     const temp = [] as any[];
+    //     for (const key of columnDataObj) {
+    //         const name = key.key;
+    //         const tempColumn = columnDataObj[name] ?? {};
+    //         tempColumn['name'] = name;
+    //         temp.push(tempColumn);
+    //     }
+    //     return temp;
+    // })();
 
     const [changedDoc, setChangedDoc] = useState<any>(undefined);
     const [changedDocUpdateType, setChangedDocUpdateType] = useState(false);
@@ -2099,6 +2105,11 @@ export const AnalyticsPage = () => {
                         flexWrap: 'wrap',
                     }}
                 >
+                    <ColumnEdit
+                        columnData={columnsData}
+                        tableId="analytics"
+                        onUpdate={setColumnsToShow}
+                    />
                     {/* <ColumnsEdit
                         columns={columnsDataToShow}
                         setColumns={setColumnsDataToShow}
@@ -2175,7 +2186,7 @@ export const AnalyticsPage = () => {
                 }}
             >
                 <TheTable
-                    columnData={columnData}
+                    columnData={columnsToShow}
                     data={filteredData}
                     filters={filters}
                     setFilters={setFilters}
