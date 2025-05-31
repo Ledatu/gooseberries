@@ -196,19 +196,19 @@ export const AutoFeedbackAnsweringPage = ({
             render: ({value}: any) => {
                 if (!value) return undefined;
                 return (
-                    <ActionTooltip title={value.join(', ')}>
+                    <ActionTooltip title={value?.join(', ')}>
                         <Text
                             style={{
                                 display: '-webkit-box',
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
-                                WebkitLineClamp: 3, // Adjust based on maxHeight and line-height
+                                WebkitLineClamp: 5, // Adjust based on maxHeight and line-height
                                 maxHeight: 150,
                                 whiteSpace: 'normal', // ensures wrapping
                             }}
                         >
-                            {value.join(', ')}
+                            {value?.join(', ')}
                         </Text>
                     </ActionTooltip>
                 );
@@ -229,7 +229,13 @@ export const AutoFeedbackAnsweringPage = ({
                                   ? 'outlined-warning'
                                   : 'outlined-danger';
                         return (
-                            <Button size="s" view={color} selected pin="circle-circle">
+                            <Button
+                                style={{width: 45}}
+                                size="s"
+                                view={color}
+                                selected
+                                pin="circle-circle"
+                            >
                                 {rating}
                                 <Icon data={StarFill} size={12} />
                             </Button>
@@ -241,6 +247,7 @@ export const AutoFeedbackAnsweringPage = ({
                                 display: 'flex',
                                 flexDirection: 'row',
                                 alignItems: 'center',
+                                flexWrap: 'wrap',
                                 gap: 4,
                             }}
                         >
@@ -263,7 +270,7 @@ export const AutoFeedbackAnsweringPage = ({
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
-                                WebkitLineClamp: 3, // Adjust based on maxHeight and line-height
+                                WebkitLineClamp: 5, // Adjust based on maxHeight and line-height
                                 maxHeight: 150,
                                 whiteSpace: 'normal', // ensures wrapping
                                 wordBreak: 'break-word', // optional: breaks long words if needed
@@ -282,20 +289,21 @@ export const AutoFeedbackAnsweringPage = ({
             render: ({value}: any) => {
                 if (!value) return undefined;
                 return (
-                    <ActionTooltip title={value}>
+                    <ActionTooltip title={value?.join(', ')}>
                         <Text
                             style={{
                                 display: '-webkit-box',
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
-                                WebkitLineClamp: 3, // Adjust based on maxHeight and line-height
+                                minWidth: 250,
+                                WebkitLineClamp: 5, // Adjust based on maxHeight and line-height
                                 maxHeight: 150,
                                 whiteSpace: 'normal', // ensures wrapping
                                 wordBreak: 'break-word', // optional: breaks long words if needed
                             }}
                         >
-                            {value.join(', ')}
+                            {value?.join(', ')}
                         </Text>
                     </ActionTooltip>
                 );
@@ -308,20 +316,20 @@ export const AutoFeedbackAnsweringPage = ({
             render: ({value}: any) => {
                 if (!value) return undefined;
                 return (
-                    <ActionTooltip title={value}>
+                    <ActionTooltip title={value?.join(', ')}>
                         <Text
                             style={{
                                 display: '-webkit-box',
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
-                                WebkitLineClamp: 3, // Adjust based on maxHeight and line-height
+                                WebkitLineClamp: 5, // Adjust based on maxHeight and line-height
                                 maxHeight: 150,
                                 whiteSpace: 'normal', // ensures wrapping
                                 wordBreak: 'break-word', // optional: breaks long words if needed
                             }}
                         >
-                            {value.join(', ')}
+                            {value?.join(', ')}
                         </Text>
                     </ActionTooltip>
                 );

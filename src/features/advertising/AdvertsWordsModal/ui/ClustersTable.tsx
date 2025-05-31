@@ -3,7 +3,7 @@
 import TheTable from '@/components/TheTable';
 import {useAdvertsWordsModal} from '../hooks/AdvertsWordsModalContext';
 import {Button, Icon, Text, useTheme} from '@gravity-ui/uikit';
-import {CSSProperties, ReactNode, useMemo} from 'react';
+import {CSSProperties, ReactNode, useEffect, useMemo} from 'react';
 import {ArrowShapeUp, Magnifier, Minus, Plus, TriangleExclamation} from '@gravity-ui/icons';
 import {useClustersTableContext} from '../hooks/ClustersTableContext';
 import {renderGradNumber} from '@/utilities/renderGradNumber';
@@ -359,6 +359,14 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         return diffTime / msPerDay + 1;
     }, [startAdvert, endAdvert]);
     const theme = useTheme();
+
+    useEffect(() => {
+        if (!data.length) return;
+        setTimeout(() => {
+            filterTableData(filters ?? {}, data);
+        }, 500);
+    }, [data]);
+
     return (
         <div
             style={
