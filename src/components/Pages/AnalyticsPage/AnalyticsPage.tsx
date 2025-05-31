@@ -2103,6 +2103,7 @@ export const AnalyticsPage = () => {
                         display: 'flex',
                         justifyContent: 'end',
                         flexWrap: 'wrap',
+                        alignItems: 'center',
                     }}
                 >
                     <ColumnEdit
