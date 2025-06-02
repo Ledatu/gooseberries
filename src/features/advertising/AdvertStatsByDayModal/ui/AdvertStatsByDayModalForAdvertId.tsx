@@ -65,6 +65,10 @@ export const AdvertStatsByDayModalForAdvertId = ({
         if (open) {
             getData();
         }
+        else {
+            setData([]);
+            setSeparetedData({});
+        }
     }, [open]);
 
     return advertType == 'auto' ? (
