@@ -213,7 +213,7 @@ export const AdvertCard = ({
 
     useEffect(() => {
         const arts = [] as string[];
-        console.log('filteredData in advertCard', filteredData);
+        // console.log('filteredData in advertCard', filteredData);
         for (let i = 0; i < filteredData.length; i++) {
             const {art, adverts} = filteredData[i];
             if (!art || !adverts) continue;

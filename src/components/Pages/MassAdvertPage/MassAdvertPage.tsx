@@ -2413,6 +2413,7 @@ export const MassAdvertPage = () => {
                 addToCartCount: 0,
                 cartToOrderPercent: 0,
                 cpl: 0,
+                price: 0,
             };
 
             artInfo.art = artData['art'];
@@ -2433,6 +2434,7 @@ export const MassAdvertPage = () => {
             artInfo.placementsValue = artData['placements'];
             artInfo.expectedBuyoutsPersent = artData['expectedBuyoutsPersent'];
             artInfo.plusPhrasesTemplate = artData['plusPhrasesTemplate'];
+            artInfo.price = artData['price'];
             artInfo.placements = artData['placements'] ? artData['placements'].index : undefined;
 
             if (artInfo.adverts) {
@@ -2481,7 +2483,7 @@ export const MassAdvertPage = () => {
                     artInfo.profit += dateData['profit'];
                     artInfo.rentabelnost = getRoundValue(
                         artInfo['profit'],
-                        artInfo['sum_orders'],
+                        artInfo['sum_orders'] ? artInfo['sum_orders'] : artInfo.price,
                         true,
                     );
                     artInfo.analytics += artInfo.rentabelnost;
