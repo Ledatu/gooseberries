@@ -30,6 +30,7 @@ import {useError} from '@/contexts/ErrorContext';
 import {HelpMark} from '@/components/Popups/HelpMark';
 import {ModalWindow} from '@/shared/ui/Modal';
 import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
+import {useUser} from '@/components/RequireAuth';
 
 export const AdvertsBidsModal = ({
     disabled,
@@ -135,6 +136,10 @@ export const AdvertsBidsModal = ({
         return null;
     }
 
+    const {userInfo} = useUser();
+    const {user} = userInfo ?? {};
+    const admin = useMemo(() => [1122958293, 933839157, 438907355].includes(user?._id), [user]);
+
     const drrOptions = [
         {
             value: 'art',
@@ -228,6 +233,8 @@ export const AdvertsBidsModal = ({
 
     const [useRentOptimizer, setUseRentOptimizer] = useState(false);
     const [rentOptimizerValue, setRentOptimizerValue] = useState(null as unknown as number);
+    const [useDesiredRent, setUseDesiredRent] = useState(false);
+    const [desiredRentValue, setDesiredRentValue] = useState(null as unknown as number);
     const [useOborStop, setUseOborStop] = useState(false);
     const [oborStopValue, setOborStopValue] = useState(null as unknown as number);
 
@@ -286,12 +293,86 @@ export const AdvertsBidsModal = ({
         },
         drr: {
             input: (
-                <TextInput
-                    size="l"
-                    value={drrInputValue}
-                    validationState={drrInputValueValid ? undefined : 'invalid'}
-                    onUpdate={(val) => setDrrInputValue(val)}
-                />
+                <div
+                    style={{
+                        display: 'flex',
+                        gap: 8,
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <motion.div
+                        animate={{
+                            height: !useDesiredRent ? 36 : 0,
+                        }}
+                        style={{
+                            height: 0,
+                            display: 'flex',
+                            gap: 8,
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            width: '100%',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <TextInput
+                            size="l"
+                            value={drrInputValue}
+                            validationState={drrInputValueValid ? undefined : 'invalid'}
+                            onUpdate={(val) => setDrrInputValue(val)}
+                        />
+                    </motion.div>
+                    {admin ? (
+                        <motion.div
+                            animate={{
+                                height: useDesiredRent ? 86 : admin ? 22 : 0,
+                                marginTop: admin ? 8 : 0,
+                            }}
+                            style={{
+                                height: 0,
+                                display: 'flex',
+                                gap: 8,
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                width: '100%',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    gap: 8,
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Checkbox
+                                    checked={useDesiredRent}
+                                    onUpdate={(val) => setUseDesiredRent(val)}
+                                >
+                                    Использовать % Рент.
+                                </Checkbox>
+                                <HelpMark content="Вместо проверки на указанный ДРР использовать % Рентабельности и рассчиать максимально допустимый ДРР" />
+                            </div>
+                            <TextTitleWrapper padding={8} title="Введите рентабельность">
+                                <NumberInput
+                                    validationState={
+                                        desiredRentValue !== null ? undefined : 'invalid'
+                                    }
+                                    size="l"
+                                    value={desiredRentValue}
+                                    onUpdate={(val) => setDesiredRentValue(val ?? 0)}
+                                    allowDecimal
+                                    step={0.1}
+                                    min={-100}
+                                    max={100}
+                                />
+                            </TextTitleWrapper>
+                        </motion.div>
+                    ) : (
+                        <></>
+                    )}
+                </div>
             ),
             title: (
                 <div style={{display: 'flex'}}>
@@ -504,6 +585,7 @@ export const AdvertsBidsModal = ({
         !oborInputValueValid ||
         (useOborStop && oborStopValue === null) ||
         (useRentOptimizer && rentOptimizerValue === null) ||
+        (useDesiredRent && desiredRentValue === null) ||
         (!maxCpmInputValueValid && !useAutoMaxCpm) ||
         !cpmInputValueValid ||
         (autoBidderOption[0] == 'sellByDate' && !sellByDateValid) ||
@@ -558,6 +640,7 @@ export const AdvertsBidsModal = ({
                 advertIds,
                 oborStopValue: useOborStop ? oborStopValue : undefined,
                 rentOptimizerValue: useRentOptimizer ? rentOptimizerValue : undefined,
+                desiredRent: useDesiredRent ? desiredRentValue : undefined,
             },
         };
 
@@ -612,6 +695,7 @@ export const AdvertsBidsModal = ({
                             bid: cpmInputValue,
                             oborStopValue: useOborStop ? oborStopValue : undefined,
                             rentOptimizerValue: useRentOptimizer ? rentOptimizerValue : undefined,
+                            desiredRent: useDesiredRent ? desiredRentValue : undefined,
                         };
         }
 

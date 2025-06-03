@@ -534,10 +534,12 @@ export const AdvertCard = ({
                                         ? ['drr', 'cpo'].includes(drrAI.autoBidsMode)
                                         : true) ? (
                                         <Text variant="caption-2">
-                                            {`${drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
-                                                drrAI.autoBidsMode == 'cpo'
-                                                    ? drrAI?.desiredCpo
-                                                    : drrAI.desiredDRR
+                                            {`${drrAI.desiredRent ? '%Рент.' : drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
+                                                drrAI.desiredRent
+                                                    ? drrAI.desiredRent
+                                                    : drrAI.autoBidsMode == 'cpo'
+                                                      ? drrAI?.desiredCpo
+                                                      : drrAI.desiredDRR
                                             } ${
                                                 !drrAI.drrOption || drrAI.drrOption == 'art'
                                                     ? '(Арт.)'
