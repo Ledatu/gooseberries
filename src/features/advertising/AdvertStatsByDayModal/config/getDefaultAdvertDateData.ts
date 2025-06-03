@@ -4,6 +4,10 @@ export const getDefaultAdvertDateData = (): AdvertDateData => {
 	return {
 		date: new Date(),
 		orders: 0,
+		ordersAd: 0,
+		sumOrdersAd: 0,
+		cpoAd: 0,
+		drrAd: 0,
 		sumOrders: 0,
 		sum: 0,
 		views: 0,

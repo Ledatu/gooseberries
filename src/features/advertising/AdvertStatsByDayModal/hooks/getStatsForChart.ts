@@ -1,8 +1,8 @@
-import {getLocaleDateString} from '@/utilities/getRoundValue';
-import {AdvertDateData} from '../types';
+import { getLocaleDateString } from '@/utilities/getRoundValue';
+import { AdvertDateData } from '../types';
 export const getStatsForChart = (
     stats: AdvertDateData[],
-    nameOfColumns: {[key: string]: string},
+    nameOfColumns: { [key: string]: string },
 ): Record<string, number | string>[] => {
     const statsForChart: Record<string, string | number>[] = [];
     for (let i = stats.length - 1; i >= 0; i--) {
@@ -10,7 +10,7 @@ export const getStatsForChart = (
         const stat = stats[i];
         for (const key of Object.keys(stat)) {
             if (key === 'date') {
-                obj[nameOfColumns[key]] = getLocaleDateString(new Date(stat[key]));
+                obj['Дата и время'] = `${getLocaleDateString(new Date(stat[key]))}T00:00:00+03:00`;
             } else if (nameOfColumns[key] !== undefined) {
                 obj[nameOfColumns[key]] = stat[key];
             } else {
@@ -19,6 +19,6 @@ export const getStatsForChart = (
         }
         statsForChart.push(obj);
     }
-    // console.log(statsForChart)
+    console.log(statsForChart)
     return statsForChart;
 };

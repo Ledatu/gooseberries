@@ -88,10 +88,11 @@ export const Graphic: FC<GraphicProps> = ({
         }
         return filteredItem;
     });
-
     filteredData = filterDataByMinMax(filteredData, minMaxValues || {});
+    console.log('filteredData', filteredData);
 
     const chartData = formatChartData(filteredData, yAxes, colors, hiddenByDefault);
+    console.log('chartData', chartData);
     // const categories: string[] = chartData.datasets.map((dataset) => dataset.label);
 
     const options = {

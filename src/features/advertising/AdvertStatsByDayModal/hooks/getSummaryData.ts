@@ -5,17 +5,21 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 	const summary: { [key: string]: number } = {
 		date: 0,
 		orders: 0,
+		ordersAd: 0,
+		sumOrdersAd: 0,
 		sumOrders: 0,
 		avgPrices: 0,
 		sum: 0,
 		views: 0,
 		clicks: 0,
 		drr: 0,
+		drrAd: 0,
 		ctr: 0,
 		cpc: 0,
 		cpm: 0,
 		cr: 0,
 		cpo: 0,
+		cpoAd: 0,
 		profit: 0,
 		rent: 0,
 		openCardCount: 0,
@@ -34,6 +38,8 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 					'views',
 					'orders',
 					'sumOrders',
+					'ordersAd',
+					'sumOrdersAd',
 					'avgPrices',
 					'openCardCount',
 					'addToCartCount',
@@ -52,8 +58,16 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 	summary.sumOrders = Math.round(
 		summary.sumOrders,
 	);
+	summary.sumOrdersaAd = Math.round(
+		summary.sumOrdersAd,
+	);
+
 	summary.orders = Math.round(
 		summary.orders,
+	);
+
+	summary.ordersAd = Math.round(
+		summary.ordersAd,
 	);
 	summary.profit = Math.round(summary.profit);
 	summary.avgPrice = getRoundValue(
@@ -85,12 +99,18 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 		summary.sumOrders,
 		true
 	)
-	const { orders, sum, views, clicks, openCardCount, addToCartCount } =
+	const { orders, sum, views, clicks, openCardCount, addToCartCount, ordersAd } =
 		summary;
 
 	summary.drr = getRoundValue(
 		summary.sum,
 		summary.sumOrders,
+		true,
+		1,
+	);
+	summary.drrAd = getRoundValue(
+		summary.sum,
+		summary.sumOrdersAd,
 		true,
 		1,
 	);
@@ -101,6 +121,8 @@ export const getSummaryData = (filteredData: AdvertDateData[]) => {
 	summary.crFromView = getRoundValue(orders, views, true);
 
 	summary.cpo = getRoundValue(sum, orders, false, sum);
+	summary.cpoAd = getRoundValue(sum, ordersAd, false, sum);
+
 	summary.cpl = getRoundValue(sum, addToCartCount, false, sum);
 	return summary;
 }

@@ -304,6 +304,20 @@ export const AdvertStatsByDayModal = ({
             },
         },
         {
+            name: 'ordersAd',
+            placeholder: 'Рекламные заказы, шт.',
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'ordersAd', row['date']);
+            },
+        },
+        {
+            name: 'sumOrdersAd',
+            placeholder: 'Рекламные заказы, ₽',
+            rrender: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'sumOrdersAd', row['date']);
+            },
+        },
+        {
             name: 'profit',
             placeholder: 'Профит, ₽',
             render: ({value, footer, row}: any) => {
@@ -332,10 +346,24 @@ export const AdvertStatsByDayModal = ({
             },
         },
         {
+            name: 'drrAd',
+            placeholder: 'Рекламный ДРР, %',
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'drrAd', row['date'], renderAsPercent);
+            },
+        },
+        {
             name: 'cpo',
             placeholder: 'CPO, ₽',
             render: ({value, footer, row}: any) => {
                 return getStatWithArrowButton(value, footer, 'cpo', row['date']);
+            },
+        },
+        {
+            name: 'cpoAd',
+            placeholder: 'Рекламный CPO, ₽',
+            render: ({value, footer, row}: any) => {
+                return getStatWithArrowButton(value, footer, 'cpoAd', row['date']);
             },
         },
         {
