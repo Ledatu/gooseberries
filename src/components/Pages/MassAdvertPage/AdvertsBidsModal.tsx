@@ -136,9 +136,6 @@ export const AdvertsBidsModal = ({
         return null;
     }
 
-    const {userInfo} = useUser();
-    const {user} = userInfo ?? {};
-
     const drrOptions = [
         {
             value: 'art',
@@ -360,7 +357,7 @@ export const AdvertsBidsModal = ({
                             >
                                 Удерживать % Рент.
                             </Checkbox>
-                            <HelpMark content="Искусственный интеллект AURUMSKYNET будет управлять ставками таким образом, чтобы получить заданную рентабельность." />
+                            <HelpMark content="Искусственный интеллект AURUMSKYNET будет управлять ставками таким образом, чтобы выполнить цель и удержать заданную рентабельность." />
                         </div>
                         <TextTitleWrapper padding={8} title="Введите рентабельность">
                             <NumberInput
@@ -379,7 +376,7 @@ export const AdvertsBidsModal = ({
             ),
             select: (
                 <TextTitleWrapper
-                    title={`Использовать ${autoBidderOption[0] == 'cpo' ? 'CPO' : 'ДРР'}`}
+                    title={`Учитывать ${autoBidderOption[0] == 'cpo' ? 'CPO' : 'ДРР'}`}
                     padding={16}
                 >
                     <SegmentedRadioGroup
