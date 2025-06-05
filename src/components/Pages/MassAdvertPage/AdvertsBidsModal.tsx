@@ -138,7 +138,6 @@ export const AdvertsBidsModal = ({
 
     const {userInfo} = useUser();
     const {user} = userInfo ?? {};
-    const admin = useMemo(() => [1122958293, 933839157, 438907355].includes(user?._id), [user]);
 
     const drrOptions = [
         {
@@ -296,14 +295,46 @@ export const AdvertsBidsModal = ({
                 <div
                     style={{
                         display: 'flex',
-                        gap: 8,
+                        gap: 4,
                         flexDirection: 'column',
                         alignItems: 'center',
                     }}
                 >
                     <motion.div
                         animate={{
-                            height: !useDesiredRent ? 36 : 0,
+                            height: !useDesiredRent ? 54 : 0,
+                        }}
+                        style={{
+                            height: 0,
+                            display: 'flex',
+                            gap: 0,
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            width: '100%',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <div style={{display: 'flex'}}>
+                            <Text variant="subheader-1" style={{marginRight: 8}}>
+                                Удерживать ДРР к заказам
+                            </Text>
+                            <HelpMark
+                                content={
+                                    'ДРР задаётся к заказам. Фактическая ДРР к продажам будет выше при выкупе <100%. Учитывайте это.'
+                                }
+                            />
+                        </div>
+                        <TextInput
+                            size="l"
+                            value={drrInputValue}
+                            validationState={drrInputValueValid ? undefined : 'invalid'}
+                            onUpdate={(val) => setDrrInputValue(val)}
+                        />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            height: useDesiredRent ? 80 : 16,
+                            marginTop: 8,
                         }}
                         style={{
                             height: 0,
@@ -315,75 +346,35 @@ export const AdvertsBidsModal = ({
                             overflow: 'hidden',
                         }}
                     >
-                        <TextInput
-                            size="l"
-                            value={drrInputValue}
-                            validationState={drrInputValueValid ? undefined : 'invalid'}
-                            onUpdate={(val) => setDrrInputValue(val)}
-                        />
-                    </motion.div>
-                    {admin ? (
-                        <motion.div
-                            animate={{
-                                height: useDesiredRent ? 86 : admin ? 22 : 0,
-                                marginTop: admin ? 8 : 0,
-                            }}
+                        <div
                             style={{
-                                height: 0,
                                 display: 'flex',
-                                gap: 8,
-                                flexDirection: 'column',
+                                gap: 4,
+                                flexDirection: 'row',
                                 alignItems: 'center',
-                                width: '100%',
-                                overflow: 'hidden',
                             }}
                         >
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    gap: 8,
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}
+                            <Checkbox
+                                checked={useDesiredRent}
+                                onUpdate={(val) => setUseDesiredRent(val)}
                             >
-                                <Checkbox
-                                    checked={useDesiredRent}
-                                    onUpdate={(val) => setUseDesiredRent(val)}
-                                >
-                                    Использовать % Рент.
-                                </Checkbox>
-                                <HelpMark content="Вместо проверки на указанный ДРР использовать % Рентабельности и рассчиать максимально допустимый ДРР" />
-                            </div>
-                            <TextTitleWrapper padding={8} title="Введите рентабельность">
-                                <NumberInput
-                                    validationState={
-                                        desiredRentValue !== null ? undefined : 'invalid'
-                                    }
-                                    size="l"
-                                    value={desiredRentValue}
-                                    onUpdate={(val) => setDesiredRentValue(val ?? 0)}
-                                    allowDecimal
-                                    step={0.1}
-                                    min={-100}
-                                    max={100}
-                                />
-                            </TextTitleWrapper>
-                        </motion.div>
-                    ) : (
-                        <></>
-                    )}
-                </div>
-            ),
-            title: (
-                <div style={{display: 'flex'}}>
-                    <Text variant="subheader-1" style={{marginRight: 8}}>
-                        Удерживать ДРР к заказам
-                    </Text>
-                    <HelpMark
-                        content={
-                            'ДРР задаётся к заказам. Фактическая ДРР к продажам будет выше при выкупе <100%. Учитывайте это.'
-                        }
-                    />
+                                Удерживать % Рент.
+                            </Checkbox>
+                            <HelpMark content="Искусственный интеллект AURUMSKYNET будет управлять ставками таким образом, чтобы получить заданную рентабельность." />
+                        </div>
+                        <TextTitleWrapper padding={8} title="Введите рентабельность">
+                            <NumberInput
+                                validationState={desiredRentValue !== null ? undefined : 'invalid'}
+                                size="l"
+                                value={desiredRentValue}
+                                onUpdate={(val) => setDesiredRentValue(val ?? 0)}
+                                allowDecimal
+                                step={0.1}
+                                min={-100}
+                                max={100}
+                            />
+                        </TextTitleWrapper>
+                    </motion.div>
                 </div>
             ),
             select: (
@@ -786,7 +777,9 @@ export const AdvertsBidsModal = ({
                                     (['drr', 'cpo'].includes(autoBidderOption[0])
                                         ? true
                                         : useAutoMaxCpm)
-                                        ? 8
+                                        ? useDesiredRent
+                                            ? 0
+                                            : 8
                                         : 0,
                                 height:
                                     autoBidderOption[0] != 'delete' &&
