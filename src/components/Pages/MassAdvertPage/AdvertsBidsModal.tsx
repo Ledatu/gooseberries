@@ -30,7 +30,6 @@ import {useError} from '@/contexts/ErrorContext';
 import {HelpMark} from '@/components/Popups/HelpMark';
 import {ModalWindow} from '@/shared/ui/Modal';
 import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
-import {useUser} from '@/components/RequireAuth';
 
 export const AdvertsBidsModal = ({
     disabled,
