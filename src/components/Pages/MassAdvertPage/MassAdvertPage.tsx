@@ -1986,7 +1986,7 @@ export const MassAdvertPage = () => {
             placeholder: 'ДРР, %',
             render: ({value, row}: any) => {
                 const findMaxDrr = (adverts: any) => {
-                    let maxDrr = 0;
+                    let maxDrr = -10000;
                     for (const [id, _] of Object.entries(adverts ?? {})) {
                         const advert = doc?.adverts?.[selectValue[0]]?.[id];
                         if (!advert) continue;
@@ -2000,7 +2000,7 @@ export const MassAdvertPage = () => {
                             continue;
                         if (desiredDRR > maxDrr) maxDrr = desiredDRR;
                     }
-                    return maxDrr;
+                    return maxDrr != -10000 ? maxDrr : undefined;
                 };
                 const {adverts} = row;
                 const maxDrr = findMaxDrr(adverts);
