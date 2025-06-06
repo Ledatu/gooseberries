@@ -18,7 +18,7 @@ export const BuyersPage = () => {
     const sectionOptions = [
         {content: 'Необработанные отзывы', value: 'feedbacksUnanswered'},
         {content: 'Обработанные отзывы', value: 'feedbacksAnswered'},
-    ].concat(permission != 'Управление' ? [] : [{content: 'Автоответы', value: 'automation'}]);
+    ].concat(permission != 'Управление' ? [] : [{content: 'Шаблоны', value: 'automation'}]);
     const [selectedPage, setSelectedPage] = useState(sectionOptions[0].value);
 
     useEffect(() => {
