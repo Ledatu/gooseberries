@@ -45,6 +45,7 @@ const calcFooter = (clusterData: ClusterData[]): ClusterData => {
         cluster: '',
         cpc: 0,
         ctr: 0,
+        cpm: 0,
         frequencyCurrent: 0,
         openCardCurrent: 0,
         openCardPercentile: 0,

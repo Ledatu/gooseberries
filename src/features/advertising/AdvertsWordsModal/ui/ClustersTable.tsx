@@ -218,6 +218,11 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         },
         {
             constWidth: 69,
+            placeholder: 'CPM, ₽',
+            name: 'cpm',
+        },
+        {
+            constWidth: 69,
             placeholder: 'CR, %',
             name: 'openToOrderPercent',
             render: ({value, footer}) =>

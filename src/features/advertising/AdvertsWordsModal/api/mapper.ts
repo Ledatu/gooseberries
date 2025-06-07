@@ -10,6 +10,7 @@ export interface ClusterData {
 	cluster: string
 	cpc: number
 	ctr: number
+	cpm: number
 	frequencyCurrent: number
 	openCardCurrent: number
 	openCardPercentile: number
@@ -40,6 +41,7 @@ export function clusterDataMap(dto: ClusterDataDto): ClusterData {
 		cartToOrderPercentile: dto.cartToOrderPercentile,
 		clicks: dto.clicks,
 		cluster: dto.cluster,
+		cpm: dto.cpm,
 		cpc: dto.cpc,
 		ctr: dto.ctr,
 		frequencyCurrent: dto.frequencyCurrent,
@@ -58,6 +60,7 @@ export function clusterDataMap(dto: ClusterDataDto): ClusterData {
 		weekFrequency: dto.weekFrequency,
 		drr: dto.drr,
 		cpo: dto.cpo,
+
 		profitSum: dto.profitSum
 	}
 }
