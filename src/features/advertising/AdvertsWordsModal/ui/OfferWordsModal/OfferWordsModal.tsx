@@ -19,10 +19,11 @@ interface OffersWordsModalProps {
 }
 
 export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWordsModalProps) => {
-    
     const [textInputValue, setTextInputValue] = useState<string>('');
     useEffect(() => {
-        const newArray = sortedWordsStats.filter((a) => a.keyword.includes(textInputValue));
+        const newArray = sortedWordsStats.filter((a) =>
+            a.keyword.toLocaleLowerCase().includes(textInputValue.toLocaleLowerCase()),
+        );
         setFilteredWordsStats(newArray);
     });
     const [currentWordsStats, setWordsStats] = useState<PhrasesStats[]>(items);
@@ -240,7 +241,7 @@ export const OffersWordsModal = ({items, onClick, arrayToAdd, title}: OffersWord
                         <TextInput
                             value={textInputValue}
                             onUpdate={(value) => setTextInputValue(value)}
-                        ></TextInput>
+                        />
                         <List
                             items={filteredWordsStats}
                             renderItem={(item) => <ListItem item={item} />}
