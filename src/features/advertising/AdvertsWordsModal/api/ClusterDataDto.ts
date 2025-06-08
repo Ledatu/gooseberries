@@ -8,6 +8,7 @@ export interface ClusterDataDto {
 	cluster: string
 	cpc: number
 	ctr: number
+	cpm: number
 	frequencyCurrent: number
 	openCardCurrent: number
 	openCardPercentile: number
