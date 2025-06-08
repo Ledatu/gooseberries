@@ -1749,7 +1749,7 @@ export const AdvertsWordsModal = ({
                                                     }}
                                                 >
                                                     <Text variant="header-1">
-                                                        Фразы должны содержать
+                                                        Кластеры должны содержать
                                                     </Text>
                                                     <div style={{minWidth: 8}} />
                                                     <AutoPhrasesWordsSelection

@@ -4,7 +4,7 @@ interface TabProps{
 }
 export const tabs: TabProps[] = [{ id: 'ActiveClusters', title: 'Активные кластеры' },
 { id: 'InActiveClusters', title: 'Исключённые кластеры' },
-{ id: 'AutoPhrases', title: 'Авто фразы' },
+{ id: 'AutoPhrases', title: 'Фильтр кластеров' },
 // { id: 'FixedPhrases', title: "Фиксированные фразы" },
-{ id: 'Settings', title: 'Фильтры' },
+{ id: 'Settings', title: 'Фильтр метрик' },
 { id: 'ChangeTemplate', title: 'Сменить правило' }]

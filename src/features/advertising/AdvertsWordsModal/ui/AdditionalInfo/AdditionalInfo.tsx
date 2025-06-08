@@ -4,6 +4,7 @@ import {ReactNode, useEffect, useMemo, useState} from 'react';
 import {getIconOfThresholdKey, getNameOfRule} from '../../config/rules';
 import {Eye} from '@gravity-ui/icons';
 import {useUser} from '@/components/RequireAuth';
+import {HelpMark} from '@/components/Popups/HelpMark';
 
 export const AdditionalInfoTab = () => {
     const {template, advertId, setCurrentModule, setTemplate} = useAdvertsWordsModal();
@@ -120,7 +121,7 @@ export const AdditionalInfoTab = () => {
                     ) : undefined}
                     {template.includes.length || template.notIncludes.length ? (
                         <ActionTooltip
-                            title={`${isFixed ? 'Автофразы не будут работать так как включены фикс. фразы, выключите их, чтобы Автофразы заработали. ' : ''}Нажмите, чтобы редактировать.`}
+                            title={`${isFixed ? 'Фильтрация кластеров не будет работать так как включены фикс. фразы, выключите их, чтобы фильтрация кластеров заработала. ' : ''}Нажмите, чтобы редактировать.`}
                         >
                             <Button
                                 size="l"
@@ -145,7 +146,7 @@ export const AdditionalInfoTab = () => {
                                         gap: 4,
                                     }}
                                 >
-                                    <Text>{`Автофразы ${isFixed ? 'выкл.' : 'при'}`}</Text>
+                                    <Text>{`Фильтрация кластеров ${isFixed ? 'выкл.' : 'при'}`}</Text>
                                     <Icon data={Eye} />
                                     <Text>{template.viewsThreshold}</Text>
                                 </div>
@@ -202,6 +203,7 @@ export const AdditionalInfoTab = () => {
                         Автофильтрация кластеров AURUMSKYNET AI
                     </Text>
                     <Switch checked={rulesAI !== ''} size="l" onUpdate={() => toogleAI('AI')} />
+                    <HelpMark content="Оставляет только эффективные кластеры с учётом метрик и фильтров по словам, работает как с джемом, так и без него" />
                 </div>
             </div>
             {alert ? (

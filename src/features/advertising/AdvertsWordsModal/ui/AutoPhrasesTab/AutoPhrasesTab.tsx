@@ -5,6 +5,7 @@ import {Pencil} from '@gravity-ui/icons';
 import {OffersWordsModal} from '../OfferWordsModal/OfferWordsModal';
 import {PhrasesStats} from '../../types/PhraseStats';
 import {motion} from 'framer-motion';
+import {HelpMark} from '@/components/Popups/HelpMark';
 
 export const AutoPhrasesTab = () => {
     const {template, advertWordsTemplateHandler, setTemplate, wordsStats} = useAdvertsWordsModal();
@@ -26,7 +27,9 @@ export const AutoPhrasesTab = () => {
     return (
         <div style={{display: 'flex', flexDirection: 'column', padding: 32, gap: 16}}>
             <div style={{display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center'}}>
-                <Text variant="header-1">Использовать автофразы если показов больше или равно</Text>
+                <Text variant="header-1">
+                    Использовать фильтрацию кластеров если показов больше или равно
+                </Text>
                 <NumberInput
                     min={0}
                     size="l"
@@ -43,8 +46,19 @@ export const AutoPhrasesTab = () => {
                 }}
             >
                 <div style={{display: 'flex', flexDirection: 'column', gap: 8, width: '48%'}}>
-                    <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
-                        <Text variant="header-2">Фразы должны содержать</Text>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            gap: 8,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text variant="header-2">Кластеры должны содержать</Text>
+                        <HelpMark
+                            content="Оставляет только те кластеры, где встречается часть слова, например «плат» оставит «платье», «платья»
+Можно указать несколько частей через «+» — например, «плат+жен» оставит «женские платья»"
+                        />
                         <OffersWordsModal
                             items={activeWords}
                             onClick={(item) => {
@@ -53,6 +67,7 @@ export const AutoPhrasesTab = () => {
                             arrayToAdd={template.includes.concat(template.notIncludes)}
                             title="Показать слова"
                         />
+                        <HelpMark content="Показывает слова из семантики с общей частотностью и просмотрами, позволяет быстро добавить их для фильтрации кластеров" />
                     </div>
                     <TextInput
                         placeholder="Введите фразу сюда"
@@ -107,8 +122,19 @@ export const AutoPhrasesTab = () => {
                     />
                 </div>
                 <div style={{display: 'flex', flexDirection: 'column', gap: 8, width: '48%'}}>
-                    <div style={{display: 'flex', flexDirection: 'row', gap: 8}}>
-                        <Text variant="header-2">Фразы не должны содержать</Text>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            gap: 8,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Text variant="header-2">Кластеры не должны содержать</Text>
+                        <HelpMark
+                            content="Оставляет только те кластеры, где НЕ встречается часть слова, например «плат» удалит «платье», «платья»
+Можно указать несколько частей через «+» — например, «плат+жен» удалит «женские платья»"
+                        />
                         <OffersWordsModal
                             items={inactiveWords}
                             onClick={(item) => {
@@ -117,6 +143,7 @@ export const AutoPhrasesTab = () => {
                             arrayToAdd={template.includes.concat(template.notIncludes)}
                             title="Показать слова"
                         />
+                        <HelpMark content="Показывает слова из семантики с общей частотностью и просмотрами, позволяет быстро добавить их для фильтрации кластеров" />
                     </div>
                     <TextInput
                         placeholder="Введите фразу сюда"
