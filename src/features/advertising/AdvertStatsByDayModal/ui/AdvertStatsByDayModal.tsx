@@ -300,7 +300,7 @@ export const AdvertStatsByDayModal = ({
         {
             name: 'sumOrders',
             placeholder: 'Заказы, ₽',
-            rrender: ({value, footer, row}: any) => {
+            render: ({value, footer, row}: any) => {
                 return getStatWithArrowButton(value, footer, 'sumOrders', row['date']);
             },
         },
@@ -314,7 +314,7 @@ export const AdvertStatsByDayModal = ({
         {
             name: 'sumOrdersAd',
             placeholder: 'Заказы РК, ₽',
-            rrender: ({value, footer, row}: any) => {
+            render: ({value, footer, row}: any) => {
                 return getStatWithArrowButton(value, footer, 'sumOrdersAd', row['date']);
             },
         },
