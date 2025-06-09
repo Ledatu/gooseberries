@@ -514,6 +514,15 @@ export const ApiPage = () => {
                         );
                     },
                 },
+                {
+                    name: 'marketplace',
+                    placeholder: 'Маркетплейс',
+                    valueType: 'text',
+                    render: ({footer}: IRender) => {
+                        if (footer) return undefined;
+                        return <Text variant="subheader-2">Wildberries</Text>;
+                    },
+                },
             ].concat(
                 admin
                     ? ([
@@ -537,6 +546,24 @@ export const ApiPage = () => {
                               name: 'comment',
                               placeholder: 'Комментарий',
                               valueType: 'text',
+                              minWidth: 300,
+                              render: ({value}: IRender) => {
+                                  return (
+                                      <Text
+                                          style={{
+                                              display: '-webkit-box',
+                                              WebkitBoxOrient: 'vertical',
+                                              overflow: 'hidden',
+                                              textOverflow: 'ellipsis',
+                                              minWidth: 250,
+                                              whiteSpace: 'normal',
+                                              wordBreak: 'break-word',
+                                          }}
+                                      >
+                                          {value}
+                                      </Text>
+                                  );
+                              },
                               additionalNodes: [generateEditButton('comment')],
                           },
                           {

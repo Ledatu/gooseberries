@@ -14,6 +14,8 @@ export const moreTheBetterStats = [
     'rent',
     'avgPrice',
     'sum',
+    'ordersAd',
+    'sumOrdersAd'
 ];
 // orders: number, луч
 //  sum_orders: number, луч

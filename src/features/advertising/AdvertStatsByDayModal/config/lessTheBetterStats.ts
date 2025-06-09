@@ -1,4 +1,4 @@
-export const lessTheBetterStats = ['drr', 'cpc', 'cpm', 'cpl', 'cpo']
+export const lessTheBetterStats = ['drr', 'cpc', 'cpm', 'cpl', 'cpo', 'cpoAd', 'drrAd']
 // orders: number, луч
 //  sum_orders: number, луч
 //  sum: number, бели не надо коасить

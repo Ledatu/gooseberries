@@ -160,6 +160,7 @@ export const AdvertStatsByDayModal = ({
                 }
             }
         }
+
         return (
             <div style={{display: 'flex', flexDirection: 'row', gap: 4, alignItems: 'center'}}>
                 {render ? render({value}) : defaultRender({value})}
