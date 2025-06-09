@@ -233,6 +233,9 @@ export const AdvertsBidsModal = ({
     const [useOborStop, setUseOborStop] = useState(false);
     const [oborStopValue, setOborStopValue] = useState(null as unknown as number);
 
+    const rentOptimiserCanBeUsed = ['sum', 'orders', 'sum_orders'].includes(autoBidderOption[0]);
+    const rentOptimiserUsed = useRentOptimizer && rentOptimiserCanBeUsed;
+
     useEffect(() => {
         if (
             ['sellByDate', 'orders', 'sum_orders', 'obor'].includes(autoBidderOption[0]) &&
@@ -322,7 +325,8 @@ export const AdvertsBidsModal = ({
                         </div>
                         <TextInput
                             size="l"
-                            value={drrInputValue}
+                            disabled={rentOptimiserUsed}
+                            value={rentOptimiserUsed ? '100' : drrInputValue}
                             validationState={drrInputValueValid ? undefined : 'invalid'}
                             onUpdate={(val) => setDrrInputValue(val)}
                         />
@@ -571,7 +575,7 @@ export const AdvertsBidsModal = ({
         !auctionInputValueValid ||
         !oborInputValueValid ||
         (useOborStop && oborStopValue === null) ||
-        (useRentOptimizer && rentOptimizerValue === null) ||
+        (useRentOptimizer && rentOptimizerValue === null && rentOptimiserCanBeUsed) ||
         (useDesiredRent && desiredRentValue === null) ||
         (!maxCpmInputValueValid && !useAutoMaxCpm) ||
         !cpmInputValueValid ||
@@ -605,7 +609,7 @@ export const AdvertsBidsModal = ({
                     autoBidderOption[0] == 'sellByDate'
                         ? null
                         : parseInt(ordersInputValue),
-                desiredDRR: parseFloat(drrInputValue.replace(/,/g, '.')),
+                desiredDRR: rentOptimiserUsed ? 100 : parseFloat(drrInputValue.replace(/,/g, '.')),
                 desiredCpo: parseInt(cpoInputValue),
                 desiredSum: parseInt(sumInputValue),
                 desiredObor: parseInt(oborInputValue),
@@ -665,7 +669,9 @@ export const AdvertsBidsModal = ({
                             drrOption,
                             desiredObor: parseInt(oborInputValue),
                             desiredSumOrders: parseInt(sumOrdersInputValue),
-                            desiredDRR: parseFloat(drrInputValue.replace(/,/g, '.')),
+                            desiredDRR: rentOptimiserUsed
+                                ? 100
+                                : parseFloat(drrInputValue.replace(/,/g, '.')),
                             maxBid: !useAutoMaxCpm ? parseInt(maxCpmInputValue) : undefined,
                             useManualMaxCpm: !useAutoMaxCpm,
                             desiredCpo: parseInt(cpoInputValue),
@@ -910,9 +916,9 @@ export const AdvertsBidsModal = ({
                             animate={{
                                 height:
                                     0 +
-                                    (autoBidderOption[0] == 'sum' ? 22 : 0) +
-                                    (useRentOptimizer ? 86 : 0),
-                                marginTop: autoBidderOption[0] == 'sum' ? 8 : 0,
+                                    (rentOptimiserCanBeUsed ? 22 : 0) +
+                                    (useRentOptimizer && rentOptimiserCanBeUsed ? 56 : 0),
+                                marginTop: rentOptimiserCanBeUsed ? 8 : 0,
                             }}
                             style={{
                                 height: 0,
@@ -928,7 +934,7 @@ export const AdvertsBidsModal = ({
                                 checked={useRentOptimizer}
                                 onUpdate={(val) => setUseRentOptimizer(val)}
                             >
-                                Оптимизировать расход
+                                Учитывать рентабельность
                             </Checkbox>
                             <TextTitleWrapper padding={8} title="Введите рентабельность">
                                 <NumberInput

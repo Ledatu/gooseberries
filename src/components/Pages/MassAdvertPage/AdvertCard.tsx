@@ -534,7 +534,7 @@ export const AdvertCard = ({
                                         ? ['drr', 'cpo'].includes(drrAI.autoBidsMode)
                                         : true) ? (
                                         <Text variant="caption-2">
-                                            {`${drrAI.desiredRent ? '%Рент.' : drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
+                                            {`${drrAI.desiredRent ? 'Рент' : drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
                                                 drrAI.desiredRent
                                                     ? drrAI.desiredRent
                                                     : drrAI.autoBidsMode == 'cpo'
@@ -844,7 +844,7 @@ export const AdvertCard = ({
                                             text={`${drrAI?.rentOptimizerValue}%`}
                                             variant="caption-2"
                                             size={12}
-                                            tooltipText={'Оптимизация расхода по рентабельности'}
+                                            tooltipText={'Оптимизация цели по рентабельности'}
                                         />
                                     ) : (
                                         <></>
