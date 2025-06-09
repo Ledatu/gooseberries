@@ -349,7 +349,7 @@ export const AdvertsBidsModal = ({
                         <div
                             style={{
                                 display: 'flex',
-                                gap: 4,
+                                gap: 8,
                                 flexDirection: 'row',
                                 alignItems: 'center',
                             }}
@@ -930,12 +930,21 @@ export const AdvertsBidsModal = ({
                                 overflow: 'hidden',
                             }}
                         >
-                            <Checkbox
-                                checked={useRentOptimizer}
-                                onUpdate={(val) => setUseRentOptimizer(val)}
-                            >
-                                Учитывать рентабельность
-                            </Checkbox>
+                            <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
+                                <Checkbox
+                                    checked={useRentOptimizer}
+                                    onUpdate={(val) => setUseRentOptimizer(val)}
+                                >
+                                    {`ИИ оптимизация ${autoBidderOption[0] == 'sum' ? 'расхода' : 'заказов'}`}
+                                </Checkbox>
+                                <HelpMark
+                                    content={
+                                        autoBidderOption[0] == 'sum'
+                                            ? 'Автоматически увеличивает или снижает суточный бюджет на 25% в зависимости от достижения цели по рентабельности за прошлый день'
+                                            : 'Повышает план по заказам на 25%, если за прошлый день выполнены цели по заказам и рентабельности, и снижает на 25%, если цели не выполнены'
+                                    }
+                                />
+                            </div>
                             <TextTitleWrapper padding={8} title="Введите рентабельность">
                                 <NumberInput
                                     validationState={

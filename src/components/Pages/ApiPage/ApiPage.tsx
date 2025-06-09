@@ -150,17 +150,17 @@ export const ApiPage = () => {
         );
     };
 
-    // const sellerIdsInFiltreredData = useMemo(() => {
-    //     const temp = [] as string[];
-    //     for (const row of filteredData) {
-    //         const {seller_id: sellerId} = row ?? {};
-    //         if (!sellerId) continue;
-    //         if (!temp.includes(sellerId)) temp.push(sellerId);
-    //     }
-    //     console.log(temp);
+    const sellerIdsInFiltreredData = useMemo(() => {
+        const temp = [] as string[];
+        for (const row of filteredData) {
+            const {seller_id: sellerId} = row ?? {};
+            if (!sellerId) continue;
+            if (!temp.includes(sellerId)) temp.push(sellerId);
+        }
+        console.log(temp);
 
-    //     return temp;
-    // }, [filteredData]);
+        return temp;
+    }, [filteredData]);
 
     const admin = useMemo(() => [1122958293, 933839157, 438907355].includes(user?._id), [user]);
     const columnData = useMemo(
@@ -756,12 +756,34 @@ export const ApiPage = () => {
                 {!tempData?.length ? (
                     <></>
                 ) : (
-                    <SegmentedRadioGroup
-                        size="l"
-                        value={groupToShowSelected}
-                        options={groupToShow}
-                        onUpdate={(value) => setGroupToShowSelected(value)}
-                    />
+                    <div
+                        style={{
+                            gap: 8,
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        {admin ? (
+                            <SetSubscriptionExpDateModal
+                                campaignName={`Магазинов: ${sellerIdsInFiltreredData?.length}`}
+                                setUpdate={setUpdate}
+                                sellerIds={sellerIdsInFiltreredData}
+                            >
+                                <Button view="outlined" size="l">
+                                    <Icon data={Calendar} /> Подписки
+                                </Button>
+                            </SetSubscriptionExpDateModal>
+                        ) : (
+                            <></>
+                        )}
+                        <SegmentedRadioGroup
+                            size="l"
+                            value={groupToShowSelected}
+                            options={groupToShow}
+                            onUpdate={(value) => setGroupToShowSelected(value)}
+                        />
+                    </div>
                 )}
             </div>
 
