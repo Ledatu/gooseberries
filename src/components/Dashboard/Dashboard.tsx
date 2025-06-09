@@ -48,11 +48,17 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
         api: 'Магазины',
         partnerka: 'Партнерка',
     };
+    const moduleAlts: Record<string, string> = {
+        massAdvert: 'Управление рекламой / добавление товаров в акции',
+        analytics: 'Аналитические отчеты / план-факт',
+        prices: 'Репрайсер / юнит-экономика',
+    };
     const optionsPages = useMemo(() => {
         if (!availableModules) return [];
         return availableModules.map((module) => ({
             id: module,
             title: moduleTitles[module],
+            alt: moduleAlts[module],
             href: `/${module}?${searchParams.toString()}`,
         }));
     }, [availableModules, searchParams]);

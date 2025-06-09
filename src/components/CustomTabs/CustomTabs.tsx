@@ -77,7 +77,7 @@ export const CustomTabs = ({items, setModule, currentModule}: CustomTabsProps) =
             if (currentWidth + itemWidth < containerWidth && !flag) {
                 console.log(item.id, valueOfTab);
                 newVisibleTabs.push(
-                    <Tab key={index} value={item.id} title={item.title} disabled={item.disabled}>
+                    <Tab key={index} value={item.id} title={item.alt ?? item.title} disabled={item.disabled}>
                         <div
                             style={{
                                 display: 'flex',
