@@ -301,7 +301,7 @@ export const AdvertsBidsModal = ({
                 >
                     <motion.div
                         animate={{
-                            height: !useDesiredRent ? 54 : 0,
+                            height: !rentOptimiserUsed && useDesiredRent ? 0 : 54,
                         }}
                         style={{
                             height: 0,
@@ -333,8 +333,8 @@ export const AdvertsBidsModal = ({
                     </motion.div>
                     <motion.div
                         animate={{
-                            height: useDesiredRent ? 80 : 16,
-                            marginTop: 8,
+                            height: rentOptimiserUsed ? 0 : useDesiredRent ? 80 : 16,
+                            marginTop: rentOptimiserUsed ? 0 : 8,
                         }}
                         style={{
                             height: 0,
@@ -576,7 +576,7 @@ export const AdvertsBidsModal = ({
         !oborInputValueValid ||
         (useOborStop && oborStopValue === null) ||
         (useRentOptimizer && rentOptimizerValue === null && rentOptimiserCanBeUsed) ||
-        (useDesiredRent && desiredRentValue === null) ||
+        (!rentOptimiserUsed && useDesiredRent && desiredRentValue === null) ||
         (!maxCpmInputValueValid && !useAutoMaxCpm) ||
         !cpmInputValueValid ||
         (autoBidderOption[0] == 'sellByDate' && !sellByDateValid) ||
@@ -631,7 +631,7 @@ export const AdvertsBidsModal = ({
                 advertIds,
                 oborStopValue: useOborStop ? oborStopValue : undefined,
                 rentOptimizerValue: useRentOptimizer ? rentOptimizerValue : undefined,
-                desiredRent: useDesiredRent ? desiredRentValue : undefined,
+                desiredRent: !rentOptimiserUsed && useDesiredRent ? desiredRentValue : undefined,
             },
         };
 
@@ -688,7 +688,8 @@ export const AdvertsBidsModal = ({
                             bid: cpmInputValue,
                             oborStopValue: useOborStop ? oborStopValue : undefined,
                             rentOptimizerValue: useRentOptimizer ? rentOptimizerValue : undefined,
-                            desiredRent: useDesiredRent ? desiredRentValue : undefined,
+                            desiredRent:
+                                !rentOptimiserUsed && useDesiredRent ? desiredRentValue : undefined,
                         };
         }
 
@@ -779,7 +780,7 @@ export const AdvertsBidsModal = ({
                                     (['drr', 'cpo'].includes(autoBidderOption[0])
                                         ? true
                                         : useAutoMaxCpm)
-                                        ? useDesiredRent
+                                        ? !rentOptimiserUsed && useDesiredRent
                                             ? 0
                                             : 8
                                         : 0,
