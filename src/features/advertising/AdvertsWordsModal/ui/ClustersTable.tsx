@@ -41,6 +41,7 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         setFilters,
         excludedStats,
         setCurrentModule,
+        currentModule,
     } = useAdvertsWordsModal();
 
     const {
@@ -325,22 +326,24 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
             valueType: 'text',
             constWidth: 69,
             render: ({value}: any) => {
+                const isRed = presetsInOtherTable[value?.split('&')?.[0]];
+
                 return (
                     <Button
                         size="xs"
                         view={'flat'}
                         onClick={() => {
                             filterByButton(value, 'preset', 'include');
-                            setCurrentModule(isExcluded ? 'ActiveClusters' : 'InActiveClusters');
+                            setCurrentModule(
+                                isRed
+                                    ? isExcluded
+                                        ? 'ActiveClusters'
+                                        : 'InActiveClusters'
+                                    : currentModule,
+                            );
                         }}
                     >
-                        <Text
-                            ellipsis
-                            style={{maxWidth: 150}}
-                            color={
-                                presetsInOtherTable[value?.split('&')?.[0]] ? 'danger' : 'primary'
-                            }
-                        >
+                        <Text ellipsis style={{maxWidth: 150}} color={isRed ? 'danger' : 'primary'}>
                             {value}
                         </Text>
                     </Button>

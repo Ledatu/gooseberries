@@ -959,7 +959,7 @@ export const PricesPage = () => {
             artInfo.clubDiscountedPrice = Math.round(artData['clubDiscountedPrice']);
             artInfo.clubDiscount = Math.round(artData['clubDiscount']);
             artInfo.profitClub = Math.round(artData['profitClub']);
-            artInfo.rentabelnostCLub = Math.round(artData['rentabelnostCLub']);
+            artInfo.rentabelnostCLub = getRoundValue(artData['rentabelnostCLub'], 1, true);
 
             artInfo.avgOrders = getRoundValue(artData['avgOrders'] / 100, 1, true);
             artInfo.obor = Math.round(artData['obor']);

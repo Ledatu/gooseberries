@@ -4,6 +4,7 @@ import {Button, Popup, Text} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import {dateTimeParse} from '@gravity-ui/date-utils';
 import {useState} from 'react';
+import {cn} from '@/lib/cn';
 
 export const RangePicker = ({args}: any) => {
     const {recalc, dateRange, setDateRange, align, translate, rangeToChoose} = args;
@@ -56,16 +57,16 @@ export const RangePicker = ({args}: any) => {
                         animate={{
                             opacity: rangePickerOpen ? 1 : 0,
                         }}
+                        className={cn(
+                            'bg-[#221d220f] backdrop-blur-2xl shadow-md rounded-[30px] border border-[#eee2]',
+                            'supports-[backdrop-filter]:bg-[#221d220f] supports-not-[backdrop-filter]:bg-[#221d2233]',
+                        )}
                         style={{
                             opacity: 0,
                             display: 'flex',
                             flexDirection: align ?? 'row',
                             alignItems: 'center',
-                            backdropFilter: 'blur(48px)',
                             justifyContent: 'center',
-                            boxShadow: '#0006 0px 2px 8px 0px',
-                            borderRadius: 30,
-                            border: '1px solid #eee2',
                             position: 'absolute',
                             left:
                                 translate != 'center'
