@@ -515,6 +515,15 @@ export const ApiPage = () => {
                     },
                 },
                 {
+                    name: 'createdAt',
+                    placeholder: 'Дата добавления',
+                    render: ({value, footer}: IRender) => {
+                        if (footer || !value) return undefined;
+                        const date = new Date(value).toLocaleDateString('ru-RU').slice(0, 10);
+                        return <Text variant="subheader-2">{date}</Text>;
+                    },
+                },
+                {
                     name: 'marketplace',
                     placeholder: 'Маркетплейс',
                     valueType: 'text',
@@ -565,17 +574,6 @@ export const ApiPage = () => {
                                   );
                               },
                               additionalNodes: [generateEditButton('comment')],
-                          },
-                          {
-                              name: 'createdAt',
-                              placeholder: 'Дата добавления',
-                              render: ({value, footer}: IRender) => {
-                                  if (footer || !value) return undefined;
-                                  const date = new Date(value)
-                                      .toLocaleDateString('ru-RU')
-                                      .slice(0, 10);
-                                  return <Text variant="subheader-2">{date}</Text>;
-                              },
                           },
                       ] as any[])
                     : [],
