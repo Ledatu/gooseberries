@@ -75,10 +75,10 @@ export const AdvertsBidsModal = ({
             value: 'placements',
             content: 'Место в выдаче',
         },
-        {
-            value: 'auction',
-            content: 'Позиция в аукционе',
-        },
+        // {
+        //     value: 'auction',
+        //     content: 'Позиция в аукционе',
+        // },
         {
             value: 'bestPlacement',
             content: 'Топ позиция',
