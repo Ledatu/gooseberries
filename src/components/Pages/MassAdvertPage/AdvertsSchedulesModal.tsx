@@ -8,7 +8,7 @@ import {useCampaign} from '@/contexts/CampaignContext';
 import callApi, {getUid} from '@/utilities/callApi';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
-import {getRoundValue} from '@/utilities/getRoundValue';
+import {getLocaleDateString, getRoundValue} from '@/utilities/getRoundValue';
 import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
 
 interface AdvertsSchedulesModalProps {
@@ -37,11 +37,11 @@ export const AdvertsSchedulesModal = ({
     const {showError} = useError();
     const {selectValue} = useCampaign();
     const [open, setOpen] = useState(false);
-    const [fetchingHeatMap, setFetchingHeatMap] = useState(false);
+    const [fetchingHeatMap, setFetchingHeatMap] = useState(0);
     const [heatMap, setHeatMap] = useState<number[][]>([]);
 
     const getHeatMap = async () => {
-        setFetchingHeatMap(true);
+        setFetchingHeatMap(1);
         try {
             console.log(advertId, sellerId);
             const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
@@ -57,12 +57,191 @@ export const AdvertsSchedulesModal = ({
         } catch (error) {
             console.error(error);
         } finally {
-            setFetchingHeatMap(false);
+            setFetchingHeatMap(0);
         }
     };
 
+    const getConversionDay = (heatMapTemp: number[][], nms: any[], key: string) => {
+        const now = new Date();
+        const today = new Date(now); // Clone to avoid mutating original
+        const jsDay = today.getDay(); // JS: Sunday = 0, Monday = 1, ..., Saturday = 6
+
+        // Remap: treat Sunday as 7
+        const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+
+        // Shift back to the previous full Sunday (00:00)
+        const lastFullSunday = new Date(today);
+        lastFullSunday.setDate(today.getDate() - dayOfWeek);
+        lastFullSunday.setHours(0, 0, 0, 0);
+
+        // Go 4 full weeks back (28 days before that Sunday)
+        const fourWeeksAgoSunday = new Date(lastFullSunday);
+        fourWeeksAgoSunday.setDate(lastFullSunday.getDate() - 27);
+
+        const coeffs = {} as any;
+        for (const row of Object.values(doc?.campaigns?.[selectValue[0] ?? {}]) as any[]) {
+            if (!nms.includes(row?.['nmId'])) continue;
+            const statistics = row?.['nmFullDetailReport']?.['statistics'];
+
+            for (let i: number = 0; i < 28; i++) {
+                const date = new Date(Date.now() - 86400 * 1000 * (i + dayOfWeek));
+                const strDate = getLocaleDateString(date);
+                let value = 0;
+                if (key != 'openCard') value = statistics?.[strDate]?.[key];
+                else {
+                    const openCardCount = statistics?.[strDate]?.['openCardCount'];
+                    const addToCartCount = statistics?.[strDate]?.['addToCartCount'];
+                    const cartToOrderPercent = statistics?.[strDate]?.['cartToOrderPercent'];
+                    const openToOrderPercent =
+                        (cartToOrderPercent * getRoundValue(addToCartCount, openCardCount, true)) /
+                        100;
+                    value = openToOrderPercent;
+                    console.log(
+                        openCardCount,
+                        addToCartCount,
+                        cartToOrderPercent,
+                        openToOrderPercent,
+                    );
+                }
+
+                const dayOfWeekDate = date.getDay();
+                if (!coeffs[dayOfWeekDate]) coeffs[dayOfWeekDate] = {val: 0, n: 0, avg: 0};
+                coeffs[dayOfWeekDate].val += value ?? 0;
+                coeffs[dayOfWeekDate].n++;
+                coeffs[dayOfWeekDate].avg = coeffs[dayOfWeekDate].val / coeffs[dayOfWeekDate].n;
+            }
+            // console.log(row);
+        }
+        // console.log(coeffs);
+
+        for (let i = 0; i < 7; i++) {
+            // console.log(i, heatMapTemp[i]);
+            heatMapTemp[i] = heatMapTemp[i].map((value, index) => {
+                const toSub =
+                    (index >= 7 && index <= 10 ? 0.1 : 0) +
+                    (index >= 11 && index <= 15 ? (key != 'openCard' ? 0.05 : 0.002) : 0) +
+                    index * 0.001;
+                console.log(
+                    i,
+                    toSub,
+                    (coeffs?.[i]?.avg ?? 100) / 100,
+                    (coeffs?.[i]?.avg ?? 100) / 100 + toSub,
+                );
+
+                return value / ((coeffs?.[i]?.avg ?? 100) / 100 + toSub);
+            });
+            // console.log(i, heatMapTemp[i]);
+        }
+
+        setHeatMap(heatMapTemp);
+
+        console.log(coeffs);
+    };
+
+    const getHeatMapLaundries = async () => {
+        setFetchingHeatMap(2);
+        try {
+            console.log(advertId, sellerId);
+            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
+                advertId,
+                seller_id: sellerId,
+            });
+            if (!res || !res.data || !res.data.heatMap) {
+                throw Error('No data in res');
+            }
+            console.log(res, res.data);
+            const heatMap = res.data.heatMap;
+            const advert = doc?.adverts?.[selectValue[0]]?.[advertId];
+            let nms = [];
+            if (advert?.type == 8) {
+                nms = advert?.autoParams?.nms ?? [];
+            } else if (advert?.type == 9) {
+                nms = advert?.unitedParams?.[0]?.nms ?? [];
+            }
+            console.log('nms', advert, nms);
+            getConversionDay(heatMap, nms, 'cartToOrderPercent');
+            setHeatMap(heatMap);
+            console.log(heatMap);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setFetchingHeatMap(0);
+        }
+    };
+
+    const getHeatMapOpenCards = async () => {
+        setFetchingHeatMap(3);
+        try {
+            console.log(advertId, sellerId);
+            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
+                advertId,
+                seller_id: sellerId,
+            });
+            if (!res || !res.data || !res.data.heatMap) {
+                throw Error('No data in res');
+            }
+            console.log(res, res.data);
+            const heatMap = res.data.heatMap;
+            const advert = doc?.adverts?.[selectValue[0]]?.[advertId];
+            let nms = [];
+            if (advert?.type == 8) {
+                nms = advert?.autoParams?.nms ?? [];
+            } else if (advert?.type == 9) {
+                nms = advert?.unitedParams?.[0]?.nms ?? [];
+            }
+            console.log('nms', advert, nms);
+            getConversionDay(heatMap, nms, 'openCard');
+            setHeatMap(heatMap);
+            console.log(heatMap);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setFetchingHeatMap(0);
+        }
+    };
+
+    const getHeatMapByNmIdsLaundries = async () => {
+        setFetchingHeatMap(2);
+        try {
+            console.log(nmIds, sellerId);
+            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMapByNmIds', {
+                nmIds,
+                seller_id: sellerId,
+            });
+            if (!res || !res.data || !res.data.heatMap) {
+                throw Error('No data in res');
+            }
+            console.log(res, res.data);
+            getConversionDay(res.data.heatMap, nmIds ?? [], 'cartToOrderPercent');
+            console.log(heatMap);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setFetchingHeatMap(0);
+        }
+    };
+    const getHeatMapByNmIdsOpenCard = async () => {
+        setFetchingHeatMap(3);
+        try {
+            console.log(nmIds, sellerId);
+            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMapByNmIds', {
+                nmIds,
+                seller_id: sellerId,
+            });
+            if (!res || !res.data || !res.data.heatMap) {
+                throw Error('No data in res');
+            }
+            console.log(res, res.data);
+            getConversionDay(res.data.heatMap, nmIds ?? [], 'openCard');
+            console.log(heatMap);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setFetchingHeatMap(0);
+        }
+    };
     const getHeatMapByNmIds = async () => {
-        setFetchingHeatMap(true);
+        setFetchingHeatMap(1);
         try {
             console.log(nmIds, sellerId);
             const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMapByNmIds', {
@@ -78,7 +257,7 @@ export const AdvertsSchedulesModal = ({
         } catch (error) {
             console.error(error);
         } finally {
-            setFetchingHeatMap(false);
+            setFetchingHeatMap(0);
         }
     };
 
@@ -460,140 +639,200 @@ export const AdvertsSchedulesModal = ({
                         <div
                             style={{
                                 display: 'flex',
-                                flexDirection: 'row',
+                                flexDirection: 'column',
                                 alignItems: 'center',
                                 gap: 16,
                             }}
                         >
-                            <Button
-                                size="l"
-                                pin="circle-circle"
-                                selected
-                                view={'outlined-success'}
-                                onClick={() => {
-                                    const params: any = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            schedule: scheduleInput,
-                                            mode: 'Установить',
-                                            advertsIds: {},
-                                        },
-                                    };
-                                    if (advertId) {
-                                        params.data.advertsIds[advertId] = {
-                                            advertId: advertId,
-                                        };
-
-                                        doc.advertsSchedules[selectValue[0]][advertId] = {};
-                                        doc.advertsSchedules[selectValue[0]][advertId] = {
-                                            schedule: scheduleInput,
-                                        };
-                                    }
-                                    const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                    for (const [id, advertData] of Object.entries(uniqueAdverts)) {
-                                        if (!id || !advertData) continue;
-                                        const numId = parseInt(id);
-                                        if (advertId && numId != advertId) continue;
-
-                                        params.data.advertsIds[numId] = {
-                                            advertId: numId,
-                                        };
-
-                                        doc.advertsSchedules[selectValue[0]][numId] = {};
-                                        doc.advertsSchedules[selectValue[0]][numId] = {
-                                            schedule: scheduleInput,
-                                        };
-                                    }
-                                    console.log(params);
-
-                                    callApi('setAdvertsSchedules', params)
-                                        .then(() => {
-                                            setChangedDoc({...doc});
-                                        })
-                                        .catch((error) => {
-                                            showError(
-                                                error.response?.data?.error ||
-                                                    'An unknown error occurred',
-                                            );
-                                        })
-                                        .finally(() => handleClose());
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 16,
                                 }}
                             >
-                                <Icon data={CloudArrowUpIn} />
-                                Установить
-                            </Button>
-                            <Button
-                                size="l"
-                                pin="circle-circle"
-                                selected
-                                view={'outlined-danger'}
-                                onClick={() => {
-                                    const params: any = {
-                                        uid: getUid(),
-                                        campaignName: selectValue[0],
-                                        data: {
-                                            mode: 'Удалить',
-                                            advertsIds: {},
-                                        },
-                                    };
-                                    if (advertId) {
-                                        params.data.advertsIds[advertId] = {
-                                            advertId: advertId,
-                                        };
-
-                                        delete doc.advertsSchedules[selectValue[0]][advertId];
-                                    }
-                                    const uniqueAdverts = getUniqueAdvertIdsFromThePage();
-                                    for (const [id, advertData] of Object.entries(uniqueAdverts)) {
-                                        if (!id || !advertData) continue;
-                                        const numId = parseInt(id);
-                                        if (advertId && numId != advertId) continue;
-
-                                        params.data.advertsIds[numId] = {
-                                            advertId: numId,
-                                        };
-
-                                        delete doc.advertsSchedules[selectValue[0]][numId];
-                                    }
-
-                                    console.log(params);
-
-                                    callApi('setAdvertsSchedules', params)
-                                        .then(() => {
-                                            setChangedDoc({...doc});
-                                        })
-                                        .catch((error) => {
-                                            showError(
-                                                error.response?.data?.error ||
-                                                    'An unknown error occurred',
-                                            );
-                                        })
-                                        .finally(() => handleClose());
-                                }}
-                            >
-                                <Icon data={TrashBin} />
-                                Удалить
-                            </Button>
-                            <ActionTooltip title="Показать тепловую карту заказов за последние 4 недели.">
                                 <Button
                                     size="l"
-                                    selected
-                                    view="flat-info"
                                     pin="circle-circle"
+                                    selected
+                                    view={'outlined-success'}
                                     onClick={() => {
-                                        if (nmIds && nmIds.length) {
-                                            getHeatMapByNmIds();
-                                        } else if (advertId) {
-                                            getHeatMap();
+                                        const params: any = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            data: {
+                                                schedule: scheduleInput,
+                                                mode: 'Установить',
+                                                advertsIds: {},
+                                            },
+                                        };
+                                        if (advertId) {
+                                            params.data.advertsIds[advertId] = {
+                                                advertId: advertId,
+                                            };
+
+                                            doc.advertsSchedules[selectValue[0]][advertId] = {};
+                                            doc.advertsSchedules[selectValue[0]][advertId] = {
+                                                schedule: scheduleInput,
+                                            };
                                         }
+                                        const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                                        for (const [id, advertData] of Object.entries(
+                                            uniqueAdverts,
+                                        )) {
+                                            if (!id || !advertData) continue;
+                                            const numId = parseInt(id);
+                                            if (advertId && numId != advertId) continue;
+
+                                            params.data.advertsIds[numId] = {
+                                                advertId: numId,
+                                            };
+
+                                            doc.advertsSchedules[selectValue[0]][numId] = {};
+                                            doc.advertsSchedules[selectValue[0]][numId] = {
+                                                schedule: scheduleInput,
+                                            };
+                                        }
+                                        console.log(params);
+
+                                        callApi('setAdvertsSchedules', params)
+                                            .then(() => {
+                                                setChangedDoc({...doc});
+                                            })
+                                            .catch((error) => {
+                                                showError(
+                                                    error.response?.data?.error ||
+                                                        'An unknown error occurred',
+                                                );
+                                            })
+                                            .finally(() => handleClose());
                                     }}
-                                    loading={fetchingHeatMap}
                                 >
-                                    <Icon data={ChartBar} />
-                                    Показать тепловую карту заказов
+                                    <Icon data={CloudArrowUpIn} />
+                                    Установить
                                 </Button>
-                            </ActionTooltip>
+                                <Button
+                                    size="l"
+                                    pin="circle-circle"
+                                    selected
+                                    view={'outlined-danger'}
+                                    onClick={() => {
+                                        const params: any = {
+                                            uid: getUid(),
+                                            campaignName: selectValue[0],
+                                            data: {
+                                                mode: 'Удалить',
+                                                advertsIds: {},
+                                            },
+                                        };
+                                        if (advertId) {
+                                            params.data.advertsIds[advertId] = {
+                                                advertId: advertId,
+                                            };
+
+                                            delete doc.advertsSchedules[selectValue[0]][advertId];
+                                        }
+                                        const uniqueAdverts = getUniqueAdvertIdsFromThePage();
+                                        for (const [id, advertData] of Object.entries(
+                                            uniqueAdverts,
+                                        )) {
+                                            if (!id || !advertData) continue;
+                                            const numId = parseInt(id);
+                                            if (advertId && numId != advertId) continue;
+
+                                            params.data.advertsIds[numId] = {
+                                                advertId: numId,
+                                            };
+
+                                            delete doc.advertsSchedules[selectValue[0]][numId];
+                                        }
+
+                                        console.log(params);
+
+                                        callApi('setAdvertsSchedules', params)
+                                            .then(() => {
+                                                setChangedDoc({...doc});
+                                            })
+                                            .catch((error) => {
+                                                showError(
+                                                    error.response?.data?.error ||
+                                                        'An unknown error occurred',
+                                                );
+                                            })
+                                            .finally(() => handleClose());
+                                    }}
+                                >
+                                    <Icon data={TrashBin} />
+                                    Удалить
+                                </Button>
+                            </div>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 16,
+                                }}
+                            >
+                                <ActionTooltip title="Показать тепловую карту заказов за последние 4 недели.">
+                                    <Button
+                                        size="l"
+                                        selected
+                                        view="flat-info"
+                                        pin="circle-circle"
+                                        onClick={() => {
+                                            if (nmIds && nmIds.length) {
+                                                getHeatMapByNmIds();
+                                            } else if (advertId) {
+                                                getHeatMap();
+                                            }
+                                        }}
+                                        loading={fetchingHeatMap == 1}
+                                    >
+                                        <Icon data={ChartBar} />
+                                        Показать тепловую карту заказов
+                                    </Button>
+                                </ActionTooltip>
+                                <ActionTooltip title="Показать тепловую карту корзин за последние 4 недели.">
+                                    <Button
+                                        size="l"
+                                        selected
+                                        view="flat-info"
+                                        pin="circle-circle"
+                                        onClick={() => {
+                                            if (nmIds && nmIds.length) {
+                                                getHeatMapByNmIdsLaundries();
+                                            } else if (advertId) {
+                                                getHeatMapLaundries();
+                                            }
+                                        }}
+                                        loading={fetchingHeatMap == 2}
+                                    >
+                                        <Icon data={ChartBar} />
+                                        Показать тепловую карту корзин
+                                    </Button>
+                                </ActionTooltip>
+                                <ActionTooltip title="Показать тепловую карту переходов за последние 4 недели.">
+                                    <Button
+                                        size="l"
+                                        selected
+                                        view="flat-info"
+                                        pin="circle-circle"
+                                        onClick={() => {
+                                            if (nmIds && nmIds.length) {
+                                                getHeatMapByNmIdsOpenCard();
+                                            } else if (advertId) {
+                                                getHeatMapOpenCards();
+                                            }
+                                        }}
+                                        loading={fetchingHeatMap == 3}
+                                    >
+                                        <Icon data={ChartBar} />
+                                        Показать тепловую карту переходов
+                                    </Button>
+                                </ActionTooltip>
+                            </div>
                         </div>
                     </motion.div>
                 </Card>
