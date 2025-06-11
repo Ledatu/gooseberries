@@ -96,46 +96,49 @@ export const AdvertsSchedulesModal = ({
                         (cartToOrderPercent * getRoundValue(addToCartCount, openCardCount, true)) /
                         100;
                     value = openToOrderPercent;
-                    console.log(
-                        openCardCount,
-                        addToCartCount,
-                        cartToOrderPercent,
-                        openToOrderPercent,
-                    );
+                    // console.log(
+                    //     openCardCount,
+                    //     addToCartCount,
+                    //     cartToOrderPercent,
+                    //     openToOrderPercent,
+                    // );
                 }
+
+                if (!value) continue;
 
                 const dayOfWeekDate = date.getDay();
                 if (!coeffs[dayOfWeekDate]) coeffs[dayOfWeekDate] = {val: 0, n: 0, avg: 0};
                 coeffs[dayOfWeekDate].val += value ?? 0;
                 coeffs[dayOfWeekDate].n++;
                 coeffs[dayOfWeekDate].avg = coeffs[dayOfWeekDate].val / coeffs[dayOfWeekDate].n;
+                if (!coeffs[dayOfWeekDate].avg) coeffs[dayOfWeekDate].avg = 1;
             }
             // console.log(row);
         }
         // console.log(coeffs);
 
         for (let i = 0; i < 7; i++) {
-            // console.log(i, heatMapTemp[i]);
+            console.log(i, heatMapTemp[i]);
             heatMapTemp[i] = heatMapTemp[i].map((value, index) => {
                 const toSub =
                     (index >= 7 && index <= 10 ? 0.1 : 0) +
                     (index >= 11 && index <= 15 ? (key != 'openCard' ? 0.05 : 0.002) : 0) +
                     index * 0.001;
-                console.log(
-                    i,
-                    toSub,
-                    (coeffs?.[i]?.avg ?? 100) / 100,
-                    (coeffs?.[i]?.avg ?? 100) / 100 + toSub,
-                );
+                // console.log(
+                //     i,
+                //     toSub,
+                //     (coeffs?.[i]?.avg ?? 100) / 100,
+                //     (coeffs?.[i]?.avg ?? 100) / 100 + toSub,
+                // );
 
-                return value / ((coeffs?.[i]?.avg ?? 100) / 100 + toSub);
+                return getRoundValue(value, coeffs?.[i]?.avg ?? 100) / 100 + toSub;
             });
             // console.log(i, heatMapTemp[i]);
         }
 
         setHeatMap(heatMapTemp);
 
-        console.log(coeffs);
+        // console.log(coeffs);
     };
 
     const getHeatMapLaundries = async () => {
@@ -158,10 +161,10 @@ export const AdvertsSchedulesModal = ({
             } else if (advert?.type == 9) {
                 nms = advert?.unitedParams?.[0]?.nms ?? [];
             }
-            console.log('nms', advert, nms);
+            // console.log('nms', advert, nms);
             getConversionDay(heatMap, nms, 'cartToOrderPercent');
             setHeatMap(heatMap);
-            console.log(heatMap);
+            // console.log(heatMap);
         } catch (error) {
             console.error(error);
         } finally {
