@@ -3,7 +3,7 @@ import {TableDataDto} from '../types/TableDataDto';
 import {getColumnData} from '../api/getColumnsData';
 import {setColumnData} from '../api/setColumnsData';
 import {Button, Card, Icon, List, Popover, Text} from '@gravity-ui/uikit';
-import {ArrowChevronDown, ArrowRotateLeft, Check, LayoutColumns3} from '@gravity-ui/icons';
+import {Gear, ArrowRotateLeft, Check, LayoutColumns3} from '@gravity-ui/icons';
 import {ColumnEditItem} from './ColumnEditListItem';
 // import {cx} from '@/lib/utils';
 
@@ -259,8 +259,8 @@ export const ColumnEdit = ({columnData, tableId, onUpdate}: ColumnEditProps) => 
                     </Card>
                 }
             >
-                <Button>
-                    <Icon data={ArrowChevronDown} />
+                <Button size="l">
+                    <Icon data={Gear} />
                 </Button>
             </Popover>
         </div>
