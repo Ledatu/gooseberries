@@ -126,7 +126,7 @@ export const CalcClubDiscount = ({
                 onClick={handleOpen}
             >
                 <Icon data={Calculator} />
-                <Text variant="subheader-1">Рассчитать скидку WB Клуба</Text>
+                <Text variant="subheader-1">WB Клуб</Text>
             </Button>
             <motion.div
                 style={{
