@@ -511,6 +511,8 @@ export const PartnerkaPage = () => {
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
+                            flexWrap: 'wrap',
+                            maxWidth: '90vw',
                             justifyContent: 'space-between',
                             gap: 8,
                             width: 440,
@@ -676,6 +678,8 @@ export const PartnerkaPage = () => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     flexDirection: 'row',
+                                    maxWidth: '90vw',
+                                    flexWrap: 'wrap',
                                     gap: 8,
                                 }}
                             >
