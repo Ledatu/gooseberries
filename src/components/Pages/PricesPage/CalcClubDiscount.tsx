@@ -149,7 +149,7 @@ export const CalcClubDiscount = ({
                         gap: 8,
                     }}
                 >
-                    <TextTitleWrapper padding={8} title="Введите скидку WB Клуба">
+                    <TextTitleWrapper padding={8} title="Введите скидку WB Клуба" style={{gap: 8}}>
                         <NumberInput
                             size="l"
                             value={clubDiscount}
@@ -158,7 +158,7 @@ export const CalcClubDiscount = ({
                             max={31}
                         />
                     </TextTitleWrapper>
-                    <Text>от 3% до 31%</Text>
+                    <Text variant='body-2'>от 3% до 31%</Text>
                     <Button
                         selected
                         pin="circle-circle"
