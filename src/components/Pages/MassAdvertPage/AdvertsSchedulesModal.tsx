@@ -1,7 +1,13 @@
 'use client';
 
 import {ActionTooltip, Button, Card, Icon, Modal, Text, Tooltip} from '@gravity-ui/uikit';
-import {TrashBin, CloudArrowUpIn, Trolley, ShoppingCart, LayoutHeaderCursor} from '@gravity-ui/icons';
+import {
+    TrashBin,
+    CloudArrowUpIn,
+    LayoutHeaderCursor,
+    ShoppingBasket,
+    ShoppingBag,
+} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, ReactNode, useState, cloneElement} from 'react';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -793,7 +799,7 @@ export const AdvertsSchedulesModal = ({
                                         }}
                                         loading={fetchingHeatMap == 1}
                                     >
-                                        <Icon data={Trolley} />
+                                        <Icon data={ShoppingBag} />
                                         Тепловая карта заказов
                                     </Button>
                                 </ActionTooltip>
@@ -812,7 +818,7 @@ export const AdvertsSchedulesModal = ({
                                         }}
                                         loading={fetchingHeatMap == 2}
                                     >
-                                        <Icon data={ShoppingCart} />
+                                        <Icon data={ShoppingBasket} />
                                         Тепловая карта корзин
                                     </Button>
                                 </ActionTooltip>
