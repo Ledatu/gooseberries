@@ -64,7 +64,7 @@ export const CalcPricesModal = ({
         {value: 'Цена после скидки', content: 'Цена после скидки'},
         {value: 'Цена с СПП', content: 'Цена с СПП'},
         {value: 'Цена с WB кошельком', content: 'Цена с WB кошельком'},
-        {value: 'Цена с WB Клубом', content: 'Цена с WB Клубом'},
+        // {value: 'Цена с WB Клубом', content: 'Цена с WB Клубом'},
         {value: 'Наценка к себестоимости', content: 'Наценка к себестоимости'},
         {value: 'Рентабельность', content: 'Рентабельность'},
         {value: 'Профит', content: 'Профит'},

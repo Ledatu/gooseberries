@@ -1,6 +1,6 @@
 'use client';
 import {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
-import {Spin, Select, Icon, Button, Text, Link, Modal, Card, Popover} from '@gravity-ui/uikit';
+import {Spin, Select, Icon, Button, Text, Link, Card, Popover} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
 import {
@@ -34,6 +34,9 @@ import {useError} from '@/contexts/ErrorContext';
 import callApi, {getUid} from '@/utilities/callApi';
 import {useModules} from '@/contexts/ModuleProvider';
 import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
+import {CalcClubDiscount} from './CalcClubDiscount';
+import {ModalWindow} from '@/shared/ui/Modal';
+import {SendClubDiscountModal} from './SendClubDiscountModalOpen';
 
 export const PricesPage = () => {
     const {availablemodulesMap} = useModules();
@@ -470,11 +473,6 @@ export const PricesPage = () => {
         {
             name: 'rozPrice',
             placeholder: (
-                // <Link
-                //     onClick={() => {
-                //         if (currentPricesCalculatedBasedOn == 'rozPrice') setUpdatingFlag(true);
-                //     }}
-                // >
                 <Text
                     className="g-link g-link_view_primary"
                     variant="subheader-1"
@@ -485,7 +483,6 @@ export const PricesPage = () => {
                 >
                     Цена после скидки, ₽
                 </Text>
-                // </Link>
             ),
             render: (args: any) =>
                 fixedPriceRender(
@@ -505,8 +502,32 @@ export const PricesPage = () => {
         },
         {
             name: 'clubDiscount',
-            placeholder: 'Скидка WB Клуба, %',
-            render: renderAsPercent,
+            render: ({value, row}: any) => {
+                return (
+                    <Text
+                        color={
+                            row?.['clubDiscountNeeded'] !== undefined &&
+                            currentPricesCalculatedBasedOn == 'clubDiscount'
+                                ? 'brand'
+                                : 'primary'
+                        }
+                    >
+                        {renderAsPercent({value})}
+                    </Text>
+                );
+            },
+            placeholder: (
+                <Text
+                    className="g-link g-link_view_primary"
+                    variant="subheader-1"
+                    color={currentPricesCalculatedBasedOn == 'clubDiscount' ? undefined : 'primary'}
+                    onClick={() => {
+                        if (currentPricesCalculatedBasedOn == 'clubDiscount') setUpdatingFlag(true);
+                    }}
+                >
+                    Скидка WB Клуба, %
+                </Text>
+            ),
         },
         {
             name: 'clubDiscountedPrice',
@@ -913,6 +934,7 @@ export const PricesPage = () => {
                 allExpences: 0,
                 clubDiscountedPrice: 0,
                 clubDiscount: 0,
+                clubDiscountNeeded: 0,
                 profitClub: 0,
                 rentabelnostCLub: 0,
             } as any;
@@ -958,6 +980,7 @@ export const PricesPage = () => {
 
             artInfo.clubDiscountedPrice = Math.round(artData['clubDiscountedPrice']);
             artInfo.clubDiscount = Math.round(artData['clubDiscount']);
+            artInfo.clubDiscountNeeded = artData['clubDiscountNeeded'];
             artInfo.profitClub = Math.round(artData['profitClub']);
             artInfo.rentabelnostCLub = getRoundValue(artData['rentabelnostCLub'], 1, true);
 
@@ -1114,33 +1137,40 @@ export const PricesPage = () => {
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
+                            gap: 8,
                         }}
                     >
                         <TagsFilterModal filterByButton={filterByClick} />
-                        <div style={{minWidth: 8}} />
-                        <Button
-                            loading={updatingFlag}
-                            size="l"
-                            view="action"
-                            onClick={() => {
-                                setUpdatingFlag(true);
-                            }}
-                        >
-                            <Icon data={ArrowsRotateLeft} />
-                        </Button>
-                        <motion.div
+                        <div
                             style={{
-                                overflow: 'hidden',
-                                marginTop: 4,
-                            }}
-                            animate={{
-                                maxWidth: updatingFlag ? 40 : 0,
-                                opacity: updatingFlag ? 1 : 0,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
                             }}
                         >
-                            <Spin style={{marginLeft: 8}} />
-                        </motion.div>
-                        <div style={{minWidth: 8}} />
+                            <Button
+                                loading={updatingFlag}
+                                size="l"
+                                view="action"
+                                onClick={() => {
+                                    setUpdatingFlag(true);
+                                }}
+                            >
+                                <Icon data={ArrowsRotateLeft} />
+                            </Button>
+                            <motion.div
+                                style={{
+                                    overflow: 'hidden',
+                                }}
+                                animate={{
+                                    maxWidth: updatingFlag ? 40 : 0,
+                                    opacity: updatingFlag ? 1 : 0,
+                                    marginLeft: updatingFlag ? 8 : 0,
+                                }}
+                            >
+                                <Spin />
+                            </motion.div>
+                        </div>
                         <CalcPricesModal
                             sellerId={sellerId}
                             disabled={permission != 'Управление'}
@@ -1153,12 +1183,23 @@ export const PricesPage = () => {
                             setLastCalcOldData={setLastCalcOldData}
                             setCurrentPricesCalculatedBasedOn={setCurrentPricesCalculatedBasedOn}
                         />
-                        <div style={{minWidth: 8}} />
+                        <CalcClubDiscount
+                            disabled={permission != 'Управление'}
+                            dateRange={dateRange}
+                            setPagesCurrent={setPagesCurrent}
+                            doc={doc}
+                            setChangedDoc={setDoc}
+                            filteredData={checkedData}
+                            lastCalcOldData={lastCalcOldData}
+                            setLastCalcOldData={setLastCalcOldData}
+                            setCurrentPricesCalculatedBasedOn={setCurrentPricesCalculatedBasedOn}
+                        />
                         <Button
                             disabled={
-                                permission != 'Управление' || currentPricesCalculatedBasedOn == ''
+                                permission != 'Управление' ||
+                                currentPricesCalculatedBasedOn == '' ||
+                                currentPricesCalculatedBasedOn == 'clubDiscount'
                             }
-                            // loading={fetchingDataFromServerFlag}
                             size="l"
                             view="action"
                             onClick={() => {
@@ -1169,68 +1210,61 @@ export const PricesPage = () => {
                             <Icon data={CloudArrowUpIn} />
                             <Text variant="subheader-1">Отправить цены на WB</Text>
                         </Button>
-                        <Modal
-                            open={updatePricesModalOpen}
-                            onClose={() => {
-                                setUpdatePricesModalOpen(false);
-                            }}
+                        <ModalWindow
+                            isOpen={updatePricesModalOpen}
+                            handleClose={() => setUpdatePricesModalOpen(false)}
                         >
-                            <Card
-                                view="clear"
+                            <div
                                 style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    translate: '-50% -50%',
-                                    flexWrap: 'nowrap',
                                     display: 'flex',
-                                    flexDirection: 'row',
+                                    flexDirection: 'column',
                                     alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    backgroundColor: 'none',
                                 }}
                             >
-                                <motion.div
+                                <Text
                                     style={{
-                                        overflow: 'hidden',
-                                        flexWrap: 'nowrap',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        background: '#221d220f',
-                                        backdropFilter: 'blur(48px)',
-                                        boxShadow: '#0002 0px 2px 8px 0px',
-                                        padding: 30,
-                                        borderRadius: 30,
-                                        border: '1px solid #eee2',
+                                        margin: '8px 0',
+                                        textWrap: 'nowrap',
                                     }}
+                                    variant="display-2"
                                 >
-                                    <Text
-                                        style={{
-                                            margin: '8px 0',
-                                            textWrap: 'nowrap',
-                                        }}
-                                        variant="display-2"
-                                    >
-                                        Обновить цены на WB
-                                    </Text>
-                                    <Button
-                                        view="action"
-                                        style={{
-                                            margin: '4px 0px',
-                                        }}
-                                        pin={'circle-circle'}
-                                        size={'l'}
-                                        selected={true}
-                                        onClick={() => handleSendButton()}
-                                    >
-                                        <Icon data={CloudArrowUpIn} />
-                                        Отправить
-                                    </Button>
-                                </motion.div>
-                            </Card>
-                        </Modal>
+                                    Обновить цены на WB
+                                </Text>
+                                <Button
+                                    view="action"
+                                    style={{
+                                        margin: '4px 0px',
+                                    }}
+                                    pin={'circle-circle'}
+                                    size={'l'}
+                                    selected={true}
+                                    onClick={() => handleSendButton()}
+                                >
+                                    <Icon data={CloudArrowUpIn} />
+                                    Отправить
+                                </Button>
+                            </div>
+                        </ModalWindow>
+                        <SendClubDiscountModal
+                            checkedData={checkedData}
+                            lastCalcOldData={lastCalcOldData}
+                            setLastCalcOldData={setLastCalcOldData}
+                            doc={doc}
+                            setDoc={setDoc}
+                            setCurrentPricesCalculatedBasedOn={setCurrentPricesCalculatedBasedOn}
+                        >
+                            <Button
+                                disabled={
+                                    permission != 'Управление' ||
+                                    currentPricesCalculatedBasedOn != 'clubDiscount'
+                                }
+                                size="l"
+                                view="action"
+                            >
+                                <Icon data={CloudArrowUpIn} />
+                                <Text variant="subheader-1">Обновить скидку WB Клуба</Text>
+                            </Button>
+                        </SendClubDiscountModal>
                     </div>
                 </div>
                 <div
