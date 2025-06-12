@@ -71,7 +71,7 @@ const modulesMap: any = {
 export default function ModulePage() {
     const {userInfo, isAuthenticated} = useUser();
     const {modulesLoaded, currentModule} = useModules();
-    const {sellerId, campaignInfo: campaign, campaigns} = useCampaign();
+    const {sellerId, campaignInfo: campaign} = useCampaign();
     console.log('sellerId', sellerId);
     const currentTime = new Date();
 
@@ -86,16 +86,6 @@ export default function ModulePage() {
             console.log(new Date(), 'setting referal', referal, userInfo?.user);
             setReferral(referal);
         }
-    }
-
-    if (!campaigns.length && isAuthenticated) {
-        const ApiPage = modulesMap['api'];
-
-        return (
-            <div>
-                <ApiPage />
-            </div>
-        );
     }
 
     const subscriptionUntil = useMemo(() => {
@@ -130,16 +120,13 @@ export default function ModulePage() {
     ) {
         return <ApiExpiredPage />;
     }
+
     if (modulesMap[currentModule]) {
-        console.log(modulesMap, module);
+        console.log('modulesMap', modulesMap, 'module', module);
 
         const ModuleComponent = modulesMap[currentModule];
 
-        return (
-            <div>
-                <ModuleComponent />
-            </div>
-        );
+        return <ModuleComponent />;
     }
     return <div>{currentModule}</div>;
 }

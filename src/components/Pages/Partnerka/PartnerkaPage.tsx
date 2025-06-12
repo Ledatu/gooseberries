@@ -738,6 +738,7 @@ export const PartnerkaPage = () => {
                             justifyContent: 'center',
                             padding: 30,
                             gap: 8,
+                            marginBottom: 150,
                         }}
                     >
                         <Text variant="header-2">
