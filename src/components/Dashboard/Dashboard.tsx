@@ -48,11 +48,20 @@ export const Dashboard = ({toggleTheme, theme, children}: DashboardProps) => {
         api: 'Магазины',
         partnerka: 'Партнерка',
     };
+    
     const moduleAlts: Record<string, string> = {
         massAdvert: 'Управление рекламой / добавление товаров в акции',
         analytics: 'Аналитические отчеты / план-факт',
         prices: 'Репрайсер / юнит-экономика',
+        delivery: 'Управление отгрузками / расчёт оборачиваемости',
+        nomenclatures: 'Управление товарами и их параметрами для расчётов',
+        buyers: 'Работа с отзывами / вопросами от клиентов',
+        reports: 'Финансовые отчёты WB для расчётов и аналитики',
+        seo: 'Анализ поисковых фраз и слов для подбора эффективной семантики',
+        api: 'Управление подключёнными магазинами и токенами',
+        partnerka: 'Партнерка',
     };
+
     const optionsPages = useMemo(() => {
         if (!availableModules) return [];
         return availableModules.map((module) => ({
