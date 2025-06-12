@@ -1,7 +1,7 @@
 'use client';
 
 import {ActionTooltip, Button, Card, Icon, Modal, Text, Tooltip} from '@gravity-ui/uikit';
-import {TrashBin, CloudArrowUpIn, ChartBar} from '@gravity-ui/icons';
+import {TrashBin, CloudArrowUpIn, Trolley, ShoppingCart, LayoutHeaderCursor} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, ReactNode, useState, cloneElement} from 'react';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -793,8 +793,8 @@ export const AdvertsSchedulesModal = ({
                                         }}
                                         loading={fetchingHeatMap == 1}
                                     >
-                                        <Icon data={ChartBar} />
-                                        Показать тепловую карту заказов
+                                        <Icon data={Trolley} />
+                                        Тепловая карта заказов
                                     </Button>
                                 </ActionTooltip>
                                 <ActionTooltip title="Показать тепловую карту корзин за последние 4 недели.">
@@ -812,8 +812,8 @@ export const AdvertsSchedulesModal = ({
                                         }}
                                         loading={fetchingHeatMap == 2}
                                     >
-                                        <Icon data={ChartBar} />
-                                        Показать тепловую карту корзин
+                                        <Icon data={ShoppingCart} />
+                                        Тепловая карта корзин
                                     </Button>
                                 </ActionTooltip>
                                 <ActionTooltip title="Показать тепловую карту переходов за последние 4 недели.">
@@ -831,8 +831,8 @@ export const AdvertsSchedulesModal = ({
                                         }}
                                         loading={fetchingHeatMap == 3}
                                     >
-                                        <Icon data={ChartBar} />
-                                        Показать тепловую карту переходов
+                                        <Icon data={LayoutHeaderCursor} />
+                                        Тепловая карта переходов
                                     </Button>
                                 </ActionTooltip>
                             </div>
