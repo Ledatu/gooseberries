@@ -256,6 +256,7 @@ export const PricesPage = () => {
                                 : 'secondary'
                             : curCellIsOld &&
                                 currentPricesCalculatedBasedOn != '' &&
+                                currentPricesCalculatedBasedOn != 'clubDiscount' &&
                                 checkboxStates[row?.nmId] == true
                               ? 'danger'
                               : 'positive'
@@ -502,12 +503,13 @@ export const PricesPage = () => {
         },
         {
             name: 'clubDiscount',
-            render: ({value, row}: any) => {
+            render: ({value, row, footer}: any) => {
                 return (
                     <Text
                         color={
                             row?.['clubDiscountNeeded'] !== undefined &&
-                            currentPricesCalculatedBasedOn == 'clubDiscount'
+                            currentPricesCalculatedBasedOn == 'clubDiscount' &&
+                            !footer
                                 ? 'brand'
                                 : 'primary'
                         }
