@@ -1,6 +1,6 @@
 import {CSSProperties, useEffect, useState} from 'react';
 import {PhrasesStats} from '../../types/PhraseStats';
-// import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
+// import {useAdvertsWordsModal} from '../../lib/AdvertsWordsModalContext';
 import {ActionTooltip, Button, Card, Icon, List, Popover, Text, TextInput} from '@gravity-ui/uikit';
 import {ListItem} from '../RequestPhrasesModal/ListItem';
 import {
