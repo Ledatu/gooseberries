@@ -534,8 +534,8 @@ export const AdvertCard = ({
                                         ? ['drr', 'cpo'].includes(drrAI.autoBidsMode)
                                         : true) ? (
                                         <Text variant="caption-2">
-                                            {`${drrAI.desiredRent ? 'Рент' : drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
-                                                drrAI.desiredRent
+                                            {`${drrAI.desiredRent !== undefined ? 'Рент' : drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
+                                                drrAI.desiredRent !== undefined
                                                     ? drrAI.desiredRent
                                                     : drrAI.autoBidsMode == 'cpo'
                                                       ? drrAI?.desiredCpo
