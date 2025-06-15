@@ -15,7 +15,7 @@ import {CategoryBar} from '@/lib/CategoryBar/CategoryBar';
 import ApiClient from '@/utilities/ApiClient';
 import {ModalWindow} from '@/shared/ui/Modal';
 import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
-// import {getColorClassName} from '@/hooks/chartUtils';
+// import {getColorClassName} from '@/lib/chartUtils';
 
 interface ButtonListProps {
     availableAutoSales: any;

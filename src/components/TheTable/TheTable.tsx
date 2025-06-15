@@ -24,7 +24,7 @@ import callApi from '@/utilities/callApi';
 import {PaginationSizeInput} from './PaginationSizeInput';
 import {ClearFiltersButton} from './ClearFiltersButton';
 import {useCheckboxes} from './hooks';
-import {getFiltersFromUrl, setUrlFilters} from "@/shared/hooks/queryParams";
+import {getFiltersFromUrl, getSortsFromUrl, setUrlFilters, setUrlSorts} from "@/shared/lib/tableViewParams";
 
 const b = block('the-table');
 
@@ -72,36 +72,53 @@ export default function TheTable({
 }: TheTableProps) {
     let isFiltersUpdated: RefObject<boolean> = useRef<boolean>(false);
     const viewportSize = useWindowDimensions();
+
     const {checkboxStates, updateCheckbox, checkboxHeaderState, updateHeaderCheckbox} =
         useCheckboxes(data, filters, checkboxKey ?? 'nmId');
+    const [sortState, setSortState] = useState([] as any);
 
     useEffect(() => {
         if (!isFiltersUpdated.current) {
             return
         }
-        setUrlFilters(filters)
+        setUrlFilters(tableId || "0", filters)
     }, [filters]);
 
     useEffect(() => {
-        const newFilters = getFiltersFromUrl(filters)
+        const urlSorts = getSortsFromUrl(tableId || "")
+        console.log("URL sorts", urlSorts)
+        if (urlSorts.length > 0) {
+            setSortState(urlSorts)
+        } else {
+            setUrlSorts(tableId || "0", sortState)
+        }
+
+        const newFilters = getFiltersFromUrl(tableId || "0", filters)
         setFilters(newFilters)
+
         setTimeout(() => {
             isFiltersUpdated.current = true
         }, 10)
     }, []);
 
     useEffect(() => {
+        console.log("SORT StATW", sortState)
+        if (Array.isArray(sortState) && sortState.length === 0) {
+            return
+        }
+        setUrlSorts(tableId || "0", sortState)
+    }, [sortState]);
+
+    useEffect(() => {
         if (onCheckboxStateUpdate) onCheckboxStateUpdate(checkboxHeaderState, checkboxStates);
     }, [checkboxHeaderState, checkboxStates]);
-
     const {userInfo} = useUser();
+
     const {user} = userInfo ?? {};
-
     const [page, setPage] = useState(1);
-    const [paginationSize, setPaginationSize] = useState(defaultPaginationSize as any);
 
+    const [paginationSize, setPaginationSize] = useState(defaultPaginationSize as any);
     const [sortedData, setSortedData] = useState(data);
-    const [sortState, setSortState] = useState([] as any);
 
     const [sortFuncs, setSortFuncs] = useState({});
 
@@ -287,7 +304,10 @@ export default function TheTable({
                 <DataTable
                     emptyDataMessage={emptyDataMessage ?? 'Нет данных.'}
                     startIndex={1}
-                    onSort={(tempSortState) => setSortState(tempSortState)}
+                    onSort={(tempSortState) => {
+                        console.log("Temp sort state", tempSortState)
+                        setSortState(tempSortState)
+                    }}
                     settings={{
                         externalSort: true,
                         stickyHead: MOVING,

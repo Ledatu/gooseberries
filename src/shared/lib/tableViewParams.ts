@@ -59,13 +59,14 @@ const convertMiniComparisonMode = (miniMode: MiniComparisonMode): ComparisonMode
     return undefined;
 };
 
-export const setUrlFilters = (filters: FiltersMap) => {
+export const setUrlFilters = (tableId: string, filters: FiltersMap) => {
     const url: URL = new URL(window.location.href);
     const searchParams: URLSearchParams = url.searchParams;
 
     for (const key of Object.keys(filters)) {
-        if (searchParams.has(key)) {
-            searchParams.delete(key);
+        const prefixedKey = `${tableId}_${key}`;
+        if (searchParams.has(prefixedKey)) {
+            searchParams.delete(prefixedKey);
         }
     }
 
@@ -73,28 +74,35 @@ export const setUrlFilters = (filters: FiltersMap) => {
         if (value.val === "" || value.val === "false" || value.val === null || value.val === undefined) {
             continue;
         }
-
-        searchParams.append(key, `${convertComparisonMode(value.compMode)}${value.val}`);
+        const prefixedKey = `${tableId}_${key}`;
+        searchParams.append(prefixedKey, `${convertComparisonMode(value.compMode)}${value.val}`);
     }
 
     window.history.pushState({}, '', url.toString());
 };
 
-export const getFiltersFromUrl = (filters: FiltersMap): FiltersMap => {
-    console.log("getFiltersFromUrl base filters", filters)
-    const url: URL = new URL(window.location.href)
-    console.log("getFiltersFromUrl url", url)
+export const getFiltersFromUrl = (tableId: string, baseFilters: FiltersMap): FiltersMap => {
+    const url: URL = new URL(window.location.href);
     const searchParams: URLSearchParams = url.searchParams;
 
-    const newFilters: FiltersMap = { ...filters };
+    const newFilters: FiltersMap = { ...baseFilters };
 
     for (const key of Object.keys(newFilters)) {
-        if (searchParams.has(key)) {
-            const paramValue = searchParams.get(key) as string;
+        const prefixedKey = `${tableId}_${key}`;
+        if (searchParams.has(prefixedKey)) {
+            const paramValue = searchParams.get(prefixedKey) as string;
 
             if (paramValue.length > 0) {
                 const miniMode = paramValue[0] as MiniComparisonMode;
-                const value = paramValue.substring(1);
+                let value = paramValue.substring(1);
+
+                if (value === "%2B") {
+                    value =  "+"
+                }
+
+                if (value === "%2D") {
+                    value = "-"
+                }
 
                 const comparisonMode = convertMiniComparisonMode(miniMode);
 
@@ -109,6 +117,49 @@ export const getFiltersFromUrl = (filters: FiltersMap): FiltersMap => {
             }
         }
     }
-    console.log(newFilters)
     return newFilters;
+};
+
+
+export interface SortItem {
+    columnId: string;
+    order: 1 | -1;
 }
+
+export const setUrlSorts = (tableId: string, sorts: SortItem[]) => {
+    const url: URL = new URL(window.location.href);
+    const searchParams: URLSearchParams = url.searchParams;
+
+    const sortPrefix = `${tableId}_sort_`;
+
+    const keysToDelete = Array.from(searchParams.keys()).filter(key => key.startsWith(sortPrefix));
+    keysToDelete.forEach(key => searchParams.delete(key));
+
+    sorts.forEach((sortItem, _) => {
+        const paramKey = `${sortPrefix}${sortItem.columnId}`;
+        searchParams.append(paramKey, sortItem.order.toString());
+    });
+
+    window.history.pushState({}, '', url.toString());
+};
+
+export const getSortsFromUrl = (tableId: string): SortItem[] => {
+    const url: URL = new URL(window.location.href);
+    const searchParams: URLSearchParams = url.searchParams;
+
+    const currentSorts: SortItem[] = [];
+    const sortPrefix = `${tableId}_sort_`;
+
+    searchParams.forEach((value, key) => {
+        if (key.startsWith(sortPrefix)) {
+            const columnId = key.substring(sortPrefix.length);
+            const order = parseInt(value, 10);
+
+            if (columnId && (order === 1 || order === -1)) {
+                currentSorts.push({ columnId, order: order as 1 | -1 });
+            }
+        }
+    });
+
+    return currentSorts;
+};
