@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import {RefObject, useEffect, useMemo, useRef, useState} from 'react';
 import DataTable, {Column} from '@gravity-ui/react-data-table';
 import {MOVING} from '@gravity-ui/react-data-table/build/esm/lib/constants';
 import block from 'bem-cn-lite';
@@ -24,6 +24,7 @@ import callApi from '@/utilities/callApi';
 import {PaginationSizeInput} from './PaginationSizeInput';
 import {ClearFiltersButton} from './ClearFiltersButton';
 import {useCheckboxes} from './hooks';
+import {getFiltersFromUrl, setUrlFilters} from "@/shared/hooks/queryParams";
 
 const b = block('the-table');
 
@@ -69,9 +70,25 @@ export default function TheTable({
     onCheckboxStateUpdate,
     checkboxKey,
 }: TheTableProps) {
+    let isFiltersUpdated: RefObject<boolean> = useRef<boolean>(false);
     const viewportSize = useWindowDimensions();
     const {checkboxStates, updateCheckbox, checkboxHeaderState, updateHeaderCheckbox} =
         useCheckboxes(data, filters, checkboxKey ?? 'nmId');
+
+    useEffect(() => {
+        if (!isFiltersUpdated.current) {
+            return
+        }
+        setUrlFilters(filters)
+    }, [filters]);
+
+    useEffect(() => {
+        const newFilters = getFiltersFromUrl(filters)
+        setFilters(newFilters)
+        setTimeout(() => {
+            isFiltersUpdated.current = true
+        }, 10)
+    }, []);
 
     useEffect(() => {
         if (onCheckboxStateUpdate) onCheckboxStateUpdate(checkboxHeaderState, checkboxStates);
