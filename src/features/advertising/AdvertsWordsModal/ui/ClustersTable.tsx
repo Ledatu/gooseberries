@@ -42,6 +42,7 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
         excludedStats,
         setCurrentModule,
         currentModule,
+        fetchAllTime,
     } = useAdvertsWordsModal();
 
     const {
@@ -387,24 +388,42 @@ export const ClustersTable = ({isExcluded}: ClustersTableProps) => {
                 style={{
                     display: 'flex',
                     flexDirection: 'row',
-                    justifyContent: 'end',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: 16,
                 }}
             >
-                {daysInWork ? (
-                    <Text variant="subheader-2">{`Дней в работе: ${daysInWork}`}</Text>
+                {fetchAllTime ? (
+                    <Text
+                        style={{marginLeft: 4}}
+                        variant="subheader-2"
+                    >{`Данные обновлены: ${fetchAllTime}`}</Text>
                 ) : (
-                    <></>
+                    <div />
                 )}
-                <RangePicker
-                    args={{
-                        recalc: () => {},
-                        dateRange: dates[0] && dates[1] ? dates : [new Date(), new Date()],
-                        setDateRange: setDates,
-                        rangeToChoose,
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'end',
+                        alignItems: 'center',
+                        gap: 16,
                     }}
-                />
+                >
+                    {daysInWork ? (
+                        <Text variant="subheader-2">{`Дней в работе: ${daysInWork}`}</Text>
+                    ) : (
+                        <></>
+                    )}
+                    <RangePicker
+                        args={{
+                            recalc: () => {},
+                            dateRange: dates[0] && dates[1] ? dates : [new Date(), new Date()],
+                            setDateRange: setDates,
+                            rangeToChoose,
+                        }}
+                    />
+                </div>
             </div>
             {loading ? (
                 <></>

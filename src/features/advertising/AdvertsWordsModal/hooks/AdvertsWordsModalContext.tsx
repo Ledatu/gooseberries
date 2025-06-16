@@ -16,6 +16,7 @@ import {useError} from '@/contexts/ErrorContext';
 import {getAdvertDates} from '../api/getAdvertDates';
 import {findNmIdPosition} from '../api/findNmIdPosition';
 import {calcWordsStats} from './calcWordsStats';
+import {fetchAllTimeTimestamp} from '../api/fetchAllTimeTimestamp';
 
 interface AutoWordsContextType {
     advertId: number;
@@ -47,6 +48,7 @@ interface AutoWordsContextType {
     parsedPositions: any;
     setFilters: (filters: any) => void;
     filters: any;
+    fetchAllTime: string | undefined;
 }
 
 class AdvertWordsTemplateHandler {
@@ -248,6 +250,8 @@ export const AdvertWordsProvider = ({
     //     }
     // }, [currentModule]);
 
+    const [fetchAllTime, setFetchAllTime] = useState<string | undefined>(undefined);
+
     const [template, setTemplate] = useState<AutoPhrasesTemplate>({
         name: '',
         isFixed: false,
@@ -281,6 +285,15 @@ export const AdvertWordsProvider = ({
         setTemplate(template);
         setSavedTemplateJSON(JSON.stringify(template));
     };
+    const getFetchAllTime = async () => {
+        const fetchAllTimeResponse = await fetchAllTimeTimestamp(sellerId);
+        console.log('fetchAllTimeResponse', fetchAllTimeResponse);
+        setFetchAllTime(
+            fetchAllTimeResponse == -1
+                ? undefined
+                : new Date(fetchAllTimeResponse).toLocaleString('ru-RU'),
+        );
+    };
     const getSelectedPhrase = async () => {
         const selected = await fetchSelectedPhrase(sellerId, advertId);
         console.log(selected);
@@ -294,6 +307,7 @@ export const AdvertWordsProvider = ({
     };
     useEffect(() => {
         getTemplate();
+        getFetchAllTime();
         getSelectedPhrase();
         fetchTemplatesName();
     }, [advertId, sellerId]);
@@ -414,6 +428,7 @@ export const AdvertWordsProvider = ({
                 parsedPositions,
                 setFilters,
                 filters,
+                fetchAllTime,
             }}
         >
             {children}
