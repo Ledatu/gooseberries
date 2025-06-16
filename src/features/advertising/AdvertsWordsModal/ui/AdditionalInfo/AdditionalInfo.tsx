@@ -1,9 +1,8 @@
 import {Button, Text, Card, Divider, Icon, ActionTooltip, Switch} from '@gravity-ui/uikit';
 import {useAdvertsWordsModal} from '../../hooks/AdvertsWordsModalContext';
-import {ReactNode, useEffect, useMemo, useState} from 'react';
+import {ReactNode, useEffect, useState} from 'react';
 import {getIconOfThresholdKey, getNameOfRule} from '../../config/rules';
 import {Eye} from '@gravity-ui/icons';
-import {useUser} from '@/components/RequireAuth';
 import {HelpMark} from '@/components/Popups/HelpMark';
 
 export const AdditionalInfoTab = () => {
