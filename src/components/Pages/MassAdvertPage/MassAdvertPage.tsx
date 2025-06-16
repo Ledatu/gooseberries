@@ -1646,7 +1646,8 @@ export const MassAdvertPage = () => {
                 else if (isNaNb) return -1;
                 return (dataA - dataB) * order;
             },
-            tooltipContent: 'Показывает позицию карточки в выдаче с учётом влияния рекламной кампании',
+            tooltipContent:
+                'Показывает позицию карточки в выдаче с учётом влияния рекламной кампании',
             additionalNodes: [
                 <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                     <ActionTooltip
@@ -2157,13 +2158,33 @@ export const MassAdvertPage = () => {
             placeholder: 'Клики, шт.',
             render: (args: any) => renderSlashPercent(args, 'openCardCount'),
         },
-        {name: 'ctr', placeholder: 'CTR, %', tooltipContent: 'Кликабельность, соотношение кликов к показам', render: renderAsPercent},
+        {
+            name: 'ctr',
+            placeholder: 'CTR, %',
+            tooltipContent: 'Кликабельность, соотношение кликов к показам',
+            render: renderAsPercent,
+        },
         {name: 'cpc', placeholder: 'CPC, ₽', tooltipContent: 'Средняя цена клика'},
         {name: 'cpm', placeholder: 'CPM, ₽', tooltipContent: 'Средняя цена за 1000 показов'},
         {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
-        {name: 'cr', placeholder: 'CR, %', render: renderAsPercent, tooltipContent: 'Конверсия из перехода в заказ'},
-        {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent, tooltipContent: 'Конверсия из перехода в корзину'},
-        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent, tooltipContent: 'Конверсия из корзины в заказ'},
+        {
+            name: 'cr',
+            placeholder: 'CR, %',
+            render: renderAsPercent,
+            tooltipContent: 'Конверсия из перехода в заказ',
+        },
+        {
+            name: 'addToCartPercent',
+            placeholder: 'CR в корзину, %',
+            render: renderAsPercent,
+            tooltipContent: 'Конверсия из перехода в корзину',
+        },
+        {
+            name: 'cartToOrderPercent',
+            placeholder: 'CR в заказ, %',
+            render: renderAsPercent,
+            tooltipContent: 'Конверсия из корзины в заказ',
+        },
         {name: 'addToCartCount', placeholder: 'Корзины, шт.'},
         {name: 'cpl', placeholder: 'CPL, ₽', tooltipContent: 'Средняя цена корзины с рекламы'},
     ];
@@ -3635,10 +3656,11 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Button view="outlined-success" size="l">
-                                        <Text variant="subheader-1">{balance}</Text>
-                                    </Button>
-                                    <HelpMark content="Показывает текущий остаток средств на рекламных кошельках личного кабинета Wildberries" />
+                                    <ActionTooltip title="Показывает текущий остаток средств на рекламных кошельках личного кабинета Wildberries">
+                                        <Button view="outlined-success" size="l">
+                                            <Text variant="subheader-1">{balance}</Text>
+                                        </Button>
+                                    </ActionTooltip>
                                 </div>
                             </Popover>
                         </div>
