@@ -1,6 +1,6 @@
 'use client';
 
-import {Text, Icon, IconData, TEXT_VARIANTS, Tooltip} from '@gravity-ui/uikit';
+import {Text, Icon, IconData, TEXT_VARIANTS, ActionTooltip} from '@gravity-ui/uikit';
 
 interface IconWithTextInterface {
     icon: IconData;
@@ -22,10 +22,12 @@ export const IconWithText = ({icon, text, tooltipText, size, variant}: IconWithT
                 justifyContent: 'center',
             }}
         >
-            <Tooltip content={tooltipText}>
-                <Icon size={size} data={icon} />
-            </Tooltip>
-            {text}
+            <ActionTooltip title={tooltipText?.toString() ?? ''}>
+                <div style={{display: 'flex', flexDirection: 'row', gap: 3, alignItems: 'center', justifyContent: 'center'}}>
+                    <Icon size={size} data={icon} />
+                    {text}
+                </div>
+            </ActionTooltip>
         </Text>
     );
 };

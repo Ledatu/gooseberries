@@ -399,25 +399,31 @@ export const AdvertCard = ({
                                 <Icon data={type == 8 ? Rocket : Magnifier} size={11} />
                             </Button>
                         </ActionTooltip>
-                        <Button
-                            style={{
-                                overflow: 'hidden',
-                            }}
-                            selected
-                            onClick={() => filterByButton(advertId, 'adverts')}
-                            // style=x{{position: 'relative', top: -2}}
-                            size="xs"
-                            pin="brick-brick"
-                            view={viewForId}
-                        >
-                            {advertId}
-                        </Button>
+                        <ActionTooltip title={'Показывает ID рекламной кампании'}>
+                            <Button
+                                style={{
+                                    overflow: 'hidden',
+                                }}
+                                selected
+                                onClick={() => filterByButton(advertId, 'adverts')}
+                                // style=x{{position: 'relative', top: -2}}
+                                size="xs"
+                                pin="brick-brick"
+                                view={viewForId}
+                            >
+                                {advertId}
+                            </Button>
+                        </ActionTooltip>
                         {status ? (
                             <ActionTooltip
                                 title={
                                     isQueuedToCreate
                                         ? 'Данная РК находится в очереди на генерацию и будет запущена в ближайшее время. Вы можете установить все необходимые правила на нее, они автоматически перебросятся на реальную РК после ее создания.'
-                                        : 'Изменяет статус РК.'
+                                        : status
+                                          ? status == 9
+                                              ? 'Приостанавливает РК'
+                                              : 'Запускает РК'
+                                          : 'Запускает РК'
                                 }
                             >
                                 <Button
@@ -455,31 +461,33 @@ export const AdvertCard = ({
                         <BidRuleInfo rule={drrAI} />
                         <div style={{width: 8}} />
                     </div>
-                    <Button
-                        pin="clear-clear"
-                        style={{
-                            borderTopRightRadius: 7,
-                            borderBottomLeftRadius: 9,
-                            overflow: 'hidden',
-                        }}
-                        size="xs"
-                        // selected
-                        view="flat"
-                        onClick={() => {
-                            const today = new Date();
-                            const nDaysAgo = new Date();
+                    <ActionTooltip title="Количество дней работы РК, по клику установит аналогичный период в календаре">
+                        <Button
+                            pin="clear-clear"
+                            style={{
+                                borderTopRightRadius: 7,
+                                borderBottomLeftRadius: 9,
+                                overflow: 'hidden',
+                            }}
+                            size="xs"
+                            // selected
+                            view="flat"
+                            onClick={() => {
+                                const today = new Date();
+                                const nDaysAgo = new Date();
 
-                            nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
+                                nDaysAgo.setDate(nDaysAgo.getDate() - daysInWork);
 
-                            const range = [nDaysAgo, today];
-                            recalc(range);
-                            setDateRange(range);
-                        }}
-                    >
-                        {daysInWork + 1}
-                        <div style={{width: 2}} />
-                        <Icon size={11} data={status ? Calendar : Ban}></Icon>
-                    </Button>
+                                const range = [nDaysAgo, today];
+                                recalc(range);
+                                setDateRange(range);
+                            }}
+                        >
+                            {daysInWork + 1}
+                            <div style={{width: 2}} />
+                            <Icon size={11} data={status ? Calendar : Ban}></Icon>
+                        </Button>
+                    </ActionTooltip>
                 </div>
                 <motion.div
                     animate={{
@@ -514,68 +522,70 @@ export const AdvertCard = ({
                             getUniqueAdvertIdsFromThePage={undefined}
                             advertId={advertId}
                         >
-                            <Button pin="brick-round" size="xs" view="flat">
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        flexWrap: 'nowrap',
-                                        columnGap: 4,
-                                    }}
-                                >
-                                    <Text variant="caption-2">{`CPM: ${nmIdBid ?? curCpm ?? 'Нет инф.'} ${
-                                        drrAI !== undefined
-                                            ? `${drrAI?.useManualMaxCpm ? `/ ${drrAI.maxBid}` : ''}`
-                                            : '/ Автоставки выкл.'
-                                    }`}</Text>
-                                    {drrAI !== undefined &&
-                                    (drrAI.useManualMaxCpm
-                                        ? ['drr', 'cpo'].includes(drrAI.autoBidsMode)
-                                        : true) ? (
-                                        <Text variant="caption-2">
-                                            {`${drrAI.desiredRent !== undefined ? 'Рент' : drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
-                                                drrAI.desiredRent !== undefined
-                                                    ? drrAI.desiredRent
-                                                    : drrAI.autoBidsMode == 'cpo'
-                                                      ? drrAI?.desiredCpo
-                                                      : drrAI.desiredDRR
-                                            } ${
-                                                !drrAI.drrOption || drrAI.drrOption == 'art'
-                                                    ? '(Арт.)'
-                                                    : '(РК)'
-                                            }`}
-                                        </Text>
-                                    ) : (
-                                        <></>
-                                    )}
-                                    {drrAI?.placementsTrigger &&
-                                    !['bestPlacement', 'placements', 'auction'].includes(
-                                        drrAI.autoBidsMode,
-                                    ) ? (
-                                        <IconWithText
-                                            icon={BarsAscendingAlignLeftArrowUp}
-                                            text={drrAI?.placementsTrigger}
-                                            variant="caption-2"
-                                            size={12}
-                                            tooltipText={'Ограничение по выдаче'}
-                                        />
-                                    ) : (
-                                        <></>
-                                    )}
-                                    {drrAI?.oborStopValue !== undefined ? (
-                                        <IconWithText
-                                            icon={ArrowsRotateLeft}
-                                            text={drrAI?.oborStopValue}
-                                            variant="caption-2"
-                                            size={12}
-                                            tooltipText={'Ограничение по оборачиваемости'}
-                                        />
-                                    ) : (
-                                        <></>
-                                    )}
-                                </div>
-                            </Button>
+                            <ActionTooltip title="Открывает окно настройки ставок и дополнительных параметров">
+                                <Button pin="brick-round" size="xs" view="flat">
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            flexWrap: 'nowrap',
+                                            columnGap: 4,
+                                        }}
+                                    >
+                                        <Text variant="caption-2">{`CPM: ${nmIdBid ?? curCpm ?? 'Нет инф.'} ${
+                                            drrAI !== undefined
+                                                ? `${drrAI?.useManualMaxCpm ? `/ ${drrAI.maxBid}` : ''}`
+                                                : '/ Автоставки выкл.'
+                                        }`}</Text>
+                                        {drrAI !== undefined &&
+                                        (drrAI.useManualMaxCpm
+                                            ? ['drr', 'cpo'].includes(drrAI.autoBidsMode)
+                                            : true) ? (
+                                            <Text variant="caption-2">
+                                                {`${drrAI.desiredRent !== undefined ? 'Рент' : drrAI.autoBidsMode == 'cpo' ? 'CPO' : 'ДРР'}: ${
+                                                    drrAI.desiredRent !== undefined
+                                                        ? drrAI.desiredRent
+                                                        : drrAI.autoBidsMode == 'cpo'
+                                                          ? drrAI?.desiredCpo
+                                                          : drrAI.desiredDRR
+                                                } ${
+                                                    !drrAI.drrOption || drrAI.drrOption == 'art'
+                                                        ? '(Арт.)'
+                                                        : '(РК)'
+                                                }`}
+                                            </Text>
+                                        ) : (
+                                            <></>
+                                        )}
+                                        {drrAI?.placementsTrigger &&
+                                        !['bestPlacement', 'placements', 'auction'].includes(
+                                            drrAI.autoBidsMode,
+                                        ) ? (
+                                            <IconWithText
+                                                icon={BarsAscendingAlignLeftArrowUp}
+                                                text={drrAI?.placementsTrigger}
+                                                variant="caption-2"
+                                                size={12}
+                                                tooltipText={'Ограничение по выдаче'}
+                                            />
+                                        ) : (
+                                            <></>
+                                        )}
+                                        {drrAI?.oborStopValue !== undefined ? (
+                                            <IconWithText
+                                                icon={ArrowsRotateLeft}
+                                                text={drrAI?.oborStopValue}
+                                                variant="caption-2"
+                                                size={12}
+                                                tooltipText={'Ограничение по оборачиваемости'}
+                                            />
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </div>
+                                </Button>
+                            </ActionTooltip>
                         </AdvertsBidsModal>
 
                         <ChartModal
@@ -781,9 +791,11 @@ export const AdvertCard = ({
                                 'Органическая позиция': 'r2',
                             }}
                         >
-                            <Button pin="round-brick" size="xs" view="flat">
-                                <Icon data={ChartAreaStacked} size={11} />
-                            </Button>
+                            <ActionTooltip title="Показывает график изменения ставки и других метрик">
+                                <Button pin="round-brick" size="xs" view="flat">
+                                    <Icon data={ChartAreaStacked} size={11} />
+                                </Button>
+                            </ActionTooltip>
                         </ChartModal>
                     </div>
                     <div
@@ -804,53 +816,56 @@ export const AdvertCard = ({
                             getUniqueAdvertIdsFromThePage={undefined}
                             advertId={advertId}
                         >
-                            <Button pin="brick-round" size="xs" view="flat">
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        flexWrap: 'nowrap',
-                                        columnGap: 4,
-                                    }}
-                                >
-                                    <Text variant="caption-2">
-                                        {`Баланс: ${
-                                            curBudget !== undefined ? curBudget : 'Нет инф.'
-                                        } /${
-                                            budgetToKeep !== undefined
-                                                ? budgetToKeep?.mode === 'setAutoPurchase'
-                                                    ? `${
-                                                          budgetToKeep?.desiredDrr
-                                                              ? ' ДРР: ' + budgetToKeep?.desiredDrr
-                                                              : ''
-                                                      } ${maxBudget}`
-                                                    : budgetToKeep?.budget
-                                                : 'Бюджет не задан.'
-                                        }` +
-                                            (drrAI
-                                                ? drrAI.useAutoBudget
-                                                    ? ` (Авто${
-                                                          drrAI.maxBudget
-                                                              ? `, макс. ${drrAI.maxBudget}`
-                                                              : ''
-                                                      })`
-                                                    : ''
-                                                : '')}
-                                    </Text>
-                                    {drrAI?.rentOptimizerValue !== undefined ? (
-                                        <IconWithText
-                                            icon={ChevronsUpWide}
-                                            text={`${drrAI?.rentOptimizerValue}%`}
-                                            variant="caption-2"
-                                            size={12}
-                                            tooltipText={'Оптимизация цели по рентабельности'}
-                                        />
-                                    ) : (
-                                        <></>
-                                    )}
-                                </div>
-                            </Button>
+                            <ActionTooltip title="Открывает окно управления бюджетом РК">
+                                <Button pin="brick-round" size="xs" view="flat">
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            flexWrap: 'nowrap',
+                                            columnGap: 4,
+                                        }}
+                                    >
+                                        <Text variant="caption-2">
+                                            {`Баланс: ${
+                                                curBudget !== undefined ? curBudget : 'Нет инф.'
+                                            } /${
+                                                budgetToKeep !== undefined
+                                                    ? budgetToKeep?.mode === 'setAutoPurchase'
+                                                        ? `${
+                                                              budgetToKeep?.desiredDrr
+                                                                  ? ' ДРР: ' +
+                                                                    budgetToKeep?.desiredDrr
+                                                                  : ''
+                                                          } ${maxBudget}`
+                                                        : budgetToKeep?.budget
+                                                    : 'Бюджет не задан.'
+                                            }` +
+                                                (drrAI
+                                                    ? drrAI.useAutoBudget
+                                                        ? ` (Авто${
+                                                              drrAI.maxBudget
+                                                                  ? `, макс. ${drrAI.maxBudget}`
+                                                                  : ''
+                                                          })`
+                                                        : ''
+                                                    : '')}
+                                        </Text>
+                                        {drrAI?.rentOptimizerValue !== undefined ? (
+                                            <IconWithText
+                                                icon={ChevronsUpWide}
+                                                text={`${drrAI?.rentOptimizerValue}%`}
+                                                variant="caption-2"
+                                                size={12}
+                                                tooltipText={'Оптимизация цели по рентабельности'}
+                                            />
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </div>
+                                </Button>
+                            </ActionTooltip>
                         </AdvertsBudgetsModal>
                         <ChartModal
                             minMaxValues={{Расход: {min: 0}}}
@@ -1002,19 +1017,21 @@ export const AdvertCard = ({
                             colors={{Баланс: '#ffbe5c', Расход: '#7CA8D5FF'}}
                             extraYAxes={{Баланс: 'y_scale', Расход: 'y1_scale_noLine'}}
                         >
-                            <Button pin="round-brick" size="xs" view="flat">
-                                <Icon data={ChartAreaStacked} size={11} />
-                            </Button>
+                            <ActionTooltip title="Показывает график расхода РК">
+                                <Button pin="round-brick" size="xs" view="flat">
+                                    <Icon data={ChartAreaStacked} size={11} />
+                                </Button>
+                            </ActionTooltip>
                         </ChartModal>
                     </div>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <AdvertsWordsButton
-                            getNames={getNames}
-                            disabled={permission != 'Управление'}
-                            advertId={advertId}
-                            template={template}
-                            nmId={nmId}
-                        />
+                            <AdvertsWordsButton
+                                getNames={getNames}
+                                disabled={permission != 'Управление'}
+                                advertId={advertId}
+                                template={template}
+                                nmId={nmId}
+                            />
                     </div>
                     <div
                         style={{
@@ -1033,40 +1050,42 @@ export const AdvertCard = ({
                             justifyContent: 'space-between',
                         }}
                     >
-                        <Button
-                            selected={warningBeforeDeleteConfirmation}
-                            style={{
-                                display:
-                                    index != -1
-                                        ? !warningBeforeDeleteConfirmation
-                                            ? 'flex'
-                                            : 'none'
-                                        : 'none',
-                                borderBottomLeftRadius: 7,
-                                overflow: 'hidden',
-                            }}
-                            onClick={async () => {
-                                setWarningBeforeDeleteConfirmation(
-                                    !warningBeforeDeleteConfirmation,
-                                );
+                        <ActionTooltip title="Удаляет рекламную кампанию">
+                            <Button
+                                selected={warningBeforeDeleteConfirmation}
+                                style={{
+                                    display:
+                                        index != -1
+                                            ? !warningBeforeDeleteConfirmation
+                                                ? 'flex'
+                                                : 'none'
+                                            : 'none',
+                                    borderBottomLeftRadius: 7,
+                                    overflow: 'hidden',
+                                }}
+                                onClick={async () => {
+                                    setWarningBeforeDeleteConfirmation(
+                                        !warningBeforeDeleteConfirmation,
+                                    );
 
-                                if (!warningBeforeDeleteConfirmation) {
-                                    await new Promise((resolve) => {
-                                        setTimeout(() => {
-                                            setWarningBeforeDeleteConfirmation(false);
-                                            resolve(1);
-                                        }, 5 * 1000);
-                                    });
-                                }
-                            }}
-                            // style={{position: 'relative', top: -2}}
-                            disabled={status === undefined || permission != 'Управление'}
-                            size="xs"
-                            pin="brick-brick"
-                            view={warningBeforeDeleteConfirmation ? 'flat-danger' : 'flat'}
-                        >
-                            <Icon data={TrashBin} size={11} />
-                        </Button>
+                                    if (!warningBeforeDeleteConfirmation) {
+                                        await new Promise((resolve) => {
+                                            setTimeout(() => {
+                                                setWarningBeforeDeleteConfirmation(false);
+                                                resolve(1);
+                                            }, 5 * 1000);
+                                        });
+                                    }
+                                }}
+                                // style={{position: 'relative', top: -2}}
+                                disabled={status === undefined || permission != 'Управление'}
+                                size="xs"
+                                pin="brick-brick"
+                                view={warningBeforeDeleteConfirmation ? 'flat-danger' : 'flat'}
+                            >
+                                <Icon data={TrashBin} size={11} />
+                            </Button>
+                        </ActionTooltip>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <motion.div
                                 animate={{
@@ -1100,17 +1119,19 @@ export const AdvertCard = ({
                                     overflow: 'hidden',
                                 }}
                             >
-                                <Button
-                                    disabled={permission != 'Управление'}
-                                    pin="brick-brick"
-                                    size="xs"
-                                    view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
-                                    onClick={() => {
-                                        setCopiedAdvertsSettings({advertId});
-                                    }}
-                                >
-                                    <Icon data={Copy} size={11} />
-                                </Button>
+                                <ActionTooltip title="Копирует все параметры кампании (Ставки, Бюджет, Кластеры, График)">
+                                    <Button
+                                        disabled={permission != 'Управление'}
+                                        pin="brick-brick"
+                                        size="xs"
+                                        view={copiedAdvertsSettings.advertId ? 'normal' : 'flat'}
+                                        onClick={() => {
+                                            setCopiedAdvertsSettings({advertId});
+                                        }}
+                                    >
+                                        <Icon data={Copy} size={11} />
+                                    </Button>
+                                </ActionTooltip>
                             </motion.div>
                             <motion.div
                                 animate={{
@@ -1156,13 +1177,15 @@ export const AdvertCard = ({
                                 alignItems: 'center',
                             }}
                         >
-                            <Text variant="caption-2">{drrToday ?? 0}%</Text>
-                            <AdvertStatsByDayModalForAdvertId
-                                arts={arts}
-                                advertId={advertId}
-                                docCampaign={doc.campaigns[selectValue[0]]}
-                                advertType={type == 8 ? 'auto' : 'search'}
-                            />
+                            <ActionTooltip title="Отображает ДРР за текущий день по РК">
+                                <Text variant="caption-2">{drrToday ?? 0}%</Text>
+                            </ActionTooltip>
+                                <AdvertStatsByDayModalForAdvertId
+                                    arts={arts}
+                                    advertId={advertId}
+                                    docCampaign={doc.campaigns[selectValue[0]]}
+                                    advertType={type == 8 ? 'auto' : 'search'}
+                                />
                         </div>
                         <AdvertsSchedulesModal
                             paused={pausedAdverts[advertId]}
@@ -1173,27 +1196,29 @@ export const AdvertCard = ({
                             setChangedDoc={setChangedDoc}
                             getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                         >
-                            <Button
-                                pin="clear-clear"
-                                style={{
-                                    overflow: 'hidden',
-                                    borderBottomRightRadius: 7,
-                                }}
-                                size="xs"
-                                disabled={permission != 'Управление'}
-                                view={
-                                    scheduleStatus == 'working' && !pausedAdverts[advertId]
-                                        ? 'flat-action'
-                                        : scheduleStatus == 'paused' || pausedAdverts[advertId]
-                                          ? 'flat-danger'
-                                          : 'flat'
-                                }
-                                onClick={() => {
-                                    if (permission != 'Управление') return;
-                                }}
-                            >
-                                <Icon size={11} data={Clock} />
-                            </Button>
+                            <ActionTooltip title='Показывает график показов РК'>
+                                <Button
+                                    pin="clear-clear"
+                                    style={{
+                                        overflow: 'hidden',
+                                        borderBottomRightRadius: 7,
+                                    }}
+                                    size="xs"
+                                    disabled={permission != 'Управление'}
+                                    view={
+                                        scheduleStatus == 'working' && !pausedAdverts[advertId]
+                                            ? 'flat-action'
+                                            : scheduleStatus == 'paused' || pausedAdverts[advertId]
+                                              ? 'flat-danger'
+                                              : 'flat'
+                                    }
+                                    onClick={() => {
+                                        if (permission != 'Управление') return;
+                                    }}
+                                >
+                                    <Icon size={11} data={Clock} />
+                                </Button>
+                            </ActionTooltip>
                         </AdvertsSchedulesModal>
                     </div>
                 </motion.div>

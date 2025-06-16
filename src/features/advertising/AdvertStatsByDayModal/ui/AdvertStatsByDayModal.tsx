@@ -503,21 +503,25 @@ export const AdvertStatsByDayModal = ({
 
     return (
         <div>
-            {customButton ? (
-                customButton({onClick: () => setOpen(true)})
-            ) : (
-                <Button
-                    pin="clear-clear"
-                    style={{
-                        overflow: 'hidden',
-                    }}
-                    size="xs"
-                    view="flat"
-                    onClick={() => setOpen(true)}
-                >
-                    <Icon size={11} data={LayoutList}></Icon>
-                </Button>
-            )}
+            <div>
+                {customButton ? (
+                    customButton({onClick: () => setOpen(true)})
+                ) : (
+                    <ActionTooltip title="Показывает статистику РК по дням">
+                        <Button
+                            pin="clear-clear"
+                            style={{
+                                overflow: 'hidden',
+                            }}
+                            size="xs"
+                            view="flat"
+                            onClick={() => setOpen(true)}
+                        >
+                            <Icon size={11} data={LayoutList}></Icon>
+                        </Button>
+                    </ActionTooltip>
+                )}
+            </div>
             <ModalWindow isOpen={open} handleClose={() => setOpen(false)} padding={false}>
                 <div
                     style={

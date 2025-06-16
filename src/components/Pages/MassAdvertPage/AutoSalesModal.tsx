@@ -277,16 +277,18 @@ export const AutoSalesModal = ({
     return (
         <>
             {NoCheckedRowsPopup}
-            <Button
-                disabled={disabled}
-                view="action"
-                loading={availableAutoSalesPending}
-                size="l"
-                onClick={triggerFunc}
-            >
-                <Icon data={TagRuble} />
-                <Text variant="subheader-1">Акции</Text>
-            </Button>
+            <ActionTooltip title="Открывает окно выбора акции и периода участия, показывает расчёт юнит-экономики и позволяет отправить товары в акцию">
+                <Button
+                    disabled={disabled}
+                    view="action"
+                    loading={availableAutoSalesPending}
+                    size="l"
+                    onClick={triggerFunc}
+                >
+                    <Icon data={TagRuble} />
+                    <Text variant="subheader-1">Акции</Text>
+                </Button>
+            </ActionTooltip>
             <ModalWindow isOpen={autoSalesModalOpen && !disabled} handleClose={handleClose}>
                 <div
                     style={{

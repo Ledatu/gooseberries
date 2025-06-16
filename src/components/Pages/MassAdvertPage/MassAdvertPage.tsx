@@ -406,17 +406,19 @@ export const MassAdvertPage = () => {
             placeholder: 'Артикул',
             width: 200,
             additionalNodes: [
-                <Button
-                    style={{marginLeft: 5, marginRight: 5}}
-                    view="outlined"
-                    selected={filterAutoSales}
-                    onClick={() => {
-                        setFilterAutoSales(!filterAutoSales);
-                        filterTableData(filters, data, !filterAutoSales);
-                    }}
-                >
-                    <Icon data={TagRuble} />
-                </Button>,
+                <ActionTooltip title="Оставляет в таблице только артикулы, которые можно добавить в акцию">
+                    <Button
+                        style={{marginLeft: 5, marginRight: 5}}
+                        view="outlined"
+                        selected={filterAutoSales}
+                        onClick={() => {
+                            setFilterAutoSales(!filterAutoSales);
+                            filterTableData(filters, data, !filterAutoSales);
+                        }}
+                    >
+                        <Icon data={TagRuble} />
+                    </Button>
+                </ActionTooltip>,
                 <CopyButton
                     tooltip="Нажмите, чтобы скопировать артикулы в таблице в буфер обмена"
                     view="outlined"
@@ -638,57 +640,61 @@ export const MassAdvertPage = () => {
                                             alignItems: 'center',
                                         }}
                                     >
-                                        <Button
-                                            disabled={permission != 'Управление'}
-                                            size="xs"
-                                            pin="brick-brick"
-                                            view="outlined"
-                                            onClick={() => {
-                                                setAdvertsArtsListModalFromOpen(true);
-                                                const adverts = doc.adverts[selectValue[0]];
-                                                const temp = [] as any[];
-                                                if (adverts) {
-                                                    for (const [_, data] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        const advertData: any = data;
-                                                        if (!advertData) continue;
-                                                        temp.push(advertData['advertId']);
+                                        <ActionTooltip title="Открывает список автокампаний для добавления артикула в выбранную">
+                                            <Button
+                                                disabled={permission != 'Управление'}
+                                                size="xs"
+                                                pin="brick-brick"
+                                                view="outlined"
+                                                onClick={() => {
+                                                    setAdvertsArtsListModalFromOpen(true);
+                                                    const adverts = doc.adverts[selectValue[0]];
+                                                    const temp = [] as any[];
+                                                    if (adverts) {
+                                                        for (const [_, data] of Object.entries(
+                                                            adverts,
+                                                        )) {
+                                                            const advertData: any = data;
+                                                            if (!advertData) continue;
+                                                            temp.push(advertData['advertId']);
+                                                        }
                                                     }
-                                                }
-                                                setSemanticsModalOpenFromArt(art);
-                                                setRkList(temp ?? []);
-                                                setRkListMode('add');
-                                            }}
-                                        >
-                                            <Icon data={Plus} />
-                                        </Button>
+                                                    setSemanticsModalOpenFromArt(art);
+                                                    setRkList(temp ?? []);
+                                                    setRkListMode('add');
+                                                }}
+                                            >
+                                                <Icon data={Plus} />
+                                            </Button>
+                                        </ActionTooltip>
                                         <div style={{minWidth: 2}} />
-                                        <Button
-                                            disabled={permission != 'Управление'}
-                                            size="xs"
-                                            pin="brick-brick"
-                                            view="outlined"
-                                            onClick={() => {
-                                                setAdvertsArtsListModalFromOpen(true);
-                                                const adverts = row.adverts;
-                                                const temp = [] as any[];
-                                                if (adverts) {
-                                                    for (const [_, data] of Object.entries(
-                                                        adverts,
-                                                    )) {
-                                                        const advertData: any = data;
-                                                        if (!advertData) continue;
-                                                        temp.push(advertData['advertId']);
+                                        <ActionTooltip title="Удаляет артикул из текущей автоматической кампании">
+                                            <Button
+                                                disabled={permission != 'Управление'}
+                                                size="xs"
+                                                pin="brick-brick"
+                                                view="outlined"
+                                                onClick={() => {
+                                                    setAdvertsArtsListModalFromOpen(true);
+                                                    const adverts = row.adverts;
+                                                    const temp = [] as any[];
+                                                    if (adverts) {
+                                                        for (const [_, data] of Object.entries(
+                                                            adverts,
+                                                        )) {
+                                                            const advertData: any = data;
+                                                            if (!advertData) continue;
+                                                            temp.push(advertData['advertId']);
+                                                        }
                                                     }
-                                                }
-                                                setSemanticsModalOpenFromArt(art);
-                                                setRkList(temp ?? []);
-                                                setRkListMode('delete');
-                                            }}
-                                        >
-                                            <Icon data={Xmark} />
-                                        </Button>
+                                                    setSemanticsModalOpenFromArt(art);
+                                                    setRkList(temp ?? []);
+                                                    setRkListMode('delete');
+                                                }}
+                                            >
+                                                <Icon data={Xmark} />
+                                            </Button>
+                                        </ActionTooltip>
                                     </div>
                                     <div style={{minHeight: 2}} />
                                     <div
@@ -704,42 +710,46 @@ export const MassAdvertPage = () => {
                                             dateRange={dateRange}
                                         />
                                         <div style={{minWidth: 2}} />
-                                        <Button
-                                            pin="brick-brick"
-                                            view="outlined"
-                                            size="xs"
-                                            onClick={() => {
-                                                const dzhem = doc.dzhemData
-                                                    ? doc.dzhemData[selectValue[0]]
-                                                        ? doc.dzhemData[selectValue[0]][value]
-                                                            ? (doc.dzhemData[selectValue[0]][value]
-                                                                  .phrasesStats ?? undefined)
+                                        <ActionTooltip title="Открывает окно со статистикой по артикулу из подписки «джем»">
+                                            <Button
+                                                pin="brick-brick"
+                                                view="outlined"
+                                                size="xs"
+                                                onClick={() => {
+                                                    const dzhem = doc.dzhemData
+                                                        ? doc.dzhemData[selectValue[0]]
+                                                            ? doc.dzhemData[selectValue[0]][value]
+                                                                ? (doc.dzhemData[selectValue[0]][
+                                                                      value
+                                                                  ].phrasesStats ?? undefined)
+                                                                : undefined
                                                             : undefined
-                                                        : undefined
-                                                    : undefined;
-                                                console.log(
-                                                    value,
-                                                    doc.dzhemData[selectValue[0]][value],
-                                                );
-                                                const temp = [] as any[];
-                                                if (dzhem)
-                                                    for (const [phrase, stats] of Object.entries(
-                                                        dzhem,
-                                                    )) {
-                                                        const phrasesStats: any = stats;
-                                                        if (!phrase || !phrasesStats) continue;
-                                                        phrasesStats['phrase'] = phrase;
-                                                        temp.push(phrasesStats);
-                                                    }
-                                                temp.sort((a, b) => {
-                                                    return b?.openCardCount - a?.openCardCount;
-                                                });
-                                                setSelectedNmId(nmId);
-                                                setShowDzhemModalOpen(true);
-                                            }}
-                                        >
-                                            <Icon data={Cherry}></Icon>
-                                        </Button>
+                                                        : undefined;
+                                                    console.log(
+                                                        value,
+                                                        doc.dzhemData[selectValue[0]][value],
+                                                    );
+                                                    const temp = [] as any[];
+                                                    if (dzhem)
+                                                        for (const [
+                                                            phrase,
+                                                            stats,
+                                                        ] of Object.entries(dzhem)) {
+                                                            const phrasesStats: any = stats;
+                                                            if (!phrase || !phrasesStats) continue;
+                                                            phrasesStats['phrase'] = phrase;
+                                                            temp.push(phrasesStats);
+                                                        }
+                                                    temp.sort((a, b) => {
+                                                        return b?.openCardCount - a?.openCardCount;
+                                                    });
+                                                    setSelectedNmId(nmId);
+                                                    setShowDzhemModalOpen(true);
+                                                }}
+                                            >
+                                                <Icon data={Cherry}></Icon>
+                                            </Button>
+                                        </ActionTooltip>
                                     </div>
                                 </div>
                             </div>
@@ -790,20 +800,24 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Button
-                                        size="xs"
-                                        view="flat"
-                                        onClick={() => filterByButton(nmId)}
-                                    >
-                                        <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
-                                    </Button>
-                                    <Button
-                                        size="xs"
-                                        view="flat"
-                                        onClick={() => filterByButton(imtId)}
-                                    >
-                                        <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
-                                    </Button>
+                                    <ActionTooltip title="Фильтрует таблицу по артикулу Wildberries">
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(nmId)}
+                                        >
+                                            <Text variant="caption-2">{`Артикул WB: ${nmId}`}</Text>
+                                        </Button>
+                                    </ActionTooltip>
+                                    <ActionTooltip title="Фильтрует таблицу по ID карточки-склейки товаров">
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(imtId)}
+                                        >
+                                            <Text variant="caption-2">{`ID КТ: ${imtId}`}</Text>
+                                        </Button>
+                                    </ActionTooltip>
                                 </div>
                                 <div
                                     style={{
@@ -812,13 +826,15 @@ export const MassAdvertPage = () => {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Button
-                                        size="xs"
-                                        view="flat"
-                                        onClick={() => filterByButton(value)}
-                                    >
-                                        <Text variant="caption-2">{`Артикул: ${value}`}</Text>
-                                    </Button>
+                                    <ActionTooltip title="Фильтрует таблицу по артикулу продавца">
+                                        <Button
+                                            size="xs"
+                                            view="flat"
+                                            onClick={() => filterByButton(value)}
+                                        >
+                                            <Text variant="caption-2">{`Артикул: ${value}`}</Text>
+                                        </Button>
+                                    </ActionTooltip>
                                 </div>
                                 <div
                                     style={{
@@ -845,20 +861,29 @@ export const MassAdvertPage = () => {
                   placeholder: 'Реклама',
                   valueType: 'text',
                   additionalNodes: [
-                      <Button
-                          style={{marginLeft: 5}}
-                          view="outlined"
-                          onClick={() => filterByButton('авто', 'adverts')}
+                      <ActionTooltip
+                          title={'Фильтрует таблицу по артикулам, где используется Авто РК'}
                       >
-                          <Icon data={Rocket} size={14} />
-                      </Button>,
-                      <Button
-                          style={{marginLeft: 5}}
-                          view="outlined"
-                          onClick={() => filterByButton('поиск', 'adverts')}
+                          <Button
+                              style={{marginLeft: 5}}
+                              view="outlined"
+                              onClick={() => filterByButton('авто', 'adverts')}
+                          >
+                              <Icon data={Rocket} size={14} />
+                          </Button>
+                      </ActionTooltip>,
+                      <ActionTooltip
+                          title={'Фильтрует таблицу по артикулам, где используется Авто РК'}
                       >
-                          <Icon data={Magnifier} size={14} />
-                      </Button>,
+                          <Button
+                              style={{marginLeft: 5}}
+                              view="outlined"
+                              onClick={() => filterByButton('поиск', 'adverts')}
+                          >
+                              <Icon data={Magnifier} size={14} />
+                          </Button>
+                      </ActionTooltip>,
+
                       <PopupFilterArts setFilters={setFiltersRK} filters={filtersRK} />,
                       <div
                           style={{
@@ -1491,11 +1516,13 @@ export const MassAdvertPage = () => {
                             overflow: 'hidden',
                         }}
                     >
-                        <PageInfoGraphs
-                            sellerId={sellerId}
-                            phrase={phrase}
-                            placementsValue={placementsValue}
-                        />
+                        <ActionTooltip title="Показывает график сравнения позиции карточки в топ-100 по запросу">
+                            <PageInfoGraphs
+                                sellerId={sellerId}
+                                phrase={phrase}
+                                placementsValue={placementsValue}
+                            />
+                        </ActionTooltip>
                         {stocksBySizes && stocksBySizes.all > 1 ? (
                             <Button
                                 style={{
@@ -1545,41 +1572,45 @@ export const MassAdvertPage = () => {
                                     height: 0.5,
                                 }}
                             />
-                            <Button
-                                disabled={!Math.round(profit)}
-                                style={{
-                                    width: 160,
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                }}
-                                width="max"
-                                size="xs"
-                                view={'flat'}
-                                pin="clear-clear"
+                            <ActionTooltip
+                                title={'Показывает прогнозную прибыль и рентабельность артикула'}
                             >
-                                <Text
+                                <Button
+                                    disabled={!Math.round(profit)}
                                     style={{
+                                        width: 160,
                                         display: 'flex',
                                         flexDirection: 'row',
-                                        alignItems: 'center',
-                                        gap: 4,
                                     }}
-                                    color={
-                                        !Math.round(profit)
-                                            ? undefined
-                                            : profit > 0
-                                              ? 'positive'
-                                              : 'danger'
-                                    }
+                                    width="max"
+                                    size="xs"
+                                    view={'flat'}
+                                    pin="clear-clear"
                                 >
-                                    {`${new Intl.NumberFormat('ru-RU').format(
-                                        Math.round(profit),
-                                    )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                        Math.round(rentabelnost),
-                                    )}%`}
-                                    {warningArtIcon()}
-                                </Text>
-                            </Button>
+                                    <Text
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            gap: 4,
+                                        }}
+                                        color={
+                                            !Math.round(profit)
+                                                ? undefined
+                                                : profit > 0
+                                                  ? 'positive'
+                                                  : 'danger'
+                                        }
+                                    >
+                                        {`${new Intl.NumberFormat('ru-RU').format(
+                                            Math.round(profit),
+                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
+                                            Math.round(rentabelnost),
+                                        )}%`}
+                                        {warningArtIcon()}
+                                    </Text>
+                                </Button>
+                            </ActionTooltip>
                         </div>
                     </Card>
                 );
@@ -1859,7 +1890,7 @@ export const MassAdvertPage = () => {
                 const isSelectedPhrase = advertsSelectedPhrases?.[advertId] == phrase;
                 return (
                     <div style={{display: 'flex', flexDirection: 'column'}}>
-                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
                             {position !== undefined ? (
                                 <div
                                     style={{
@@ -1915,6 +1946,11 @@ export const MassAdvertPage = () => {
                                     ? 'Нет в выдаче'
                                     : index + (!cpmIndex || cpmIndex == -1 ? '' : ` (${cpmIndex})`)
                             } `}</Text>
+                            <HelpMark
+                                content={
+                                    'Показывает позицию карточки в выдаче с учётом влияния рекламной кампании'
+                                }
+                            />
                             <div style={{width: 4}} />
                         </div>
                         <div
@@ -1939,30 +1975,34 @@ export const MassAdvertPage = () => {
                                 <></>
                             )}
                             <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
-                                <Button
-                                    size="xs"
-                                    view="outlined"
-                                    href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${phrase}`}
-                                    target="_blank"
-                                >
-                                    <Icon data={Magnifier} />
-                                </Button>
-                                <Button
-                                    size="xs"
-                                    view={isSelectedPhrase ? 'outlined-success' : 'outlined'}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        changeSelectedPhrase({
-                                            seller_id: sellerId,
-                                            advertId,
-                                            selectedPhrase: phrase,
-                                        }).then(() => {
-                                            getSelectedPhrases();
-                                        });
-                                    }}
-                                >
-                                    <Icon data={ArrowShapeUp} />
-                                </Button>
+                                <ActionTooltip title="Открывает страницу поиска WB по фразе в новой вкладке">
+                                    <Button
+                                        size="xs"
+                                        view="outlined"
+                                        href={`https://www.wildberries.ru/catalog/0/search.aspx?search=${phrase}`}
+                                        target="_blank"
+                                    >
+                                        <Icon data={Magnifier} />
+                                    </Button>
+                                </ActionTooltip>
+                                <ActionTooltip title="Устанавливает кластер для таргетирования ставок и мониторинга позиций в выдаче">
+                                    <Button
+                                        size="xs"
+                                        view={isSelectedPhrase ? 'outlined-success' : 'outlined'}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            changeSelectedPhrase({
+                                                seller_id: sellerId,
+                                                advertId,
+                                                selectedPhrase: phrase,
+                                            }).then(() => {
+                                                getSelectedPhrases();
+                                            });
+                                        }}
+                                    >
+                                        <Icon data={ArrowShapeUp} />
+                                    </Button>
+                                </ActionTooltip>
                             </div>
                         </div>
                         <Text
@@ -1984,6 +2024,7 @@ export const MassAdvertPage = () => {
         {
             name: 'drr',
             placeholder: 'ДРР, %',
+            tooltipContent: 'Показывает, сколько процентов от суммы заказов потрачено на рекламу',
             render: ({value, row}: any) => {
                 const findMaxDrr = (adverts: any) => {
                     let maxDrr = -10000;
@@ -2069,10 +2110,16 @@ export const MassAdvertPage = () => {
                 return (dataA - dataB) * order;
             },
         },
-        {name: 'romi', placeholder: 'ROMI, %', render: renderAsPercent},
+        {
+            name: 'romi',
+            placeholder: 'ROMI, %',
+            tooltipContent: 'Показывает, сколько прибыли получено относительно расходов на рекламу',
+            render: renderAsPercent,
+        },
         {
             name: 'cpo',
             placeholder: 'CPO, ₽',
+            tooltipContent: 'Средняя цена одного заказа с рекламы',
             render: ({value, row}: any) => {
                 const findFirstActive = (adverts: any) => {
                     for (const [id, _] of Object.entries(adverts ?? {})) {
@@ -2114,15 +2161,15 @@ export const MassAdvertPage = () => {
             placeholder: 'Клики, шт.',
             render: (args: any) => renderSlashPercent(args, 'openCardCount'),
         },
-        {name: 'ctr', placeholder: 'CTR, %', render: renderAsPercent},
-        {name: 'cpc', placeholder: 'CPC, ₽'},
-        {name: 'cpm', placeholder: 'CPM, ₽'},
+        {name: 'ctr', placeholder: 'CTR, %', tooltipContent: 'Кликабельность, соотношение кликов к показам', render: renderAsPercent},
+        {name: 'cpc', placeholder: 'CPC, ₽', tooltipContent: 'Средняя цена клика'},
+        {name: 'cpm', placeholder: 'CPM, ₽', tooltipContent: 'Средняя цена за 1000 показов'},
         {name: 'openCardCount', placeholder: 'Всего переходов, шт.'},
-        {name: 'cr', placeholder: 'CR, %', render: renderAsPercent},
-        {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent},
-        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent},
+        {name: 'cr', placeholder: 'CR, %', render: renderAsPercent, tooltipContent: 'Конверсия из перехода в заказ'},
+        {name: 'addToCartPercent', placeholder: 'CR в корзину, %', render: renderAsPercent, tooltipContent: 'Конверсия из перехода в корзину'},
+        {name: 'cartToOrderPercent', placeholder: 'CR в заказ, %', render: renderAsPercent, tooltipContent: 'Конверсия из корзины в заказ'},
         {name: 'addToCartCount', placeholder: 'Корзины, шт.'},
-        {name: 'cpl', placeholder: 'CPL, ₽'},
+        {name: 'cpl', placeholder: 'CPL, ₽', tooltipContent: 'Средняя цена корзины с рекламы'},
     ];
 
     const [filteredSummary, setFilteredSummary] = useState({
@@ -3441,14 +3488,16 @@ export const MassAdvertPage = () => {
                                 filteredData={checkedData}
                                 setChangedDoc={setChangedDoc}
                             >
-                                <Button
-                                    disabled={permission != 'Управление'}
-                                    view="action"
-                                    size="l"
-                                >
-                                    <Icon data={SlidersVertical} />
-                                    <Text variant="subheader-1">Создать</Text>
-                                </Button>
+                                <ActionTooltip title="Создает рекламные компании">
+                                    <Button
+                                        disabled={permission != 'Управление'}
+                                        view="action"
+                                        size="l"
+                                    >
+                                        <Icon data={SlidersVertical} />
+                                        <Text variant="subheader-1">Создать</Text>
+                                    </Button>
+                                </ActionTooltip>
                             </AdvertCreateModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsStatusManagingModal
@@ -3458,15 +3507,17 @@ export const MassAdvertPage = () => {
                                 doc={doc}
                                 setChangedDoc={setChangedDoc}
                             >
-                                <Button
-                                    disabled={permission != 'Управление'}
-                                    view="action"
-                                    size="l"
-                                    style={{cursor: 'pointer'}}
-                                >
-                                    <Icon data={Play} />
-                                    <Text variant="subheader-1">Управление</Text>
-                                </Button>
+                                <ActionTooltip title=" Открывает меню управления рекламной кампанией: возобновление, пауза, завершение">
+                                    <Button
+                                        disabled={permission != 'Управление'}
+                                        view="action"
+                                        size="l"
+                                        style={{cursor: 'pointer'}}
+                                    >
+                                        <Icon data={Play} />
+                                        <Text variant="subheader-1">Управление</Text>
+                                    </Button>
+                                </ActionTooltip>
                             </AdvertsStatusManagingModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsBidsModal
@@ -3477,14 +3528,16 @@ export const MassAdvertPage = () => {
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                                 advertId={undefined}
                             >
-                                <Button
-                                    view="action"
-                                    size="l"
-                                    disabled={permission != 'Управление'}
-                                >
-                                    <Icon data={ChartLine} />
-                                    <Text variant="subheader-1">Ставки</Text>
-                                </Button>
+                                <ActionTooltip title="Открывает окно выбора метода автоставок с дополнительными параметрами">
+                                    <Button
+                                        view="action"
+                                        size="l"
+                                        disabled={permission != 'Управление'}
+                                    >
+                                        <Icon data={ChartLine} />
+                                        <Text variant="subheader-1">Ставки</Text>
+                                    </Button>
+                                </ActionTooltip>
                             </AdvertsBidsModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsBudgetsModal
@@ -3496,14 +3549,16 @@ export const MassAdvertPage = () => {
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                                 advertId={undefined}
                             >
-                                <Button
-                                    view="action"
-                                    size="l"
-                                    disabled={permission != 'Управление'}
-                                >
-                                    <Icon data={CircleRuble} />
-                                    <Text variant="subheader-1">Бюджет</Text>
-                                </Button>
+                                <ActionTooltip title="Позволяет включить автопополнение или вручную пополнить бюджет рекламной кампании">
+                                    <Button
+                                        view="action"
+                                        size="l"
+                                        disabled={permission != 'Управление'}
+                                    >
+                                        <Icon data={CircleRuble} />
+                                        <Text variant="subheader-1">Бюджет</Text>
+                                    </Button>
+                                </ActionTooltip>
                             </AdvertsBudgetsModal>
                             <div style={{minWidth: 8}} />
                             <PhrasesModal
@@ -3521,18 +3576,21 @@ export const MassAdvertPage = () => {
                                 advertId={undefined as any}
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                             >
-                                <Button
-                                    disabled={permission != 'Управление'}
-                                    view="action"
-                                    size="l"
-                                >
-                                    <Icon data={Clock} />
-                                    <Text variant="subheader-1">График</Text>
-                                </Button>
+                                <ActionTooltip title="Настраивает расписание показов с учётом тепловой карты заказов">
+                                    <Button
+                                        disabled={permission != 'Управление'}
+                                        view="action"
+                                        size="l"
+                                    >
+                                        <Icon data={Clock} />
+                                        <Text variant="subheader-1">График</Text>
+                                    </Button>
+                                </ActionTooltip>
                             </AdvertsSchedulesModal>
                             <div style={{minWidth: 8}} />
                             <TagsFilterModal filterByButton={filterByButton} />
                             <div style={{minWidth: 8}} />
+
                             <AutoSalesModal
                                 disabled={permission != 'Управление'}
                                 selectValue={selectValue}
@@ -3573,9 +3631,19 @@ export const MassAdvertPage = () => {
                                     </div>
                                 }
                             >
-                                <Button view="outlined-success" size="l">
-                                    <Text variant="subheader-1">{balance}</Text>
-                                </Button>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        gap: 4,
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Button view="outlined-success" size="l">
+                                        <Text variant="subheader-1">{balance}</Text>
+                                    </Button>
+                                    <HelpMark content="Показывает текущий остаток средств на рекламных кошельках личного кабинета Wildberries" />
+                                </div>
                             </Popover>
                         </div>
                         <Modal

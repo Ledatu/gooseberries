@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Text} from '@gravity-ui/uikit';
 import {AdvertsWordsModal} from './AdvertsWordsModal';
 import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo';
 // import {AdvertsWordsModal} from './AdvertsWordsModal';
@@ -34,15 +34,17 @@ export const AdvertsWordsButton = ({
 
     return (
         <AdvertsWordsModal getNames={getNames} nmId={nmId} advertId={advertId}>
-            <Button
-                size="xs"
-                pin="brick-round"
-                selected={themeToUse != 'normal'}
-                view={themeToUse}
-                disabled={disabled}
-            >
-                <Text variant="caption-2">{template.templateName}</Text>
-            </Button>
+            <ActionTooltip title="Показывает действующий шаблон управления кластерами, по клику откроет окно статистики кластеров РК">
+                <Button
+                    size="xs"
+                    pin="brick-round"
+                    selected={themeToUse != 'normal'}
+                    view={themeToUse}
+                    disabled={disabled}
+                >
+                    <Text variant="caption-2">{template.templateName}</Text>
+                </Button>
+            </ActionTooltip>
         </AdvertsWordsModal>
     );
 };

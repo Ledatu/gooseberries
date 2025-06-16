@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import {AdvertDateData} from '../types/AdvertDateData';
 import {AdvertStatsByDayModal} from './AdvertStatsByDayModal';
 import {calcByDayStats} from '../hooks/calcByDayStatsForArt';
-import {Button, Icon} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon} from '@gravity-ui/uikit';
 import {LayoutList} from '@gravity-ui/icons';
 import {getProfitForArtByDate} from '../api/getProfitForArtByDate';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -53,9 +53,11 @@ export const AdvertStatsByDayModalForNmId = ({
             setOpen={setOpen}
             data={data}
             customButton={({onClick}) => (
-                <Button pin="brick-brick" view="outlined" size="xs" onClick={onClick}>
-                    <Icon data={LayoutList}></Icon>
-                </Button>
+                <ActionTooltip title='Открывает детальную статистику по дням для выбранного артикула'>
+                    <Button pin="brick-brick" view="outlined" size="xs" onClick={onClick}>
+                        <Icon data={LayoutList}></Icon>
+                    </Button>
+                </ActionTooltip>
             )}
         />
     );

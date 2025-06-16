@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Icon, List, Popup, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon, List, Popup, Text} from '@gravity-ui/uikit';
 import {Box, Xmark} from '@gravity-ui/icons';
 import {useEffect, useMemo, useState} from 'react';
 import {motion} from 'framer-motion';
@@ -20,10 +20,10 @@ export const StocksByWarehousesPopup = ({stocksByWarehousesArt}: any) => {
                 temp.push(`${warehousesName}: ${quantity}`);
         return temp;
     }, [stocksByWarehousesArt]);
-    const [anchorElement, setAnchorElement] = useState<HTMLButtonElement | null>(null);
+    // const [anchorElement, setAnchorElement] = useState<HTMLButtonElement | null>(null);
     return (
         <>
-            <Popup open={open} anchorElement={anchorElement} hasArrow={false}>
+            <Popup open={open} hasArrow={false}>
                 <div
                     style={{
                         width: 0,
@@ -110,27 +110,29 @@ export const StocksByWarehousesPopup = ({stocksByWarehousesArt}: any) => {
                     </div>
                 </div>
             </Popup>
-            <Button
-                disabled={!stocksByWarehousesArt}
-                size="xs"
-                pin="clear-clear"
-                view="flat"
-                ref={setAnchorElement}
-                onClick={() => stocksByWarehousesArt && setOpen(!open)}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
+            <ActionTooltip title="Показывает остатки на складах">
+                <Button
+                    disabled={!stocksByWarehousesArt}
+                    size="xs"
+                    pin="clear-clear"
+                    view="flat"
+                    // ref={setAnchorElement}
+                    onClick={() => stocksByWarehousesArt && setOpen(!open)}
                 >
-                    {stocksByWarehousesArt ? Object.keys(stocksByWarehousesArt).length : 0}
-                    <div style={{minWidth: 3}} />
-                    <Icon data={Box} size={11} />
-                </div>
-            </Button>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        {stocksByWarehousesArt ? Object.keys(stocksByWarehousesArt).length : 0}
+                        <div style={{minWidth: 3}} />
+                        <Icon data={Box} size={11} />
+                    </div>
+                </Button>
+            </ActionTooltip>
         </>
     );
 };
