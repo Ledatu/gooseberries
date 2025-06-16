@@ -3,7 +3,7 @@
 import {Graphic, MinMaxValue} from '@/shared/ui/Graphic';
 import {ModalWindow} from '@/shared/ui/Modal';
 import {YagrWidgetData} from '@gravity-ui/chartkit/yagr';
-import {Loader} from '@gravity-ui/uikit';
+import {ActionTooltip, Loader} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, useState, cloneElement, FC} from 'react';
 
@@ -17,6 +17,7 @@ interface ChartModalInterface {
     extraYAxes?: {[key: string]: string};
     minMaxValues?: MinMaxValue;
     hiddenByDefault?: Record<string, boolean>;
+    tooltipContent?: string;
 }
 
 export const ChartModal: FC<ChartModalInterface> = ({
@@ -29,6 +30,7 @@ export const ChartModal: FC<ChartModalInterface> = ({
     minMaxValues,
     useVerticalLines,
     hiddenByDefault = {},
+    tooltipContent,
 }) => {
     const [open, setOpen] = useState(false);
     const [dataFetching, setDataFetching] = useState(false);
@@ -107,7 +109,11 @@ export const ChartModal: FC<ChartModalInterface> = ({
 
     return (
         <>
-            {triggerButton}
+            {tooltipContent ? (
+                <ActionTooltip title={tooltipContent}>{triggerButton}</ActionTooltip>
+            ) : (
+                {triggerButton}
+            )}
             <ModalWindow padding={false} isOpen={open} handleClose={handleClose}>
                 <div
                     style={{

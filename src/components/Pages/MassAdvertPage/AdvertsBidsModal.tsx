@@ -9,6 +9,7 @@ import {
     Text,
     SegmentedRadioGroup,
     NumberInput,
+    ActionTooltip,
 } from '@gravity-ui/uikit';
 import {CloudArrowUpIn, TrashBin, Calendar as CalendarIcon} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
@@ -722,7 +723,9 @@ export const AdvertsBidsModal = ({
     return (
         <div>
             {!advertId ? NoCheckedRowsPopup : undefined}
-            {triggerButton}
+            <ActionTooltip title="Открывает окно настройки ставок и дополнительных параметров">
+                {triggerButton}
+            </ActionTooltip>
             <ModalWindow isOpen={open} handleClose={handleClose}>
                 <SegmentedRadioGroup
                     size="l"

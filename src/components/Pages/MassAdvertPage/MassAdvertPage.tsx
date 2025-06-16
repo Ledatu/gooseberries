@@ -1646,6 +1646,7 @@ export const MassAdvertPage = () => {
                 else if (isNaNb) return -1;
                 return (dataA - dataB) * order;
             },
+            tooltipContent: 'Показывает позицию карточки в выдаче с учётом влияния рекламной кампании',
             additionalNodes: [
                 <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                     <ActionTooltip
@@ -1946,11 +1947,6 @@ export const MassAdvertPage = () => {
                                     ? 'Нет в выдаче'
                                     : index + (!cpmIndex || cpmIndex == -1 ? '' : ` (${cpmIndex})`)
                             } `}</Text>
-                            <HelpMark
-                                content={
-                                    'Показывает позицию карточки в выдаче с учётом влияния рекламной кампании'
-                                }
-                            />
                             <div style={{width: 4}} />
                         </div>
                         <div

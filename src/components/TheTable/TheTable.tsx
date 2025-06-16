@@ -8,7 +8,6 @@ import useWindowDimensions from '@/hooks/useWindowDimensions';
 
 import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
 import {
-    ActionTooltip,
     Button,
     Card,
     CardTheme,
@@ -25,7 +24,7 @@ import callApi from '@/utilities/callApi';
 import {PaginationSizeInput} from './PaginationSizeInput';
 import {ClearFiltersButton} from './ClearFiltersButton';
 import {useCheckboxes} from './hooks';
-
+import {HelpMark} from '../Popups/HelpMark';
 const b = block('the-table');
 
 interface TheTableProps {
@@ -232,16 +231,9 @@ export default function TheTable({
                             justifyContent: 'space-between',
                             width: '100%',
                         }}
-                    >
-                        {tooltipContent ? (
-                            <ActionTooltip title={tooltipContent}>
-                                <Text style={{marginLeft: 4}} variant="subheader-1">
-                                    {placeholder}
-                                </Text>
-                            </ActionTooltip>
-                        ) : (
-                            <Text variant="subheader-1">{placeholder}</Text>
-                        )}
+                    >   
+                        <Text variant="subheader-1">{placeholder}</Text>
+                        {tooltipContent ? <HelpMark content={tooltipContent} /> : undefined}
                         {additionalNodes}
                     </div>
                 ) : (
@@ -256,7 +248,7 @@ export default function TheTable({
                         constWidth,
                         viewportSize,
                         additionalNodes,
-                        tooltipContent
+                        tooltipContent,
                     })
                 ),
                 render: render ? (args) => render(args) : (args) => defaultRender(args, valueType),
@@ -414,18 +406,12 @@ export const generateFilterTextInput = (args: any) => {
                     justifyContent: 'end',
                 }}
             >
-                {tooltipContent ? (
-                    <ActionTooltip title={tooltipContent}>
-
-                        <Text style={{marginLeft: 4}} variant="subheader-1">
-                            {placeholder}
-                        </Text>
-                    </ActionTooltip>
-                ) : (
+                <div style={{display: 'flex', flexDirection: 'row', gap: 4}}>
                     <Text style={{marginLeft: 4}} variant="subheader-1">
                         {placeholder}
                     </Text>
-                )}
+                    {tooltipContent ? <HelpMark content={tooltipContent} /> : undefined}
+                </div>
 
                 <DelayedTextInput
                     style={{width: '100%'}}

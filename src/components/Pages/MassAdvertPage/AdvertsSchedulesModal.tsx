@@ -583,7 +583,7 @@ export const AdvertsSchedulesModal = ({
     return (
         <>
             {!advertId ? NoCheckedRowsPopup : undefined}
-            {triggerButton}
+            <ActionTooltip title="Показывает график показов РК">{triggerButton}</ActionTooltip>
             <Modal open={open && !disabled} onClose={handleClose}>
                 <Card
                     view="clear"

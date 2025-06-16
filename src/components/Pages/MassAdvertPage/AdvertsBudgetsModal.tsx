@@ -1,6 +1,15 @@
 'use client';
 
-import {Button, Card, Modal, Select, TextInput, Text, Checkbox} from '@gravity-ui/uikit';
+import {
+    Button,
+    Card,
+    Modal,
+    Select,
+    TextInput,
+    Text,
+    Checkbox,
+    ActionTooltip,
+} from '@gravity-ui/uikit';
 import {motion} from 'framer-motion';
 import {
     useState,
@@ -166,7 +175,9 @@ export const AdvertsBudgetsModal = ({
     return (
         <div>
             {!advertId ? NoCheckedRowsPopup : undefined}
-            {triggerButton}
+            <ActionTooltip title="Открывает окно управления бюджетом РК">
+                {triggerButton}
+            </ActionTooltip>
             <Modal open={open && !disabled} onClose={handleClose}>
                 <Card
                     view="clear"
