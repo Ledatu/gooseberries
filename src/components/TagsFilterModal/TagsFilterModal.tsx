@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Card, Icon, List, Modal, Text, TextInput} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Card, Icon, List, Modal, Text, TextInput} from '@gravity-ui/uikit';
 import {Tag} from '@gravity-ui/icons';
 import {useState} from 'react';
 import {useCampaign} from '@/contexts/CampaignContext';
@@ -14,19 +14,21 @@ export const TagsFilterModal = ({filterByButton}: any) => {
 
     return (
         <div>
-            <Button
-                style={{cursor: 'pointer'}}
-                view="action"
-                size="l"
-                loading={availableTagsPending}
-                onClick={async () => {
-                    setFilterValue('');
-                    setTagsModalOpen(true);
-                }}
-            >
-                <Icon data={Tag} />
-                <Text variant="subheader-1">Теги</Text>
-            </Button>
+            <ActionTooltip title='Показывает список тегов для фильтрации таблицы товаров'>
+                <Button
+                    style={{cursor: 'pointer'}}
+                    view="action"
+                    size="l"
+                    loading={availableTagsPending}
+                    onClick={async () => {
+                        setFilterValue('');
+                        setTagsModalOpen(true);
+                    }}
+                >
+                    <Icon data={Tag} />
+                    <Text variant="subheader-1">Теги</Text>
+                </Button>
+            </ActionTooltip>
             <Modal
                 open={tagsModalOpen}
                 onClose={() => {

@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Icon, List, Text, TextInput} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon, List, Text, TextInput} from '@gravity-ui/uikit';
 import {Magnifier, TrashBin, Check, Xmark} from '@gravity-ui/icons';
 import {useEffect, useState} from 'react';
 // import {NewPhrasesTemplate} from './NewPhrasesTemplate';
@@ -109,10 +109,12 @@ export const PhrasesModal = ({
     return (
         <div>
             {NoCheckedRowsPopup}
-            <Button disabled={disabled} view="action" size="l" onClick={triggerFunc}>
-                <Icon data={Magnifier} />
-                <Text variant="subheader-1">Фразы</Text>
-            </Button>
+            <ActionTooltip title="Открывает окно со списком шаблонов фраз для добавления в кампанию">
+                <Button disabled={disabled} view="action" size="l" onClick={triggerFunc}>
+                    <Icon data={Magnifier} />
+                    <Text variant="subheader-1">Фразы</Text>
+                </Button>
+            </ActionTooltip>
             <ModalWindow isOpen={open} handleClose={() => setOpen(false)}>
                 <div
                     style={{

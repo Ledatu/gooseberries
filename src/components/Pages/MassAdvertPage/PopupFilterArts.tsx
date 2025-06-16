@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Checkbox, Icon, Popup, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Checkbox, Icon, Popup, Text} from '@gravity-ui/uikit';
 import {useEffect, useMemo, useState} from 'react';
 import {ListCheck, FunnelXmark} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
@@ -98,8 +98,11 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
                 placement={'bottom-end'}
             >
                 <div style={{left: -217, position: 'relative'}}>
-                <BluredCard padding={false} motionDivStyle={{borderRadius: '5px 5px 10px 10px'}}>
-                    {/* <div
+                    <BluredCard
+                        padding={false}
+                        motionDivStyle={{borderRadius: '5px 5px 10px 10px'}}
+                    >
+                        {/* <div
                     style={{
                         width: 0,
                         height: 0,
@@ -121,76 +124,78 @@ export const PopupFilterArts = ({filters, setFilters}: PopupFilterArtsProps) => 
                             padding: '0 8px',
                         }}
                     > */}
-                    <div
-                        style={{
-                            margin: 8,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px',
-                        }}
-                    >
-                        {checkboxes()}
-                    </div>
-                    <div style={{display: 'flex', flexDirection: 'row', marginBottom: 8}}>
-                        <Button
-                            size="l"
-                            selected
-                            pin="circle-circle"
-                            disabled={isFiltersSame}
-                            onClick={() => {
-                                setFilters(filtersRK);
-                                setShowPopup(false);
-                            }}
-                        >
-                            <Text variant="subheader-1">Сохранить</Text>
-                        </Button>
-                        <motion.div
+                        <div
                             style={{
-                                marginLeft: isChanged ? 8 : 0,
-                                marginRight: isChanged ? 8 : 0,
-                                width: isChanged ? 36 : 0,
-                                overflow: 'hidden',
-                            }}
-                            animate={{
-                                marginLeft: isChanged ? 8 : 0,
-                                marginRight: isChanged ? 8 : 0,
-                                width: isChanged ? 36 : 0,
+                                margin: 8,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '8px',
                             }}
                         >
+                            {checkboxes()}
+                        </div>
+                        <div style={{display: 'flex', flexDirection: 'row', marginBottom: 8}}>
                             <Button
                                 size="l"
+                                selected
                                 pin="circle-circle"
+                                disabled={isFiltersSame}
                                 onClick={() => {
-                                    setFilters(defaultObj);
+                                    setFilters(filtersRK);
                                     setShowPopup(false);
                                 }}
                             >
-                                <Icon data={FunnelXmark} />
+                                <Text variant="subheader-1">Сохранить</Text>
                             </Button>
-                        </motion.div>
-                    </div>
-                    {/* </div>
+                            <motion.div
+                                style={{
+                                    marginLeft: isChanged ? 8 : 0,
+                                    marginRight: isChanged ? 8 : 0,
+                                    width: isChanged ? 36 : 0,
+                                    overflow: 'hidden',
+                                }}
+                                animate={{
+                                    marginLeft: isChanged ? 8 : 0,
+                                    marginRight: isChanged ? 8 : 0,
+                                    width: isChanged ? 36 : 0,
+                                }}
+                            >
+                                <Button
+                                    size="l"
+                                    pin="circle-circle"
+                                    onClick={() => {
+                                        setFilters(defaultObj);
+                                        setShowPopup(false);
+                                    }}
+                                >
+                                    <Icon data={FunnelXmark} />
+                                </Button>
+                            </motion.div>
+                        </div>
+                        {/* </div>
                 </div> */}
-                </BluredCard>
+                    </BluredCard>
                 </div>
             </Popup>
-            <Button
-                style={{
-                    marginLeft: 5,
-                    width: '28px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-                ref={setAnchorElement}
-                view={checkFilters() ? 'outlined-warning' : 'outlined'}
-                onClick={() => {
-                    setShowPopup(!showPopup);
-                }}
-            >
-                {/* <Text color={checkFilters() ? 'warning' : undefined}> */}
-                <Icon data={ListCheck} size={14} />
-                {/* </Text> */}
-            </Button>
+            <ActionTooltip title="Фильтрация РК по дополнительным параметрам">
+                <Button
+                    style={{
+                        marginLeft: 5,
+                        width: '28px',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                    ref={setAnchorElement}
+                    view={checkFilters() ? 'outlined-warning' : 'outlined'}
+                    onClick={() => {
+                        setShowPopup(!showPopup);
+                    }}
+                >
+                    {/* <Text color={checkFilters() ? 'warning' : undefined}> */}
+                    <Icon data={ListCheck} size={14} />
+                    {/* </Text> */}
+                </Button>
+            </ActionTooltip>
         </>
     );
 };

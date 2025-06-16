@@ -8,6 +8,7 @@ import useWindowDimensions from '@/hooks/useWindowDimensions';
 
 import {CircleMinusFill, CircleMinus, CirclePlusFill, CirclePlus, Funnel} from '@gravity-ui/icons';
 import {
+    ActionTooltip,
     Button,
     Card,
     CardTheme,
@@ -203,6 +204,7 @@ export default function TheTable({
                 sub,
                 isDivider,
                 sortFunction,
+                tooltipContent,
             } = column;
 
             if (sortFunction) {
@@ -231,7 +233,15 @@ export default function TheTable({
                             width: '100%',
                         }}
                     >
-                        <Text variant="subheader-1">{placeholder}</Text>
+                        {tooltipContent ? (
+                            <ActionTooltip title={tooltipContent}>
+                                <Text style={{marginLeft: 4}} variant="subheader-1">
+                                    {placeholder}
+                                </Text>
+                            </ActionTooltip>
+                        ) : (
+                            <Text variant="subheader-1">{placeholder}</Text>
+                        )}
                         {additionalNodes}
                     </div>
                 ) : (
@@ -246,6 +256,7 @@ export default function TheTable({
                         constWidth,
                         viewportSize,
                         additionalNodes,
+                        tooltipContent
                     })
                 ),
                 render: render ? (args) => render(args) : (args) => defaultRender(args, valueType),
@@ -358,6 +369,7 @@ export const generateFilterTextInput = (args: any) => {
         width,
         viewportSize,
         additionalNodes,
+        tooltipContent,
     } = args;
     let minWidth = viewportSize ? viewportSize.width / 20 : 60;
     if (minWidth < 40) minWidth = 60;
@@ -378,7 +390,6 @@ export const generateFilterTextInput = (args: any) => {
     //         }
     //     }
     // }
-
     return (
         <div
             style={{
@@ -403,9 +414,19 @@ export const generateFilterTextInput = (args: any) => {
                     justifyContent: 'end',
                 }}
             >
-                <Text style={{marginLeft: 4}} variant="subheader-1">
-                    {placeholder}
-                </Text>
+                {tooltipContent ? (
+                    <ActionTooltip title={tooltipContent}>
+
+                        <Text style={{marginLeft: 4}} variant="subheader-1">
+                            {placeholder}
+                        </Text>
+                    </ActionTooltip>
+                ) : (
+                    <Text style={{marginLeft: 4}} variant="subheader-1">
+                        {placeholder}
+                    </Text>
+                )}
+
                 <DelayedTextInput
                     style={{width: '100%'}}
                     delay={250}
