@@ -695,6 +695,8 @@ export const AdvertsBidsModal = ({
 
         console.log(params);
 
+        setOpen(false);
+
         //////////////////////////////////
         callApi('setAdvertsCPMs', params)
             .then(() => {
@@ -702,9 +704,6 @@ export const AdvertsBidsModal = ({
             })
             .catch(() => {
                 showError('Возникла ошибка, попробуйте еще раз.');
-            })
-            .finally(() => {
-                setOpen(false);
             });
         //////////////////////////////////
     };
