@@ -109,7 +109,7 @@ export default function ModulePage() {
     // }
     if (
         currentTime >= new Date(subscriptionUntil) &&
-        ![1122958293, 933839157].includes(userInfo?.user?._id) &&
+        ![1122958293, 933839157, 1466479176].includes(userInfo?.user?._id) &&
         !['noModules', 'api', 'partnerka'].includes(currentModule)
     ) {
         return <NoSubscriptionPage />;

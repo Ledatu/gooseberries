@@ -336,7 +336,7 @@ const CampaignInfo = ({
                         ? `Подписка до ${new Date(subscriptionExpDate).toLocaleDateString('ru-RU')}`
                         : 'Бессрочная подписка'}
                 </Text>
-                {[933839157, 1122958293].includes(user?._id) ? (
+                {[933839157, 1122958293, 1466479176].includes(user?._id) ? (
                     <SetSubscriptionExpDateModal
                         setUpdate={() => {}}
                         campaignName={name}

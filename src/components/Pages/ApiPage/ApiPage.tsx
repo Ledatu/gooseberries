@@ -162,7 +162,7 @@ export const ApiPage = () => {
         return temp;
     }, [filteredData]);
 
-    const admin = useMemo(() => [1122958293, 933839157, 438907355].includes(user?._id), [user]);
+    const admin = useMemo(() => [1122958293, 933839157, 438907355, 1466479176].includes(user?._id), [user]);
     const columnData = useMemo(
         () =>
             [

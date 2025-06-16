@@ -44,30 +44,10 @@ export const AdditionalInfoTab = () => {
 
     const isFixed = template.isFixed && template.fixedClusters.length;
     const {rulesAI} = template;
-    const {userInfo} = useUser();
-    const {user} = userInfo ?? {};
-    const admin = useMemo(
-        () => [1122958293, 933839157, 566810027, 78342325].includes(user?._id),
-        [user],
-    );
 
     const toogleAI = (version: string) => {
         setTemplate({...template, rulesAI: rulesAI !== '' ? '' : version});
     };
-    {
-        admin ? (
-            <Button
-                size="l"
-                pin="circle-circle"
-                selected={rulesAI !== ''}
-                onClick={() => toogleAI('AURUMSKYNET AI фильтр')}
-            >
-                Включить автоматическую фильтрацию AURUMSKYNET AI
-            </Button>
-        ) : (
-            <></>
-        );
-    }
 
     console.log(advertId, rulesAI);
 
