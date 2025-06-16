@@ -600,10 +600,7 @@ export const AnalyticsPage = () => {
 
             const _entity = argEntity != '' ? argEntity : entity;
 
-            // if (_entity == 'ИП Галилова' && key == 'sum_orders')
-            // console.log(_entity, key, inputDate);
-
-            if (type == 'day') {
+            if (type == 'day' || !type) {
                 date = getDateFromLocaleString(date);
             } else if (type == 'week') {
                 // date = getDateFromLocaleString(date.slice(0, 10));
@@ -618,16 +615,13 @@ export const AnalyticsPage = () => {
 
             const monthName = getMonth(date);
 
-            let {dayPlan} =
-                doc.plansData[selectValue[0]][_entity] &&
-                doc.plansData[selectValue[0]][_entity][key] &&
-                doc.plansData[selectValue[0]][_entity][key][monthName]
-                    ? doc.plansData[selectValue[0]][_entity][key][monthName]
-                    : {dayPlan: 0};
+            let dayPlan =
+                doc?.plansData?.[selectValue[0]]?.[_entity]?.[key]?.[monthName]?.dayPlan ?? 0;
+            if (_entity == 'ОТК ПРОИЗВОДСТВО' && key == 'sum_orders')
+                console.log(_entity, key, inputDate, date, monthName, type, dayPlan);
 
             if (type == 'week') dayPlan *= 7;
             if (type == 'month') dayPlan *= daysInMonth(date);
-
             if (type == 'period') dayPlan *= daysInPeriod(inputDate);
 
             // if (
@@ -1590,7 +1584,8 @@ export const AnalyticsPage = () => {
             const {primeCost}: any = entitySummary;
             primeCostSummaries += primeCost ?? 0;
 
-            if (enteredKeysDateTypeLastCalc != 'period') {
+            if (false) {
+                //if (enteredKeysDateTypeLastCalc != 'period') {
                 if (entity) temp.push(entitySummary);
                 temp.push({entity: entity, isSummary: false, isBlank: true});
             }
@@ -1638,7 +1633,7 @@ export const AnalyticsPage = () => {
             return rowA.entity.localeCompare(rowB.entity, 'ru-RU');
         });
 
-        if (enteredKeysDateTypeLastCalc != 'period') temp.pop();
+        // if (enteredKeysDateTypeLastCalc != 'period') temp.pop();
 
         setFilteredData(temp);
     };
