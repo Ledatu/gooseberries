@@ -1,10 +1,11 @@
 'use client';
 
-import {Button, Card, Icon, Modal, Text} from '@gravity-ui/uikit';
+import {Button, Icon, Text} from '@gravity-ui/uikit';
 import {Calculator} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {useEffect, useState} from 'react';
 import {generateTextInputWithNoteOnTop, getRoundValue} from '@/utilities/getRoundValue';
+import {ModalWindow} from '@/shared/ui/Modal';
 
 export const CalcUnitEconomyModal = () => {
     const [calcUnitEconomyModalOpen, setCalcUnitEconomyModalOpen] = useState(false);
@@ -84,7 +85,7 @@ export const CalcUnitEconomyModal = () => {
         delivery = delivery / buyoutsPercent;
 
         const tax = Number(unitEconomyParams.tax) / 100;
-        const taxSum = tax * rozPrice;
+        const taxSum = tax * rozPrice * ((100 - Number(unitEconomyParams?.spp)) / 100);
 
         const expences = Number(unitEconomyParams.expences) / 100;
         const expencesSum = expences * rozPrice;
@@ -123,194 +124,159 @@ export const CalcUnitEconomyModal = () => {
                 <Icon data={Calculator} />
                 <Text variant="subheader-1">Рассчитать юнит экономику</Text>
             </Button>
-            <Modal
-                open={calcUnitEconomyModalOpen}
-                onClose={() => {
+            <ModalWindow
+                isOpen={calcUnitEconomyModalOpen}
+                handleClose={() => {
                     setCalcUnitEconomyModalOpen(false);
                     setUnitEconomyParams(unitEconomyParams);
                 }}
             >
-                <Card
-                    view="clear"
+                <motion.div
                     style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        translate: '-50% -50%',
-                        flexWrap: 'nowrap',
                         display: 'flex',
                         flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: 'none',
                     }}
                 >
-                    <motion.div
-                        style={{
-                            overflow: 'hidden',
-                            flexWrap: 'nowrap',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            backdropFilter: 'blur(48px)',
-                            boxShadow: '#0002 0px 2px 8px 0px',
-                            padding: 30,
-                            borderRadius: 30,
-                            border: '1px solid #eee2',
-                        }}
-                    >
-                        <motion.div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                            }}
-                        >
-                            {(() => {
-                                const placeholders = [
-                                    {
-                                        rozPrice: 'Цена после скидки, ₽',
-                                        spp: 'СПП, %',
-                                        sppPriceCalculated: generateTextInputWithNoteOnTop({
-                                            placeholder: 'Цена с СПП, ₽',
-                                            value:
-                                                unitEconomyParamsValid?.rozPrice &&
-                                                unitEconomyParamsValid?.spp
-                                                    ? (Number(unitEconomyParams?.rozPrice) *
-                                                          (100 - Number(unitEconomyParams?.spp))) /
-                                                      100
-                                                    : 'Ошибка.',
-                                            onUpdateHandler: () => {},
-                                            disabled: true,
-                                            validationState: true,
-                                        }),
-                                        primeCost: 'Себестоимость, ₽',
-                                        comission: 'Комиссия, %',
-                                        tax: 'Налог, %',
-                                        expences: 'Доп. расходы, %',
-                                        drr: 'ДРР,  %',
-                                        buyoutsPercent: 'Процент выкупа, %',
-                                    },
-                                    {
-                                        length: 'Длина, см.',
-                                        width: 'Ширина, см.',
-                                        height: 'Высота, см.',
-                                        koef: 'Коэффициент склада, %',
-                                        ktr: 'КТР',
-                                        obor: 'Оборачиваемость, дней',
-                                        logisticsCalculated: generateTextInputWithNoteOnTop({
-                                            placeholder: 'Логистика, ₽',
-                                            value: unitEconomyProfitValid
-                                                ? unitEconomyProfit.delivery
-                                                : 'Ошибка.',
-                                            onUpdateHandler: () => {},
-                                            disabled: true,
-                                            validationState: true,
-                                        }),
-                                        storageCalculated: generateTextInputWithNoteOnTop({
-                                            placeholder: 'Хранение, ₽',
-                                            value: unitEconomyProfitValid
-                                                ? unitEconomyProfit.storage
-                                                : 'Ошибка.',
-                                            onUpdateHandler: () => {},
-                                            disabled: true,
-                                            validationState: true,
-                                        }),
-                                    },
-                                ];
-                                const inputs = [] as any[];
-                                for (const headers of placeholders) {
-                                    const row = [] as any[];
-                                    for (const [key, placeholder] of Object.entries(headers)) {
-                                        if (key.includes('Calculated')) {
-                                            row.push(placeholder);
-                                        } else
-                                            row.push(
-                                                generateTextInputWithNoteOnTop({
-                                                    placeholder: placeholder,
-                                                    value: unitEconomyParams[key],
-                                                    onUpdateHandler: (val: any) => {
-                                                        const temp = {...unitEconomyParams};
-                                                        temp[key] = val;
-                                                        setUnitEconomyParams(temp);
+                    {(() => {
+                        const placeholders = [
+                            {
+                                rozPrice: 'Цена после скидки, ₽',
+                                spp: 'СПП, %',
+                                sppPriceCalculated: generateTextInputWithNoteOnTop({
+                                    placeholder: 'Цена с СПП, ₽',
+                                    value:
+                                        unitEconomyParamsValid?.rozPrice &&
+                                        unitEconomyParamsValid?.spp
+                                            ? (Number(unitEconomyParams?.rozPrice) *
+                                                  (100 - Number(unitEconomyParams?.spp))) /
+                                              100
+                                            : 'Ошибка.',
+                                    onUpdateHandler: () => {},
+                                    disabled: true,
+                                    validationState: true,
+                                }),
+                                primeCost: 'Себестоимость, ₽',
+                                comission: 'Комиссия, %',
+                                tax: 'Налог, %',
+                                expences: 'Доп. расходы, %',
+                                drr: 'ДРР,  %',
+                                buyoutsPercent: 'Процент выкупа, %',
+                            },
+                            {
+                                length: 'Длина, см.',
+                                width: 'Ширина, см.',
+                                height: 'Высота, см.',
+                                koef: 'Коэффициент склада, %',
+                                ktr: 'КТР',
+                                obor: 'Оборачиваемость, дней',
+                                logisticsCalculated: generateTextInputWithNoteOnTop({
+                                    placeholder: 'Логистика, ₽',
+                                    value: unitEconomyProfitValid
+                                        ? unitEconomyProfit.delivery
+                                        : 'Ошибка.',
+                                    onUpdateHandler: () => {},
+                                    disabled: true,
+                                    validationState: true,
+                                }),
+                                storageCalculated: generateTextInputWithNoteOnTop({
+                                    placeholder: 'Хранение, ₽',
+                                    value: unitEconomyProfitValid
+                                        ? unitEconomyProfit.storage
+                                        : 'Ошибка.',
+                                    onUpdateHandler: () => {},
+                                    disabled: true,
+                                    validationState: true,
+                                }),
+                            },
+                        ];
+                        const inputs = [] as any[];
+                        for (const headers of placeholders) {
+                            const row = [] as any[];
+                            for (const [key, placeholder] of Object.entries(headers)) {
+                                if (key.includes('Calculated')) {
+                                    row.push(placeholder);
+                                } else
+                                    row.push(
+                                        generateTextInputWithNoteOnTop({
+                                            placeholder: placeholder,
+                                            value: unitEconomyParams[key],
+                                            onUpdateHandler: (val: any) => {
+                                                const temp = {...unitEconomyParams};
+                                                temp[key] = val;
+                                                setUnitEconomyParams(temp);
 
-                                                        const numberLike = Number(
-                                                            val != '' ? val : 'nan',
-                                                        );
-                                                        const validTemp: any = {
-                                                            ...unitEconomyParamsValid,
-                                                        };
-                                                        validTemp[key] =
-                                                            !isNaN(numberLike) &&
-                                                            isFinite(numberLike);
-                                                        setUnitEconomyParamsValid(validTemp);
-                                                    },
-                                                    disabled: false,
-                                                    validationState: unitEconomyParamsValid[key],
-                                                }),
-                                            );
-                                        row.push(<div style={{minHeight: 8}} />);
-                                    }
-                                    row.pop();
-                                    inputs.push(row);
-                                }
-
-                                const divs = [] as any[];
-                                for (const row of inputs) {
-                                    divs.push(
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            {row}
-                                        </div>,
+                                                const numberLike = Number(val != '' ? val : 'nan');
+                                                const validTemp: any = {
+                                                    ...unitEconomyParamsValid,
+                                                };
+                                                validTemp[key] =
+                                                    !isNaN(numberLike) && isFinite(numberLike);
+                                                setUnitEconomyParamsValid(validTemp);
+                                            },
+                                            disabled: false,
+                                            validationState: unitEconomyParamsValid[key],
+                                        }),
                                     );
-                                    divs.push(<div style={{minWidth: 30}} />);
-                                }
-                                divs.pop();
-                                return divs;
-                            })()}
-                        </motion.div>
-                        <div style={{minHeight: 8}} />
-                        <Text
-                            variant="header-1"
-                            style={{whiteSpace: 'pre-wrap'}}
-                            color={
-                                unitEconomyProfitValid
-                                    ? unitEconomyProfit.profit > 0
-                                        ? 'positive'
-                                        : 'danger'
-                                    : 'danger'
+                                row.push(<div style={{minHeight: 8}} />);
                             }
-                        >
-                            {(() => {
-                                return unitEconomyProfitValid ? (
-                                    `${Math.round(unitEconomyProfit.profit)} / ${getRoundValue(
-                                        unitEconomyProfit.profit,
-                                        unitEconomyParams['rozPrice'],
-                                        true,
-                                    )}%`
-                                ) : (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        Введите все
-                                        <b />
-                                        значения
-                                    </div>
-                                );
-                            })()}
-                        </Text>
-                    </motion.div>
-                </Card>
-            </Modal>
+                            row.pop();
+                            inputs.push(row);
+                        }
+
+                        const divs = [] as any[];
+                        for (const row of inputs) {
+                            divs.push(
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    {row}
+                                </div>,
+                            );
+                            divs.push(<div style={{minWidth: 30}} />);
+                        }
+                        divs.pop();
+                        return divs;
+                    })()}
+                </motion.div>
+                <div style={{minHeight: 8}} />
+                <Text
+                    variant="header-1"
+                    style={{whiteSpace: 'pre-wrap'}}
+                    color={
+                        unitEconomyProfitValid
+                            ? unitEconomyProfit.profit > 0
+                                ? 'positive'
+                                : 'danger'
+                            : 'danger'
+                    }
+                >
+                    {(() => {
+                        return unitEconomyProfitValid ? (
+                            `${Math.round(unitEconomyProfit.profit)} / ${getRoundValue(
+                                unitEconomyProfit.profit,
+                                unitEconomyParams['rozPrice'],
+                                true,
+                            )}%`
+                        ) : (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                Введите все
+                                <b />
+                                значения
+                            </div>
+                        );
+                    })()}
+                </Text>
+            </ModalWindow>
         </>
     );
 };
