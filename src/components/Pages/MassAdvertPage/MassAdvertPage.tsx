@@ -3505,16 +3505,14 @@ export const MassAdvertPage = () => {
                                 filteredData={checkedData}
                                 setChangedDoc={setChangedDoc}
                             >
-                                <ActionTooltip title="Создает рекламные компании">
-                                    <Button
-                                        disabled={permission != 'Управление'}
-                                        view="action"
-                                        size="l"
-                                    >
-                                        <Icon data={SlidersVertical} />
-                                        <Text variant="subheader-1">Создать</Text>
-                                    </Button>
-                                </ActionTooltip>
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                >
+                                    <Icon data={SlidersVertical} />
+                                    <Text variant="subheader-1">Создать</Text>
+                                </Button>
                             </AdvertCreateModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsStatusManagingModal
@@ -3524,17 +3522,15 @@ export const MassAdvertPage = () => {
                                 doc={doc}
                                 setChangedDoc={setChangedDoc}
                             >
-                                <ActionTooltip title=" Открывает меню управления рекламной кампанией: возобновление, пауза, завершение">
-                                    <Button
-                                        disabled={permission != 'Управление'}
-                                        view="action"
-                                        size="l"
-                                        style={{cursor: 'pointer'}}
-                                    >
-                                        <Icon data={Play} />
-                                        <Text variant="subheader-1">Управление</Text>
-                                    </Button>
-                                </ActionTooltip>
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                    style={{cursor: 'pointer'}}
+                                >
+                                    <Icon data={Play} />
+                                    <Text variant="subheader-1">Управление</Text>
+                                </Button>
                             </AdvertsStatusManagingModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsBidsModal
@@ -3545,16 +3541,14 @@ export const MassAdvertPage = () => {
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                                 advertId={undefined}
                             >
-                                <ActionTooltip title="Открывает окно выбора метода автоставок с дополнительными параметрами">
-                                    <Button
-                                        view="action"
-                                        size="l"
-                                        disabled={permission != 'Управление'}
-                                    >
-                                        <Icon data={ChartLine} />
-                                        <Text variant="subheader-1">Ставки</Text>
-                                    </Button>
-                                </ActionTooltip>
+                                <Button
+                                    view="action"
+                                    size="l"
+                                    disabled={permission != 'Управление'}
+                                >
+                                    <Icon data={ChartLine} />
+                                    <Text variant="subheader-1">Ставки</Text>
+                                </Button>
                             </AdvertsBidsModal>
                             <div style={{minWidth: 8}} />
                             <AdvertsBudgetsModal
@@ -3566,16 +3560,14 @@ export const MassAdvertPage = () => {
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                                 advertId={undefined}
                             >
-                                <ActionTooltip title="Позволяет включить автопополнение или вручную пополнить бюджет рекламной кампании">
-                                    <Button
-                                        view="action"
-                                        size="l"
-                                        disabled={permission != 'Управление'}
-                                    >
-                                        <Icon data={CircleRuble} />
-                                        <Text variant="subheader-1">Бюджет</Text>
-                                    </Button>
-                                </ActionTooltip>
+                                <Button
+                                    view="action"
+                                    size="l"
+                                    disabled={permission != 'Управление'}
+                                >
+                                    <Icon data={CircleRuble} />
+                                    <Text variant="subheader-1">Бюджет</Text>
+                                </Button>
                             </AdvertsBudgetsModal>
                             <div style={{minWidth: 8}} />
                             <PhrasesModal
@@ -3593,16 +3585,14 @@ export const MassAdvertPage = () => {
                                 advertId={undefined as any}
                                 getUniqueAdvertIdsFromThePage={getUniqueAdvertIdsFromThePage}
                             >
-                                <ActionTooltip title="Настраивает расписание показов с учётом тепловой карты заказов">
-                                    <Button
-                                        disabled={permission != 'Управление'}
-                                        view="action"
-                                        size="l"
-                                    >
-                                        <Icon data={Clock} />
-                                        <Text variant="subheader-1">График</Text>
-                                    </Button>
-                                </ActionTooltip>
+                                <Button
+                                    disabled={permission != 'Управление'}
+                                    view="action"
+                                    size="l"
+                                >
+                                    <Icon data={Clock} />
+                                    <Text variant="subheader-1">График</Text>
+                                </Button>
                             </AdvertsSchedulesModal>
                             <div style={{minWidth: 8}} />
                             <TagsFilterModal filterByButton={filterByButton} />

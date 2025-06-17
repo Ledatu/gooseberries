@@ -175,7 +175,7 @@ export const AdvertsBudgetsModal = ({
     return (
         <div>
             {!advertId ? NoCheckedRowsPopup : undefined}
-            <ActionTooltip title="Открывает окно управления бюджетом РК">
+            <ActionTooltip title="Позволяет включить автопополнение или вручную пополнить бюджет рекламной кампании">
                 {triggerButton}
             </ActionTooltip>
             <Modal open={open && !disabled} onClose={handleClose}>

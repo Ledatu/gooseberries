@@ -723,7 +723,7 @@ export const AdvertsBidsModal = ({
     return (
         <div>
             {!advertId ? NoCheckedRowsPopup : undefined}
-            <ActionTooltip title="Открывает окно настройки ставок и дополнительных параметров">
+            <ActionTooltip title="Открывает окно выбора метода автоставок с дополнительными параметрами">
                 {triggerButton}
             </ActionTooltip>
             <ModalWindow isOpen={open} handleClose={handleClose}>

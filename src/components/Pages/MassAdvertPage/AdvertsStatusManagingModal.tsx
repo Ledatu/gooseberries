@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Card, Icon, Modal, Spin, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Card, Icon, Modal, Spin, Text} from '@gravity-ui/uikit';
 import {TrashBin, Play, Pause} from '@gravity-ui/icons';
 import {motion} from 'framer-motion';
 import {Children, isValidElement, ReactElement, ReactNode, useState, cloneElement} from 'react';
@@ -142,7 +142,9 @@ export const AdvertsStatusManagingModal = ({
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
             {NoCheckedRowsPopup}
-            {triggerButton}
+            <ActionTooltip title=" Открывает меню управления рекламной кампанией: возобновление, пауза, завершение">
+                {triggerButton}
+            </ActionTooltip>
             <motion.div
                 animate={{width: inProgress ? 36 : 0, marginLeft: inProgress ? 8 : 0}}
                 style={{

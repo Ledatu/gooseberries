@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Text, Checkbox, Select, Icon} from '@gravity-ui/uikit';
+import {Button, Text, Checkbox, Select, Icon, ActionTooltip} from '@gravity-ui/uikit';
 import {CloudArrowUpIn} from '@gravity-ui/icons';
 import {Children, isValidElement, ReactElement, cloneElement} from 'react';
 import {ModalWindow} from '@/shared/ui/Modal';
@@ -62,7 +62,7 @@ export const AdvertCreateModal = ({
     return (
         <>
             {NoCheckedRowsPopup}
-            {triggerButton}
+            <ActionTooltip title="Создает рекламные компании">{triggerButton}</ActionTooltip>
             <ModalWindow isOpen={open} handleClose={handleClose}>
                 <Text variant="display-2">Создание РК</Text>
                 <div style={{minHeight: 8}} />

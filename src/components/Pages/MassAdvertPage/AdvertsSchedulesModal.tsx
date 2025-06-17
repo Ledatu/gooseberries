@@ -14,8 +14,8 @@ import {useCampaign} from '@/contexts/CampaignContext';
 import callApi, {getUid} from '@/utilities/callApi';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
-import {getLocaleDateString, getRoundValue} from '@/utilities/getRoundValue';
 import {useNoCheckedRowsPopup} from '@/shared/ui/NoCheckedRowsPopup';
+import {getRoundValue} from '@/utilities/getRoundValue';
 
 interface AdvertsSchedulesModalProps {
     setUpdatePaused?: Function;
@@ -67,110 +67,21 @@ export const AdvertsSchedulesModal = ({
         }
     };
 
-    const getConversionDay = (heatMapTemp: number[][], nms: any[], key: string) => {
-        const now = new Date();
-        const today = new Date(now); // Clone to avoid mutating original
-        const jsDay = today.getDay(); // JS: Sunday = 0, Monday = 1, ..., Saturday = 6
-
-        // Remap: treat Sunday as 7
-        const dayOfWeek = jsDay === 0 ? 7 : jsDay;
-
-        // Shift back to the previous full Sunday (00:00)
-        const lastFullSunday = new Date(today);
-        lastFullSunday.setDate(today.getDate() - dayOfWeek);
-        lastFullSunday.setHours(0, 0, 0, 0);
-
-        // Go 4 full weeks back (28 days before that Sunday)
-        const fourWeeksAgoSunday = new Date(lastFullSunday);
-        fourWeeksAgoSunday.setDate(lastFullSunday.getDate() - 27);
-
-        const coeffs = {} as any;
-        for (const row of Object.values(doc?.campaigns?.[selectValue[0] ?? {}]) as any[]) {
-            if (!nms.includes(row?.['nmId'])) continue;
-            const statistics = row?.['nmFullDetailReport']?.['statistics'];
-
-            for (let i: number = 0; i < 28; i++) {
-                const date = new Date(Date.now() - 86400 * 1000 * (i + dayOfWeek));
-                const strDate = getLocaleDateString(date);
-                let value = 0;
-                if (key != 'openCard') value = statistics?.[strDate]?.[key];
-                else {
-                    const openCardCount = statistics?.[strDate]?.['openCardCount'];
-                    const addToCartCount = statistics?.[strDate]?.['addToCartCount'];
-                    const cartToOrderPercent = statistics?.[strDate]?.['cartToOrderPercent'];
-                    const openToOrderPercent =
-                        (cartToOrderPercent * getRoundValue(addToCartCount, openCardCount, true)) /
-                        100;
-                    value = openToOrderPercent;
-                    // console.log(
-                    //     openCardCount,
-                    //     addToCartCount,
-                    //     cartToOrderPercent,
-                    //     openToOrderPercent,
-                    // );
-                }
-
-                if (!value) continue;
-
-                const dayOfWeekDate = date.getDay();
-                if (!coeffs[dayOfWeekDate]) coeffs[dayOfWeekDate] = {val: 0, n: 0, avg: 0};
-                coeffs[dayOfWeekDate].val += value ?? 0;
-                coeffs[dayOfWeekDate].n++;
-                coeffs[dayOfWeekDate].avg = coeffs[dayOfWeekDate].val / coeffs[dayOfWeekDate].n;
-                if (!coeffs[dayOfWeekDate].avg) coeffs[dayOfWeekDate].avg = 1;
-            }
-            // console.log(row);
-        }
-        // console.log(coeffs);
-
-        for (let i = 0; i < 7; i++) {
-            console.log(i, heatMapTemp[i]);
-            heatMapTemp[i] = heatMapTemp[i].map((value, index) => {
-                const toSub =
-                    (index >= 7 && index <= 10 ? 0.1 : 0) +
-                    (index >= 11 && index <= 15 ? (key != 'openCard' ? 0.05 : 0.002) : 0) +
-                    index * 0.001;
-                // console.log(
-                //     i,
-                //     toSub,
-                //     (coeffs?.[i]?.avg ?? 100) / 100,
-                //     (coeffs?.[i]?.avg ?? 100) / 100 + toSub,
-                // );
-
-                return getRoundValue(value, coeffs?.[i]?.avg ?? 100) / 100 + toSub;
-            });
-            // console.log(i, heatMapTemp[i]);
-        }
-
-        setHeatMap(heatMapTemp);
-
-        // console.log(coeffs);
-    };
-
     const getHeatMapLaundries = async () => {
         setFetchingHeatMap(2);
         try {
             console.log(advertId, sellerId);
-            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
+            const res = await ApiClient.post('massAdvert/new/getHeatMap', {
                 advertId,
                 seller_id: sellerId,
+                type: 'addToCartCount',
             });
             if (!res || !res.data || !res.data.heatMap) {
                 throw Error('No data in res');
             }
             console.log(res, res.data);
-            const heatMap = res.data.heatMap;
-            const advert = doc?.adverts?.[selectValue[0]]?.[advertId];
-            let nms = [];
-            if (advert?.type == 8) {
-                nms = advert?.autoParams?.nms ?? [];
-            } else if (advert?.type == 9) {
-                nms = advert?.unitedParams?.[0]?.nms ?? [];
-            }
-            // console.log('nms', advert, nms);
-            getConversionDay(heatMap, nms, 'cartToOrderPercent');
-            setHeatMap(heatMap);
-            // console.log(heatMap);
+            setHeatMap(res.data.heatMap);
+            console.log(heatMap);
         } catch (error) {
             console.error(error);
         } finally {
@@ -182,25 +93,16 @@ export const AdvertsSchedulesModal = ({
         setFetchingHeatMap(3);
         try {
             console.log(advertId, sellerId);
-            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMap', {
+            const res = await ApiClient.post('massAdvert/new/getHeatMap', {
                 advertId,
                 seller_id: sellerId,
+                type: 'openCardCount',
             });
             if (!res || !res.data || !res.data.heatMap) {
                 throw Error('No data in res');
             }
             console.log(res, res.data);
-            const heatMap = res.data.heatMap;
-            const advert = doc?.adverts?.[selectValue[0]]?.[advertId];
-            let nms = [];
-            if (advert?.type == 8) {
-                nms = advert?.autoParams?.nms ?? [];
-            } else if (advert?.type == 9) {
-                nms = advert?.unitedParams?.[0]?.nms ?? [];
-            }
-            console.log('nms', advert, nms);
-            getConversionDay(heatMap, nms, 'openCard');
-            setHeatMap(heatMap);
+            setHeatMap(res.data.heatMap);
             console.log(heatMap);
         } catch (error) {
             console.error(error);
@@ -213,15 +115,16 @@ export const AdvertsSchedulesModal = ({
         setFetchingHeatMap(2);
         try {
             console.log(nmIds, sellerId);
-            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMapByNmIds', {
+            const res = await ApiClient.post('massAdvert/new/getHeatMap', {
                 nmIds,
                 seller_id: sellerId,
+                type: 'addToCartCount',
             });
             if (!res || !res.data || !res.data.heatMap) {
                 throw Error('No data in res');
             }
             console.log(res, res.data);
-            getConversionDay(res.data.heatMap, nmIds ?? [], 'cartToOrderPercent');
+            setHeatMap(res.data.heatMap);
             console.log(heatMap);
         } catch (error) {
             console.error(error);
@@ -233,15 +136,16 @@ export const AdvertsSchedulesModal = ({
         setFetchingHeatMap(3);
         try {
             console.log(nmIds, sellerId);
-            const res = await ApiClient.post('massAdvert/new/advertSchedule/getHeatMapByNmIds', {
+            const res = await ApiClient.post('massAdvert/new/getHeatMap', {
                 nmIds,
                 seller_id: sellerId,
+                type: 'openCardCount',
             });
             if (!res || !res.data || !res.data.heatMap) {
                 throw Error('No data in res');
             }
             console.log(res, res.data);
-            getConversionDay(res.data.heatMap, nmIds ?? [], 'openCard');
+            setHeatMap(res.data.heatMap);
             console.log(heatMap);
         } catch (error) {
             console.error(error);
@@ -583,7 +487,9 @@ export const AdvertsSchedulesModal = ({
     return (
         <>
             {!advertId ? NoCheckedRowsPopup : undefined}
-            <ActionTooltip title="Показывает график показов РК">{triggerButton}</ActionTooltip>
+            <ActionTooltip title="Настраивает расписание показов с учётом тепловой карты заказов">
+                {triggerButton}
+            </ActionTooltip>
             <Modal open={open && !disabled} onClose={handleClose}>
                 <Card
                     view="clear"
