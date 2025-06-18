@@ -2,10 +2,10 @@
 
 import {useEffect, useState} from 'react';
 import TheTable, {compare} from '@/components/TheTable';
-import callApi, {getUid} from '@/utilities/callApi';
+import callApi from '@/utilities/callApi';
 
 import {Button, Text, Icon, ActionTooltip} from '@gravity-ui/uikit';
-import {Pencil, Xmark, Plus, StarFill} from '@gravity-ui/icons';
+import {Pencil, Plus, StarFill} from '@gravity-ui/icons';
 import {AutoFeedbackTemplateCreationModal} from './AutoFeedbackTemplateCreationModal';
 import ApiClient from '@/utilities/ApiClient';
 import {LogoLoad} from '@/components/logoLoad';
