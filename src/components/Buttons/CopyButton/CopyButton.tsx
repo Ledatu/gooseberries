@@ -39,24 +39,26 @@ export const CopyButton = ({
     const button = (
         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
             {children}
-            <Button
-                selected={selected}
-                pin={pin}
-                view={view}
-                size={size}
-                onClick={() => {
-                    setIcon({icon: CopyCheck});
-                    navigator.clipboard.writeText(
-                        typeof copyText == 'string' ? copyText : copyText(),
-                    );
-                    setTimeout(() => {
-                        setIcon({icon: Copy});
-                    }, 1000);
-                }}
-                style={{marginLeft: children ? 4 : 0}}
-            >
-                <Icon data={icon.icon} size={iconSize} />
-            </Button>
+            <ActionTooltip title='Копирует значение в буфер обмена'>
+                <Button
+                    selected={selected}
+                    pin={pin}
+                    view={view}
+                    size={size}
+                    onClick={() => {
+                        setIcon({icon: CopyCheck});
+                        navigator.clipboard.writeText(
+                            typeof copyText == 'string' ? copyText : copyText(),
+                        );
+                        setTimeout(() => {
+                            setIcon({icon: Copy});
+                        }, 1000);
+                    }}
+                    style={{marginLeft: children ? 4 : 0}}
+                >
+                    <Icon data={icon.icon} size={iconSize} />
+                </Button>
+            </ActionTooltip>
         </div>
     );
     return tooltip ? <ActionTooltip title={tooltip}>{button}</ActionTooltip> : button;
