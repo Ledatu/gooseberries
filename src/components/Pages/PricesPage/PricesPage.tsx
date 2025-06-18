@@ -1,6 +1,16 @@
 'use client';
 import {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
-import {Spin, Select, Icon, Button, Text, Link, Card, Popover} from '@gravity-ui/uikit';
+import {
+    Spin,
+    Select,
+    Icon,
+    Button,
+    Text,
+    Link,
+    Card,
+    Popover,
+    ActionTooltip,
+} from '@gravity-ui/uikit';
 import '@gravity-ui/react-data-table/build/esm/lib/DataTable.scss';
 
 import {
@@ -205,7 +215,6 @@ export const PricesPage = () => {
                 >
                     {value}
                 </Button>
-
                 <CopyButton
                     view="flat"
                     color="secondary"
@@ -457,6 +466,7 @@ export const PricesPage = () => {
             name: 'imtId',
             placeholder: 'ID КТ',
             valueType: 'text',
+            tooltipContent: 'ID склейки товаров',
             render: (args: any) => renderFilterByClickButton(args, 'imtId'),
         },
         {
@@ -465,7 +475,11 @@ export const PricesPage = () => {
             valueType: 'text',
             render: (args: any) => renderFilterByClickButton(args, 'nmId'),
         },
-        {name: 'wbPrice', placeholder: 'Цена до, ₽'},
+        {
+            name: 'wbPrice',
+            placeholder: 'Цена до, ₽',
+            tooltipContent: 'Розничная цена до применения скидки',
+        },
         {
             name: 'discount',
             placeholder: 'Скидка, %',
@@ -627,6 +641,7 @@ export const PricesPage = () => {
         {
             name: 'rentabelnost',
             placeholder: 'Профит, ₽',
+            tooltipContent: 'Доход с продажи после вычета всех расходов',
             render: (args: any) =>
                 fixedPriceRender(
                     args,
@@ -646,6 +661,7 @@ export const PricesPage = () => {
         {
             name: 'rent_no_ad',
             placeholder: 'Марж. без рекламы, ₽',
+            tooltipContent: 'Прибыль без учёта затрат на продвижение',
             render: (args: any) =>
                 fixedPriceRender(
                     args,
@@ -735,11 +751,13 @@ export const PricesPage = () => {
             name: 'ad',
             placeholder: 'Реклама / CPS, ₽',
             render: (args: any) => renderSlashPercent(args, 'rozPrice'),
+            tooltipContent: 'Средняя стоимость одной продажи по рекламе',
         },
         {
             name: 'cpo',
             placeholder: 'CPO, ₽',
             render: (args: any) => renderSlashPercent(args, 'rozPrice'),
+            tooltipContent: 'Средняя стоимость одного заказа по рекламе',
         },
         {
             name: 'buyoutsPercent',
@@ -1196,22 +1214,26 @@ export const PricesPage = () => {
                             setLastCalcOldData={setLastCalcOldData}
                             setCurrentPricesCalculatedBasedOn={setCurrentPricesCalculatedBasedOn}
                         />
-                        <Button
-                            disabled={
-                                permission != 'Управление' ||
-                                currentPricesCalculatedBasedOn == '' ||
-                                currentPricesCalculatedBasedOn == 'clubDiscount'
-                            }
-                            size="l"
-                            view="action"
-                            onClick={() => {
-                                if (checkedData?.length) setUpdatePricesModalOpen(true);
-                                else openNoCheckedRowsPopup();
-                            }}
-                        >
-                            <Icon data={CloudArrowUpIn} />
-                            <Text variant="subheader-1">Отправить цены на WB</Text>
-                        </Button>
+                        <ActionTooltip title="Загружает цены и параметры в ЛК WB">
+                            <div>
+                                <Button
+                                    disabled={
+                                        permission != 'Управление' ||
+                                        currentPricesCalculatedBasedOn == '' ||
+                                        currentPricesCalculatedBasedOn == 'clubDiscount'
+                                    }
+                                    size="l"
+                                    view="action"
+                                    onClick={() => {
+                                        if (checkedData?.length) setUpdatePricesModalOpen(true);
+                                        else openNoCheckedRowsPopup();
+                                    }}
+                                >
+                                    <Icon data={CloudArrowUpIn} />
+                                    <Text variant="subheader-1">Отправить цены на WB</Text>
+                                </Button>
+                            </div>
+                        </ActionTooltip>
                         <ModalWindow
                             isOpen={updatePricesModalOpen}
                             handleClose={() => setUpdatePricesModalOpen(false)}

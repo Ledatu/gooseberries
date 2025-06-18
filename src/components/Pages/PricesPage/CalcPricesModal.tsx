@@ -1,6 +1,7 @@
 'use client';
 
 import {
+    ActionTooltip,
     Button,
     Card,
     Checkbox,
@@ -234,28 +235,30 @@ export const CalcPricesModal = ({
     return (
         <div style={{display: 'flex', flexDirection: 'row'}}>
             {NoCheckedRowsPopup}
-            <Button
-                disabled={disabled}
-                loading={calculatingFlag}
-                size="l"
-                view="action"
-                onClick={() => {
-                    if (filteredData?.length) {
-                        setEnteredValuesModalOpen(true);
-                        setEnteredValuesModalOpen(true);
-                        setEnteredValue('');
-                        setEnteredDiscountValue('');
-                        clearOborRuleSet();
-                        setFixPrices(false);
-                        setEnteredValueValid(false);
-                        setChangeDiscount(false);
-                        setEnteredDiscountValueValid(false);
-                    } else openNoCheckedRowsPopup();
-                }}
-            >
-                <Icon data={Calculator} />
-                <Text variant="subheader-1">Рассчитать</Text>
-            </Button>
+            <ActionTooltip title='Рассчитывает различные параметры цены для артикула'>
+                <Button
+                    disabled={disabled}
+                    loading={calculatingFlag}
+                    size="l"
+                    view="action"
+                    onClick={() => {
+                        if (filteredData?.length) {
+                            setEnteredValuesModalOpen(true);
+                            setEnteredValuesModalOpen(true);
+                            setEnteredValue('');
+                            setEnteredDiscountValue('');
+                            clearOborRuleSet();
+                            setFixPrices(false);
+                            setEnteredValueValid(false);
+                            setChangeDiscount(false);
+                            setEnteredDiscountValueValid(false);
+                        } else openNoCheckedRowsPopup();
+                    }}
+                >
+                    <Icon data={Calculator} />
+                    <Text variant="subheader-1">Рассчитать</Text>
+                </Button>
+            </ActionTooltip>
             <motion.div
                 style={{
                     overflow: 'hidden',

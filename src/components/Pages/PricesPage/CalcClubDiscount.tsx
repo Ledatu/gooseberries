@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Icon, NumberInput, Spin, Text} from '@gravity-ui/uikit';
+import {ActionTooltip, Button, Icon, NumberInput, Spin, Text} from '@gravity-ui/uikit';
 import {Calculator, TrashBin} from '@gravity-ui/icons';
 import {useState} from 'react';
 import {motion} from 'framer-motion';
@@ -118,16 +118,20 @@ export const CalcClubDiscount = ({
     return (
         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
             {NoCheckedRowsPopup}
-            <Button
-                disabled={disabled}
-                loading={calculatingFlag}
-                size="l"
-                view="action"
-                onClick={handleOpen}
-            >
-                <Icon data={Calculator} />
-                <Text variant="subheader-1">WB Клуб</Text>
-            </Button>
+            <ActionTooltip title="Расчет юнит-экономики с учетом выбранной скидки WB Клуба">
+                <div>
+                    <Button
+                        disabled={disabled}
+                        loading={calculatingFlag}
+                        size="l"
+                        view="action"
+                        onClick={handleOpen}
+                    >
+                        <Icon data={Calculator} />
+                        <Text variant="subheader-1">WB Клуб</Text>
+                    </Button>
+                </div>
+            </ActionTooltip>
             <motion.div
                 style={{
                     overflow: 'hidden',
@@ -158,7 +162,7 @@ export const CalcClubDiscount = ({
                             max={31}
                         />
                     </TextTitleWrapper>
-                    <Text variant='body-2'>от 3% до 31%</Text>
+                    <Text variant="body-2">от 3% до 31%</Text>
                     <Button
                         selected
                         pin="circle-circle"
