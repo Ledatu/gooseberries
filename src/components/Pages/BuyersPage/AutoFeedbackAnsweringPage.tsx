@@ -148,7 +148,7 @@ export const AutoFeedbackAnsweringPage = ({
                                 flexDirection: 'row',
                             }}
                         >
-                            <Button
+                            {/* <Button
                                 size="xs"
                                 onClick={() => {
                                     const params = {
@@ -172,7 +172,7 @@ export const AutoFeedbackAnsweringPage = ({
                             >
                                 <Icon data={Xmark} />
                             </Button>
-                            <div style={{minWidth: 8}} />
+                            <div style={{minWidth: 8}} /> */}
                             <AutoFeedbackTemplateCreationModal
                                 feedbackValuations={feedbackValuations}
                                 artsData={artsData}
