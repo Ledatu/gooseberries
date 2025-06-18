@@ -1,5 +1,5 @@
 'use client';
-import {PageInfoGraphs} from '@/features/Top100ComparsionInfo/ui';
+// import {PageInfoGraphs} from '@/features/Top100ComparsionInfo/ui';
 import {CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
     Spin,
@@ -12,7 +12,7 @@ import {
     Modal,
     Skeleton,
     List,
-    Tooltip,
+    // Tooltip,
     ButtonPin,
     ButtonSize,
     ButtonView,
@@ -30,7 +30,7 @@ import {
     ChartLine,
     ArrowRotateLeft,
     CircleRuble,
-    TShirt,
+    // TShirt,
     SlidersVertical,
     ArrowShapeUp,
     Minus,
@@ -42,7 +42,7 @@ import {
     TagRuble,
     Cherry,
     Xmark,
-    TriangleExclamation,
+    // TriangleExclamation,
     XmarkShape,
 } from '@gravity-ui/icons';
 
@@ -71,12 +71,12 @@ import {LogoLoad} from '@/components/logoLoad';
 import {useMediaQuery} from '@/hooks/useMediaQuery';
 import {useCampaign} from '@/contexts/CampaignContext';
 import {CanBeAddedToSales} from './CanBeAddedToSales';
-import {StocksByWarehousesPopup} from './StocksByWarehousesPopup';
+// import {StocksByWarehousesPopup} from './StocksByWarehousesPopup';
 import {AdvertsSchedulesModal} from './AdvertsSchedulesModal';
 import {AdvertsStatusManagingModal} from './AdvertsStatusManagingModal';
 import {useError} from '@/contexts/ErrorContext';
 import ApiClient from '@/utilities/ApiClient';
-import {getEnumurationString} from '@/utilities/getEnumerationString';
+// import {getEnumurationString} from '@/utilities/getEnumerationString';
 import {AdvertCreateModal} from '@/features/advertising/AdvertCreationModal';
 import DzhemPhrasesModal from './DzhemPhrasesModal';
 import {PopupFilterArts} from './PopupFilterArts';
@@ -92,6 +92,7 @@ import {ShortAdvertTemplateInfo} from '@/entities/types/ShortAdvertTemplateInfo'
 import {changeSelectedPhrase} from '@/features/advertising/AdvertsWordsModal/api/changeSelectedPhrase';
 import {StatisticsPanel} from '@/widgets/ui';
 import {AdvertStatsByDayModalForNmId} from '@/features/advertising/AdvertStatsByDayModal/ui/AdvertStatsByDayModalForNmId';
+import {AnalyticsColumnCard} from '@/features/advertising/MassAdvertTable/AnalyticsColumnCard';
 
 const getUserDoc = (docum = undefined, mode = false, selectValue = '') => {
     const [doc, setDocument] = useState<any>();
@@ -1451,7 +1452,7 @@ export const MassAdvertPage = () => {
             name: 'analytics',
             placeholder: 'Аналитика',
             render: ({row, footer}: any) => {
-                const {profit, rentabelnost} = row;
+                const {profit, rentabelnost, nmId} = row;
                 if (footer) {
                     return (
                         <Text color={profit > 0 ? 'positive' : 'danger'}>
@@ -1463,156 +1464,12 @@ export const MassAdvertPage = () => {
                         </Text>
                     );
                 }
-                const warningArtIcon = () => {
-                    const nmIdArray = unvalidatedArts.map((art) => art.nmId);
-                    const nmIdIndex = nmIdArray.findIndex((element) => element == nmId);
-                    if (nmIdIndex != -1) {
-                        const art = unvalidatedArts[nmIdIndex];
-                        const keys = Object.keys(art);
-                        const words: string[] = [];
-                        for (const key of keys) {
-                            switch (key) {
-                                case 'prices':
-                                    words.push('себестоимость');
-                                    break;
-                                case 'tax':
-                                    words.push('налог');
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        return (
-                            <div>
-                                <Tooltip
-                                    style={{maxWidth: '400px'}}
-                                    content={
-                                        <Text>
-                                            Внимание: расчёт прибыли выполнен с ошибкой. Пожалуйста,
-                                            укажите&nbsp;{getEnumurationString(words)} для
-                                            корректного отображения данных
-                                        </Text>
-                                    }
-                                >
-                                    <Text style={{color: 'rgb(255, 190, 92)'}}>
-                                        <Icon data={TriangleExclamation} size={11} />
-                                    </Text>
-                                </Tooltip>
-                            </div>
-                        );
-                    }
-                    return <div />;
-                };
-                const {placementsValue, stocksBySizes, nmId} = row ?? {};
-                const stocksByWarehousesArt = stocksByWarehouses?.[nmId];
-                const {phrase} = placementsValue ?? {};
                 return (
-                    <Card
-                        style={{
-                            width: 160,
-                            height: 110.5,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <ActionTooltip title="Показывает график сравнения позиции карточки в топ-100 по запросу">
-                            <PageInfoGraphs
-                                sellerId={sellerId}
-                                phrase={phrase}
-                                placementsValue={placementsValue}
-                            />
-                        </ActionTooltip>
-                        {stocksBySizes && stocksBySizes.all > 1 ? (
-                            <Button
-                                style={{
-                                    width: 160,
-                                    overflow: 'hidden',
-                                }}
-                                width="max"
-                                size="xs"
-                                view={stocksBySizes ? 'outlined' : 'outlined-danger'}
-                                pin="clear-clear"
-                            >
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <Text>{`${stocksBySizes.available ?? ''} / ${
-                                        stocksBySizes.all ?? ''
-                                    }`}</Text>
-                                    <div style={{minWidth: 3}} />
-                                    <Icon data={TShirt} size={11} />
-                                </div>
-                            </Button>
-                        ) : (
-                            <></>
-                        )}
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <div
-                                style={{
-                                    width: '100%',
-                                    background: 'var(--g-color-base-generic-hover)',
-                                    height: 0.5,
-                                }}
-                            />
-                            <StocksByWarehousesPopup
-                                stocksByWarehousesArt={stocksByWarehousesArt}
-                            />
-                        </div>
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <div
-                                style={{
-                                    width: '100%',
-                                    background: 'var(--g-color-base-generic-hover)',
-                                    height: 0.5,
-                                }}
-                            />
-                            <ActionTooltip
-                                title={'Показывает прогнозную прибыль и рентабельность артикула'}
-                            >
-                                <Button
-                                    disabled={!Math.round(profit)}
-                                    style={{
-                                        width: 160,
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                    }}
-                                    width="max"
-                                    size="xs"
-                                    view={'flat'}
-                                    pin="clear-clear"
-                                >
-                                    <Text
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            gap: 4,
-                                        }}
-                                        color={
-                                            !Math.round(profit)
-                                                ? undefined
-                                                : profit > 0
-                                                  ? 'positive'
-                                                  : 'danger'
-                                        }
-                                    >
-                                        {`${new Intl.NumberFormat('ru-RU').format(
-                                            Math.round(profit),
-                                        )} ₽ / ${new Intl.NumberFormat('ru-RU').format(
-                                            Math.round(rentabelnost),
-                                        )}%`}
-                                        {warningArtIcon()}
-                                    </Text>
-                                </Button>
-                            </ActionTooltip>
-                        </div>
-                    </Card>
+                    <AnalyticsColumnCard
+                        stocksByWarehousesArt={stocksByWarehouses?.[nmId]}
+                        unvalidatedArts={unvalidatedArts}
+                        row={row}
+                    />
                 );
             },
             sortFunction: (a: any, b: any, order: any) => {
