@@ -176,7 +176,7 @@ export const PayModal = ({children, sellerId, name, setUpdate}: PayModalInterfac
                         gap: 12,
                     }}
                 >
-                    <Text variant="header-1">Подписка на сервис AURUMSKYNET на 30 дней.</Text>
+                    <Text variant="header-1">Подписка на сервис AURUMSKYNET.</Text>
                     <Text>Подписка для магазина {name}</Text>
                     {tariff?.initial !== undefined ? (
                         <motion.div
