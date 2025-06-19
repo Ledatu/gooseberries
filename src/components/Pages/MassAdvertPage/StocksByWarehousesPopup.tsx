@@ -20,10 +20,10 @@ export const StocksByWarehousesPopup = ({stocksByWarehousesArt}: any) => {
                 temp.push(`${warehousesName}: ${quantity}`);
         return temp;
     }, [stocksByWarehousesArt]);
-    // const [anchorElement, setAnchorElement] = useState<HTMLButtonElement | null>(null);
+    const [anchorElement, setAnchorElement] = useState<HTMLButtonElement | null>(null);
     return (
         <>
-            <Popup open={open} hasArrow={false}>
+            <Popup open={open} hasArrow={false} anchorElement={anchorElement}>
                 <div
                     style={{
                         width: 0,
@@ -110,28 +110,39 @@ export const StocksByWarehousesPopup = ({stocksByWarehousesArt}: any) => {
                     </div>
                 </div>
             </Popup>
-            <ActionTooltip title="Показывает остатки на складах">
-                <Button
-                    disabled={!stocksByWarehousesArt}
-                    size="xs"
-                    pin="clear-clear"
-                    view="flat"
-                    // ref={setAnchorElement}
-                    onClick={() => stocksByWarehousesArt && setOpen(!open)}
+            <ActionTooltip style={{width: '100%'}} title="Показывает остатки на складах">
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
                 >
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
+                    <Button
+                        disabled={!stocksByWarehousesArt}
+                        size="xs"
+                        pin="clear-clear"
+                        view="flat"
+                        ref={setAnchorElement}
+                        onClick={() => stocksByWarehousesArt && setOpen(!open)}
+                        style={{width: '100%'}}
                     >
-                        {stocksByWarehousesArt ? Object.keys(stocksByWarehousesArt).length : 0}
-                        <div style={{minWidth: 3}} />
-                        <Icon data={Box} size={11} />
-                    </div>
-                </Button>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            {stocksByWarehousesArt ? Object.keys(stocksByWarehousesArt).length : 0}
+                            <div style={{minWidth: 3}} />
+                            <Icon data={Box} size={11} />
+                        </div>
+                    </Button>
+                </div>
             </ActionTooltip>
         </>
     );

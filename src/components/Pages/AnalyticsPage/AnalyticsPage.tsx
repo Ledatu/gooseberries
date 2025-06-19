@@ -262,6 +262,7 @@ export const AnalyticsPage = () => {
                         <Text color={value > 0 ? 'positive' : 'danger'}>{defaultRender(args)}</Text>
                     );
                 }),
+            tooltipContent: 'Доход с продажи после вычета всех расходов',
         },
         rentabelnost: {
             placeholder: '%Приб.Заказы',
@@ -382,6 +383,7 @@ export const AnalyticsPage = () => {
         romi: {
             planType: 'avg',
             placeholder: 'ROMI, %',
+            tooltipContent: 'Показывает, сколько прибыли получено относительно расходов на рекламу',
             render: (args: any) =>
                 renderWithGraph(args, 'romi', 'ROMI, %', ['romi'], renderAsPercent),
         },
@@ -430,6 +432,7 @@ export const AnalyticsPage = () => {
         cr: {
             placeholder: 'CR, %',
             planType: 'avg',
+            tooltipContent: 'Конверсия из перехода в заказ',
             render: (args: any) => renderWithGraph(args, 'cr', 'CR, %', ['cr'], renderAsPercent),
         },
         addToCartPercent: {
@@ -443,6 +446,7 @@ export const AnalyticsPage = () => {
                     ['addToCartPercent'],
                     renderAsPercent,
                 ),
+            tooltipContent: 'Конверсия из перехода в корзину',
         },
         cartToOrderPercent: {
             placeholder: 'CR в заказ, %',
@@ -455,6 +459,7 @@ export const AnalyticsPage = () => {
                     ['cartToOrderPercent'],
                     renderAsPercent,
                 ),
+            tooltipContent: 'Конверсия из корзины в заказ',
         },
         storageCost: {
             placeholder: 'Хранение, ₽',
@@ -472,17 +477,20 @@ export const AnalyticsPage = () => {
         ctr: {
             placeholder: 'CTR, %',
             planType: 'avg',
+            tooltipContent: 'Кликабельность, соотношение кликов к показам',
             render: (args: any) => renderWithGraph(args, 'ctr', 'CTR, %', ['ctr'], renderAsPercent),
         },
         cpc: {
             placeholder: 'CPC, ₽',
             isReverseGrad: true,
+            tooltipContent: 'Средняя цена клика',
             render: (args: any) => renderWithGraph(args, 'cpc', 'CPC, ₽'),
         },
         cpm: {
             placeholder: 'CPM, ₽',
             isReverseGrad: true,
             render: (args: any) => renderWithGraph(args, 'ctr', 'CPM, ₽'),
+            tooltipContent: 'Средняя цена за 1000 показов',
         },
         openCardCount: {
             placeholder: 'Переходы, шт.',
@@ -502,6 +510,7 @@ export const AnalyticsPage = () => {
             isReverseGrad: true,
             planType: 'avg',
             render: (args: any) => renderWithGraph(args, 'cpl', 'CPL, ₽'),
+            tooltipContent: 'Средняя цена корзины с рекламы',
         },
     };
 
