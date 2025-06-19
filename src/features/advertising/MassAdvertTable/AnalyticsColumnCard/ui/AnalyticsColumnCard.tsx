@@ -25,7 +25,7 @@ export const AnalyticsColumnCard = ({
     const [words, setWords] = useState<string[]>([]);
     useEffect(() => {
         setWords(getWordsWarningArtIcon(nmId, unvalidatedArts));
-    }, [unvalidatedArts]);
+    }, [unvalidatedArts, row]);
 
     const {sellerId} = useCampaign();
     return (
@@ -54,31 +54,31 @@ export const AnalyticsColumnCard = ({
                 </ActionTooltip>
             </div>
             {stocksBySizes && stocksBySizes.all > 1 ? (
-                    <Button
+                <Button
+                    style={{
+                        width: 160,
+                        overflow: 'hidden',
+                    }}
+                    width="max"
+                    size="xs"
+                    view={stocksBySizes ? 'outlined' : 'outlined-danger'}
+                    pin="clear-clear"
+                >
+                    <div
                         style={{
-                            width: 160,
-                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
                         }}
-                        width="max"
-                        size="xs"
-                        view={stocksBySizes ? 'outlined' : 'outlined-danger'}
-                        pin="clear-clear"
                     >
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Text>{`${stocksBySizes.available ?? ''} / ${
-                                stocksBySizes.all ?? ''
-                            }`}</Text>
-                            <div style={{minWidth: 3}} />
-                            <Icon data={TShirt} size={11} />
-                        </div>
-                    </Button>
+                        <Text>{`${stocksBySizes.available ?? ''} / ${
+                            stocksBySizes.all ?? ''
+                        }`}</Text>
+                        <div style={{minWidth: 3}} />
+                        <Icon data={TShirt} size={11} />
+                    </div>
+                </Button>
             ) : (
                 <></>
             )}
