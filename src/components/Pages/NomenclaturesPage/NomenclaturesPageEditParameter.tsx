@@ -24,13 +24,14 @@ export const NomenclaturesPageEditParameter = ({
 
     const keys = {
         factoryArt: {name: 'Артикул фабрики', type: 'text'},
+        resource: {name: 'Ресурс', type: 'text'},
+        resourceConsumption: {name: 'Расход ресурса', type: 'number'},
         myStocks: {name: 'Мои остатки, шт.', type: 'number'},
         multiplicity: {name: 'Кратность короба, шт.', type: 'number'},
         length: {name: 'Длина, см.', type: 'number'},
         width: {name: 'Ширина, см.', type: 'number'},
         height: {name: 'Высота, см.', type: 'number'},
         weight: {name: 'Вес, кг.', type: 'number'},
-        // ktr: {name: 'КТР WB, %', type: 'number'},
         commision: {name: 'Коммисия WB, %', type: 'number'},
         tax: {name: 'Ставка налога, %', type: 'number'},
         expences: {name: 'Доп. расходы, %', type: 'number'},

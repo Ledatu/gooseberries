@@ -384,6 +384,17 @@ export const NomenclaturesPage = () => {
                 additionalNodes: [generateEditButton('factoryArt')],
             },
             {
+                name: 'resource',
+                placeholder: 'Ресурс',
+                valueType: 'text',
+                additionalNodes: [generateEditButton('resource')],
+            },
+            {
+                name: 'resourceConsumption',
+                placeholder: 'Расход ресурса',
+                additionalNodes: [generateEditButton('resourceConsumption')],
+            },
+            {
                 name: 'myStocks',
                 placeholder: 'Мои остатки, шт.',
                 additionalNodes: [generateEditButton('myStocks')],
